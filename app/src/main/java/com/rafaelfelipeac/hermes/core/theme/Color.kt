@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.ui.theme
+package com.rafaelfelipeac.hermes.core.theme
 
 import androidx.compose.ui.graphics.Color
 
