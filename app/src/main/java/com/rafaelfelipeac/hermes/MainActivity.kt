@@ -16,10 +16,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import com.rafaelfelipeac.hermes.core.features.home.presentation.HomeScreen
+import com.rafaelfelipeac.hermes.core.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.theme.HermesTheme
 
 class MainActivity : ComponentActivity() {
@@ -59,26 +61,10 @@ fun HermesApp() {
         }
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-            Greeting(
-                name = "Android",
-                modifier = Modifier.padding(innerPadding)
-            )
+            when (currentDestination) {
+                HOME -> HomeScreen(modifier = Modifier.padding(innerPadding))
+                SETTINGS -> SettingsScreen(modifier = Modifier.padding(innerPadding))
+            }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    HermesTheme {
-        Greeting("Android")
     }
 }
