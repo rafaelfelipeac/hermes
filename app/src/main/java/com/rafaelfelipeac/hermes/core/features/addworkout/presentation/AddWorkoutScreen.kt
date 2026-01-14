@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.features.home.presentation
+package com.rafaelfelipeac.hermes.core.features.addworkout.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -8,10 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun AddWorkoutScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
-            .background(Color.Red)
+            .background(Color.Blue)
             .fillMaxSize()
     ) { }
 }
