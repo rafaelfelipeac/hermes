@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
+fun TrainingWeekScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
             .background(Color.Red)

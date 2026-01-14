@@ -17,7 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.rafaelfelipeac.hermes.core.features.trainingweek.presentation.HomeScreen
+import com.rafaelfelipeac.hermes.core.features.trainingweek.presentation.TrainingWeekScreen
 import com.rafaelfelipeac.hermes.core.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
@@ -62,7 +62,7 @@ fun HermesApp() {
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             when (currentDestination) {
-                HOME -> HomeScreen(modifier = Modifier.padding(innerPadding))
+                HOME -> TrainingWeekScreen(modifier = Modifier.padding(innerPadding))
                 SETTINGS -> SettingsScreen(modifier = Modifier.padding(innerPadding))
             }
         }
