@@ -131,7 +131,6 @@ private fun updateWorkoutOrder(
     val target = workouts.firstOrNull { it.id == workoutId } ?: return workouts
     val remaining = workouts.filterNot { it.id == workoutId }
     val sourceDay = target.dayOfWeek
-
     val updatedByDay = mutableMapOf<DayOfWeek?, List<WorkoutUi>>()
 
     if (sourceDay == newDayOfWeek) {
@@ -142,6 +141,7 @@ private fun updateWorkoutOrder(
         val clampedOrder = newOrder.coerceIn(0, reordered.size)
 
         reordered.add(clampedOrder, target.copy(dayOfWeek = newDayOfWeek))
+
         updatedByDay[sourceDay] = reordered.mapIndexed { index, workout ->
             workout.copy(order = index)
         }

@@ -18,7 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
-import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.TRAINING_WEEK
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
 @PreviewScreenSizes
 @Composable
 fun HermesApp() {
-    var currentDestination by rememberSaveable { mutableStateOf(HOME) }
+    var currentDestination by rememberSaveable { mutableStateOf(TRAINING_WEEK) }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -64,7 +64,7 @@ fun HermesApp() {
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             when (currentDestination) {
-                HOME -> TrainingWeekScreen(modifier = Modifier.padding(innerPadding))
+                TRAINING_WEEK -> TrainingWeekScreen(modifier = Modifier.padding(innerPadding))
                 SETTINGS -> SettingsScreen(modifier = Modifier.padding(innerPadding))
             }
         }

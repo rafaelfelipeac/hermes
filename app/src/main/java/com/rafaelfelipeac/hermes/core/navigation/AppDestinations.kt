@@ -9,6 +9,6 @@ enum class AppDestinations(
     val label: String,
     val icon: ImageVector,
 ) {
-    HOME("Home", Icons.Default.Home),
+    TRAINING_WEEK("Training Week", Icons.Default.Home),
     SETTINGS("Settings", Icons.Default.Settings),
 }

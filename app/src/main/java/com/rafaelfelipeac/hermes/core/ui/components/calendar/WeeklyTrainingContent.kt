@@ -72,7 +72,6 @@ fun WeeklyTrainingContent(
     val sectionBounds = remember { mutableStateMapOf<SectionKey, Rect>() }
     val itemBounds = remember { mutableStateMapOf<WorkoutId, Rect>() }
     var draggedWorkoutId by remember { mutableStateOf<WorkoutId?>(null) }
-
     val workoutsBySection = remember(workouts) {
         sections.associateWith { section ->
             workouts
@@ -101,6 +100,7 @@ fun WeeklyTrainingContent(
                     SectionHeader(title = section.title())
 
                     val items = workoutsBySection[section].orEmpty()
+
                     if (items.isEmpty()) {
                         EmptySectionRow()
                     } else {
@@ -125,6 +125,7 @@ fun WeeklyTrainingContent(
                                         itemBounds
                                     )
                                     val newDay = targetSection.dayOfWeekOrNull()
+
                                     if (newDay != workout.dayOfWeek || newOrder != workout.order) {
                                         onWorkoutMoved(workout.id, newDay, newOrder)
                                     }
@@ -210,9 +211,11 @@ private fun WorkoutRow(
                             onDragEnd = {
                                 val dropPosition = lastDragPosition
                                     ?: dragPositionFromCoordinates(coordinates)
+
                                 if (dropPosition != null) {
                                     onDrop(dropPosition)
                                 }
+
                                 onDragEnded()
                             },
                             onDragCancel = onDragEnded,
@@ -229,13 +232,16 @@ private fun WorkoutRow(
                     text = workout.type,
                     style = MaterialTheme.typography.bodyMedium
                 )
+
                 Text(
                     text = workout.description,
                     style = MaterialTheme.typography.bodySmall
                 )
             }
         }
+
         Spacer(modifier = Modifier.width(8.dp))
+
         Checkbox(
             checked = workout.isCompleted,
             onCheckedChange = onToggleCompleted
@@ -258,6 +264,7 @@ private fun computeOrderForDrop(
     itemBounds: Map<WorkoutId, Rect>
 ): Int {
     val candidates = items.filterNot { it.id == draggedId }
+
     if (candidates.isEmpty()) return 0
 
     val sorted = candidates.sortedBy { it.order }
@@ -265,6 +272,7 @@ private fun computeOrderForDrop(
         val bounds = itemBounds[workout.id] ?: return@indexOfFirst false
         dropPosition.y < bounds.center.y
     }
+
     return if (dropIndex == -1) sorted.size else dropIndex
 }
 

@@ -29,10 +29,13 @@ fun WeeklyCalendarHeader(
     onDateSelected: (LocalDate) -> Unit,
     onWeekChanged: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
-    dayContent: @Composable (date: LocalDate, isSelected: Boolean, hasWorkout: Boolean) -> Unit =
-        { date, isSelected, hasWorkout ->
-            DefaultDayContent(date = date, isSelected = isSelected, hasWorkout = hasWorkout)
-        }
+    dayContent: @Composable (
+        date: LocalDate,
+        isSelected: Boolean,
+        hasWorkout: Boolean
+    ) -> Unit = { date, isSelected, hasWorkout ->
+        DefaultDayContent(date = date, isSelected = isSelected, hasWorkout = hasWorkout)
+    }
 ) {
     val weekEndDate = weekStartDate.plusDays(6)
 
@@ -103,13 +106,12 @@ private fun formatWeekRange(start: LocalDate, end: LocalDate): String {
     val startMonth = start.month.getDisplayName(TextStyle.SHORT, locale)
     val endMonth = end.month.getDisplayName(TextStyle.SHORT, locale)
 
-    return when {
-        start.year == end.year && start.month == end.month ->
+    return when (start.year) {
+        end.year if start.month == end.month ->
             "$startDay-$endDay $startMonth ${start.year}"
-        start.year == end.year ->
+        end.year ->
             "$startDay $startMonth - $endDay $endMonth ${start.year}"
-        else ->
-            "$startDay $startMonth ${start.year} - $endDay $endMonth ${end.year}"
+        else -> "$startDay $startMonth ${start.year} - $endDay $endMonth ${end.year}"
     }
 }
 
