@@ -30,8 +30,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rafaelfelipeac.hermes.R
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -86,7 +88,7 @@ fun WeeklyTrainingContent(
     ) {
         item(key = "add-workout") {
             Button(onClick = onAddWorkout) {
-                Text(text = "Add workout")
+                Text(text = stringResource(R.string.add_workout))
             }
         }
 
@@ -156,7 +158,7 @@ private fun SectionHeader(title: String) {
 @Composable
 private fun EmptySectionRow() {
     Text(
-        text = "No workouts",
+        text = stringResource(R.string.no_workouts),
         style = MaterialTheme.typography.bodySmall,
         modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
     )
@@ -196,7 +198,7 @@ private fun WorkoutRow(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = "Drag",
+                text = stringResource(R.string.drag_label),
                 style = MaterialTheme.typography.labelSmall,
                 modifier = Modifier
                     .padding(end = 12.dp)
@@ -285,9 +287,10 @@ private sealed class SectionKey(val key: String) {
     data class Day(val dayOfWeek: DayOfWeek) : SectionKey(dayOfWeek.name)
 }
 
+@Composable
 private fun SectionKey.title(): String {
     return when (this) {
-        SectionKey.ToBeDefined -> "To be defined"
+        SectionKey.ToBeDefined -> stringResource(R.string.section_to_be_defined)
         is SectionKey.Day -> dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() }
     }
 }

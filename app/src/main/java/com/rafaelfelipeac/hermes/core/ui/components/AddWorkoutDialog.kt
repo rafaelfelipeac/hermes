@@ -14,8 +14,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rafaelfelipeac.hermes.R
 
 @Composable
 fun AddWorkoutDialog(
@@ -28,13 +30,13 @@ fun AddWorkoutDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = "Add workout") },
+        title = { Text(text = stringResource(R.string.add_workout)) },
         text = {
             Column(modifier = modifier) {
                 OutlinedTextField(
                     value = type,
                     onValueChange = { type = it },
-                    label = { Text(text = "Type") },
+                    label = { Text(text = stringResource(R.string.add_workout_type)) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -43,7 +45,7 @@ fun AddWorkoutDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text(text = "Description") },
+                    label = { Text(text = stringResource(R.string.add_workout_description)) },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -53,12 +55,12 @@ fun AddWorkoutDialog(
                 onClick = { onSave(type.trim(), description.trim()) },
                 enabled = type.isNotBlank()
             ) {
-                Text(text = "Add")
+                Text(text = stringResource(R.string.add_workout_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(text = "Cancel")
+                Text(text = stringResource(R.string.add_workout_cancel))
             }
         }
     )

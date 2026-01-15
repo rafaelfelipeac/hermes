@@ -13,9 +13,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rafaelfelipeac.hermes.R
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -46,13 +48,13 @@ fun WeeklyCalendarHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = { onWeekChanged(selectedDate.minusWeeks(1)) }) {
-                Text(text = "<")
+                Text(text = stringResource(R.string.week_previous))
             }
 
             Text(text = formatWeekRange(weekStartDate, weekEndDate))
 
             IconButton(onClick = { onWeekChanged(selectedDate.plusWeeks(1)) }) {
-                Text(text = ">")
+                Text(text = stringResource(R.string.week_next))
             }
         }
 
@@ -90,7 +92,11 @@ private fun DefaultDayContent(
     val label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
         .take(1)
         .uppercase(Locale.getDefault())
-    val indicator = if (hasWorkout) "o" else " "
+    val indicator = if (hasWorkout) {
+        stringResource(R.string.workout_indicator)
+    } else {
+        stringResource(R.string.workout_indicator_empty)
+    }
 
     Text(
         text = label,
