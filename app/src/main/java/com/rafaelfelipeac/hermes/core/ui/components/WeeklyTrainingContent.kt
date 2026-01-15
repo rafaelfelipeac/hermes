@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.dp
 import java.time.DayOfWeek
 import java.time.LocalDate
 
-typealias WorkoutId = String
+typealias WorkoutId = Long
 
 data class WorkoutUi(
     val id: WorkoutId,
@@ -298,7 +298,7 @@ private fun WeeklyTrainingContentPreview() {
         selectedWeekStartDate = LocalDate.of(2026, 1, 12),
         workouts = listOf(
             WorkoutUi(
-                id = "1",
+                id = 1L,
                 dayOfWeek = null,
                 type = "Run",
                 description = "Easy 5k",
@@ -306,7 +306,7 @@ private fun WeeklyTrainingContentPreview() {
                 order = 0
             ),
             WorkoutUi(
-                id = "2",
+                id = 2L,
                 dayOfWeek = DayOfWeek.MONDAY,
                 type = "Swim",
                 description = "Intervals 10x100",
@@ -314,7 +314,7 @@ private fun WeeklyTrainingContentPreview() {
                 order = 0
             ),
             WorkoutUi(
-                id = "3",
+                id = 3L,
                 dayOfWeek = DayOfWeek.WEDNESDAY,
                 type = "Bike",
                 description = "Tempo 45 min",
