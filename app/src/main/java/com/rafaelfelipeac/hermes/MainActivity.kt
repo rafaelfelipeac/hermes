@@ -23,7 +23,9 @@ import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.theme.HermesTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
