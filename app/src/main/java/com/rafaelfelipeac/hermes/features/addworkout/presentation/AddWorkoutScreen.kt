@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.features.addworkout.presentation
+package com.rafaelfelipeac.hermes.features.addworkout.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

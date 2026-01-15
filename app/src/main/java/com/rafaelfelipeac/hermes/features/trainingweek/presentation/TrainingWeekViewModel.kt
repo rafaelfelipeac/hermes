@@ -1,7 +1,7 @@
-package com.rafaelfelipeac.hermes.core.features.trainingweek.presentation
+package com.rafaelfelipeac.hermes.features.trainingweek.presentation
 
 import androidx.lifecycle.ViewModel
-import com.rafaelfelipeac.hermes.core.features.trainingweek.domain.repository.TrainingWeekRepository
+import com.rafaelfelipeac.hermes.features.trainingweek.domain.repository.TrainingWeekRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

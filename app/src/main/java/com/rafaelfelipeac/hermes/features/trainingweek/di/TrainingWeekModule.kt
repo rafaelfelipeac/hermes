@@ -1,7 +1,7 @@
-package com.rafaelfelipeac.hermes.core.features.trainingweek.di
+package com.rafaelfelipeac.hermes.features.trainingweek.di
 
-import com.rafaelfelipeac.hermes.core.features.trainingweek.data.TrainingWeekRepositoryImpl
-import com.rafaelfelipeac.hermes.core.features.trainingweek.domain.repository.TrainingWeekRepository
+import com.rafaelfelipeac.hermes.features.trainingweek.data.TrainingWeekRepositoryImpl
+import com.rafaelfelipeac.hermes.features.trainingweek.domain.repository.TrainingWeekRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

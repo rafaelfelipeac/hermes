@@ -1,0 +1,3 @@
+package com.rafaelfelipeac.hermes.features.trainingweek.domain.repository
+
+interface TrainingWeekRepository

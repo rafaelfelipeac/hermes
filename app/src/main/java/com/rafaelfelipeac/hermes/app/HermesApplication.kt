@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.app
+package com.rafaelfelipeac.hermes.app
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

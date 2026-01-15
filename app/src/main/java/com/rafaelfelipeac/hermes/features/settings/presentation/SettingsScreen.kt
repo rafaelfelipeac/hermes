@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.features.settings.presentation
+package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
