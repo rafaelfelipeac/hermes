@@ -1,6 +1,6 @@
 package com.rafaelfelipeac.hermes.features.trainingweek.presentation
 
-import com.rafaelfelipeac.hermes.core.ui.components.WorkoutUi
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.WorkoutUi
 import java.time.DayOfWeek
 import java.time.LocalDate
 

@@ -9,6 +9,7 @@ import java.time.LocalDate
 
 @Dao
 interface WorkoutDao {
+
     @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<WorkoutEntity>>
 

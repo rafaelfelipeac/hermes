@@ -1,8 +1,8 @@
-package com.rafaelfelipeac.hermes.core.data.di
+package com.rafaelfelipeac.hermes.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.rafaelfelipeac.hermes.core.data.local.HermesDatabase
+import com.rafaelfelipeac.hermes.core.database.HermesDatabase
 import com.rafaelfelipeac.hermes.features.trainingweek.data.local.WorkoutDao
 import dagger.Module
 import dagger.Provides

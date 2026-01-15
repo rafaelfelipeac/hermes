@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.theme
+package com.rafaelfelipeac.hermes.core.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.features.addworkout.presentation
+package com.rafaelfelipeac.hermes.core.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -37,7 +37,9 @@ fun AddWorkoutDialog(
                     label = { Text(text = "Type") },
                     modifier = Modifier.fillMaxWidth()
                 )
+
                 Spacer(modifier = Modifier.height(12.dp))
+
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },

@@ -6,6 +6,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 
 interface TrainingWeekRepository {
+
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>>
 
     suspend fun addWorkout(

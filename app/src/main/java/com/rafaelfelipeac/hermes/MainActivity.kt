@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
-import com.rafaelfelipeac.hermes.core.theme.HermesTheme
+import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.trainingweek.presentation.TrainingWeekScreen
 import dagger.hilt.android.AndroidEntryPoint

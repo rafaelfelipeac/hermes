@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.data.local
+package com.rafaelfelipeac.hermes.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

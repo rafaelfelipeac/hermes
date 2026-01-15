@@ -12,9 +12,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.rafaelfelipeac.hermes.core.ui.components.WeeklyCalendarHeader
-import com.rafaelfelipeac.hermes.core.ui.components.WeeklyTrainingContent
-import com.rafaelfelipeac.hermes.features.addworkout.presentation.AddWorkoutDialog
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyTrainingContent
+import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 
 @Composable
 fun TrainingWeekScreen(
@@ -22,6 +22,7 @@ fun TrainingWeekScreen(
     viewModel: TrainingWeekViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     Column(
@@ -51,6 +52,7 @@ fun TrainingWeekScreen(
             onDismiss = { isAddDialogVisible = false },
             onSave = { type, description ->
                 viewModel.addWorkout(type, description)
+
                 isAddDialogVisible = false
             }
         )

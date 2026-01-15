@@ -2,7 +2,7 @@ package com.rafaelfelipeac.hermes.features.trainingweek.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafaelfelipeac.hermes.core.ui.components.WorkoutUi
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.WorkoutUi
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.repository.TrainingWeekRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +24,7 @@ import javax.inject.Inject
 class TrainingWeekViewModel @Inject constructor(
     private val repository: TrainingWeekRepository
 ) : ViewModel() {
+
     private val selectedDate = MutableStateFlow(LocalDate.now())
     private val weekStartDate = selectedDate
         .map { it.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)) }
@@ -84,6 +85,7 @@ class TrainingWeekViewModel @Inject constructor(
         val updated = updateWorkoutOrder(currentWorkouts, workoutId, newDayOfWeek, newOrder)
         val changes = updated.mapNotNull { workout ->
             val original = currentWorkouts.firstOrNull { it.id == workout.id } ?: return@mapNotNull null
+
             if (original.dayOfWeek != workout.dayOfWeek || original.order != workout.order) {
                 workout
             } else {
@@ -131,12 +133,14 @@ private fun updateWorkoutOrder(
     val sourceDay = target.dayOfWeek
 
     val updatedByDay = mutableMapOf<DayOfWeek?, List<WorkoutUi>>()
+
     if (sourceDay == newDayOfWeek) {
         val reordered = remaining
             .filter { it.dayOfWeek == sourceDay }
             .sortedBy { it.order }
             .toMutableList()
         val clampedOrder = newOrder.coerceIn(0, reordered.size)
+
         reordered.add(clampedOrder, target.copy(dayOfWeek = newDayOfWeek))
         updatedByDay[sourceDay] = reordered.mapIndexed { index, workout ->
             workout.copy(order = index)
@@ -145,6 +149,7 @@ private fun updateWorkoutOrder(
         val sourceList = remaining
             .filter { it.dayOfWeek == sourceDay }
             .sortedBy { it.order }
+
         updatedByDay[sourceDay] = sourceList.mapIndexed { index, workout ->
             workout.copy(order = index)
         }
@@ -154,7 +159,9 @@ private fun updateWorkoutOrder(
             .sortedBy { it.order }
             .toMutableList()
         val clampedOrder = newOrder.coerceIn(0, destinationList.size)
+
         destinationList.add(clampedOrder, target.copy(dayOfWeek = newDayOfWeek))
+
         updatedByDay[newDayOfWeek] = destinationList.mapIndexed { index, workout ->
             workout.copy(order = index)
         }
@@ -162,5 +169,6 @@ private fun updateWorkoutOrder(
 
     val updatedDays = updatedByDay.keys
     val untouched = remaining.filterNot { updatedDays.contains(it.dayOfWeek) }
+
     return untouched + updatedByDay.values.flatten()
 }

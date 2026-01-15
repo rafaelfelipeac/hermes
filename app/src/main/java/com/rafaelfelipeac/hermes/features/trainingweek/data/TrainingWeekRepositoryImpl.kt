@@ -13,6 +13,7 @@ import javax.inject.Inject
 class TrainingWeekRepositoryImpl @Inject constructor(
     private val workoutDao: WorkoutDao
 ) : TrainingWeekRepository {
+
     override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> {
         return workoutDao.observeWorkoutsForWeek(weekStartDate).map { entities ->
             entities.map { it.toDomain() }
@@ -34,6 +35,7 @@ class TrainingWeekRepositoryImpl @Inject constructor(
             isCompleted = false,
             sortOrder = order
         )
+
         return workoutDao.insert(entity)
     }
 
