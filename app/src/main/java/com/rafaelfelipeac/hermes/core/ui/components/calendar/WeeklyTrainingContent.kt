@@ -2,7 +2,8 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.DragIndicator
@@ -26,6 +28,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +56,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenDark
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenLight
 import java.time.DayOfWeek
 import java.time.LocalDate
+import kotlinx.coroutines.delay
 
 typealias WorkoutId = Long
 
@@ -94,7 +98,9 @@ fun WeeklyTrainingContent(
     val itemBounds = remember { mutableStateMapOf<WorkoutId, Rect>() }
     var draggedWorkoutId by remember { mutableStateOf<WorkoutId?>(null) }
     var dragPosition by remember { mutableStateOf<Offset?>(null) }
-    var containerOffset by remember { mutableStateOf(Offset.Zero) }
+    var draggedItemHeight by remember { mutableStateOf(0f) }
+    var containerBounds by remember { mutableStateOf(Rect.Zero) }
+    val listState = rememberLazyListState()
     val workoutsBySection = remember(workouts) {
         sections.associateWith { section ->
             workouts
@@ -104,13 +110,79 @@ fun WeeklyTrainingContent(
     }
     val draggedWorkout = draggedWorkoutId?.let { id -> workouts.firstOrNull { it.id == id } }
 
-    Box(
-        modifier = modifier.onGloballyPositioned {
-            val bounds = it.boundsInRoot()
-            containerOffset = Offset(bounds.left, bounds.top)
+    LaunchedEffect(draggedWorkoutId) {
+        while (draggedWorkoutId != null) {
+            val position = dragPosition
+            if (position != null && containerBounds != Rect.Zero) {
+                val edge = 96f
+                val maxSpeed = 18f
+                val safeTop = containerBounds.top + 16f
+                val safeBottom = containerBounds.bottom - 16f
+                val clampedPosition = Offset(
+                    position.x,
+                    position.y.coerceIn(safeTop, safeBottom)
+                )
+                if (clampedPosition != position) {
+                    dragPosition = clampedPosition
+                }
+                val distanceToTop = clampedPosition.y - containerBounds.top
+                val distanceToBottom = containerBounds.bottom - clampedPosition.y
+                val scrollDelta = when {
+                    distanceToTop < edge && listState.canScrollBackward -> {
+                        -maxSpeed * (1f - (distanceToTop / edge))
+                    }
+                    distanceToBottom < edge && listState.canScrollForward -> {
+                        maxSpeed * (1f - (distanceToBottom / edge))
+                    }
+                    else -> 0f
+                }
+                if (scrollDelta != 0f) {
+                    listState.scrollBy(scrollDelta)
+                }
+            }
+            delay(16)
         }
+    }
+
+    Box(
+        modifier = modifier
+            .onGloballyPositioned {
+                containerBounds = it.boundsInRoot()
+            }
+            .pointerInput(draggedWorkoutId, containerBounds) {
+                awaitPointerEventScope {
+                    while (true) {
+                        val event = awaitPointerEvent()
+                        val change = event.changes.firstOrNull() ?: continue
+                        val activeId = draggedWorkoutId ?: continue
+                        if (containerBounds == Rect.Zero) continue
+
+                        val root = Offset(
+                            containerBounds.left + change.position.x,
+                            containerBounds.top + change.position.y
+                        )
+                        dragPosition = root
+                        if (!change.pressed) {
+                            handleDrop(
+                                draggedWorkoutId = activeId,
+                                dragPosition = root,
+                                workouts = workouts,
+                                workoutsBySection = workoutsBySection,
+                                sectionBounds = sectionBounds,
+                                itemBounds = itemBounds,
+                                onWorkoutMoved = onWorkoutMoved
+                            )
+                            draggedWorkoutId = null
+                            dragPosition = null
+                            draggedItemHeight = 0f
+                        }
+                    }
+                }
+            }
     ) {
         LazyColumn(
+            state = listState,
+            userScrollEnabled = draggedWorkoutId == null,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item(key = "add-workout") {
@@ -143,40 +215,20 @@ fun WeeklyTrainingContent(
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
 
-                                WorkoutRow(
-                                    workout = workout,
-                                    isDragging = draggedWorkoutId == workout.id,
-                                    onToggleCompleted = { checked ->
-                                        onWorkoutCompletionChanged(workout.id, checked)
-                                    },
-                                    onDrop = { dropPosition ->
-                                        val targetSection = findTargetSection(
-                                            dropPosition,
-                                            sectionBounds,
-                                            section
-                                        )
-                                        val targetItems = workoutsBySection[targetSection].orEmpty()
-                                        val newOrder = computeOrderForDrop(
-                                            dropPosition,
-                                            targetItems,
-                                            workout.id,
-                                            itemBounds
-                                        )
-                                        val newDay = targetSection.dayOfWeekOrNull()
-
-                                        if (newDay != workout.dayOfWeek || newOrder != workout.order) {
-                                            onWorkoutMoved(workout.id, newDay, newOrder)
-                                        }
-                                    },
-                                    onDragStarted = { draggedWorkoutId = workout.id },
-                                    onDragEnded = {
-                                        draggedWorkoutId = null
-                                        dragPosition = null
-                                    },
-                                    onDragPositionChanged = { dragPosition = it },
+                            WorkoutRow(
+                                workout = workout,
+                                isDragging = draggedWorkoutId == workout.id,
+                                onToggleCompleted = { checked ->
+                                    onWorkoutCompletionChanged(workout.id, checked)
+                                },
+                                onDragStarted = { position, height ->
+                                    draggedWorkoutId = workout.id
+                                    dragPosition = position
+                                    draggedItemHeight = height
+                                },
                                     onItemPositioned = { itemBounds[workout.id] = it }
-                            )
-                        }
+                                )
+                            }
                     }
                 }
                 Divider(
@@ -188,9 +240,12 @@ fun WeeklyTrainingContent(
         }
 
         if (draggedWorkout != null && dragPosition != null) {
-            val bounds = itemBounds[draggedWorkout.id]
-            val ghostHeight = bounds?.height ?: 0f
-            val ghostYOffset = dragPosition!!.y - containerOffset.y - ghostHeight / 2f
+            val ghostHeight = if (draggedItemHeight > 0f) {
+                draggedItemHeight
+            } else {
+                itemBounds[draggedWorkout.id]?.height ?: 0f
+            }
+            val ghostYOffset = dragPosition!!.y - containerBounds.top - ghostHeight / 2f
             GhostWorkoutRow(
                 workout = draggedWorkout,
                 modifier = Modifier.graphicsLayer {
@@ -224,14 +279,10 @@ private fun WorkoutRow(
     workout: WorkoutUi,
     isDragging: Boolean,
     onToggleCompleted: (Boolean) -> Unit,
-    onDrop: (Offset) -> Unit,
-    onDragPositionChanged: (Offset) -> Unit,
-    onDragStarted: () -> Unit,
-    onDragEnded: () -> Unit,
+    onDragStarted: (Offset, Float) -> Unit,
     onItemPositioned: (Rect) -> Unit
 ) {
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
-    var lastDragPosition by remember { mutableStateOf<Offset?>(null) }
     val colors = workoutRowColors(workout, isDragging = isDragging)
     val rowModifier = Modifier
         .fillMaxWidth()
@@ -274,32 +325,12 @@ private fun WorkoutRow(
                     .size(24.dp)
                     .clickable(enabled = false) {}
                     .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = { offset ->
-                                onDragStarted()
-                                coordinates?.localToRoot(offset)?.let {
-                                    lastDragPosition = it
-                                    onDragPositionChanged(it)
-                                }
-                            },
-                            onDragEnd = {
-                                val dropPosition = lastDragPosition
-                                    ?: dragPositionFromCoordinates(coordinates)
-
-                                if (dropPosition != null) {
-                                    onDrop(dropPosition)
-                                }
-
-                                onDragEnded()
-                            },
-                            onDragCancel = onDragEnded,
-                            onDrag = { change, _ ->
-                                coordinates?.localToRoot(change.position)?.let {
-                                    lastDragPosition = it
-                                    onDragPositionChanged(it)
-                                }
+                        awaitPointerEventScope {
+                            val down = awaitFirstDown(requireUnconsumed = false)
+                            coordinates?.localToRoot(down.position)?.let {
+                                onDragStarted(it, itemBoundsHeight(coordinates))
                             }
-                        )
+                        }
                     }
             )
             Column {
@@ -460,8 +491,29 @@ private fun computeOrderForDrop(
     return if (dropIndex == -1) sorted.size else dropIndex
 }
 
-private fun dragPositionFromCoordinates(coordinates: LayoutCoordinates?): Offset? {
-    return coordinates?.boundsInRoot()?.center
+private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
+    return coordinates?.boundsInRoot()?.height ?: 0f
+}
+
+private fun handleDrop(
+    draggedWorkoutId: WorkoutId,
+    dragPosition: Offset,
+    workouts: List<WorkoutUi>,
+    workoutsBySection: Map<SectionKey, List<WorkoutUi>>,
+    sectionBounds: Map<SectionKey, Rect>,
+    itemBounds: Map<WorkoutId, Rect>,
+    onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit
+) {
+    val workout = workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
+    val fallbackSection = workout.dayOfWeek.toSectionKey()
+    val targetSection = findTargetSection(dragPosition, sectionBounds, fallbackSection)
+    val targetItems = workoutsBySection[targetSection].orEmpty()
+    val newOrder = computeOrderForDrop(dragPosition, targetItems, workout.id, itemBounds)
+    val newDay = targetSection.dayOfWeekOrNull()
+
+    if (newDay != workout.dayOfWeek || newOrder != workout.order) {
+        onWorkoutMoved(workout.id, newDay, newOrder)
+    }
 }
 
 private sealed class SectionKey(val key: String) {
