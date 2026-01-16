@@ -2,8 +2,9 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,28 +29,26 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material.icons.outlined.Close
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
@@ -56,9 +56,9 @@ import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContentDark
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContentLight
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenDark
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenLight
+import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
-import kotlinx.coroutines.delay
 
 typealias WorkoutId = Long
 
@@ -378,11 +378,34 @@ private fun WorkoutRow(
                 }
             }
 
-            if (!workout.isRestDay) {
-                Checkbox(
-                    checked = workout.isCompleted,
-                    onCheckedChange = onToggleCompleted
-                )
+        }
+
+        if (!workout.isRestDay) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = (-26).dp, y = (-4).dp)
+                    .padding(top = 4.dp)
+                    .size(20.dp)
+            ) {
+                if (workout.isCompleted) {
+                    Text(
+                        text = "👍",
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .clickable { onToggleCompleted(false) }
+                            .size(24.dp)
+                    )
+                } else {
+                    Checkbox(
+                        checked = workout.isCompleted,
+                        onCheckedChange = onToggleCompleted,
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .padding(top = 4.dp)
+                            .size(20.dp)
+                    )
+                }
             }
         }
 
@@ -392,11 +415,7 @@ private fun WorkoutRow(
             tint = colors.content,
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(2.dp)
-                .graphicsLayer {
-                    translationX = 24f
-                    translationY = -24f
-                }
+                .offset(x = 4.dp, y = (-4).dp)
                 .size(14.dp)
                 .clickable { onDelete() }
         )
