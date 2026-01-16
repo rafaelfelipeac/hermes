@@ -23,14 +23,25 @@ import com.rafaelfelipeac.hermes.R
 fun AddWorkoutDialog(
     onDismiss: () -> Unit,
     onSave: (type: String, description: String) -> Unit,
+    isEdit: Boolean,
+    initialType: String = "",
+    initialDescription: String = "",
     modifier: Modifier = Modifier
 ) {
-    var type by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
+    var type by rememberSaveable { mutableStateOf(initialType) }
+    var description by rememberSaveable { mutableStateOf(initialDescription) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(text = stringResource(R.string.add_workout)) },
+        title = {
+            Text(
+                text = if (isEdit) {
+                    stringResource(R.string.edit_workout)
+                } else {
+                    stringResource(R.string.add_workout)
+                }
+            )
+        },
         text = {
             Column(modifier = modifier) {
                 OutlinedTextField(
@@ -55,7 +66,13 @@ fun AddWorkoutDialog(
                 onClick = { onSave(type.trim(), description.trim()) },
                 enabled = type.isNotBlank()
             ) {
-                Text(text = stringResource(R.string.add_workout_confirm))
+                Text(
+                    text = if (isEdit) {
+                        stringResource(R.string.save_changes)
+                    } else {
+                        stringResource(R.string.add_workout_confirm)
+                    }
+                )
             }
         },
         dismissButton = {
@@ -71,6 +88,7 @@ fun AddWorkoutDialog(
 private fun AddWorkoutDialogPreview() {
     AddWorkoutDialog(
         onDismiss = {},
-        onSave = { _, _ -> }
+        onSave = { _, _ -> },
+        isEdit = false
     )
 }

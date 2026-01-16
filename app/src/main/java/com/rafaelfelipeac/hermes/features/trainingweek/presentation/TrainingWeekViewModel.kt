@@ -128,6 +128,23 @@ class TrainingWeekViewModel @Inject constructor(
             repository.updateWorkoutCompletion(workoutId, isCompleted)
         }
     }
+
+    fun updateWorkoutDetails(
+        workoutId: Long,
+        type: String,
+        description: String,
+        isRestDay: Boolean
+    ) {
+        viewModelScope.launch {
+            repository.updateWorkoutDetails(workoutId, type, description, isRestDay)
+        }
+    }
+
+    fun deleteWorkout(workoutId: Long) {
+        viewModelScope.launch {
+            repository.deleteWorkout(workoutId)
+        }
+    }
 }
 
 private fun Workout.toUi(): WorkoutUi {

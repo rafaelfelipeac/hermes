@@ -24,4 +24,10 @@ interface WorkoutDao {
 
     @Query("UPDATE workouts SET dayOfWeek = :dayOfWeek, sort_order = :order WHERE id = :id")
     suspend fun updateDayAndOrder(id: Long, dayOfWeek: Int?, order: Int)
+
+    @Query("UPDATE workouts SET type = :type, description = :description, isRestDay = :isRestDay WHERE id = :id")
+    suspend fun updateDetails(id: Long, type: String, description: String, isRestDay: Boolean)
+
+    @Query("DELETE FROM workouts WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }

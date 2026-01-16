@@ -34,4 +34,13 @@ interface TrainingWeekRepository {
         workoutId: Long,
         isCompleted: Boolean
     )
+
+    suspend fun updateWorkoutDetails(
+        workoutId: Long,
+        type: String,
+        description: String,
+        isRestDay: Boolean
+    )
+
+    suspend fun deleteWorkout(workoutId: Long)
 }

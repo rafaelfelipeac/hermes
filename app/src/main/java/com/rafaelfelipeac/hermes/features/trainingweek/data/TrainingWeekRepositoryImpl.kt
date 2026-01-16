@@ -70,6 +70,19 @@ class TrainingWeekRepositoryImpl @Inject constructor(
     ) {
         workoutDao.updateCompletion(workoutId, isCompleted)
     }
+
+    override suspend fun updateWorkoutDetails(
+        workoutId: Long,
+        type: String,
+        description: String,
+        isRestDay: Boolean
+    ) {
+        workoutDao.updateDetails(workoutId, type, description, isRestDay)
+    }
+
+    override suspend fun deleteWorkout(workoutId: Long) {
+        workoutDao.deleteById(workoutId)
+    }
 }
 
 private fun WorkoutEntity.toDomain(): Workout {

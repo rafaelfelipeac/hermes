@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -26,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -78,6 +80,8 @@ fun WeeklyTrainingContent(
     onAddRestDay: () -> Unit,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
     onWorkoutCompletionChanged: (WorkoutId, Boolean) -> Unit,
+    onWorkoutEdit: (WorkoutUi) -> Unit,
+    onWorkoutDelete: (WorkoutUi) -> Unit,
     onDominantDayChanged: (LocalDate) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -226,9 +230,11 @@ fun WeeklyTrainingContent(
                                     dragPosition = position
                                     draggedItemHeight = height
                                 },
-                                    onItemPositioned = { itemBounds[workout.id] = it }
-                                )
-                            }
+                                onEdit = { onWorkoutEdit(workout) },
+                                onDelete = { onWorkoutDelete(workout) },
+                                onItemPositioned = { itemBounds[workout.id] = it }
+                            )
+                        }
                     }
                 }
                 Divider(
@@ -280,6 +286,8 @@ private fun WorkoutRow(
     isDragging: Boolean,
     onToggleCompleted: (Boolean) -> Unit,
     onDragStarted: (Offset, Float) -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
     onItemPositioned: (Rect) -> Unit
 ) {
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
@@ -307,74 +315,91 @@ private fun WorkoutRow(
             }
         )
 
-    Row(
-        modifier = rowModifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    Box(modifier = rowModifier) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f)
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                imageVector = Icons.Outlined.DragIndicator,
-                contentDescription = stringResource(R.string.drag_label),
-                tint = colors.content,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .padding(end = 12.dp)
-                    .size(24.dp)
-                    .clickable(enabled = false) {}
-                    .pointerInput(Unit) {
-                        awaitPointerEventScope {
-                            val down = awaitFirstDown(requireUnconsumed = false)
-                            coordinates?.localToRoot(down.position)?.let {
-                                onDragStarted(it, itemBoundsHeight(coordinates))
+                    .weight(1f)
+                    .clickable(enabled = !workout.isRestDay) { onEdit() }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.DragIndicator,
+                    contentDescription = stringResource(R.string.drag_label),
+                    tint = colors.content,
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size(24.dp)
+                        .clickable(enabled = false) {}
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                val down = awaitFirstDown(requireUnconsumed = false)
+                                coordinates?.localToRoot(down.position)?.let {
+                                    onDragStarted(it, itemBoundsHeight(coordinates))
+                                }
                             }
                         }
+                )
+                Column {
+                    if (workout.isRestDay) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Outlined.Bedtime,
+                                contentDescription = null,
+                                tint = colors.content,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.rest_day_label),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = colors.content
+                            )
+                        }
+                    } else {
+                        TypeChip(
+                            label = workout.type,
+                            containerColor = colors.content.copy(alpha = 0.18f),
+                            contentColor = colors.content
+                        )
                     }
-            )
-            Column {
-            if (workout.isRestDay) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Outlined.Bedtime,
-                        contentDescription = null,
-                        tint = colors.content,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = stringResource(R.string.rest_day_label),
-                        style = MaterialTheme.typography.titleSmall,
-                        color = colors.content
-                    )
+
+                    if (workout.description.isNotBlank()) {
+                        Text(
+                            text = workout.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colors.content
+                        )
+                    }
                 }
-            } else {
-                TypeChip(
-                    label = workout.type,
-                    containerColor = colors.content.copy(alpha = 0.18f),
-                    contentColor = colors.content
-                )
             }
 
-            if (workout.description.isNotBlank()) {
-                Text(
-                    text = workout.description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.content
+            if (!workout.isRestDay) {
+                Checkbox(
+                    checked = workout.isCompleted,
+                    onCheckedChange = onToggleCompleted
                 )
             }
         }
-    }
 
-    Spacer(modifier = Modifier.width(8.dp))
-
-        if (!workout.isRestDay) {
-            Checkbox(
-                checked = workout.isCompleted,
-                onCheckedChange = onToggleCompleted
-            )
-        }
+        Icon(
+            imageVector = Icons.Outlined.Close,
+            contentDescription = stringResource(R.string.delete_workout),
+            tint = colors.content,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(2.dp)
+                .graphicsLayer {
+                    translationX = 24f
+                    translationY = -24f
+                }
+                .size(14.dp)
+                .clickable { onDelete() }
+        )
     }
 }
 
@@ -603,6 +628,8 @@ private fun WeeklyTrainingContentPreview() {
         onAddWorkout = {},
         onAddRestDay = {},
         onWorkoutMoved = { _, _, _ -> },
-        onWorkoutCompletionChanged = { _, _ -> }
+        onWorkoutCompletionChanged = { _, _ -> },
+        onWorkoutEdit = {},
+        onWorkoutDelete = {}
     )
 }

@@ -6,6 +6,14 @@
     <string name="add_workout_description">Description</string>
     <string name="add_workout_confirm">Add</string>
     <string name="add_workout_cancel">Cancel</string>
+    <string name="edit_workout">Edit workout</string>
+    <string name="save_changes">Save</string>
+    <string name="delete_workout">Delete workout</string>
+    <string name="delete_workout_title">Delete workout?</string>
+    <string name="delete_workout_message">This action cannot be undone.</string>
+    <string name="delete_rest_day">Delete rest day</string>
+    <string name="delete_rest_day_title">Delete rest day?</string>
+    <string name="delete_rest_day_message">This action cannot be undone.</string>
     <string name="no_workouts">No workouts</string>
     <string name="drag_label">Drag handle</string>
     <string name="section_to_be_defined">To be defined</string>
