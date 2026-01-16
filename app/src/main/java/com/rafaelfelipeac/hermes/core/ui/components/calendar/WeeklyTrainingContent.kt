@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -42,8 +43,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreen
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContent
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContentDark
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContentLight
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenDark
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenLight
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -201,15 +204,18 @@ private fun WorkoutRow(
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var lastDragPosition by remember { mutableStateOf<Offset?>(null) }
     val colorScheme = MaterialTheme.colorScheme
+    val isDarkTheme = isSystemInDarkTheme()
+    val completedColor = if (isDarkTheme) CompletedGreenDark else CompletedGreenLight
+    val completedContent = if (isDarkTheme) CompletedGreenContentDark else CompletedGreenContentLight
     val rowColor = when {
         isDragging -> colorScheme.surfaceVariant
         workout.isRestDay -> colorScheme.surfaceVariant
-        workout.isCompleted -> CompletedGreen
+        workout.isCompleted -> completedColor
         else -> colorScheme.primaryContainer
     }
     val contentColor = when {
         workout.isRestDay -> colorScheme.onSurfaceVariant
-        workout.isCompleted -> CompletedGreenContent
+        workout.isCompleted -> completedContent
         else -> colorScheme.onPrimaryContainer
     }
     val rowModifier = Modifier
