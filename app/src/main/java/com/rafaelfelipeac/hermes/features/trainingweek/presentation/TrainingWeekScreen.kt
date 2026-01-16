@@ -33,7 +33,7 @@ fun TrainingWeekScreen(
         WeeklyCalendarHeader(
             selectedDate = state.selectedDate,
             weekStartDate = state.weekStartDate,
-            daysWithWorkouts = state.daysWithWorkouts,
+            dayIndicators = state.dayIndicators,
             onDateSelected = viewModel::onDateSelected,
             onWeekChanged = viewModel::onWeekChanged
         )
@@ -42,6 +42,7 @@ fun TrainingWeekScreen(
             selectedWeekStartDate = state.weekStartDate,
             workouts = state.workouts,
             onAddWorkout = { isAddDialogVisible = true },
+            onAddRestDay = viewModel::addRestDay,
             onWorkoutMoved = viewModel::moveWorkout,
             onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion
         )

@@ -14,6 +14,13 @@ interface TrainingWeekRepository {
         dayOfWeek: DayOfWeek?,
         type: String,
         description: String,
+        isRestDay: Boolean,
+        order: Int
+    ): Long
+
+    suspend fun addRestDay(
+        weekStartDate: LocalDate,
+        dayOfWeek: DayOfWeek?,
         order: Int
     ): Long
 

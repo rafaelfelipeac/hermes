@@ -75,6 +75,20 @@ class TrainingWeekViewModel @Inject constructor(
                 dayOfWeek = null,
                 type = type,
                 description = description,
+                isRestDay = false,
+                order = nextOrder
+            )
+        }
+    }
+
+    fun addRestDay() {
+        val currentState = state.value
+        val nextOrder = currentState.workouts.count { it.dayOfWeek == null }
+
+        viewModelScope.launch {
+            repository.addRestDay(
+                weekStartDate = currentState.weekStartDate,
+                dayOfWeek = null,
                 order = nextOrder
             )
         }
@@ -82,7 +96,12 @@ class TrainingWeekViewModel @Inject constructor(
 
     fun moveWorkout(workoutId: Long, newDayOfWeek: DayOfWeek?, newOrder: Int) {
         val currentWorkouts = state.value.workouts
-        val updated = updateWorkoutOrder(currentWorkouts, workoutId, newDayOfWeek, newOrder)
+        val updated = updateWorkoutOrderWithRestDayRules(
+            currentWorkouts,
+            workoutId,
+            newDayOfWeek,
+            newOrder
+        )
         val changes = updated.mapNotNull { workout ->
             val original = currentWorkouts.firstOrNull { it.id == workout.id } ?: return@mapNotNull null
 
@@ -118,11 +137,12 @@ private fun Workout.toUi(): WorkoutUi {
         type = type,
         description = description,
         isCompleted = isCompleted,
+        isRestDay = isRestDay,
         order = order
     )
 }
 
-private fun updateWorkoutOrder(
+private fun updateWorkoutOrderWithRestDayRules(
     workouts: List<WorkoutUi>,
     workoutId: Long,
     newDayOfWeek: DayOfWeek?,
@@ -131,44 +151,41 @@ private fun updateWorkoutOrder(
     val target = workouts.firstOrNull { it.id == workoutId } ?: return workouts
     val remaining = workouts.filterNot { it.id == workoutId }
     val sourceDay = target.dayOfWeek
-    val updatedByDay = mutableMapOf<DayOfWeek?, List<WorkoutUi>>()
 
-    if (sourceDay == newDayOfWeek) {
-        val reordered = remaining
-            .filter { it.dayOfWeek == sourceDay }
-            .sortedBy { it.order }
-            .toMutableList()
-        val clampedOrder = newOrder.coerceIn(0, reordered.size)
-
-        reordered.add(clampedOrder, target.copy(dayOfWeek = newDayOfWeek))
-
-        updatedByDay[sourceDay] = reordered.mapIndexed { index, workout ->
-            workout.copy(order = index)
+    val adjusted = remaining.map { workout ->
+        if (newDayOfWeek == workout.dayOfWeek && target.isRestDay) {
+            workout.copy(dayOfWeek = null)
+        } else if (!target.isRestDay && workout.isRestDay && workout.dayOfWeek == newDayOfWeek) {
+            workout.copy(dayOfWeek = null)
+        } else {
+            workout
         }
-    } else {
-        val sourceList = remaining
-            .filter { it.dayOfWeek == sourceDay }
-            .sortedBy { it.order }
+    }.toMutableList()
 
-        updatedByDay[sourceDay] = sourceList.mapIndexed { index, workout ->
-            workout.copy(order = index)
-        }
-
-        val destinationList = remaining
-            .filter { it.dayOfWeek == newDayOfWeek }
-            .sortedBy { it.order }
-            .toMutableList()
-        val clampedOrder = newOrder.coerceIn(0, destinationList.size)
-
-        destinationList.add(clampedOrder, target.copy(dayOfWeek = newDayOfWeek))
-
-        updatedByDay[newDayOfWeek] = destinationList.mapIndexed { index, workout ->
-            workout.copy(order = index)
-        }
+    val updatedTarget = target.copy(dayOfWeek = newDayOfWeek)
+    val destinationList = adjusted
+        .filter { it.dayOfWeek == newDayOfWeek }
+        .sortedBy { it.order }
+        .toMutableList()
+    val clampedOrder = newOrder.coerceIn(0, destinationList.size)
+    destinationList.add(clampedOrder, updatedTarget)
+    val normalizedDestination = destinationList.mapIndexed { index, workout ->
+        workout.copy(order = index)
     }
 
-    val updatedDays = updatedByDay.keys
-    val untouched = remaining.filterNot { updatedDays.contains(it.dayOfWeek) }
+    val sourceList = adjusted
+        .filter { it.dayOfWeek == sourceDay }
+        .sortedBy { it.order }
+        .mapIndexed { index, workout -> workout.copy(order = index) }
 
-    return untouched + updatedByDay.values.flatten()
+    val tbdList = adjusted
+        .filter { it.dayOfWeek == null && it.id != updatedTarget.id }
+        .sortedBy { it.order }
+        .mapIndexed { index, workout -> workout.copy(order = index) }
+
+    val untouched = adjusted.filterNot {
+        it.dayOfWeek == sourceDay || it.dayOfWeek == newDayOfWeek || it.dayOfWeek == null
+    }
+
+    return untouched + sourceList + tbdList + normalizedDestination
 }

@@ -1,33 +1,46 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreen
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 
+enum class DayIndicator {
+    Workout,
+    RestDay,
+    Completed
+}
+
 @Composable
 fun WeeklyCalendarHeader(
     selectedDate: LocalDate,
     weekStartDate: LocalDate,
-    daysWithWorkouts: Set<DayOfWeek>,
+    dayIndicators: Map<DayOfWeek, DayIndicator>,
     onDateSelected: (LocalDate) -> Unit,
     onWeekChanged: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
@@ -67,7 +80,7 @@ fun WeeklyCalendarHeader(
             for (offset in 0..6) {
                 val date = weekStartDate.plusDays(offset.toLong())
                 val isSelected = date == selectedDate
-                val hasWorkout = daysWithWorkouts.contains(date.dayOfWeek)
+                val indicator = dayIndicators[date.dayOfWeek]
 
                 Column(
                     modifier = Modifier
@@ -76,7 +89,8 @@ fun WeeklyCalendarHeader(
                         .padding(vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    dayContent(date, isSelected, hasWorkout)
+                    dayContent(date, isSelected, indicator != null)
+                    IndicatorDot(indicator = indicator)
                 }
             }
         }
@@ -92,17 +106,35 @@ private fun DefaultDayContent(
     val label = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
         .take(1)
         .uppercase(Locale.getDefault())
-    val indicator = if (hasWorkout) {
-        stringResource(R.string.workout_indicator)
-    } else {
-        stringResource(R.string.workout_indicator_empty)
-    }
 
     Text(
         text = label,
         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
     )
-    Text(text = indicator)
+    if (!hasWorkout) {
+        Spacer(modifier = Modifier.size(8.dp))
+    }
+}
+
+@Composable
+private fun IndicatorDot(indicator: DayIndicator?) {
+    if (indicator == null) {
+        Spacer(modifier = Modifier.size(8.dp))
+        return
+    }
+
+    val color = when (indicator) {
+        DayIndicator.Workout -> MaterialTheme.colorScheme.primaryContainer
+        DayIndicator.RestDay -> MaterialTheme.colorScheme.surfaceVariant
+        DayIndicator.Completed -> CompletedGreen
+    }
+
+    Box(
+        modifier = Modifier
+            .size(8.dp)
+            .clip(CircleShape)
+            .background(color)
+    )
 }
 
 private fun formatWeekRange(start: LocalDate, end: LocalDate): String {
@@ -126,12 +158,16 @@ private fun formatWeekRange(start: LocalDate, end: LocalDate): String {
 private fun WeeklyCalendarHeaderPreview() {
     val selectedDate = LocalDate.of(2026, 1, 15)
     val weekStartDate = LocalDate.of(2026, 1, 12)
-    val daysWithWorkouts = setOf(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY)
+    val dayIndicators = mapOf(
+        DayOfWeek.MONDAY to DayIndicator.Workout,
+        DayOfWeek.WEDNESDAY to DayIndicator.Completed,
+        DayOfWeek.FRIDAY to DayIndicator.RestDay
+    )
 
     WeeklyCalendarHeader(
         selectedDate = selectedDate,
         weekStartDate = weekStartDate,
-        daysWithWorkouts = daysWithWorkouts,
+        dayIndicators = dayIndicators,
         onDateSelected = {},
         onWeekChanged = {}
     )

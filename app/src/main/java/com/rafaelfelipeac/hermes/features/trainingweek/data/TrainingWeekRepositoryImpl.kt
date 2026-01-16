@@ -25,6 +25,7 @@ class TrainingWeekRepositoryImpl @Inject constructor(
         dayOfWeek: DayOfWeek?,
         type: String,
         description: String,
+        isRestDay: Boolean,
         order: Int
     ): Long {
         val entity = WorkoutEntity(
@@ -33,10 +34,26 @@ class TrainingWeekRepositoryImpl @Inject constructor(
             type = type,
             description = description,
             isCompleted = false,
+            isRestDay = isRestDay,
             sortOrder = order
         )
 
         return workoutDao.insert(entity)
+    }
+
+    override suspend fun addRestDay(
+        weekStartDate: LocalDate,
+        dayOfWeek: DayOfWeek?,
+        order: Int
+    ): Long {
+        return addWorkout(
+            weekStartDate = weekStartDate,
+            dayOfWeek = dayOfWeek,
+            type = "",
+            description = "",
+            isRestDay = true,
+            order = order
+        )
     }
 
     override suspend fun updateWorkoutDayAndOrder(
@@ -63,6 +80,7 @@ private fun WorkoutEntity.toDomain(): Workout {
         type = type,
         description = description,
         isCompleted = isCompleted,
+        isRestDay = isRestDay,
         order = sortOrder
     )
 }

@@ -8,7 +8,7 @@ import com.rafaelfelipeac.hermes.features.trainingweek.data.local.WorkoutEntity
 
 @Database(
     entities = [WorkoutEntity::class],
-    version = 1
+    version = 2
 )
 @TypeConverters(LocalDateConverters::class)
 abstract class HermesDatabase : RoomDatabase() {

@@ -1,15 +1,15 @@
 <resources>
     <string name="app_name">Hermes</string>
     <string name="add_workout">Add workout</string>
+    <string name="add_rest_day">Add rest day</string>
     <string name="add_workout_type">Type</string>
     <string name="add_workout_description">Description</string>
     <string name="add_workout_confirm">Add</string>
     <string name="add_workout_cancel">Cancel</string>
     <string name="no_workouts">No workouts</string>
-    <string name="drag_label">Drag</string>
+    <string name="drag_label">Drag handle</string>
     <string name="section_to_be_defined">To be defined</string>
-    <string name="workout_indicator">&#9679;</string>
-    <string name="workout_indicator_empty"></string>
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
+    <string name="rest_day_label">Rest day</string>
 </resources>

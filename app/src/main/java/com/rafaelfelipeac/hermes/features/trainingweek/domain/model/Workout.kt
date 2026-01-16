@@ -10,5 +10,6 @@ data class Workout(
     val type: String,
     val description: String,
     val isCompleted: Boolean,
+    val isRestDay: Boolean,
     val order: Int
 )

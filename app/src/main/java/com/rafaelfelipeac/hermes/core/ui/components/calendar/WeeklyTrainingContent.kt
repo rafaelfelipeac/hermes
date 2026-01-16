@@ -8,13 +8,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,9 +38,12 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreen
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContent
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -45,6 +55,7 @@ data class WorkoutUi(
     val type: String,
     val description: String,
     val isCompleted: Boolean,
+    val isRestDay: Boolean,
     val order: Int
 )
 
@@ -53,6 +64,7 @@ fun WeeklyTrainingContent(
     selectedWeekStartDate: LocalDate,
     workouts: List<WorkoutUi>,
     onAddWorkout: () -> Unit,
+    onAddRestDay: () -> Unit,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
     onWorkoutCompletionChanged: (WorkoutId, Boolean) -> Unit,
     onDominantDayChanged: (LocalDate) -> Unit = {},
@@ -87,8 +99,13 @@ fun WeeklyTrainingContent(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item(key = "add-workout") {
-            Button(onClick = onAddWorkout) {
-                Text(text = stringResource(R.string.add_workout))
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Button(onClick = onAddWorkout) {
+                    Text(text = stringResource(R.string.add_workout))
+                }
+                Button(onClick = onAddRestDay) {
+                    Text(text = stringResource(R.string.add_rest_day))
+                }
             }
         }
 
@@ -106,7 +123,10 @@ fun WeeklyTrainingContent(
                     if (items.isEmpty()) {
                         EmptySectionRow()
                     } else {
-                        items.forEach { workout ->
+                        items.forEachIndexed { index, workout ->
+                            if (index > 0) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                            }
                             WorkoutRow(
                                 workout = workout,
                                 isDragging = draggedWorkoutId == workout.id,
@@ -141,6 +161,10 @@ fun WeeklyTrainingContent(
                         }
                     }
                 }
+                Divider(
+                    modifier = Modifier.padding(top = 8.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
             }
         }
     }
@@ -176,17 +200,27 @@ private fun WorkoutRow(
 ) {
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var lastDragPosition by remember { mutableStateOf<Offset?>(null) }
+    val colorScheme = MaterialTheme.colorScheme
+    val rowColor = when {
+        isDragging -> colorScheme.surfaceVariant
+        workout.isRestDay -> colorScheme.surfaceVariant
+        workout.isCompleted -> CompletedGreen
+        else -> colorScheme.primaryContainer
+    }
+    val contentColor = when {
+        workout.isRestDay -> colorScheme.onSurfaceVariant
+        workout.isCompleted -> CompletedGreenContent
+        else -> colorScheme.onPrimaryContainer
+    }
     val rowModifier = Modifier
         .fillMaxWidth()
         .onGloballyPositioned {
             coordinates = it
             onItemPositioned(it.boundsInRoot())
         }
-        .background(
-            if (isDragging) MaterialTheme.colorScheme.surfaceVariant
-            else MaterialTheme.colorScheme.surface
-        )
-        .padding(12.dp)
+        .clip(MaterialTheme.shapes.medium)
+        .background(rowColor)
+        .padding(14.dp)
 
     Row(
         modifier = rowModifier,
@@ -197,12 +231,13 @@ private fun WorkoutRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
         ) {
-            Text(
-                text = stringResource(R.string.drag_label),
-                style = MaterialTheme.typography.labelSmall,
+            Icon(
+                imageVector = Icons.Outlined.DragIndicator,
+                contentDescription = stringResource(R.string.drag_label),
+                tint = contentColor,
                 modifier = Modifier
                     .padding(end = 12.dp)
-                    .size(32.dp)
+                    .size(24.dp)
                     .clickable(enabled = false) {}
                     .pointerInput(Unit) {
                         detectDragGesturesAfterLongPress(
@@ -230,23 +265,65 @@ private fun WorkoutRow(
                     }
             )
             Column {
-                Text(
-                    text = workout.type,
-                    style = MaterialTheme.typography.bodyMedium
+            if (workout.isRestDay) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.Bedtime,
+                        contentDescription = null,
+                        tint = contentColor,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = stringResource(R.string.rest_day_label),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = contentColor
+                    )
+                }
+            } else {
+                TypeChip(
+                    label = workout.type,
+                    containerColor = contentColor.copy(alpha = 0.18f),
+                    contentColor = contentColor
                 )
+            }
 
+            if (workout.description.isNotBlank()) {
                 Text(
                     text = workout.description,
-                    style = MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall,
+                    color = contentColor
                 )
             }
         }
+    }
 
-        Spacer(modifier = Modifier.width(8.dp))
+    Spacer(modifier = Modifier.width(8.dp))
 
-        Checkbox(
-            checked = workout.isCompleted,
-            onCheckedChange = onToggleCompleted
+        if (!workout.isRestDay) {
+            Checkbox(
+                checked = workout.isCompleted,
+                onCheckedChange = onToggleCompleted
+            )
+        }
+    }
+}
+
+@Composable
+private fun TypeChip(
+    label: String,
+    containerColor: androidx.compose.ui.graphics.Color,
+    contentColor: androidx.compose.ui.graphics.Color
+) {
+    Surface(
+        color = containerColor,
+        contentColor = contentColor,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
     }
 }
@@ -314,6 +391,7 @@ private fun WeeklyTrainingContentPreview() {
                 type = "Run",
                 description = "Easy 5k",
                 isCompleted = false,
+                isRestDay = false,
                 order = 0
             ),
             WorkoutUi(
@@ -322,6 +400,7 @@ private fun WeeklyTrainingContentPreview() {
                 type = "Swim",
                 description = "Intervals 10x100",
                 isCompleted = false,
+                isRestDay = false,
                 order = 0
             ),
             WorkoutUi(
@@ -330,10 +409,12 @@ private fun WeeklyTrainingContentPreview() {
                 type = "Bike",
                 description = "Tempo 45 min",
                 isCompleted = true,
+                isRestDay = false,
                 order = 0
             )
         ),
         onAddWorkout = {},
+        onAddRestDay = {},
         onWorkoutMoved = { _, _, _ -> },
         onWorkoutCompletionChanged = { _, _ -> }
     )
