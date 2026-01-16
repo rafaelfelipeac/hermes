@@ -2,8 +2,9 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,6 +33,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.pointer.pointerInput
@@ -89,6 +93,8 @@ fun WeeklyTrainingContent(
     val sectionBounds = remember { mutableStateMapOf<SectionKey, Rect>() }
     val itemBounds = remember { mutableStateMapOf<WorkoutId, Rect>() }
     var draggedWorkoutId by remember { mutableStateOf<WorkoutId?>(null) }
+    var dragPosition by remember { mutableStateOf<Offset?>(null) }
+    var containerOffset by remember { mutableStateOf(Offset.Zero) }
     val workoutsBySection = remember(workouts) {
         sections.associateWith { section ->
             workouts
@@ -96,70 +102,79 @@ fun WeeklyTrainingContent(
                 .sortedBy { it.order }
         }
     }
+    val draggedWorkout = draggedWorkoutId?.let { id -> workouts.firstOrNull { it.id == id } }
 
-    LazyColumn(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+    Box(
+        modifier = modifier.onGloballyPositioned {
+            val bounds = it.boundsInRoot()
+            containerOffset = Offset(bounds.left, bounds.top)
+        }
     ) {
-        item(key = "add-workout") {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = onAddWorkout) {
-                    Text(text = stringResource(R.string.add_workout))
-                }
-                Button(onClick = onAddRestDay) {
-                    Text(text = stringResource(R.string.add_rest_day))
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item(key = "add-workout") {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Button(onClick = onAddWorkout) {
+                        Text(text = stringResource(R.string.add_workout))
+                    }
+                    Button(onClick = onAddRestDay) {
+                        Text(text = stringResource(R.string.add_rest_day))
+                    }
                 }
             }
-        }
 
-        sections.forEach { section ->
-            item(key = "section-${section.key}") {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onGloballyPositioned { sectionBounds[section] = it.boundsInRoot() }
-                ) {
-                    SectionHeader(title = section.title())
+            sections.forEach { section ->
+                item(key = "section-${section.key}") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { sectionBounds[section] = it.boundsInRoot() }
+                    ) {
+                        SectionHeader(title = section.title())
 
-                    val items = workoutsBySection[section].orEmpty()
+                        val items = workoutsBySection[section].orEmpty()
 
                     if (items.isEmpty()) {
                         EmptySectionRow()
                     } else {
                         items.forEachIndexed { index, workout ->
-                            if (index > 0) {
-                                Spacer(modifier = Modifier.height(8.dp))
-                            }
-                            WorkoutRow(
-                                workout = workout,
-                                isDragging = draggedWorkoutId == workout.id,
-                                onToggleCompleted = { checked ->
-                                    onWorkoutCompletionChanged(workout.id, checked)
-                                },
-                                onDrop = { dropPosition ->
-                                    val targetSection = findTargetSection(
-                                        dropPosition,
-                                        sectionBounds,
-                                        section
-                                    )
-                                    val targetItems = workoutsBySection[targetSection].orEmpty()
-                                    val newOrder = computeOrderForDrop(
-                                        dropPosition,
-                                        targetItems,
-                                        workout.id,
-                                        itemBounds
-                                    )
-                                    val newDay = targetSection.dayOfWeekOrNull()
+                                if (index > 0) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
 
-                                    if (newDay != workout.dayOfWeek || newOrder != workout.order) {
-                                        onWorkoutMoved(workout.id, newDay, newOrder)
-                                    }
-                                },
-                                onDragStarted = { draggedWorkoutId = workout.id },
-                                onDragEnded = {
-                                    draggedWorkoutId = null
-                                },
-                                onItemPositioned = { itemBounds[workout.id] = it }
+                                WorkoutRow(
+                                    workout = workout,
+                                    isDragging = draggedWorkoutId == workout.id,
+                                    onToggleCompleted = { checked ->
+                                        onWorkoutCompletionChanged(workout.id, checked)
+                                    },
+                                    onDrop = { dropPosition ->
+                                        val targetSection = findTargetSection(
+                                            dropPosition,
+                                            sectionBounds,
+                                            section
+                                        )
+                                        val targetItems = workoutsBySection[targetSection].orEmpty()
+                                        val newOrder = computeOrderForDrop(
+                                            dropPosition,
+                                            targetItems,
+                                            workout.id,
+                                            itemBounds
+                                        )
+                                        val newDay = targetSection.dayOfWeekOrNull()
+
+                                        if (newDay != workout.dayOfWeek || newOrder != workout.order) {
+                                            onWorkoutMoved(workout.id, newDay, newOrder)
+                                        }
+                                    },
+                                    onDragStarted = { draggedWorkoutId = workout.id },
+                                    onDragEnded = {
+                                        draggedWorkoutId = null
+                                        dragPosition = null
+                                    },
+                                    onDragPositionChanged = { dragPosition = it },
+                                    onItemPositioned = { itemBounds[workout.id] = it }
                             )
                         }
                     }
@@ -169,6 +184,19 @@ fun WeeklyTrainingContent(
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
             }
+        }
+        }
+
+        if (draggedWorkout != null && dragPosition != null) {
+            val bounds = itemBounds[draggedWorkout.id]
+            val ghostHeight = bounds?.height ?: 0f
+            val ghostYOffset = dragPosition!!.y - containerOffset.y - ghostHeight / 2f
+            GhostWorkoutRow(
+                workout = draggedWorkout,
+                modifier = Modifier.graphicsLayer {
+                    translationY = ghostYOffset
+                }
+            )
         }
     }
 }
@@ -197,36 +225,36 @@ private fun WorkoutRow(
     isDragging: Boolean,
     onToggleCompleted: (Boolean) -> Unit,
     onDrop: (Offset) -> Unit,
+    onDragPositionChanged: (Offset) -> Unit,
     onDragStarted: () -> Unit,
     onDragEnded: () -> Unit,
     onItemPositioned: (Rect) -> Unit
 ) {
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     var lastDragPosition by remember { mutableStateOf<Offset?>(null) }
-    val colorScheme = MaterialTheme.colorScheme
-    val isDarkTheme = isSystemInDarkTheme()
-    val completedColor = if (isDarkTheme) CompletedGreenDark else CompletedGreenLight
-    val completedContent = if (isDarkTheme) CompletedGreenContentDark else CompletedGreenContentLight
-    val rowColor = when {
-        isDragging -> colorScheme.surfaceVariant
-        workout.isRestDay -> colorScheme.surfaceVariant
-        workout.isCompleted -> completedColor
-        else -> colorScheme.primaryContainer
-    }
-    val contentColor = when {
-        workout.isRestDay -> colorScheme.onSurfaceVariant
-        workout.isCompleted -> completedContent
-        else -> colorScheme.onPrimaryContainer
-    }
+    val colors = workoutRowColors(workout, isDragging = isDragging)
     val rowModifier = Modifier
         .fillMaxWidth()
         .onGloballyPositioned {
             coordinates = it
-            onItemPositioned(it.boundsInRoot())
+            if (!isDragging) {
+                onItemPositioned(it.boundsInRoot())
+            }
         }
         .clip(MaterialTheme.shapes.medium)
-        .background(rowColor)
-        .padding(14.dp)
+        .background(if (isDragging) Color.Transparent else colors.background)
+        .then(
+            if (isDragging) {
+                Modifier
+                    .height(0.dp)
+                    .padding(0.dp)
+                    .alpha(0f)
+            } else {
+                Modifier
+                    .padding(14.dp)
+                    .alpha(1f)
+            }
+        )
 
     Row(
         modifier = rowModifier,
@@ -240,16 +268,19 @@ private fun WorkoutRow(
             Icon(
                 imageVector = Icons.Outlined.DragIndicator,
                 contentDescription = stringResource(R.string.drag_label),
-                tint = contentColor,
+                tint = colors.content,
                 modifier = Modifier
                     .padding(end = 12.dp)
                     .size(24.dp)
                     .clickable(enabled = false) {}
                     .pointerInput(Unit) {
-                        detectDragGesturesAfterLongPress(
+                        detectDragGestures(
                             onDragStart = { offset ->
                                 onDragStarted()
-                                coordinates?.localToRoot(offset)?.let { lastDragPosition = it }
+                                coordinates?.localToRoot(offset)?.let {
+                                    lastDragPosition = it
+                                    onDragPositionChanged(it)
+                                }
                             },
                             onDragEnd = {
                                 val dropPosition = lastDragPosition
@@ -265,6 +296,7 @@ private fun WorkoutRow(
                             onDrag = { change, _ ->
                                 coordinates?.localToRoot(change.position)?.let {
                                     lastDragPosition = it
+                                    onDragPositionChanged(it)
                                 }
                             }
                         )
@@ -276,21 +308,21 @@ private fun WorkoutRow(
                     Icon(
                         imageVector = Icons.Outlined.Bedtime,
                         contentDescription = null,
-                        tint = contentColor,
+                        tint = colors.content,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = stringResource(R.string.rest_day_label),
                         style = MaterialTheme.typography.titleSmall,
-                        color = contentColor
+                        color = colors.content
                     )
                 }
             } else {
                 TypeChip(
                     label = workout.type,
-                    containerColor = contentColor.copy(alpha = 0.18f),
-                    contentColor = contentColor
+                    containerColor = colors.content.copy(alpha = 0.18f),
+                    contentColor = colors.content
                 )
             }
 
@@ -298,7 +330,7 @@ private fun WorkoutRow(
                 Text(
                     text = workout.description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = contentColor
+                    color = colors.content
                 )
             }
         }
@@ -318,8 +350,8 @@ private fun WorkoutRow(
 @Composable
 private fun TypeChip(
     label: String,
-    containerColor: androidx.compose.ui.graphics.Color,
-    contentColor: androidx.compose.ui.graphics.Color
+    containerColor: Color,
+    contentColor: Color
 ) {
     Surface(
         color = containerColor,
@@ -331,6 +363,73 @@ private fun TypeChip(
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
         )
+    }
+}
+
+@Composable
+private fun GhostWorkoutRow(
+    workout: WorkoutUi,
+    modifier: Modifier = Modifier
+) {
+    val colors = workoutRowColors(workout, isDragging = false)
+    Surface(
+        color = colors.background,
+        contentColor = colors.content,
+        shape = MaterialTheme.shapes.medium,
+        modifier = modifier
+            .fillMaxWidth()
+            .alpha(0.45f)
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.weight(1f)
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.DragIndicator,
+                    contentDescription = null,
+                    tint = colors.content,
+                    modifier = Modifier
+                        .padding(end = 12.dp)
+                        .size(24.dp)
+                )
+                Column {
+                    if (workout.isRestDay) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Outlined.Bedtime,
+                                contentDescription = null,
+                                tint = colors.content,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.rest_day_label),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = colors.content
+                            )
+                        }
+                    } else {
+                        TypeChip(
+                            label = workout.type,
+                            containerColor = colors.content.copy(alpha = 0.18f),
+                            contentColor = colors.content
+                        )
+                    }
+                    if (workout.description.isNotBlank()) {
+                        Text(
+                            text = workout.description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colors.content
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -368,6 +467,36 @@ private fun dragPositionFromCoordinates(coordinates: LayoutCoordinates?): Offset
 private sealed class SectionKey(val key: String) {
     object ToBeDefined : SectionKey("tbd")
     data class Day(val dayOfWeek: DayOfWeek) : SectionKey(dayOfWeek.name)
+}
+
+private fun DayOfWeek?.toSectionKey(): SectionKey {
+    return if (this == null) SectionKey.ToBeDefined else SectionKey.Day(this)
+}
+
+private data class RowColors(
+    val background: Color,
+    val content: Color
+)
+
+@Composable
+private fun workoutRowColors(workout: WorkoutUi, isDragging: Boolean): RowColors {
+    val colorScheme = MaterialTheme.colorScheme
+    val isDarkTheme = isSystemInDarkTheme()
+    val completedColor = if (isDarkTheme) CompletedGreenDark else CompletedGreenLight
+    val completedContent = if (isDarkTheme) CompletedGreenContentDark else CompletedGreenContentLight
+
+    val background = when {
+        isDragging -> colorScheme.surfaceVariant
+        workout.isRestDay -> colorScheme.surfaceVariant
+        workout.isCompleted -> completedColor
+        else -> colorScheme.primaryContainer
+    }
+    val content = when {
+        workout.isRestDay -> colorScheme.onSurfaceVariant
+        workout.isCompleted -> completedContent
+        else -> colorScheme.onPrimaryContainer
+    }
+    return RowColors(background, content)
 }
 
 @Composable
