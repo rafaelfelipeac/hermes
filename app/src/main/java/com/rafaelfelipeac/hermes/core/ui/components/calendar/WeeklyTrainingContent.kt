@@ -51,6 +51,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContentDark
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContentLight
@@ -386,7 +387,7 @@ private fun WorkoutRow(
                     .align(Alignment.TopEnd)
                     .offset(x = (-26).dp, y = (-4).dp)
                     .padding(top = 4.dp)
-                    .size(20.dp)
+                    .size(32.dp)
             ) {
                 if (workout.isCompleted) {
                     Text(
@@ -394,7 +395,8 @@ private fun WorkoutRow(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .clickable { onToggleCompleted(false) }
-                            .size(24.dp)
+                            .size(28.dp),
+                        fontSize = 24.sp
                     )
                 } else {
                     Checkbox(
@@ -403,7 +405,7 @@ private fun WorkoutRow(
                         modifier = Modifier
                             .align(Alignment.Center)
                             .padding(top = 4.dp)
-                            .size(20.dp)
+                            .size(26.dp)
                     )
                 }
             }
