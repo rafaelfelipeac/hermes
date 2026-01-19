@@ -119,6 +119,18 @@ fun WeeklyTrainingContent(
         }
     }
     val draggedWorkout = draggedWorkoutId?.let { id -> workouts.firstOrNull { it.id == id } }
+    var previousUnscheduledIds by remember { mutableStateOf<Set<WorkoutId>>(emptySet()) }
+
+    LaunchedEffect(workouts) {
+        val currentUnscheduledIds = workouts
+            .filter { it.dayOfWeek == null }
+            .map { it.id }
+            .toSet()
+        val hasNewUnscheduled = currentUnscheduledIds.any { it !in previousUnscheduledIds }
+        if (hasNewUnscheduled && sections.firstOrNull() == SectionKey.ToBeDefined) {
+            listState.animateScrollToItem(0)
+        }
+    }
 
     LaunchedEffect(draggedWorkoutId) {
         while (draggedWorkoutId != null) {
