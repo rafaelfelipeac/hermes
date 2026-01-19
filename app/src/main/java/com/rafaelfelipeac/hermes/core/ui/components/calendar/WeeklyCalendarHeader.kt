@@ -24,9 +24,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
+import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
 import androidx.compose.foundation.isSystemInDarkTheme
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenDark
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenLight
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
@@ -126,10 +128,11 @@ private fun IndicatorDot(indicator: DayIndicator?) {
     }
 
     val isDarkTheme = isSystemInDarkTheme()
-    val completedColor = if (isDarkTheme) CompletedGreenDark else CompletedGreenLight
+    val completedColor = TodoBlue
+    val restDayColor = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
     val color = when (indicator) {
-        DayIndicator.Workout -> MaterialTheme.colorScheme.primaryContainer
-        DayIndicator.RestDay -> MaterialTheme.colorScheme.surfaceVariant
+        DayIndicator.Workout -> CompletedBlue
+        DayIndicator.RestDay -> restDayColor
         DayIndicator.Completed -> completedColor
     }
 

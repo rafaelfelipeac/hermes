@@ -4,7 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +23,7 @@ import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -52,10 +53,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContentDark
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenContentLight
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenDark
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedGreenLight
+import androidx.compose.foundation.isSystemInDarkTheme
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
+import com.rafaelfelipeac.hermes.core.ui.theme.RestDayContentDark
+import com.rafaelfelipeac.hermes.core.ui.theme.RestDayContentLight
+import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
+import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
+import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -83,17 +89,19 @@ fun WeeklyTrainingContent(
     onDominantDayChanged: (LocalDate) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val sections = remember {
-        listOf(
-            SectionKey.ToBeDefined,
-            SectionKey.Day(DayOfWeek.MONDAY),
-            SectionKey.Day(DayOfWeek.TUESDAY),
-            SectionKey.Day(DayOfWeek.WEDNESDAY),
-            SectionKey.Day(DayOfWeek.THURSDAY),
-            SectionKey.Day(DayOfWeek.FRIDAY),
-            SectionKey.Day(DayOfWeek.SATURDAY),
-            SectionKey.Day(DayOfWeek.SUNDAY)
-        )
+    val sections = remember(workouts) {
+        buildList {
+            if (workouts.any { it.dayOfWeek == null }) {
+                add(SectionKey.ToBeDefined)
+            }
+            add(SectionKey.Day(DayOfWeek.MONDAY))
+            add(SectionKey.Day(DayOfWeek.TUESDAY))
+            add(SectionKey.Day(DayOfWeek.WEDNESDAY))
+            add(SectionKey.Day(DayOfWeek.THURSDAY))
+            add(SectionKey.Day(DayOfWeek.FRIDAY))
+            add(SectionKey.Day(DayOfWeek.SATURDAY))
+            add(SectionKey.Day(DayOfWeek.SUNDAY))
+        }
     }
 
     val sectionBounds = remember { mutableStateMapOf<SectionKey, Rect>() }
@@ -291,6 +299,17 @@ private fun WorkoutRow(
         .clip(MaterialTheme.shapes.medium)
         .background(if (isDragging) Color.Transparent else colors.background)
         .then(
+            if (!isDragging && !workout.isRestDay) {
+                Modifier.border(
+                    width = 2.dp,
+                    color = colors.background.copy(alpha = 0.6f),
+                    shape = MaterialTheme.shapes.medium
+                )
+            } else {
+                Modifier
+            }
+        )
+        .then(
             if (isDragging) {
                 Modifier
                     .height(0.dp)
@@ -388,7 +407,12 @@ private fun WorkoutRow(
                         Checkbox(
                             checked = workout.isCompleted,
                             onCheckedChange = onToggleCompleted,
-                            modifier = Modifier.size(26.dp)
+                            modifier = Modifier.size(26.dp),
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = colors.content,
+                                uncheckedColor = colors.content,
+                                checkmarkColor = colors.background
+                            )
                         )
                     }
                 }
@@ -440,6 +464,17 @@ private fun GhostWorkoutRow(
         shape = MaterialTheme.shapes.medium,
         modifier = modifier
             .fillMaxWidth()
+            .then(
+                if (!workout.isRestDay) {
+                    Modifier.border(
+                        width = 2.dp,
+                        color = colors.background.copy(alpha = 0.6f),
+                        shape = MaterialTheme.shapes.medium
+                    )
+                } else {
+                    Modifier
+                }
+            )
             .alpha(0.45f)
     ) {
         Row(
@@ -564,20 +599,27 @@ private data class RowColors(
 @Composable
 private fun workoutRowColors(workout: WorkoutUi, isDragging: Boolean): RowColors {
     val colorScheme = MaterialTheme.colorScheme
+    val todoColor = CompletedBlue
+    val todoContent = CompletedBlueContent
+    val completedColor = TodoBlue
+    val completedContent = TodoBlueContent
+    val isUnscheduled = workout.dayOfWeek == null
     val isDarkTheme = isSystemInDarkTheme()
-    val completedColor = if (isDarkTheme) CompletedGreenDark else CompletedGreenLight
-    val completedContent = if (isDarkTheme) CompletedGreenContentDark else CompletedGreenContentLight
+    val restDayBackground = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
+    val restDayContent = if (isDarkTheme) RestDayContentDark else RestDayContentLight
 
     val background = when {
         isDragging -> colorScheme.surfaceVariant
-        workout.isRestDay -> colorScheme.surfaceVariant
         workout.isCompleted -> completedColor
-        else -> colorScheme.primaryContainer
+        workout.isRestDay -> restDayBackground
+        isUnscheduled -> colorScheme.tertiaryContainer
+        else -> todoColor
     }
     val content = when {
-        workout.isRestDay -> colorScheme.onSurfaceVariant
+        workout.isRestDay -> restDayContent
         workout.isCompleted -> completedContent
-        else -> colorScheme.onPrimaryContainer
+        isUnscheduled -> colorScheme.onTertiaryContainer
+        else -> todoContent
     }
     return RowColors(background, content)
 }
