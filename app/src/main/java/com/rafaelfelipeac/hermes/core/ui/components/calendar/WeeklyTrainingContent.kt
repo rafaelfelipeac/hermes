@@ -612,13 +612,13 @@ private fun workoutRowColors(workout: WorkoutUi, isDragging: Boolean): RowColors
         isDragging -> colorScheme.surfaceVariant
         workout.isCompleted -> completedColor
         workout.isRestDay -> restDayBackground
-        isUnscheduled -> colorScheme.tertiaryContainer
+        isUnscheduled -> todoColor
         else -> todoColor
     }
     val content = when {
         workout.isRestDay -> restDayContent
         workout.isCompleted -> completedContent
-        isUnscheduled -> colorScheme.onTertiaryContainer
+        isUnscheduled -> todoContent
         else -> todoContent
     }
     return RowColors(background, content)

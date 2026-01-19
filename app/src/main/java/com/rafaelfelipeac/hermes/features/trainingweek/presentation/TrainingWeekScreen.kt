@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
@@ -35,6 +36,10 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyTrainingConte
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WorkoutUi
+import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerDark
+import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerLight
+import com.rafaelfelipeac.hermes.core.ui.theme.FabContentDark
+import com.rafaelfelipeac.hermes.core.ui.theme.FabContentLight
 
 @Composable
 fun TrainingWeekScreen(
@@ -47,6 +52,9 @@ fun TrainingWeekScreen(
     var isAddMenuVisible by rememberSaveable { mutableStateOf(false) }
     var editingWorkout by rememberSaveable { mutableStateOf<WorkoutUi?>(null) }
     var deletingWorkout by rememberSaveable { mutableStateOf<WorkoutUi?>(null) }
+    val isDarkTheme = isSystemInDarkTheme()
+    val fabContainerColor = if (isDarkTheme) FabContainerDark else FabContainerLight
+    val fabContentColor = if (isDarkTheme) FabContentDark else FabContentLight
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -93,7 +101,11 @@ fun TrainingWeekScreen(
                 .align(Alignment.BottomEnd)
                 .padding(16.dp)
         ) {
-            FloatingActionButton(onClick = { isAddMenuVisible = !isAddMenuVisible }) {
+            FloatingActionButton(
+                onClick = { isAddMenuVisible = !isAddMenuVisible },
+                containerColor = fabContainerColor,
+                contentColor = fabContentColor
+            ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.add_item)
