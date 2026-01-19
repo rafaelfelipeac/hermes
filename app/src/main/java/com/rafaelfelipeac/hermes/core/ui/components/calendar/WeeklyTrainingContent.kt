@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DragIndicator
-import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
@@ -77,8 +76,6 @@ data class WorkoutUi(
 fun WeeklyTrainingContent(
     selectedWeekStartDate: LocalDate,
     workouts: List<WorkoutUi>,
-    onAddWorkout: () -> Unit,
-    onAddRestDay: () -> Unit,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
     onWorkoutCompletionChanged: (WorkoutId, Boolean) -> Unit,
     onWorkoutEdit: (WorkoutUi) -> Unit,
@@ -190,17 +187,6 @@ fun WeeklyTrainingContent(
             userScrollEnabled = draggedWorkoutId == null,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            item(key = "add-workout") {
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(onClick = onAddWorkout) {
-                        Text(text = stringResource(R.string.add_workout))
-                    }
-                    Button(onClick = onAddRestDay) {
-                        Text(text = stringResource(R.string.add_rest_day))
-                    }
-                }
-            }
-
             sections.forEach { section ->
                 item(key = "section-${section.key}") {
                     Column(
@@ -657,8 +643,6 @@ private fun WeeklyTrainingContentPreview() {
                 order = 0
             )
         ),
-        onAddWorkout = {},
-        onAddRestDay = {},
         onWorkoutMoved = { _, _, _ -> },
         onWorkoutCompletionChanged = { _, _ -> },
         onWorkoutEdit = {},

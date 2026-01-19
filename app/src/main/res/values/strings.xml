@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Hermes</string>
+    <string name="add_item">Add</string>
     <string name="add_workout">Add workout</string>
     <string name="add_rest_day">Add rest day</string>
     <string name="add_workout_type">Type</string>
