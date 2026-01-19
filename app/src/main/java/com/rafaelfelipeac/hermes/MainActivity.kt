@@ -29,9 +29,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.TRAINING_WEEK
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
-import com.rafaelfelipeac.hermes.core.settings.AppLanguage
-import com.rafaelfelipeac.hermes.core.settings.ThemeMode
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
 import com.rafaelfelipeac.hermes.features.trainingweek.presentation.TrainingWeekScreen

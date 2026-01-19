@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.settings
+package com.rafaelfelipeac.hermes.features.settings.data
 
 import android.content.Context
 import android.content.res.Configuration
@@ -6,6 +6,9 @@ import android.os.Build
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -16,54 +19,36 @@ import javax.inject.Singleton
 private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 
 @Singleton
-class SettingsRepository @Inject constructor(
+class SettingsRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
-) {
+) : SettingsRepository {
     private val dataStore = context.settingsDataStore
 
-    val themeMode: Flow<ThemeMode> = dataStore.data
+    override val themeMode: Flow<ThemeMode> = dataStore.data
         .map { prefs ->
             prefs[THEME_MODE_KEY]?.let(ThemeMode::valueOf) ?: defaultThemeMode(context)
         }
         .distinctUntilChanged()
 
-    val language: Flow<AppLanguage> = dataStore.data
+    override val language: Flow<AppLanguage> = dataStore.data
         .map { prefs ->
             prefs[LANGUAGE_KEY]?.let(AppLanguage::fromTag) ?: defaultLanguage()
         }
         .distinctUntilChanged()
 
-    fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
+    override fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
 
-    fun initialLanguage(): AppLanguage = defaultLanguage()
+    override fun initialLanguage(): AppLanguage = defaultLanguage()
 
-    suspend fun setThemeMode(mode: ThemeMode) {
+    override suspend fun setThemeMode(mode: ThemeMode) {
         dataStore.edit { prefs ->
             prefs[THEME_MODE_KEY] = mode.name
         }
     }
 
-    suspend fun setLanguage(language: AppLanguage) {
+    override suspend fun setLanguage(language: AppLanguage) {
         dataStore.edit { prefs ->
             prefs[LANGUAGE_KEY] = language.tag
-        }
-    }
-}
-
-enum class ThemeMode {
-    SYSTEM,
-    LIGHT,
-    DARK
-}
-
-enum class AppLanguage(val tag: String) {
-    SYSTEM("system"),
-    ENGLISH("en"),
-    PORTUGUESE_BRAZIL("pt-BR");
-
-    companion object {
-        fun fromTag(tag: String): AppLanguage {
-            return entries.firstOrNull { it.tag.equals(tag, ignoreCase = true) } ?: ENGLISH
         }
     }
 }
