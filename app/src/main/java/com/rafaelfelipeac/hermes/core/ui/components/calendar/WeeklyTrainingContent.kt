@@ -293,6 +293,7 @@ private fun WorkoutRow(
 ) {
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val colors = workoutRowColors(workout, isDragging = isDragging)
+    val hasDescription = workout.description.isNotBlank()
     val rowModifier = Modifier
         .fillMaxWidth()
         .onGloballyPositioned {
@@ -319,11 +320,11 @@ private fun WorkoutRow(
     Box(modifier = rowModifier) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
                 modifier = Modifier
                     .weight(1f)
                     .clickable(enabled = !workout.isRestDay) { onEdit() }
@@ -369,7 +370,9 @@ private fun WorkoutRow(
                         )
                     }
 
-                    if (workout.description.isNotBlank()) {
+                    if (hasDescription) {
+                        Spacer(modifier = Modifier.height(4.dp))
+
                         Text(
                             text = workout.description,
                             style = MaterialTheme.typography.bodySmall,
@@ -379,34 +382,29 @@ private fun WorkoutRow(
                 }
             }
 
-        }
-
-        if (!workout.isRestDay) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset(x = (-26).dp, y = (-4).dp)
-                    .padding(top = 4.dp)
-                    .size(32.dp)
-            ) {
-                if (workout.isCompleted) {
-                    Text(
-                        text = "👍",
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .clickable { onToggleCompleted(false) }
-                            .size(28.dp),
-                        fontSize = 24.sp
-                    )
-                } else {
-                    Checkbox(
-                        checked = workout.isCompleted,
-                        onCheckedChange = onToggleCompleted,
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .padding(top = 4.dp)
-                            .size(26.dp)
-                    )
+            if (!workout.isRestDay) {
+                Spacer(modifier = Modifier.width(12.dp))
+                Box(
+                    modifier = Modifier
+                        .size(32.dp)
+                        .offset(x = (-24).dp, y = (-2).dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (workout.isCompleted) {
+                        Text(
+                            text = "👍",
+                            modifier = Modifier
+                                .clickable { onToggleCompleted(false) }
+                                .size(26.dp),
+                            fontSize = 22.sp
+                        )
+                    } else {
+                        Checkbox(
+                            checked = workout.isCompleted,
+                            onCheckedChange = onToggleCompleted,
+                            modifier = Modifier.size(26.dp)
+                        )
+                    }
                 }
             }
         }
@@ -449,6 +447,7 @@ private fun GhostWorkoutRow(
     modifier: Modifier = Modifier
 ) {
     val colors = workoutRowColors(workout, isDragging = false)
+    val hasDescription = workout.description.isNotBlank()
     Surface(
         color = colors.background,
         contentColor = colors.content,
@@ -459,11 +458,11 @@ private fun GhostWorkoutRow(
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
                 Icon(
@@ -497,7 +496,7 @@ private fun GhostWorkoutRow(
                             contentColor = colors.content
                         )
                     }
-                    if (workout.description.isNotBlank()) {
+                    if (hasDescription) {
                         Text(
                             text = workout.description,
                             style = MaterialTheme.typography.bodySmall,
