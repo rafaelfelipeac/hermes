@@ -600,7 +600,19 @@ private fun workoutRowColors(workout: WorkoutUi, isDragging: Boolean): RowColors
 private fun SectionKey.title(): String {
     return when (this) {
         SectionKey.ToBeDefined -> stringResource(R.string.section_to_be_defined)
-        is SectionKey.Day -> dayOfWeek.name.lowercase().replaceFirstChar { it.uppercase() }
+        is SectionKey.Day -> stringResource(dayOfWeek.labelRes())
+    }
+}
+
+private fun DayOfWeek.labelRes(): Int {
+    return when (this) {
+        DayOfWeek.MONDAY -> R.string.day_monday
+        DayOfWeek.TUESDAY -> R.string.day_tuesday
+        DayOfWeek.WEDNESDAY -> R.string.day_wednesday
+        DayOfWeek.THURSDAY -> R.string.day_thursday
+        DayOfWeek.FRIDAY -> R.string.day_friday
+        DayOfWeek.SATURDAY -> R.string.day_saturday
+        DayOfWeek.SUNDAY -> R.string.day_sunday
     }
 }
 
