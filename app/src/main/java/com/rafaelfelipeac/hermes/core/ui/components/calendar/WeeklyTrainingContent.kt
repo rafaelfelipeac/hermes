@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Close
@@ -32,8 +33,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,6 +49,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -80,6 +82,7 @@ data class WorkoutUi(
 
 @Composable
 fun WeeklyTrainingContent(
+    selectedDate: LocalDate,
     selectedWeekStartDate: LocalDate,
     workouts: List<WorkoutUi>,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
@@ -87,6 +90,7 @@ fun WeeklyTrainingContent(
     onWorkoutEdit: (WorkoutUi) -> Unit,
     onWorkoutDelete: (WorkoutUi) -> Unit,
     onDominantDayChanged: (LocalDate) -> Unit = {},
+    onWeekChanged: (LocalDate) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val sections = remember(workouts) {
@@ -111,6 +115,8 @@ fun WeeklyTrainingContent(
     var draggedItemHeight by remember { mutableStateOf(0f) }
     var containerBounds by remember { mutableStateOf(Rect.Zero) }
     val listState = rememberLazyListState()
+    val swipeThreshold = with(LocalDensity.current) { 72.dp.toPx() }
+    var dragAmount by remember { mutableStateOf(0f) }
     val workoutsBySection = remember(workouts) {
         sections.associateWith { section ->
             workouts
@@ -168,6 +174,23 @@ fun WeeklyTrainingContent(
 
     Box(
         modifier = modifier
+            .pointerInput(selectedDate, draggedWorkoutId) {
+                if (draggedWorkoutId == null) {
+                    detectHorizontalDragGestures(
+                        onHorizontalDrag = { _, amount ->
+                            dragAmount += amount
+                        },
+                        onDragEnd = {
+                            when {
+                                dragAmount <= -swipeThreshold -> onWeekChanged(selectedDate.plusWeeks(1))
+                                dragAmount >= swipeThreshold -> onWeekChanged(selectedDate.minusWeeks(1))
+                            }
+                            dragAmount = 0f
+                        },
+                        onDragCancel = { dragAmount = 0f }
+                    )
+                }
+            }
             .onGloballyPositioned {
                 containerBounds = it.boundsInRoot()
             }
@@ -667,6 +690,7 @@ private fun SectionKey.dayOfWeekOrNull(): DayOfWeek? {
 @Composable
 private fun WeeklyTrainingContentPreview() {
     WeeklyTrainingContent(
+        selectedDate = LocalDate.of(2026, 1, 15),
         selectedWeekStartDate = LocalDate.of(2026, 1, 12),
         workouts = listOf(
             WorkoutUi(

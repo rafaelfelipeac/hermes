@@ -71,12 +71,14 @@ fun TrainingWeekScreen(
             )
 
             WeeklyTrainingContent(
+                selectedDate = state.selectedDate,
                 selectedWeekStartDate = state.weekStartDate,
                 workouts = state.workouts,
                 onWorkoutMoved = viewModel::moveWorkout,
                 onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
                 onWorkoutEdit = { workout -> editingWorkout = workout },
-                onWorkoutDelete = { workout -> deletingWorkout = workout }
+                onWorkoutDelete = { workout -> deletingWorkout = workout },
+                onWeekChanged = viewModel::onWeekChanged
             )
         }
 
