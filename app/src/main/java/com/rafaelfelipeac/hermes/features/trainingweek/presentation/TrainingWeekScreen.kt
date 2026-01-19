@@ -29,6 +29,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
@@ -106,7 +107,8 @@ fun TrainingWeekScreen(
             FloatingActionButton(
                 onClick = { isAddMenuVisible = !isAddMenuVisible },
                 containerColor = fabContainerColor,
-                contentColor = fabContentColor
+                contentColor = fabContentColor,
+                modifier = Modifier.testTag("add-fab")
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,

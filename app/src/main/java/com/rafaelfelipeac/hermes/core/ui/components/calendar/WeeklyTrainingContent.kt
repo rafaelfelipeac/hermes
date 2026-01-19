@@ -50,6 +50,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -184,6 +185,7 @@ fun WeeklyTrainingContent(
 
     Box(
         modifier = modifier
+            .testTag("weekly-training-content")
             .pointerInput(selectedDate, draggedWorkoutId) {
                 if (draggedWorkoutId == null) {
                     detectHorizontalDragGestures(
@@ -247,7 +249,10 @@ fun WeeklyTrainingContent(
                             .fillMaxWidth()
                             .onGloballyPositioned { sectionBounds[section] = it.boundsInRoot() }
                     ) {
-                        SectionHeader(title = section.title())
+                        SectionHeader(
+                            title = section.title(),
+                            tag = "section-header-${section.key}"
+                        )
 
                         val items = workoutsBySection[section].orEmpty()
 
@@ -303,11 +308,13 @@ fun WeeklyTrainingContent(
 }
 
 @Composable
-private fun SectionHeader(title: String) {
+private fun SectionHeader(title: String, tag: String) {
     Text(
         text = title,
         style = MaterialTheme.typography.titleMedium,
-        modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+        modifier = Modifier
+            .padding(horizontal = 4.dp, vertical = 8.dp)
+            .testTag(tag)
     )
 }
 

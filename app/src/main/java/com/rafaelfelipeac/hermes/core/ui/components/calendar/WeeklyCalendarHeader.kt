@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,7 +69,9 @@ fun WeeklyCalendarHeader(
     var dragAmount by remember { mutableStateOf(0f) }
 
     Column(
-        modifier = modifier.pointerInput(selectedDate, onWeekChanged) {
+        modifier = modifier
+            .testTag("weekly-calendar-header")
+            .pointerInput(selectedDate, onWeekChanged) {
             detectHorizontalDragGestures(
                 onHorizontalDrag = { _, amount ->
                     dragAmount += amount
@@ -89,13 +92,19 @@ fun WeeklyCalendarHeader(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = { onWeekChanged(selectedDate.minusWeeks(1)) }) {
+            IconButton(
+                onClick = { onWeekChanged(selectedDate.minusWeeks(1)) },
+                modifier = Modifier.testTag("week-prev")
+            ) {
                 Text(text = stringResource(R.string.week_previous))
             }
 
             Text(text = formatWeekRange(weekStartDate, weekEndDate))
 
-            IconButton(onClick = { onWeekChanged(selectedDate.plusWeeks(1)) }) {
+            IconButton(
+                onClick = { onWeekChanged(selectedDate.plusWeeks(1)) },
+                modifier = Modifier.testTag("week-next")
+            ) {
                 Text(text = stringResource(R.string.week_next))
             }
         }
@@ -114,6 +123,7 @@ fun WeeklyCalendarHeader(
                 Column(
                     modifier = Modifier
                         .weight(1f)
+                        .testTag("header-day-${date}")
                         .clickable { onDateSelected(date) }
                         .padding(vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
