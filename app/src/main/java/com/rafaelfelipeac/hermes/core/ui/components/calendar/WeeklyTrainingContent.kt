@@ -53,9 +53,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.TextSizes
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDayContentDark
@@ -67,6 +67,37 @@ import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
+
+private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
+private const val WORKOUT_ROW_CONTENT_ALPHA = 1f
+private const val WORKOUT_BORDER_ALPHA = 0.6f
+private const val GHOST_ROW_ALPHA = 0.45f
+private const val TYPE_CHIP_ALPHA = 0.18f
+private const val NO_INDEX = -1
+private const val FIRST_LIST_INDEX = 0
+private const val SECTION_LIST_ITEM_SPAN = 2
+private const val WEEK_CHANGE_STEP = 1L
+private const val AUTO_SCROLL_EDGE = 96f
+private const val AUTO_SCROLL_MAX_SPEED = 18f
+private const val AUTO_SCROLL_SAFE_PADDING = 16f
+private const val AUTO_SCROLL_FRAME_DELAY_MS = 16L
+private const val WEEKLY_TRAINING_CONTENT_TAG = "weekly-training-content"
+private const val SECTION_ITEM_KEY_PREFIX = "section-"
+private const val DIVIDER_ITEM_KEY_PREFIX = "divider-"
+private const val SECTION_HEADER_TAG_PREFIX = "section-header-"
+private const val SECTION_KEY_TBD = "tbd"
+private const val PREVIEW_WORKOUT_TYPE_RUN = "Run"
+private const val PREVIEW_WORKOUT_TYPE_SWIM = "Swim"
+private const val PREVIEW_WORKOUT_TYPE_BIKE = "Bike"
+private const val PREVIEW_WORKOUT_DESCRIPTION_RUN = "Easy 5k"
+private const val PREVIEW_WORKOUT_DESCRIPTION_SWIM = "Intervals 10x100"
+private const val PREVIEW_WORKOUT_DESCRIPTION_BIKE = "Tempo 45 min"
+private const val PREVIEW_YEAR = 2026
+private const val PREVIEW_MONTH = 1
+private const val PREVIEW_DAY = 15
+private const val PREVIEW_WORKOUT_ID_RUN = 1L
+private const val PREVIEW_WORKOUT_ID_SWIM = 2L
+private const val PREVIEW_WORKOUT_ID_BIKE = 3L
 
 typealias WorkoutId = Long
 
@@ -114,7 +145,7 @@ fun WeeklyTrainingContent(
     var draggedItemHeight by remember { mutableStateOf(0f) }
     var containerBounds by remember { mutableStateOf(Rect.Zero) }
     val listState = rememberLazyListState()
-    val swipeThreshold = with(LocalDensity.current) { 72.dp.toPx() }
+    val swipeThreshold = with(LocalDensity.current) { Dimens.SwipeThreshold.toPx() }
     var dragAmount by remember { mutableStateOf(0f) }
     val workoutsBySection =
         remember(workouts) {
@@ -131,8 +162,8 @@ fun WeeklyTrainingContent(
         if (draggedWorkoutId == null) {
             val targetSection = SectionKey.Day(selectedDate.dayOfWeek)
             val targetIndex = sections.indexOf(targetSection)
-            if (targetIndex >= 0) {
-                val listIndex = targetIndex * 2
+            if (targetIndex != NO_INDEX) {
+                val listIndex = targetIndex * SECTION_LIST_ITEM_SPAN
                 listState.animateScrollToItem(listIndex)
             }
         }
@@ -146,7 +177,7 @@ fun WeeklyTrainingContent(
                 .toSet()
         val hasNewUnscheduled = currentUnscheduledIds.any { it !in previousUnscheduledIds }
         if (hasNewUnscheduled && sections.firstOrNull() == SectionKey.ToBeDefined) {
-            listState.animateScrollToItem(0)
+            listState.animateScrollToItem(FIRST_LIST_INDEX)
         }
     }
 
@@ -154,10 +185,10 @@ fun WeeklyTrainingContent(
         while (draggedWorkoutId != null) {
             val position = dragPosition
             if (position != null && containerBounds != Rect.Zero) {
-                val edge = 96f
-                val maxSpeed = 18f
-                val safeTop = containerBounds.top + 16f
-                val safeBottom = containerBounds.bottom - 16f
+                val edge = AUTO_SCROLL_EDGE
+                val maxSpeed = AUTO_SCROLL_MAX_SPEED
+                val safeTop = containerBounds.top + AUTO_SCROLL_SAFE_PADDING
+                val safeBottom = containerBounds.bottom - AUTO_SCROLL_SAFE_PADDING
                 val clampedPosition =
                     Offset(
                         position.x,
@@ -173,23 +204,25 @@ fun WeeklyTrainingContent(
                         distanceToTop < edge && listState.canScrollBackward -> {
                             -maxSpeed * (1f - (distanceToTop / edge))
                         }
+
                         distanceToBottom < edge && listState.canScrollForward -> {
                             maxSpeed * (1f - (distanceToBottom / edge))
                         }
+
                         else -> 0f
                     }
                 if (scrollDelta != 0f) {
                     listState.scrollBy(scrollDelta)
                 }
             }
-            delay(16)
+            delay(AUTO_SCROLL_FRAME_DELAY_MS)
         }
     }
 
     Box(
         modifier =
             modifier
-                .testTag("weekly-training-content")
+                .testTag(WEEKLY_TRAINING_CONTENT_TAG)
                 .pointerInput(selectedDate, draggedWorkoutId) {
                     if (draggedWorkoutId == null) {
                         detectHorizontalDragGestures(
@@ -198,8 +231,11 @@ fun WeeklyTrainingContent(
                             },
                             onDragEnd = {
                                 when {
-                                    dragAmount <= -swipeThreshold -> onWeekChanged(selectedDate.plusWeeks(1))
-                                    dragAmount >= swipeThreshold -> onWeekChanged(selectedDate.minusWeeks(1))
+                                    dragAmount <= -swipeThreshold ->
+                                        onWeekChanged(selectedDate.plusWeeks(WEEK_CHANGE_STEP))
+
+                                    dragAmount >= swipeThreshold ->
+                                        onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP))
                                 }
                                 dragAmount = 0f
                             },
@@ -250,19 +286,21 @@ fun WeeklyTrainingContent(
         LazyColumn(
             state = listState,
             userScrollEnabled = draggedWorkoutId == null,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
         ) {
             sections.forEach { section ->
-                item(key = "section-${section.key}") {
+                item(key = "$SECTION_ITEM_KEY_PREFIX${section.key}") {
                     Column(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .onGloballyPositioned { sectionBounds[section] = it.boundsInRoot() },
+                                .onGloballyPositioned {
+                                    sectionBounds[section] = it.boundsInRoot()
+                                },
                     ) {
                         SectionHeader(
                             title = section.title(),
-                            tag = "section-header-${section.key}",
+                            tag = "$SECTION_HEADER_TAG_PREFIX${section.key}",
                         )
 
                         val items = workoutsBySection[section].orEmpty()
@@ -271,8 +309,8 @@ fun WeeklyTrainingContent(
                             EmptySectionRow()
                         } else {
                             items.forEachIndexed { index, workout ->
-                                if (index > 0) {
-                                    Spacer(modifier = Modifier.height(8.dp))
+                                if (index > FIRST_LIST_INDEX) {
+                                    Spacer(modifier = Modifier.height(Dimens.SpacingMd))
                                 }
 
                                 WorkoutRow(
@@ -294,9 +332,9 @@ fun WeeklyTrainingContent(
                         }
                     }
                 }
-                item(key = "divider-${section.key}") {
+                item(key = "$DIVIDER_ITEM_KEY_PREFIX${section.key}") {
                     HorizontalDivider(
-                        modifier = Modifier.padding(top = 8.dp),
+                        modifier = Modifier.padding(top = Dimens.SpacingMd),
                         color = MaterialTheme.colorScheme.outlineVariant,
                     )
                 }
@@ -332,7 +370,10 @@ private fun SectionHeader(
         style = MaterialTheme.typography.titleMedium,
         modifier =
             Modifier
-                .padding(horizontal = 4.dp, vertical = 8.dp)
+                .padding(
+                    horizontal = Dimens.SpacingXs,
+                    vertical = Dimens.SpacingMd,
+                )
                 .testTag(tag),
     )
 }
@@ -342,7 +383,11 @@ private fun EmptySectionRow() {
     Text(
         text = stringResource(R.string.no_workouts),
         style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        modifier =
+            Modifier.padding(
+                horizontal = Dimens.SpacingLg,
+                vertical = Dimens.SpacingMd,
+            ),
     )
 }
 
@@ -373,8 +418,8 @@ private fun WorkoutRow(
             .then(
                 if (!isDragging && !workout.isRestDay) {
                     Modifier.border(
-                        width = 2.dp,
-                        color = colors.background.copy(alpha = 0.6f),
+                        width = Dimens.BorderThin,
+                        color = colors.background.copy(alpha = WORKOUT_BORDER_ALPHA),
                         shape = MaterialTheme.shapes.medium,
                     )
                 } else {
@@ -384,13 +429,13 @@ private fun WorkoutRow(
             .then(
                 if (isDragging) {
                     Modifier
-                        .height(0.dp)
-                        .padding(0.dp)
-                        .alpha(0f)
+                        .height(Dimens.Zero)
+                        .padding(Dimens.Zero)
+                        .alpha(WORKOUT_ROW_DRAGGING_ALPHA)
                 } else {
                     Modifier
-                        .padding(14.dp)
-                        .alpha(1f)
+                        .padding(Dimens.ContentPadding)
+                        .alpha(WORKOUT_ROW_CONTENT_ALPHA)
                 },
             )
 
@@ -399,7 +444,7 @@ private fun WorkoutRow(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(end = 16.dp)
+                    .padding(end = Dimens.SpacingXl)
                     .pointerInput(Unit) {
                         detectDragGesturesAfterLongPress(
                             onDragStart = { offset ->
@@ -417,24 +462,24 @@ private fun WorkoutRow(
                 Box(
                     modifier =
                         Modifier
-                            .size(32.dp)
-                            .offset(y = (-2).dp),
+                            .size(Dimens.CheckboxBoxSize)
+                            .offset(y = Dimens.CheckboxYOffset),
                     contentAlignment = Alignment.Center,
                 ) {
                     if (workout.isCompleted) {
                         Text(
-                            text = "👍",
+                            text = stringResource(R.string.workout_completed_emoji),
                             modifier =
                                 Modifier
                                     .clickable { onToggleCompleted(false) }
-                                    .size(26.dp),
-                            fontSize = 22.sp,
+                                    .size(Dimens.CheckboxSize),
+                            fontSize = TextSizes.CompletedEmojiFontSize,
                         )
                     } else {
                         Checkbox(
                             checked = workout.isCompleted,
                             onCheckedChange = onToggleCompleted,
-                            modifier = Modifier.size(26.dp),
+                            modifier = Modifier.size(Dimens.CheckboxSize),
                             colors =
                                 CheckboxDefaults.colors(
                                     checkedColor = colors.content,
@@ -446,7 +491,7 @@ private fun WorkoutRow(
                 }
             }
             if (!workout.isRestDay) {
-                Spacer(modifier = Modifier.width(12.dp))
+                Spacer(modifier = Modifier.width(Dimens.SpacingLg))
             }
             Row(
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
@@ -462,9 +507,9 @@ private fun WorkoutRow(
                                 imageVector = Icons.Outlined.Bedtime,
                                 contentDescription = null,
                                 tint = colors.content,
-                                modifier = Modifier.size(16.dp),
+                                modifier = Modifier.size(Dimens.SmallIconSize),
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(Dimens.SpacingSm))
                             Text(
                                 text = stringResource(R.string.rest_day_label),
                                 style = MaterialTheme.typography.titleSmall,
@@ -474,13 +519,13 @@ private fun WorkoutRow(
                     } else {
                         TypeChip(
                             label = workout.type,
-                            containerColor = colors.content.copy(alpha = 0.18f),
+                            containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                             contentColor = colors.content,
                         )
                     }
 
                     if (hasDescription) {
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(Dimens.SpacingXs))
 
                         Text(
                             text = workout.description,
@@ -499,8 +544,8 @@ private fun WorkoutRow(
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
-                    .offset(x = 4.dp, y = (-0).dp)
-                    .size(14.dp)
+                    .offset(x = Dimens.SpacingXs, y = Dimens.Zero)
+                    .size(Dimens.CloseIconSize)
                     .clickable { onDelete() },
         )
     }
@@ -520,7 +565,11 @@ private fun TypeChip(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier =
+                Modifier.padding(
+                    horizontal = Dimens.SpacingMd,
+                    vertical = Dimens.SpacingXs,
+                ),
         )
     }
 }
@@ -542,18 +591,18 @@ private fun GhostWorkoutRow(
                 .then(
                     if (!workout.isRestDay) {
                         Modifier.border(
-                            width = 2.dp,
-                            color = colors.background.copy(alpha = 0.6f),
+                            width = Dimens.BorderThin,
+                            color = colors.background.copy(alpha = WORKOUT_BORDER_ALPHA),
                             shape = MaterialTheme.shapes.medium,
                         )
                     } else {
                         Modifier
                     },
                 )
-                .alpha(0.45f),
+                .alpha(GHOST_ROW_ALPHA),
     ) {
         Row(
-            modifier = Modifier.padding(14.dp),
+            modifier = Modifier.padding(Dimens.ContentPadding),
             verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -568,9 +617,9 @@ private fun GhostWorkoutRow(
                                 imageVector = Icons.Outlined.Bedtime,
                                 contentDescription = null,
                                 tint = colors.content,
-                                modifier = Modifier.size(16.dp),
+                                modifier = Modifier.size(Dimens.SmallIconSize),
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
+                            Spacer(modifier = Modifier.width(Dimens.SpacingSm))
                             Text(
                                 text = stringResource(R.string.rest_day_label),
                                 style = MaterialTheme.typography.titleSmall,
@@ -580,7 +629,7 @@ private fun GhostWorkoutRow(
                     } else {
                         TypeChip(
                             label = workout.type,
-                            containerColor = colors.content.copy(alpha = 0.18f),
+                            containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                             contentColor = colors.content,
                         )
                     }
@@ -597,178 +646,178 @@ private fun GhostWorkoutRow(
     }
 }
 
-    private fun findTargetSection(
-        dropPosition: Offset,
-        sectionBounds: Map<SectionKey, Rect>,
-        fallback: SectionKey,
-    ): SectionKey {
-        return sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key
-            ?: fallback
-    }
+private fun findTargetSection(
+    dropPosition: Offset,
+    sectionBounds: Map<SectionKey, Rect>,
+    fallback: SectionKey,
+): SectionKey {
+    return sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key
+        ?: fallback
+}
 
-    private fun computeOrderForDrop(
-        dropPosition: Offset,
-        items: List<WorkoutUi>,
-        draggedId: WorkoutId,
-        itemBounds: Map<WorkoutId, Rect>,
-    ): Int {
-        val candidates = items.filterNot { it.id == draggedId }
+private fun computeOrderForDrop(
+    dropPosition: Offset,
+    items: List<WorkoutUi>,
+    draggedId: WorkoutId,
+    itemBounds: Map<WorkoutId, Rect>,
+): Int {
+    val candidates = items.filterNot { it.id == draggedId }
 
-        if (candidates.isEmpty()) return 0
+    if (candidates.isEmpty()) return FIRST_LIST_INDEX
 
-        val sorted = candidates.sortedBy { it.order }
-        val dropIndex =
-            sorted.indexOfFirst { workout ->
-                val bounds = itemBounds[workout.id] ?: return@indexOfFirst false
-                dropPosition.y < bounds.center.y
-            }
-
-        return if (dropIndex == -1) sorted.size else dropIndex
-    }
-
-    private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
-        return coordinates?.boundsInRoot()?.height ?: 0f
-    }
-
-    private data class DropContext(
-        val workouts: List<WorkoutUi>,
-        val workoutsBySection: Map<SectionKey, List<WorkoutUi>>,
-        val sectionBounds: Map<SectionKey, Rect>,
-        val itemBounds: Map<WorkoutId, Rect>,
-        val onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
-    )
-
-    private fun handleDrop(
-        draggedWorkoutId: WorkoutId,
-        dragPosition: Offset,
-        context: DropContext,
-    ) {
-        val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
-        val fallbackSection = workout.dayOfWeek.toSectionKey()
-        val targetSection = findTargetSection(dragPosition, context.sectionBounds, fallbackSection)
-        val targetItems = context.workoutsBySection[targetSection].orEmpty()
-        val newOrder =
-            computeOrderForDrop(dragPosition, targetItems, workout.id, context.itemBounds)
-        val newDay = targetSection.dayOfWeekOrNull()
-
-        if (newDay != workout.dayOfWeek || newOrder != workout.order) {
-            context.onWorkoutMoved(workout.id, newDay, newOrder)
+    val sorted = candidates.sortedBy { it.order }
+    val dropIndex =
+        sorted.indexOfFirst { workout ->
+            val bounds = itemBounds[workout.id] ?: return@indexOfFirst false
+            dropPosition.y < bounds.center.y
         }
+
+    return if (dropIndex == NO_INDEX) sorted.size else dropIndex
+}
+
+private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
+    return coordinates?.boundsInRoot()?.height ?: 0f
+}
+
+private data class DropContext(
+    val workouts: List<WorkoutUi>,
+    val workoutsBySection: Map<SectionKey, List<WorkoutUi>>,
+    val sectionBounds: Map<SectionKey, Rect>,
+    val itemBounds: Map<WorkoutId, Rect>,
+    val onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
+)
+
+private fun handleDrop(
+    draggedWorkoutId: WorkoutId,
+    dragPosition: Offset,
+    context: DropContext,
+) {
+    val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
+    val fallbackSection = workout.dayOfWeek.toSectionKey()
+    val targetSection = findTargetSection(dragPosition, context.sectionBounds, fallbackSection)
+    val targetItems = context.workoutsBySection[targetSection].orEmpty()
+    val newOrder =
+        computeOrderForDrop(dragPosition, targetItems, workout.id, context.itemBounds)
+    val newDay = targetSection.dayOfWeekOrNull()
+
+    if (newDay != workout.dayOfWeek || newOrder != workout.order) {
+        context.onWorkoutMoved(workout.id, newDay, newOrder)
     }
+}
 
-    private sealed class SectionKey(val key: String) {
-        object ToBeDefined : SectionKey("tbd")
+private sealed class SectionKey(val key: String) {
+    object ToBeDefined : SectionKey(SECTION_KEY_TBD)
 
-        data class Day(val dayOfWeek: DayOfWeek) : SectionKey(dayOfWeek.name)
-    }
+    data class Day(val dayOfWeek: DayOfWeek) : SectionKey(dayOfWeek.name)
+}
 
-    private fun DayOfWeek?.toSectionKey(): SectionKey {
-        return if (this == null) SectionKey.ToBeDefined else SectionKey.Day(this)
-    }
+private fun DayOfWeek?.toSectionKey(): SectionKey {
+    return if (this == null) SectionKey.ToBeDefined else SectionKey.Day(this)
+}
 
-    private data class RowColors(
-        val background: Color,
-        val content: Color,
-    )
+private data class RowColors(
+    val background: Color,
+    val content: Color,
+)
 
-    @Composable
-    private fun workoutRowColors(
-        workout: WorkoutUi,
-        isDragging: Boolean,
-    ): RowColors {
-        val colorScheme = MaterialTheme.colorScheme
-        val todoColor = CompletedBlue
-        val todoContent = CompletedBlueContent
-        val completedColor = TodoBlue
-        val completedContent = TodoBlueContent
-        val isUnscheduled = workout.dayOfWeek == null
-        val isDarkTheme = isSystemInDarkTheme()
-        val restDayBackground = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
-        val restDayContent = if (isDarkTheme) RestDayContentDark else RestDayContentLight
+@Composable
+private fun workoutRowColors(
+    workout: WorkoutUi,
+    isDragging: Boolean,
+): RowColors {
+    val colorScheme = MaterialTheme.colorScheme
+    val todoColor = CompletedBlue
+    val todoContent = CompletedBlueContent
+    val completedColor = TodoBlue
+    val completedContent = TodoBlueContent
+    val isUnscheduled = workout.dayOfWeek == null
+    val isDarkTheme = isSystemInDarkTheme()
+    val restDayBackground = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
+    val restDayContent = if (isDarkTheme) RestDayContentDark else RestDayContentLight
 
-        val background =
-            when {
-                isDragging -> colorScheme.surfaceVariant
-                workout.isCompleted -> completedColor
-                workout.isRestDay -> restDayBackground
-                isUnscheduled -> todoColor
-                else -> todoColor
-            }
-        val content =
-            when {
-                workout.isRestDay -> restDayContent
-                workout.isCompleted -> completedContent
-                isUnscheduled -> todoContent
-                else -> todoContent
-            }
-        return RowColors(background, content)
-    }
-
-    @Composable
-    private fun SectionKey.title(): String {
-        return when (this) {
-            SectionKey.ToBeDefined -> stringResource(R.string.section_to_be_defined)
-            is SectionKey.Day -> stringResource(dayOfWeek.labelRes())
+    val background =
+        when {
+            isDragging -> colorScheme.surfaceVariant
+            workout.isCompleted -> completedColor
+            workout.isRestDay -> restDayBackground
+            isUnscheduled -> todoColor
+            else -> todoColor
         }
-    }
-
-    private fun DayOfWeek.labelRes(): Int {
-        return when (this) {
-            DayOfWeek.MONDAY -> R.string.day_monday
-            DayOfWeek.TUESDAY -> R.string.day_tuesday
-            DayOfWeek.WEDNESDAY -> R.string.day_wednesday
-            DayOfWeek.THURSDAY -> R.string.day_thursday
-            DayOfWeek.FRIDAY -> R.string.day_friday
-            DayOfWeek.SATURDAY -> R.string.day_saturday
-            DayOfWeek.SUNDAY -> R.string.day_sunday
+    val content =
+        when {
+            workout.isRestDay -> restDayContent
+            workout.isCompleted -> completedContent
+            isUnscheduled -> todoContent
+            else -> todoContent
         }
-    }
+    return RowColors(background, content)
+}
 
-    private fun SectionKey.dayOfWeekOrNull(): DayOfWeek? {
-        return when (this) {
-            SectionKey.ToBeDefined -> null
-            is SectionKey.Day -> dayOfWeek
-        }
+@Composable
+private fun SectionKey.title(): String {
+    return when (this) {
+        SectionKey.ToBeDefined -> stringResource(R.string.section_to_be_defined)
+        is SectionKey.Day -> stringResource(dayOfWeek.labelRes())
     }
+}
 
-    @Preview(showBackground = true)
-    @Composable
-    private fun WeeklyTrainingContentPreview() {
-        WeeklyTrainingContent(
-            selectedDate = LocalDate.of(2026, 1, 15),
-            workouts =
-                listOf(
-                    WorkoutUi(
-                        id = 1L,
-                        dayOfWeek = null,
-                        type = "Run",
-                        description = "Easy 5k",
-                        isCompleted = false,
-                        isRestDay = false,
-                        order = 0,
-                    ),
-                    WorkoutUi(
-                        id = 2L,
-                        dayOfWeek = DayOfWeek.MONDAY,
-                        type = "Swim",
-                        description = "Intervals 10x100",
-                        isCompleted = false,
-                        isRestDay = false,
-                        order = 0,
-                    ),
-                    WorkoutUi(
-                        id = 3L,
-                        dayOfWeek = DayOfWeek.WEDNESDAY,
-                        type = "Bike",
-                        description = "Tempo 45 min",
-                        isCompleted = true,
-                        isRestDay = false,
-                        order = 0,
-                    ),
+private fun DayOfWeek.labelRes(): Int {
+    return when (this) {
+        DayOfWeek.MONDAY -> R.string.day_monday
+        DayOfWeek.TUESDAY -> R.string.day_tuesday
+        DayOfWeek.WEDNESDAY -> R.string.day_wednesday
+        DayOfWeek.THURSDAY -> R.string.day_thursday
+        DayOfWeek.FRIDAY -> R.string.day_friday
+        DayOfWeek.SATURDAY -> R.string.day_saturday
+        DayOfWeek.SUNDAY -> R.string.day_sunday
+    }
+}
+
+private fun SectionKey.dayOfWeekOrNull(): DayOfWeek? {
+    return when (this) {
+        SectionKey.ToBeDefined -> null
+        is SectionKey.Day -> dayOfWeek
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun WeeklyTrainingContentPreview() {
+    WeeklyTrainingContent(
+        selectedDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_DAY),
+        workouts =
+            listOf(
+                WorkoutUi(
+                    id = PREVIEW_WORKOUT_ID_RUN,
+                    dayOfWeek = null,
+                    type = PREVIEW_WORKOUT_TYPE_RUN,
+                    description = PREVIEW_WORKOUT_DESCRIPTION_RUN,
+                    isCompleted = false,
+                    isRestDay = false,
+                    order = FIRST_LIST_INDEX,
                 ),
-            onWorkoutMoved = { _, _, _ -> },
-            onWorkoutCompletionChanged = { _, _ -> },
-            onWorkoutEdit = {},
-            onWorkoutDelete = {},
-        )
-    }
+                WorkoutUi(
+                    id = PREVIEW_WORKOUT_ID_SWIM,
+                    dayOfWeek = DayOfWeek.MONDAY,
+                    type = PREVIEW_WORKOUT_TYPE_SWIM,
+                    description = PREVIEW_WORKOUT_DESCRIPTION_SWIM,
+                    isCompleted = false,
+                    isRestDay = false,
+                    order = FIRST_LIST_INDEX,
+                ),
+                WorkoutUi(
+                    id = PREVIEW_WORKOUT_ID_BIKE,
+                    dayOfWeek = DayOfWeek.WEDNESDAY,
+                    type = PREVIEW_WORKOUT_TYPE_BIKE,
+                    description = PREVIEW_WORKOUT_DESCRIPTION_BIKE,
+                    isCompleted = true,
+                    isRestDay = false,
+                    order = FIRST_LIST_INDEX,
+                ),
+            ),
+        onWorkoutMoved = { _, _, _ -> },
+        onWorkoutCompletionChanged = { _, _ -> },
+        onWorkoutEdit = {},
+        onWorkoutDelete = {},
+    )
+}

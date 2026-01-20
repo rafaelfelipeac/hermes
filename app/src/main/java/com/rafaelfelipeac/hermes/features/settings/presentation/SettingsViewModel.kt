@@ -19,6 +19,11 @@ class SettingsViewModel
     constructor(
         private val repository: SettingsRepository,
     ) : ViewModel() {
+
+        private companion object {
+            const val SETTINGS_STATE_SHARING_TIMEOUT_MS = 5_000L
+        }
+
         val state: StateFlow<SettingsState> =
             combine(
                 repository.themeMode,
@@ -30,7 +35,7 @@ class SettingsViewModel
                 )
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.WhileSubscribed(SETTINGS_STATE_SHARING_TIMEOUT_MS),
                 initialValue =
                     SettingsState(
                         themeMode = repository.initialThemeMode(),

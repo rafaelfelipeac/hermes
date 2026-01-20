@@ -24,7 +24,7 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             HermesDatabase::class.java,
-            "hermes.db",
+            DATABASE_NAME,
         )
             .addMigrations(MIGRATION_1_2)
             .build()
@@ -35,6 +35,8 @@ object DatabaseModule {
         return database.workoutDao()
     }
 }
+
+private const val DATABASE_NAME = "hermes.db"
 
 private val MIGRATION_1_2 =
     object : Migration(1, 2) {

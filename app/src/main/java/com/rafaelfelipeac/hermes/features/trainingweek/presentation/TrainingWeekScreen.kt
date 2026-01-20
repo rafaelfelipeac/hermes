@@ -33,17 +33,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyTrainingContent
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WorkoutUi
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerDark
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerLight
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContentDark
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContentLight
+
+private val AddMenuScrimAlpha = 0.30f
+private const val ADD_FAB_TEST_TAG = "add-fab"
 
 @Composable
 fun TrainingWeekScreen(
@@ -65,13 +68,13 @@ fun TrainingWeekScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(Dimens.SpacingXl),
         ) {
             Text(
                 text = stringResource(R.string.nav_training_week),
                 style = MaterialTheme.typography.titleLarge,
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(Dimens.SpacingLg))
             WeeklyCalendarHeader(
                 selectedDate = state.selectedDate,
                 weekStartDate = state.weekStartDate,
@@ -97,7 +100,9 @@ fun TrainingWeekScreen(
                     Modifier
                         .fillMaxSize()
                         .background(
-                            androidx.compose.material3.MaterialTheme.colorScheme.scrim.copy(alpha = 0.30f),
+                            MaterialTheme.colorScheme.scrim.copy(
+                                alpha = AddMenuScrimAlpha,
+                            ),
                         )
                         .clickable(
                             indication = null,
@@ -109,16 +114,16 @@ fun TrainingWeekScreen(
         }
 
         Box(
-            modifier =
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(16.dp),
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(Dimens.SpacingXl),
         ) {
             FloatingActionButton(
                 onClick = { isAddMenuVisible = !isAddMenuVisible },
                 containerColor = fabContainerColor,
                 contentColor = fabContentColor,
-                modifier = Modifier.testTag("add-fab"),
+                modifier = Modifier.testTag(ADD_FAB_TEST_TAG),
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -132,8 +137,8 @@ fun TrainingWeekScreen(
                 modifier =
                     Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = 16.dp, bottom = 88.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                        .padding(end = Dimens.SpacingXl, bottom = Dimens.AddMenuBottomPadding),
+                verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
                 horizontalAlignment = Alignment.End,
             ) {
                 AddActionPill(
@@ -237,12 +242,16 @@ private fun AddActionPill(
     Surface(
         onClick = onClick,
         shape = androidx.compose.material3.MaterialTheme.shapes.extraLarge,
-        tonalElevation = 6.dp,
-        shadowElevation = 6.dp,
-        modifier = Modifier.defaultMinSize(minWidth = 180.dp),
+        tonalElevation = Dimens.ElevationMd,
+        shadowElevation = Dimens.ElevationMd,
+        modifier = Modifier.defaultMinSize(minWidth = Dimens.AddActionPillMinWidth),
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 18.dp, vertical = 12.dp),
+            modifier =
+                Modifier.padding(
+                    horizontal = Dimens.AddActionPillHorizontalPadding,
+                    vertical = Dimens.SpacingLg,
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = label, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)

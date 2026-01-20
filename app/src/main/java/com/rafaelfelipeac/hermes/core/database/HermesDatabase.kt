@@ -8,9 +8,13 @@ import com.rafaelfelipeac.hermes.features.trainingweek.data.local.WorkoutEntity
 
 @Database(
     entities = [WorkoutEntity::class],
-    version = 2,
+    version = HermesDatabase.DATABASE_VERSION,
 )
 @TypeConverters(LocalDateConverters::class)
 abstract class HermesDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
+
+    companion object {
+        private const val DATABASE_VERSION = 2
+    }
 }

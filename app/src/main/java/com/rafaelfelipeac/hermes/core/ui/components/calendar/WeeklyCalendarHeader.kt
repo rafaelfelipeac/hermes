@@ -30,8 +30,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
@@ -40,6 +40,20 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.util.Locale
+
+private const val WEEK_DAY_COUNT = 7
+private const val HEADER_TAG = "weekly-calendar-header"
+private const val PREV_WEEK_TAG = "week-prev"
+private const val NEXT_WEEK_TAG = "week-next"
+private const val HEADER_DAY_TAG_PREFIX = "header-day-"
+private const val SAME_MONTH_RANGE_FORMAT = "%d-%d %s %d"
+private const val SAME_YEAR_RANGE_FORMAT = "%d %s - %d %s %d"
+private const val CROSS_YEAR_RANGE_FORMAT = "%d %s %d - %d %s %d"
+private const val PREVIEW_YEAR = 2026
+private const val PREVIEW_MONTH = 1
+private const val PREVIEW_SELECTED_DAY = 15
+private const val PREVIEW_WEEK_START_DAY = 12
+private const val WEEK_CHANGE_STEP = 1L
 
 @Composable
 fun WeeklyCalendarHeader(
@@ -57,14 +71,14 @@ fun WeeklyCalendarHeader(
         DefaultDayContent(date = date, isSelected = isSelected, hasWorkout = hasWorkout)
     },
 ) {
-    val weekEndDate = weekStartDate.plusDays(6)
-    val swipeThreshold = with(LocalDensity.current) { 72.dp.toPx() }
+    val weekEndDate = weekStartDate.plusDays((WEEK_DAY_COUNT - 1).toLong())
+    val swipeThreshold = with(LocalDensity.current) { Dimens.SwipeThreshold.toPx() }
     var dragAmount by remember { mutableStateOf(0f) }
 
     Column(
         modifier =
             modifier
-                .testTag("weekly-calendar-header")
+                .testTag(HEADER_TAG)
                 .pointerInput(selectedDate, onWeekChanged) {
                     detectHorizontalDragGestures(
                         onHorizontalDrag = { _, amount ->
@@ -72,8 +86,10 @@ fun WeeklyCalendarHeader(
                         },
                         onDragEnd = {
                             when {
-                                dragAmount <= -swipeThreshold -> onWeekChanged(selectedDate.plusWeeks(1))
-                                dragAmount >= swipeThreshold -> onWeekChanged(selectedDate.minusWeeks(1))
+                                dragAmount <= -swipeThreshold ->
+                                    onWeekChanged(selectedDate.plusWeeks(WEEK_CHANGE_STEP))
+                                dragAmount >= swipeThreshold ->
+                                    onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP))
                             }
                             dragAmount = 0f
                         },
@@ -87,8 +103,8 @@ fun WeeklyCalendarHeader(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(
-                onClick = { onWeekChanged(selectedDate.minusWeeks(1)) },
-                modifier = Modifier.testTag("week-prev"),
+                onClick = { onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP)) },
+                modifier = Modifier.testTag(PREV_WEEK_TAG),
             ) {
                 Text(text = stringResource(R.string.week_previous))
             }
@@ -96,20 +112,20 @@ fun WeeklyCalendarHeader(
             Text(text = formatWeekRange(weekStartDate, weekEndDate))
 
             IconButton(
-                onClick = { onWeekChanged(selectedDate.plusWeeks(1)) },
-                modifier = Modifier.testTag("week-next"),
+                onClick = { onWeekChanged(selectedDate.plusWeeks(WEEK_CHANGE_STEP)) },
+                modifier = Modifier.testTag(NEXT_WEEK_TAG),
             ) {
                 Text(text = stringResource(R.string.week_next))
             }
         }
 
-        Spacer(modifier = Modifier.width(8.dp))
+        Spacer(modifier = Modifier.width(Dimens.SpacingMd))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            for (offset in 0..6) {
+            for (offset in 0 until WEEK_DAY_COUNT) {
                 val date = weekStartDate.plusDays(offset.toLong())
                 val isSelected = date == selectedDate
                 val indicator = dayIndicators[date.dayOfWeek]
@@ -118,9 +134,9 @@ fun WeeklyCalendarHeader(
                     modifier =
                         Modifier
                             .weight(1f)
-                            .testTag("header-day-$date")
+                            .testTag("$HEADER_DAY_TAG_PREFIX$date")
                             .clickable { onDateSelected(date) }
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = Dimens.SpacingMd),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     dayContent(date, isSelected, indicator != null)
@@ -147,14 +163,14 @@ private fun DefaultDayContent(
         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
     )
     if (!hasWorkout) {
-        Spacer(modifier = Modifier.size(8.dp))
+        Spacer(modifier = Modifier.size(Dimens.IndicatorSize))
     }
 }
 
 @Composable
 private fun IndicatorDot(indicator: DayIndicator?) {
     if (indicator == null) {
-        Spacer(modifier = Modifier.size(8.dp))
+        Spacer(modifier = Modifier.size(Dimens.IndicatorSize))
         return
     }
 
@@ -171,7 +187,7 @@ private fun IndicatorDot(indicator: DayIndicator?) {
     Box(
         modifier =
             Modifier
-                .size(8.dp)
+                .size(Dimens.IndicatorSize)
                 .clip(CircleShape)
                 .background(color),
     )
@@ -189,18 +205,36 @@ private fun formatWeekRange(
 
     return when {
         start.year == end.year && start.month == end.month ->
-            "$startDay-$endDay $startMonth ${start.year}"
+            String.format(locale, SAME_MONTH_RANGE_FORMAT, startDay, endDay, startMonth, start.year)
         start.year == end.year ->
-            "$startDay $startMonth - $endDay $endMonth ${start.year}"
-        else -> "$startDay $startMonth ${start.year} - $endDay $endMonth ${end.year}"
+            String.format(
+                locale,
+                SAME_YEAR_RANGE_FORMAT,
+                startDay,
+                startMonth,
+                endDay,
+                endMonth,
+                start.year,
+            )
+        else ->
+            String.format(
+                locale,
+                CROSS_YEAR_RANGE_FORMAT,
+                startDay,
+                startMonth,
+                start.year,
+                endDay,
+                endMonth,
+                end.year,
+            )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun WeeklyCalendarHeaderPreview() {
-    val selectedDate = LocalDate.of(2026, 1, 15)
-    val weekStartDate = LocalDate.of(2026, 1, 12)
+    val selectedDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_SELECTED_DAY)
+    val weekStartDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_WEEK_START_DAY)
     val dayIndicators =
         mapOf(
             DayOfWeek.MONDAY to DayIndicator.Workout,

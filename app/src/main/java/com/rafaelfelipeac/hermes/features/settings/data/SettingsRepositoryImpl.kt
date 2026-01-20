@@ -16,7 +16,9 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
-private val Context.settingsDataStore by preferencesDataStore(name = "settings")
+private val Context.settingsDataStore by preferencesDataStore(
+    name = SettingsRepositoryImpl.SETTINGS_DATA_STORE_NAME,
+)
 
 @Singleton
 class SettingsRepositoryImpl
@@ -24,6 +26,13 @@ class SettingsRepositoryImpl
     constructor(
         @param:ApplicationContext private val context: Context,
     ) : SettingsRepository {
+
+        companion object {
+            const val SETTINGS_DATA_STORE_NAME = "settings"
+            const val THEME_MODE_KEY_NAME = "theme_mode"
+            const val LANGUAGE_KEY_NAME = "language"
+        }
+
         private val dataStore = context.settingsDataStore
 
         override val themeMode: Flow<ThemeMode> =
@@ -57,8 +66,8 @@ class SettingsRepositoryImpl
         }
     }
 
-private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
-private val LANGUAGE_KEY = stringPreferencesKey("language")
+private val THEME_MODE_KEY = stringPreferencesKey(SettingsRepositoryImpl.THEME_MODE_KEY_NAME)
+private val LANGUAGE_KEY = stringPreferencesKey(SettingsRepositoryImpl.LANGUAGE_KEY_NAME)
 
 private fun defaultThemeMode(context: Context): ThemeMode {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {

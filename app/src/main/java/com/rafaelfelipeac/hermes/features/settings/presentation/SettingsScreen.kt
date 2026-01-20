@@ -19,9 +19,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 
@@ -50,8 +50,8 @@ internal fun SettingsContent(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
+                .padding(Dimens.SpacingXl),
+        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXxl),
     ) {
         Text(
             text = stringResource(R.string.settings_title),
@@ -101,17 +101,23 @@ private fun SettingsSection(
     title: String,
     content: @Composable () -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacingMd)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
         )
         Surface(
-            tonalElevation = 1.dp,
+            tonalElevation = Dimens.ElevationSm,
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            Column(
+                modifier =
+                    Modifier.padding(
+                        horizontal = Dimens.SpacingLg,
+                        vertical = Dimens.SpacingMd,
+                    ),
+            ) {
                 content()
             }
         }
@@ -129,14 +135,14 @@ private fun SettingsOptionRow(
             Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
-                .padding(vertical = 6.dp),
+                .padding(vertical = Dimens.SpacingSm),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(
             selected = selected,
             onClick = onClick,
         )
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(Dimens.SpacingLg))
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,

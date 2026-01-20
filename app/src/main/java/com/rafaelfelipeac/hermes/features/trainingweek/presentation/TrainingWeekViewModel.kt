@@ -30,6 +30,11 @@ class TrainingWeekViewModel
     constructor(
         private val repository: TrainingWeekRepository,
     ) : ViewModel() {
+
+        companion object {
+            const val STATE_SHARING_TIMEOUT_MS = 5_000L
+            const val MIN_WORKOUT_ORDER = 0
+        }
         private val selectedDate = MutableStateFlow(LocalDate.now())
         private val weekStartDate =
             selectedDate
@@ -56,7 +61,7 @@ class TrainingWeekViewModel
                 )
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue =
                     TrainingWeekState(
                         selectedDate = selectedDate.value,
@@ -207,7 +212,8 @@ private fun updateWorkoutOrderWithRestDayRules(
             .filter { it.dayOfWeek == newDayOfWeek }
             .sortedBy { it.order }
             .toMutableList()
-    val clampedOrder = newOrder.coerceIn(0, destinationList.size)
+    val clampedOrder =
+        newOrder.coerceIn(TrainingWeekViewModel.MIN_WORKOUT_ORDER, destinationList.size)
     destinationList.add(clampedOrder, updatedTarget)
     val normalizedDestination =
         destinationList.mapIndexed { index, workout ->
