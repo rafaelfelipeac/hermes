@@ -241,7 +241,7 @@ private fun AddActionPill(
 ) {
     Surface(
         onClick = onClick,
-        shape = androidx.compose.material3.MaterialTheme.shapes.extraLarge,
+        shape = MaterialTheme.shapes.extraLarge,
         tonalElevation = Dimens.ElevationMd,
         shadowElevation = Dimens.ElevationMd,
         modifier = Modifier.defaultMinSize(minWidth = Dimens.AddActionPillMinWidth),
@@ -254,7 +254,7 @@ private fun AddActionPill(
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = label, style = androidx.compose.material3.MaterialTheme.typography.titleSmall)
+            Text(text = label, style = MaterialTheme.typography.titleSmall)
         }
     }
 }

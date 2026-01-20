@@ -27,9 +27,9 @@ fun AddWorkoutDialog(
     onDismiss: () -> Unit,
     onSave: (type: String, description: String) -> Unit,
     isEdit: Boolean,
+    modifier: Modifier = Modifier,
     initialType: String = "",
     initialDescription: String = "",
-    modifier: Modifier = Modifier,
 ) {
     var type by rememberSaveable { mutableStateOf(initialType) }
     var description by rememberSaveable { mutableStateOf(initialDescription) }

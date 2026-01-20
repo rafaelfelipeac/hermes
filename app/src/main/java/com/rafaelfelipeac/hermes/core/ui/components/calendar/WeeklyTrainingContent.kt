@@ -109,8 +109,8 @@ fun WeeklyTrainingContent(
     onWorkoutCompletionChanged: (WorkoutId, Boolean) -> Unit,
     onWorkoutEdit: (WorkoutUi) -> Unit,
     onWorkoutDelete: (WorkoutUi) -> Unit,
-    onWeekChanged: (LocalDate) -> Unit = {},
     modifier: Modifier = Modifier,
+    onWeekChanged: (LocalDate) -> Unit = {},
 ) {
     val sections =
         remember(workouts) {
