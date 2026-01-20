@@ -16,8 +16,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewData
+import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewProvider
 
 @Composable
 fun AddWorkoutDialog(
@@ -87,10 +90,15 @@ fun AddWorkoutDialog(
 
 @Preview(showBackground = true)
 @Composable
-private fun AddWorkoutDialogPreview() {
+private fun AddWorkoutDialogPreview(
+    @PreviewParameter(AddWorkoutDialogPreviewProvider::class)
+    preview: AddWorkoutDialogPreviewData,
+) {
     AddWorkoutDialog(
         onDismiss = {},
         onSave = { _, _ -> },
-        isEdit = false,
+        isEdit = preview.isEdit,
+        initialType = preview.initialType,
+        initialDescription = preview.initialDescription,
     )
 }

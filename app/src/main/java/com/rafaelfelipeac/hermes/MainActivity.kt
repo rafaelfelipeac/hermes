@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.core.os.LocaleListCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,6 +39,8 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
 import com.rafaelfelipeac.hermes.features.trainingweek.presentation.TrainingWeekScreen
+import com.rafaelfelipeac.hermes.core.ui.preview.HermesAppPreviewData
+import com.rafaelfelipeac.hermes.core.ui.preview.HermesAppPreviewProvider
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -55,8 +58,11 @@ class MainActivity : ComponentActivity() {
 
 @PreviewScreenSizes
 @Composable
-private fun HermesAppPreview() {
-    HermesTheme(darkTheme = false) {
+private fun HermesAppPreview(
+    @PreviewParameter(HermesAppPreviewProvider::class)
+    preview: HermesAppPreviewData,
+) {
+    HermesTheme(darkTheme = preview.darkTheme) {
         HermesAppContent()
     }
 }

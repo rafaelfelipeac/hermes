@@ -53,9 +53,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.core.ui.theme.TextSizes
+import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewData
+import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDayContentDark
@@ -86,19 +89,6 @@ private const val SECTION_ITEM_KEY_PREFIX = "section-"
 private const val DIVIDER_ITEM_KEY_PREFIX = "divider-"
 private const val SECTION_HEADER_TAG_PREFIX = "section-header-"
 private const val SECTION_KEY_TBD = "tbd"
-private const val PREVIEW_WORKOUT_TYPE_RUN = "Run"
-private const val PREVIEW_WORKOUT_TYPE_SWIM = "Swim"
-private const val PREVIEW_WORKOUT_TYPE_BIKE = "Bike"
-private const val PREVIEW_WORKOUT_DESCRIPTION_RUN = "Easy 5k"
-private const val PREVIEW_WORKOUT_DESCRIPTION_SWIM = "Intervals 10x100"
-private const val PREVIEW_WORKOUT_DESCRIPTION_BIKE = "Tempo 45 min"
-private const val PREVIEW_YEAR = 2026
-private const val PREVIEW_MONTH = 1
-private const val PREVIEW_DAY = 15
-private const val PREVIEW_WORKOUT_ID_RUN = 1L
-private const val PREVIEW_WORKOUT_ID_SWIM = 2L
-private const val PREVIEW_WORKOUT_ID_BIKE = 3L
-
 typealias WorkoutId = Long
 
 data class WorkoutUi(
@@ -782,39 +772,13 @@ private fun SectionKey.dayOfWeekOrNull(): DayOfWeek? {
 
 @Preview(showBackground = true)
 @Composable
-private fun WeeklyTrainingContentPreview() {
+private fun WeeklyTrainingContentPreview(
+    @PreviewParameter(WeeklyTrainingContentPreviewProvider::class)
+    preview: WeeklyTrainingContentPreviewData,
+) {
     WeeklyTrainingContent(
-        selectedDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_DAY),
-        workouts =
-            listOf(
-                WorkoutUi(
-                    id = PREVIEW_WORKOUT_ID_RUN,
-                    dayOfWeek = null,
-                    type = PREVIEW_WORKOUT_TYPE_RUN,
-                    description = PREVIEW_WORKOUT_DESCRIPTION_RUN,
-                    isCompleted = false,
-                    isRestDay = false,
-                    order = FIRST_LIST_INDEX,
-                ),
-                WorkoutUi(
-                    id = PREVIEW_WORKOUT_ID_SWIM,
-                    dayOfWeek = DayOfWeek.MONDAY,
-                    type = PREVIEW_WORKOUT_TYPE_SWIM,
-                    description = PREVIEW_WORKOUT_DESCRIPTION_SWIM,
-                    isCompleted = false,
-                    isRestDay = false,
-                    order = FIRST_LIST_INDEX,
-                ),
-                WorkoutUi(
-                    id = PREVIEW_WORKOUT_ID_BIKE,
-                    dayOfWeek = DayOfWeek.WEDNESDAY,
-                    type = PREVIEW_WORKOUT_TYPE_BIKE,
-                    description = PREVIEW_WORKOUT_DESCRIPTION_BIKE,
-                    isCompleted = true,
-                    isRestDay = false,
-                    order = FIRST_LIST_INDEX,
-                ),
-            ),
+        selectedDate = preview.selectedDate,
+        workouts = preview.workouts,
         onWorkoutMoved = { _, _, _ -> },
         onWorkoutCompletionChanged = { _, _ -> },
         onWorkoutEdit = {},

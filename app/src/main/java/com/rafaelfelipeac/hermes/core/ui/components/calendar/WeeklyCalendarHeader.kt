@@ -30,8 +30,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
+import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
@@ -49,10 +52,6 @@ private const val HEADER_DAY_TAG_PREFIX = "header-day-"
 private const val SAME_MONTH_RANGE_FORMAT = "%d-%d %s %d"
 private const val SAME_YEAR_RANGE_FORMAT = "%d %s - %d %s %d"
 private const val CROSS_YEAR_RANGE_FORMAT = "%d %s %d - %d %s %d"
-private const val PREVIEW_YEAR = 2026
-private const val PREVIEW_MONTH = 1
-private const val PREVIEW_SELECTED_DAY = 15
-private const val PREVIEW_WEEK_START_DAY = 12
 private const val WEEK_CHANGE_STEP = 1L
 
 @Composable
@@ -232,20 +231,14 @@ private fun formatWeekRange(
 
 @Preview(showBackground = true)
 @Composable
-private fun WeeklyCalendarHeaderPreview() {
-    val selectedDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_SELECTED_DAY)
-    val weekStartDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_WEEK_START_DAY)
-    val dayIndicators =
-        mapOf(
-            DayOfWeek.MONDAY to DayIndicator.Workout,
-            DayOfWeek.WEDNESDAY to DayIndicator.Completed,
-            DayOfWeek.FRIDAY to DayIndicator.RestDay,
-        )
-
+private fun WeeklyCalendarHeaderPreview(
+    @PreviewParameter(WeeklyCalendarHeaderPreviewProvider::class)
+    preview: WeeklyCalendarHeaderPreviewData,
+) {
     WeeklyCalendarHeader(
-        selectedDate = selectedDate,
-        weekStartDate = weekStartDate,
-        dayIndicators = dayIndicators,
+        selectedDate = preview.selectedDate,
+        weekStartDate = preview.weekStartDate,
+        dayIndicators = preview.dayIndicators,
         onDateSelected = {},
         onWeekChanged = {},
     )
