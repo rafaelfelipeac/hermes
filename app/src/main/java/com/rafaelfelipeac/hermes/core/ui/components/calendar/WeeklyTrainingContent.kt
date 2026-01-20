@@ -26,7 +26,7 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -295,7 +295,7 @@ fun WeeklyTrainingContent(
                     }
                 }
                 item(key = "divider-${section.key}") {
-                    Divider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(top = 8.dp),
                         color = MaterialTheme.colorScheme.outlineVariant,
                     )

@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.rafaelfelipeac.hermes.R
 
 enum class AppDestinations(
-    @StringRes val labelRes: Int,
+    @param:StringRes val labelRes: Int,
     val icon: ImageVector,
 ) {
     TRAINING_WEEK(R.string.nav_training_week, Icons.Default.Home),

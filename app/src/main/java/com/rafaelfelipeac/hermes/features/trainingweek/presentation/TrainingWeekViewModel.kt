@@ -6,6 +6,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.WorkoutUi
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.repository.TrainingWeekRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +21,7 @@ import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class TrainingWeekViewModel
     @Inject
