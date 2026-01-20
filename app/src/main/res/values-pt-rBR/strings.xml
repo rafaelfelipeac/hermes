@@ -1,5 +1,12 @@
 <resources>
+    <!-- App -->
     <string name="app_name">Hermes</string>
+
+    <!-- Navigation -->
+    <string name="nav_training_week">Treino semanal</string>
+    <string name="nav_settings">Configurações</string>
+
+    <!-- Training week: actions -->
     <string name="add_item">Adicionar</string>
     <string name="add_workout">Adicionar treino</string>
     <string name="add_rest_day">Adicionar dia de descanso</string>
@@ -22,6 +29,8 @@
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Dia de descanso</string>
+
+    <!-- Training week: days -->
     <string name="day_monday">Segunda-feira</string>
     <string name="day_tuesday">Terça-feira</string>
     <string name="day_wednesday">Quarta-feira</string>
@@ -30,8 +39,8 @@
     <string name="day_saturday">Sábado</string>
     <string name="day_sunday">Domingo</string>
     <string name="workout_completed_emoji">👍</string>
-    <string name="nav_training_week">Treino semanal</string>
-    <string name="nav_settings">Configurações</string>
+
+    <!-- Settings -->
     <string name="settings_title">Configurações</string>
     <string name="settings_theme_title">Tema</string>
     <string name="settings_theme_system">Usar padrão do sistema</string>
