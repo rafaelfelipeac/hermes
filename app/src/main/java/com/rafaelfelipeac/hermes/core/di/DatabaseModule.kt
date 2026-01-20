@@ -16,16 +16,15 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
     @Provides
     @Singleton
     fun provideDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
     ): HermesDatabase {
         return Room.databaseBuilder(
             context,
             HermesDatabase::class.java,
-            "hermes.db"
+            "hermes.db",
         )
             .addMigrations(MIGRATION_1_2)
             .build()
@@ -37,10 +36,11 @@ object DatabaseModule {
     }
 }
 
-private val MIGRATION_1_2 = object : Migration(1, 2) {
-    override fun migrate(db: SupportSQLiteDatabase) {
-        db.execSQL(
-            "ALTER TABLE workouts ADD COLUMN isRestDay INTEGER NOT NULL DEFAULT 0"
-        )
+private val MIGRATION_1_2 =
+    object : Migration(1, 2) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                "ALTER TABLE workouts ADD COLUMN isRestDay INTEGER NOT NULL DEFAULT 0",
+            )
+        }
     }
-}

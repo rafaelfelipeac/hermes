@@ -10,9 +10,9 @@ import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.launch
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -22,180 +22,187 @@ import java.time.temporal.TemporalAdjusters
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TrainingWeekViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun onWeekChanged_updatesSelectedDateAndWeekStart() = runTest(mainDispatcherRule.testDispatcher) {
-        val workoutsFlow = MutableStateFlow(emptyList<Workout>())
-        val repository = mockk<TrainingWeekRepository>(relaxed = true)
-        every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
-        val viewModel = TrainingWeekViewModel(repository)
-        val collectJob = backgroundScope.launch { viewModel.state.collect() }
-        val selectedDate = LocalDate.of(2026, 1, 15)
+    fun onWeekChanged_updatesSelectedDateAndWeekStart() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<TrainingWeekRepository>(relaxed = true)
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            val viewModel = TrainingWeekViewModel(repository)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 1, 15)
 
-        viewModel.onWeekChanged(selectedDate)
-        advanceUntilIdle()
+            viewModel.onWeekChanged(selectedDate)
+            advanceUntilIdle()
 
-        val expectedWeekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        assertEquals(selectedDate, viewModel.state.value.selectedDate)
-        assertEquals(expectedWeekStart, viewModel.state.value.weekStartDate)
-        collectJob.cancel()
-    }
+            val expectedWeekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            assertEquals(selectedDate, viewModel.state.value.selectedDate)
+            assertEquals(expectedWeekStart, viewModel.state.value.weekStartDate)
+            collectJob.cancel()
+        }
 
     @Test
-    fun addWorkout_usesNextOrderForUnscheduled() = runTest(mainDispatcherRule.testDispatcher) {
-        val workoutsFlow = MutableStateFlow(emptyList<Workout>())
-        val repository = mockk<TrainingWeekRepository>(relaxed = true)
-        every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
-        val viewModel = TrainingWeekViewModel(repository)
-        val collectJob = backgroundScope.launch { viewModel.state.collect() }
-        val selectedDate = LocalDate.of(2026, 1, 15)
-        val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    fun addWorkout_usesNextOrderForUnscheduled() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<TrainingWeekRepository>(relaxed = true)
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            val viewModel = TrainingWeekViewModel(repository)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 1, 15)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
 
-        viewModel.onWeekChanged(selectedDate)
-        workoutsFlow.value = listOf(
-            workout(id = 1, weekStart = weekStart, day = null, order = 0),
-            workout(id = 2, weekStart = weekStart, day = null, order = 1),
-            workout(id = 3, weekStart = weekStart, day = DayOfWeek.MONDAY, order = 0)
-        )
-        advanceUntilIdle()
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 1, weekStart = weekStart, day = null, order = 0),
+                    workout(id = 2, weekStart = weekStart, day = null, order = 1),
+                    workout(id = 3, weekStart = weekStart, day = DayOfWeek.MONDAY, order = 0),
+                )
+            advanceUntilIdle()
 
-        viewModel.addWorkout(type = "Run", description = "Easy")
-        advanceUntilIdle()
+            viewModel.addWorkout(type = "Run", description = "Easy")
+            advanceUntilIdle()
 
-        val weekStartSlot = slot<LocalDate>()
-        val daySlot = slot<DayOfWeek?>()
-        val orderSlot = slot<Int>()
-        coVerify(exactly = 1) {
-            repository.addWorkout(
-                weekStartDate = capture(weekStartSlot),
-                dayOfWeek = captureNullable(daySlot),
-                type = "Run",
-                description = "Easy",
-                isRestDay = false,
-                order = capture(orderSlot)
-            )
+            val weekStartSlot = slot<LocalDate>()
+            val daySlot = slot<DayOfWeek?>()
+            val orderSlot = slot<Int>()
+            coVerify(exactly = 1) {
+                repository.addWorkout(
+                    weekStartDate = capture(weekStartSlot),
+                    dayOfWeek = captureNullable(daySlot),
+                    type = "Run",
+                    description = "Easy",
+                    order = capture(orderSlot),
+                )
+            }
+            assertEquals(weekStart, weekStartSlot.captured)
+            assertEquals(null, daySlot.captured)
+            assertEquals(2, orderSlot.captured)
+            collectJob.cancel()
         }
-        assertEquals(weekStart, weekStartSlot.captured)
-        assertEquals(null, daySlot.captured)
-        assertEquals(2, orderSlot.captured)
-        collectJob.cancel()
-    }
 
     @Test
-    fun addRestDay_usesNextOrderForUnscheduled() = runTest(mainDispatcherRule.testDispatcher) {
-        val workoutsFlow = MutableStateFlow(emptyList<Workout>())
-        val repository = mockk<TrainingWeekRepository>(relaxed = true)
-        every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
-        val viewModel = TrainingWeekViewModel(repository)
-        val collectJob = backgroundScope.launch { viewModel.state.collect() }
-        val selectedDate = LocalDate.of(2026, 2, 2)
-        val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    fun addRestDay_usesNextOrderForUnscheduled() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<TrainingWeekRepository>(relaxed = true)
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            val viewModel = TrainingWeekViewModel(repository)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 2, 2)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
 
-        viewModel.onWeekChanged(selectedDate)
-        workoutsFlow.value = listOf(
-            workout(id = 4, weekStart = weekStart, day = null, order = 0)
-        )
-        advanceUntilIdle()
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 4, weekStart = weekStart, day = null, order = 0),
+                )
+            advanceUntilIdle()
 
-        viewModel.addRestDay()
-        advanceUntilIdle()
+            viewModel.addRestDay()
+            advanceUntilIdle()
 
-        val weekStartSlot = slot<LocalDate>()
-        val daySlot = slot<DayOfWeek?>()
-        val orderSlot = slot<Int>()
-        coVerify(exactly = 1) {
-            repository.addRestDay(
-                weekStartDate = capture(weekStartSlot),
-                dayOfWeek = captureNullable(daySlot),
-                order = capture(orderSlot)
-            )
+            val weekStartSlot = slot<LocalDate>()
+            val daySlot = slot<DayOfWeek?>()
+            val orderSlot = slot<Int>()
+            coVerify(exactly = 1) {
+                repository.addRestDay(
+                    weekStartDate = capture(weekStartSlot),
+                    dayOfWeek = captureNullable(daySlot),
+                    order = capture(orderSlot),
+                )
+            }
+            assertEquals(weekStart, weekStartSlot.captured)
+            assertEquals(null, daySlot.captured)
+            assertEquals(1, orderSlot.captured)
+            collectJob.cancel()
         }
-        assertEquals(weekStart, weekStartSlot.captured)
-        assertEquals(null, daySlot.captured)
-        assertEquals(1, orderSlot.captured)
-        collectJob.cancel()
-    }
 
     @Test
-    fun moveWorkout_normalizesOrdersForSourceDay() = runTest(mainDispatcherRule.testDispatcher) {
-        val workoutsFlow = MutableStateFlow(emptyList<Workout>())
-        val repository = mockk<TrainingWeekRepository>(relaxed = true)
-        every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
-        val viewModel = TrainingWeekViewModel(repository)
-        val collectJob = backgroundScope.launch { viewModel.state.collect() }
-        val selectedDate = LocalDate.of(2026, 3, 4)
-        val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        val restDay = workout(
-            id = 10,
-            weekStart = weekStart,
-            day = DayOfWeek.MONDAY,
-            order = 0,
-            isRestDay = true
-        )
-        val mondayWorkout = workout(
-            id = 11,
-            weekStart = weekStart,
-            day = DayOfWeek.MONDAY,
-            order = 1
-        )
+    fun moveWorkout_normalizesOrdersForSourceDay() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<TrainingWeekRepository>(relaxed = true)
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            val viewModel = TrainingWeekViewModel(repository)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 3, 4)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+            val restDay =
+                workout(
+                    id = 10,
+                    weekStart = weekStart,
+                    day = DayOfWeek.MONDAY,
+                    order = 0,
+                    isRestDay = true,
+                )
+            val mondayWorkout =
+                workout(
+                    id = 11,
+                    weekStart = weekStart,
+                    day = DayOfWeek.MONDAY,
+                    order = 1,
+                )
 
-        viewModel.onWeekChanged(selectedDate)
-        workoutsFlow.value = listOf(restDay, mondayWorkout)
-        advanceUntilIdle()
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value = listOf(restDay, mondayWorkout)
+            advanceUntilIdle()
 
-        viewModel.moveWorkout(restDay.id, DayOfWeek.TUESDAY, 0)
-        advanceUntilIdle()
+            viewModel.moveWorkout(restDay.id, DayOfWeek.TUESDAY, 0)
+            advanceUntilIdle()
 
-        coVerify(exactly = 1) {
-            repository.updateWorkoutDayAndOrder(
-                workoutId = mondayWorkout.id,
-                dayOfWeek = DayOfWeek.MONDAY,
-                order = 0
-            )
+            coVerify(exactly = 1) {
+                repository.updateWorkoutDayAndOrder(
+                    workoutId = mondayWorkout.id,
+                    dayOfWeek = DayOfWeek.MONDAY,
+                    order = 0,
+                )
+            }
+            coVerify(exactly = 1) {
+                repository.updateWorkoutDayAndOrder(
+                    workoutId = restDay.id,
+                    dayOfWeek = DayOfWeek.TUESDAY,
+                    order = 0,
+                )
+            }
+            collectJob.cancel()
         }
-        coVerify(exactly = 1) {
-            repository.updateWorkoutDayAndOrder(
-                workoutId = restDay.id,
-                dayOfWeek = DayOfWeek.TUESDAY,
-                order = 0
-            )
-        }
-        collectJob.cancel()
-    }
 
     @Test
-    fun updateAndDelete_delegateToRepository() = runTest(mainDispatcherRule.testDispatcher) {
-        val workoutsFlow = MutableStateFlow(emptyList<Workout>())
-        val repository = mockk<TrainingWeekRepository>(relaxed = true)
-        every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
-        val viewModel = TrainingWeekViewModel(repository)
-        val collectJob = backgroundScope.launch { viewModel.state.collect() }
+    fun updateAndDelete_delegateToRepository() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<TrainingWeekRepository>(relaxed = true)
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            val viewModel = TrainingWeekViewModel(repository)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
 
-        viewModel.updateWorkoutCompletion(workoutId = 42, isCompleted = true)
-        viewModel.updateWorkoutDetails(
-            workoutId = 43,
-            type = "Bike",
-            description = "Tempo",
-            isRestDay = false
-        )
-        viewModel.deleteWorkout(workoutId = 44)
-        advanceUntilIdle()
-
-        coVerify(exactly = 1) { repository.updateWorkoutCompletion(42, true) }
-        coVerify(exactly = 1) {
-            repository.updateWorkoutDetails(
+            viewModel.updateWorkoutCompletion(workoutId = 42, isCompleted = true)
+            viewModel.updateWorkoutDetails(
                 workoutId = 43,
                 type = "Bike",
                 description = "Tempo",
-                isRestDay = false
+                isRestDay = false,
             )
+            viewModel.deleteWorkout(workoutId = 44)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { repository.updateWorkoutCompletion(42, true) }
+            coVerify(exactly = 1) {
+                repository.updateWorkoutDetails(
+                    workoutId = 43,
+                    type = "Bike",
+                    description = "Tempo",
+                    isRestDay = false,
+                )
+            }
+            coVerify(exactly = 1) { repository.deleteWorkout(44) }
+            collectJob.cancel()
         }
-        coVerify(exactly = 1) { repository.deleteWorkout(44) }
-        collectJob.cancel()
-    }
 }
 
 private fun workout(
@@ -204,7 +211,7 @@ private fun workout(
     day: DayOfWeek?,
     order: Int,
     isCompleted: Boolean = false,
-    isRestDay: Boolean = false
+    isRestDay: Boolean = false,
 ): Workout {
     return Workout(
         id = id,
@@ -214,6 +221,6 @@ private fun workout(
         description = "",
         isCompleted = isCompleted,
         isRestDay = isRestDay,
-        order = order
+        order = order,
     )
 }

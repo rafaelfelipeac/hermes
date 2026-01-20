@@ -3,7 +3,8 @@ package com.rafaelfelipeac.hermes.features.settings.domain.model
 enum class AppLanguage(val tag: String) {
     SYSTEM("system"),
     ENGLISH("en"),
-    PORTUGUESE_BRAZIL("pt-BR");
+    PORTUGUESE_BRAZIL("pt-BR"),
+    ;
 
     companion object {
         fun fromTag(tag: String): AppLanguage {

@@ -4,7 +4,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class AppLanguageTest {
-
     @Test
     fun fromTag_returnsMatchingLanguage() {
         assertEquals(AppLanguage.ENGLISH, AppLanguage.fromTag("en"))

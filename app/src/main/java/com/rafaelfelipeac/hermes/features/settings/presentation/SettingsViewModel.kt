@@ -14,41 +14,44 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
-    private val repository: SettingsRepository
-) : ViewModel() {
+class SettingsViewModel
+    @Inject
+    constructor(
+        private val repository: SettingsRepository,
+    ) : ViewModel() {
+        val state: StateFlow<SettingsState> =
+            combine(
+                repository.themeMode,
+                repository.language,
+            ) { themeMode, language ->
+                SettingsState(
+                    themeMode = themeMode,
+                    language = language,
+                )
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue =
+                    SettingsState(
+                        themeMode = repository.initialThemeMode(),
+                        language = repository.initialLanguage(),
+                    ),
+            )
 
-    val state: StateFlow<SettingsState> = combine(
-        repository.themeMode,
-        repository.language
-    ) { themeMode, language ->
-        SettingsState(
-            themeMode = themeMode,
-            language = language
-        )
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5_000),
-        initialValue = SettingsState(
-            themeMode = repository.initialThemeMode(),
-            language = repository.initialLanguage()
-        )
-    )
+        fun setThemeMode(mode: ThemeMode) {
+            viewModelScope.launch {
+                repository.setThemeMode(mode)
+            }
+        }
 
-    fun setThemeMode(mode: ThemeMode) {
-        viewModelScope.launch {
-            repository.setThemeMode(mode)
+        fun setLanguage(language: AppLanguage) {
+            viewModelScope.launch {
+                repository.setLanguage(language)
+            }
         }
     }
-
-    fun setLanguage(language: AppLanguage) {
-        viewModelScope.launch {
-            repository.setLanguage(language)
-        }
-    }
-}
 
 data class SettingsState(
     val themeMode: ThemeMode,
-    val language: AppLanguage
+    val language: AppLanguage,
 )

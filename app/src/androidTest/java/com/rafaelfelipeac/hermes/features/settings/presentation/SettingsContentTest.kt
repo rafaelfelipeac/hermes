@@ -12,7 +12,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class SettingsContentTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -24,12 +23,13 @@ class SettingsContentTest {
 
         composeRule.setContent {
             SettingsContent(
-                state = SettingsState(
-                    themeMode = ThemeMode.SYSTEM,
-                    language = AppLanguage.SYSTEM
-                ),
+                state =
+                    SettingsState(
+                        themeMode = ThemeMode.SYSTEM,
+                        language = AppLanguage.SYSTEM,
+                    ),
                 onThemeSelected = { selectedTheme = it },
-                onLanguageSelected = {}
+                onLanguageSelected = {},
             )
         }
 
@@ -48,12 +48,13 @@ class SettingsContentTest {
 
         composeRule.setContent {
             SettingsContent(
-                state = SettingsState(
-                    themeMode = ThemeMode.SYSTEM,
-                    language = AppLanguage.SYSTEM
-                ),
+                state =
+                    SettingsState(
+                        themeMode = ThemeMode.SYSTEM,
+                        language = AppLanguage.SYSTEM,
+                    ),
                 onThemeSelected = {},
-                onLanguageSelected = { selectedLanguage = it }
+                onLanguageSelected = { selectedLanguage = it },
             )
         }
 

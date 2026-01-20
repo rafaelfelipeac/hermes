@@ -9,8 +9,10 @@ interface SettingsRepository {
     val language: Flow<AppLanguage>
 
     fun initialThemeMode(): ThemeMode
+
     fun initialLanguage(): AppLanguage
 
     suspend fun setThemeMode(mode: ThemeMode)
+
     suspend fun setLanguage(language: AppLanguage)
 }

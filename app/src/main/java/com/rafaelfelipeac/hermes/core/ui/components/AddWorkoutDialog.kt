@@ -26,7 +26,7 @@ fun AddWorkoutDialog(
     isEdit: Boolean,
     initialType: String = "",
     initialDescription: String = "",
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var type by rememberSaveable { mutableStateOf(initialType) }
     var description by rememberSaveable { mutableStateOf(initialDescription) }
@@ -35,11 +35,12 @@ fun AddWorkoutDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = if (isEdit) {
-                    stringResource(R.string.edit_workout)
-                } else {
-                    stringResource(R.string.add_workout)
-                }
+                text =
+                    if (isEdit) {
+                        stringResource(R.string.edit_workout)
+                    } else {
+                        stringResource(R.string.add_workout)
+                    },
             )
         },
         text = {
@@ -48,7 +49,7 @@ fun AddWorkoutDialog(
                     value = type,
                     onValueChange = { type = it },
                     label = { Text(text = stringResource(R.string.add_workout_type)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -57,21 +58,22 @@ fun AddWorkoutDialog(
                     value = description,
                     onValueChange = { description = it },
                     label = { Text(text = stringResource(R.string.add_workout_description)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = { onSave(type.trim(), description.trim()) },
-                enabled = type.isNotBlank()
+                enabled = type.isNotBlank(),
             ) {
                 Text(
-                    text = if (isEdit) {
-                        stringResource(R.string.save_changes)
-                    } else {
-                        stringResource(R.string.add_workout_confirm)
-                    }
+                    text =
+                        if (isEdit) {
+                            stringResource(R.string.save_changes)
+                        } else {
+                            stringResource(R.string.add_workout_confirm)
+                        },
                 )
             }
         },
@@ -79,7 +81,7 @@ fun AddWorkoutDialog(
             TextButton(onClick = onDismiss) {
                 Text(text = stringResource(R.string.add_workout_cancel))
             }
-        }
+        },
     )
 }
 
@@ -89,6 +91,6 @@ private fun AddWorkoutDialogPreview() {
     AddWorkoutDialog(
         onDismiss = {},
         onSave = { _, _ -> },
-        isEdit = false
+        isEdit = false,
     )
 }

@@ -9,7 +9,6 @@ import java.time.LocalDate
 
 @Dao
 interface WorkoutDao {
-
     @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<WorkoutEntity>>
 
@@ -20,13 +19,25 @@ interface WorkoutDao {
     suspend fun update(workout: WorkoutEntity)
 
     @Query("UPDATE workouts SET isCompleted = :isCompleted WHERE id = :id")
-    suspend fun updateCompletion(id: Long, isCompleted: Boolean)
+    suspend fun updateCompletion(
+        id: Long,
+        isCompleted: Boolean,
+    )
 
     @Query("UPDATE workouts SET dayOfWeek = :dayOfWeek, sort_order = :order WHERE id = :id")
-    suspend fun updateDayAndOrder(id: Long, dayOfWeek: Int?, order: Int)
+    suspend fun updateDayAndOrder(
+        id: Long,
+        dayOfWeek: Int?,
+        order: Int,
+    )
 
     @Query("UPDATE workouts SET type = :type, description = :description, isRestDay = :isRestDay WHERE id = :id")
-    suspend fun updateDetails(id: Long, type: String, description: String, isRestDay: Boolean)
+    suspend fun updateDetails(
+        id: Long,
+        type: String,
+        description: String,
+        isRestDay: Boolean,
+    )
 
     @Query("DELETE FROM workouts WHERE id = :id")
     suspend fun deleteById(id: Long)

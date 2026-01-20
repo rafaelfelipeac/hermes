@@ -1,0 +1,48 @@
+build:
+  maxIssues: 0
+
+complexity:
+  CyclomaticComplexMethod:
+    active: true
+    ignoreAnnotated:
+      - Composable
+      - Preview
+  LongMethod:
+    active: true
+    ignoreAnnotated:
+      - Composable
+      - Preview
+  LongParameterList:
+    active: true
+    ignoreAnnotated:
+      - Composable
+      - Preview
+    ignoreDefaultParameters: true
+  TooManyFunctions:
+    active: true
+    thresholdInFiles: 20
+    thresholdInClasses: 20
+    thresholdInInterfaces: 20
+    thresholdInObjects: 20
+    thresholdInEnums: 20
+
+naming:
+  FunctionNaming:
+    active: true
+    ignoreAnnotated:
+      - Composable
+      - Preview
+
+style:
+  MagicNumber:
+    active: false
+  UnusedPrivateMember:
+    active: true
+    ignoreAnnotated:
+      - Preview
+      - PreviewScreenSizes
+
+formatting:
+  active: true
+  Indentation:
+    active: false

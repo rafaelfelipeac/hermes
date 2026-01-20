@@ -10,80 +10,85 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
 
-class TrainingWeekRepositoryImpl @Inject constructor(
-    private val workoutDao: WorkoutDao
-) : TrainingWeekRepository {
+class TrainingWeekRepositoryImpl
+    @Inject
+    constructor(
+        private val workoutDao: WorkoutDao,
+    ) : TrainingWeekRepository {
+        override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> {
+            return workoutDao.observeWorkoutsForWeek(weekStartDate).map { entities ->
+                entities.map { it.toDomain() }
+            }
+        }
 
-    override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> {
-        return workoutDao.observeWorkoutsForWeek(weekStartDate).map { entities ->
-            entities.map { it.toDomain() }
+        override suspend fun addWorkout(
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            type: String,
+            description: String,
+            order: Int,
+        ): Long {
+            val entity =
+                WorkoutEntity(
+                    weekStartDate = weekStartDate,
+                    dayOfWeek = dayOfWeek?.value,
+                    type = type,
+                    description = description,
+                    isCompleted = false,
+                    isRestDay = false,
+                    sortOrder = order,
+                )
+
+            return workoutDao.insert(entity)
+        }
+
+        override suspend fun addRestDay(
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            order: Int,
+        ): Long {
+            val entity =
+                WorkoutEntity(
+                    weekStartDate = weekStartDate,
+                    dayOfWeek = dayOfWeek?.value,
+                    type = "",
+                    description = "",
+                    isCompleted = false,
+                    isRestDay = true,
+                    sortOrder = order,
+                )
+
+            return workoutDao.insert(entity)
+        }
+
+        override suspend fun updateWorkoutDayAndOrder(
+            workoutId: Long,
+            dayOfWeek: DayOfWeek?,
+            order: Int,
+        ) {
+            workoutDao.updateDayAndOrder(workoutId, dayOfWeek?.value, order)
+        }
+
+        override suspend fun updateWorkoutCompletion(
+            workoutId: Long,
+            isCompleted: Boolean,
+        ) {
+            workoutDao.updateCompletion(workoutId, isCompleted)
+        }
+
+        override suspend fun updateWorkoutDetails(
+            workoutId: Long,
+            type: String,
+            description: String,
+            isRestDay: Boolean,
+        ) {
+            workoutDao.updateDetails(workoutId, type, description, isRestDay)
+        }
+
+        override suspend fun deleteWorkout(workoutId: Long) {
+            workoutDao.deleteById(workoutId)
         }
     }
-
-    override suspend fun addWorkout(
-        weekStartDate: LocalDate,
-        dayOfWeek: DayOfWeek?,
-        type: String,
-        description: String,
-        isRestDay: Boolean,
-        order: Int
-    ): Long {
-        val entity = WorkoutEntity(
-            weekStartDate = weekStartDate,
-            dayOfWeek = dayOfWeek?.value,
-            type = type,
-            description = description,
-            isCompleted = false,
-            isRestDay = isRestDay,
-            sortOrder = order
-        )
-
-        return workoutDao.insert(entity)
-    }
-
-    override suspend fun addRestDay(
-        weekStartDate: LocalDate,
-        dayOfWeek: DayOfWeek?,
-        order: Int
-    ): Long {
-        return addWorkout(
-            weekStartDate = weekStartDate,
-            dayOfWeek = dayOfWeek,
-            type = "",
-            description = "",
-            isRestDay = true,
-            order = order
-        )
-    }
-
-    override suspend fun updateWorkoutDayAndOrder(
-        workoutId: Long,
-        dayOfWeek: DayOfWeek?,
-        order: Int
-    ) {
-        workoutDao.updateDayAndOrder(workoutId, dayOfWeek?.value, order)
-    }
-
-    override suspend fun updateWorkoutCompletion(
-        workoutId: Long,
-        isCompleted: Boolean
-    ) {
-        workoutDao.updateCompletion(workoutId, isCompleted)
-    }
-
-    override suspend fun updateWorkoutDetails(
-        workoutId: Long,
-        type: String,
-        description: String,
-        isRestDay: Boolean
-    ) {
-        workoutDao.updateDetails(workoutId, type, description, isRestDay)
-    }
-
-    override suspend fun deleteWorkout(workoutId: Long) {
-        workoutDao.deleteById(workoutId)
-    }
-}
 
 private fun WorkoutEntity.toDomain(): Workout {
     return Workout(
@@ -94,6 +99,6 @@ private fun WorkoutEntity.toDomain(): Workout {
         description = description,
         isCompleted = isCompleted,
         isRestDay = isRestDay,
-        order = sortOrder
+        order = sortOrder,
     )
 }

@@ -1,10 +1,10 @@
 package com.rafaelfelipeac.hermes.core.navigation
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.annotation.StringRes
 import com.rafaelfelipeac.hermes.R
 
 enum class AppDestinations(

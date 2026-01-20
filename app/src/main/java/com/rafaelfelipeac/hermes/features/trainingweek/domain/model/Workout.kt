@@ -11,5 +11,5 @@ data class Workout(
     val description: String,
     val isCompleted: Boolean,
     val isRestDay: Boolean,
-    val order: Int
+    val order: Int,
 )

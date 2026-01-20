@@ -16,5 +16,5 @@ data class WorkoutEntity(
     val isCompleted: Boolean,
     val isRestDay: Boolean,
     @ColumnInfo(name = "sort_order")
-    val sortOrder: Int
+    val sortOrder: Int,
 )

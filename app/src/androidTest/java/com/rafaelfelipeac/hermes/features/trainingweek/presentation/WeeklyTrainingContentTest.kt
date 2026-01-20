@@ -17,7 +17,6 @@ import org.junit.Test
 import java.time.LocalDate
 
 class WeeklyTrainingContentTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -29,13 +28,12 @@ class WeeklyTrainingContentTest {
         composeRule.setContent {
             WeeklyTrainingContent(
                 selectedDate = selectedDateState.value,
-                selectedWeekStartDate = weekStart,
                 workouts = emptyList(),
                 onWorkoutMoved = { _, _, _ -> },
                 onWorkoutCompletionChanged = { _, _ -> },
                 onWorkoutEdit = {},
                 onWorkoutDelete = {},
-                modifier = Modifier.height(200.dp)
+                modifier = Modifier.height(200.dp),
             )
         }
 
@@ -48,20 +46,18 @@ class WeeklyTrainingContentTest {
 
     @Test
     fun swipeLeftInvokesOnWeekChanged() {
-        val weekStart = LocalDate.of(2026, 1, 12)
         val selectedDate = LocalDate.of(2026, 1, 15)
         var changed: LocalDate? = null
 
         composeRule.setContent {
             WeeklyTrainingContent(
                 selectedDate = selectedDate,
-                selectedWeekStartDate = weekStart,
                 workouts = emptyList(),
                 onWorkoutMoved = { _, _, _ -> },
                 onWorkoutCompletionChanged = { _, _ -> },
                 onWorkoutEdit = {},
                 onWorkoutDelete = {},
-                onWeekChanged = { changed = it }
+                onWeekChanged = { changed = it },
             )
         }
 

@@ -13,9 +13,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="Tests in 'com.rafaelfelipeac.hermes'">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="Tests in 'com.rafaelfelipeac.hermes.features'">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

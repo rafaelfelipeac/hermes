@@ -13,7 +13,6 @@ import org.junit.Test
 import java.time.LocalDate
 
 class WeeklyCalendarHeaderTest {
-
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
@@ -29,7 +28,7 @@ class WeeklyCalendarHeaderTest {
                 weekStartDate = weekStart,
                 dayIndicators = emptyMap(),
                 onDateSelected = { selected = it },
-                onWeekChanged = {}
+                onWeekChanged = {},
             )
         }
 
@@ -52,7 +51,7 @@ class WeeklyCalendarHeaderTest {
                 weekStartDate = weekStart,
                 dayIndicators = emptyMap(),
                 onDateSelected = {},
-                onWeekChanged = { changed = it }
+                onWeekChanged = { changed = it },
             )
         }
 

@@ -19,39 +19,43 @@ import javax.inject.Singleton
 private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 
 @Singleton
-class SettingsRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
-) : SettingsRepository {
-    private val dataStore = context.settingsDataStore
+class SettingsRepositoryImpl
+    @Inject
+    constructor(
+        @ApplicationContext private val context: Context,
+    ) : SettingsRepository {
+        private val dataStore = context.settingsDataStore
 
-    override val themeMode: Flow<ThemeMode> = dataStore.data
-        .map { prefs ->
-            prefs[THEME_MODE_KEY]?.let(ThemeMode::valueOf) ?: defaultThemeMode(context)
+        override val themeMode: Flow<ThemeMode> =
+            dataStore.data
+                .map { prefs ->
+                    prefs[THEME_MODE_KEY]?.let(ThemeMode::valueOf) ?: defaultThemeMode(context)
+                }
+                .distinctUntilChanged()
+
+        override val language: Flow<AppLanguage> =
+            dataStore.data
+                .map { prefs ->
+                    prefs[LANGUAGE_KEY]?.let(AppLanguage::fromTag) ?: defaultLanguage()
+                }
+                .distinctUntilChanged()
+
+        override fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
+
+        override fun initialLanguage(): AppLanguage = defaultLanguage()
+
+        override suspend fun setThemeMode(mode: ThemeMode) {
+            dataStore.edit { prefs ->
+                prefs[THEME_MODE_KEY] = mode.name
+            }
         }
-        .distinctUntilChanged()
 
-    override val language: Flow<AppLanguage> = dataStore.data
-        .map { prefs ->
-            prefs[LANGUAGE_KEY]?.let(AppLanguage::fromTag) ?: defaultLanguage()
-        }
-        .distinctUntilChanged()
-
-    override fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
-
-    override fun initialLanguage(): AppLanguage = defaultLanguage()
-
-    override suspend fun setThemeMode(mode: ThemeMode) {
-        dataStore.edit { prefs ->
-            prefs[THEME_MODE_KEY] = mode.name
+        override suspend fun setLanguage(language: AppLanguage) {
+            dataStore.edit { prefs ->
+                prefs[LANGUAGE_KEY] = language.tag
+            }
         }
     }
-
-    override suspend fun setLanguage(language: AppLanguage) {
-        dataStore.edit { prefs ->
-            prefs[LANGUAGE_KEY] = language.tag
-        }
-    }
-}
 
 private val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
 private val LANGUAGE_KEY = stringPreferencesKey("language")

@@ -10,9 +10,6 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class TrainingWeekModule {
-
     @Binds
-    abstract fun bindTrainingWeekRepository(
-        impl: TrainingWeekRepositoryImpl
-    ): TrainingWeekRepository
+    abstract fun bindTrainingWeekRepository(impl: TrainingWeekRepositoryImpl): TrainingWeekRepository
 }
