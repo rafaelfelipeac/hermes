@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.rafaelfelipeac.hermes.features.trainingweek.presentation
 
 import androidx.lifecycle.ViewModel

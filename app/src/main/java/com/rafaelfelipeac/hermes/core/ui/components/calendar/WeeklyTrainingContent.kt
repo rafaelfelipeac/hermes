@@ -133,7 +133,8 @@ fun WeeklyTrainingContent(
             val targetSection = SectionKey.Day(selectedDate.dayOfWeek)
             val targetIndex = sections.indexOf(targetSection)
             if (targetIndex >= 0) {
-                listState.animateScrollToItem(targetIndex)
+                val listIndex = targetIndex * 2
+                listState.animateScrollToItem(listIndex)
             }
         }
     }
