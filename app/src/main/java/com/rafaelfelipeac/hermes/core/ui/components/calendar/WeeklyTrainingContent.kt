@@ -3,7 +3,7 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -397,10 +396,58 @@ private fun WorkoutRow(
 
     Box(modifier = rowModifier) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(end = 16.dp)
+                    .pointerInput(Unit) {
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = { offset ->
+                                coordinates?.localToRoot(offset)?.let {
+                                    onDragStarted(it, itemBoundsHeight(coordinates))
+                                }
+                            },
+                            onDrag = { _, _ -> },
+                        )
+                    },
             verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
+            if (!workout.isRestDay) {
+                Box(
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .offset(y = (-2).dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (workout.isCompleted) {
+                        Text(
+                            text = "👍",
+                            modifier =
+                                Modifier
+                                    .clickable { onToggleCompleted(false) }
+                                    .size(26.dp),
+                            fontSize = 22.sp,
+                        )
+                    } else {
+                        Checkbox(
+                            checked = workout.isCompleted,
+                            onCheckedChange = onToggleCompleted,
+                            modifier = Modifier.size(26.dp),
+                            colors =
+                                CheckboxDefaults.colors(
+                                    checkedColor = colors.content,
+                                    uncheckedColor = colors.content,
+                                    checkmarkColor = colors.background,
+                                ),
+                        )
+                    }
+                }
+            }
+            if (!workout.isRestDay) {
+                Spacer(modifier = Modifier.width(12.dp))
+            }
             Row(
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
                 modifier =
@@ -408,24 +455,6 @@ private fun WorkoutRow(
                         .weight(1f)
                         .clickable(enabled = !workout.isRestDay) { onEdit() },
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.DragIndicator,
-                    contentDescription = stringResource(R.string.drag_label),
-                    tint = colors.content,
-                    modifier =
-                        Modifier
-                            .padding(end = 12.dp)
-                            .size(24.dp)
-                            .clickable(enabled = false) {}
-                            .pointerInput(Unit) {
-                                awaitPointerEventScope {
-                                    val down = awaitFirstDown(requireUnconsumed = false)
-                                    coordinates?.localToRoot(down.position)?.let {
-                                        onDragStarted(it, itemBoundsHeight(coordinates))
-                                    }
-                                }
-                            },
-                )
                 Column {
                     if (workout.isRestDay) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -461,40 +490,6 @@ private fun WorkoutRow(
                     }
                 }
             }
-
-            if (!workout.isRestDay) {
-                Spacer(modifier = Modifier.width(12.dp))
-                Box(
-                    modifier =
-                        Modifier
-                            .size(32.dp)
-                            .offset(x = (-24).dp, y = (-2).dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (workout.isCompleted) {
-                        Text(
-                            text = "👍",
-                            modifier =
-                                Modifier
-                                    .clickable { onToggleCompleted(false) }
-                                    .size(26.dp),
-                            fontSize = 22.sp,
-                        )
-                    } else {
-                        Checkbox(
-                            checked = workout.isCompleted,
-                            onCheckedChange = onToggleCompleted,
-                            modifier = Modifier.size(26.dp),
-                            colors =
-                                CheckboxDefaults.colors(
-                                    checkedColor = colors.content,
-                                    uncheckedColor = colors.content,
-                                    checkmarkColor = colors.background,
-                                ),
-                        )
-                    }
-                }
-            }
         }
 
         Icon(
@@ -504,7 +499,7 @@ private fun WorkoutRow(
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
-                    .offset(x = 4.dp, y = (-4).dp)
+                    .offset(x = 4.dp, y = (-0).dp)
                     .size(14.dp)
                     .clickable { onDelete() },
         )
@@ -566,15 +561,6 @@ private fun GhostWorkoutRow(
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
                 modifier = Modifier.weight(1f),
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.DragIndicator,
-                    contentDescription = null,
-                    tint = colors.content,
-                    modifier =
-                        Modifier
-                            .padding(end = 12.dp)
-                            .size(24.dp),
-                )
                 Column {
                     if (workout.isRestDay) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -611,176 +597,178 @@ private fun GhostWorkoutRow(
     }
 }
 
-private fun findTargetSection(
-    dropPosition: Offset,
-    sectionBounds: Map<SectionKey, Rect>,
-    fallback: SectionKey,
-): SectionKey {
-    return sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key ?: fallback
-}
-
-private fun computeOrderForDrop(
-    dropPosition: Offset,
-    items: List<WorkoutUi>,
-    draggedId: WorkoutId,
-    itemBounds: Map<WorkoutId, Rect>,
-): Int {
-    val candidates = items.filterNot { it.id == draggedId }
-
-    if (candidates.isEmpty()) return 0
-
-    val sorted = candidates.sortedBy { it.order }
-    val dropIndex =
-        sorted.indexOfFirst { workout ->
-            val bounds = itemBounds[workout.id] ?: return@indexOfFirst false
-            dropPosition.y < bounds.center.y
-        }
-
-    return if (dropIndex == -1) sorted.size else dropIndex
-}
-
-private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
-    return coordinates?.boundsInRoot()?.height ?: 0f
-}
-
-private data class DropContext(
-    val workouts: List<WorkoutUi>,
-    val workoutsBySection: Map<SectionKey, List<WorkoutUi>>,
-    val sectionBounds: Map<SectionKey, Rect>,
-    val itemBounds: Map<WorkoutId, Rect>,
-    val onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
-)
-
-private fun handleDrop(
-    draggedWorkoutId: WorkoutId,
-    dragPosition: Offset,
-    context: DropContext,
-) {
-    val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
-    val fallbackSection = workout.dayOfWeek.toSectionKey()
-    val targetSection = findTargetSection(dragPosition, context.sectionBounds, fallbackSection)
-    val targetItems = context.workoutsBySection[targetSection].orEmpty()
-    val newOrder = computeOrderForDrop(dragPosition, targetItems, workout.id, context.itemBounds)
-    val newDay = targetSection.dayOfWeekOrNull()
-
-    if (newDay != workout.dayOfWeek || newOrder != workout.order) {
-        context.onWorkoutMoved(workout.id, newDay, newOrder)
+    private fun findTargetSection(
+        dropPosition: Offset,
+        sectionBounds: Map<SectionKey, Rect>,
+        fallback: SectionKey,
+    ): SectionKey {
+        return sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key
+            ?: fallback
     }
-}
 
-private sealed class SectionKey(val key: String) {
-    object ToBeDefined : SectionKey("tbd")
+    private fun computeOrderForDrop(
+        dropPosition: Offset,
+        items: List<WorkoutUi>,
+        draggedId: WorkoutId,
+        itemBounds: Map<WorkoutId, Rect>,
+    ): Int {
+        val candidates = items.filterNot { it.id == draggedId }
 
-    data class Day(val dayOfWeek: DayOfWeek) : SectionKey(dayOfWeek.name)
-}
+        if (candidates.isEmpty()) return 0
 
-private fun DayOfWeek?.toSectionKey(): SectionKey {
-    return if (this == null) SectionKey.ToBeDefined else SectionKey.Day(this)
-}
+        val sorted = candidates.sortedBy { it.order }
+        val dropIndex =
+            sorted.indexOfFirst { workout ->
+                val bounds = itemBounds[workout.id] ?: return@indexOfFirst false
+                dropPosition.y < bounds.center.y
+            }
 
-private data class RowColors(
-    val background: Color,
-    val content: Color,
-)
-
-@Composable
-private fun workoutRowColors(
-    workout: WorkoutUi,
-    isDragging: Boolean,
-): RowColors {
-    val colorScheme = MaterialTheme.colorScheme
-    val todoColor = CompletedBlue
-    val todoContent = CompletedBlueContent
-    val completedColor = TodoBlue
-    val completedContent = TodoBlueContent
-    val isUnscheduled = workout.dayOfWeek == null
-    val isDarkTheme = isSystemInDarkTheme()
-    val restDayBackground = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
-    val restDayContent = if (isDarkTheme) RestDayContentDark else RestDayContentLight
-
-    val background =
-        when {
-            isDragging -> colorScheme.surfaceVariant
-            workout.isCompleted -> completedColor
-            workout.isRestDay -> restDayBackground
-            isUnscheduled -> todoColor
-            else -> todoColor
-        }
-    val content =
-        when {
-            workout.isRestDay -> restDayContent
-            workout.isCompleted -> completedContent
-            isUnscheduled -> todoContent
-            else -> todoContent
-        }
-    return RowColors(background, content)
-}
-
-@Composable
-private fun SectionKey.title(): String {
-    return when (this) {
-        SectionKey.ToBeDefined -> stringResource(R.string.section_to_be_defined)
-        is SectionKey.Day -> stringResource(dayOfWeek.labelRes())
+        return if (dropIndex == -1) sorted.size else dropIndex
     }
-}
 
-private fun DayOfWeek.labelRes(): Int {
-    return when (this) {
-        DayOfWeek.MONDAY -> R.string.day_monday
-        DayOfWeek.TUESDAY -> R.string.day_tuesday
-        DayOfWeek.WEDNESDAY -> R.string.day_wednesday
-        DayOfWeek.THURSDAY -> R.string.day_thursday
-        DayOfWeek.FRIDAY -> R.string.day_friday
-        DayOfWeek.SATURDAY -> R.string.day_saturday
-        DayOfWeek.SUNDAY -> R.string.day_sunday
+    private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
+        return coordinates?.boundsInRoot()?.height ?: 0f
     }
-}
 
-private fun SectionKey.dayOfWeekOrNull(): DayOfWeek? {
-    return when (this) {
-        SectionKey.ToBeDefined -> null
-        is SectionKey.Day -> dayOfWeek
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun WeeklyTrainingContentPreview() {
-    WeeklyTrainingContent(
-        selectedDate = LocalDate.of(2026, 1, 15),
-        workouts =
-            listOf(
-                WorkoutUi(
-                    id = 1L,
-                    dayOfWeek = null,
-                    type = "Run",
-                    description = "Easy 5k",
-                    isCompleted = false,
-                    isRestDay = false,
-                    order = 0,
-                ),
-                WorkoutUi(
-                    id = 2L,
-                    dayOfWeek = DayOfWeek.MONDAY,
-                    type = "Swim",
-                    description = "Intervals 10x100",
-                    isCompleted = false,
-                    isRestDay = false,
-                    order = 0,
-                ),
-                WorkoutUi(
-                    id = 3L,
-                    dayOfWeek = DayOfWeek.WEDNESDAY,
-                    type = "Bike",
-                    description = "Tempo 45 min",
-                    isCompleted = true,
-                    isRestDay = false,
-                    order = 0,
-                ),
-            ),
-        onWorkoutMoved = { _, _, _ -> },
-        onWorkoutCompletionChanged = { _, _ -> },
-        onWorkoutEdit = {},
-        onWorkoutDelete = {},
+    private data class DropContext(
+        val workouts: List<WorkoutUi>,
+        val workoutsBySection: Map<SectionKey, List<WorkoutUi>>,
+        val sectionBounds: Map<SectionKey, Rect>,
+        val itemBounds: Map<WorkoutId, Rect>,
+        val onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
     )
-}
+
+    private fun handleDrop(
+        draggedWorkoutId: WorkoutId,
+        dragPosition: Offset,
+        context: DropContext,
+    ) {
+        val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
+        val fallbackSection = workout.dayOfWeek.toSectionKey()
+        val targetSection = findTargetSection(dragPosition, context.sectionBounds, fallbackSection)
+        val targetItems = context.workoutsBySection[targetSection].orEmpty()
+        val newOrder =
+            computeOrderForDrop(dragPosition, targetItems, workout.id, context.itemBounds)
+        val newDay = targetSection.dayOfWeekOrNull()
+
+        if (newDay != workout.dayOfWeek || newOrder != workout.order) {
+            context.onWorkoutMoved(workout.id, newDay, newOrder)
+        }
+    }
+
+    private sealed class SectionKey(val key: String) {
+        object ToBeDefined : SectionKey("tbd")
+
+        data class Day(val dayOfWeek: DayOfWeek) : SectionKey(dayOfWeek.name)
+    }
+
+    private fun DayOfWeek?.toSectionKey(): SectionKey {
+        return if (this == null) SectionKey.ToBeDefined else SectionKey.Day(this)
+    }
+
+    private data class RowColors(
+        val background: Color,
+        val content: Color,
+    )
+
+    @Composable
+    private fun workoutRowColors(
+        workout: WorkoutUi,
+        isDragging: Boolean,
+    ): RowColors {
+        val colorScheme = MaterialTheme.colorScheme
+        val todoColor = CompletedBlue
+        val todoContent = CompletedBlueContent
+        val completedColor = TodoBlue
+        val completedContent = TodoBlueContent
+        val isUnscheduled = workout.dayOfWeek == null
+        val isDarkTheme = isSystemInDarkTheme()
+        val restDayBackground = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
+        val restDayContent = if (isDarkTheme) RestDayContentDark else RestDayContentLight
+
+        val background =
+            when {
+                isDragging -> colorScheme.surfaceVariant
+                workout.isCompleted -> completedColor
+                workout.isRestDay -> restDayBackground
+                isUnscheduled -> todoColor
+                else -> todoColor
+            }
+        val content =
+            when {
+                workout.isRestDay -> restDayContent
+                workout.isCompleted -> completedContent
+                isUnscheduled -> todoContent
+                else -> todoContent
+            }
+        return RowColors(background, content)
+    }
+
+    @Composable
+    private fun SectionKey.title(): String {
+        return when (this) {
+            SectionKey.ToBeDefined -> stringResource(R.string.section_to_be_defined)
+            is SectionKey.Day -> stringResource(dayOfWeek.labelRes())
+        }
+    }
+
+    private fun DayOfWeek.labelRes(): Int {
+        return when (this) {
+            DayOfWeek.MONDAY -> R.string.day_monday
+            DayOfWeek.TUESDAY -> R.string.day_tuesday
+            DayOfWeek.WEDNESDAY -> R.string.day_wednesday
+            DayOfWeek.THURSDAY -> R.string.day_thursday
+            DayOfWeek.FRIDAY -> R.string.day_friday
+            DayOfWeek.SATURDAY -> R.string.day_saturday
+            DayOfWeek.SUNDAY -> R.string.day_sunday
+        }
+    }
+
+    private fun SectionKey.dayOfWeekOrNull(): DayOfWeek? {
+        return when (this) {
+            SectionKey.ToBeDefined -> null
+            is SectionKey.Day -> dayOfWeek
+        }
+    }
+
+    @Preview(showBackground = true)
+    @Composable
+    private fun WeeklyTrainingContentPreview() {
+        WeeklyTrainingContent(
+            selectedDate = LocalDate.of(2026, 1, 15),
+            workouts =
+                listOf(
+                    WorkoutUi(
+                        id = 1L,
+                        dayOfWeek = null,
+                        type = "Run",
+                        description = "Easy 5k",
+                        isCompleted = false,
+                        isRestDay = false,
+                        order = 0,
+                    ),
+                    WorkoutUi(
+                        id = 2L,
+                        dayOfWeek = DayOfWeek.MONDAY,
+                        type = "Swim",
+                        description = "Intervals 10x100",
+                        isCompleted = false,
+                        isRestDay = false,
+                        order = 0,
+                    ),
+                    WorkoutUi(
+                        id = 3L,
+                        dayOfWeek = DayOfWeek.WEDNESDAY,
+                        type = "Bike",
+                        description = "Tempo 45 min",
+                        isCompleted = true,
+                        isRestDay = false,
+                        order = 0,
+                    ),
+                ),
+            onWorkoutMoved = { _, _, _ -> },
+            onWorkoutCompletionChanged = { _, _ -> },
+            onWorkoutEdit = {},
+            onWorkoutDelete = {},
+        )
+    }
