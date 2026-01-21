@@ -1,0 +1,101 @@
+name: "Release"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release app
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache Gradle
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: 17
+
+      - name: Decode release.keystore from secret
+        run: echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > release.keystore
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+
+      - name: Configure signing properties
+        run: |
+          mkdir -p ~/.gradle
+          echo "RELEASE_KEYSTORE_PASSWORD=${{ secrets.RELEASE_KEYSTORE_PASSWORD }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_KEY_ALIAS=${{ secrets.RELEASE_KEY_ALIAS }}" >> ~/.gradle/gradle.properties
+          echo "RELEASE_KEY_PASSWORD=${{ secrets.RELEASE_KEY_PASSWORD }}" >> ~/.gradle/gradle.properties
+
+      - name: Run unit tests
+        run: ./gradlew test
+
+      - name: Check versionCode/versionName is set
+        run: |
+          VERSION_NAME=$(grep versionName app/build.gradle.kts | grep -oP '"\K[^"]+')
+          VERSION_CODE=$(grep versionCode app/build.gradle.kts | grep -oP '[0-9]+')
+          echo "versionName=$VERSION_NAME"
+          echo "versionCode=$VERSION_CODE"
+          [[ $VERSION_NAME != "" && $VERSION_CODE != "" ]]
+
+      - name: Build APK
+        run: ./gradlew :app:assembleRelease
+
+      - name: Build AAB
+        run: ./gradlew :app:bundleRelease
+
+      - name: Rename release artifacts
+        run: |
+          VERSION=${{ github.ref_name }}
+          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/hermes-$VERSION.apk
+          mv app/build/outputs/bundle/release/app-release.aab app/build/outputs/bundle/release/hermes-$VERSION.aab
+
+      - name: Extract changelog section for current version
+        run: |
+          VERSION=${{ github.ref_name }}
+          awk "/^## \\[$VERSION\\]/,/^## \\[/" CHANGELOG.md | sed '$d' > release_body.md || echo "⚠️ No changelog section found for $VERSION." > release_body.md
+
+      - name: Upload release to GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app/build/outputs/apk/release/hermes-*.apk
+            app/build/outputs/bundle/release/hermes-*.aab
+          body_path: release_body.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set Play Store changelog env
+        id: changelog
+        run: |
+          BODY=$(cat release_body.md)
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          echo "$BODY" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Upload to Play Store (internal track)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: com.rafaelfelipeac.hermes
+          releaseFiles: app/build/outputs/bundle/release/hermes-*.aab
+          track: internal
+          status: draft
