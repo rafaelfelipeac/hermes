@@ -50,4 +50,5 @@
     <string name="settings_language_system">Uses system default</string>
     <string name="settings_language_english">English</string>
     <string name="settings_language_portuguese_brazil">Portuguese (Brazil)</string>
+    <string name="settings_app_version">Hermes - Version: %1$s</string>
 </resources>
