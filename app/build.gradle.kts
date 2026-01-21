@@ -9,6 +9,9 @@ plugins {
     alias(libs.plugins.hilt.android)
 }
 
+val appVersionCode = 1
+val appVersionName = "1.0.0"
+
 android {
     namespace = "com.rafaelfelipeac.hermes"
     compileSdk {
@@ -19,13 +22,17 @@ android {
         applicationId = "com.rafaelfelipeac.hermes"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
