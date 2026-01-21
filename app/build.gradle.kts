@@ -25,6 +25,7 @@ android {
         versionCode = appVersionCode
         versionName = appVersionName
 
+        manifestPlaceholders["appName"] = "@string/app_name"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -32,6 +33,7 @@ android {
         debug {
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
+            manifestPlaceholders["appName"] = "@string/app_name_dev"
         }
         release {
             isMinifyEnabled = false
