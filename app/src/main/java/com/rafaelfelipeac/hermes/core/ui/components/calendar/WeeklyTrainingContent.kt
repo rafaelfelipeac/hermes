@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -21,9 +22,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -31,6 +35,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,6 +58,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
@@ -148,6 +154,7 @@ fun WeeklyTrainingContent(
         }
     val draggedWorkout = draggedWorkoutId?.let { id -> workouts.firstOrNull { it.id == id } }
     var previousUnscheduledIds by remember { mutableStateOf<Set<WorkoutId>>(emptySet()) }
+    var isTbdHelpVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedDate, sections) {
         if (draggedWorkoutId == null) {
@@ -293,6 +300,8 @@ fun WeeklyTrainingContent(
                         SectionHeader(
                             title = section.title(),
                             tag = "$SECTION_HEADER_TAG_PREFIX${section.key}",
+                            showHelp = section == SectionKey.ToBeDefined,
+                            onHelpClick = { isTbdHelpVisible = true },
                         )
 
                         val items = workoutsBySection[section].orEmpty()
@@ -350,24 +359,69 @@ fun WeeklyTrainingContent(
             )
         }
     }
+
+    if (isTbdHelpVisible) {
+        AlertDialog(
+            onDismissRequest = { isTbdHelpVisible = false },
+            title = { Text(text = stringResource(R.string.tbd_help_title)) },
+            text = { Text(text = stringResource(R.string.tbd_help_message)) },
+            confirmButton = {
+                TextButton(onClick = { isTbdHelpVisible = false }) {
+                    Text(text = stringResource(R.string.tbd_help_confirm))
+                }
+            },
+        )
+    }
 }
 
 @Composable
 private fun SectionHeader(
     title: String,
     tag: String,
+    showHelp: Boolean,
+    onHelpClick: () -> Unit,
 ) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.titleMedium,
+    Row(
         modifier =
             Modifier
+                .fillMaxWidth()
                 .padding(
                     horizontal = Dimens.SpacingXs,
                     vertical = Dimens.SpacingMd,
                 )
                 .testTag(tag),
-    )
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (showHelp) {
+            Surface(
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                tonalElevation = Dimens.ElevationSm,
+                shadowElevation = Dimens.ElevationSm,
+                modifier = Modifier.size(Dimens.HelpIconSize),
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .clickable(onClick = onHelpClick),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.HelpOutline,
+                        contentDescription = stringResource(R.string.tbd_help_icon),
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

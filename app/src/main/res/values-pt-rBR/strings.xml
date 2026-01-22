@@ -27,6 +27,10 @@
     <string name="no_workouts">Sem treinos</string>
     <string name="drag_label">Arrastar</string>
     <string name="section_to_be_defined">A definir</string>
+    <string name="tbd_help_title">Como organizar os treinos</string>
+    <string name="tbd_help_message">Toque e segure um treino para arrastá-lo para um dia da semana. Solte sobre um dia ou entre itens para definir a ordem.</string>
+    <string name="tbd_help_confirm">Entendi</string>
+    <string name="tbd_help_icon">Ajuda para organizar treinos</string>
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Dia de descanso</string>

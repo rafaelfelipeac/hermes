@@ -27,6 +27,10 @@
     <string name="no_workouts">No workouts</string>
     <string name="drag_label">Drag handle</string>
     <string name="section_to_be_defined">To be defined</string>
+    <string name="tbd_help_title">How to organize workouts</string>
+    <string name="tbd_help_message">Long press a workout to drag it to a weekday. Drop it on a day or between items to set the order.</string>
+    <string name="tbd_help_confirm">Got it</string>
+    <string name="tbd_help_icon">Help for organizing workouts</string>
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Rest day</string>
