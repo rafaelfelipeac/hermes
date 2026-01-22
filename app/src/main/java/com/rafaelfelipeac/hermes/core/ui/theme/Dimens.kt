@@ -17,6 +17,7 @@ object Dimens {
 
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp
+    val WeeklyCalendarBottomPadding = 96.dp
     val AddActionPillMinWidth = 180.dp
     val AddActionPillHorizontalPadding = 18.dp
 
