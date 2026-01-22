@@ -160,7 +160,7 @@ private fun SettingsOptionRow(
             Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
-                .padding(vertical = Dimens.SpacingSm),
+                .padding(vertical = Dimens.SpacingXxs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(

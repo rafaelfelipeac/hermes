@@ -10,7 +10,7 @@ plugins {
 }
 
 val appVersionCode = 1
-val appVersionName = "1.0.0"
+val appVersionName = "0.1.0"
 
 android {
     namespace = "com.rafaelfelipeac.hermes"

@@ -8,6 +8,7 @@ object Dimens {
     val ElevationSm = 1.dp
     val ElevationMd = 6.dp
 
+    val SpacingXxs = 2.dp
     val SpacingXs = 4.dp
     val SpacingSm = 6.dp
     val SpacingMd = 8.dp
