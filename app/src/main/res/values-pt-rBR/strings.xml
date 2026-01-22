@@ -53,7 +53,14 @@
     <string name="settings_theme_dark">Escuro</string>
     <string name="settings_language_title">Idioma</string>
     <string name="settings_language_system">Usar padrão do sistema</string>
-    <string name="settings_language_english">Inglês</string>
+    <string name="settings_language_english">English</string>
     <string name="settings_language_portuguese_brazil">Português (Brasil)</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_hindi">हिन्दी</string>
+    <string name="settings_language_japanese">日本語</string>
     <string name="settings_app_version">Hermes - Versão: %1$s</string>
 </resources>

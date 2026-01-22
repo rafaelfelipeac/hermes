@@ -1,0 +1,66 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">Hermes</string>
+    <string name="app_name_dev">Hermes Dev</string>
+
+    <!-- Navigation -->
+    <string name="nav_training_week">Entraînement hebdomadaire</string>
+    <string name="nav_settings">Paramètres</string>
+
+    <!-- Training week: actions -->
+    <string name="add_item">Ajouter</string>
+    <string name="add_workout">Ajouter un entraînement</string>
+    <string name="add_rest_day">Ajouter un jour de repos</string>
+    <string name="add_workout_type">Type</string>
+    <string name="add_workout_description">Description</string>
+    <string name="add_workout_confirm">Ajouter</string>
+    <string name="add_workout_cancel">Annuler</string>
+    <string name="edit_workout">Modifier l\'entraînement</string>
+    <string name="save_changes">Enregistrer</string>
+    <string name="delete_workout">Supprimer l\'entraînement</string>
+    <string name="delete_workout_title">Supprimer l\'entraînement ?</string>
+    <string name="delete_workout_message">Cette action est irréversible.</string>
+    <string name="delete_rest_day">Supprimer le jour de repos</string>
+    <string name="delete_rest_day_title">Supprimer le jour de repos ?</string>
+    <string name="delete_rest_day_message">Cette action est irréversible.</string>
+    <string name="mark_incomplete">Marquer comme non terminé</string>
+    <string name="no_workouts">Aucun entraînement</string>
+    <string name="drag_label">Glisser</string>
+    <string name="section_to_be_defined">À définir</string>
+    <string name="tbd_help_title">Comment organiser les entraînements</string>
+    <string name="tbd_help_message">Appuyez longuement sur un entraînement pour le faire glisser vers un jour de la semaine. Déposez-le sur un jour ou entre des éléments pour définir l\'ordre.</string>
+    <string name="tbd_help_confirm">Compris</string>
+    <string name="tbd_help_icon">Aide pour organiser les entraînements</string>
+    <string name="week_previous">&lt;</string>
+    <string name="week_next">&gt;</string>
+    <string name="rest_day_label">Jour de repos</string>
+
+    <!-- Training week: days -->
+    <string name="day_monday">Lundi</string>
+    <string name="day_tuesday">Mardi</string>
+    <string name="day_wednesday">Mercredi</string>
+    <string name="day_thursday">Jeudi</string>
+    <string name="day_friday">Vendredi</string>
+    <string name="day_saturday">Samedi</string>
+    <string name="day_sunday">Dimanche</string>
+    <string name="workout_completed_emoji">👍</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_theme_title">Thème</string>
+    <string name="settings_theme_system">Utiliser le réglage système</string>
+    <string name="settings_theme_light">Clair</string>
+    <string name="settings_theme_dark">Sombre</string>
+    <string name="settings_language_title">Langue</string>
+    <string name="settings_language_system">Utiliser le réglage système</string>
+    <string name="settings_language_english">Anglais</string>
+    <string name="settings_language_portuguese_brazil">Portugais (Brésil)</string>
+    <string name="settings_language_german">Allemand</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_spanish">Espagnol</string>
+    <string name="settings_language_italian">Italien</string>
+    <string name="settings_language_arabic">Arabe</string>
+    <string name="settings_language_hindi">Hindi</string>
+    <string name="settings_language_japanese">Japonais</string>
+    <string name="settings_app_version">Hermes - Version : %1$s</string>
+</resources>

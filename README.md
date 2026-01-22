@@ -43,6 +43,13 @@ It’s about **showing up**, week after week.
 - Language support:
     - English (default)
     - Portuguese (Brazil)
+    - Deutsch
+    - Français
+    - Español
+    - Italiano
+    - العربية
+    - हिन्दी
+    - 日本語
     - System default
 - Offline-first — no account, no server, no noise
 

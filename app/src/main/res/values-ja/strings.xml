@@ -1,0 +1,66 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">Hermes</string>
+    <string name="app_name_dev">Hermes Dev</string>
+
+    <!-- Navigation -->
+    <string name="nav_training_week">週間トレーニング</string>
+    <string name="nav_settings">設定</string>
+
+    <!-- Training week: actions -->
+    <string name="add_item">追加</string>
+    <string name="add_workout">トレーニングを追加</string>
+    <string name="add_rest_day">休息日を追加</string>
+    <string name="add_workout_type">種類</string>
+    <string name="add_workout_description">説明</string>
+    <string name="add_workout_confirm">追加</string>
+    <string name="add_workout_cancel">キャンセル</string>
+    <string name="edit_workout">トレーニングを編集</string>
+    <string name="save_changes">保存</string>
+    <string name="delete_workout">トレーニングを削除</string>
+    <string name="delete_workout_title">トレーニングを削除しますか？</string>
+    <string name="delete_workout_message">この操作は元に戻せません。</string>
+    <string name="delete_rest_day">休息日を削除</string>
+    <string name="delete_rest_day_title">休息日を削除しますか？</string>
+    <string name="delete_rest_day_message">この操作は元に戻せません。</string>
+    <string name="mark_incomplete">未完了にする</string>
+    <string name="no_workouts">トレーニングなし</string>
+    <string name="drag_label">ドラッグ</string>
+    <string name="section_to_be_defined">未定</string>
+    <string name="tbd_help_title">トレーニングの整理方法</string>
+    <string name="tbd_help_message">トレーニングを長押しして曜日へドラッグしてください。曜日の上または項目の間にドロップして順番を決めます。</string>
+    <string name="tbd_help_confirm">了解</string>
+    <string name="tbd_help_icon">トレーニング整理のヘルプ</string>
+    <string name="week_previous">&lt;</string>
+    <string name="week_next">&gt;</string>
+    <string name="rest_day_label">休息日</string>
+
+    <!-- Training week: days -->
+    <string name="day_monday">月曜日</string>
+    <string name="day_tuesday">火曜日</string>
+    <string name="day_wednesday">水曜日</string>
+    <string name="day_thursday">木曜日</string>
+    <string name="day_friday">金曜日</string>
+    <string name="day_saturday">土曜日</string>
+    <string name="day_sunday">日曜日</string>
+    <string name="workout_completed_emoji">👍</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_theme_title">テーマ</string>
+    <string name="settings_theme_system">システムの既定を使用</string>
+    <string name="settings_theme_light">ライト</string>
+    <string name="settings_theme_dark">ダーク</string>
+    <string name="settings_language_title">言語</string>
+    <string name="settings_language_system">システムの既定を使用</string>
+    <string name="settings_language_english">英語</string>
+    <string name="settings_language_portuguese_brazil">ポルトガル語（ブラジル）</string>
+    <string name="settings_language_german">ドイツ語</string>
+    <string name="settings_language_french">フランス語</string>
+    <string name="settings_language_spanish">スペイン語</string>
+    <string name="settings_language_italian">イタリア語</string>
+    <string name="settings_language_arabic">アラビア語</string>
+    <string name="settings_language_hindi">ヒンディー語</string>
+    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_app_version">Hermes - バージョン: %1$s</string>
+</resources>

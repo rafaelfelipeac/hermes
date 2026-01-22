@@ -1,0 +1,66 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">Hermes</string>
+    <string name="app_name_dev">Hermes Dev</string>
+
+    <!-- Navigation -->
+    <string name="nav_training_week">साप्ताहिक प्रशिक्षण</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <!-- Training week: actions -->
+    <string name="add_item">जोड़ें</string>
+    <string name="add_workout">प्रशिक्षण जोड़ें</string>
+    <string name="add_rest_day">आराम का दिन जोड़ें</string>
+    <string name="add_workout_type">प्रकार</string>
+    <string name="add_workout_description">विवरण</string>
+    <string name="add_workout_confirm">जोड़ें</string>
+    <string name="add_workout_cancel">रद्द करें</string>
+    <string name="edit_workout">प्रशिक्षण संपादित करें</string>
+    <string name="save_changes">सहेजें</string>
+    <string name="delete_workout">प्रशिक्षण हटाएं</string>
+    <string name="delete_workout_title">प्रशिक्षण हटाएं?</string>
+    <string name="delete_workout_message">यह कार्रवाई वापस नहीं की जा सकती।</string>
+    <string name="delete_rest_day">आराम का दिन हटाएं</string>
+    <string name="delete_rest_day_title">आराम का दिन हटाएं?</string>
+    <string name="delete_rest_day_message">यह कार्रवाई वापस नहीं की जा सकती।</string>
+    <string name="mark_incomplete">अधूरा चिह्नित करें</string>
+    <string name="no_workouts">कोई प्रशिक्षण नहीं</string>
+    <string name="drag_label">खींचें</string>
+    <string name="section_to_be_defined">निर्धारित करना बाकी</string>
+    <string name="tbd_help_title">प्रशिक्षण कैसे व्यवस्थित करें</string>
+    <string name="tbd_help_message">किसी प्रशिक्षण को लंबे समय तक दबाकर उसे सप्ताह के दिन पर खींचें। क्रम तय करने के लिए किसी दिन पर या आइटमों के बीच छोड़ें।</string>
+    <string name="tbd_help_confirm">समझ गया</string>
+    <string name="tbd_help_icon">प्रशिक्षण व्यवस्थित करने के लिए सहायता</string>
+    <string name="week_previous">&lt;</string>
+    <string name="week_next">&gt;</string>
+    <string name="rest_day_label">आराम का दिन</string>
+
+    <!-- Training week: days -->
+    <string name="day_monday">सोमवार</string>
+    <string name="day_tuesday">मंगलवार</string>
+    <string name="day_wednesday">बुधवार</string>
+    <string name="day_thursday">गुरुवार</string>
+    <string name="day_friday">शुक्रवार</string>
+    <string name="day_saturday">शनिवार</string>
+    <string name="day_sunday">रविवार</string>
+    <string name="workout_completed_emoji">👍</string>
+
+    <!-- Settings -->
+    <string name="settings_title">सेटिंग्स</string>
+    <string name="settings_theme_title">थीम</string>
+    <string name="settings_theme_system">सिस्टम डिफ़ॉल्ट का उपयोग करें</string>
+    <string name="settings_theme_light">हल्का</string>
+    <string name="settings_theme_dark">गहरा</string>
+    <string name="settings_language_title">भाषा</string>
+    <string name="settings_language_system">सिस्टम डिफ़ॉल्ट का उपयोग करें</string>
+    <string name="settings_language_english">अंग्रेज़ी</string>
+    <string name="settings_language_portuguese_brazil">पुर्तगाली (ब्राज़ील)</string>
+    <string name="settings_language_german">जर्मन</string>
+    <string name="settings_language_french">फ़्रेंच</string>
+    <string name="settings_language_spanish">स्पेनिश</string>
+    <string name="settings_language_italian">इतालवी</string>
+    <string name="settings_language_arabic">अरबी</string>
+    <string name="settings_language_hindi">हिन्दी</string>
+    <string name="settings_language_japanese">जापानी</string>
+    <string name="settings_app_version">Hermes - संस्करण: %1$s</string>
+</resources>

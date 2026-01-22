@@ -1,0 +1,66 @@
+<resources>
+    <!-- App -->
+    <string name="app_name">Hermes</string>
+    <string name="app_name_dev">Hermes Dev</string>
+
+    <!-- Navigation -->
+    <string name="nav_training_week">التدريب الأسبوعي</string>
+    <string name="nav_settings">الإعدادات</string>
+
+    <!-- Training week: actions -->
+    <string name="add_item">إضافة</string>
+    <string name="add_workout">إضافة تمرين</string>
+    <string name="add_rest_day">إضافة يوم راحة</string>
+    <string name="add_workout_type">النوع</string>
+    <string name="add_workout_description">الوصف</string>
+    <string name="add_workout_confirm">إضافة</string>
+    <string name="add_workout_cancel">إلغاء</string>
+    <string name="edit_workout">تعديل التمرين</string>
+    <string name="save_changes">حفظ</string>
+    <string name="delete_workout">حذف التمرين</string>
+    <string name="delete_workout_title">حذف التمرين؟</string>
+    <string name="delete_workout_message">لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="delete_rest_day">حذف يوم الراحة</string>
+    <string name="delete_rest_day_title">حذف يوم الراحة؟</string>
+    <string name="delete_rest_day_message">لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="mark_incomplete">وضع علامة غير مكتمل</string>
+    <string name="no_workouts">لا توجد تمارين</string>
+    <string name="drag_label">مقبض السحب</string>
+    <string name="section_to_be_defined">غير محدد بعد</string>
+    <string name="tbd_help_title">كيفية تنظيم التمارين</string>
+    <string name="tbd_help_message">اضغط مطولاً على تمرين لسحبه إلى يوم من أيام الأسبوع. أفلِته على يوم أو بين العناصر لتحديد الترتيب.</string>
+    <string name="tbd_help_confirm">فهمت</string>
+    <string name="tbd_help_icon">مساعدة لتنظيم التمارين</string>
+    <string name="week_previous">&lt;</string>
+    <string name="week_next">&gt;</string>
+    <string name="rest_day_label">يوم راحة</string>
+
+    <!-- Training week: days -->
+    <string name="day_monday">الاثنين</string>
+    <string name="day_tuesday">الثلاثاء</string>
+    <string name="day_wednesday">الأربعاء</string>
+    <string name="day_thursday">الخميس</string>
+    <string name="day_friday">الجمعة</string>
+    <string name="day_saturday">السبت</string>
+    <string name="day_sunday">الأحد</string>
+    <string name="workout_completed_emoji">👍</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_theme_title">المظهر</string>
+    <string name="settings_theme_system">استخدام إعدادات النظام</string>
+    <string name="settings_theme_light">فاتح</string>
+    <string name="settings_theme_dark">داكن</string>
+    <string name="settings_language_title">اللغة</string>
+    <string name="settings_language_system">استخدام إعدادات النظام</string>
+    <string name="settings_language_english">الإنجليزية</string>
+    <string name="settings_language_portuguese_brazil">البرتغالية (البرازيل)</string>
+    <string name="settings_language_german">الألمانية</string>
+    <string name="settings_language_french">الفرنسية</string>
+    <string name="settings_language_spanish">الإسبانية</string>
+    <string name="settings_language_italian">الإيطالية</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_hindi">الهندية</string>
+    <string name="settings_language_japanese">اليابانية</string>
+    <string name="settings_app_version">Hermes - الإصدار: %1$s</string>
+</resources>

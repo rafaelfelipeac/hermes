@@ -55,5 +55,12 @@
     <string name="settings_language_system">Uses system default</string>
     <string name="settings_language_english">English</string>
     <string name="settings_language_portuguese_brazil">Portuguese (Brazil)</string>
+    <string name="settings_language_german">Deutsch</string>
+    <string name="settings_language_french">Français</string>
+    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_italian">Italiano</string>
+    <string name="settings_language_arabic">العربية</string>
+    <string name="settings_language_hindi">हिन्दी</string>
+    <string name="settings_language_japanese">日本語</string>
     <string name="settings_app_version">Hermes - Version: %1$s</string>
 </resources>
