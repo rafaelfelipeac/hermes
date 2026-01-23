@@ -2,7 +2,10 @@ package com.rafaelfelipeac.hermes
 
 import android.app.Activity
 import android.app.LocaleManager
+import android.content.Context
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
+import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
 import android.os.LocaleList
 import androidx.activity.ComponentActivity
@@ -41,6 +44,8 @@ import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewMode
 import com.rafaelfelipeac.hermes.features.trainingweek.presentation.TrainingWeekScreen
 import com.rafaelfelipeac.hermes.core.ui.preview.HermesAppPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.HermesAppPreviewProvider
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.*
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -56,17 +61,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@PreviewScreenSizes
-@Composable
-private fun HermesAppPreview(
-    @PreviewParameter(HermesAppPreviewProvider::class)
-    preview: HermesAppPreviewData,
-) {
-    HermesTheme(darkTheme = preview.darkTheme) {
-        HermesAppContent()
-    }
-}
-
 @Composable
 private fun HermesAppRoot() {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
@@ -76,6 +70,7 @@ private fun HermesAppRoot() {
 
     LaunchedEffect(settingsState.language) {
         val applied = applyAppLanguage(context, settingsState.language)
+
         if (applied && activity != null) {
             activity.recreate()
         }
@@ -83,8 +78,8 @@ private fun HermesAppRoot() {
 
     val darkTheme =
         when (settingsState.themeMode) {
-            ThemeMode.DARK -> true
-            ThemeMode.LIGHT -> false
+            DARK -> true
+            LIGHT -> false
             ThemeMode.SYSTEM -> isSystemInDarkTheme()
         }
 
@@ -94,17 +89,18 @@ private fun HermesAppRoot() {
 }
 
 private fun applyAppLanguage(
-    context: android.content.Context,
+    context: Context,
     language: AppLanguage,
 ): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+    return if (SDK_INT >= TIRAMISU) {
         val localeManager = context.getSystemService(LocaleManager::class.java)
         val desired =
-            if (language == AppLanguage.SYSTEM) {
+            if (language == SYSTEM) {
                 LocaleList.getEmptyLocaleList()
             } else {
                 LocaleList.forLanguageTags(language.tag)
             }
+
         if (localeManager.applicationLocales != desired) {
             localeManager.applicationLocales = desired
             true
@@ -113,11 +109,12 @@ private fun applyAppLanguage(
         }
     } else {
         val desired =
-            if (language == AppLanguage.SYSTEM) {
+            if (language == SYSTEM) {
                 LocaleListCompat.getEmptyLocaleList()
             } else {
                 LocaleListCompat.forLanguageTags(language.tag)
             }
+
         if (AppCompatDelegate.getApplicationLocales() != desired) {
             AppCompatDelegate.setApplicationLocales(desired)
             true
@@ -154,5 +151,16 @@ private fun HermesAppContent() {
                 SETTINGS -> SettingsScreen(modifier = Modifier.padding(innerPadding))
             }
         }
+    }
+}
+
+@PreviewScreenSizes
+@Composable
+private fun HermesAppPreview(
+    @PreviewParameter(HermesAppPreviewProvider::class)
+    preview: HermesAppPreviewData,
+) {
+    HermesTheme(darkTheme = preview.darkTheme) {
+        HermesAppContent()
     }
 }
