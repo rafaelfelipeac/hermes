@@ -56,12 +56,12 @@ private const val WEEK_CHANGE_STEP = 1L
 
 @Composable
 fun WeeklyCalendarHeader(
+    modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     weekStartDate: LocalDate,
     dayIndicators: Map<DayOfWeek, DayIndicator>,
     onDateSelected: (LocalDate) -> Unit,
     onWeekChanged: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier,
     dayContent: @Composable (
         date: LocalDate,
         isSelected: Boolean,

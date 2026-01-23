@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.trainingweek.data
 
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.features.trainingweek.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.trainingweek.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.model.Workout
@@ -51,8 +52,8 @@ class TrainingWeekRepositoryImpl
                 WorkoutEntity(
                     weekStartDate = weekStartDate,
                     dayOfWeek = dayOfWeek?.value,
-                    type = "",
-                    description = "",
+                    type = EMPTY,
+                    description = EMPTY,
                     isCompleted = false,
                     isRestDay = true,
                     sortOrder = order,

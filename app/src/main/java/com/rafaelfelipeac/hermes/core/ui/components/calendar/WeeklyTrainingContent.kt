@@ -110,13 +110,13 @@ data class WorkoutUi(
 
 @Composable
 fun WeeklyTrainingContent(
+    modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     workouts: List<WorkoutUi>,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
     onWorkoutCompletionChanged: (WorkoutId, Boolean) -> Unit,
     onWorkoutEdit: (WorkoutUi) -> Unit,
     onWorkoutDelete: (WorkoutUi) -> Unit,
-    modifier: Modifier = Modifier,
     onWeekChanged: (LocalDate) -> Unit = {},
 ) {
     val sections =
@@ -622,8 +622,8 @@ private fun TypeChip(
 
 @Composable
 private fun GhostWorkoutRow(
-    workout: WorkoutUi,
     modifier: Modifier = Modifier,
+    workout: WorkoutUi,
 ) {
     val colors = workoutRowColors(workout, isDragging = false)
     val hasDescription = workout.description.isNotBlank()

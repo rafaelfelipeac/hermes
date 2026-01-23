@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.trainingweek.presentation
 
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.repository.TrainingWeekRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
@@ -218,7 +219,7 @@ private fun workout(
         weekStartDate = weekStart,
         dayOfWeek = day,
         type = if (isRestDay) "Rest" else "Run",
-        description = "",
+        description = EMPTY,
         isCompleted = isCompleted,
         isRestDay = isRestDay,
         order = order,

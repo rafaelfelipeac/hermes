@@ -18,18 +18,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewProvider
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 
 @Composable
 fun AddWorkoutDialog(
+    modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
     onSave: (type: String, description: String) -> Unit,
     isEdit: Boolean,
-    modifier: Modifier = Modifier,
-    initialType: String = "",
-    initialDescription: String = "",
+    initialType: String = EMPTY,
+    initialDescription: String = EMPTY,
 ) {
     var type by rememberSaveable { mutableStateOf(initialType) }
     var description by rememberSaveable { mutableStateOf(initialDescription) }

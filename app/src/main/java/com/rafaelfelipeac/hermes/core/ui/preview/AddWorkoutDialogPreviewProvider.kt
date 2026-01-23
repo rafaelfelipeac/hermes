@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.core.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 
 private const val PREVIEW_WORKOUT_TYPE = "Run"
 private const val PREVIEW_WORKOUT_DESCRIPTION = "Easy 5k"
@@ -16,8 +17,8 @@ class AddWorkoutDialogPreviewProvider : PreviewParameterProvider<AddWorkoutDialo
         sequenceOf(
             AddWorkoutDialogPreviewData(
                 isEdit = false,
-                initialType = "",
-                initialDescription = "",
+                initialType = EMPTY,
+                initialDescription = EMPTY,
             ),
             AddWorkoutDialogPreviewData(
                 isEdit = true,

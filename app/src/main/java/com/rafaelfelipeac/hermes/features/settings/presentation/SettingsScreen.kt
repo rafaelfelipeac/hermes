@@ -47,11 +47,11 @@ fun SettingsScreen(
 
 @Composable
 internal fun SettingsContent(
+    modifier: Modifier = Modifier,
     state: SettingsState,
     appVersion: String,
     onThemeSelected: (ThemeMode) -> Unit,
     onLanguageSelected: (AppLanguage) -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
     Column(
