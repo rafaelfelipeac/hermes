@@ -1,7 +1,7 @@
 package com.rafaelfelipeac.hermes.core.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.WorkoutUi
+import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutUi
 import java.time.DayOfWeek
 import java.time.LocalDate
 

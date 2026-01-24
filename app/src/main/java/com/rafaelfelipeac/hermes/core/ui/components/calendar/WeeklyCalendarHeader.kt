@@ -14,11 +14,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ChevronLeft
+import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -28,20 +32,24 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.Completed
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.RestDay
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.Workout
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import java.time.DayOfWeek
 import java.time.LocalDate
-import java.time.format.TextStyle
+import java.time.format.TextStyle.SHORT
 import java.util.Locale
 
 private const val WEEK_DAY_COUNT = 7
@@ -62,17 +70,10 @@ fun WeeklyCalendarHeader(
     dayIndicators: Map<DayOfWeek, DayIndicator>,
     onDateSelected: (LocalDate) -> Unit,
     onWeekChanged: (LocalDate) -> Unit,
-    dayContent: @Composable (
-        date: LocalDate,
-        isSelected: Boolean,
-        hasWorkout: Boolean,
-    ) -> Unit = { date, isSelected, hasWorkout ->
-        DefaultDayContent(date = date, isSelected = isSelected, hasWorkout = hasWorkout)
-    },
 ) {
     val weekEndDate = weekStartDate.plusDays((WEEK_DAY_COUNT - 1).toLong())
     val swipeThreshold = with(LocalDensity.current) { Dimens.SwipeThreshold.toPx() }
-    var dragAmount by remember { mutableStateOf(0f) }
+    var dragAmount by remember { mutableFloatStateOf(0f) }
 
     Column(
         modifier =
@@ -80,19 +81,17 @@ fun WeeklyCalendarHeader(
                 .testTag(HEADER_TAG)
                 .pointerInput(selectedDate, onWeekChanged) {
                     detectHorizontalDragGestures(
-                        onHorizontalDrag = { _, amount ->
-                            dragAmount += amount
-                        },
+                        onHorizontalDrag = { _, _ -> },
                         onDragEnd = {
                             when {
                                 dragAmount <= -swipeThreshold ->
                                     onWeekChanged(selectedDate.plusWeeks(WEEK_CHANGE_STEP))
+
                                 dragAmount >= swipeThreshold ->
                                     onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP))
                             }
-                            dragAmount = 0f
                         },
-                        onDragCancel = { dragAmount = 0f },
+                        onDragCancel = { },
                     )
                 },
     ) {
@@ -105,7 +104,10 @@ fun WeeklyCalendarHeader(
                 onClick = { onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP)) },
                 modifier = Modifier.testTag(PREV_WEEK_TAG),
             ) {
-                Text(text = stringResource(R.string.week_previous))
+                Icon(
+                    imageVector = Icons.Outlined.ChevronLeft,
+                    contentDescription = stringResource(R.string.week_previous),
+                )
             }
 
             Text(text = formatWeekRange(weekStartDate, weekEndDate))
@@ -114,7 +116,10 @@ fun WeeklyCalendarHeader(
                 onClick = { onWeekChanged(selectedDate.plusWeeks(WEEK_CHANGE_STEP)) },
                 modifier = Modifier.testTag(NEXT_WEEK_TAG),
             ) {
-                Text(text = stringResource(R.string.week_next))
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = stringResource(R.string.week_next),
+                )
             }
         }
 
@@ -138,7 +143,12 @@ fun WeeklyCalendarHeader(
                             .padding(vertical = Dimens.SpacingMd),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    dayContent(date, isSelected, indicator != null)
+                    DefaultDayContent(
+                        date = date,
+                        isSelected = isSelected,
+                        hasWorkout = indicator != null,
+                    )
+
                     IndicatorDot(indicator = indicator)
                 }
             }
@@ -152,15 +162,15 @@ private fun DefaultDayContent(
     isSelected: Boolean,
     hasWorkout: Boolean,
 ) {
-    val label =
-        date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-            .take(1)
-            .uppercase(Locale.getDefault())
+    val label = date.dayOfWeek.getDisplayName(SHORT, Locale.getDefault())
+        .take(1)
+        .uppercase(Locale.getDefault())
 
     Text(
         text = label,
-        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+        fontWeight = if (isSelected) Bold else Normal,
     )
+
     if (!hasWorkout) {
         Spacer(modifier = Modifier.size(Dimens.IndicatorSize))
     }
@@ -176,12 +186,11 @@ private fun IndicatorDot(indicator: DayIndicator?) {
     val isDarkTheme = isSystemInDarkTheme()
     val completedColor = TodoBlue
     val restDayColor = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
-    val color =
-        when (indicator) {
-            DayIndicator.Workout -> CompletedBlue
-            DayIndicator.RestDay -> restDayColor
-            DayIndicator.Completed -> completedColor
-        }
+    val color = when (indicator) {
+        Workout -> CompletedBlue
+        RestDay -> restDayColor
+        Completed -> completedColor
+    }
 
     Box(
         modifier =
@@ -199,33 +208,39 @@ private fun formatWeekRange(
     val locale = Locale.getDefault()
     val startDay = start.dayOfMonth
     val endDay = end.dayOfMonth
-    val startMonth = start.month.getDisplayName(TextStyle.SHORT, locale)
-    val endMonth = end.month.getDisplayName(TextStyle.SHORT, locale)
+    val startMonth = start.month.getDisplayName(SHORT, locale)
+    val endMonth = end.month.getDisplayName(SHORT, locale)
 
     return when {
-        start.year == end.year && start.month == end.month ->
-            String.format(locale, SAME_MONTH_RANGE_FORMAT, startDay, endDay, startMonth, start.year)
-        start.year == end.year ->
-            String.format(
-                locale,
-                SAME_YEAR_RANGE_FORMAT,
-                startDay,
-                startMonth,
-                endDay,
-                endMonth,
-                start.year,
-            )
-        else ->
-            String.format(
-                locale,
-                CROSS_YEAR_RANGE_FORMAT,
-                startDay,
-                startMonth,
-                start.year,
-                endDay,
-                endMonth,
-                end.year,
-            )
+        start.year == end.year && start.month == end.month -> String.format(
+            locale,
+            SAME_MONTH_RANGE_FORMAT,
+            startDay,
+            endDay,
+            startMonth,
+            start.year
+        )
+
+        start.year == end.year -> String.format(
+            locale,
+            SAME_YEAR_RANGE_FORMAT,
+            startDay,
+            startMonth,
+            endDay,
+            endMonth,
+            start.year,
+        )
+
+        else -> String.format(
+            locale,
+            CROSS_YEAR_RANGE_FORMAT,
+            startDay,
+            startMonth,
+            start.year,
+            endDay,
+            endMonth,
+            end.year,
+        )
     }
 }
 

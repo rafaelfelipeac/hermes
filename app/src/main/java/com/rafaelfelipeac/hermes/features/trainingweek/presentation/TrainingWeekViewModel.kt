@@ -4,7 +4,7 @@ package com.rafaelfelipeac.hermes.features.trainingweek.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.WorkoutUi
+import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.trainingweek.domain.repository.TrainingWeekRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -38,14 +38,14 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyTrainingContent
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.WorkoutUi
+import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerDark
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerLight
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContentDark
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContentLight
 
-private val AddMenuScrimAlpha = 0.30f
+private const val AddMenuScrimAlpha = 0.30f
 private const val ADD_FAB_TEST_TAG = "add-fab"
 
 @Composable

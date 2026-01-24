@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
@@ -143,7 +144,11 @@ internal fun SettingsContent(
         Text(
             text = stringResource(R.string.settings_app_version, appVersion),
             style = MaterialTheme.typography.bodySmall,
-            modifier = Modifier.padding(top = Dimens.SpacingMd, bottom = Dimens.SpacingLg),
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(top = Dimens.SpacingMd, bottom = Dimens.SpacingLg),
         )
     }
 }

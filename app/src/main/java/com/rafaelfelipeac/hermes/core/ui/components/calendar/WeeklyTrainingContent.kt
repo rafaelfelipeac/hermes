@@ -39,6 +39,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -49,6 +50,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect.Companion.Zero
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -62,6 +64,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.SectionKey.*
+import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutId
+import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.core.ui.theme.TextSizes
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewData
@@ -76,6 +81,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
+import java.time.DayOfWeek.*
 import java.time.LocalDate
 
 private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
@@ -96,17 +102,6 @@ private const val SECTION_ITEM_KEY_PREFIX = "section-"
 private const val DIVIDER_ITEM_KEY_PREFIX = "divider-"
 private const val SECTION_HEADER_TAG_PREFIX = "section-header-"
 private const val SECTION_KEY_TBD = "tbd"
-typealias WorkoutId = Long
-
-data class WorkoutUi(
-    val id: WorkoutId,
-    val dayOfWeek: DayOfWeek?,
-    val type: String,
-    val description: String,
-    val isCompleted: Boolean,
-    val isRestDay: Boolean,
-    val order: Int,
-)
 
 @Composable
 fun WeeklyTrainingContent(
@@ -123,15 +118,16 @@ fun WeeklyTrainingContent(
         remember(workouts) {
             buildList {
                 if (workouts.any { it.dayOfWeek == null }) {
-                    add(SectionKey.ToBeDefined)
+                    add(ToBeDefined)
                 }
-                add(SectionKey.Day(DayOfWeek.MONDAY))
-                add(SectionKey.Day(DayOfWeek.TUESDAY))
-                add(SectionKey.Day(DayOfWeek.WEDNESDAY))
-                add(SectionKey.Day(DayOfWeek.THURSDAY))
-                add(SectionKey.Day(DayOfWeek.FRIDAY))
-                add(SectionKey.Day(DayOfWeek.SATURDAY))
-                add(SectionKey.Day(DayOfWeek.SUNDAY))
+
+                add(Day(MONDAY))
+                add(Day(TUESDAY))
+                add(Day(WEDNESDAY))
+                add(Day(THURSDAY))
+                add(Day(FRIDAY))
+                add(Day(SATURDAY))
+                add(Day(SUNDAY))
             }
         }
 
@@ -139,11 +135,11 @@ fun WeeklyTrainingContent(
     val itemBounds = remember { mutableStateMapOf<WorkoutId, Rect>() }
     var draggedWorkoutId by remember { mutableStateOf<WorkoutId?>(null) }
     var dragPosition by remember { mutableStateOf<Offset?>(null) }
-    var draggedItemHeight by remember { mutableStateOf(0f) }
-    var containerBounds by remember { mutableStateOf(Rect.Zero) }
+    var draggedItemHeight by remember { mutableFloatStateOf(0f) }
+    var containerBounds by remember { mutableStateOf(Zero) }
     val listState = rememberLazyListState()
     val swipeThreshold = with(LocalDensity.current) { Dimens.SwipeThreshold.toPx() }
-    var dragAmount by remember { mutableStateOf(0f) }
+    var dragAmount by remember { mutableFloatStateOf(0f) }
     val workoutsBySection =
         remember(workouts) {
             sections.associateWith { section ->
@@ -158,8 +154,9 @@ fun WeeklyTrainingContent(
 
     LaunchedEffect(selectedDate, sections) {
         if (draggedWorkoutId == null) {
-            val targetSection = SectionKey.Day(selectedDate.dayOfWeek)
+            val targetSection = Day(selectedDate.dayOfWeek)
             val targetIndex = sections.indexOf(targetSection)
+
             if (targetIndex != NO_INDEX) {
                 val listIndex = targetIndex * SECTION_LIST_ITEM_SPAN
                 listState.animateScrollToItem(listIndex)
@@ -174,7 +171,8 @@ fun WeeklyTrainingContent(
                 .map { it.id }
                 .toSet()
         val hasNewUnscheduled = currentUnscheduledIds.any { it !in previousUnscheduledIds }
-        if (hasNewUnscheduled && sections.firstOrNull() == SectionKey.ToBeDefined) {
+
+        if (hasNewUnscheduled && sections.firstOrNull() == ToBeDefined) {
             listState.animateScrollToItem(FIRST_LIST_INDEX)
         }
     }
@@ -182,7 +180,8 @@ fun WeeklyTrainingContent(
     LaunchedEffect(draggedWorkoutId) {
         while (draggedWorkoutId != null) {
             val position = dragPosition
-            if (position != null && containerBounds != Rect.Zero) {
+
+            if (position != null && containerBounds != Zero) {
                 val edge = AUTO_SCROLL_EDGE
                 val maxSpeed = AUTO_SCROLL_MAX_SPEED
                 val safeTop = containerBounds.top + AUTO_SCROLL_SAFE_PADDING
@@ -192,23 +191,25 @@ fun WeeklyTrainingContent(
                         position.x,
                         position.y.coerceIn(safeTop, safeBottom),
                     )
+
                 if (clampedPosition != position) {
                     dragPosition = clampedPosition
                 }
+
                 val distanceToTop = clampedPosition.y - containerBounds.top
                 val distanceToBottom = containerBounds.bottom - clampedPosition.y
-                val scrollDelta =
-                    when {
-                        distanceToTop < edge && listState.canScrollBackward -> {
-                            -maxSpeed * (1f - (distanceToTop / edge))
-                        }
-
-                        distanceToBottom < edge && listState.canScrollForward -> {
-                            maxSpeed * (1f - (distanceToBottom / edge))
-                        }
-
-                        else -> 0f
+                val scrollDelta = when {
+                    distanceToTop < edge && listState.canScrollBackward -> {
+                        -maxSpeed * (1f - (distanceToTop / edge))
                     }
+
+                    distanceToBottom < edge && listState.canScrollForward -> {
+                        maxSpeed * (1f - (distanceToBottom / edge))
+                    }
+
+                    else -> 0f
+                }
+
                 if (scrollDelta != 0f) {
                     listState.scrollBy(scrollDelta)
                 }
@@ -224,9 +225,7 @@ fun WeeklyTrainingContent(
                 .pointerInput(selectedDate, draggedWorkoutId) {
                     if (draggedWorkoutId == null) {
                         detectHorizontalDragGestures(
-                            onHorizontalDrag = { _, amount ->
-                                dragAmount += amount
-                            },
+                            onHorizontalDrag = { _, _ -> },
                             onDragEnd = {
                                 when {
                                     dragAmount <= -swipeThreshold ->
@@ -235,9 +234,8 @@ fun WeeklyTrainingContent(
                                     dragAmount >= swipeThreshold ->
                                         onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP))
                                 }
-                                dragAmount = 0f
                             },
-                            onDragCancel = { dragAmount = 0f },
+                            onDragCancel = { },
                         )
                     }
                 }
@@ -250,16 +248,18 @@ fun WeeklyTrainingContent(
                             val event = awaitPointerEvent()
                             val change = event.changes.firstOrNull()
                             val activeId = draggedWorkoutId
-                            if (change == null || activeId == null || containerBounds == Rect.Zero) {
+
+                            if (change == null || activeId == null || containerBounds == Zero) {
                                 continue
                             }
 
-                            val root =
-                                Offset(
-                                    containerBounds.left + change.position.x,
-                                    containerBounds.top + change.position.y,
-                                )
+                            val root = Offset(
+                                containerBounds.left + change.position.x,
+                                containerBounds.top + change.position.y,
+                            )
+
                             dragPosition = root
+
                             if (!change.pressed) {
                                 handleDrop(
                                     draggedWorkoutId = activeId,
@@ -290,17 +290,16 @@ fun WeeklyTrainingContent(
             sections.forEach { section ->
                 item(key = "$SECTION_ITEM_KEY_PREFIX${section.key}") {
                     Column(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .onGloballyPositioned {
-                                    sectionBounds[section] = it.boundsInRoot()
-                                },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned {
+                                sectionBounds[section] = it.boundsInRoot()
+                            },
                     ) {
                         SectionHeader(
                             title = section.title(),
                             tag = "$SECTION_HEADER_TAG_PREFIX${section.key}",
-                            showHelp = section == SectionKey.ToBeDefined,
+                            showHelp = section == ToBeDefined,
                             onHelpClick = { isTbdHelpVisible = true },
                         )
 
@@ -333,6 +332,7 @@ fun WeeklyTrainingContent(
                         }
                     }
                 }
+
                 item(key = "$DIVIDER_ITEM_KEY_PREFIX${section.key}") {
                     HorizontalDivider(
                         modifier = Modifier.padding(top = Dimens.SpacingMd),
@@ -343,30 +343,29 @@ fun WeeklyTrainingContent(
         }
 
         if (draggedWorkout != null && dragPosition != null) {
-            val ghostHeight =
-                if (draggedItemHeight > 0f) {
-                    draggedItemHeight
-                } else {
-                    itemBounds[draggedWorkout.id]?.height ?: 0f
-                }
+            val ghostHeight = if (draggedItemHeight > 0f) {
+                draggedItemHeight
+            } else {
+                itemBounds[draggedWorkout.id]?.height ?: 0f
+            }
             val ghostYOffset = dragPosition!!.y - containerBounds.top - ghostHeight / 2f
+
             GhostWorkoutRow(
                 workout = draggedWorkout,
-                modifier =
-                    Modifier.graphicsLayer {
-                        translationY = ghostYOffset
-                    },
+                modifier = Modifier.graphicsLayer {
+                    translationY = ghostYOffset
+                },
             )
         }
     }
 
     if (isTbdHelpVisible) {
         AlertDialog(
-            onDismissRequest = { isTbdHelpVisible = false },
+            onDismissRequest = { },
             title = { Text(text = stringResource(R.string.tbd_help_title)) },
             text = { Text(text = stringResource(R.string.tbd_help_message)) },
             confirmButton = {
-                TextButton(onClick = { isTbdHelpVisible = false }) {
+                TextButton(onClick = { }) {
                     Text(text = stringResource(R.string.tbd_help_confirm))
                 }
             },
@@ -399,6 +398,7 @@ private fun SectionHeader(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
+
         if (showHelp) {
             Surface(
                 shape = CircleShape,
@@ -455,6 +455,7 @@ private fun WorkoutRow(
             .fillMaxWidth()
             .onGloballyPositioned {
                 coordinates = it
+
                 if (!isDragging) {
                     onItemPositioned(it.boundsInRoot())
                 }
@@ -487,20 +488,19 @@ private fun WorkoutRow(
 
     Box(modifier = rowModifier) {
         Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(end = Dimens.SpacingXl)
-                    .pointerInput(Unit) {
-                        detectDragGesturesAfterLongPress(
-                            onDragStart = { offset ->
-                                coordinates?.localToRoot(offset)?.let {
-                                    onDragStarted(it, itemBoundsHeight(coordinates))
-                                }
-                            },
-                            onDrag = { _, _ -> },
-                        )
-                    },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = Dimens.SpacingXl)
+                .pointerInput(Unit) {
+                    detectDragGesturesAfterLongPress(
+                        onDragStart = { offset ->
+                            coordinates?.localToRoot(offset)?.let {
+                                onDragStarted(it, itemBoundsHeight(coordinates))
+                            }
+                        },
+                        onDrag = { _, _ -> },
+                    )
+                },
             verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
@@ -523,7 +523,7 @@ private fun WorkoutRow(
                         )
                     } else {
                         Checkbox(
-                            checked = workout.isCompleted,
+                            checked = false,
                             onCheckedChange = onToggleCompleted,
                             modifier = Modifier.size(Dimens.CheckboxSize),
                             colors =
@@ -536,9 +536,11 @@ private fun WorkoutRow(
                     }
                 }
             }
+
             if (!workout.isRestDay) {
                 Spacer(modifier = Modifier.width(Dimens.SpacingLg))
             }
+
             Row(
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
                 modifier =
@@ -555,7 +557,9 @@ private fun WorkoutRow(
                                 tint = colors.content,
                                 modifier = Modifier.size(Dimens.SmallIconSize),
                             )
+
                             Spacer(modifier = Modifier.width(Dimens.SpacingSm))
+
                             Text(
                                 text = stringResource(R.string.rest_day_label),
                                 style = MaterialTheme.typography.titleSmall,
@@ -627,6 +631,7 @@ private fun GhostWorkoutRow(
 ) {
     val colors = workoutRowColors(workout, isDragging = false)
     val hasDescription = workout.description.isNotBlank()
+
     Surface(
         color = colors.background,
         contentColor = colors.content,
@@ -665,7 +670,9 @@ private fun GhostWorkoutRow(
                                 tint = colors.content,
                                 modifier = Modifier.size(Dimens.SmallIconSize),
                             )
+
                             Spacer(modifier = Modifier.width(Dimens.SpacingSm))
+
                             Text(
                                 text = stringResource(R.string.rest_day_label),
                                 style = MaterialTheme.typography.titleSmall,
@@ -679,6 +686,7 @@ private fun GhostWorkoutRow(
                             contentColor = colors.content,
                         )
                     }
+
                     if (hasDescription) {
                         Text(
                             text = workout.description,
@@ -697,8 +705,7 @@ private fun findTargetSection(
     sectionBounds: Map<SectionKey, Rect>,
     fallback: SectionKey,
 ): SectionKey {
-    return sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key
-        ?: fallback
+    return sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key ?: fallback
 }
 
 private fun computeOrderForDrop(
@@ -758,7 +765,7 @@ private sealed class SectionKey(val key: String) {
 }
 
 private fun DayOfWeek?.toSectionKey(): SectionKey {
-    return if (this == null) SectionKey.ToBeDefined else SectionKey.Day(this)
+    return if (this == null) ToBeDefined else Day(this)
 }
 
 private data class RowColors(
@@ -781,8 +788,7 @@ private fun workoutRowColors(
     val restDayBackground = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
     val restDayContent = if (isDarkTheme) RestDayContentDark else RestDayContentLight
 
-    val background =
-        when {
+    val background = when {
             isDragging -> colorScheme.surfaceVariant
             workout.isCompleted -> completedColor
             workout.isRestDay -> restDayBackground
@@ -796,33 +802,34 @@ private fun workoutRowColors(
             isUnscheduled -> todoContent
             else -> todoContent
         }
+
     return RowColors(background, content)
 }
 
 @Composable
 private fun SectionKey.title(): String {
     return when (this) {
-        SectionKey.ToBeDefined -> stringResource(R.string.section_to_be_defined)
-        is SectionKey.Day -> stringResource(dayOfWeek.labelRes())
+        ToBeDefined -> stringResource(R.string.section_to_be_defined)
+        is Day -> stringResource(dayOfWeek.labelRes())
     }
 }
 
 private fun DayOfWeek.labelRes(): Int {
     return when (this) {
-        DayOfWeek.MONDAY -> R.string.day_monday
-        DayOfWeek.TUESDAY -> R.string.day_tuesday
-        DayOfWeek.WEDNESDAY -> R.string.day_wednesday
-        DayOfWeek.THURSDAY -> R.string.day_thursday
-        DayOfWeek.FRIDAY -> R.string.day_friday
-        DayOfWeek.SATURDAY -> R.string.day_saturday
-        DayOfWeek.SUNDAY -> R.string.day_sunday
+        MONDAY -> R.string.day_monday
+        TUESDAY -> R.string.day_tuesday
+        WEDNESDAY -> R.string.day_wednesday
+        THURSDAY -> R.string.day_thursday
+        FRIDAY -> R.string.day_friday
+        SATURDAY -> R.string.day_saturday
+        SUNDAY -> R.string.day_sunday
     }
 }
 
 private fun SectionKey.dayOfWeekOrNull(): DayOfWeek? {
     return when (this) {
-        SectionKey.ToBeDefined -> null
-        is SectionKey.Day -> dayOfWeek
+        ToBeDefined -> null
+        is Day -> dayOfWeek
     }
 }
 
