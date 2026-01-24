@@ -28,6 +28,7 @@ class SettingsContentTest {
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
                     ),
+                appVersion = "0.0.0-test",
                 onThemeSelected = { selectedTheme = it },
                 onLanguageSelected = {},
             )
@@ -53,6 +54,7 @@ class SettingsContentTest {
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
                     ),
+                appVersion = "0.0.0-test",
                 onThemeSelected = {},
                 onLanguageSelected = { selectedLanguage = it },
             )

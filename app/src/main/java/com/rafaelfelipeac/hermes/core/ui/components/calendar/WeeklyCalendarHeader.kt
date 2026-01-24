@@ -81,7 +81,8 @@ fun WeeklyCalendarHeader(
                 .testTag(HEADER_TAG)
                 .pointerInput(selectedDate, onWeekChanged) {
                     detectHorizontalDragGestures(
-                        onHorizontalDrag = { _, _ -> },
+                        onDragStart = { dragAmount = 0f },
+                        onHorizontalDrag = { _, dragDelta -> dragAmount += dragDelta },
                         onDragEnd = {
                             when {
                                 dragAmount <= -swipeThreshold ->
@@ -90,8 +91,9 @@ fun WeeklyCalendarHeader(
                                 dragAmount >= swipeThreshold ->
                                     onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP))
                             }
+                            dragAmount = 0f
                         },
-                        onDragCancel = { },
+                        onDragCancel = { dragAmount = 0f },
                     )
                 },
     ) {

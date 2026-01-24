@@ -10,7 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyTrainingContent
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
