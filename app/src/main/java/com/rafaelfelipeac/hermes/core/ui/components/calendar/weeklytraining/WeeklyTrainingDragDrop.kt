@@ -2,8 +2,8 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutId
-import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutUi
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutId
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
 
 private const val FIRST_LIST_INDEX = 0

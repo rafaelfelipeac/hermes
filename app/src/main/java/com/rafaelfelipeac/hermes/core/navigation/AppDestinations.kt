@@ -11,6 +11,6 @@ enum class AppDestinations(
     @param:StringRes val labelRes: Int,
     val icon: ImageVector,
 ) {
-    TRAINING_WEEK(R.string.nav_training_week, Icons.Default.Home),
+    WEEKLY_TRAINING(R.string.nav_weekly_training, Icons.Default.Home),
     SETTINGS(R.string.nav_settings, Icons.Default.Settings),
 }

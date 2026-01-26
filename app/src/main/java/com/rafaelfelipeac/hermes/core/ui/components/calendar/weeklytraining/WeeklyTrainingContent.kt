@@ -43,8 +43,8 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.Sect
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
-import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutId
-import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutUi
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutId
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY

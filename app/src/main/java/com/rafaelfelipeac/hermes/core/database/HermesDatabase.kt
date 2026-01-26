@@ -4,8 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase.Companion.DATABASE_VERSION
-import com.rafaelfelipeac.hermes.features.trainingweek.data.local.WorkoutDao
-import com.rafaelfelipeac.hermes.features.trainingweek.data.local.WorkoutEntity
+import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
+import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 
 @Database(
     entities = [WorkoutEntity::class],

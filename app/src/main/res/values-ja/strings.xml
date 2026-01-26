@@ -4,7 +4,7 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="nav_training_week">週間トレーニング</string>
+    <string name="nav_weekly_training">週間トレーニング</string>
     <string name="nav_settings">設定</string>
 
     <!-- Training week: actions -->

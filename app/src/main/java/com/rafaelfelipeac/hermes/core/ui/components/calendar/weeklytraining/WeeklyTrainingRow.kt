@@ -53,7 +53,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
 import com.rafaelfelipeac.hermes.core.ui.theme.TextSizes
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
-import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutUi
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
 private const val WORKOUT_ROW_CONTENT_ALPHA = 1f

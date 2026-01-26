@@ -5,7 +5,7 @@ import androidx.room.Room
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
-import com.rafaelfelipeac.hermes.features.trainingweek.data.local.WorkoutDao
+import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

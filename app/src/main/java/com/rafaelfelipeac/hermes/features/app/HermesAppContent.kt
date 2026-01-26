@@ -15,13 +15,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
-import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.TRAINING_WEEK
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
-import com.rafaelfelipeac.hermes.features.trainingweek.presentation.TrainingWeekScreen
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
 
 @Composable
 fun HermesAppContent() {
-    var currentDestination by rememberSaveable { mutableStateOf(TRAINING_WEEK) }
+    var currentDestination by rememberSaveable { mutableStateOf(WEEKLY_TRAINING) }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -42,7 +42,7 @@ fun HermesAppContent() {
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             when (currentDestination) {
-                TRAINING_WEEK -> TrainingWeekScreen(modifier = Modifier.padding(innerPadding))
+                WEEKLY_TRAINING -> WeeklyTrainingScreen(modifier = Modifier.padding(innerPadding))
                 SETTINGS -> SettingsScreen(modifier = Modifier.padding(innerPadding))
             }
         }
