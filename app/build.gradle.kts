@@ -96,6 +96,12 @@ dependencies {
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
 
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
+}
+
 detekt {
     buildUponDefaultConfig = true
     config.setFrom(files("$rootDir/config/detekt/detekt.yml"))

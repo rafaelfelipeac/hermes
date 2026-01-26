@@ -16,6 +16,6 @@ abstract class HermesDatabase : RoomDatabase() {
     abstract fun workoutDao(): WorkoutDao
 
     companion object {
-        private const val DATABASE_VERSION = 2
+        private const val DATABASE_VERSION = 1
     }
 }
