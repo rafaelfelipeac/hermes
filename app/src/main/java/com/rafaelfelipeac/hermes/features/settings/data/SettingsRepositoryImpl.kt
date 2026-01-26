@@ -25,48 +25,49 @@ private val Context.settingsDataStore by preferencesDataStore(
 )
 
 @Singleton
-class SettingsRepositoryImpl @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) : SettingsRepository {
+class SettingsRepositoryImpl
+    @Inject
+    constructor(
+        @param:ApplicationContext private val context: Context,
+    ) : SettingsRepository {
+        private val dataStore = context.settingsDataStore
 
-    private val dataStore = context.settingsDataStore
+        override val themeMode: Flow<ThemeMode> =
+            dataStore.data
+                .map { prefs ->
+                    prefs[THEME_MODE_KEY]?.let(ThemeMode::valueOf) ?: defaultThemeMode(context)
+                }
+                .distinctUntilChanged()
 
-    override val themeMode: Flow<ThemeMode> =
-        dataStore.data
-            .map { prefs ->
-                prefs[THEME_MODE_KEY]?.let(ThemeMode::valueOf) ?: defaultThemeMode(context)
+        override val language: Flow<AppLanguage> =
+            dataStore.data
+                .map { prefs ->
+                    prefs[LANGUAGE_KEY]?.let(AppLanguage::fromTag) ?: defaultLanguage()
+                }
+                .distinctUntilChanged()
+
+        override fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
+
+        override fun initialLanguage(): AppLanguage = defaultLanguage()
+
+        override suspend fun setThemeMode(mode: ThemeMode) {
+            dataStore.edit { prefs ->
+                prefs[THEME_MODE_KEY] = mode.name
             }
-            .distinctUntilChanged()
+        }
 
-    override val language: Flow<AppLanguage> =
-        dataStore.data
-            .map { prefs ->
-                prefs[LANGUAGE_KEY]?.let(AppLanguage::fromTag) ?: defaultLanguage()
+        override suspend fun setLanguage(language: AppLanguage) {
+            dataStore.edit { prefs ->
+                prefs[LANGUAGE_KEY] = language.tag
             }
-            .distinctUntilChanged()
+        }
 
-    override fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
-
-    override fun initialLanguage(): AppLanguage = defaultLanguage()
-
-    override suspend fun setThemeMode(mode: ThemeMode) {
-        dataStore.edit { prefs ->
-            prefs[THEME_MODE_KEY] = mode.name
+        companion object {
+            const val SETTINGS_DATA_STORE_NAME = "settings"
+            const val THEME_MODE_KEY_NAME = "theme_mode"
+            const val LANGUAGE_KEY_NAME = "language"
         }
     }
-
-    override suspend fun setLanguage(language: AppLanguage) {
-        dataStore.edit { prefs ->
-            prefs[LANGUAGE_KEY] = language.tag
-        }
-    }
-
-    companion object {
-        const val SETTINGS_DATA_STORE_NAME = "settings"
-        const val THEME_MODE_KEY_NAME = "theme_mode"
-        const val LANGUAGE_KEY_NAME = "language"
-    }
-}
 
 private val THEME_MODE_KEY = stringPreferencesKey(THEME_MODE_KEY_NAME)
 private val LANGUAGE_KEY = stringPreferencesKey(LANGUAGE_KEY_NAME)

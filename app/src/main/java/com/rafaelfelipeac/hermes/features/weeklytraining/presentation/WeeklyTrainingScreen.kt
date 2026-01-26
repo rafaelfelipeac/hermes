@@ -38,14 +38,14 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerDark
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerLight
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContentDark
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContentLight
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
-private const val AddMenuScrimAlpha = 0.30f
+private const val ADD_MENU_SCRIM_ALPHA = 0.30f
 private const val ADD_FAB_TEST_TAG = "add-fab"
 
 @Composable
@@ -65,9 +65,10 @@ fun WeeklyTrainingScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(Dimens.SpacingXl),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(Dimens.SpacingXl),
         ) {
             Text(
                 text = stringResource(R.string.nav_weekly_training),
@@ -97,19 +98,20 @@ fun WeeklyTrainingScreen(
 
         if (isAddMenuVisible) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        MaterialTheme.colorScheme.scrim.copy(
-                            alpha = AddMenuScrimAlpha,
-                        ),
-                    )
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                    ) {
-                        isAddMenuVisible = false
-                    },
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            MaterialTheme.colorScheme.scrim.copy(
+                                alpha = ADD_MENU_SCRIM_ALPHA,
+                            ),
+                        )
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() },
+                        ) {
+                            isAddMenuVisible = false
+                        },
             )
         }
 
@@ -134,9 +136,10 @@ fun WeeklyTrainingScreen(
 
         if (isAddMenuVisible) {
             Column(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = Dimens.SpacingXl, bottom = Dimens.AddMenuBottomPadding),
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = Dimens.SpacingXl, bottom = Dimens.AddMenuBottomPadding),
                 verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
                 horizontalAlignment = Alignment.End,
             ) {
@@ -190,21 +193,24 @@ fun WeeklyTrainingScreen(
     }
 
     deletingWorkout?.let { workout ->
-        val title = if (workout.isRestDay) {
-            stringResource(R.string.delete_rest_day_title)
-        } else {
-            stringResource(R.string.delete_workout_title)
-        }
-        val message = if (workout.isRestDay) {
-            stringResource(R.string.delete_rest_day_message)
-        } else {
-            stringResource(R.string.delete_workout_message)
-        }
-        val confirmLabel = if (workout.isRestDay) {
-            stringResource(R.string.delete_rest_day)
-        } else {
-            stringResource(R.string.delete_workout)
-        }
+        val title =
+            if (workout.isRestDay) {
+                stringResource(R.string.delete_rest_day_title)
+            } else {
+                stringResource(R.string.delete_workout_title)
+            }
+        val message =
+            if (workout.isRestDay) {
+                stringResource(R.string.delete_rest_day_message)
+            } else {
+                stringResource(R.string.delete_workout_message)
+            }
+        val confirmLabel =
+            if (workout.isRestDay) {
+                stringResource(R.string.delete_rest_day)
+            } else {
+                stringResource(R.string.delete_workout)
+            }
 
         AlertDialog(
             onDismissRequest = { deletingWorkout = null },
@@ -242,10 +248,11 @@ private fun AddActionPill(
         modifier = Modifier.defaultMinSize(minWidth = Dimens.AddActionPillMinWidth),
     ) {
         Row(
-            modifier = Modifier.padding(
-                horizontal = Dimens.AddActionPillHorizontalPadding,
-                vertical = Dimens.SpacingLg,
-            ),
+            modifier =
+                Modifier.padding(
+                    horizontal = Dimens.AddActionPillHorizontalPadding,
+                    vertical = Dimens.SpacingLg,
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = label, style = MaterialTheme.typography.titleSmall)

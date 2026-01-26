@@ -39,7 +39,6 @@ fun HermesAppRoot() {
             LIGHT -> false
             ThemeMode.SYSTEM -> isSystemInDarkTheme()
         }
-
     HermesTheme(darkTheme = darkTheme) {
         HermesAppContent()
     }
@@ -55,4 +54,3 @@ private fun HermesAppPreview(
         HermesAppContent()
     }
 }
-

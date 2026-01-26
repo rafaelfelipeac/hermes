@@ -112,19 +112,20 @@ internal fun WorkoutRow(
 
     Box(modifier = rowModifier) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(end = Dimens.SpacingXl)
-                .pointerInput(Unit) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = { offset ->
-                            coordinates?.localToRoot(offset)?.let {
-                                onDragStarted(it, itemBoundsHeight(coordinates))
-                            }
-                        },
-                        onDrag = { _, _ -> },
-                    )
-                },
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(end = Dimens.SpacingXl)
+                    .pointerInput(Unit) {
+                        detectDragGesturesAfterLongPress(
+                            onDragStart = { offset ->
+                                coordinates?.localToRoot(offset)?.let {
+                                    onDragStarted(it, itemBoundsHeight(coordinates))
+                                }
+                            },
+                            onDrag = { _, _ -> },
+                        )
+                    },
             verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
@@ -344,13 +345,14 @@ private fun workoutRowColors(
     val restDayBackground = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
     val restDayContent = if (isDarkTheme) RestDayContentDark else RestDayContentLight
 
-    val background = when {
-        isDragging -> colorScheme.surfaceVariant
-        workout.isCompleted -> completedColor
-        workout.isRestDay -> restDayBackground
-        isUnscheduled -> todoColor
-        else -> todoColor
-    }
+    val background =
+        when {
+            isDragging -> colorScheme.surfaceVariant
+            workout.isCompleted -> completedColor
+            workout.isRestDay -> restDayBackground
+            isUnscheduled -> todoColor
+            else -> todoColor
+        }
     val content =
         when {
             workout.isRestDay -> restDayContent

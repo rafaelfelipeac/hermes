@@ -22,67 +22,69 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
-    fun state_emitsRepositoryValues() = runTest(mainDispatcherRule.testDispatcher) {
-        val themeFlow = MutableStateFlow(ThemeMode.SYSTEM)
-        val languageFlow = MutableStateFlow(AppLanguage.SYSTEM)
-        val repository = mockk<SettingsRepository>()
+    fun state_emitsRepositoryValues() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val themeFlow = MutableStateFlow(ThemeMode.SYSTEM)
+            val languageFlow = MutableStateFlow(AppLanguage.SYSTEM)
+            val repository = mockk<SettingsRepository>()
 
-        every { repository.themeMode } returns themeFlow
-        every { repository.language } returns languageFlow
-        every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
-        every { repository.initialLanguage() } returns AppLanguage.SYSTEM
+            every { repository.themeMode } returns themeFlow
+            every { repository.language } returns languageFlow
+            every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
+            every { repository.initialLanguage() } returns AppLanguage.SYSTEM
 
-        val viewModel = SettingsViewModel(repository)
+            val viewModel = SettingsViewModel(repository)
 
-        viewModel.state.test {
-            assertEquals(SettingsState(ThemeMode.SYSTEM, AppLanguage.SYSTEM), awaitItem())
+            viewModel.state.test {
+                assertEquals(SettingsState(ThemeMode.SYSTEM, AppLanguage.SYSTEM), awaitItem())
 
-            themeFlow.value = DARK
-            assertEquals(SettingsState(DARK, AppLanguage.SYSTEM), awaitItem())
+                themeFlow.value = DARK
+                assertEquals(SettingsState(DARK, AppLanguage.SYSTEM), awaitItem())
 
-            languageFlow.value = PORTUGUESE_BRAZIL
-            assertEquals(SettingsState(DARK, PORTUGUESE_BRAZIL), awaitItem())
+                languageFlow.value = PORTUGUESE_BRAZIL
+                assertEquals(SettingsState(DARK, PORTUGUESE_BRAZIL), awaitItem())
 
-            cancelAndIgnoreRemainingEvents()
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     @Test
-    fun setThemeMode_delegatesToRepository() = runTest(mainDispatcherRule.testDispatcher) {
-        val repository = mockk<SettingsRepository>(relaxed = true)
+    fun setThemeMode_delegatesToRepository() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = mockk<SettingsRepository>(relaxed = true)
 
-        every { repository.initialThemeMode() } returns LIGHT
-        every { repository.initialLanguage() } returns ENGLISH
-        every { repository.themeMode } returns MutableStateFlow(LIGHT)
-        every { repository.language } returns MutableStateFlow(ENGLISH)
+            every { repository.initialThemeMode() } returns LIGHT
+            every { repository.initialLanguage() } returns ENGLISH
+            every { repository.themeMode } returns MutableStateFlow(LIGHT)
+            every { repository.language } returns MutableStateFlow(ENGLISH)
 
-        val viewModel = SettingsViewModel(repository)
+            val viewModel = SettingsViewModel(repository)
 
-        viewModel.setThemeMode(DARK)
-        advanceUntilIdle()
+            viewModel.setThemeMode(DARK)
+            advanceUntilIdle()
 
-        coVerify(exactly = 1) { repository.setThemeMode(DARK) }
-    }
+            coVerify(exactly = 1) { repository.setThemeMode(DARK) }
+        }
 
     @Test
-    fun setLanguage_delegatesToRepository() = runTest(mainDispatcherRule.testDispatcher) {
-        val repository = mockk<SettingsRepository>(relaxed = true)
+    fun setLanguage_delegatesToRepository() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = mockk<SettingsRepository>(relaxed = true)
 
-        every { repository.initialThemeMode() } returns LIGHT
-        every { repository.initialLanguage() } returns ENGLISH
-        every { repository.themeMode } returns MutableStateFlow(LIGHT)
-        every { repository.language } returns MutableStateFlow(ENGLISH)
+            every { repository.initialThemeMode() } returns LIGHT
+            every { repository.initialLanguage() } returns ENGLISH
+            every { repository.themeMode } returns MutableStateFlow(LIGHT)
+            every { repository.language } returns MutableStateFlow(ENGLISH)
 
-        val viewModel = SettingsViewModel(repository)
+            val viewModel = SettingsViewModel(repository)
 
-        viewModel.setLanguage(ENGLISH)
-        advanceUntilIdle()
+            viewModel.setLanguage(ENGLISH)
+            advanceUntilIdle()
 
-        coVerify(exactly = 1) { repository.setLanguage(ENGLISH) }
-    }
+            coVerify(exactly = 1) { repository.setLanguage(ENGLISH) }
+        }
 }

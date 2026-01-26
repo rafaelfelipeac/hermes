@@ -164,9 +164,10 @@ private fun DefaultDayContent(
     isSelected: Boolean,
     hasWorkout: Boolean,
 ) {
-    val label = date.dayOfWeek.getDisplayName(SHORT, Locale.getDefault())
-        .take(1)
-        .uppercase(Locale.getDefault())
+    val label =
+        date.dayOfWeek.getDisplayName(SHORT, Locale.getDefault())
+            .take(1)
+            .uppercase(Locale.getDefault())
 
     Text(
         text = label,
@@ -188,11 +189,12 @@ private fun IndicatorDot(indicator: DayIndicator?) {
     val isDarkTheme = isSystemInDarkTheme()
     val completedColor = TodoBlue
     val restDayColor = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
-    val color = when (indicator) {
-        Workout -> CompletedBlue
-        RestDay -> restDayColor
-        Completed -> completedColor
-    }
+    val color =
+        when (indicator) {
+            Workout -> CompletedBlue
+            RestDay -> restDayColor
+            Completed -> completedColor
+        }
 
     Box(
         modifier =
@@ -214,35 +216,38 @@ private fun formatWeekRange(
     val endMonth = end.month.getDisplayName(SHORT, locale)
 
     return when {
-        start.year == end.year && start.month == end.month -> String.format(
-            locale,
-            SAME_MONTH_RANGE_FORMAT,
-            startDay,
-            endDay,
-            startMonth,
-            start.year
-        )
+        start.year == end.year && start.month == end.month ->
+            String.format(
+                locale,
+                SAME_MONTH_RANGE_FORMAT,
+                startDay,
+                endDay,
+                startMonth,
+                start.year,
+            )
 
-        start.year == end.year -> String.format(
-            locale,
-            SAME_YEAR_RANGE_FORMAT,
-            startDay,
-            startMonth,
-            endDay,
-            endMonth,
-            start.year,
-        )
+        start.year == end.year ->
+            String.format(
+                locale,
+                SAME_YEAR_RANGE_FORMAT,
+                startDay,
+                startMonth,
+                endDay,
+                endMonth,
+                start.year,
+            )
 
-        else -> String.format(
-            locale,
-            CROSS_YEAR_RANGE_FORMAT,
-            startDay,
-            startMonth,
-            start.year,
-            endDay,
-            endMonth,
-            end.year,
-        )
+        else ->
+            String.format(
+                locale,
+                CROSS_YEAR_RANGE_FORMAT,
+                startDay,
+                startMonth,
+                start.year,
+                endDay,
+                endMonth,
+                end.year,
+            )
     }
 }
 

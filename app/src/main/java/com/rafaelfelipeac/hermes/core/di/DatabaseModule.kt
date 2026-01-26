@@ -16,7 +16,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-
     @Provides
     @Singleton
     fun provideDatabase(
@@ -28,7 +27,7 @@ object DatabaseModule {
             DATABASE_NAME,
         )
             .addMigrations(
-                MIGRATION_1_2
+                MIGRATION_1_2,
             )
             .build()
     }
@@ -41,7 +40,8 @@ object DatabaseModule {
 
 private const val DATABASE_NAME = "hermes.db"
 
-private val MIGRATION_1_2 = object : Migration(1, 2) {
+private val MIGRATION_1_2 =
+    object : Migration(1, 2) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL(
                 "ALTER TABLE workouts ADD COLUMN isRestDay INTEGER NOT NULL DEFAULT 0",

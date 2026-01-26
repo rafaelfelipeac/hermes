@@ -164,17 +164,18 @@ fun WeeklyTrainingContent(
 
                 val distanceToTop = clampedPosition.y - containerBounds.top
                 val distanceToBottom = containerBounds.bottom - clampedPosition.y
-                val scrollDelta = when {
-                    distanceToTop < edge && listState.canScrollBackward -> {
-                        -maxSpeed * (1f - (distanceToTop / edge))
-                    }
+                val scrollDelta =
+                    when {
+                        distanceToTop < edge && listState.canScrollBackward -> {
+                            -maxSpeed * (1f - (distanceToTop / edge))
+                        }
 
-                    distanceToBottom < edge && listState.canScrollForward -> {
-                        maxSpeed * (1f - (distanceToBottom / edge))
-                    }
+                        distanceToBottom < edge && listState.canScrollForward -> {
+                            maxSpeed * (1f - (distanceToBottom / edge))
+                        }
 
-                    else -> 0f
-                }
+                        else -> 0f
+                    }
 
                 if (scrollDelta != 0f) {
                     listState.scrollBy(scrollDelta)
@@ -221,10 +222,11 @@ fun WeeklyTrainingContent(
                                 continue
                             }
 
-                            val root = Offset(
-                                containerBounds.left + change.position.x,
-                                containerBounds.top + change.position.y,
-                            )
+                            val root =
+                                Offset(
+                                    containerBounds.left + change.position.x,
+                                    containerBounds.top + change.position.y,
+                                )
 
                             dragPosition = root
 
@@ -258,11 +260,12 @@ fun WeeklyTrainingContent(
             sections.forEach { section ->
                 item(key = "$SECTION_ITEM_KEY_PREFIX${section.key}") {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onGloballyPositioned {
-                                sectionBounds[section] = it.boundsInRoot()
-                            },
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .onGloballyPositioned {
+                                    sectionBounds[section] = it.boundsInRoot()
+                                },
                     ) {
                         SectionHeader(
                             title = section.title(),
@@ -312,18 +315,20 @@ fun WeeklyTrainingContent(
 
         if (draggedWorkout != null && dragPosition != null) {
             val currentDragPosition = checkNotNull(dragPosition)
-            val ghostHeight = if (draggedItemHeight > 0f) {
-                draggedItemHeight
-            } else {
-                itemBounds[draggedWorkout.id]?.height ?: 0f
-            }
+            val ghostHeight =
+                if (draggedItemHeight > 0f) {
+                    draggedItemHeight
+                } else {
+                    itemBounds[draggedWorkout.id]?.height ?: 0f
+                }
             val ghostYOffset = currentDragPosition.y - containerBounds.top - ghostHeight / 2f
 
             GhostWorkoutRow(
                 workout = draggedWorkout,
-                modifier = Modifier.graphicsLayer {
-                    translationY = ghostYOffset
-                },
+                modifier =
+                    Modifier.graphicsLayer {
+                        translationY = ghostYOffset
+                    },
             )
         }
     }

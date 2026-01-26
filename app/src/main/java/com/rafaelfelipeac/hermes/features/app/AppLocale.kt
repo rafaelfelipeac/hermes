@@ -16,11 +16,12 @@ fun applyAppLanguage(
 ): Boolean {
     return if (SDK_INT >= TIRAMISU) {
         val localeManager = context.getSystemService(LocaleManager::class.java)
-        val desired = if (language == SYSTEM) {
-            LocaleList.getEmptyLocaleList()
-        } else {
-            LocaleList.forLanguageTags(language.tag)
-        }
+        val desired =
+            if (language == SYSTEM) {
+                LocaleList.getEmptyLocaleList()
+            } else {
+                LocaleList.forLanguageTags(language.tag)
+            }
 
         if (localeManager.applicationLocales != desired) {
             localeManager.applicationLocales = desired
@@ -29,11 +30,12 @@ fun applyAppLanguage(
             false
         }
     } else {
-        val desired = if (language == SYSTEM) {
-            LocaleListCompat.getEmptyLocaleList()
-        } else {
-            LocaleListCompat.forLanguageTags(language.tag)
-        }
+        val desired =
+            if (language == SYSTEM) {
+                LocaleListCompat.getEmptyLocaleList()
+            } else {
+                LocaleListCompat.forLanguageTags(language.tag)
+            }
 
         if (AppCompatDelegate.getApplicationLocales() != desired) {
             AppCompatDelegate.setApplicationLocales(desired)

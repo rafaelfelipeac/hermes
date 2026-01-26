@@ -4,9 +4,9 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,147 +26,153 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-class WeeklyTrainingViewModel @Inject constructor(
-    private val repository: WeeklyTrainingRepository,
-) : ViewModel() {
+class WeeklyTrainingViewModel
+    @Inject
+    constructor(
+        private val repository: WeeklyTrainingRepository,
+    ) : ViewModel() {
+        private val selectedDate = MutableStateFlow(LocalDate.now())
+        private val weekStartDate =
+            selectedDate
+                .map { it.with(TemporalAdjusters.previousOrSame(MONDAY)) }
+                .distinctUntilChanged()
 
-    private val selectedDate = MutableStateFlow(LocalDate.now())
-    private val weekStartDate =
-        selectedDate
-            .map { it.with(TemporalAdjusters.previousOrSame(MONDAY)) }
-            .distinctUntilChanged()
-
-    private val workoutsForWeek = weekStartDate.flatMapLatest { weekStart ->
-        repository.observeWorkoutsForWeek(weekStart).map { workouts ->
-            workouts.map { it.toUi() }
-        }
-    }
-
-    val state: StateFlow<WeeklyTrainingState> =
-        combine(
-            selectedDate,
-            weekStartDate,
-            workoutsForWeek,
-        ) { selected, weekStart, workouts ->
-            WeeklyTrainingState(
-                selectedDate = selected,
-                weekStartDate = weekStart,
-                workouts = workouts,
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
-            initialValue = WeeklyTrainingState(
-                selectedDate = selectedDate.value,
-                weekStartDate =
-                    selectedDate.value.with(TemporalAdjusters.previousOrSame(MONDAY)),
-                workouts = emptyList(),
-            ),
-        )
-
-    fun onDateSelected(date: LocalDate) {
-        selectedDate.value = date
-    }
-
-    fun onWeekChanged(newSelectedDate: LocalDate) {
-        selectedDate.value = newSelectedDate
-    }
-
-    fun addWorkout(
-        type: String,
-        description: String,
-    ) {
-        val (currentState, nextOrder) = getNextOrder()
-
-        viewModelScope.launch {
-            repository.addWorkout(
-                weekStartDate = currentState.weekStartDate,
-                dayOfWeek = null,
-                type = type,
-                description = description,
-                order = nextOrder,
-            )
-        }
-    }
-
-    fun addRestDay() {
-        val (currentState, nextOrder) = getNextOrder()
-
-        viewModelScope.launch {
-            repository.addRestDay(
-                weekStartDate = currentState.weekStartDate,
-                dayOfWeek = null,
-                order = nextOrder,
-            )
-        }
-    }
-
-    fun moveWorkout(
-        workoutId: Long,
-        newDayOfWeek: DayOfWeek?,
-        newOrder: Int,
-    ) {
-        val currentWorkouts = state.value.workouts
-        val updated = updateWorkoutOrderWithRestDayRules(
-            currentWorkouts,
-            workoutId,
-            newDayOfWeek,
-            newOrder,
-        )
-        val changes = updated.mapNotNull { workout ->
-            val original =
-                currentWorkouts.firstOrNull { it.id == workout.id } ?: return@mapNotNull null
-
-            if (original.dayOfWeek != workout.dayOfWeek || original.order != workout.order) {
-                workout
-            } else {
-                null
+        private val workoutsForWeek =
+            weekStartDate.flatMapLatest { weekStart ->
+                repository.observeWorkoutsForWeek(weekStart).map { workouts ->
+                    workouts.map { it.toUi() }
+                }
             }
+
+        val state: StateFlow<WeeklyTrainingState> =
+            combine(
+                selectedDate,
+                weekStartDate,
+                workoutsForWeek,
+            ) { selected, weekStart, workouts ->
+                WeeklyTrainingState(
+                    selectedDate = selected,
+                    weekStartDate = weekStart,
+                    workouts = workouts,
+                )
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
+                initialValue =
+                    WeeklyTrainingState(
+                        selectedDate = selectedDate.value,
+                        weekStartDate =
+                            selectedDate.value.with(TemporalAdjusters.previousOrSame(MONDAY)),
+                        workouts = emptyList(),
+                    ),
+            )
+
+        fun onDateSelected(date: LocalDate) {
+            selectedDate.value = date
         }
 
-        viewModelScope.launch {
-            changes.forEach { workout ->
-                repository.updateWorkoutDayAndOrder(
-                    workoutId = workout.id,
-                    dayOfWeek = workout.dayOfWeek,
-                    order = workout.order,
+        fun onWeekChanged(newSelectedDate: LocalDate) {
+            selectedDate.value = newSelectedDate
+        }
+
+        fun addWorkout(
+            type: String,
+            description: String,
+        ) {
+            val (currentState, nextOrder) = getNextOrder()
+
+            viewModelScope.launch {
+                repository.addWorkout(
+                    weekStartDate = currentState.weekStartDate,
+                    dayOfWeek = null,
+                    type = type,
+                    description = description,
+                    order = nextOrder,
                 )
             }
         }
-    }
 
-    fun updateWorkoutCompletion(
-        workoutId: Long,
-        isCompleted: Boolean,
-    ) = viewModelScope.launch {
-        repository.updateWorkoutCompletion(workoutId, isCompleted)
-    }
+        fun addRestDay() {
+            val (currentState, nextOrder) = getNextOrder()
 
-    fun updateWorkoutDetails(
-        workoutId: Long,
-        type: String,
-        description: String,
-        isRestDay: Boolean,
-    ) = viewModelScope.launch {
-        repository.updateWorkoutDetails(workoutId, type, description, isRestDay)
-    }
+            viewModelScope.launch {
+                repository.addRestDay(
+                    weekStartDate = currentState.weekStartDate,
+                    dayOfWeek = null,
+                    order = nextOrder,
+                )
+            }
+        }
 
-    fun deleteWorkout(workoutId: Long) = viewModelScope.launch {
-        repository.deleteWorkout(workoutId)
-    }
+        fun moveWorkout(
+            workoutId: Long,
+            newDayOfWeek: DayOfWeek?,
+            newOrder: Int,
+        ) {
+            val currentWorkouts = state.value.workouts
+            val updated =
+                updateWorkoutOrderWithRestDayRules(
+                    currentWorkouts,
+                    workoutId,
+                    newDayOfWeek,
+                    newOrder,
+                )
+            val changes =
+                updated.mapNotNull { workout ->
+                    val original =
+                        currentWorkouts.firstOrNull { it.id == workout.id } ?: return@mapNotNull null
 
-    private fun getNextOrder(): Pair<WeeklyTrainingState, Int> {
-        val currentState = state.value
-        val nextOrder = currentState.workouts.count { it.dayOfWeek == null }
+                    if (original.dayOfWeek != workout.dayOfWeek || original.order != workout.order) {
+                        workout
+                    } else {
+                        null
+                    }
+                }
 
-        return Pair(currentState, nextOrder)
-    }
+            viewModelScope.launch {
+                changes.forEach { workout ->
+                    repository.updateWorkoutDayAndOrder(
+                        workoutId = workout.id,
+                        dayOfWeek = workout.dayOfWeek,
+                        order = workout.order,
+                    )
+                }
+            }
+        }
 
-    companion object {
-        const val STATE_SHARING_TIMEOUT_MS = 5_000L
-        const val MIN_WORKOUT_ORDER = 0
+        fun updateWorkoutCompletion(
+            workoutId: Long,
+            isCompleted: Boolean,
+        ) = viewModelScope.launch {
+            repository.updateWorkoutCompletion(workoutId, isCompleted)
+        }
+
+        fun updateWorkoutDetails(
+            workoutId: Long,
+            type: String,
+            description: String,
+            isRestDay: Boolean,
+        ) = viewModelScope.launch {
+            repository.updateWorkoutDetails(workoutId, type, description, isRestDay)
+        }
+
+        fun deleteWorkout(workoutId: Long) =
+            viewModelScope.launch {
+                repository.deleteWorkout(workoutId)
+            }
+
+        private fun getNextOrder(): Pair<WeeklyTrainingState, Int> {
+            val currentState = state.value
+            val nextOrder = currentState.workouts.count { it.dayOfWeek == null }
+
+            return Pair(currentState, nextOrder)
+        }
+
+        companion object {
+            const val STATE_SHARING_TIMEOUT_MS = 5_000L
+            const val MIN_WORKOUT_ORDER = 0
+        }
     }
-}
 
 private fun Workout.toUi(): WorkoutUi {
     return WorkoutUi(
@@ -190,15 +196,16 @@ private fun updateWorkoutOrderWithRestDayRules(
     val remaining = workouts.filterNot { it.id == workoutId }
     val sourceDay = target.dayOfWeek
 
-    val adjusted = remaining.map { workout ->
-        if (newDayOfWeek == workout.dayOfWeek && target.isRestDay) {
-            workout.copy(dayOfWeek = null)
-        } else if (!target.isRestDay && workout.isRestDay && workout.dayOfWeek == newDayOfWeek) {
-            workout.copy(dayOfWeek = null)
-        } else {
-            workout
-        }
-    }.toMutableList()
+    val adjusted =
+        remaining.map { workout ->
+            if (newDayOfWeek == workout.dayOfWeek && target.isRestDay) {
+                workout.copy(dayOfWeek = null)
+            } else if (!target.isRestDay && workout.isRestDay && workout.dayOfWeek == newDayOfWeek) {
+                workout.copy(dayOfWeek = null)
+            } else {
+                workout
+            }
+        }.toMutableList()
 
     val updatedTarget = target.copy(dayOfWeek = newDayOfWeek)
     val destinationList =
