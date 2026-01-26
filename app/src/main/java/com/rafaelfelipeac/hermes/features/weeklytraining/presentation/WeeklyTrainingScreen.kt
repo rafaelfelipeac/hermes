@@ -164,9 +164,10 @@ fun WeeklyTrainingScreen(
 
     if (isAddDialogVisible) {
         AddWorkoutDialog(
-            onDismiss = { },
+            onDismiss = { isAddDialogVisible = false },
             onSave = { type, description ->
                 viewModel.addWorkout(type, description)
+                isAddDialogVisible = false
             },
             isEdit = false,
         )
@@ -174,7 +175,7 @@ fun WeeklyTrainingScreen(
 
     editingWorkout?.let { workout ->
         AddWorkoutDialog(
-            onDismiss = { },
+            onDismiss = { editingWorkout = null },
             onSave = { type, description ->
                 viewModel.updateWorkoutDetails(
                     workoutId = workout.id,
@@ -182,6 +183,7 @@ fun WeeklyTrainingScreen(
                     description = description,
                     isRestDay = workout.isRestDay,
                 )
+                editingWorkout = null
             },
             isEdit = true,
             initialType = workout.type,
@@ -210,20 +212,21 @@ fun WeeklyTrainingScreen(
             }
 
         AlertDialog(
-            onDismissRequest = { },
+            onDismissRequest = { deletingWorkout = null },
             title = { Text(text = title) },
             text = { Text(text = message) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.deleteWorkout(workout.id)
+                        deletingWorkout = null
                     },
                 ) {
                     Text(text = confirmLabel)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { }) {
+                TextButton(onClick = { deletingWorkout = null }) {
                     Text(text = stringResource(R.string.add_workout_cancel))
                 }
             },

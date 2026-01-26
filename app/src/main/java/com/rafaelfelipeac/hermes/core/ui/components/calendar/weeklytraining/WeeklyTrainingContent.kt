@@ -192,8 +192,8 @@ fun WeeklyTrainingContent(
                 .pointerInput(selectedDate, draggedWorkoutId) {
                     if (draggedWorkoutId == null) {
                         detectHorizontalDragGestures(
-                            onDragStart = { },
-                            onHorizontalDrag = { _, _ -> },
+                            onDragStart = { dragAmount = 0f },
+                            onHorizontalDrag = { _, dragDelta -> dragAmount += dragDelta },
                             onDragEnd = {
                                 when {
                                     dragAmount <= -swipeThreshold ->
@@ -202,8 +202,10 @@ fun WeeklyTrainingContent(
                                     dragAmount >= swipeThreshold ->
                                         onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP))
                                 }
+
+                                dragAmount = 0f
                             },
-                            onDragCancel = { },
+                            onDragCancel = { dragAmount = 0f },
                         )
                     }
                 }
@@ -334,11 +336,11 @@ fun WeeklyTrainingContent(
 
     if (isTbdHelpVisible) {
         AlertDialog(
-            onDismissRequest = { },
+            onDismissRequest = { isTbdHelpVisible = false },
             title = { Text(text = stringResource(R.string.tbd_help_title)) },
             text = { Text(text = stringResource(R.string.tbd_help_message)) },
             confirmButton = {
-                TextButton(onClick = { }) {
+                TextButton(onClick = { isTbdHelpVisible = false }) {
                     Text(text = stringResource(R.string.tbd_help_confirm))
                 }
             },
