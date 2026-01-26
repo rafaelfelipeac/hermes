@@ -26,10 +26,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
+import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ARABIC
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.FRENCH
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.GERMAN
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.HINDI
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ITALIAN
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.JAPANESE
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SPANISH
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
+import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
 
 @Composable
 fun SettingsScreen(
@@ -37,9 +50,10 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+
     SettingsContent(
         state = state,
-        appVersion = BuildConfig.VERSION_NAME,
+        appVersion = VERSION_NAME,
         onThemeSelected = viewModel::setThemeMode,
         onLanguageSelected = viewModel::setLanguage,
         modifier = modifier,
@@ -55,6 +69,7 @@ internal fun SettingsContent(
     onLanguageSelected: (AppLanguage) -> Unit,
 ) {
     val scrollState = rememberScrollState()
+
     Column(
         modifier =
             modifier
@@ -74,73 +89,86 @@ internal fun SettingsContent(
                 selected = state.themeMode == ThemeMode.SYSTEM,
                 onClick = { onThemeSelected(ThemeMode.SYSTEM) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_theme_light),
-                selected = state.themeMode == ThemeMode.LIGHT,
-                onClick = { onThemeSelected(ThemeMode.LIGHT) },
+                selected = state.themeMode == LIGHT,
+                onClick = { onThemeSelected(LIGHT) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_theme_dark),
-                selected = state.themeMode == ThemeMode.DARK,
-                onClick = { onThemeSelected(ThemeMode.DARK) },
+                selected = state.themeMode == DARK,
+                onClick = { onThemeSelected(DARK) },
             )
         }
 
         SettingsSection(title = stringResource(R.string.settings_language_title)) {
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_system),
-                selected = state.language == AppLanguage.SYSTEM,
-                onClick = { onLanguageSelected(AppLanguage.SYSTEM) },
+                selected = state.language == SYSTEM,
+                onClick = { onLanguageSelected(SYSTEM) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_english),
-                selected = state.language == AppLanguage.ENGLISH,
-                onClick = { onLanguageSelected(AppLanguage.ENGLISH) },
+                selected = state.language == ENGLISH,
+                onClick = { onLanguageSelected(ENGLISH) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_portuguese_brazil),
-                selected = state.language == AppLanguage.PORTUGUESE_BRAZIL,
-                onClick = { onLanguageSelected(AppLanguage.PORTUGUESE_BRAZIL) },
+                selected = state.language == PORTUGUESE_BRAZIL,
+                onClick = { onLanguageSelected(PORTUGUESE_BRAZIL) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_german),
-                selected = state.language == AppLanguage.GERMAN,
-                onClick = { onLanguageSelected(AppLanguage.GERMAN) },
+                selected = state.language == GERMAN,
+                onClick = { onLanguageSelected(GERMAN) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_french),
-                selected = state.language == AppLanguage.FRENCH,
-                onClick = { onLanguageSelected(AppLanguage.FRENCH) },
+                selected = state.language == FRENCH,
+                onClick = { onLanguageSelected(FRENCH) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_spanish),
-                selected = state.language == AppLanguage.SPANISH,
-                onClick = { onLanguageSelected(AppLanguage.SPANISH) },
+                selected = state.language == SPANISH,
+                onClick = { onLanguageSelected(SPANISH) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_italian),
-                selected = state.language == AppLanguage.ITALIAN,
-                onClick = { onLanguageSelected(AppLanguage.ITALIAN) },
+                selected = state.language == ITALIAN,
+                onClick = { onLanguageSelected(ITALIAN) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_arabic),
-                selected = state.language == AppLanguage.ARABIC,
-                onClick = { onLanguageSelected(AppLanguage.ARABIC) },
+                selected = state.language == ARABIC,
+                onClick = { onLanguageSelected(ARABIC) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_hindi),
-                selected = state.language == AppLanguage.HINDI,
-                onClick = { onLanguageSelected(AppLanguage.HINDI) },
+                selected = state.language == HINDI,
+                onClick = { onLanguageSelected(HINDI) },
             )
+
             SettingsOptionRow(
                 label = stringResource(R.string.settings_language_japanese),
-                selected = state.language == AppLanguage.JAPANESE,
-                onClick = { onLanguageSelected(AppLanguage.JAPANESE) },
+                selected = state.language == JAPANESE,
+                onClick = { onLanguageSelected(JAPANESE) },
             )
         }
 
         Spacer(modifier = Modifier.height(Dimens.SpacingLg))
+
         HorizontalDivider()
+
         Text(
             text = stringResource(R.string.settings_app_version, appVersion),
             style = MaterialTheme.typography.bodySmall,
@@ -148,7 +176,7 @@ internal fun SettingsContent(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(top = Dimens.SpacingMd, bottom = Dimens.SpacingLg),
+                    .padding(top = Dimens.SpacingXs, bottom = Dimens.SpacingXs),
         )
     }
 }
@@ -163,6 +191,7 @@ private fun SettingsSection(
             text = title,
             style = MaterialTheme.typography.titleMedium,
         )
+
         Surface(
             tonalElevation = Dimens.ElevationSm,
             shape = MaterialTheme.shapes.medium,
@@ -199,7 +228,9 @@ private fun SettingsOptionRow(
             selected = selected,
             onClick = onClick,
         )
+
         Spacer(modifier = Modifier.width(Dimens.SpacingLg))
+
         Text(
             text = label,
             style = MaterialTheme.typography.bodyLarge,

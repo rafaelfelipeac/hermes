@@ -14,49 +14,36 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel
-    @Inject
-    constructor(
-        private val repository: SettingsRepository,
-    ) : ViewModel() {
-
-        private companion object {
-            const val SETTINGS_STATE_SHARING_TIMEOUT_MS = 5_000L
-        }
-
-        val state: StateFlow<SettingsState> =
-            combine(
-                repository.themeMode,
-                repository.language,
-            ) { themeMode, language ->
-                SettingsState(
-                    themeMode = themeMode,
-                    language = language,
-                )
-            }.stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(SETTINGS_STATE_SHARING_TIMEOUT_MS),
-                initialValue =
-                    SettingsState(
-                        themeMode = repository.initialThemeMode(),
-                        language = repository.initialLanguage(),
-                    ),
+class SettingsViewModel @Inject constructor(
+    private val repository: SettingsRepository,
+) : ViewModel() {
+    val state: StateFlow<SettingsState> =
+        combine(
+            repository.themeMode,
+            repository.language,
+        ) { themeMode, language ->
+            SettingsState(
+                themeMode = themeMode,
+                language = language,
             )
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(SETTINGS_STATE_SHARING_TIMEOUT_MS),
+            initialValue = SettingsState(
+                themeMode = repository.initialThemeMode(),
+                language = repository.initialLanguage(),
+            ),
+        )
 
-        fun setThemeMode(mode: ThemeMode) {
-            viewModelScope.launch {
-                repository.setThemeMode(mode)
-            }
-        }
-
-        fun setLanguage(language: AppLanguage) {
-            viewModelScope.launch {
-                repository.setLanguage(language)
-            }
-        }
+    fun setThemeMode(mode: ThemeMode) = viewModelScope.launch {
+        repository.setThemeMode(mode)
     }
 
-data class SettingsState(
-    val themeMode: ThemeMode,
-    val language: AppLanguage,
-)
+    fun setLanguage(language: AppLanguage) = viewModelScope.launch {
+        repository.setLanguage(language)
+    }
+
+    private companion object {
+        const val SETTINGS_STATE_SHARING_TIMEOUT_MS = 5_000L
+    }
+}
