@@ -84,7 +84,7 @@ fun WeeklyTrainingContent(
         remember(workouts) {
             buildList {
                 if (workouts.any { it.dayOfWeek == null }) {
-                    add(SectionKey.ToBeDefined)
+                    add(ToBeDefined)
                 }
 
                 add(SectionKey.Day(MONDAY))
@@ -138,7 +138,7 @@ fun WeeklyTrainingContent(
                 .toSet()
         val hasNewUnscheduled = currentUnscheduledIds.any { it !in previousUnscheduledIds }
 
-        if (hasNewUnscheduled && sections.firstOrNull() == SectionKey.ToBeDefined) {
+        if (hasNewUnscheduled && sections.firstOrNull() == ToBeDefined) {
             listState.animateScrollToItem(FIRST_LIST_INDEX)
         }
     }
@@ -192,8 +192,8 @@ fun WeeklyTrainingContent(
                 .pointerInput(selectedDate, draggedWorkoutId) {
                     if (draggedWorkoutId == null) {
                         detectHorizontalDragGestures(
-                            onDragStart = { dragAmount = 0f },
-                            onHorizontalDrag = { _, dragDelta -> dragAmount += dragDelta },
+                            onDragStart = { },
+                            onHorizontalDrag = { _, _ -> },
                             onDragEnd = {
                                 when {
                                     dragAmount <= -swipeThreshold ->
@@ -202,9 +202,8 @@ fun WeeklyTrainingContent(
                                     dragAmount >= swipeThreshold ->
                                         onWeekChanged(selectedDate.minusWeeks(WEEK_CHANGE_STEP))
                                 }
-                                dragAmount = 0f
                             },
-                            onDragCancel = { dragAmount = 0f },
+                            onDragCancel = { },
                         )
                     }
                 }

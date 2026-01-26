@@ -164,11 +164,9 @@ fun WeeklyTrainingScreen(
 
     if (isAddDialogVisible) {
         AddWorkoutDialog(
-            onDismiss = { isAddDialogVisible = false },
+            onDismiss = { },
             onSave = { type, description ->
                 viewModel.addWorkout(type, description)
-
-                isAddDialogVisible = false
             },
             isEdit = false,
         )
