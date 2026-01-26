@@ -65,16 +65,17 @@ fun TrainingWeekScreen(
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(Dimens.SpacingXl),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(Dimens.SpacingXl),
         ) {
             Text(
                 text = stringResource(R.string.nav_training_week),
                 style = MaterialTheme.typography.titleLarge,
             )
+
             Spacer(modifier = Modifier.height(Dimens.SpacingLg))
+
             WeeklyCalendarHeader(
                 selectedDate = state.selectedDate,
                 weekStartDate = state.weekStartDate,
@@ -96,28 +97,27 @@ fun TrainingWeekScreen(
 
         if (isAddMenuVisible) {
             Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(
-                            MaterialTheme.colorScheme.scrim.copy(
-                                alpha = AddMenuScrimAlpha,
-                            ),
-                        )
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                        ) {
-                            isAddMenuVisible = false
-                        },
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        MaterialTheme.colorScheme.scrim.copy(
+                            alpha = AddMenuScrimAlpha,
+                        ),
+                    )
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        isAddMenuVisible = false
+                    },
             )
         }
 
         Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(Dimens.SpacingXl),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(Dimens.SpacingXl),
         ) {
             FloatingActionButton(
                 onClick = { isAddMenuVisible = !isAddMenuVisible },
@@ -134,10 +134,9 @@ fun TrainingWeekScreen(
 
         if (isAddMenuVisible) {
             Column(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = Dimens.SpacingXl, bottom = Dimens.AddMenuBottomPadding),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = Dimens.SpacingXl, bottom = Dimens.AddMenuBottomPadding),
                 verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
                 horizontalAlignment = Alignment.End,
             ) {
@@ -148,6 +147,7 @@ fun TrainingWeekScreen(
                         isAddDialogVisible = true
                     },
                 )
+
                 AddActionPill(
                     label = stringResource(R.string.add_rest_day),
                     onClick = {
@@ -171,8 +171,7 @@ fun TrainingWeekScreen(
         )
     }
 
-    if (editingWorkout != null) {
-        val workout = editingWorkout!!
+    editingWorkout?.let { workout ->
         AddWorkoutDialog(
             onDismiss = { editingWorkout = null },
             onSave = { type, description ->
@@ -190,26 +189,22 @@ fun TrainingWeekScreen(
         )
     }
 
-    if (deletingWorkout != null) {
-        val workout = deletingWorkout!!
-        val title =
-            if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day_title)
-            } else {
-                stringResource(R.string.delete_workout_title)
-            }
-        val message =
-            if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day_message)
-            } else {
-                stringResource(R.string.delete_workout_message)
-            }
-        val confirmLabel =
-            if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day)
-            } else {
-                stringResource(R.string.delete_workout)
-            }
+    deletingWorkout?.let { workout ->
+        val title = if (workout.isRestDay) {
+            stringResource(R.string.delete_rest_day_title)
+        } else {
+            stringResource(R.string.delete_workout_title)
+        }
+        val message = if (workout.isRestDay) {
+            stringResource(R.string.delete_rest_day_message)
+        } else {
+            stringResource(R.string.delete_workout_message)
+        }
+        val confirmLabel = if (workout.isRestDay) {
+            stringResource(R.string.delete_rest_day)
+        } else {
+            stringResource(R.string.delete_workout)
+        }
 
         AlertDialog(
             onDismissRequest = { deletingWorkout = null },
@@ -247,11 +242,10 @@ private fun AddActionPill(
         modifier = Modifier.defaultMinSize(minWidth = Dimens.AddActionPillMinWidth),
     ) {
         Row(
-            modifier =
-                Modifier.padding(
-                    horizontal = Dimens.AddActionPillHorizontalPadding,
-                    vertical = Dimens.SpacingLg,
-                ),
+            modifier = Modifier.padding(
+                horizontal = Dimens.AddActionPillHorizontalPadding,
+                vertical = Dimens.SpacingLg,
+            ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(text = label, style = MaterialTheme.typography.titleSmall)

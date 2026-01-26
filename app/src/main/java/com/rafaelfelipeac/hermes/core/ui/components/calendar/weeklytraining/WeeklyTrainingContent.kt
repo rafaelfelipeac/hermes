@@ -311,12 +311,13 @@ fun WeeklyTrainingContent(
         }
 
         if (draggedWorkout != null && dragPosition != null) {
+            val currentDragPosition = checkNotNull(dragPosition)
             val ghostHeight = if (draggedItemHeight > 0f) {
                 draggedItemHeight
             } else {
                 itemBounds[draggedWorkout.id]?.height ?: 0f
             }
-            val ghostYOffset = dragPosition!!.y - containerBounds.top - ghostHeight / 2f
+            val ghostYOffset = currentDragPosition.y - containerBounds.top - ghostHeight / 2f
 
             GhostWorkoutRow(
                 workout = draggedWorkout,
