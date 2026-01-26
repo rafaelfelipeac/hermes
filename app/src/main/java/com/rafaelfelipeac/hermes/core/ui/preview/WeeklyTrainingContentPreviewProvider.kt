@@ -2,7 +2,8 @@ package com.rafaelfelipeac.hermes.core.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.rafaelfelipeac.hermes.features.trainingweek.presentation.model.WorkoutUi
-import java.time.DayOfWeek
+import java.time.DayOfWeek.MONDAY
+import java.time.DayOfWeek.WEDNESDAY
 import java.time.LocalDate
 
 private const val PREVIEW_WORKOUT_TYPE_RUN = "Run"
@@ -43,7 +44,7 @@ class WeeklyTrainingContentPreviewProvider :
                         ),
                         WorkoutUi(
                             id = PREVIEW_WORKOUT_ID_SWIM,
-                            dayOfWeek = DayOfWeek.MONDAY,
+                            dayOfWeek = MONDAY,
                             type = PREVIEW_WORKOUT_TYPE_SWIM,
                             description = PREVIEW_WORKOUT_DESCRIPTION_SWIM,
                             isCompleted = false,
@@ -52,7 +53,7 @@ class WeeklyTrainingContentPreviewProvider :
                         ),
                         WorkoutUi(
                             id = PREVIEW_WORKOUT_ID_BIKE,
-                            dayOfWeek = DayOfWeek.WEDNESDAY,
+                            dayOfWeek = WEDNESDAY,
                             type = PREVIEW_WORKOUT_TYPE_BIKE,
                             description = PREVIEW_WORKOUT_DESCRIPTION_BIKE,
                             isCompleted = true,

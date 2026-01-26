@@ -2,7 +2,9 @@ package com.rafaelfelipeac.hermes.core.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.*
 import java.time.DayOfWeek
+import java.time.DayOfWeek.*
 import java.time.LocalDate
 
 private const val PREVIEW_YEAR = 2026
@@ -25,9 +27,9 @@ class WeeklyCalendarHeaderPreviewProvider :
                 weekStartDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_WEEK_START_DAY),
                 dayIndicators =
                     mapOf(
-                        DayOfWeek.MONDAY to DayIndicator.Workout,
-                        DayOfWeek.WEDNESDAY to DayIndicator.Completed,
-                        DayOfWeek.FRIDAY to DayIndicator.RestDay,
+                        MONDAY to Workout,
+                        WEDNESDAY to Completed,
+                        FRIDAY to RestDay,
                     ),
             ),
         )
