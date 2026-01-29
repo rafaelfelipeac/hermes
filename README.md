@@ -5,15 +5,15 @@
 
 # 🪽 Hermes
 
-**Hermes** is a simple, offline-first **weekly training planner** — built to help plan a week and keep it adaptable.
+**Hermes** is a simple, offline-first **weekly training planner** — built to help you plan the week and keep it adaptable.
 
-Like **Hermes, the messenger god** 🪽, it’s made for movement: trainings can be **reordered, rescheduled, and rearranged** as the week changes, without turning into a rigid routine or a performance tracker.
+Like **Hermes, the messenger god** 🪽, it’s made for movement: trainings can be **reordered, rescheduled and rearranged** as the week changes — without turning into a rigid routine or a performance tracker.
 
-It focuses on clarity and consistency, with a lightweight weekly view that answers one question:
+It focuses on clarity and consistency, with a lightweight weekly view that embraces one idea:
 
-> **“What’s the plan this week — and how did it actually go?”**
+> **“Plan the week. Life happens. Adjust.”**
 
-No noise. No pressure. Just a realistic plan that can change as life happens.
+No noise. No pressure. Just a realistic plan you can keep reshaping as life happens.
 
 ---
 
