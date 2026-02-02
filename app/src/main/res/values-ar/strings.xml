@@ -5,6 +5,7 @@
 
     <!-- Navigation -->
     <string name="nav_weekly_training">التدريب الأسبوعي</string>
+    <string name="nav_activity">النشاط</string>
     <string name="nav_settings">الإعدادات</string>
 
     <!-- Training week: actions -->
@@ -63,4 +64,41 @@
     <string name="settings_language_hindi">الهندية</string>
     <string name="settings_language_japanese">اليابانية</string>
     <string name="settings_app_version">Hermes - الإصدار: %1$s</string>
+
+    <!-- Activity -->
+    <string name="activity_title">النشاط الأخير</string>
+    <string name="activity_empty">لا توجد أنشطة بعد.</string>
+    <string name="activity_today">اليوم</string>
+    <string name="activity_yesterday">أمس</string>
+    <string name="activity_workout_fallback">بدون اسم</string>
+    <string name="activity_action_create_workout">لقد أنشأت التمرين %1$s.</string>
+    <string name="activity_action_update_workout">لقد حدّثت التمرين %1$s.</string>
+    <string name="activity_action_delete_workout">لقد حذفت التمرين %1$s.</string>
+    <string name="activity_action_complete_workout">لقد أنهيت التمرين %1$s.</string>
+    <string name="activity_action_complete_rest_day">لقد أنهيت يوم راحة.</string>
+    <string name="activity_action_incomplete_workout">لقد وضعت علامة غير مكتمل على التمرين %1$s.</string>
+    <string name="activity_action_incomplete_rest_day">لقد وضعت علامة غير مكتمل على يوم راحة.</string>
+    <string name="activity_action_reorder_workout">لقد أعدت ترتيب التمرين %1$s.</string>
+    <string name="activity_action_move_workout">لقد نقلت التمرين %1$s.</string>
+    <string name="activity_action_reorder_rest_day">لقد أعدت ترتيب يوم راحة.</string>
+    <string name="activity_action_move_rest_day">لقد نقلت يوم راحة.</string>
+    <string name="activity_action_create_rest_day">لقد أنشأت يوم راحة.</string>
+    <string name="activity_action_update_rest_day">لقد حدّثت يوم راحة.</string>
+    <string name="activity_action_delete_rest_day">لقد حذفت يوم راحة.</string>
+    <string name="activity_action_convert_workout_to_rest_day">لقد حولت التمرين %1$s إلى يوم راحة.</string>
+    <string name="activity_action_convert_rest_day_to_workout">لقد حولت يوم راحة إلى تمرين.</string>
+    <string name="activity_action_change_language">لقد غيّرت اللغة.</string>
+    <string name="activity_action_change_theme">لقد غيّرت السمة.</string>
+    <string name="activity_action_open_week">لقد فتحت أسبوعًا آخر.</string>
+    <string name="activity_action_fallback">لقد قمت بإجراء في التطبيق.</string>
+    <string name="activity_subtitle_change_value">من \"%1$s\" إلى \"%2$s\".</string>
+    <string name="activity_subtitle_move">من \"%1$s\" إلى \"%2$s\".</string>
+    <string name="activity_subtitle_week">أسبوع %1$s.</string>
+    <string name="activity_day_unplanned">قيد التحديد</string>
+    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_time_pattern">HH:mm</string>
+    <string name="activity_week_date_pattern">d MMM yyyy</string>
+    <string name="activity_value_system">النظام</string>
+    <string name="activity_value_unknown">غير معروف</string>
+    <string name="activity_value_quoted">\"%1$s\"</string>
 </resources>

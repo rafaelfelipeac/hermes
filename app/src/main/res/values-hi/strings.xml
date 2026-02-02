@@ -5,6 +5,7 @@
 
     <!-- Navigation -->
     <string name="nav_weekly_training">साप्ताहिक प्रशिक्षण</string>
+    <string name="nav_activity">गतिविधि</string>
     <string name="nav_settings">सेटिंग्स</string>
 
     <!-- Training week: actions -->
@@ -63,4 +64,41 @@
     <string name="settings_language_hindi">हिन्दी</string>
     <string name="settings_language_japanese">जापानी</string>
     <string name="settings_app_version">Hermes - संस्करण: %1$s</string>
+
+    <!-- Activity -->
+    <string name="activity_title">हाल की गतिविधि</string>
+    <string name="activity_empty">अभी कोई गतिविधि नहीं है।</string>
+    <string name="activity_today">आज</string>
+    <string name="activity_yesterday">कल</string>
+    <string name="activity_workout_fallback">बिना नाम</string>
+    <string name="activity_action_create_workout">आपने %1$s वर्कआउट बनाया।</string>
+    <string name="activity_action_update_workout">आपने %1$s वर्कआउट अपडेट किया।</string>
+    <string name="activity_action_delete_workout">आपने %1$s वर्कआउट हटाया।</string>
+    <string name="activity_action_complete_workout">आपने %1$s वर्कआउट पूरा किया।</string>
+    <string name="activity_action_complete_rest_day">आपने एक विश्राम दिवस पूरा किया।</string>
+    <string name="activity_action_incomplete_workout">आपने %1$s वर्कआउट को अपूर्ण चिह्नित किया।</string>
+    <string name="activity_action_incomplete_rest_day">आपने एक विश्राम दिवस को अपूर्ण चिह्नित किया।</string>
+    <string name="activity_action_reorder_workout">आपने %1$s वर्कआउट पुनः क्रमित किया।</string>
+    <string name="activity_action_move_workout">आपने %1$s वर्कआउट स्थानांतरित किया।</string>
+    <string name="activity_action_reorder_rest_day">आपने एक विश्राम दिवस पुनः क्रमित किया।</string>
+    <string name="activity_action_move_rest_day">आपने एक विश्राम दिवस स्थानांतरित किया।</string>
+    <string name="activity_action_create_rest_day">आपने एक विश्राम दिवस बनाया।</string>
+    <string name="activity_action_update_rest_day">आपने एक विश्राम दिवस अपडेट किया।</string>
+    <string name="activity_action_delete_rest_day">आपने एक विश्राम दिवस हटाया।</string>
+    <string name="activity_action_convert_workout_to_rest_day">आपने %1$s वर्कआउट को विश्राम दिवस में बदला।</string>
+    <string name="activity_action_convert_rest_day_to_workout">आपने एक विश्राम दिवस को वर्कआउट में बदला।</string>
+    <string name="activity_action_change_language">आपने भाषा बदली।</string>
+    <string name="activity_action_change_theme">आपने थीम बदली।</string>
+    <string name="activity_action_open_week">आपने एक और सप्ताह खोला।</string>
+    <string name="activity_action_fallback">आपने ऐप में एक क्रिया की।</string>
+    <string name="activity_subtitle_change_value">\"%1$s\" से \"%2$s\".</string>
+    <string name="activity_subtitle_move">\"%1$s\" से \"%2$s\".</string>
+    <string name="activity_subtitle_week">%1$s का सप्ताह.</string>
+    <string name="activity_day_unplanned">निर्धारित नहीं</string>
+    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_time_pattern">HH:mm</string>
+    <string name="activity_week_date_pattern">d MMM yyyy</string>
+    <string name="activity_value_system">सिस्टम</string>
+    <string name="activity_value_unknown">अज्ञात</string>
+    <string name="activity_value_quoted">\"%1$s\"</string>
 </resources>

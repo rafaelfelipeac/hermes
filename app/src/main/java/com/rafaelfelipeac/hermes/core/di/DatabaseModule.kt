@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.core.di
 import android.content.Context
 import androidx.room.Room
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
+import com.rafaelfelipeac.hermes.core.useraction.UserActionDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import dagger.Module
 import dagger.Provides
@@ -24,12 +25,18 @@ object DatabaseModule {
             HermesDatabase::class.java,
             DATABASE_NAME,
         )
+            .addMigrations(HermesDatabase.MIGRATION_1_2)
             .build()
     }
 
     @Provides
     fun provideWorkoutDao(database: HermesDatabase): WorkoutDao {
         return database.workoutDao()
+    }
+
+    @Provides
+    fun provideUserActionDao(database: HermesDatabase): UserActionDao {
+        return database.userActionDao()
     }
 }
 

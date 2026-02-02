@@ -5,6 +5,7 @@
 
     <!-- Navigation -->
     <string name="nav_weekly_training">Wöchentliches Training</string>
+    <string name="nav_activity">Aktivität</string>
     <string name="nav_settings">Einstellungen</string>
 
     <!-- Training week: actions -->
@@ -63,4 +64,41 @@
     <string name="settings_language_hindi">Hindi</string>
     <string name="settings_language_japanese">Japanisch</string>
     <string name="settings_app_version">Hermes - Version: %1$s</string>
+
+    <!-- Activity -->
+    <string name="activity_title">Letzte Aktivitäten</string>
+    <string name="activity_empty">Noch keine Aktivitäten.</string>
+    <string name="activity_today">Heute</string>
+    <string name="activity_yesterday">Gestern</string>
+    <string name="activity_workout_fallback">ohne Titel</string>
+    <string name="activity_action_create_workout">Du hast das Training %1$s erstellt.</string>
+    <string name="activity_action_update_workout">Du hast das Training %1$s aktualisiert.</string>
+    <string name="activity_action_delete_workout">Du hast das Training %1$s gelöscht.</string>
+    <string name="activity_action_complete_workout">Du hast das Training %1$s abgeschlossen.</string>
+    <string name="activity_action_complete_rest_day">Du hast einen Ruhetag abgeschlossen.</string>
+    <string name="activity_action_incomplete_workout">Du hast das Training %1$s als unvollständig markiert.</string>
+    <string name="activity_action_incomplete_rest_day">Du hast einen Ruhetag als unvollständig markiert.</string>
+    <string name="activity_action_reorder_workout">Du hast das Training %1$s neu sortiert.</string>
+    <string name="activity_action_move_workout">Du hast das Training %1$s verschoben.</string>
+    <string name="activity_action_reorder_rest_day">Du hast einen Ruhetag neu sortiert.</string>
+    <string name="activity_action_move_rest_day">Du hast einen Ruhetag verschoben.</string>
+    <string name="activity_action_create_rest_day">Du hast einen Ruhetag erstellt.</string>
+    <string name="activity_action_update_rest_day">Du hast einen Ruhetag aktualisiert.</string>
+    <string name="activity_action_delete_rest_day">Du hast einen Ruhetag gelöscht.</string>
+    <string name="activity_action_convert_workout_to_rest_day">Du hast das Training %1$s in einen Ruhetag umgewandelt.</string>
+    <string name="activity_action_convert_rest_day_to_workout">Du hast einen Ruhetag in ein Training umgewandelt.</string>
+    <string name="activity_action_change_language">Du hast die Sprache geändert.</string>
+    <string name="activity_action_change_theme">Du hast das Design geändert.</string>
+    <string name="activity_action_open_week">Du hast eine andere Woche geöffnet.</string>
+    <string name="activity_action_fallback">Du hast eine Aktion in der App ausgeführt.</string>
+    <string name="activity_subtitle_change_value">Von \"%1$s\" zu \"%2$s\".</string>
+    <string name="activity_subtitle_move">Von \"%1$s\" zu \"%2$s\".</string>
+    <string name="activity_subtitle_week">Woche vom %1$s.</string>
+    <string name="activity_day_unplanned">Noch zu definieren</string>
+    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_time_pattern">HH:mm</string>
+    <string name="activity_week_date_pattern">dd.MM.yyyy</string>
+    <string name="activity_value_system">System</string>
+    <string name="activity_value_unknown">Unbekannt</string>
+    <string name="activity_value_quoted">\"%1$s\"</string>
 </resources>

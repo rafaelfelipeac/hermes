@@ -1,8 +1,10 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.useraction.UserActionLogger
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import io.mockk.coVerify
 import io.mockk.every
@@ -33,10 +35,11 @@ class WeeklyTrainingViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
             every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
 
-            val viewModel = WeeklyTrainingViewModel(repository)
+            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 1, 15)
 
@@ -56,10 +59,11 @@ class WeeklyTrainingViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
             every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
 
-            val viewModel = WeeklyTrainingViewModel(repository)
+            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 1, 15)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -101,10 +105,11 @@ class WeeklyTrainingViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
             every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
 
-            val viewModel = WeeklyTrainingViewModel(repository)
+            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 2, 2)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -142,10 +147,11 @@ class WeeklyTrainingViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
             every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
 
-            val viewModel = WeeklyTrainingViewModel(repository)
+            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 3, 4)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -195,13 +201,26 @@ class WeeklyTrainingViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
             every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
 
-            val viewModel = WeeklyTrainingViewModel(repository)
+            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
 
-            viewModel.updateWorkoutCompletion(workoutId = 42, isCompleted = true)
+            viewModel.updateWorkoutCompletion(
+                workout =
+                    WorkoutUi(
+                        id = 42,
+                        dayOfWeek = null,
+                        type = "Bike",
+                        description = "Tempo",
+                        isCompleted = false,
+                        isRestDay = false,
+                        order = 0,
+                    ),
+                isCompleted = true,
+            )
             viewModel.updateWorkoutDetails(
                 workoutId = 43,
                 type = "Bike",

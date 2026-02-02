@@ -1,0 +1,39 @@
+package com.rafaelfelipeac.hermes.core.useraction
+
+object UserActionMetadataKeys {
+    const val WEEK_START_DATE = "week_start_date"
+    const val OLD_WEEK_START_DATE = "old_week_start_date"
+    const val NEW_WEEK_START_DATE = "new_week_start_date"
+    const val DAY_OF_WEEK = "day_of_week"
+    const val OLD_DAY_OF_WEEK = "old_day_of_week"
+    const val NEW_DAY_OF_WEEK = "new_day_of_week"
+    const val OLD_ORDER = "old_order"
+    const val NEW_ORDER = "new_order"
+    const val OLD_TYPE = "old_type"
+    const val NEW_TYPE = "new_type"
+    const val OLD_DESCRIPTION = "old_description"
+    const val NEW_DESCRIPTION = "new_description"
+    const val OLD_VALUE = "old_value"
+    const val NEW_VALUE = "new_value"
+    const val WAS_COMPLETED = "was_completed"
+    const val IS_COMPLETED = "is_completed"
+    const val SOURCE = "source"
+}
+
+object UserActionMetadataValues {
+    const val UNPLANNED = "unplanned"
+}
+
+object UserActionMetadataSerializer {
+    fun toJson(metadata: Map<String, String>): String {
+        return metadata.entries.joinToString(prefix = "{", postfix = "}") { (key, value) ->
+            "\"${escape(key)}\":\"${escape(value)}\""
+        }
+    }
+
+    private fun escape(value: String): String {
+        return value
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+    }
+}

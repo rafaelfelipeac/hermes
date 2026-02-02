@@ -5,6 +5,7 @@
 
     <!-- Navigation -->
     <string name="nav_weekly_training">Allenamento settimanale</string>
+    <string name="nav_activity">Attività</string>
     <string name="nav_settings">Impostazioni</string>
 
     <!-- Training week: actions -->
@@ -63,4 +64,41 @@
     <string name="settings_language_hindi">Hindi</string>
     <string name="settings_language_japanese">Giapponese</string>
     <string name="settings_app_version">Hermes - Versione: %1$s</string>
+
+    <!-- Activity -->
+    <string name="activity_title">Attività recente</string>
+    <string name="activity_empty">Nessuna attività al momento.</string>
+    <string name="activity_today">Oggi</string>
+    <string name="activity_yesterday">Ieri</string>
+    <string name="activity_workout_fallback">senza titolo</string>
+    <string name="activity_action_create_workout">Hai creato l\'allenamento %1$s.</string>
+    <string name="activity_action_update_workout">Hai aggiornato l\'allenamento %1$s.</string>
+    <string name="activity_action_delete_workout">Hai eliminato l\'allenamento %1$s.</string>
+    <string name="activity_action_complete_workout">Hai completato l\'allenamento %1$s.</string>
+    <string name="activity_action_complete_rest_day">Hai completato un giorno di riposo.</string>
+    <string name="activity_action_incomplete_workout">Hai contrassegnato l\'allenamento %1$s come incompleto.</string>
+    <string name="activity_action_incomplete_rest_day">Hai contrassegnato un giorno di riposo come incompleto.</string>
+    <string name="activity_action_reorder_workout">Hai riordinato l\'allenamento %1$s.</string>
+    <string name="activity_action_move_workout">Hai spostato l\'allenamento %1$s.</string>
+    <string name="activity_action_reorder_rest_day">Hai riordinato un giorno di riposo.</string>
+    <string name="activity_action_move_rest_day">Hai spostato un giorno di riposo.</string>
+    <string name="activity_action_create_rest_day">Hai creato un giorno di riposo.</string>
+    <string name="activity_action_update_rest_day">Hai aggiornato un giorno di riposo.</string>
+    <string name="activity_action_delete_rest_day">Hai eliminato un giorno di riposo.</string>
+    <string name="activity_action_convert_workout_to_rest_day">Hai convertito l\'allenamento %1$s in riposo.</string>
+    <string name="activity_action_convert_rest_day_to_workout">Hai convertito un giorno di riposo in allenamento.</string>
+    <string name="activity_action_change_language">Hai cambiato la lingua.</string>
+    <string name="activity_action_change_theme">Hai cambiato il tema.</string>
+    <string name="activity_action_open_week">Hai aperto un\'altra settimana.</string>
+    <string name="activity_action_fallback">Hai eseguito un\'azione nell\'app.</string>
+    <string name="activity_subtitle_change_value">Da \"%1$s\" a \"%2$s\".</string>
+    <string name="activity_subtitle_move">Da \"%1$s\" a \"%2$s\".</string>
+    <string name="activity_subtitle_week">Settimana del %1$s.</string>
+    <string name="activity_day_unplanned">Da definire</string>
+    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_time_pattern">HH:mm</string>
+    <string name="activity_week_date_pattern">d MMM yyyy</string>
+    <string name="activity_value_system">Sistema</string>
+    <string name="activity_value_unknown">Sconosciuto</string>
+    <string name="activity_value_quoted">\"%1$s\"</string>
 </resources>

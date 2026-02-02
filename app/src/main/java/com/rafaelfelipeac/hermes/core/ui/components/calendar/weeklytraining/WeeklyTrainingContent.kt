@@ -75,7 +75,7 @@ fun WeeklyTrainingContent(
     selectedDate: LocalDate,
     workouts: List<WorkoutUi>,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
-    onWorkoutCompletionChanged: (WorkoutId, Boolean) -> Unit,
+    onWorkoutCompletionChanged: (WorkoutUi, Boolean) -> Unit,
     onWorkoutEdit: (WorkoutUi) -> Unit,
     onWorkoutDelete: (WorkoutUi) -> Unit,
     onWeekChanged: (LocalDate) -> Unit = {},
@@ -289,7 +289,7 @@ fun WeeklyTrainingContent(
                                     workout = workout,
                                     isDragging = draggedWorkoutId == workout.id,
                                     onToggleCompleted = { checked ->
-                                        onWorkoutCompletionChanged(workout.id, checked)
+                                        onWorkoutCompletionChanged(workout, checked)
                                     },
                                     onDragStarted = { position, height ->
                                         draggedWorkoutId = workout.id

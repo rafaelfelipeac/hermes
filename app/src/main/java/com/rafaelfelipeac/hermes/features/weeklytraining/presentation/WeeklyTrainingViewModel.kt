@@ -4,6 +4,39 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.useraction.UserActionEntityType.REST_DAY
+import com.rafaelfelipeac.hermes.core.useraction.UserActionEntityType.WEEK
+import com.rafaelfelipeac.hermes.core.useraction.UserActionEntityType.WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.IS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_DESCRIPTION
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_ORDER
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.OLD_DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.OLD_DESCRIPTION
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.OLD_ORDER
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.OLD_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.OLD_WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.WAS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataValues
+import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataValues.UNPLANNED
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.CONVERT_REST_DAY_TO_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.CONVERT_WORKOUT_TO_REST_DAY
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.CREATE_REST_DAY
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.CREATE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.DELETE_REST_DAY
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.DELETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.OPEN_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.REORDER_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.INCOMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.UPDATE_REST_DAY
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -30,6 +63,7 @@ class WeeklyTrainingViewModel
     @Inject
     constructor(
         private val repository: WeeklyTrainingRepository,
+        private val userActionLogger: UserActionLogger,
     ) : ViewModel() {
         private val selectedDate = MutableStateFlow(LocalDate.now())
         private val weekStartDate =
@@ -72,7 +106,22 @@ class WeeklyTrainingViewModel
         }
 
         fun onWeekChanged(newSelectedDate: LocalDate) {
+            val previousWeekStartDate = state.value.weekStartDate
+            val newWeekStartDate = newSelectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
             selectedDate.value = newSelectedDate
+
+            viewModelScope.launch {
+                userActionLogger.log(
+                    actionType = OPEN_WEEK,
+                    entityType = WEEK,
+                    metadata =
+                        mapOf(
+                            OLD_WEEK_START_DATE to previousWeekStartDate.toString(),
+                            NEW_WEEK_START_DATE to newWeekStartDate.toString(),
+                        ),
+                )
+            }
         }
 
         fun addWorkout(
@@ -82,12 +131,26 @@ class WeeklyTrainingViewModel
             val (currentState, nextOrder) = getNextOrder()
 
             viewModelScope.launch {
-                repository.addWorkout(
-                    weekStartDate = currentState.weekStartDate,
-                    dayOfWeek = null,
-                    type = type,
-                    description = description,
-                    order = nextOrder,
+                val workoutId = repository.addWorkout(
+                        weekStartDate = currentState.weekStartDate,
+                        dayOfWeek = null,
+                        type = type,
+                        description = description,
+                        order = nextOrder,
+                    )
+
+                userActionLogger.log(
+                    actionType = CREATE_WORKOUT,
+                    entityType = WORKOUT,
+                    entityId = workoutId,
+                    metadata =
+                        mapOf(
+                            WEEK_START_DATE to currentState.weekStartDate.toString(),
+                            DAY_OF_WEEK to UNPLANNED,
+                            NEW_ORDER to nextOrder.toString(),
+                            NEW_TYPE to type,
+                            NEW_DESCRIPTION to description,
+                        ),
                 )
             }
         }
@@ -96,10 +159,22 @@ class WeeklyTrainingViewModel
             val (currentState, nextOrder) = getNextOrder()
 
             viewModelScope.launch {
-                repository.addRestDay(
-                    weekStartDate = currentState.weekStartDate,
-                    dayOfWeek = null,
-                    order = nextOrder,
+                val restDayId = repository.addRestDay(
+                        weekStartDate = currentState.weekStartDate,
+                        dayOfWeek = null,
+                        order = nextOrder,
+                    )
+
+                userActionLogger.log(
+                    actionType = CREATE_REST_DAY,
+                    entityType = REST_DAY,
+                    entityId = restDayId,
+                    metadata =
+                        mapOf(
+                            WEEK_START_DATE to currentState.weekStartDate.toString(),
+                            DAY_OF_WEEK to UNPLANNED,
+                            NEW_ORDER to nextOrder.toString(),
+                        ),
                 )
             }
         }
@@ -131,35 +206,132 @@ class WeeklyTrainingViewModel
 
             viewModelScope.launch {
                 changes.forEach { workout ->
+                    val original =
+                        currentWorkouts.firstOrNull { it.id == workout.id } ?: return@forEach
                     repository.updateWorkoutDayAndOrder(
                         workoutId = workout.id,
                         dayOfWeek = workout.dayOfWeek,
                         order = workout.order,
                     )
+                    val entityType =
+                        if (workout.isRestDay) REST_DAY else WORKOUT
+                    val actionType =
+                        if (original.dayOfWeek != workout.dayOfWeek) {
+                            MOVE_WORKOUT_BETWEEN_DAYS
+                        } else {
+                            REORDER_WORKOUT
+                        }
+
+                    userActionLogger.log(
+                        actionType = actionType,
+                        entityType = entityType,
+                        entityId = workout.id,
+                        metadata =
+                            mapOf(
+                                WEEK_START_DATE to state.value.weekStartDate.toString(),
+                                OLD_DAY_OF_WEEK to (original.dayOfWeek?.value?.toString()
+                                    ?: UNPLANNED),
+                                NEW_DAY_OF_WEEK to (workout.dayOfWeek?.value?.toString()
+                                    ?: UNPLANNED),
+                                OLD_ORDER to original.order.toString(),
+                                NEW_ORDER to workout.order.toString(),
+                                NEW_TYPE to workout.type,
+                                NEW_DESCRIPTION to workout.description,
+                            ),
+                    )
                 }
             }
         }
 
-        fun updateWorkoutCompletion(
-            workoutId: Long,
-            isCompleted: Boolean,
-        ) = viewModelScope.launch {
-            repository.updateWorkoutCompletion(workoutId, isCompleted)
-        }
+    fun updateWorkoutCompletion(
+        workout: WorkoutUi,
+        isCompleted: Boolean,
+    ) = viewModelScope.launch {
+        val original = state.value.workouts.firstOrNull { it.id == workout.id }
 
-        fun updateWorkoutDetails(
-            workoutId: Long,
-            type: String,
-            description: String,
-            isRestDay: Boolean,
-        ) = viewModelScope.launch {
-            repository.updateWorkoutDetails(workoutId, type, description, isRestDay)
-        }
+        repository.updateWorkoutCompletion(workout.id, isCompleted)
 
-        fun deleteWorkout(workoutId: Long) =
-            viewModelScope.launch {
-                repository.deleteWorkout(workoutId)
+        val actionType =
+            if (isCompleted) COMPLETE_WORKOUT else INCOMPLETE_WORKOUT
+        val entityType =
+            if (original?.isRestDay == true) REST_DAY else WORKOUT
+
+        userActionLogger.log(
+            actionType = actionType,
+            entityType = entityType,
+            entityId = workout.id,
+            metadata =
+                mapOf(
+                    WEEK_START_DATE to state.value.weekStartDate.toString(),
+                    WAS_COMPLETED to (original?.isCompleted?.toString() ?: "false"),
+                    IS_COMPLETED to isCompleted.toString(),
+                    NEW_TYPE to workout.type,
+                    NEW_DESCRIPTION to workout.description,
+                ),
+        )
+    }
+
+    fun updateWorkoutDetails(
+        workoutId: Long,
+        type: String,
+        description: String,
+        isRestDay: Boolean,
+    ) = viewModelScope.launch {
+        val original = state.value.workouts.firstOrNull { it.id == workoutId }
+
+        repository.updateWorkoutDetails(workoutId, type, description, isRestDay)
+
+        val entityType =
+            if (isRestDay) REST_DAY else WORKOUT
+        val actionType =
+            when {
+                original == null -> UPDATE_WORKOUT
+                original.isRestDay != isRestDay ->
+                    if (isRestDay) {
+                        CONVERT_WORKOUT_TO_REST_DAY
+                    } else {
+                        CONVERT_REST_DAY_TO_WORKOUT
+                    }
+                isRestDay -> UPDATE_REST_DAY
+                else -> UPDATE_WORKOUT
             }
+
+        userActionLogger.log(
+            actionType = actionType,
+            entityType = entityType,
+            entityId = workoutId,
+            metadata =
+                mapOf(
+                    WEEK_START_DATE to state.value.weekStartDate.toString(),
+                    OLD_TYPE to (original?.type ?: ""),
+                    NEW_TYPE to type,
+                    OLD_DESCRIPTION to (original?.description ?: ""),
+                    NEW_DESCRIPTION to description,
+                ),
+        )
+    }
+
+    fun deleteWorkout(workoutId: Long) =
+        viewModelScope.launch {
+            val original = state.value.workouts.firstOrNull { it.id == workoutId }
+            repository.deleteWorkout(workoutId)
+            val entityType =
+                if (original?.isRestDay == true) REST_DAY else WORKOUT
+            val actionType =
+                if (original?.isRestDay == true) DELETE_REST_DAY else DELETE_WORKOUT
+
+            userActionLogger.log(
+                actionType = actionType,
+                entityType = entityType,
+                entityId = workoutId,
+                metadata =
+                    mapOf(
+                        WEEK_START_DATE to state.value.weekStartDate.toString(),
+                        OLD_TYPE to (original?.type ?: ""),
+                        OLD_DESCRIPTION to (original?.description ?: ""),
+                    ),
+            )
+        }
 
         private fun getNextOrder(): Pair<WeeklyTrainingState, Int> {
             val currentState = state.value

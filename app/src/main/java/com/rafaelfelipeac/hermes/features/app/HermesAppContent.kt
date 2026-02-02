@@ -14,8 +14,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.ACTIVITY
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
+import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
 
@@ -43,6 +45,7 @@ fun HermesAppContent() {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             when (currentDestination) {
                 WEEKLY_TRAINING -> WeeklyTrainingScreen(modifier = Modifier.padding(innerPadding))
+                ACTIVITY -> ActivityScreen(modifier = Modifier.padding(innerPadding))
                 SETTINGS -> SettingsScreen(modifier = Modifier.padding(innerPadding))
             }
         }
