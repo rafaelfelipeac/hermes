@@ -1,5 +1,10 @@
-package com.rafaelfelipeac.hermes.core.useraction
+package com.rafaelfelipeac.hermes.core.useraction.data
 
+import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
+import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import javax.inject.Inject
 import javax.inject.Singleton
 

@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.useraction
+package com.rafaelfelipeac.hermes.core.useraction.data.local
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

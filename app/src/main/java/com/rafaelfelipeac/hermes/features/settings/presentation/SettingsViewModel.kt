@@ -2,12 +2,12 @@ package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafaelfelipeac.hermes.core.useraction.UserActionEntityType.SETTINGS
-import com.rafaelfelipeac.hermes.core.useraction.UserActionLogger
-import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_VALUE
-import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.OLD_VALUE
-import com.rafaelfelipeac.hermes.core.useraction.UserActionType.CHANGE_LANGUAGE
-import com.rafaelfelipeac.hermes.core.useraction.UserActionType.CHANGE_THEME
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository

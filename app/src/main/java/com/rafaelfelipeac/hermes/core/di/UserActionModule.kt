@@ -1,9 +1,9 @@
 package com.rafaelfelipeac.hermes.core.di
 
-import com.rafaelfelipeac.hermes.core.useraction.RoomUserActionLogger
-import com.rafaelfelipeac.hermes.core.useraction.RoomUserActionRepository
-import com.rafaelfelipeac.hermes.core.useraction.UserActionLogger
-import com.rafaelfelipeac.hermes.core.useraction.UserActionRepository
+import com.rafaelfelipeac.hermes.core.useraction.data.RoomUserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.data.RoomUserActionRepository
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

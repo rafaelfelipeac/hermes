@@ -6,8 +6,8 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase.Companion.DATABASE_VERSION
-import com.rafaelfelipeac.hermes.core.useraction.UserActionDao
-import com.rafaelfelipeac.hermes.core.useraction.UserActionEntity
+import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
+import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 

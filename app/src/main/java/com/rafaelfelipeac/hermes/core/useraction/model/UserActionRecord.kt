@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.useraction
+package com.rafaelfelipeac.hermes.core.useraction.model
 
 data class UserActionRecord(
     val id: Long,

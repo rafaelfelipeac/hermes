@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.useraction
+package com.rafaelfelipeac.hermes.core.useraction.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert

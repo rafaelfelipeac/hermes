@@ -1,4 +1,4 @@
-package com.rafaelfelipeac.hermes.core.useraction
+package com.rafaelfelipeac.hermes.core.useraction.metadata
 
 object UserActionMetadataKeys {
     const val WEEK_START_DATE = "week_start_date"
