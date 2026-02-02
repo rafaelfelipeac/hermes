@@ -15,6 +15,7 @@ object Dimens {
     val SpacingLg = 12.dp
     val SpacingXl = 16.dp
     val SpacingXxl = 20.dp
+    val ActivityEmptyPadding = 24.dp
 
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp

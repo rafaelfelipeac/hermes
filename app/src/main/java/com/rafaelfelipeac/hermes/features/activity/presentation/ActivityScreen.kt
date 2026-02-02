@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
@@ -50,11 +49,25 @@ fun ActivityScreen(
 
     val state by viewModel.state.collectAsState()
 
-    ActivityContent(
-        modifier = modifier,
-        sections = state.sections,
-        currentLocale = currentLocale,
-    )
+    Column(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(Dimens.SpacingXl),
+        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
+    ) {
+        Text(
+            text = stringResource(R.string.activity_title),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+
+        ActivityContent(
+            sections = state.sections,
+            currentLocale = currentLocale,
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
 }
 
 @Composable
@@ -65,7 +78,10 @@ internal fun ActivityContent(
 ) {
     if (sections.isEmpty()) {
         Column(
-            modifier = modifier.fillMaxSize().padding(24.dp),
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(Dimens.ActivityEmptyPadding),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -90,17 +106,9 @@ internal fun ActivityContent(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        contentPadding = PaddingValues(vertical = Dimens.SpacingMd),
+        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
     ) {
-        item {
-            Text(
-                text = stringResource(R.string.activity_title),
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
         sections.forEach { section ->
             val header = sectionTitle(section.date, today, dayFormatter, todayLabel, yesterdayLabel)
 
