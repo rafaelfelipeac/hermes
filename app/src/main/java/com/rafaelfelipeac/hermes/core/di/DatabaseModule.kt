@@ -25,7 +25,6 @@ object DatabaseModule {
             HermesDatabase::class.java,
             DATABASE_NAME,
         )
-            .addMigrations(HermesDatabase.MIGRATION_1_2)
             .build()
     }
 
