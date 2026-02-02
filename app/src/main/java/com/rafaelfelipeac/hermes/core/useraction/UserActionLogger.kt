@@ -9,7 +9,6 @@ data class UserAction(
 )
 
 interface UserActionLogger {
-
     suspend fun log(action: UserAction)
 
     suspend fun log(

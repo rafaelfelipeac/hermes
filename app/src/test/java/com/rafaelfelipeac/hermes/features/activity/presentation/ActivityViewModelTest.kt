@@ -4,7 +4,8 @@ import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
-import com.rafaelfelipeac.hermes.core.useraction.UserActionEntityType.*
+import com.rafaelfelipeac.hermes.core.useraction.UserActionEntityType.SETTINGS
+import com.rafaelfelipeac.hermes.core.useraction.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataKeys.NEW_VALUE
@@ -15,7 +16,9 @@ import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.UserActionMetadataValues
 import com.rafaelfelipeac.hermes.core.useraction.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.UserActionRepository
-import com.rafaelfelipeac.hermes.core.useraction.UserActionType.*
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.CHANGE_LANGUAGE
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -199,7 +202,8 @@ class ActivityViewModelTest {
                 R.string.activity_action_create_rest_day to "You created a rest day.",
                 R.string.activity_action_update_rest_day to "You updated a rest day.",
                 R.string.activity_action_delete_rest_day to "You deleted a rest day.",
-                R.string.activity_action_convert_workout_to_rest_day to "You converted the workout %1\$s to a rest day.",
+                R.string.activity_action_convert_workout_to_rest_day to
+                    "You converted the workout %1\$s to a rest day.",
                 R.string.activity_action_convert_rest_day_to_workout to "You converted a rest day to a workout.",
                 R.string.activity_action_change_language to "You changed the language.",
                 R.string.activity_action_change_theme to "You changed the theme.",
@@ -236,7 +240,10 @@ class ActivityViewModelTest {
                 R.string.day_sunday to "Sunday",
             )
 
-        override fun get(id: Int, vararg args: Any): String {
+        override fun get(
+            id: Int,
+            vararg args: Any,
+        ): String {
             val template = values[id] ?: "missing:$id"
             return String.format(ENGLISH, template, *args)
         }

@@ -17,8 +17,8 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntit
 )
 @TypeConverters(LocalDateConverters::class)
 abstract class HermesDatabase : RoomDatabase() {
-
     abstract fun workoutDao(): WorkoutDao
+
     abstract fun userActionDao(): UserActionDao
 
     companion object {

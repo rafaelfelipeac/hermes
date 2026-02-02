@@ -6,7 +6,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 interface StringProvider {
-    fun get(id: Int, vararg args: Any): String
+    fun get(
+        id: Int,
+        vararg args: Any,
+    ): String
 }
 
 @Singleton
@@ -15,7 +18,10 @@ class AndroidStringProvider
     constructor(
         @param:ApplicationContext private val context: Context,
     ) : StringProvider {
-        override fun get(id: Int, vararg args: Any): String {
+        override fun get(
+            id: Int,
+            vararg args: Any,
+        ): String {
             return context.getString(id, *args)
         }
     }
