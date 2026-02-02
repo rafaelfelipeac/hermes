@@ -56,7 +56,7 @@ fun ActivityScreen(
 }
 
 @Composable
-private fun ActivityContent(
+internal fun ActivityContent(
     sections: List<ActivitySectionUi>,
     modifier: Modifier = Modifier,
 ) {
