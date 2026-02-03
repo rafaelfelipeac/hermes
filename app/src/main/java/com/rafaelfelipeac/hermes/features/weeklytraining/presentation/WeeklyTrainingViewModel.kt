@@ -272,8 +272,16 @@ class WeeklyTrainingViewModel
 
         fun deleteWorkout(workoutId: Long) =
             viewModelScope.launch {
-                val original = state.value.workouts.firstOrNull { it.id == workoutId }
+                val currentWorkouts = state.value.workouts
+                val original = currentWorkouts.firstOrNull { it.id == workoutId }
                 repository.deleteWorkout(workoutId)
+                if (original != null) {
+                    normalizeOrdersAfterDelete(
+                        deletedWorkoutId = workoutId,
+                        dayOfWeek = original.dayOfWeek,
+                        currentWorkouts = currentWorkouts,
+                    )
+                }
                 val entityType =
                     if (original?.isRestDay == true) REST_DAY else WORKOUT
                 val actionType =
@@ -291,6 +299,27 @@ class WeeklyTrainingViewModel
                         ),
                 )
             }
+
+        private suspend fun normalizeOrdersAfterDelete(
+            deletedWorkoutId: Long,
+            dayOfWeek: DayOfWeek?,
+            currentWorkouts: List<WorkoutUi>,
+        ) {
+            val remaining =
+                currentWorkouts
+                    .filter { it.id != deletedWorkoutId && it.dayOfWeek == dayOfWeek }
+                    .sortedBy { it.order }
+
+            remaining.forEachIndexed { index, workout ->
+                if (workout.order != index) {
+                    repository.updateWorkoutDayAndOrder(
+                        workoutId = workout.id,
+                        dayOfWeek = dayOfWeek,
+                        order = index,
+                    )
+                }
+            }
+        }
 
         private fun getNextOrder(): Pair<WeeklyTrainingState, Int> {
             val currentState = state.value

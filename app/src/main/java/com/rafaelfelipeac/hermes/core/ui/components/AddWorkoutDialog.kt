@@ -32,8 +32,8 @@ fun AddWorkoutDialog(
     initialType: String = EMPTY,
     initialDescription: String = EMPTY,
 ) {
-    var type by rememberSaveable { mutableStateOf(initialType) }
-    var description by rememberSaveable { mutableStateOf(initialDescription) }
+    var type by rememberSaveable(initialType) { mutableStateOf(initialType) }
+    var description by rememberSaveable(initialDescription) { mutableStateOf(initialDescription) }
 
     AlertDialog(
         onDismissRequest = onDismiss,

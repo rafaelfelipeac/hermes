@@ -145,6 +145,8 @@ fun WeeklyTrainingContent(
         if (hasNewUnscheduled && sections.firstOrNull() == ToBeDefined) {
             listState.animateScrollToItem(FIRST_LIST_INDEX)
         }
+
+        previousUnscheduledIds = currentUnscheduledIds
     }
 
     LaunchedEffect(draggedWorkoutId) {

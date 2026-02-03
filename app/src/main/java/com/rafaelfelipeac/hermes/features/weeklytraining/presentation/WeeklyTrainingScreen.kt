@@ -3,7 +3,6 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,10 +45,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerDark
-import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerLight
-import com.rafaelfelipeac.hermes.core.ui.theme.FabContentDark
-import com.rafaelfelipeac.hermes.core.ui.theme.FabContentLight
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val ADD_MENU_SCRIM_ALPHA = 0.30f
@@ -64,11 +59,10 @@ fun WeeklyTrainingScreen(
 
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
     var isAddMenuVisible by rememberSaveable { mutableStateOf(false) }
-    var editingWorkout by rememberSaveable { mutableStateOf<WorkoutUi?>(null) }
-    var deletingWorkout by rememberSaveable { mutableStateOf<WorkoutUi?>(null) }
-    val isDarkTheme = isSystemInDarkTheme()
-    val fabContainerColor = if (isDarkTheme) FabContainerDark else FabContainerLight
-    val fabContentColor = if (isDarkTheme) FabContentDark else FabContentLight
+    var editingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
+    var deletingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
+    val fabContainerColor = colorScheme.primaryContainer
+    val fabContentColor = colorScheme.onPrimaryContainer
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(

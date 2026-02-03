@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.activity.presentation.formatter
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
@@ -28,16 +29,7 @@ class ActivityUiFormatter(
     private val stringProvider: StringProvider,
 ) {
     fun parseMetadata(raw: String?): Map<String, String> {
-        if (raw.isNullOrBlank()) return emptyMap()
-
-        val regex = "\"(.*?)\":\"(.*?)\"".toRegex()
-
-        return regex.findAll(raw).associate { match ->
-            val key = unescape(match.groupValues[1])
-            val value = unescape(match.groupValues[2])
-
-            key to value
-        }
+        return UserActionMetadataSerializer.fromJson(raw)
     }
 
     fun formatTime(
@@ -346,12 +338,6 @@ class ActivityUiFormatter(
                 stringProvider.get(R.string.activity_action_convert_rest_day_to_workout)
             else -> null
         }
-    }
-
-    private fun unescape(value: String): String {
-        return value
-            .replace("\\\\", "\\")
-            .replace("\\\"", "\"")
     }
 
     private companion object {
