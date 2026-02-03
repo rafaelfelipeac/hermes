@@ -12,7 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,7 +60,7 @@ internal fun SectionHeader(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -67,7 +68,7 @@ internal fun SectionHeader(
         if (showHelp) {
             Surface(
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceVariant,
+                color = colorScheme.surfaceVariant,
                 tonalElevation = ElevationSm,
                 shadowElevation = ElevationSm,
                 modifier = Modifier.size(HelpIconSize),
@@ -93,7 +94,7 @@ internal fun SectionHeader(
 internal fun EmptySectionRow() {
     Text(
         text = stringResource(R.string.no_workouts),
-        style = MaterialTheme.typography.bodySmall,
+        style = typography.bodySmall,
         modifier =
             Modifier.padding(
                 horizontal = SpacingLg,

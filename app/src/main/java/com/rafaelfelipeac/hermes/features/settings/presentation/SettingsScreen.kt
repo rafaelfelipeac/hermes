@@ -13,7 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -85,7 +86,7 @@ internal fun SettingsContent(
     ) {
         Text(
             text = stringResource(R.string.settings_title),
-            style = MaterialTheme.typography.titleLarge,
+            style = typography.titleLarge,
         )
 
         SettingsSection(title = stringResource(R.string.settings_theme_title)) {
@@ -176,7 +177,7 @@ internal fun SettingsContent(
 
         Text(
             text = stringResource(R.string.settings_app_version, appVersion),
-            style = MaterialTheme.typography.bodySmall,
+            style = typography.bodySmall,
             textAlign = TextAlign.Center,
             modifier =
                 Modifier
@@ -194,12 +195,12 @@ private fun SettingsSection(
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = typography.titleMedium,
         )
 
         Surface(
             tonalElevation = ElevationSm,
-            shape = MaterialTheme.shapes.medium,
+            shape = shapes.medium,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
@@ -238,7 +239,7 @@ private fun SettingsOptionRow(
 
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyLarge,
+            style = typography.bodyLarge,
         )
     }
 }

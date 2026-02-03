@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,8 +64,8 @@ fun ActivityScreen(
     ) {
         Text(
             text = stringResource(R.string.activity_title),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
+            style = typography.titleLarge,
+            color = colorScheme.onSurface,
         )
 
         ActivityContent(
@@ -91,8 +93,8 @@ internal fun ActivityContent(
         ) {
             Text(
                 text = stringResource(R.string.activity_empty),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = typography.bodyLarge,
+                color = colorScheme.onSurfaceVariant,
             )
         }
 
@@ -116,11 +118,11 @@ internal fun ActivityContent(
         sections.forEach { section ->
             val header = sectionTitle(section.date, today, dayFormatter, todayLabel, yesterdayLabel)
 
-            item(key = "header-${section.date}") {
+            item(key = HEADER_KEY_PREFIX + section.date) {
                 Text(
                     text = header,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = typography.titleMedium,
+                    color = colorScheme.onSurfaceVariant,
                 )
             }
 
@@ -135,7 +137,7 @@ internal fun ActivityContent(
 private fun ActivityRow(item: ActivityItemUi) {
     Surface(
         tonalElevation = ElevationSm,
-        shape = MaterialTheme.shapes.medium,
+        shape = shapes.medium,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
@@ -148,9 +150,9 @@ private fun ActivityRow(item: ActivityItemUi) {
             Row {
                 Text(
                     text = item.title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    maxLines = 4,
+                    style = typography.bodyLarge,
+                    color = colorScheme.onSurface,
+                    maxLines = TITLE_MAX_LINES,
                     overflow = TextOverflow.Clip,
                     modifier = Modifier.weight(1f),
                 )
@@ -159,8 +161,8 @@ private fun ActivityRow(item: ActivityItemUi) {
 
                 Text(
                     text = item.time,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = typography.labelMedium,
+                    color = colorScheme.onSurfaceVariant,
                 )
             }
             item.subtitle?.let { subtitle ->
@@ -168,9 +170,9 @@ private fun ActivityRow(item: ActivityItemUi) {
 
                 Text(
                     text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 6,
+                    style = typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant,
+                    maxLines = SUBTITLE_MAX_LINES,
                     overflow = TextOverflow.Clip,
                 )
             }
@@ -191,3 +193,7 @@ private fun sectionTitle(
         else -> date.format(formatter)
     }
 }
+
+private const val HEADER_KEY_PREFIX = "header-"
+private const val TITLE_MAX_LINES = 4
+private const val SUBTITLE_MAX_LINES = 6

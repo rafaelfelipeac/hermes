@@ -22,7 +22,9 @@ import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -96,14 +98,14 @@ internal fun WorkoutRow(
                     onItemPositioned(it.boundsInRoot())
                 }
             }
-            .clip(MaterialTheme.shapes.medium)
+            .clip(shapes.medium)
             .background(if (isDragging) Color.Transparent else colors.background)
             .then(
                 if (!isDragging && !workout.isRestDay) {
                     Modifier.border(
                         width = BorderThin,
                         color = colors.background.copy(alpha = WORKOUT_BORDER_ALPHA),
-                        shape = MaterialTheme.shapes.medium,
+                        shape = shapes.medium,
                     )
                 } else {
                     Modifier
@@ -199,7 +201,7 @@ internal fun WorkoutRow(
 
                             Text(
                                 text = stringResource(R.string.rest_day_label),
-                                style = MaterialTheme.typography.titleSmall,
+                                style = typography.titleSmall,
                                 color = colors.content,
                             )
                         }
@@ -216,7 +218,7 @@ internal fun WorkoutRow(
 
                         Text(
                             text = workout.description,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = typography.bodySmall,
                             color = colors.content,
                         )
                     }
@@ -247,11 +249,11 @@ private fun TypeChip(
     Surface(
         color = containerColor,
         contentColor = contentColor,
-        shape = MaterialTheme.shapes.small,
+        shape = shapes.small,
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
+            style = typography.labelSmall,
             modifier =
                 Modifier.padding(
                     horizontal = SpacingMd,
@@ -272,7 +274,7 @@ internal fun GhostWorkoutRow(
     Surface(
         color = colors.background,
         contentColor = colors.content,
-        shape = MaterialTheme.shapes.medium,
+        shape = shapes.medium,
         modifier =
             modifier
                 .fillMaxWidth()
@@ -281,7 +283,7 @@ internal fun GhostWorkoutRow(
                         Modifier.border(
                             width = BorderThin,
                             color = colors.background.copy(alpha = WORKOUT_BORDER_ALPHA),
-                            shape = MaterialTheme.shapes.medium,
+                            shape = shapes.medium,
                         )
                     } else {
                         Modifier
@@ -312,7 +314,7 @@ internal fun GhostWorkoutRow(
 
                             Text(
                                 text = stringResource(R.string.rest_day_label),
-                                style = MaterialTheme.typography.titleSmall,
+                                style = typography.titleSmall,
                                 color = colors.content,
                             )
                         }
@@ -327,7 +329,7 @@ internal fun GhostWorkoutRow(
                     if (hasDescription) {
                         Text(
                             text = workout.description,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = typography.bodySmall,
                             color = colors.content,
                         )
                     }
@@ -347,7 +349,7 @@ private fun workoutRowColors(
     workout: WorkoutUi,
     isDragging: Boolean,
 ): RowColors {
-    val colorScheme = MaterialTheme.colorScheme
+    val themeColorScheme = colorScheme
     val todoColor = CompletedBlue
     val todoContent = CompletedBlueContent
     val completedColor = TodoBlue
@@ -359,7 +361,7 @@ private fun workoutRowColors(
 
     val background =
         when {
-            isDragging -> colorScheme.surfaceVariant
+            isDragging -> themeColorScheme.surfaceVariant
             workout.isCompleted -> completedColor
             workout.isRestDay -> restDayBackground
             isUnscheduled -> todoColor

@@ -5,6 +5,11 @@ Project-level conventions for Codex and similar agents.
 ## Kotlin/Compose style
 - Avoid star imports from `Dimens`; import only the items in use (e.g., `import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd`).
 - Do not use `Dimens.*` directly in code; reference imported names.
+- Prefer explicit imports for `MaterialTheme` properties:
+  - `import androidx.compose.material3.MaterialTheme.colorScheme`
+  - `import androidx.compose.material3.MaterialTheme.typography`
+  - `import androidx.compose.material3.MaterialTheme.shapes`
+  Then reference `colorScheme`, `typography`, and `shapes` directly (no `MaterialTheme.`).
 
 ## Architecture & data flow
 - Follow UI → ViewModel → Repository boundaries; UI should not access Room or DataStore directly.

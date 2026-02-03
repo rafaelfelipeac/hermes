@@ -18,7 +18,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -77,7 +79,7 @@ fun WeeklyTrainingScreen(
         ) {
             Text(
                 text = stringResource(R.string.nav_weekly_training),
-                style = MaterialTheme.typography.titleLarge,
+                style = typography.titleLarge,
             )
 
             Spacer(modifier = Modifier.height(SpacingLg))
@@ -107,7 +109,7 @@ fun WeeklyTrainingScreen(
                     Modifier
                         .fillMaxSize()
                         .background(
-                            MaterialTheme.colorScheme.scrim.copy(
+                            colorScheme.scrim.copy(
                                 alpha = ADD_MENU_SCRIM_ALPHA,
                             ),
                         )
@@ -246,7 +248,7 @@ private fun AddActionPill(
 ) {
     Surface(
         onClick = onClick,
-        shape = MaterialTheme.shapes.extraLarge,
+        shape = shapes.extraLarge,
         tonalElevation = ElevationMd,
         shadowElevation = ElevationMd,
         modifier = Modifier.defaultMinSize(minWidth = AddActionPillMinWidth),
@@ -259,7 +261,7 @@ private fun AddActionPill(
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = label, style = MaterialTheme.typography.titleSmall)
+            Text(text = label, style = typography.titleSmall)
         }
     }
 }

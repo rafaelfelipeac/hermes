@@ -18,21 +18,3 @@ object UserActionMetadataKeys {
     const val WAS_COMPLETED = "was_completed"
     const val IS_COMPLETED = "is_completed"
 }
-
-object UserActionMetadataValues {
-    const val UNPLANNED = "unplanned"
-}
-
-object UserActionMetadataSerializer {
-    fun toJson(metadata: Map<String, String>): String {
-        return metadata.entries.joinToString(prefix = "{", postfix = "}") { (key, value) ->
-            "\"${escape(key)}\":\"${escape(value)}\""
-        }
-    }
-
-    private fun escape(value: String): String {
-        return value
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-    }
-}

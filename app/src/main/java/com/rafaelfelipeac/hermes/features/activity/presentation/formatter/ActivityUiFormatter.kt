@@ -34,6 +34,7 @@ class ActivityUiFormatter(
         return regex.findAll(raw).associate { match ->
             val key = unescape(match.groupValues[1])
             val value = unescape(match.groupValues[2])
+
             key to value
         }
     }
@@ -215,10 +216,11 @@ class ActivityUiFormatter(
     private fun dayLabel(raw: String?): String? {
         val cleaned = raw?.takeIf { it.isNotBlank() }
 
-        return when {
-            cleaned == null -> null
-            cleaned == UserActionMetadataValues.UNPLANNED ->
+        return when (cleaned) {
+            null -> null
+            UserActionMetadataValues.UNPLANNED ->
                 stringProvider.get(R.string.activity_day_unplanned)
+
             else -> {
                 val dayNumber = cleaned.toIntOrNull()
                 if (dayNumber == null) {
@@ -262,13 +264,13 @@ class ActivityUiFormatter(
         fallback: String,
     ): String {
         return when (dayNumber) {
-            1 -> stringProvider.get(R.string.day_monday)
-            2 -> stringProvider.get(R.string.day_tuesday)
-            3 -> stringProvider.get(R.string.day_wednesday)
-            4 -> stringProvider.get(R.string.day_thursday)
-            5 -> stringProvider.get(R.string.day_friday)
-            6 -> stringProvider.get(R.string.day_saturday)
-            7 -> stringProvider.get(R.string.day_sunday)
+            DAY_NUMBER_MONDAY -> stringProvider.get(R.string.day_monday)
+            DAY_NUMBER_TUESDAY -> stringProvider.get(R.string.day_tuesday)
+            DAY_NUMBER_WEDNESDAY -> stringProvider.get(R.string.day_wednesday)
+            DAY_NUMBER_THURSDAY -> stringProvider.get(R.string.day_thursday)
+            DAY_NUMBER_FRIDAY -> stringProvider.get(R.string.day_friday)
+            DAY_NUMBER_SATURDAY -> stringProvider.get(R.string.day_saturday)
+            DAY_NUMBER_SUNDAY -> stringProvider.get(R.string.day_sunday)
             else -> fallback
         }
     }
@@ -349,5 +351,15 @@ class ActivityUiFormatter(
         return value
             .replace("\\\\", "\\")
             .replace("\\\"", "\"")
+    }
+
+    private companion object {
+        const val DAY_NUMBER_MONDAY = 1
+        const val DAY_NUMBER_TUESDAY = 2
+        const val DAY_NUMBER_WEDNESDAY = 3
+        const val DAY_NUMBER_THURSDAY = 4
+        const val DAY_NUMBER_FRIDAY = 5
+        const val DAY_NUMBER_SATURDAY = 6
+        const val DAY_NUMBER_SUNDAY = 7
     }
 }
