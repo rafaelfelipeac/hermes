@@ -38,7 +38,12 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerDark
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerLight
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContentDark

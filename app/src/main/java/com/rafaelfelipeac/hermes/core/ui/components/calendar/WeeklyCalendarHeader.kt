@@ -43,7 +43,9 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.Workou
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.IndicatorSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue

@@ -3,7 +3,8 @@
 Project-level conventions for Codex and similar agents.
 
 ## Kotlin/Compose style
-- Prefer `import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*` and use unqualified dimension names (e.g., `SpacingMd`) instead of `Dimens.SpacingMd`.
+- Avoid star imports from `Dimens`; import only the items in use (e.g., `import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd`).
+- Do not use `Dimens.*` directly in code; reference imported names.
 
 ## Architecture & data flow
 - Follow UI → ViewModel → Repository boundaries; UI should not access Room or DataStore directly.
