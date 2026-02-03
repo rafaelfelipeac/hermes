@@ -65,8 +65,21 @@ jobs:
       - name: Rename release artifacts
         run: |
           VERSION=${{ github.ref_name }}
-          mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/hermes-$VERSION.apk
-          mv app/build/outputs/bundle/release/app-release.aab app/build/outputs/bundle/release/hermes-$VERSION.aab
+          APK_PATH=$(ls app/build/outputs/apk/release/*.apk 2>/dev/null | grep -v "unaligned" | head -n 1)
+          if [[ -z "$APK_PATH" ]]; then
+            echo "No APK found in app/build/outputs/apk/release"
+            ls -la app/build/outputs/apk/release || true
+            exit 1
+          fi
+          mv "$APK_PATH" "app/build/outputs/apk/release/hermes-$VERSION.apk"
+
+          AAB_PATH=$(ls app/build/outputs/bundle/release/*.aab 2>/dev/null | head -n 1)
+          if [[ -z "$AAB_PATH" ]]; then
+            echo "No AAB found in app/build/outputs/bundle/release"
+            ls -la app/build/outputs/bundle/release || true
+            exit 1
+          fi
+          mv "$AAB_PATH" "app/build/outputs/bundle/release/hermes-$VERSION.aab"
 
       - name: Extract changelog section for current version
         run: |
