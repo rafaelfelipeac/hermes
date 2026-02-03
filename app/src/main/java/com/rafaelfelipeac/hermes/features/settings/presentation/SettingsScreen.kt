@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ARABIC
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
@@ -74,8 +74,8 @@ internal fun SettingsContent(
             modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(Dimens.SpacingXl),
-        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingXxl),
+                .padding(SpacingXl),
+        verticalArrangement = Arrangement.spacedBy(SpacingXxl),
     ) {
         Text(
             text = stringResource(R.string.settings_title),
@@ -164,7 +164,7 @@ internal fun SettingsContent(
             )
         }
 
-        Spacer(modifier = Modifier.height(Dimens.SpacingLg))
+        Spacer(modifier = Modifier.height(SpacingLg))
 
         HorizontalDivider()
 
@@ -175,7 +175,7 @@ internal fun SettingsContent(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(top = Dimens.SpacingXs, bottom = Dimens.SpacingXs),
+                    .padding(top = SpacingXs, bottom = SpacingXs),
         )
     }
 }
@@ -185,22 +185,22 @@ private fun SettingsSection(
     title: String,
     content: @Composable () -> Unit,
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(Dimens.SpacingMd)) {
+    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium,
         )
 
         Surface(
-            tonalElevation = Dimens.ElevationSm,
+            tonalElevation = ElevationSm,
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
                 modifier =
                     Modifier.padding(
-                        horizontal = Dimens.SpacingLg,
-                        vertical = Dimens.SpacingMd,
+                        horizontal = SpacingLg,
+                        vertical = SpacingMd,
                     ),
             ) {
                 content()
@@ -220,7 +220,7 @@ private fun SettingsOptionRow(
             Modifier
                 .fillMaxWidth()
                 .clickable(onClick = onClick)
-                .padding(vertical = Dimens.SpacingXxs),
+                .padding(vertical = SpacingXxs),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RadioButton(
@@ -228,7 +228,7 @@ private fun SettingsOptionRow(
             onClick = onClick,
         )
 
-        Spacer(modifier = Modifier.width(Dimens.SpacingLg))
+        Spacer(modifier = Modifier.width(SpacingLg))
 
         Text(
             text = label,

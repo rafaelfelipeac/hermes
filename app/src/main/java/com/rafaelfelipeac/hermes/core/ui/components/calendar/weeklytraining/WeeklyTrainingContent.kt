@@ -39,10 +39,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.Day
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.ToBeDefined
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewProvider
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutId
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import kotlinx.coroutines.delay
@@ -87,13 +88,13 @@ fun WeeklyTrainingContent(
                     add(ToBeDefined)
                 }
 
-                add(SectionKey.Day(MONDAY))
-                add(SectionKey.Day(TUESDAY))
-                add(SectionKey.Day(WEDNESDAY))
-                add(SectionKey.Day(THURSDAY))
-                add(SectionKey.Day(FRIDAY))
-                add(SectionKey.Day(SATURDAY))
-                add(SectionKey.Day(SUNDAY))
+                add(Day(MONDAY))
+                add(Day(TUESDAY))
+                add(Day(WEDNESDAY))
+                add(Day(THURSDAY))
+                add(Day(FRIDAY))
+                add(Day(SATURDAY))
+                add(Day(SUNDAY))
             }
         }
 
@@ -104,7 +105,7 @@ fun WeeklyTrainingContent(
     var draggedItemHeight by remember { mutableFloatStateOf(0f) }
     var containerBounds by remember { mutableStateOf(Zero) }
     val listState = rememberLazyListState()
-    val swipeThreshold = with(LocalDensity.current) { Dimens.SwipeThreshold.toPx() }
+    val swipeThreshold = with(LocalDensity.current) { SwipeThreshold.toPx() }
     var dragAmount by remember { mutableFloatStateOf(0f) }
     val workoutsBySection =
         remember(workouts) {
@@ -120,7 +121,7 @@ fun WeeklyTrainingContent(
 
     LaunchedEffect(selectedDate, sections) {
         if (draggedWorkoutId == null) {
-            val targetSection = SectionKey.Day(selectedDate.dayOfWeek)
+            val targetSection = Day(selectedDate.dayOfWeek)
             val targetIndex = sections.indexOf(targetSection)
 
             if (targetIndex != NO_INDEX) {
@@ -255,8 +256,8 @@ fun WeeklyTrainingContent(
         LazyColumn(
             state = listState,
             userScrollEnabled = draggedWorkoutId == null,
-            verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
-            contentPadding = PaddingValues(bottom = Dimens.WeeklyCalendarBottomPadding),
+            verticalArrangement = Arrangement.spacedBy(SpacingLg),
+            contentPadding = PaddingValues(bottom = WeeklyCalendarBottomPadding),
         ) {
             sections.forEach { section ->
                 item(key = "$SECTION_ITEM_KEY_PREFIX${section.key}") {
@@ -282,7 +283,7 @@ fun WeeklyTrainingContent(
                         } else {
                             items.forEachIndexed { index, workout ->
                                 if (index > FIRST_LIST_INDEX) {
-                                    Spacer(modifier = Modifier.height(Dimens.SpacingMd))
+                                    Spacer(modifier = Modifier.height(SpacingMd))
                                 }
 
                                 WorkoutRow(
@@ -307,7 +308,7 @@ fun WeeklyTrainingContent(
 
                 item(key = "$DIVIDER_ITEM_KEY_PREFIX${section.key}") {
                     HorizontalDivider(
-                        modifier = Modifier.padding(top = Dimens.SpacingMd),
+                        modifier = Modifier.padding(top = SpacingMd),
                         color = MaterialTheme.colorScheme.outlineVariant,
                     )
                 }

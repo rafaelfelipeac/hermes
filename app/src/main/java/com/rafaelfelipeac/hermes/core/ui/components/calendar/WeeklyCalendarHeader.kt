@@ -43,7 +43,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.Workou
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
@@ -72,7 +72,7 @@ fun WeeklyCalendarHeader(
     onWeekChanged: (LocalDate) -> Unit,
 ) {
     val weekEndDate = weekStartDate.plusDays((WEEK_DAY_COUNT - 1).toLong())
-    val swipeThreshold = with(LocalDensity.current) { Dimens.SwipeThreshold.toPx() }
+    val swipeThreshold = with(LocalDensity.current) { SwipeThreshold.toPx() }
     var dragAmount by remember { mutableFloatStateOf(0f) }
 
     Column(
@@ -126,7 +126,7 @@ fun WeeklyCalendarHeader(
             }
         }
 
-        Spacer(modifier = Modifier.width(Dimens.SpacingMd))
+        Spacer(modifier = Modifier.width(SpacingMd))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -143,7 +143,7 @@ fun WeeklyCalendarHeader(
                             .weight(1f)
                             .testTag("$HEADER_DAY_TAG_PREFIX$date")
                             .clickable { onDateSelected(date) }
-                            .padding(vertical = Dimens.SpacingMd),
+                            .padding(vertical = SpacingMd),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     DefaultDayContent(
@@ -176,14 +176,14 @@ private fun DefaultDayContent(
     )
 
     if (!hasWorkout) {
-        Spacer(modifier = Modifier.size(Dimens.IndicatorSize))
+        Spacer(modifier = Modifier.size(IndicatorSize))
     }
 }
 
 @Composable
 private fun IndicatorDot(indicator: DayIndicator?) {
     if (indicator == null) {
-        Spacer(modifier = Modifier.size(Dimens.IndicatorSize))
+        Spacer(modifier = Modifier.size(IndicatorSize))
         return
     }
 
@@ -200,7 +200,7 @@ private fun IndicatorDot(indicator: DayIndicator?) {
     Box(
         modifier =
             Modifier
-                .size(Dimens.IndicatorSize)
+                .size(IndicatorSize)
                 .clip(CircleShape)
                 .background(color),
     )

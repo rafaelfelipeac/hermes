@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivitySectionUi
 import java.time.LocalDate
@@ -53,8 +53,8 @@ fun ActivityScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(Dimens.SpacingXl),
-        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
+                .padding(SpacingXl),
+        verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         Text(
             text = stringResource(R.string.activity_title),
@@ -81,7 +81,7 @@ internal fun ActivityContent(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .padding(Dimens.ActivityEmptyPadding),
+                    .padding(ActivityEmptyPadding),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -106,8 +106,8 @@ internal fun ActivityContent(
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = Dimens.SpacingMd),
-        verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
+        contentPadding = PaddingValues(vertical = SpacingMd),
+        verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         sections.forEach { section ->
             val header = sectionTitle(section.date, today, dayFormatter, todayLabel, yesterdayLabel)
@@ -130,15 +130,15 @@ internal fun ActivityContent(
 @Composable
 private fun ActivityRow(item: ActivityItemUi) {
     Surface(
-        tonalElevation = Dimens.ElevationSm,
+        tonalElevation = ElevationSm,
         shape = MaterialTheme.shapes.medium,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
             modifier =
                 Modifier.padding(
-                    horizontal = Dimens.SpacingXl,
-                    vertical = Dimens.SpacingLg,
+                    horizontal = SpacingXl,
+                    vertical = SpacingLg,
                 ),
         ) {
             Row {
@@ -151,7 +151,7 @@ private fun ActivityRow(item: ActivityItemUi) {
                     modifier = Modifier.weight(1f),
                 )
 
-                Spacer(modifier = Modifier.width(Dimens.SpacingLg))
+                Spacer(modifier = Modifier.width(SpacingLg))
 
                 Text(
                     text = item.time,
@@ -160,7 +160,7 @@ private fun ActivityRow(item: ActivityItemUi) {
                 )
             }
             item.subtitle?.let { subtitle ->
-                Divider(modifier = Modifier.padding(vertical = Dimens.SpacingMd))
+                Divider(modifier = Modifier.padding(vertical = SpacingMd))
 
                 Text(
                     text = subtitle,

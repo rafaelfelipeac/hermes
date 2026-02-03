@@ -1,10 +1,10 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     dependencies {
-        classpath("com.squareup:javapoet:1.13.0")
+        classpath(libs.javapoet)
     }
     configurations.classpath {
-        resolutionStrategy.force("com.squareup:javapoet:1.13.0")
+        resolutionStrategy.force(libs.javapoet.get().toString())
     }
 }
 

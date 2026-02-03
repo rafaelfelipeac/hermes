@@ -45,7 +45,7 @@ import androidx.compose.ui.res.stringResource
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDayContentDark
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDayContentLight
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
@@ -89,7 +89,7 @@ internal fun WorkoutRow(
             .then(
                 if (!isDragging && !workout.isRestDay) {
                     Modifier.border(
-                        width = Dimens.BorderThin,
+                        width = BorderThin,
                         color = colors.background.copy(alpha = WORKOUT_BORDER_ALPHA),
                         shape = MaterialTheme.shapes.medium,
                     )
@@ -100,12 +100,12 @@ internal fun WorkoutRow(
             .then(
                 if (isDragging) {
                     Modifier
-                        .height(Dimens.Zero)
-                        .padding(Dimens.Zero)
+                        .height(Zero)
+                        .padding(Zero)
                         .alpha(WORKOUT_ROW_DRAGGING_ALPHA)
                 } else {
                     Modifier
-                        .padding(Dimens.ContentPadding)
+                        .padding(ContentPadding)
                         .alpha(WORKOUT_ROW_CONTENT_ALPHA)
                 },
             )
@@ -115,7 +115,7 @@ internal fun WorkoutRow(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(end = Dimens.SpacingXl)
+                    .padding(end = SpacingXl)
                     .pointerInput(Unit) {
                         detectDragGesturesAfterLongPress(
                             onDragStart = { offset ->
@@ -133,8 +133,8 @@ internal fun WorkoutRow(
                 Box(
                     modifier =
                         Modifier
-                            .size(Dimens.CheckboxBoxSize)
-                            .offset(y = Dimens.CheckboxYOffset),
+                            .size(CheckboxBoxSize)
+                            .offset(y = CheckboxYOffset),
                     contentAlignment = Alignment.Center,
                 ) {
                     if (workout.isCompleted) {
@@ -143,14 +143,14 @@ internal fun WorkoutRow(
                             modifier =
                                 Modifier
                                     .clickable { onToggleCompleted(false) }
-                                    .size(Dimens.CheckboxSize),
+                                    .size(CheckboxSize),
                             fontSize = TextSizes.CompletedEmojiFontSize,
                         )
                     } else {
                         Checkbox(
                             checked = false,
                             onCheckedChange = onToggleCompleted,
-                            modifier = Modifier.size(Dimens.CheckboxSize),
+                            modifier = Modifier.size(CheckboxSize),
                             colors =
                                 CheckboxDefaults.colors(
                                     checkedColor = colors.content,
@@ -163,7 +163,7 @@ internal fun WorkoutRow(
             }
 
             if (!workout.isRestDay) {
-                Spacer(modifier = Modifier.width(Dimens.SpacingLg))
+                Spacer(modifier = Modifier.width(SpacingLg))
             }
 
             Row(
@@ -180,10 +180,10 @@ internal fun WorkoutRow(
                                 imageVector = Icons.Outlined.Bedtime,
                                 contentDescription = null,
                                 tint = colors.content,
-                                modifier = Modifier.size(Dimens.SmallIconSize),
+                                modifier = Modifier.size(SmallIconSize),
                             )
 
-                            Spacer(modifier = Modifier.width(Dimens.SpacingSm))
+                            Spacer(modifier = Modifier.width(SpacingSm))
 
                             Text(
                                 text = stringResource(R.string.rest_day_label),
@@ -200,7 +200,7 @@ internal fun WorkoutRow(
                     }
 
                     if (hasDescription) {
-                        Spacer(modifier = Modifier.height(Dimens.SpacingXs))
+                        Spacer(modifier = Modifier.height(SpacingXs))
 
                         Text(
                             text = workout.description,
@@ -219,8 +219,8 @@ internal fun WorkoutRow(
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
-                    .offset(x = Dimens.SpacingXs, y = Dimens.Zero)
-                    .size(Dimens.CloseIconSize)
+                    .offset(x = SpacingXs, y = Zero)
+                    .size(CloseIconSize)
                     .clickable { onDelete() },
         )
     }
@@ -242,8 +242,8 @@ private fun TypeChip(
             style = MaterialTheme.typography.labelSmall,
             modifier =
                 Modifier.padding(
-                    horizontal = Dimens.SpacingMd,
-                    vertical = Dimens.SpacingXs,
+                    horizontal = SpacingMd,
+                    vertical = SpacingXs,
                 ),
         )
     }
@@ -267,7 +267,7 @@ internal fun GhostWorkoutRow(
                 .then(
                     if (!workout.isRestDay) {
                         Modifier.border(
-                            width = Dimens.BorderThin,
+                            width = BorderThin,
                             color = colors.background.copy(alpha = WORKOUT_BORDER_ALPHA),
                             shape = MaterialTheme.shapes.medium,
                         )
@@ -278,7 +278,7 @@ internal fun GhostWorkoutRow(
                 .alpha(GHOST_ROW_ALPHA),
     ) {
         Row(
-            modifier = Modifier.padding(Dimens.ContentPadding),
+            modifier = Modifier.padding(ContentPadding),
             verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -293,10 +293,10 @@ internal fun GhostWorkoutRow(
                                 imageVector = Icons.Outlined.Bedtime,
                                 contentDescription = null,
                                 tint = colors.content,
-                                modifier = Modifier.size(Dimens.SmallIconSize),
+                                modifier = Modifier.size(SmallIconSize),
                             )
 
-                            Spacer(modifier = Modifier.width(Dimens.SpacingSm))
+                            Spacer(modifier = Modifier.width(SpacingSm))
 
                             Text(
                                 text = stringResource(R.string.rest_day_label),

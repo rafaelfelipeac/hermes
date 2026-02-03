@@ -38,7 +38,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerDark
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContainerLight
 import com.rafaelfelipeac.hermes.core.ui.theme.FabContentDark
@@ -68,14 +68,14 @@ fun WeeklyTrainingScreen(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(Dimens.SpacingXl),
+                    .padding(SpacingXl),
         ) {
             Text(
                 text = stringResource(R.string.nav_weekly_training),
                 style = MaterialTheme.typography.titleLarge,
             )
 
-            Spacer(modifier = Modifier.height(Dimens.SpacingLg))
+            Spacer(modifier = Modifier.height(SpacingLg))
 
             WeeklyCalendarHeader(
                 selectedDate = state.selectedDate,
@@ -119,7 +119,7 @@ fun WeeklyTrainingScreen(
             modifier =
                 Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(Dimens.SpacingXl),
+                    .padding(SpacingXl),
         ) {
             FloatingActionButton(
                 onClick = { isAddMenuVisible = !isAddMenuVisible },
@@ -139,8 +139,8 @@ fun WeeklyTrainingScreen(
                 modifier =
                     Modifier
                         .align(Alignment.BottomEnd)
-                        .padding(end = Dimens.SpacingXl, bottom = Dimens.AddMenuBottomPadding),
-                verticalArrangement = Arrangement.spacedBy(Dimens.SpacingLg),
+                        .padding(end = SpacingXl, bottom = AddMenuBottomPadding),
+                verticalArrangement = Arrangement.spacedBy(SpacingLg),
                 horizontalAlignment = Alignment.End,
             ) {
                 AddActionPill(
@@ -242,15 +242,15 @@ private fun AddActionPill(
     Surface(
         onClick = onClick,
         shape = MaterialTheme.shapes.extraLarge,
-        tonalElevation = Dimens.ElevationMd,
-        shadowElevation = Dimens.ElevationMd,
-        modifier = Modifier.defaultMinSize(minWidth = Dimens.AddActionPillMinWidth),
+        tonalElevation = ElevationMd,
+        shadowElevation = ElevationMd,
+        modifier = Modifier.defaultMinSize(minWidth = AddActionPillMinWidth),
     ) {
         Row(
             modifier =
                 Modifier.padding(
-                    horizontal = Dimens.AddActionPillHorizontalPadding,
-                    vertical = Dimens.SpacingLg,
+                    horizontal = AddActionPillHorizontalPadding,
+                    vertical = SpacingLg,
                 ),
             verticalAlignment = Alignment.CenterVertically,
         ) {

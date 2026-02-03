@@ -22,7 +22,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*
 import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY
 import java.time.DayOfWeek.MONDAY
@@ -46,8 +46,8 @@ internal fun SectionHeader(
             Modifier
                 .fillMaxWidth()
                 .padding(
-                    horizontal = Dimens.SpacingXs,
-                    vertical = Dimens.SpacingMd,
+                    horizontal = SpacingXs,
+                    vertical = SpacingMd,
                 )
                 .testTag(tag),
         verticalAlignment = Alignment.CenterVertically,
@@ -64,9 +64,9 @@ internal fun SectionHeader(
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                tonalElevation = Dimens.ElevationSm,
-                shadowElevation = Dimens.ElevationSm,
-                modifier = Modifier.size(Dimens.HelpIconSize),
+                tonalElevation = ElevationSm,
+                shadowElevation = ElevationSm,
+                modifier = Modifier.size(HelpIconSize),
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
@@ -92,8 +92,8 @@ internal fun EmptySectionRow() {
         style = MaterialTheme.typography.bodySmall,
         modifier =
             Modifier.padding(
-                horizontal = Dimens.SpacingLg,
-                vertical = Dimens.SpacingMd,
+                horizontal = SpacingLg,
+                vertical = SpacingMd,
             ),
     )
 }

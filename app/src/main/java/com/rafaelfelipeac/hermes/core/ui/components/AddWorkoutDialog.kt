@@ -21,7 +21,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewProvider
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 
 @Composable
 fun AddWorkoutDialog(
@@ -56,7 +56,7 @@ fun AddWorkoutDialog(
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-                Spacer(modifier = Modifier.height(Dimens.SpacingLg))
+                Spacer(modifier = Modifier.height(SpacingLg))
 
                 OutlinedTextField(
                     value = description,

@@ -1,0 +1,32 @@
+# AGENTS.md
+
+Project-level conventions for Codex and similar agents.
+
+## Kotlin/Compose style
+- Prefer `import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.*` and use unqualified dimension names (e.g., `SpacingMd`) instead of `Dimens.SpacingMd`.
+
+## Architecture & data flow
+- Follow UI → ViewModel → Repository boundaries; UI should not access Room or DataStore directly.
+- ViewModels expose `StateFlow` via `stateIn` and `SharingStarted.WhileSubscribed`.
+
+## Dependency injection
+- Use Hilt for wiring; ViewModels use `@HiltViewModel` + `@Inject` constructor.
+- Keep bindings in `core/di` or feature `di` packages.
+
+## Persistence
+- Room is the source of truth for entities and DAOs; map `*Entity` ↔ domain models in the data layer.
+- DataStore (Preferences) is only for settings (theme/language).
+
+## UI & resources
+- Compose + Material 3 only; no XML layouts.
+- No hardcoded strings; use `StringProvider` for non-UI formatting/strings.
+
+## User actions
+- Log user actions via `UserActionLogger` when state changes, using existing metadata keys.
+
+## Testing
+- Prefer fakes over mocks in unit tests.
+
+## General
+- Keep changes minimal and consistent with existing patterns in the touched files.
+- Avoid mass formatting changes unless explicitly requested.
