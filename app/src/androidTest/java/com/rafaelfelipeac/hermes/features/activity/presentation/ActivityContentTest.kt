@@ -35,6 +35,7 @@ class ActivityContentTest {
                                 ),
                         ),
                     ),
+                currentLocale = java.util.Locale.ENGLISH,
             )
         }
 

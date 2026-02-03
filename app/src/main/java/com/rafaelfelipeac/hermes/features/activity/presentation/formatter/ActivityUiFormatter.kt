@@ -22,6 +22,7 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 
 class ActivityUiFormatter(
     private val stringProvider: StringProvider,
@@ -233,7 +234,7 @@ class ActivityUiFormatter(
     }
 
     private fun normalizeDayToken(raw: String): String {
-        val cleaned = raw.trim().replace(Regex("[^A-Za-z]"), "")
+        val cleaned = raw.trim().replace(Regex("[^A-Za-z]"), EMPTY)
 
         if (cleaned.isBlank()) return raw
 
