@@ -50,8 +50,8 @@ jobs:
 
       - name: Check versionCode/versionName is set
         run: |
-          VERSION_NAME=$(grep versionName app/build.gradle.kts | grep -oP '"\K[^"]+')
-          VERSION_CODE=$(grep versionCode app/build.gradle.kts | grep -oP '[0-9]+')
+          VERSION_NAME=$(grep -oP 'appVersionName\s*=\s*"\K[^"]+' app/build.gradle.kts)
+          VERSION_CODE=$(grep -oP 'appVersionCode\s*=\s*\K[0-9]+' app/build.gradle.kts)
           echo "versionName=$VERSION_NAME"
           echo "versionCode=$VERSION_CODE"
           [[ $VERSION_NAME != "" && $VERSION_CODE != "" ]]
