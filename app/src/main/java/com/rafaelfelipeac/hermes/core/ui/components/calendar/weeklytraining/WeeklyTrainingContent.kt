@@ -107,6 +107,7 @@ fun WeeklyTrainingContent(
     var dragPosition by remember { mutableStateOf<Offset?>(null) }
     var draggedItemHeight by remember { mutableFloatStateOf(0f) }
     var containerBounds by remember { mutableStateOf(Zero) }
+    var hoveredSection by remember { mutableStateOf<SectionKey?>(null) }
     val listState = rememberLazyListState()
     val swipeThreshold = with(LocalDensity.current) { SwipeThreshold.toPx() }
     var dragAmount by remember { mutableFloatStateOf(0f) }
@@ -237,6 +238,14 @@ fun WeeklyTrainingContent(
 
                             dragPosition = root
 
+                            val activeWorkout =
+                                activeId.let { id -> workouts.firstOrNull { it.id == id } }
+                            if (activeWorkout != null) {
+                                val fallbackSection = activeWorkout.dayOfWeek.toSectionKey()
+                                hoveredSection =
+                                    findTargetSection(root, sectionBounds, fallbackSection)
+                            }
+
                             if (!change.pressed) {
                                 handleDrop(
                                     draggedWorkoutId = activeId,
@@ -249,10 +258,12 @@ fun WeeklyTrainingContent(
                                             itemBounds = itemBounds,
                                             onWorkoutMoved = onWorkoutMoved,
                                         ),
+                                    targetSectionOverride = hoveredSection,
                                 )
                                 draggedWorkoutId = null
                                 dragPosition = null
                                 draggedItemHeight = 0f
+                                hoveredSection = null
                             }
                         }
                     }

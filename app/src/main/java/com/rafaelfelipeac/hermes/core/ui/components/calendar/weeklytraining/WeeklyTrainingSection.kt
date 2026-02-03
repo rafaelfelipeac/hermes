@@ -103,7 +103,7 @@ internal fun EmptySectionRow() {
     )
 }
 
-internal sealed class SectionKey(val key: String) {
+sealed class SectionKey(val key: String) {
     object ToBeDefined : SectionKey(SECTION_KEY_TBD)
 
     data class Day(val dayOfWeek: DayOfWeek) : SectionKey(dayOfWeek.name)

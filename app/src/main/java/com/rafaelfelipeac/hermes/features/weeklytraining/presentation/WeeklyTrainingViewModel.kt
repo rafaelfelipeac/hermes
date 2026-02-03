@@ -119,6 +119,7 @@ class WeeklyTrainingViewModel
                     entityType = WEEK,
                     metadata =
                         mapOf(
+                            WEEK_START_DATE to newWeekStartDate.toString(),
                             OLD_WEEK_START_DATE to previousWeekStartDate.toString(),
                             NEW_WEEK_START_DATE to newWeekStartDate.toString(),
                         ),
@@ -198,7 +199,7 @@ class WeeklyTrainingViewModel
                 )
 
             viewModelScope.launch {
-                persistWorkoutChanges(changes, currentWorkouts)
+                persistWorkoutChanges(changes, currentWorkouts, workoutId)
             }
         }
 
@@ -357,6 +358,7 @@ class WeeklyTrainingViewModel
         private suspend fun persistWorkoutChanges(
             changes: List<WorkoutUi>,
             currentWorkouts: List<WorkoutUi>,
+            movedWorkoutId: Long,
         ) {
             changes.forEach { workout ->
                 val original =
@@ -368,7 +370,9 @@ class WeeklyTrainingViewModel
                     order = workout.order,
                 )
 
-                logWorkoutChange(original, workout)
+                if (workout.id == movedWorkoutId) {
+                    logWorkoutChange(original, workout)
+                }
             }
         }
 

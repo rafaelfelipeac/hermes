@@ -136,6 +136,8 @@ class ActivityUiFormatter(
 
         if (oldDay.isNullOrBlank() && newDay.isNullOrBlank()) return null
 
+        if (oldDay != null && oldDay == newDay) return null
+
         return stringProvider.get(
             R.string.activity_subtitle_move,
             oldDay.orEmpty(),

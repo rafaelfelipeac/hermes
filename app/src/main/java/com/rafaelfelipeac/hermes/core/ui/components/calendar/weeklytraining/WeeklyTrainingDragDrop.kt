@@ -21,10 +21,12 @@ internal fun handleDrop(
     draggedWorkoutId: WorkoutId,
     dragPosition: Offset,
     context: DropContext,
+    targetSectionOverride: SectionKey? = null,
 ) {
     val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
     val fallbackSection = workout.dayOfWeek.toSectionKey()
-    val targetSection = findTargetSection(dragPosition, context.sectionBounds, fallbackSection)
+    val targetSection =
+        targetSectionOverride ?: findTargetSection(dragPosition, context.sectionBounds, fallbackSection)
     val targetItems = context.workoutsBySection[targetSection].orEmpty()
     val newOrder =
         computeOrderForDrop(dragPosition, targetItems, workout.id, context.itemBounds)
@@ -35,12 +37,34 @@ internal fun handleDrop(
     }
 }
 
-private fun findTargetSection(
+internal fun findTargetSection(
     dropPosition: Offset,
     sectionBounds: Map<SectionKey, Rect>,
     fallback: SectionKey,
 ): SectionKey {
-    return sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key ?: fallback
+    val directMatch = sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key
+
+    if (directMatch != null) return directMatch
+
+    if (sectionBounds.isEmpty()) return fallback
+
+    val ordered =
+        sectionBounds.entries
+            .sortedBy { it.value.top }
+            .map { it.key to it.value }
+
+    val first = ordered.first()
+    if (dropPosition.y <= first.second.top) return first.first
+
+    for (index in 0 until ordered.lastIndex) {
+        val current = ordered[index]
+        val next = ordered[index + 1]
+        val boundary = (current.second.bottom + next.second.top) / 2f
+
+        if (dropPosition.y <= boundary) return current.first
+    }
+
+    return ordered.last().first
 }
 
 private fun computeOrderForDrop(
@@ -63,6 +87,6 @@ private fun computeOrderForDrop(
     return if (dropIndex == NO_INDEX) sorted.size else dropIndex
 }
 
-private fun DayOfWeek?.toSectionKey(): SectionKey {
+fun DayOfWeek?.toSectionKey(): SectionKey {
     return if (this == null) SectionKey.ToBeDefined else SectionKey.Day(this)
 }
