@@ -37,3 +37,15 @@ Project-level conventions for Codex and similar agents.
 ## General
 - Keep changes minimal and consistent with existing patterns in the touched files.
 - Avoid mass formatting changes unless explicitly requested.
+
+## Change safety
+- If a change affects public APIs, navigation, or persisted data schemas, stop and ask before proceeding.
+- If unsure about an architectural decision, present options instead of choosing.
+
+## Assumptions
+- Do not assume missing requirements; ask or state assumptions explicitly.
+- Prefer TODO comments over speculative implementations.
+
+## Testing
+- Do not introduce new mocking frameworks.
+- Follow existing test patterns in the module.
