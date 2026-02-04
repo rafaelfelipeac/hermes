@@ -11,6 +11,10 @@ plugins {
 
 val appVersionCode = 2
 val appVersionName = "0.1.0"
+val releaseKeystorePath = providers.gradleProperty("RELEASE_KEYSTORE_PATH").orNull
+val releaseKeystorePassword = providers.gradleProperty("RELEASE_KEYSTORE_PASSWORD").orNull
+val releaseKeyAlias = providers.gradleProperty("RELEASE_KEY_ALIAS").orNull
+val releaseKeyPassword = providers.gradleProperty("RELEASE_KEY_PASSWORD").orNull
 
 android {
     namespace = "com.rafaelfelipeac.hermes"
@@ -29,6 +33,22 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    if (
+        releaseKeystorePath != null &&
+        releaseKeystorePassword != null &&
+        releaseKeyAlias != null &&
+        releaseKeyPassword != null
+    ) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(releaseKeystorePath)
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         debug {
             applicationIdSuffix = ".dev"
@@ -36,6 +56,14 @@ android {
             manifestPlaceholders["appName"] = "@string/app_name_dev"
         }
         release {
+            if (
+                releaseKeystorePath != null &&
+                releaseKeystorePassword != null &&
+                releaseKeyAlias != null &&
+                releaseKeyPassword != null
+            ) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -59,6 +87,7 @@ android {
         compose = true
         buildConfig = true
     }
+
 }
 
 dependencies {
