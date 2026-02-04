@@ -6,7 +6,7 @@
 # 🪽 Hermes
 
 <p align="center">
-  <img src="docs/icon/hermes-app-icon.png" width="96" alt="Hermes app icon" />
+  <img src="docs/icon/hermes-app-icon.png" width="160" alt="Hermes app icon" />
 </p>
 
 **Hermes** is a simple, offline-first **weekly training planner** — built to help you plan the week and keep it adaptable.
