@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
@@ -151,6 +152,22 @@ fun WeeklyTrainingScreen(
                         isAddDialogVisible = true
                     },
                 )
+
+                if (BuildConfig.DEBUG) {
+                    val mockType = stringResource(R.string.mock_workout_type)
+                    val mockDescription = stringResource(R.string.mock_workout_description)
+
+                    AddActionPill(
+                        label = stringResource(R.string.add_mock_workout),
+                        onClick = {
+                            isAddMenuVisible = false
+                            viewModel.addWorkout(
+                                type = mockType,
+                                description = mockDescription,
+                            )
+                        },
+                    )
+                }
 
                 AddActionPill(
                     label = stringResource(R.string.add_rest_day),

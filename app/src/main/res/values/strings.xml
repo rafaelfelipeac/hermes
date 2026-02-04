@@ -36,6 +36,30 @@
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Rest day</string>
 
+    <!-- Demo data (debug) -->
+    <string name="settings_developer_title">Developer mode</string>
+    <string name="seed_demo_data">Seed demo data</string>
+    <string name="demo_data_created">Demo data created</string>
+    <string name="add_mock_workout">Add mock workout</string>
+    <string name="mock_workout_type">Full body</string>
+    <string name="mock_workout_description">3 sets of 10 reps</string>
+    <string name="mock_workout_type_strength">Strength</string>
+    <string name="mock_workout_type_upper">Strength &amp; core</string>
+    <string name="mock_workout_type_cardio">Running</string>
+    <string name="mock_workout_type_yoga">Swimming</string>
+    <string name="mock_workout_type_hiits">Cycling</string>
+    <string name="mock_workout_type_mobility">Mobility</string>
+    <string name="mock_workout_type_long_run">Long run</string>
+    <string name="mock_workout_type_core">Strength basics</string>
+    <string name="mock_workout_description_strength">Full body, 45 min</string>
+    <string name="mock_workout_description_upper">Core circuit, 30 min</string>
+    <string name="mock_workout_description_cardio">Intervals, 5 x 800m</string>
+    <string name="mock_workout_description_yoga">Technique + endurance, 1.5 km</string>
+    <string name="mock_workout_description_hiits">Tempo ride, 60 min</string>
+    <string name="mock_workout_description_mobility">Hips + shoulders, 15 min</string>
+    <string name="mock_workout_description_long_run">Zone 2, 12 km</string>
+    <string name="mock_workout_description_core">Compound lifts, 40 min</string>
+
     <!-- Training week: days -->
     <string name="day_monday">Monday</string>
     <string name="day_tuesday">Tuesday</string>

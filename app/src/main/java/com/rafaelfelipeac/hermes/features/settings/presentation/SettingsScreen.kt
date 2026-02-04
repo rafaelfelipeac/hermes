@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.RadioButton
@@ -23,9 +24,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
@@ -56,12 +59,21 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
 
     SettingsContent(
         state = state,
         appVersion = VERSION_NAME,
         onThemeSelected = viewModel::setThemeMode,
         onLanguageSelected = viewModel::setLanguage,
+        onSeedDemoData = {
+            viewModel.seedDemoData()
+            android.widget.Toast.makeText(
+                context,
+                context.getString(R.string.demo_data_created),
+                android.widget.Toast.LENGTH_SHORT,
+            ).show()
+        },
         modifier = modifier,
     )
 }
@@ -73,6 +85,7 @@ internal fun SettingsContent(
     appVersion: String,
     onThemeSelected: (ThemeMode) -> Unit,
     onLanguageSelected: (AppLanguage) -> Unit,
+    onSeedDemoData: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
@@ -171,6 +184,15 @@ internal fun SettingsContent(
             )
         }
 
+        if (BuildConfig.DEBUG) {
+            SettingsSection(title = stringResource(R.string.settings_developer_title)) {
+                SettingsActionButton(
+                    label = stringResource(R.string.seed_demo_data),
+                    onClick = onSeedDemoData,
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(SpacingLg))
 
         HorizontalDivider()
@@ -241,5 +263,26 @@ private fun SettingsOptionRow(
             text = label,
             style = typography.bodyLarge,
         )
+    }
+}
+
+@Composable
+private fun SettingsActionButton(
+    label: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = SpacingXxs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Button(onClick = onClick) {
+            Text(
+                text = label,
+                style = typography.bodyLarge,
+            )
+        }
     }
 }

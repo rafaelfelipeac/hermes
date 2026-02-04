@@ -36,6 +36,30 @@
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">يوم راحة</string>
 
+    <!-- Demo data (debug) -->
+    <string name="settings_developer_title">وضع المطوّر</string>
+    <string name="seed_demo_data">إنشاء بيانات تجريبية</string>
+    <string name="demo_data_created">تم إنشاء البيانات التجريبية</string>
+    <string name="add_mock_workout">إضافة تمرين تجريبي</string>
+    <string name="mock_workout_type">تمرين شامل</string>
+    <string name="mock_workout_description">3 مجموعات من 10 تكرارات</string>
+    <string name="mock_workout_type_strength">قوة</string>
+    <string name="mock_workout_type_upper">قوة والكور</string>
+    <string name="mock_workout_type_cardio">جري</string>
+    <string name="mock_workout_type_yoga">سباحة</string>
+    <string name="mock_workout_type_hiits">ركوب دراجات</string>
+    <string name="mock_workout_type_mobility">مرونة</string>
+    <string name="mock_workout_type_long_run">جري طويل</string>
+    <string name="mock_workout_type_core">أساسيات القوة</string>
+    <string name="mock_workout_description_strength">جسم كامل، 45 دقيقة</string>
+    <string name="mock_workout_description_upper">دائرة كور، 30 دقيقة</string>
+    <string name="mock_workout_description_cardio">فواصل، 5 × 800 م</string>
+    <string name="mock_workout_description_yoga">تقنية + تحمّل، 1.5 كم</string>
+    <string name="mock_workout_description_hiits">إيقاع متوسط، 60 دقيقة</string>
+    <string name="mock_workout_description_mobility">الورك + الأكتاف، 15 دقيقة</string>
+    <string name="mock_workout_description_long_run">زون 2، 12 كم</string>
+    <string name="mock_workout_description_core">تمارين مركبة، 40 دقيقة</string>
+
     <!-- Training week: days -->
     <string name="day_monday">الاثنين</string>
     <string name="day_tuesday">الثلاثاء</string>

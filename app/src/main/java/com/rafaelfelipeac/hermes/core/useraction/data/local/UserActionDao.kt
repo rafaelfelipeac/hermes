@@ -13,4 +13,7 @@ interface UserActionDao {
 
     @Query("SELECT * FROM user_actions ORDER BY timestamp DESC")
     fun observeAll(): Flow<List<UserActionEntity>>
+
+    @Query("DELETE FROM user_actions")
+    suspend fun deleteAll()
 }

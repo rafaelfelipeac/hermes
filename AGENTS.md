@@ -26,6 +26,7 @@ Project-level conventions for Codex and similar agents.
 ## UI & resources
 - Compose + Material 3 only; no XML layouts.
 - No hardcoded strings; use `StringProvider` for non-UI formatting/strings.
+- When adding a string to `app/src/main/res/values/strings.xml`, add equivalent entries to all localized `values-*/strings.xml` files.
 
 ## User actions
 - Log user actions via `UserActionLogger` when state changes, using existing metadata keys.

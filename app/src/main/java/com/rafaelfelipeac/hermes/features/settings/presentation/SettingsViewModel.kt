@@ -8,6 +8,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
+import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
@@ -25,6 +26,7 @@ class SettingsViewModel
     constructor(
         private val repository: SettingsRepository,
         private val userActionLogger: UserActionLogger,
+        private val demoDataSeeder: DemoDataSeeder,
     ) : ViewModel() {
         val state: StateFlow<SettingsState> =
             combine(
@@ -81,6 +83,11 @@ class SettingsViewModel
                             ),
                     )
                 }
+            }
+
+        fun seedDemoData() =
+            viewModelScope.launch {
+                demoDataSeeder.seed()
             }
 
         private companion object {

@@ -36,6 +36,30 @@
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">休息日</string>
 
+    <!-- Demo data (debug) -->
+    <string name="settings_developer_title">開発者モード</string>
+    <string name="seed_demo_data">デモデータを作成</string>
+    <string name="demo_data_created">デモデータを作成しました</string>
+    <string name="add_mock_workout">サンプルワークアウトを追加</string>
+    <string name="mock_workout_type">全身</string>
+    <string name="mock_workout_description">10回×3セット</string>
+    <string name="mock_workout_type_strength">筋力</string>
+    <string name="mock_workout_type_upper">筋力と体幹</string>
+    <string name="mock_workout_type_cardio">ランニング</string>
+    <string name="mock_workout_type_yoga">水泳</string>
+    <string name="mock_workout_type_hiits">サイクリング</string>
+    <string name="mock_workout_type_mobility">モビリティ</string>
+    <string name="mock_workout_type_long_run">ロングラン</string>
+    <string name="mock_workout_type_core">筋力の基礎</string>
+    <string name="mock_workout_description_strength">全身、45分</string>
+    <string name="mock_workout_description_upper">体幹サーキット、30分</string>
+    <string name="mock_workout_description_cardio">インターバル、800m×5</string>
+    <string name="mock_workout_description_yoga">テクニック＋持久力、1.5km</string>
+    <string name="mock_workout_description_hiits">テンポライド、60分</string>
+    <string name="mock_workout_description_mobility">股関節＋肩、15分</string>
+    <string name="mock_workout_description_long_run">ゾーン2、12km</string>
+    <string name="mock_workout_description_core">複合種目、40分</string>
+
     <!-- Training week: days -->
     <string name="day_monday">月曜日</string>
     <string name="day_tuesday">火曜日</string>

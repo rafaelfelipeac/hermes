@@ -36,6 +36,30 @@
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">आराम का दिन</string>
 
+    <!-- Demo data (debug) -->
+    <string name="settings_developer_title">डेवलपर मोड</string>
+    <string name="seed_demo_data">डेमो डेटा बनाएं</string>
+    <string name="demo_data_created">डेमो डेटा बन गया</string>
+    <string name="add_mock_workout">मॉक वर्कआउट जोड़ें</string>
+    <string name="mock_workout_type">फुल बॉडी</string>
+    <string name="mock_workout_description">3 सेट, 10 रेप्स</string>
+    <string name="mock_workout_type_strength">स्ट्रेंथ</string>
+    <string name="mock_workout_type_upper">स्ट्रेंथ और कोर</string>
+    <string name="mock_workout_type_cardio">दौड़</string>
+    <string name="mock_workout_type_yoga">तैराकी</string>
+    <string name="mock_workout_type_hiits">साइक्लिंग</string>
+    <string name="mock_workout_type_mobility">मोबिलिटी</string>
+    <string name="mock_workout_type_long_run">लॉन्ग रन</string>
+    <string name="mock_workout_type_core">बेसिक स्ट्रेंथ</string>
+    <string name="mock_workout_description_strength">फुल बॉडी, 45 मिनट</string>
+    <string name="mock_workout_description_upper">कोर सर्किट, 30 मिनट</string>
+    <string name="mock_workout_description_cardio">इंटरवल, 5 × 800 मी</string>
+    <string name="mock_workout_description_yoga">तकनीक + सहनशक्ति, 1.5 किमी</string>
+    <string name="mock_workout_description_hiits">टेम्पो राइड, 60 मिनट</string>
+    <string name="mock_workout_description_mobility">हिप्स + शोल्डर, 15 मिनट</string>
+    <string name="mock_workout_description_long_run">ज़ोन 2, 12 किमी</string>
+    <string name="mock_workout_description_core">कंपाउंड लिफ्ट्स, 40 मिनट</string>
+
     <!-- Training week: days -->
     <string name="day_monday">सोमवार</string>
     <string name="day_tuesday">मंगलवार</string>

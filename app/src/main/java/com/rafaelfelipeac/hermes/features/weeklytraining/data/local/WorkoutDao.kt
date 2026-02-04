@@ -41,4 +41,7 @@ interface WorkoutDao {
 
     @Query("DELETE FROM workouts WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("DELETE FROM workouts")
+    suspend fun deleteAll()
 }

@@ -36,6 +36,30 @@
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Giorno di riposo</string>
 
+    <!-- Demo data (debug) -->
+    <string name="settings_developer_title">Modalità sviluppatore</string>
+    <string name="seed_demo_data">Crea dati demo</string>
+    <string name="demo_data_created">Dati demo creati</string>
+    <string name="add_mock_workout">Aggiungi allenamento di esempio</string>
+    <string name="mock_workout_type">Corpo intero</string>
+    <string name="mock_workout_description">3 serie da 10 ripetizioni</string>
+    <string name="mock_workout_type_strength">Forza</string>
+    <string name="mock_workout_type_upper">Forza e core</string>
+    <string name="mock_workout_type_cardio">Corsa</string>
+    <string name="mock_workout_type_yoga">Nuoto</string>
+    <string name="mock_workout_type_hiits">Ciclismo</string>
+    <string name="mock_workout_type_mobility">Mobilità</string>
+    <string name="mock_workout_type_long_run">Corsa lunga</string>
+    <string name="mock_workout_type_core">Basi di forza</string>
+    <string name="mock_workout_description_strength">Corpo intero, 45 min</string>
+    <string name="mock_workout_description_upper">Circuito core, 30 min</string>
+    <string name="mock_workout_description_cardio">Intervalli, 5 × 800 m</string>
+    <string name="mock_workout_description_yoga">Tecnica + resistenza, 1,5 km</string>
+    <string name="mock_workout_description_hiits">Ritmo, 60 min</string>
+    <string name="mock_workout_description_mobility">Anche + spalle, 15 min</string>
+    <string name="mock_workout_description_long_run">Zona 2, 12 km</string>
+    <string name="mock_workout_description_core">Esercizi composti, 40 min</string>
+
     <!-- Training week: days -->
     <string name="day_monday">Lunedì</string>
     <string name="day_tuesday">Martedì</string>

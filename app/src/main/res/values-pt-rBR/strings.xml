@@ -36,6 +36,30 @@
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Dia de descanso</string>
 
+    <!-- Demo data (debug) -->
+    <string name="settings_developer_title">Modo desenvolvedor</string>
+    <string name="seed_demo_data">Criar dados de demo</string>
+    <string name="demo_data_created">Dados de demo criados</string>
+    <string name="add_mock_workout">Adicionar treino de exemplo</string>
+    <string name="mock_workout_type">Corpo inteiro</string>
+    <string name="mock_workout_description">3 séries de 10 repetições</string>
+    <string name="mock_workout_type_strength">Força</string>
+    <string name="mock_workout_type_upper">Força e core</string>
+    <string name="mock_workout_type_cardio">Corrida</string>
+    <string name="mock_workout_type_yoga">Natação</string>
+    <string name="mock_workout_type_hiits">Ciclismo</string>
+    <string name="mock_workout_type_mobility">Mobilidade</string>
+    <string name="mock_workout_type_long_run">Corrida longa</string>
+    <string name="mock_workout_type_core">Força básica</string>
+    <string name="mock_workout_description_strength">Corpo inteiro, 45 min</string>
+    <string name="mock_workout_description_upper">Circuito de core, 30 min</string>
+    <string name="mock_workout_description_cardio">Intervalado, 5 x 800 m</string>
+    <string name="mock_workout_description_yoga">Técnica + resistência, 1,5 km</string>
+    <string name="mock_workout_description_hiits">Ritmo, 60 min</string>
+    <string name="mock_workout_description_mobility">Quadril + ombros, 15 min</string>
+    <string name="mock_workout_description_long_run">Zona 2, 12 km</string>
+    <string name="mock_workout_description_core">Exercícios compostos, 40 min</string>
+
     <!-- Training week: days -->
     <string name="day_monday">Segunda-feira</string>
     <string name="day_tuesday">Terça-feira</string>
