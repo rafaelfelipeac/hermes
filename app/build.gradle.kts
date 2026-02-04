@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.hilt.android)
 }
 
-val appVersionCode = 1
+val appVersionCode = 2
 val appVersionName = "0.1.0"
 
 android {
