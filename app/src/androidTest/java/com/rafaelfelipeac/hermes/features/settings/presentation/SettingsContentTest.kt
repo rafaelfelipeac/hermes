@@ -31,6 +31,7 @@ class SettingsContentTest {
                 appVersion = "0.0.0-test",
                 onThemeSelected = { selectedTheme = it },
                 onLanguageSelected = {},
+                onSeedDemoData = {},
             )
         }
 
@@ -57,6 +58,7 @@ class SettingsContentTest {
                 appVersion = "0.0.0-test",
                 onThemeSelected = {},
                 onLanguageSelected = { selectedLanguage = it },
+                onSeedDemoData = {},
             )
         }
 

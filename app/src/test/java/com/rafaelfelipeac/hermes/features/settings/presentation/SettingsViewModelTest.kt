@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import app.cash.turbine.test
+import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
@@ -33,13 +34,14 @@ class SettingsViewModelTest {
             val languageFlow = MutableStateFlow(AppLanguage.SYSTEM)
             val repository = mockk<SettingsRepository>()
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
 
             every { repository.themeMode } returns themeFlow
             every { repository.language } returns languageFlow
             every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
             every { repository.initialLanguage() } returns AppLanguage.SYSTEM
 
-            val viewModel = SettingsViewModel(repository, userActionLogger)
+            val viewModel = SettingsViewModel(repository, userActionLogger, demoDataSeeder)
 
             viewModel.state.test {
                 assertEquals(SettingsState(ThemeMode.SYSTEM, AppLanguage.SYSTEM), awaitItem())
@@ -59,13 +61,14 @@ class SettingsViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = mockk<SettingsRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
 
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
 
-            val viewModel = SettingsViewModel(repository, userActionLogger)
+            val viewModel = SettingsViewModel(repository, userActionLogger, demoDataSeeder)
 
             viewModel.setThemeMode(DARK)
             advanceUntilIdle()
@@ -78,13 +81,14 @@ class SettingsViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = mockk<SettingsRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
 
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
 
-            val viewModel = SettingsViewModel(repository, userActionLogger)
+            val viewModel = SettingsViewModel(repository, userActionLogger, demoDataSeeder)
 
             viewModel.setLanguage(ENGLISH)
             advanceUntilIdle()
