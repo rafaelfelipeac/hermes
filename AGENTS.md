@@ -49,3 +49,21 @@ Project-level conventions for Codex and similar agents.
 ## Testing
 - Do not introduce new mocking frameworks.
 - Follow existing test patterns in the module.
+
+## Learning & existing codebase
+- Maintain `LEARNING.md` as a living document.
+  Update it incrementally as part of completing tasks, not as a separate or optional step.
+
+- When working on existing code or architecture, append short learning notes to `LEARNING.md`
+  explaining relevant decisions, trade-offs, or lessons uncovered during the task.
+
+- Treat entries as post-hoc learning notes:
+    - explain intent, trade-offs, and consequences
+    - capture what was learned while changing or reading the code
+    - avoid restating what the code does line by line
+
+- If intent is not explicit in code, state assumptions clearly.
+- Prefer teaching-oriented explanations over reference-style documentation.
+
+- Do not wait for explicit requests to update `LEARNING.md` when meaningful learning occurs.
+

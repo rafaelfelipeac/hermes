@@ -84,7 +84,7 @@ Hermes avoids the “hardcore fitness app” vibe.
 
 No:
 - aggressive charts
-- gamification pressure
+- heavy gamification pressure
 - constant performance comparison
 
 Instead, the focus is on:
@@ -94,7 +94,7 @@ Instead, the focus is on:
 - **calm interaction**
 - **rest days as first-class citizens**
 
-This is a tool meant to support training — not judge it.
+This is a tool meant to support training — not judge it. Gentle, optional recognition (like streaks or trophies) may appear later, but only if it stays calm and supportive.
 
 ---
 
@@ -129,6 +129,7 @@ Some things on the radar (not guaranteed):
 - Training templates / reusable routines
 - Shareable weekly report (coach-friendly)
 - Subtle animations and micro-interactions
+- Soft streaks, trophies or gentle celebrations
 - Fun yearly comparisons (“you ran X km — that’s like crossing Y”)
 
 ---
