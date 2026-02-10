@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -240,6 +241,153 @@ class WeeklyTrainingViewModelTest {
                 )
             }
             coVerify(exactly = 1) { repository.deleteWorkout(44) }
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun undoMove_restoresPreviousPosition() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+
+            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 5, 12)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+            val mondayWorkout =
+                workout(
+                    id = 21,
+                    weekStart = weekStart,
+                    day = MONDAY,
+                    order = 0,
+                )
+            val movedWorkout =
+                workout(
+                    id = 22,
+                    weekStart = weekStart,
+                    day = MONDAY,
+                    order = 1,
+                )
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value = listOf(mondayWorkout, movedWorkout)
+            runCurrent()
+
+            viewModel.moveWorkout(movedWorkout.id, TUESDAY, 0)
+            runCurrent()
+
+            viewModel.undoLastAction()
+            runCurrent()
+
+            coVerify(exactly = 1) {
+                repository.updateWorkoutDayAndOrder(
+                    workoutId = movedWorkout.id,
+                    dayOfWeek = MONDAY,
+                    order = 1,
+                )
+            }
+            coVerify(exactly = 1) {
+                repository.updateWorkoutDayAndOrder(
+                    workoutId = mondayWorkout.id,
+                    dayOfWeek = MONDAY,
+                    order = 0,
+                )
+            }
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun undoDelete_restoresWorkout() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+
+            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 6, 3)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+            val deletedWorkout =
+                workout(
+                    id = 99,
+                    weekStart = weekStart,
+                    day = TUESDAY,
+                    order = 0,
+                )
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value = listOf(deletedWorkout)
+            runCurrent()
+
+            viewModel.deleteWorkout(workoutId = deletedWorkout.id)
+            runCurrent()
+
+            viewModel.undoLastAction()
+            runCurrent()
+
+            val workoutSlot = slot<Workout>()
+            coVerify(exactly = 1) { repository.insertWorkout(capture(workoutSlot)) }
+            assertEquals(deletedWorkout.id, workoutSlot.captured.id)
+            assertEquals(weekStart, workoutSlot.captured.weekStartDate)
+            assertEquals(deletedWorkout.dayOfWeek, workoutSlot.captured.dayOfWeek)
+            assertEquals(deletedWorkout.order, workoutSlot.captured.order)
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun undoCompletion_restoresPreviousState() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+
+            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 7, 10)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+            val workout =
+                workout(
+                    id = 120,
+                    weekStart = weekStart,
+                    day = MONDAY,
+                    order = 0,
+                    isCompleted = false,
+                )
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value = listOf(workout)
+            runCurrent()
+
+            viewModel.updateWorkoutCompletion(
+                workout =
+                    WorkoutUi(
+                        id = workout.id,
+                        dayOfWeek = workout.dayOfWeek,
+                        type = workout.type,
+                        description = workout.description,
+                        isCompleted = workout.isCompleted,
+                        isRestDay = workout.isRestDay,
+                        order = workout.order,
+                    ),
+                isCompleted = true,
+            )
+            runCurrent()
+
+            viewModel.undoLastAction()
+            runCurrent()
+
+            coVerify(exactly = 1) { repository.updateWorkoutCompletion(120, true) }
+            coVerify(exactly = 1) { repository.updateWorkoutCompletion(120, false) }
 
             collectJob.cancel()
         }

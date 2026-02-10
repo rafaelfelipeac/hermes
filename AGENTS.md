@@ -37,6 +37,7 @@ Project-level conventions for Codex and similar agents.
 ## General
 - Keep changes minimal and consistent with existing patterns in the touched files.
 - Avoid mass formatting changes unless explicitly requested.
+- Do not define new data classes/enums/sealed classes inside ViewModels; place them in dedicated files in the feature package.
 
 ## Change safety
 - If a change affects public APIs, navigation, or persisted data schemas, stop and ask before proceeding.
@@ -66,4 +67,3 @@ Project-level conventions for Codex and similar agents.
 - Prefer teaching-oriented explanations over reference-style documentation.
 
 - Do not wait for explicit requests to update `LEARNING.md` when meaningful learning occurs.
-

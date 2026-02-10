@@ -20,10 +20,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +64,8 @@ fun WeeklyTrainingScreen(
     viewModel: WeeklyTrainingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val undoState by viewModel.undoUiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
     var isAddMenuVisible by rememberSaveable { mutableStateOf(false) }
@@ -64,118 +73,194 @@ fun WeeklyTrainingScreen(
     var deletingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
+    val undoLabel = stringResource(R.string.undo_action)
+    val undoMessage =
+        undoState?.let { currentUndo ->
+            val isRestDay =
+                when (val action = currentUndo.action) {
+                    is PendingUndoAction.Delete -> action.workout.isRestDay
+                    is PendingUndoAction.Completion -> action.workout.isRestDay
+                    is PendingUndoAction.MoveOrReorder -> action.isRestDay
+                }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(SpacingXl),
-        ) {
-            Text(
-                text = stringResource(R.string.nav_weekly_training),
-                style = typography.titleLarge,
-            )
-
-            Spacer(modifier = Modifier.height(SpacingLg))
-
-            WeeklyCalendarHeader(
-                selectedDate = state.selectedDate,
-                weekStartDate = state.weekStartDate,
-                dayIndicators = state.dayIndicators,
-                onDateSelected = viewModel::onDateSelected,
-                onWeekChanged = viewModel::onWeekChanged,
-            )
-
-            WeeklyTrainingContent(
-                selectedDate = state.selectedDate,
-                workouts = state.workouts,
-                onWorkoutMoved = viewModel::moveWorkout,
-                onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
-                onWorkoutEdit = { workout -> editingWorkout = workout },
-                onWorkoutDelete = { workout -> deletingWorkout = workout },
-                onWeekChanged = viewModel::onWeekChanged,
-            )
-        }
-
-        if (isAddMenuVisible) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(
-                            colorScheme.scrim.copy(
-                                alpha = ADD_MENU_SCRIM_ALPHA,
-                            ),
-                        )
-                        .clickable(
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() },
-                        ) {
-                            isAddMenuVisible = false
+            when (currentUndo.message) {
+                UndoMessage.Moved ->
+                    stringResource(
+                        if (isRestDay) {
+                            R.string.rest_day_moved
+                        } else {
+                            R.string.workout_moved
                         },
-            )
-        }
-
-        Box(
-            modifier =
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(SpacingXl),
-        ) {
-            FloatingActionButton(
-                onClick = { isAddMenuVisible = !isAddMenuVisible },
-                containerColor = fabContainerColor,
-                contentColor = fabContentColor,
-                modifier = Modifier.testTag(ADD_FAB_TEST_TAG),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.add_item),
-                )
+                    )
+                UndoMessage.Deleted ->
+                    stringResource(
+                        if (isRestDay) {
+                            R.string.rest_day_deleted
+                        } else {
+                            R.string.workout_deleted
+                        },
+                    )
+                UndoMessage.Completed ->
+                    stringResource(R.string.workout_completed)
+                UndoMessage.MarkedIncomplete ->
+                    stringResource(R.string.workout_marked_incomplete)
             }
         }
 
-        if (isAddMenuVisible) {
+    LaunchedEffect(undoState?.id) {
+        if (undoMessage != null) {
+            snackbarHostState.currentSnackbarData?.dismiss()
+
+            val result =
+                snackbarHostState.showSnackbar(
+                    message = undoMessage,
+                    actionLabel = undoLabel,
+                    duration = SnackbarDuration.Indefinite,
+                )
+
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.undoLastAction()
+            } else {
+                viewModel.clearUndo()
+            }
+        }
+    }
+
+    LaunchedEffect(undoState) {
+        if (undoState == null) {
+            snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
+
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = colorScheme.surfaceVariant,
+                    contentColor = colorScheme.onSurfaceVariant,
+                    actionColor = colorScheme.primary,
+                )
+            }
+        },
+    ) { paddingValues ->
+        Box(
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+        ) {
             Column(
                 modifier =
                     Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = SpacingXl, bottom = AddMenuBottomPadding),
-                verticalArrangement = Arrangement.spacedBy(SpacingLg),
-                horizontalAlignment = Alignment.End,
+                        .fillMaxSize()
+                        .padding(SpacingXl),
             ) {
-                AddActionPill(
-                    label = stringResource(R.string.add_workout),
-                    onClick = {
-                        isAddMenuVisible = false
-                        isAddDialogVisible = true
-                    },
+                Text(
+                    text = stringResource(R.string.nav_weekly_training),
+                    style = typography.titleLarge,
                 )
 
-                if (BuildConfig.DEBUG) {
-                    val mockType = stringResource(R.string.mock_workout_type)
-                    val mockDescription = stringResource(R.string.mock_workout_description)
+                Spacer(modifier = Modifier.height(SpacingLg))
 
+                WeeklyCalendarHeader(
+                    selectedDate = state.selectedDate,
+                    weekStartDate = state.weekStartDate,
+                    dayIndicators = state.dayIndicators,
+                    onDateSelected = viewModel::onDateSelected,
+                    onWeekChanged = viewModel::onWeekChanged,
+                )
+
+                WeeklyTrainingContent(
+                    selectedDate = state.selectedDate,
+                    workouts = state.workouts,
+                    onWorkoutMoved = viewModel::moveWorkout,
+                    onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
+                    onWorkoutEdit = { workout -> editingWorkout = workout },
+                    onWorkoutDelete = { workout -> deletingWorkout = workout },
+                    onWeekChanged = viewModel::onWeekChanged,
+                )
+            }
+
+            if (isAddMenuVisible) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .background(
+                                colorScheme.scrim.copy(
+                                    alpha = ADD_MENU_SCRIM_ALPHA,
+                                ),
+                            )
+                            .clickable(
+                                indication = null,
+                                interactionSource = remember { MutableInteractionSource() },
+                            ) {
+                                isAddMenuVisible = false
+                            },
+                )
+            }
+
+            Box(
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(SpacingXl),
+            ) {
+                FloatingActionButton(
+                    onClick = { isAddMenuVisible = !isAddMenuVisible },
+                    containerColor = fabContainerColor,
+                    contentColor = fabContentColor,
+                    modifier = Modifier.testTag(ADD_FAB_TEST_TAG),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.add_item),
+                    )
+                }
+            }
+
+            if (isAddMenuVisible) {
+                Column(
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = SpacingXl, bottom = AddMenuBottomPadding),
+                    verticalArrangement = Arrangement.spacedBy(SpacingLg),
+                    horizontalAlignment = Alignment.End,
+                ) {
                     AddActionPill(
-                        label = stringResource(R.string.add_mock_workout),
+                        label = stringResource(R.string.add_workout),
                         onClick = {
                             isAddMenuVisible = false
-                            viewModel.addWorkout(
-                                type = mockType,
-                                description = mockDescription,
-                            )
+                            isAddDialogVisible = true
+                        },
+                    )
+
+                    if (BuildConfig.DEBUG) {
+                        val mockType = stringResource(R.string.mock_workout_type)
+                        val mockDescription = stringResource(R.string.mock_workout_description)
+
+                        AddActionPill(
+                            label = stringResource(R.string.add_mock_workout),
+                            onClick = {
+                                isAddMenuVisible = false
+                                viewModel.addWorkout(
+                                    type = mockType,
+                                    description = mockDescription,
+                                )
+                            },
+                        )
+                    }
+
+                    AddActionPill(
+                        label = stringResource(R.string.add_rest_day),
+                        onClick = {
+                            isAddMenuVisible = false
+                            viewModel.addRestDay()
                         },
                     )
                 }
-
-                AddActionPill(
-                    label = stringResource(R.string.add_rest_day),
-                    onClick = {
-                        isAddMenuVisible = false
-                        viewModel.addRestDay()
-                    },
-                )
             }
         }
     }
