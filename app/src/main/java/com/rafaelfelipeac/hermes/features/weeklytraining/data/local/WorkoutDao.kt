@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +15,9 @@ interface WorkoutDao {
 
     @Insert
     suspend fun insert(workout: WorkoutEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrReplace(workout: WorkoutEntity): Long
 
     @Update
     suspend fun update(workout: WorkoutEntity)

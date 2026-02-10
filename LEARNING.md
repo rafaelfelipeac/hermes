@@ -28,3 +28,7 @@ Assumptions made from the current code and README:
 - A day can hold a rest day or workouts, but a rest day is treated as mutually exclusive with workouts for that day. This keeps the mental model simple and avoids mixed signals.
 
 If future work adds light recognition (soft streaks, small trophies, gentle celebrations), it should stay opt-in and non-judgmental so it reinforces the calm, offline-first intent instead of undermining it.
+
+Recent learnings:
+- Single-step undo fits best as a ViewModel-scoped command snapshot, with a timeout job to clear stale actions so Snackbars do not linger across navigation.
+- Restoring deleted workouts needs a repository-level insert that can accept full workout data (including completion/rest-day flags), keeping the UI layer free of Room-specific concerns.

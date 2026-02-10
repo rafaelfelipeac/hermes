@@ -22,6 +22,8 @@ interface WeeklyTrainingRepository {
         order: Int,
     ): Long
 
+    suspend fun insertWorkout(workout: Workout): Long
+
     suspend fun updateWorkoutDayAndOrder(
         workoutId: Long,
         dayOfWeek: DayOfWeek?,

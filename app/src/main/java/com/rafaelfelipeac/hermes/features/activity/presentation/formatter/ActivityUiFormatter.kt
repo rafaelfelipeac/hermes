@@ -64,10 +64,13 @@ class ActivityUiFormatter(
         return title ?: when (actionType) {
             UserActionType.CHANGE_LANGUAGE ->
                 stringProvider.get(R.string.activity_action_change_language)
+
             UserActionType.CHANGE_THEME ->
                 stringProvider.get(R.string.activity_action_change_theme)
+
             UserActionType.OPEN_WEEK ->
                 stringProvider.get(R.string.activity_action_open_week)
+
             else -> stringProvider.get(R.string.activity_action_fallback)
         }
     }
@@ -83,14 +86,19 @@ class ActivityUiFormatter(
             when (actionType) {
                 UserActionType.CHANGE_LANGUAGE,
                 UserActionType.CHANGE_THEME,
-                -> buildValueChangeSubtitle(metadata, actionType)
+                    -> buildValueChangeSubtitle(metadata, actionType)
+
                 UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
                 UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)
+                UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
+                UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> buildReorderSubtitle(metadata)
                 else -> null
             }
         val shouldSplitLines =
             actionType == UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ||
-                actionType == UserActionType.REORDER_WORKOUT
+                    actionType == UserActionType.REORDER_WORKOUT ||
+                    actionType == UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ||
+                    actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
 
         return if (weekSubtitle != null && actionSubtitle != null && shouldSplitLines) {
             "$weekSubtitle\n$actionSubtitle"
@@ -186,6 +194,7 @@ class ActivityUiFormatter(
             AppLanguage.ENGLISH -> stringProvider.get(R.string.settings_language_english)
             AppLanguage.PORTUGUESE_BRAZIL ->
                 stringProvider.get(R.string.settings_language_portuguese_brazil)
+
             AppLanguage.GERMAN -> stringProvider.get(R.string.settings_language_german)
             AppLanguage.FRENCH -> stringProvider.get(R.string.settings_language_french)
             AppLanguage.SPANISH -> stringProvider.get(R.string.settings_language_spanish)
@@ -238,8 +247,11 @@ class ActivityUiFormatter(
                 ?: DayOfWeek.entries.firstOrNull { dayOfWeek ->
                     dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, Locale.ENGLISH)
                         .equals(cleaned, ignoreCase = true) ||
-                        dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, Locale.ENGLISH)
-                            .equals(cleaned, ignoreCase = true)
+                            dayOfWeek.getDisplayName(
+                                java.time.format.TextStyle.FULL,
+                                Locale.ENGLISH
+                            )
+                                .equals(cleaned, ignoreCase = true)
                 }
 
         return when (day) {
@@ -293,23 +305,40 @@ class ActivityUiFormatter(
         return when (actionType) {
             UserActionType.COMPLETE_WORKOUT ->
                 stringProvider.get(R.string.activity_action_complete_rest_day)
+
             UserActionType.INCOMPLETE_WORKOUT ->
                 stringProvider.get(R.string.activity_action_incomplete_rest_day)
+
             UserActionType.REORDER_WORKOUT ->
                 stringProvider.get(R.string.activity_action_reorder_rest_day)
+
             UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ->
                 stringProvider.get(R.string.activity_action_move_rest_day)
+
+            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ->
+                stringProvider.get(R.string.activity_action_undo_reorder_rest_day)
+
+            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ->
+                stringProvider.get(R.string.activity_action_undo_move_rest_day)
+
             UserActionType.CREATE_REST_DAY ->
                 stringProvider.get(R.string.activity_action_create_rest_day)
+
             UserActionType.UPDATE_REST_DAY ->
                 stringProvider.get(R.string.activity_action_update_rest_day)
+
             UserActionType.DELETE_REST_DAY ->
                 stringProvider.get(R.string.activity_action_delete_rest_day)
+
+            UserActionType.UNDO_DELETE_REST_DAY ->
+                stringProvider.get(R.string.activity_action_undo_delete_rest_day)
+
             UserActionType.CONVERT_WORKOUT_TO_REST_DAY ->
                 stringProvider.get(
                     R.string.activity_action_convert_workout_to_rest_day,
                     quotedWorkoutLabel,
                 )
+
             else -> null
         }
     }
@@ -321,23 +350,58 @@ class ActivityUiFormatter(
         return when (actionType) {
             UserActionType.CREATE_WORKOUT ->
                 stringProvider.get(R.string.activity_action_create_workout, quotedWorkoutLabel)
+
             UserActionType.UPDATE_WORKOUT ->
                 stringProvider.get(R.string.activity_action_update_workout, quotedWorkoutLabel)
+
             UserActionType.DELETE_WORKOUT ->
                 stringProvider.get(R.string.activity_action_delete_workout, quotedWorkoutLabel)
+
+            UserActionType.UNDO_DELETE_WORKOUT ->
+                stringProvider.get(R.string.activity_action_undo_delete_workout, quotedWorkoutLabel)
+
             UserActionType.COMPLETE_WORKOUT ->
                 stringProvider.get(R.string.activity_action_complete_workout, quotedWorkoutLabel)
+
             UserActionType.INCOMPLETE_WORKOUT ->
                 stringProvider.get(
                     R.string.activity_action_incomplete_workout,
                     quotedWorkoutLabel,
                 )
+
+            UserActionType.UNDO_COMPLETE_WORKOUT ->
+                stringProvider.get(
+                    R.string.activity_action_undo_complete_workout,
+                    quotedWorkoutLabel,
+                )
+
+            UserActionType.UNDO_INCOMPLETE_WORKOUT ->
+                stringProvider.get(
+                    R.string.activity_action_undo_incomplete_workout,
+                    quotedWorkoutLabel,
+                )
+
             UserActionType.REORDER_WORKOUT ->
                 stringProvider.get(R.string.activity_action_reorder_workout, quotedWorkoutLabel)
+
             UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ->
                 stringProvider.get(R.string.activity_action_move_workout, quotedWorkoutLabel)
+
+            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ->
+                stringProvider.get(
+                    R.string.activity_action_undo_reorder_workout,
+                    quotedWorkoutLabel,
+                )
+
+            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ->
+                stringProvider.get(
+                    R.string.activity_action_undo_move_workout,
+                    quotedWorkoutLabel,
+                )
+
             UserActionType.CONVERT_REST_DAY_TO_WORKOUT ->
                 stringProvider.get(R.string.activity_action_convert_rest_day_to_workout)
+
             else -> null
         }
     }
