@@ -26,6 +26,7 @@ data class WorkoutPosition(
 sealed class PendingUndoAction {
     data class MoveOrReorder(
         val movedWorkoutId: Long,
+        val isRestDay: Boolean,
         val previousPositions: List<WorkoutPosition>,
         val weekStartDate: LocalDate,
     ) : PendingUndoAction()

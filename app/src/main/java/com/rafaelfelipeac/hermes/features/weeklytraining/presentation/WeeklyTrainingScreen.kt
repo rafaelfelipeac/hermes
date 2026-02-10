@@ -80,10 +80,7 @@ fun WeeklyTrainingScreen(
                 when (val action = currentUndo.action) {
                     is PendingUndoAction.Delete -> action.workout.isRestDay
                     is PendingUndoAction.Completion -> action.workout.isRestDay
-                    is PendingUndoAction.MoveOrReorder ->
-                        state.workouts.firstOrNull { workout ->
-                            workout.id == action.movedWorkoutId
-                        }?.isRestDay == true
+                    is PendingUndoAction.MoveOrReorder -> action.isRestDay
                 }
 
             when (currentUndo.message) {

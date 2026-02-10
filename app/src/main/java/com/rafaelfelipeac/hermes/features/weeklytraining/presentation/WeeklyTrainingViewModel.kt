@@ -56,6 +56,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -216,6 +217,7 @@ class WeeklyTrainingViewModel
                     newDayOfWeek = newDayOfWeek,
                     newOrder = newOrder,
                 )
+            val originalWorkout = currentWorkouts.firstOrNull { it.id == workoutId }
             val undoPositions =
                 changes.mapNotNull { workout ->
                     currentWorkouts.firstOrNull { it.id == workout.id }?.let { original ->
@@ -226,6 +228,7 @@ class WeeklyTrainingViewModel
                         )
                     }
                 }
+            val isRestDay = originalWorkout?.isRestDay == true
 
             viewModelScope.launch {
                 persistWorkoutChanges(changes, currentWorkouts, workoutId)
@@ -235,6 +238,7 @@ class WeeklyTrainingViewModel
                         action =
                             PendingUndoAction.MoveOrReorder(
                                 movedWorkoutId = workoutId,
+                                isRestDay = isRestDay,
                                 previousPositions = undoPositions,
                                 weekStartDate = state.value.weekStartDate,
                             ),
@@ -258,12 +262,10 @@ class WeeklyTrainingViewModel
 
             val actionType =
                 if (isCompleted) COMPLETE_WORKOUT else INCOMPLETE_WORKOUT
-            val entityType =
-                if (original?.isRestDay == true) REST_DAY else WORKOUT
 
             userActionLogger.log(
                 actionType = actionType,
-                entityType = entityType,
+                entityType = WORKOUT,
                 entityId = workout.id,
                 metadata =
                     mapOf(
@@ -521,8 +523,15 @@ class WeeklyTrainingViewModel
                         order = workout.order,
                     ),
                 )
-            val currentWorkouts = state.value.workouts
-            val updatedWorkouts = currentWorkouts + workout
+            val latestWorkouts =
+                repository.observeWorkoutsForWeek(action.weekStartDate).first().map { it.toUi() }
+            val restoredWorkout = workout.copy(id = restoredId)
+            val updatedWorkouts =
+                if (latestWorkouts.any { it.id == restoredId }) {
+                    latestWorkouts
+                } else {
+                    latestWorkouts + restoredWorkout
+                }
 
             action.previousPositions.forEach { position ->
                 repository.updateWorkoutDayAndOrder(
