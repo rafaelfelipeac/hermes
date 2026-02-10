@@ -76,11 +76,33 @@ fun WeeklyTrainingScreen(
     val undoLabel = stringResource(R.string.undo_action)
     val undoMessage =
         undoState?.let { currentUndo ->
+            val isRestDay =
+                when (val action = currentUndo.action) {
+                    is PendingUndoAction.Delete -> action.workout.isRestDay
+                    is PendingUndoAction.Completion -> action.workout.isRestDay
+                    is PendingUndoAction.MoveOrReorder ->
+                        state.workouts.firstOrNull { workout ->
+                            workout.id == action.movedWorkoutId
+                        }?.isRestDay == true
+                }
+
             when (currentUndo.message) {
                 UndoMessage.Moved ->
-                    stringResource(R.string.workout_moved)
+                    stringResource(
+                        if (isRestDay) {
+                            R.string.rest_day_moved
+                        } else {
+                            R.string.workout_moved
+                        },
+                    )
                 UndoMessage.Deleted ->
-                    stringResource(R.string.workout_deleted)
+                    stringResource(
+                        if (isRestDay) {
+                            R.string.rest_day_deleted
+                        } else {
+                            R.string.workout_deleted
+                        },
+                    )
                 UndoMessage.Completed ->
                     stringResource(R.string.workout_completed)
                 UndoMessage.MarkedIncomplete ->
@@ -96,7 +118,7 @@ fun WeeklyTrainingScreen(
                 snackbarHostState.showSnackbar(
                     message = undoMessage,
                     actionLabel = undoLabel,
-                    duration = SnackbarDuration.Short,
+                    duration = SnackbarDuration.Indefinite,
                 )
 
             if (result == SnackbarResult.ActionPerformed) {
@@ -104,6 +126,12 @@ fun WeeklyTrainingScreen(
             } else {
                 viewModel.clearUndo()
             }
+        }
+    }
+
+    LaunchedEffect(undoState) {
+        if (undoState == null) {
+            snackbarHostState.currentSnackbarData?.dismiss()
         }
     }
 

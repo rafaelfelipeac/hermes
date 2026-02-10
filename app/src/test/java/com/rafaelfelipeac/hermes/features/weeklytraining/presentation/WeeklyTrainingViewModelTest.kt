@@ -290,6 +290,13 @@ class WeeklyTrainingViewModelTest {
                     order = 1,
                 )
             }
+            coVerify(exactly = 1) {
+                repository.updateWorkoutDayAndOrder(
+                    workoutId = mondayWorkout.id,
+                    dayOfWeek = MONDAY,
+                    order = 0,
+                )
+            }
 
             collectJob.cancel()
         }

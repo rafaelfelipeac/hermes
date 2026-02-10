@@ -250,6 +250,10 @@ class WeeklyTrainingViewModel
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workout.id }
 
+            if (workout.isRestDay || original?.isRestDay == true) {
+                return@launch
+            }
+
             repository.updateWorkoutCompletion(workout.id, isCompleted)
 
             val actionType =
@@ -431,11 +435,32 @@ class WeeklyTrainingViewModel
             }
         }
 
+        private suspend fun normalizeOrdersForDay(
+            dayOfWeek: DayOfWeek?,
+            currentWorkouts: List<WorkoutUi>,
+        ) {
+            val workoutsForDay =
+                currentWorkouts
+                    .filter { it.dayOfWeek == dayOfWeek }
+                    .sortedBy { it.order }
+
+            workoutsForDay.forEachIndexed { index, workout ->
+                if (workout.order != index) {
+                    repository.updateWorkoutDayAndOrder(
+                        workoutId = workout.id,
+                        dayOfWeek = dayOfWeek,
+                        order = index,
+                    )
+                }
+            }
+        }
+
         private suspend fun undoMoveOrReorder(action: PendingUndoAction.MoveOrReorder) {
             val currentWorkouts = state.value.workouts
             val movedWorkout = currentWorkouts.firstOrNull { it.id == action.movedWorkoutId }
             val previousPosition =
                 action.previousPositions.firstOrNull { it.id == action.movedWorkoutId }
+            val previousPositionsById = action.previousPositions.associateBy { it.id }
 
             action.previousPositions.forEach { position ->
                 repository.updateWorkoutDayAndOrder(
@@ -444,6 +469,27 @@ class WeeklyTrainingViewModel
                     order = position.order,
                 )
             }
+
+            val updatedWorkouts =
+                currentWorkouts.map { workout ->
+                    val position = previousPositionsById[workout.id]
+
+                    if (position == null) {
+                        workout
+                    } else {
+                        workout.copy(
+                            dayOfWeek = position.dayOfWeek,
+                            order = position.order,
+                        )
+                    }
+                }
+
+            action.previousPositions
+                .map { it.dayOfWeek }
+                .distinct()
+                .forEach { dayOfWeek ->
+                    normalizeOrdersForDay(dayOfWeek, updatedWorkouts)
+                }
 
             if (movedWorkout != null && previousPosition != null) {
                 val updated =
@@ -475,6 +521,8 @@ class WeeklyTrainingViewModel
                         order = workout.order,
                     ),
                 )
+            val currentWorkouts = state.value.workouts
+            val updatedWorkouts = currentWorkouts + workout
 
             action.previousPositions.forEach { position ->
                 repository.updateWorkoutDayAndOrder(
@@ -482,6 +530,16 @@ class WeeklyTrainingViewModel
                     dayOfWeek = position.dayOfWeek,
                     order = position.order,
                 )
+            }
+            val affectedDays =
+                buildList {
+                    add(workout.dayOfWeek)
+                    action.previousPositions.mapTo(this) { it.dayOfWeek }
+                }
+                    .distinct()
+
+            affectedDays.forEach { dayOfWeek ->
+                normalizeOrdersForDay(dayOfWeek, updatedWorkouts)
             }
 
             val entityType =
