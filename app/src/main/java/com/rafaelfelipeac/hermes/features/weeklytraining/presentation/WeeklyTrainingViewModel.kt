@@ -24,12 +24,14 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_REST_DAY_TO_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_WORKOUT_TO_REST_DAY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_WORKOUT
@@ -44,12 +46,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -82,6 +86,7 @@ class WeeklyTrainingViewModel
             }
 
         private val undoState = MutableStateFlow<UndoState?>(null)
+        private val messageEvents = MutableSharedFlow<WeeklyTrainingMessage>(extraBufferCapacity = 1)
         private var undoTimeoutJob: Job? = null
         private var undoCounter = 0L
 
@@ -114,6 +119,7 @@ class WeeklyTrainingViewModel
                 started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue = null,
             )
+        val messages: SharedFlow<WeeklyTrainingMessage> = messageEvents.asSharedFlow()
 
         fun onDateSelected(date: LocalDate) {
             selectedDate.value = date
@@ -192,6 +198,49 @@ class WeeklyTrainingViewModel
                             DAY_OF_WEEK to UNPLANNED,
                             NEW_ORDER to nextOrder.toString(),
                         ),
+                )
+            }
+        }
+
+        fun copyLastWeek() {
+            val currentWeekStartDate = state.value.weekStartDate
+            val previousWeekStartDate = currentWeekStartDate.minusWeeks(1)
+
+            viewModelScope.launch {
+                val sourceWorkouts = repository.getWorkoutsForWeek(previousWeekStartDate)
+
+                if (sourceWorkouts.isEmpty()) {
+                    messageEvents.emit(WeeklyTrainingMessage.NothingToCopyFromLastWeek)
+                    return@launch
+                }
+
+                val targetWorkouts = repository.getWorkoutsForWeek(currentWeekStartDate)
+
+                repository.deleteWorkoutsForWeek(currentWeekStartDate)
+
+                copySourceIntoTargetWeek(
+                    sourceWorkouts = sourceWorkouts,
+                    targetWeekStartDate = currentWeekStartDate,
+                )
+
+                userActionLogger.log(
+                    actionType = COPY_LAST_WEEK,
+                    entityType = WEEK,
+                    metadata =
+                        mapOf(
+                            WEEK_START_DATE to currentWeekStartDate.toString(),
+                            OLD_WEEK_START_DATE to previousWeekStartDate.toString(),
+                            NEW_WEEK_START_DATE to currentWeekStartDate.toString(),
+                        ),
+                )
+
+                setUndoAction(
+                    action =
+                        PendingUndoAction.ReplaceWeek(
+                            weekStartDate = currentWeekStartDate,
+                            previousWorkouts = targetWorkouts,
+                        ),
+                    message = UndoMessage.WeekCopied,
                 )
             }
         }
@@ -407,6 +456,7 @@ class WeeklyTrainingViewModel
                     is PendingUndoAction.MoveOrReorder -> undoMoveOrReorder(action)
                     is PendingUndoAction.Delete -> undoDelete(action)
                     is PendingUndoAction.Completion -> undoCompletion(action)
+                    is PendingUndoAction.ReplaceWeek -> undoReplaceWeek(action)
                 }
 
                 undoState.value = null
@@ -547,7 +597,7 @@ class WeeklyTrainingViewModel
             weekStartDate: LocalDate,
         ): List<WorkoutUi> {
             val latestWorkouts =
-                repository.observeWorkoutsForWeek(weekStartDate).first().map { it.toUi() }
+                repository.getWorkoutsForWeek(weekStartDate).map { it.toUi() }
             val restoredWorkout = workout.copy(id = restoredId)
 
             return if (latestWorkouts.any { it.id == restoredId }) {
@@ -555,6 +605,27 @@ class WeeklyTrainingViewModel
             } else {
                 latestWorkouts + restoredWorkout
             }
+        }
+
+        private suspend fun undoReplaceWeek(action: PendingUndoAction.ReplaceWeek) {
+            repository.deleteWorkoutsForWeek(action.weekStartDate)
+
+            action.previousWorkouts
+                .sortedBy { it.id }
+                .forEach { workout ->
+                    repository.insertWorkout(workout)
+                }
+
+            userActionLogger.log(
+                actionType = UNDO_COPY_LAST_WEEK,
+                entityType = WEEK,
+                metadata =
+                    mapOf(
+                        WEEK_START_DATE to action.weekStartDate.toString(),
+                        OLD_WEEK_START_DATE to action.weekStartDate.minusWeeks(1).toString(),
+                        NEW_WEEK_START_DATE to action.weekStartDate.toString(),
+                    ),
+            )
         }
 
         private suspend fun undoCompletion(action: PendingUndoAction.Completion) {
@@ -616,6 +687,36 @@ class WeeklyTrainingViewModel
         private fun clearUndoTimeout() {
             undoTimeoutJob?.cancel()
             undoTimeoutJob = null
+        }
+
+        private suspend fun copySourceIntoTargetWeek(
+            sourceWorkouts: List<Workout>,
+            targetWeekStartDate: LocalDate,
+        ) {
+            sourceWorkouts
+                .sortedWith(
+                    compareBy(
+                        { it.dayOfWeek?.value ?: Int.MAX_VALUE },
+                        { it.order },
+                        { it.id },
+                    ),
+                ).forEach { workout ->
+                    if (workout.isRestDay) {
+                        repository.addRestDay(
+                            weekStartDate = targetWeekStartDate,
+                            dayOfWeek = workout.dayOfWeek,
+                            order = workout.order,
+                        )
+                    } else {
+                        repository.addWorkout(
+                            weekStartDate = targetWeekStartDate,
+                            dayOfWeek = workout.dayOfWeek,
+                            type = workout.type,
+                            description = workout.description,
+                            order = workout.order,
+                        )
+                    }
+                }
         }
 
         companion object {

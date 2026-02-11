@@ -12,6 +12,12 @@
     <string name="add_item">जोड़ें</string>
     <string name="add_workout">प्रशिक्षण जोड़ें</string>
     <string name="add_rest_day">आराम का दिन जोड़ें</string>
+    <string name="copy_last_week">पिछला सप्ताह कॉपी करें</string>
+    <string name="copy_last_week_replace_title">इस सप्ताह को बदलें?</string>
+    <string name="copy_last_week_replace_message">इससे इस सप्ताह की योजना, पिछले सप्ताह की योजना से बदल जाएगी।</string>
+    <string name="copy_last_week_replace_confirm">बदलें</string>
+    <string name="copy_last_week_empty">पिछले सप्ताह से कॉपी करने के लिए अभी कुछ नहीं है।</string>
+    <string name="week_copied">सप्ताह कॉपी हो गया।</string>
     <string name="add_workout_type">प्रकार</string>
     <string name="add_workout_description">विवरण</string>
     <string name="add_workout_confirm">जोड़ें</string>
@@ -32,7 +38,7 @@
     <string name="rest_day_deleted">आराम का दिन हटाया गया।</string>
     <string name="undo_action">पूर्ववत</string>
     <string name="mark_incomplete">अधूरा चिह्नित करें</string>
-    <string name="no_workouts">कोई प्रशिक्षण नहीं</string>
+    <string name="no_workouts">अभी कुछ भी योजना में नहीं है</string>
     <string name="drag_label">खींचें</string>
     <string name="section_to_be_defined">निर्धारित करना बाकी</string>
     <string name="tbd_help_title">प्रशिक्षण कैसे व्यवस्थित करें</string>
@@ -129,6 +135,8 @@
     <string name="activity_action_change_language">आपने भाषा बदली।</string>
     <string name="activity_action_change_theme">आपने थीम बदली।</string>
     <string name="activity_action_open_week">आपने एक और सप्ताह खोला।</string>
+    <string name="activity_action_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी किया।</string>
+    <string name="activity_action_undo_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी करने की क्रिया को पूर्ववत किया।</string>
     <string name="activity_action_fallback">आपने ऐप में एक क्रिया की।</string>
     <string name="activity_subtitle_change_value">\"%1$s\" से \"%2$s\".</string>
     <string name="activity_subtitle_move">\"%1$s\" से \"%2$s\".</string>

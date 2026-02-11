@@ -11,6 +11,9 @@ import java.time.LocalDate
 @Dao
 interface WorkoutDao {
     @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
+    suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<WorkoutEntity>
+
+    @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<WorkoutEntity>>
 
     @Insert
@@ -45,6 +48,9 @@ interface WorkoutDao {
 
     @Query("DELETE FROM workouts WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("DELETE FROM workouts WHERE weekStartDate = :weekStartDate")
+    suspend fun deleteByWeekStartDate(weekStartDate: LocalDate)
 
     @Query("DELETE FROM workouts")
     suspend fun deleteAll()

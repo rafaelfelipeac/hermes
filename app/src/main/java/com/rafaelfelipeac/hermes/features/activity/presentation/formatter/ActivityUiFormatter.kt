@@ -71,6 +71,12 @@ class ActivityUiFormatter(
             UserActionType.OPEN_WEEK ->
                 stringProvider.get(R.string.activity_action_open_week)
 
+            UserActionType.COPY_LAST_WEEK ->
+                stringProvider.get(R.string.activity_action_copy_last_week)
+
+            UserActionType.UNDO_COPY_LAST_WEEK ->
+                stringProvider.get(R.string.activity_action_undo_copy_last_week)
+
             else -> stringProvider.get(R.string.activity_action_fallback)
         }
     }

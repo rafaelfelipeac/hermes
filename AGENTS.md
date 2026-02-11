@@ -30,6 +30,9 @@ Project-level conventions for Codex and similar agents.
 
 ## User actions
 - Log user actions via `UserActionLogger` when state changes, using existing metadata keys.
+- For any new user-facing state-changing feature, default to full Activity support in the same task:
+  add/update `UserActionType`, emit logs in the ViewModel/use case, map titles/subtitles in Activity formatter, and add localized `activity_action_*` strings.
+- If a new feature intentionally should not appear in Activity, state that explicitly in the PR/task notes instead of leaving it implicit.
 
 ## Testing
 - Prefer fakes over mocks in unit tests.

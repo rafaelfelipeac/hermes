@@ -38,3 +38,6 @@ Recent learnings:
 - Undoing moves should normalize orders in the affected buckets to prevent duplicate sort indexes when new items are created during the undo window.
 - Undoing deletes should also reindex affected buckets because new items can be added before undo, which otherwise leaves duplicate order values.
 - When detekt flags ViewModel size, move pure helper routines (ordering normalization and action logging) to package-level functions so the ViewModel keeps orchestration responsibilities without losing behavior.
+- Week-level replace flows are safer when implemented as `delete target -> copy source placements`, while undo stores a full pre-replace snapshot and restores it with explicit week deletion first; this guarantees exact rollback without residual copied items.
+- One-off informational snackbars (like “nothing to copy”) work better as a dedicated `SharedFlow` event channel, while undo continues as stateful data with timeout semantics.
+- Week-level features need dedicated `UserActionType` entries (including undo variants) if they should appear in Activity; relying only on week subtitles without explicit action titles makes the feed fall back to generic messaging.
