@@ -11,6 +11,7 @@ data class WeeklyTrainingState(
     val selectedDate: LocalDate,
     val weekStartDate: LocalDate,
     val workouts: List<WorkoutUi>,
+    val isWeekLoaded: Boolean,
 ) {
     val dayIndicators: Map<DayOfWeek, DayIndicator> =
         workouts

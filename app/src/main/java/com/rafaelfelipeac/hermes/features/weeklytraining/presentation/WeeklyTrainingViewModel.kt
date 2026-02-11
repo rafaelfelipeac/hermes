@@ -38,7 +38,6 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELET
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -56,6 +55,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -85,6 +85,13 @@ class WeeklyTrainingViewModel
                 }
             }
 
+        private val workoutsLoadedForWeek =
+            weekStartDate.flatMapLatest {
+                workoutsForWeek
+                    .map { true }
+                    .onStart { emit(false) }
+            }
+
         private val undoState = MutableStateFlow<UndoState?>(null)
         private val messageEvents = MutableSharedFlow<WeeklyTrainingMessage>(extraBufferCapacity = 1)
         private var undoTimeoutJob: Job? = null
@@ -95,11 +102,13 @@ class WeeklyTrainingViewModel
                 selectedDate,
                 weekStartDate,
                 workoutsForWeek,
-            ) { selected, weekStart, workouts ->
+                workoutsLoadedForWeek,
+            ) { selected, weekStart, workouts, isWeekLoaded ->
                 WeeklyTrainingState(
                     selectedDate = selected,
                     weekStartDate = weekStart,
                     workouts = workouts,
+                    isWeekLoaded = isWeekLoaded,
                 )
             }.stateIn(
                 scope = viewModelScope,
@@ -110,6 +119,7 @@ class WeeklyTrainingViewModel
                         weekStartDate =
                             selectedDate.value.with(TemporalAdjusters.previousOrSame(MONDAY)),
                         workouts = emptyList(),
+                        isWeekLoaded = false,
                     ),
             )
 
@@ -218,11 +228,9 @@ class WeeklyTrainingViewModel
 
                 val targetWorkouts = repository.getWorkoutsForWeek(currentWeekStartDate)
 
-                repository.deleteWorkoutsForWeek(currentWeekStartDate)
-
-                copySourceIntoTargetWeek(
+                repository.replaceWorkoutsForWeek(
+                    weekStartDate = currentWeekStartDate,
                     sourceWorkouts = sourceWorkouts,
-                    targetWeekStartDate = currentWeekStartDate,
                 )
 
                 userActionLogger.log(
@@ -625,36 +633,6 @@ class WeeklyTrainingViewModel
         private fun clearUndoTimeout() {
             undoTimeoutJob?.cancel()
             undoTimeoutJob = null
-        }
-
-        private suspend fun copySourceIntoTargetWeek(
-            sourceWorkouts: List<Workout>,
-            targetWeekStartDate: LocalDate,
-        ) {
-            sourceWorkouts
-                .sortedWith(
-                    compareBy(
-                        { it.dayOfWeek?.value ?: Int.MAX_VALUE },
-                        { it.order },
-                        { it.id },
-                    ),
-                ).forEach { workout ->
-                    if (workout.isRestDay) {
-                        repository.addRestDay(
-                            weekStartDate = targetWeekStartDate,
-                            dayOfWeek = workout.dayOfWeek,
-                            order = workout.order,
-                        )
-                    } else {
-                        repository.addWorkout(
-                            weekStartDate = targetWeekStartDate,
-                            dayOfWeek = workout.dayOfWeek,
-                            type = workout.type,
-                            description = workout.description,
-                            order = workout.order,
-                        )
-                    }
-                }
         }
 
         companion object {

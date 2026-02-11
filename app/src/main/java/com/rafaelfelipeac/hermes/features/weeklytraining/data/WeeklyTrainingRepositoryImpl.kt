@@ -90,8 +90,45 @@ class WeeklyTrainingRepositoryImpl
 
         override suspend fun deleteWorkout(workoutId: Long) = workoutDao.deleteById(workoutId)
 
-        override suspend fun deleteWorkoutsForWeek(weekStartDate: LocalDate) = workoutDao.deleteByWeekStartDate(weekStartDate)
+        override suspend fun deleteWorkoutsForWeek(
+            weekStartDate: LocalDate,
+        ) = workoutDao.deleteByWeekStartDate(weekStartDate)
+
+        override suspend fun replaceWorkoutsForWeek(
+            weekStartDate: LocalDate,
+            sourceWorkouts: List<Workout>,
+        ) {
+            workoutDao.replaceWorkoutsForWeek(
+                weekStartDate = weekStartDate,
+                workouts = buildReplacementEntities(weekStartDate, sourceWorkouts),
+            )
+        }
     }
+
+private fun buildReplacementEntities(
+    weekStartDate: LocalDate,
+    sourceWorkouts: List<Workout>,
+): List<WorkoutEntity> {
+    return sourceWorkouts
+        .sortedWith(
+            compareBy(
+                { it.dayOfWeek?.value ?: Int.MAX_VALUE },
+                { it.order },
+                { it.id },
+            ),
+        ).map { workout ->
+            val isRestDay = workout.isRestDay
+            WorkoutEntity(
+                weekStartDate = weekStartDate,
+                dayOfWeek = workout.dayOfWeek?.value,
+                type = if (isRestDay) EMPTY else workout.type,
+                description = if (isRestDay) EMPTY else workout.description,
+                isCompleted = false,
+                isRestDay = isRestDay,
+                sortOrder = workout.order,
+            )
+        }
+}
 
 private fun WorkoutEntity.toDomain(): Workout {
     return Workout(

@@ -421,21 +421,10 @@ class WeeklyTrainingViewModelTest {
             viewModel.copyLastWeek()
             runCurrent()
 
-            coVerify(exactly = 1) { repository.deleteWorkoutsForWeek(fixture.weekStart) }
             coVerify(exactly = 1) {
-                repository.addWorkout(
+                repository.replaceWorkoutsForWeek(
                     weekStartDate = fixture.weekStart,
-                    dayOfWeek = MONDAY,
-                    type = fixture.sourceWorkout.type,
-                    description = fixture.sourceWorkout.description,
-                    order = fixture.sourceWorkout.order,
-                )
-            }
-            coVerify(exactly = 1) {
-                repository.addRestDay(
-                    weekStartDate = fixture.weekStart,
-                    dayOfWeek = TUESDAY,
-                    order = fixture.sourceRestDay.order,
+                    sourceWorkouts = listOf(fixture.sourceWorkout, fixture.sourceRestDay),
                 )
             }
             coVerify(exactly = 1) {
@@ -480,7 +469,7 @@ class WeeklyTrainingViewModelTest {
             runCurrent()
 
             val restoredWorkouts = mutableListOf<Workout>()
-            coVerify(exactly = 2) { repository.deleteWorkoutsForWeek(fixture.weekStart) }
+            coVerify(exactly = 1) { repository.deleteWorkoutsForWeek(fixture.weekStart) }
             coVerify(exactly = 2) { repository.insertWorkout(capture(restoredWorkouts)) }
             coVerify(exactly = 1) {
                 userActionLogger.log(
@@ -527,7 +516,7 @@ class WeeklyTrainingViewModelTest {
                 listOf(WeeklyTrainingMessage.NothingToCopyFromLastWeek),
                 messages,
             )
-            coVerify(exactly = 0) { repository.deleteWorkoutsForWeek(any()) }
+            coVerify(exactly = 0) { repository.replaceWorkoutsForWeek(any(), any()) }
             assertEquals(null, viewModel.undoUiState.value)
 
             messageJob.cancel()

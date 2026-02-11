@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
@@ -18,6 +19,9 @@ interface WorkoutDao {
 
     @Insert
     suspend fun insert(workout: WorkoutEntity): Long
+
+    @Insert
+    suspend fun insertAll(workouts: List<WorkoutEntity>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrReplace(workout: WorkoutEntity): Long
@@ -51,6 +55,18 @@ interface WorkoutDao {
 
     @Query("DELETE FROM workouts WHERE weekStartDate = :weekStartDate")
     suspend fun deleteByWeekStartDate(weekStartDate: LocalDate)
+
+    @Transaction
+    suspend fun replaceWorkoutsForWeek(
+        weekStartDate: LocalDate,
+        workouts: List<WorkoutEntity>,
+    ) {
+        deleteByWeekStartDate(weekStartDate)
+
+        if (workouts.isNotEmpty()) {
+            insertAll(workouts)
+        }
+    }
 
     @Query("DELETE FROM workouts")
     suspend fun deleteAll()

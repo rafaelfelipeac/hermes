@@ -47,4 +47,9 @@ interface WeeklyTrainingRepository {
     suspend fun deleteWorkout(workoutId: Long)
 
     suspend fun deleteWorkoutsForWeek(weekStartDate: LocalDate)
+
+    suspend fun replaceWorkoutsForWeek(
+        weekStartDate: LocalDate,
+        sourceWorkouts: List<Workout>,
+    )
 }

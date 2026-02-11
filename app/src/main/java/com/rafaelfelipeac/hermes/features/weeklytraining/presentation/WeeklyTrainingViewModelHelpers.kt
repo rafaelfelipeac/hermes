@@ -201,13 +201,6 @@ internal suspend fun restoreDeletedWorkout(
                 order = workout.order,
             ),
         )
-    val updatedWorkouts =
-        buildUpdatedWorkoutsAfterRestore(
-            repository = repository,
-            restoredId = restoredId,
-            workout = workout,
-            weekStartDate = action.weekStartDate,
-        )
 
     action.previousPositions.forEach { position ->
         repository.updateWorkoutDayAndOrder(
@@ -216,6 +209,14 @@ internal suspend fun restoreDeletedWorkout(
             order = position.order,
         )
     }
+
+    val updatedWorkouts =
+        buildUpdatedWorkoutsAfterRestore(
+            repository = repository,
+            restoredId = restoredId,
+            workout = workout,
+            weekStartDate = action.weekStartDate,
+        )
 
     val affectedDays =
         buildList {

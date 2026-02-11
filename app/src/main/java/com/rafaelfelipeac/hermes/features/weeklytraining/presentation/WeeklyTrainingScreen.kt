@@ -278,7 +278,7 @@ fun WeeklyTrainingScreen(
                         onClick = {
                             isAddMenuVisible = false
 
-                            if (state.workouts.isEmpty()) {
+                            if (state.isWeekLoaded && state.workouts.isEmpty()) {
                                 viewModel.copyLastWeek()
                             } else {
                                 isCopyReplaceDialogVisible = true
