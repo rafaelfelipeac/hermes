@@ -60,6 +60,7 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
+    val demoDataCreatedMessage = stringResource(R.string.demo_data_created)
 
     SettingsContent(
         state = state,
@@ -70,7 +71,7 @@ fun SettingsScreen(
             viewModel.seedDemoData()
             android.widget.Toast.makeText(
                 context,
-                context.getString(R.string.demo_data_created),
+                demoDataCreatedMessage,
                 android.widget.Toast.LENGTH_SHORT,
             ).show()
         },
