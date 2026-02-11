@@ -12,6 +12,12 @@
     <string name="add_item">追加</string>
     <string name="add_workout">トレーニングを追加</string>
     <string name="add_rest_day">休息日を追加</string>
+    <string name="copy_last_week">先週をコピー</string>
+    <string name="copy_last_week_replace_title">この週を置き換えますか？</string>
+    <string name="copy_last_week_replace_message">この操作で、今週の計画は先週の計画で置き換えられます。</string>
+    <string name="copy_last_week_replace_confirm">置き換え</string>
+    <string name="copy_last_week_empty">先週からコピーできる内容がまだありません。</string>
+    <string name="week_copied">週をコピーしました。</string>
     <string name="add_workout_type">種類</string>
     <string name="add_workout_description">説明</string>
     <string name="add_workout_confirm">追加</string>
@@ -32,7 +38,7 @@
     <string name="rest_day_deleted">休息日を削除しました。</string>
     <string name="undo_action">元に戻す</string>
     <string name="mark_incomplete">未完了にする</string>
-    <string name="no_workouts">トレーニングなし</string>
+    <string name="no_workouts">まだ何も計画されていません</string>
     <string name="drag_label">ドラッグ</string>
     <string name="section_to_be_defined">未定</string>
     <string name="tbd_help_title">トレーニングの整理方法</string>
@@ -129,6 +135,8 @@
     <string name="activity_action_change_language">言語を変更しました。</string>
     <string name="activity_action_change_theme">テーマを変更しました。</string>
     <string name="activity_action_open_week">別の週を開きました。</string>
+    <string name="activity_action_copy_last_week">先週を今週にコピーしました。</string>
+    <string name="activity_action_undo_copy_last_week">先週を今週にコピーした操作を取り消しました。</string>
     <string name="activity_action_fallback">アプリで操作を行いました。</string>
     <string name="activity_subtitle_change_value">\"%1$s\" から \"%2$s\" へ。</string>
     <string name="activity_subtitle_move">\"%1$s\" から \"%2$s\" へ。</string>

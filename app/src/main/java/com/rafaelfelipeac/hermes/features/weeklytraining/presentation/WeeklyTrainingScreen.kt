@@ -6,14 +6,20 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -39,6 +45,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,9 +78,12 @@ fun WeeklyTrainingScreen(
     var isAddMenuVisible by rememberSaveable { mutableStateOf(false) }
     var editingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
     var deletingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
+    var isCopyReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
     val undoLabel = stringResource(R.string.undo_action)
+    val copiedWeekMessage = stringResource(R.string.week_copied)
+    val emptyCopyMessage = stringResource(R.string.copy_last_week_empty)
     val undoMessage =
         undoState?.let { currentUndo ->
             val isRestDay =
@@ -81,9 +91,11 @@ fun WeeklyTrainingScreen(
                     is PendingUndoAction.Delete -> action.workout.isRestDay
                     is PendingUndoAction.Completion -> action.workout.isRestDay
                     is PendingUndoAction.MoveOrReorder -> action.isRestDay
+                    is PendingUndoAction.ReplaceWeek -> false
                 }
 
             when (currentUndo.message) {
+                UndoMessage.WeekCopied -> copiedWeekMessage
                 UndoMessage.Moved ->
                     stringResource(
                         if (isRestDay) {
@@ -129,6 +141,18 @@ fun WeeklyTrainingScreen(
     LaunchedEffect(undoState) {
         if (undoState == null) {
             snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect { message ->
+            when (message) {
+                WeeklyTrainingMessage.NothingToCopyFromLastWeek ->
+                    snackbarHostState.showSnackbar(
+                        message = emptyCopyMessage,
+                        duration = SnackbarDuration.Short,
+                    )
+            }
         }
     }
 
@@ -224,16 +248,41 @@ fun WeeklyTrainingScreen(
                 Column(
                     modifier =
                         Modifier
+                            .width(IntrinsicSize.Max)
                             .align(Alignment.BottomEnd)
                             .padding(end = SpacingXl, bottom = AddMenuBottomPadding),
                     verticalArrangement = Arrangement.spacedBy(SpacingLg),
                     horizontalAlignment = Alignment.End,
                 ) {
                     AddActionPill(
+                        icon = Icons.Default.Add,
                         label = stringResource(R.string.add_workout),
                         onClick = {
                             isAddMenuVisible = false
                             isAddDialogVisible = true
+                        },
+                    )
+
+                    AddActionPill(
+                        icon = Icons.Outlined.Bedtime,
+                        label = stringResource(R.string.add_rest_day),
+                        onClick = {
+                            isAddMenuVisible = false
+                            viewModel.addRestDay()
+                        },
+                    )
+
+                    AddActionPill(
+                        icon = Icons.Default.History,
+                        label = stringResource(R.string.copy_last_week),
+                        onClick = {
+                            isAddMenuVisible = false
+
+                            if (state.isWeekLoaded && state.workouts.isEmpty()) {
+                                viewModel.copyLastWeek()
+                            } else {
+                                isCopyReplaceDialogVisible = true
+                            }
                         },
                     )
 
@@ -242,6 +291,7 @@ fun WeeklyTrainingScreen(
                         val mockDescription = stringResource(R.string.mock_workout_description)
 
                         AddActionPill(
+                            icon = Icons.Default.Settings,
                             label = stringResource(R.string.add_mock_workout),
                             onClick = {
                                 isAddMenuVisible = false
@@ -252,14 +302,6 @@ fun WeeklyTrainingScreen(
                             },
                         )
                     }
-
-                    AddActionPill(
-                        label = stringResource(R.string.add_rest_day),
-                        onClick = {
-                            isAddMenuVisible = false
-                            viewModel.addRestDay()
-                        },
-                    )
                 }
             }
         }
@@ -335,10 +377,39 @@ fun WeeklyTrainingScreen(
             },
         )
     }
+
+    if (isCopyReplaceDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { isCopyReplaceDialogVisible = false },
+            title = {
+                Text(text = stringResource(R.string.copy_last_week_replace_title))
+            },
+            text = {
+                Text(text = stringResource(R.string.copy_last_week_replace_message))
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.copyLastWeek()
+
+                        isCopyReplaceDialogVisible = false
+                    },
+                ) {
+                    Text(text = stringResource(R.string.copy_last_week_replace_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { isCopyReplaceDialogVisible = false }) {
+                    Text(text = stringResource(R.string.add_workout_cancel))
+                }
+            },
+        )
+    }
 }
 
 @Composable
 private fun AddActionPill(
+    icon: ImageVector,
     label: String,
     onClick: () -> Unit,
 ) {
@@ -347,7 +418,10 @@ private fun AddActionPill(
         shape = shapes.extraLarge,
         tonalElevation = ElevationMd,
         shadowElevation = ElevationMd,
-        modifier = Modifier.defaultMinSize(minWidth = AddActionPillMinWidth),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .defaultMinSize(minWidth = AddActionPillMinWidth),
     ) {
         Row(
             modifier =
@@ -355,8 +429,10 @@ private fun AddActionPill(
                     horizontal = AddActionPillHorizontalPadding,
                     vertical = SpacingLg,
                 ),
+            horizontalArrangement = Arrangement.spacedBy(SpacingLg),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Icon(imageVector = icon, contentDescription = null)
             Text(text = label, style = typography.titleSmall)
         }
     }

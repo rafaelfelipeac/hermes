@@ -12,6 +12,12 @@
     <string name="add_item">إضافة</string>
     <string name="add_workout">إضافة تمرين</string>
     <string name="add_rest_day">إضافة يوم راحة</string>
+    <string name="copy_last_week">نسخ الأسبوع الماضي</string>
+    <string name="copy_last_week_replace_title">استبدال هذا الأسبوع؟</string>
+    <string name="copy_last_week_replace_message">سيتم استبدال خطة هذا الأسبوع بخطة الأسبوع الماضي.</string>
+    <string name="copy_last_week_replace_confirm">استبدال</string>
+    <string name="copy_last_week_empty">لا يوجد ما يمكن نسخه من الأسبوع الماضي بعد.</string>
+    <string name="week_copied">تم نسخ الأسبوع.</string>
     <string name="add_workout_type">النوع</string>
     <string name="add_workout_description">الوصف</string>
     <string name="add_workout_confirm">إضافة</string>
@@ -32,7 +38,7 @@
     <string name="rest_day_deleted">تم حذف يوم الراحة.</string>
     <string name="undo_action">تراجع</string>
     <string name="mark_incomplete">وضع علامة غير مكتمل</string>
-    <string name="no_workouts">لا توجد تمارين</string>
+    <string name="no_workouts">لا شيء مخطط له بعد</string>
     <string name="drag_label">مقبض السحب</string>
     <string name="section_to_be_defined">غير محدد بعد</string>
     <string name="tbd_help_title">كيفية تنظيم التمارين</string>
@@ -129,6 +135,8 @@
     <string name="activity_action_change_language">لقد غيّرت اللغة.</string>
     <string name="activity_action_change_theme">لقد غيّرت السمة.</string>
     <string name="activity_action_open_week">لقد فتحت أسبوعًا آخر.</string>
+    <string name="activity_action_copy_last_week">لقد نسخت الأسبوع الماضي إلى هذا الأسبوع.</string>
+    <string name="activity_action_undo_copy_last_week">لقد تراجعت عن نسخ الأسبوع الماضي إلى هذا الأسبوع.</string>
     <string name="activity_action_fallback">لقد قمت بإجراء في التطبيق.</string>
     <string name="activity_subtitle_change_value">من \"%1$s\" إلى \"%2$s\".</string>
     <string name="activity_subtitle_move">من \"%1$s\" إلى \"%2$s\".</string>

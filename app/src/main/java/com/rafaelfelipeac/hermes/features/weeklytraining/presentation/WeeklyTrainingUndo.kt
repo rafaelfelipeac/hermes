@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -15,6 +16,7 @@ enum class UndoMessage {
     Deleted,
     Completed,
     MarkedIncomplete,
+    WeekCopied,
 }
 
 data class WorkoutPosition(
@@ -42,5 +44,10 @@ sealed class PendingUndoAction {
         val previousCompleted: Boolean,
         val newCompleted: Boolean,
         val weekStartDate: LocalDate,
+    ) : PendingUndoAction()
+
+    data class ReplaceWeek(
+        val weekStartDate: LocalDate,
+        val previousWorkouts: List<Workout>,
     ) : PendingUndoAction()
 }

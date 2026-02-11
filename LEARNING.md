@@ -38,3 +38,12 @@ Recent learnings:
 - Undoing moves should normalize orders in the affected buckets to prevent duplicate sort indexes when new items are created during the undo window.
 - Undoing deletes should also reindex affected buckets because new items can be added before undo, which otherwise leaves duplicate order values.
 - When detekt flags ViewModel size, move pure helper routines (ordering normalization and action logging) to package-level functions so the ViewModel keeps orchestration responsibilities without losing behavior.
+- Week-level replace flows are safer when implemented as `delete target -> copy source placements`, while undo stores a full pre-replace snapshot and restores it with explicit week deletion first; this guarantees exact rollback without residual copied items.
+- One-off informational snackbars (like “nothing to copy”) work better as a dedicated `SharedFlow` event channel, while undo continues as stateful data with timeout semantics.
+- Week-level features need dedicated `UserActionType` entries (including undo variants) if they should appear in Activity; relying only on week subtitles without explicit action titles makes the feed fall back to generic messaging.
+- Compose UI tests that only render composables should use `createComposeRule()` so the test activity provided by `ui-test-manifest` is used; relying on `createAndroidComposeRule<ComponentActivity>()` can leave tests without a launched activity and no compose root.
+- Keeping `WeeklyTrainingViewModel` under detekt’s function count is easiest by moving pure helper logic (like post-restore list assembly) to file-level functions that depend only on repositories and mappers.
+- For long undo flows, extracting restore/normalization steps into shared helper functions keeps ViewModel methods short without hiding behavior behind mocks.
+- Copying a week should be a single Room transaction (delete + insert) to avoid leaving a week empty if a copy fails mid-flight.
+- When undo restores also adjust other rows, re-fetch the week before normalization so ordering uses the post-mutation state.
+- Copy-replace confirmation should rely on a “week loaded” signal, not an empty UI list, to avoid skipping warnings during initial load or week transitions.

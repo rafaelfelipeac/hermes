@@ -1,7 +1,6 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
-import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
@@ -14,7 +13,7 @@ import java.time.LocalDate
 
 class WeeklyCalendarHeaderTest {
     @get:Rule
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    val composeRule = createComposeRule()
 
     @Test
     fun clickingDayInvokesOnDateSelected() {

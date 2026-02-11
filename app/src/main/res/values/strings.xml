@@ -12,6 +12,12 @@
     <string name="add_item">Add</string>
     <string name="add_workout">Add workout</string>
     <string name="add_rest_day">Add rest day</string>
+    <string name="copy_last_week">Copy last week</string>
+    <string name="copy_last_week_replace_title">Replace this week?</string>
+    <string name="copy_last_week_replace_message">This will replace the current week plan with the previous week plan.</string>
+    <string name="copy_last_week_replace_confirm">Replace</string>
+    <string name="copy_last_week_empty">Nothing to copy from last week yet.</string>
+    <string name="week_copied">Week copied.</string>
     <string name="add_workout_type">Type</string>
     <string name="add_workout_description">Description</string>
     <string name="add_workout_confirm">Add</string>
@@ -32,7 +38,7 @@
     <string name="rest_day_deleted">Rest day deleted.</string>
     <string name="undo_action">Undo</string>
     <string name="mark_incomplete">Mark as incomplete</string>
-    <string name="no_workouts">No workouts</string>
+    <string name="no_workouts">Nothing planned yet</string>
     <string name="drag_label">Drag handle</string>
     <string name="section_to_be_defined">To be defined</string>
     <string name="tbd_help_title">How to organize workouts</string>
@@ -129,6 +135,8 @@
     <string name="activity_action_change_language">You changed the language.</string>
     <string name="activity_action_change_theme">You changed the theme.</string>
     <string name="activity_action_open_week">You opened another week.</string>
+    <string name="activity_action_copy_last_week">You copied last week into this week.</string>
+    <string name="activity_action_undo_copy_last_week">You undid copying last week into this week.</string>
     <string name="activity_action_fallback">You performed an action in the app.</string>
     <string name="activity_subtitle_change_value">From \"%1$s\" to \"%2$s\".</string>
     <string name="activity_subtitle_move">From \"%1$s\" to \"%2$s\".</string>

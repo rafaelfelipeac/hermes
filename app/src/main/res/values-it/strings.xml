@@ -12,6 +12,12 @@
     <string name="add_item">Aggiungi</string>
     <string name="add_workout">Aggiungi allenamento</string>
     <string name="add_rest_day">Aggiungi giorno di riposo</string>
+    <string name="copy_last_week">Copia settimana scorsa</string>
+    <string name="copy_last_week_replace_title">Sostituire questa settimana?</string>
+    <string name="copy_last_week_replace_message">Questa azione sostituirà il piano di questa settimana con quello della settimana scorsa.</string>
+    <string name="copy_last_week_replace_confirm">Sostituisci</string>
+    <string name="copy_last_week_empty">Non c\'è ancora nulla da copiare dalla settimana scorsa.</string>
+    <string name="week_copied">Settimana copiata.</string>
     <string name="add_workout_type">Tipo</string>
     <string name="add_workout_description">Descrizione</string>
     <string name="add_workout_confirm">Aggiungi</string>
@@ -32,7 +38,7 @@
     <string name="rest_day_deleted">Giorno di riposo eliminato.</string>
     <string name="undo_action">Annulla</string>
     <string name="mark_incomplete">Segna come incompleto</string>
-    <string name="no_workouts">Nessun allenamento</string>
+    <string name="no_workouts">Ancora nulla di pianificato</string>
     <string name="drag_label">Trascina</string>
     <string name="section_to_be_defined">Da definire</string>
     <string name="tbd_help_title">Come organizzare gli allenamenti</string>
@@ -129,6 +135,8 @@
     <string name="activity_action_change_language">Hai cambiato la lingua.</string>
     <string name="activity_action_change_theme">Hai cambiato il tema.</string>
     <string name="activity_action_open_week">Hai aperto un\'altra settimana.</string>
+    <string name="activity_action_copy_last_week">Hai copiato la settimana scorsa in questa settimana.</string>
+    <string name="activity_action_undo_copy_last_week">Hai annullato la copia della settimana scorsa in questa settimana.</string>
     <string name="activity_action_fallback">Hai eseguito un\'azione nell\'app.</string>
     <string name="activity_subtitle_change_value">Da \"%1$s\" a \"%2$s\".</string>
     <string name="activity_subtitle_move">Da \"%1$s\" a \"%2$s\".</string>

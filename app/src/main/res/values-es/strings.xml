@@ -12,6 +12,12 @@
     <string name="add_item">Agregar</string>
     <string name="add_workout">Agregar entrenamiento</string>
     <string name="add_rest_day">Agregar día de descanso</string>
+    <string name="copy_last_week">Copiar semana pasada</string>
+    <string name="copy_last_week_replace_title">¿Reemplazar esta semana?</string>
+    <string name="copy_last_week_replace_message">Esto reemplazará el plan de esta semana con el plan de la semana pasada.</string>
+    <string name="copy_last_week_replace_confirm">Reemplazar</string>
+    <string name="copy_last_week_empty">Todavía no hay nada para copiar de la semana pasada.</string>
+    <string name="week_copied">Semana copiada.</string>
     <string name="add_workout_type">Tipo</string>
     <string name="add_workout_description">Descripción</string>
     <string name="add_workout_confirm">Agregar</string>
@@ -32,7 +38,7 @@
     <string name="rest_day_deleted">Día de descanso eliminado.</string>
     <string name="undo_action">Deshacer</string>
     <string name="mark_incomplete">Marcar como incompleto</string>
-    <string name="no_workouts">Sin entrenamientos</string>
+    <string name="no_workouts">Nada planificado todavía</string>
     <string name="drag_label">Arrastrar</string>
     <string name="section_to_be_defined">Por definir</string>
     <string name="tbd_help_title">Cómo organizar los entrenamientos</string>
@@ -129,6 +135,8 @@
     <string name="activity_action_change_language">Cambiaste el idioma.</string>
     <string name="activity_action_change_theme">Cambiaste el tema.</string>
     <string name="activity_action_open_week">Abriste otra semana.</string>
+    <string name="activity_action_copy_last_week">Copiaste la semana pasada en esta semana.</string>
+    <string name="activity_action_undo_copy_last_week">Deshiciste la copia de la semana pasada en esta semana.</string>
     <string name="activity_action_fallback">Realizaste una acción en la app.</string>
     <string name="activity_subtitle_change_value">De \"%1$s\" a \"%2$s\".</string>
     <string name="activity_subtitle_move">De \"%1$s\" a \"%2$s\".</string>

@@ -12,6 +12,12 @@
     <string name="add_item">Ajouter</string>
     <string name="add_workout">Ajouter un entraînement</string>
     <string name="add_rest_day">Ajouter un jour de repos</string>
+    <string name="copy_last_week">Copier la semaine dernière</string>
+    <string name="copy_last_week_replace_title">Remplacer cette semaine ?</string>
+    <string name="copy_last_week_replace_message">Cela remplacera le plan de cette semaine par celui de la semaine dernière.</string>
+    <string name="copy_last_week_replace_confirm">Remplacer</string>
+    <string name="copy_last_week_empty">Rien à copier depuis la semaine dernière pour le moment.</string>
+    <string name="week_copied">Semaine copiée.</string>
     <string name="add_workout_type">Type</string>
     <string name="add_workout_description">Description</string>
     <string name="add_workout_confirm">Ajouter</string>
@@ -32,7 +38,7 @@
     <string name="rest_day_deleted">Jour de repos supprimé.</string>
     <string name="undo_action">Annuler</string>
     <string name="mark_incomplete">Marquer comme non terminé</string>
-    <string name="no_workouts">Aucun entraînement</string>
+    <string name="no_workouts">Rien de planifié pour le moment</string>
     <string name="drag_label">Glisser</string>
     <string name="section_to_be_defined">À définir</string>
     <string name="tbd_help_title">Comment organiser les entraînements</string>
@@ -129,6 +135,8 @@
     <string name="activity_action_change_language">Vous avez changé la langue.</string>
     <string name="activity_action_change_theme">Vous avez changé le thème.</string>
     <string name="activity_action_open_week">Vous avez ouvert une autre semaine.</string>
+    <string name="activity_action_copy_last_week">Vous avez copié la semaine dernière dans cette semaine.</string>
+    <string name="activity_action_undo_copy_last_week">Vous avez annulé la copie de la semaine dernière dans cette semaine.</string>
     <string name="activity_action_fallback">Vous avez effectué une action dans l\'application.</string>
     <string name="activity_subtitle_change_value">De \"%1$s\" à \"%2$s\".</string>
     <string name="activity_subtitle_move">De \"%1$s\" à \"%2$s\".</string>

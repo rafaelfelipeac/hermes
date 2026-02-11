@@ -14,10 +14,12 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -175,6 +177,37 @@ class ActivityViewModelTest {
             }
         }
 
+    @Test
+    fun copyLastWeek_usesWeekActionTitleAndWeekSubtitle() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val weekStart = LocalDate.of(2026, 2, 2)
+            val metadata = metadataJson(WEEK_START_DATE to weekStart.toString())
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 5L,
+                        actionType = COPY_LAST_WEEK.name,
+                        entityType = WEEK.name,
+                        entityId = null,
+                        metadata = metadata,
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                ),
+            )
+
+            viewModel.state.test {
+                val item = awaitNonEmptyState().sections.first().items.first()
+
+                assertTrue(item.title.contains("copied last week"))
+                assertTrue(item.subtitle?.contains("Week of") == true)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
     private class FakeUserActionRepository : UserActionRepository {
         private val flow = MutableStateFlow<List<UserActionRecord>>(emptyList())
 
@@ -208,6 +241,8 @@ class ActivityViewModelTest {
                 R.string.activity_action_change_language to "You changed the language.",
                 R.string.activity_action_change_theme to "You changed the theme.",
                 R.string.activity_action_open_week to "You opened another week.",
+                R.string.activity_action_copy_last_week to "You copied last week into this week.",
+                R.string.activity_action_undo_copy_last_week to "You undid copying last week into this week.",
                 R.string.activity_action_fallback to "You performed an action in the app.",
                 R.string.activity_subtitle_change_value to "From \"%1\$s\" to \"%2\$s\".",
                 R.string.activity_subtitle_move to "From \"%1\$s\" to \"%2\$s\".",

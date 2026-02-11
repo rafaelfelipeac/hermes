@@ -1,9 +1,9 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
-import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
@@ -13,12 +13,12 @@ import org.junit.Test
 
 class SettingsContentTest {
     @get:Rule
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    val composeRule = createComposeRule()
 
     @Test
     fun selectingThemeInvokesCallback() {
         var selectedTheme: ThemeMode? = null
-        val context = composeRule.activity
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         val darkLabel = context.getString(R.string.settings_theme_dark)
 
         composeRule.setContent {
@@ -45,7 +45,7 @@ class SettingsContentTest {
     @Test
     fun selectingLanguageInvokesCallback() {
         var selectedLanguage: AppLanguage? = null
-        val context = composeRule.activity
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
         val englishLabel = context.getString(R.string.settings_language_english)
 
         composeRule.setContent {
