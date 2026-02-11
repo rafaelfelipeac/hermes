@@ -114,133 +114,221 @@ class DemoDataSeeder
             previousWeekStart: LocalDate,
             nextWeekStart: LocalDate,
         ) {
+            buildActivityHistoryActions(
+                currentWeekStart = currentWeekStart,
+                previousWeekStart = previousWeekStart,
+                nextWeekStart = nextWeekStart,
+            ).forEach { userActionDao.insert(it) }
+        }
+
+        private fun buildActivityHistoryActions(
+            currentWeekStart: LocalDate,
+            previousWeekStart: LocalDate,
+            nextWeekStart: LocalDate,
+        ): List<UserActionEntity> {
             val zoneId = ZoneId.systemDefault()
             val now = System.currentTimeMillis()
             val dayMillis = 24 * 60 * 60 * 1000L
 
-            val actions =
-                listOf(
-                    action(
-                        type = UserActionType.OPEN_WEEK,
-                        entityType = UserActionEntityType.WEEK,
-                        metadata =
-                            mapOf(
-                                OLD_WEEK_START_DATE to previousWeekStart.toString(),
-                                NEW_WEEK_START_DATE to currentWeekStart.toString(),
-                                WEEK_START_DATE to currentWeekStart.toString(),
-                            ),
-                        timestamp = now - dayMillis * 6,
-                    ),
-                    action(
-                        type = UserActionType.CREATE_WORKOUT,
-                        entityType = UserActionEntityType.WORKOUT,
-                        metadata =
-                            mapOf(
-                                WEEK_START_DATE to currentWeekStart.toString(),
-                                DAY_OF_WEEK to TUESDAY.value.toString(),
-                                NEW_ORDER to "0",
-                                NEW_TYPE to mockWorkout(2).type,
-                                NEW_DESCRIPTION to mockWorkout(2).description,
-                            ),
-                        timestamp = now - dayMillis * 5,
-                    ),
-                    action(
-                        type = UserActionType.MOVE_WORKOUT_BETWEEN_DAYS,
-                        entityType = UserActionEntityType.WORKOUT,
-                        metadata =
-                            mapOf(
-                                WEEK_START_DATE to currentWeekStart.toString(),
-                                OLD_DAY_OF_WEEK to THURSDAY.value.toString(),
-                                NEW_DAY_OF_WEEK to FRIDAY.value.toString(),
-                                OLD_ORDER to "1",
-                                NEW_ORDER to "0",
-                                NEW_TYPE to mockWorkout(4).type,
-                                NEW_DESCRIPTION to mockWorkout(4).description,
-                            ),
-                        timestamp = now - dayMillis * 4,
-                    ),
-                    action(
-                        type = UserActionType.REORDER_WORKOUT,
-                        entityType = UserActionEntityType.WORKOUT,
-                        metadata =
-                            mapOf(
-                                WEEK_START_DATE to currentWeekStart.toString(),
-                                OLD_DAY_OF_WEEK to MONDAY.value.toString(),
-                                NEW_DAY_OF_WEEK to MONDAY.value.toString(),
-                                OLD_ORDER to "1",
-                                NEW_ORDER to "0",
-                                NEW_TYPE to mockWorkout(1).type,
-                                NEW_DESCRIPTION to mockWorkout(1).description,
-                            ),
-                        timestamp = now - dayMillis * 3,
-                    ),
-                    action(
-                        type = UserActionType.COMPLETE_WORKOUT,
-                        entityType = UserActionEntityType.WORKOUT,
-                        metadata =
-                            mapOf(
-                                WEEK_START_DATE to currentWeekStart.toString(),
-                                WAS_COMPLETED to "false",
-                                IS_COMPLETED to "true",
-                                NEW_TYPE to mockWorkout(0).type,
-                                NEW_DESCRIPTION to mockWorkout(0).description,
-                            ),
-                        timestamp = now - dayMillis * 2,
-                    ),
-                    action(
-                        type = UserActionType.CREATE_REST_DAY,
-                        entityType = UserActionEntityType.REST_DAY,
-                        metadata =
-                            mapOf(
-                                WEEK_START_DATE to currentWeekStart.toString(),
-                                DAY_OF_WEEK to WEDNESDAY.value.toString(),
-                                NEW_ORDER to "0",
-                            ),
-                        timestamp = now - dayMillis * 2 + 2_000,
-                    ),
-                    action(
-                        type = UserActionType.OPEN_WEEK,
-                        entityType = UserActionEntityType.WEEK,
-                        metadata =
-                            mapOf(
-                                OLD_WEEK_START_DATE to currentWeekStart.toString(),
-                                NEW_WEEK_START_DATE to nextWeekStart.toString(),
-                                WEEK_START_DATE to nextWeekStart.toString(),
-                            ),
-                        timestamp = now - dayMillis,
-                    ),
-                    action(
-                        type = UserActionType.OPEN_WEEK,
-                        entityType = UserActionEntityType.WEEK,
-                        metadata =
-                            mapOf(
-                                OLD_WEEK_START_DATE to nextWeekStart.toString(),
-                                NEW_WEEK_START_DATE to currentWeekStart.toString(),
-                                WEEK_START_DATE to currentWeekStart.toString(),
-                            ),
-                        timestamp = now - dayMillis + 3_000,
-                    ),
-                    action(
-                        type = UserActionType.CREATE_WORKOUT,
-                        entityType = UserActionEntityType.WORKOUT,
-                        metadata =
-                            mapOf(
-                                WEEK_START_DATE to previousWeekStart.toString(),
-                                DAY_OF_WEEK to UNPLANNED,
-                                NEW_ORDER to "0",
-                                NEW_TYPE to mockWorkout(7).type,
-                                NEW_DESCRIPTION to mockWorkout(7).description,
-                            ),
-                        timestamp =
-                            previousWeekStart
-                                .atStartOfDay(zoneId)
-                                .plusHours(10)
-                                .toInstant()
-                                .toEpochMilli(),
-                    ),
+            return buildCurrentWeekActions(
+                currentWeekStart = currentWeekStart,
+                previousWeekStart = previousWeekStart,
+                nextWeekStart = nextWeekStart,
+                now = now,
+                dayMillis = dayMillis,
+            ) +
+                buildPreviousWeekActions(
+                    previousWeekStart = previousWeekStart,
+                    zoneId = zoneId,
                 )
+        }
 
-            actions.forEach { userActionDao.insert(it) }
+        private fun buildCurrentWeekActions(
+            currentWeekStart: LocalDate,
+            previousWeekStart: LocalDate,
+            nextWeekStart: LocalDate,
+            now: Long,
+            dayMillis: Long,
+        ): List<UserActionEntity> {
+            return listOf(
+                openWeekAction(
+                    oldWeekStart = previousWeekStart,
+                    newWeekStart = currentWeekStart,
+                    timestamp = now - dayMillis * 6,
+                ),
+                createWorkoutAction(
+                    weekStartDate = currentWeekStart,
+                    dayOfWeek = TUESDAY,
+                    order = 0,
+                    seed = mockWorkout(2),
+                    timestamp = now - dayMillis * 5,
+                ),
+                moveWorkoutAction(
+                    weekStartDate = currentWeekStart,
+                    dayChange = WorkoutDayChange(oldDay = THURSDAY, newDay = FRIDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                    seed = mockWorkout(4),
+                    timestamp = now - dayMillis * 4,
+                ),
+                moveWorkoutAction(
+                    weekStartDate = currentWeekStart,
+                    dayChange = WorkoutDayChange(oldDay = MONDAY, newDay = MONDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                    seed = mockWorkout(1),
+                    timestamp = now - dayMillis * 3,
+                ),
+                completeWorkoutAction(
+                    weekStartDate = currentWeekStart,
+                    seed = mockWorkout(0),
+                    timestamp = now - dayMillis * 2,
+                ),
+                createRestDayAction(
+                    weekStartDate = currentWeekStart,
+                    dayOfWeek = WEDNESDAY,
+                    order = 0,
+                    timestamp = now - dayMillis * 2 + 2_000,
+                ),
+                openWeekAction(
+                    oldWeekStart = currentWeekStart,
+                    newWeekStart = nextWeekStart,
+                    timestamp = now - dayMillis,
+                ),
+                openWeekAction(
+                    oldWeekStart = nextWeekStart,
+                    newWeekStart = currentWeekStart,
+                    timestamp = now - dayMillis + 3_000,
+                ),
+            )
+        }
+
+        private fun buildPreviousWeekActions(
+            previousWeekStart: LocalDate,
+            zoneId: ZoneId,
+        ): List<UserActionEntity> {
+            return listOf(
+                createWorkoutAction(
+                    weekStartDate = previousWeekStart,
+                    dayOfWeek = null,
+                    order = 0,
+                    seed = mockWorkout(7),
+                    timestamp =
+                        previousWeekStart
+                            .atStartOfDay(zoneId)
+                            .plusHours(10)
+                            .toInstant()
+                            .toEpochMilli(),
+                ),
+            )
+        }
+
+        private fun openWeekAction(
+            oldWeekStart: LocalDate,
+            newWeekStart: LocalDate,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.OPEN_WEEK,
+                entityType = UserActionEntityType.WEEK,
+                metadata =
+                    mapOf(
+                        OLD_WEEK_START_DATE to oldWeekStart.toString(),
+                        NEW_WEEK_START_DATE to newWeekStart.toString(),
+                        WEEK_START_DATE to newWeekStart.toString(),
+                    ),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun createWorkoutAction(
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            order: Int,
+            seed: WorkoutSeed,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.CREATE_WORKOUT,
+                entityType = UserActionEntityType.WORKOUT,
+                metadata =
+                    mapOf(
+                        WEEK_START_DATE to weekStartDate.toString(),
+                        DAY_OF_WEEK to (dayOfWeek?.value?.toString() ?: UNPLANNED),
+                        NEW_ORDER to order.toString(),
+                        NEW_TYPE to seed.type,
+                        NEW_DESCRIPTION to seed.description,
+                    ),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun moveWorkoutAction(
+            weekStartDate: LocalDate,
+            dayChange: WorkoutDayChange,
+            orderChange: WorkoutOrderChange,
+            seed: WorkoutSeed,
+            timestamp: Long,
+        ): UserActionEntity {
+            val actionType =
+                if (dayChange.oldDay == dayChange.newDay) {
+                    UserActionType.REORDER_WORKOUT
+                } else {
+                    UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
+                }
+
+            return action(
+                type = actionType,
+                entityType = UserActionEntityType.WORKOUT,
+                metadata =
+                    mapOf(
+                        WEEK_START_DATE to weekStartDate.toString(),
+                        OLD_DAY_OF_WEEK to dayChange.oldDay.value.toString(),
+                        NEW_DAY_OF_WEEK to dayChange.newDay.value.toString(),
+                        OLD_ORDER to orderChange.oldOrder.toString(),
+                        NEW_ORDER to orderChange.newOrder.toString(),
+                        NEW_TYPE to seed.type,
+                        NEW_DESCRIPTION to seed.description,
+                    ),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun completeWorkoutAction(
+            weekStartDate: LocalDate,
+            seed: WorkoutSeed,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.COMPLETE_WORKOUT,
+                entityType = UserActionEntityType.WORKOUT,
+                metadata =
+                    mapOf(
+                        WEEK_START_DATE to weekStartDate.toString(),
+                        WAS_COMPLETED to "false",
+                        IS_COMPLETED to "true",
+                        NEW_TYPE to seed.type,
+                        NEW_DESCRIPTION to seed.description,
+                    ),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun createRestDayAction(
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek,
+            order: Int,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.CREATE_REST_DAY,
+                entityType = UserActionEntityType.REST_DAY,
+                metadata =
+                    mapOf(
+                        WEEK_START_DATE to weekStartDate.toString(),
+                        DAY_OF_WEEK to dayOfWeek.value.toString(),
+                        NEW_ORDER to order.toString(),
+                    ),
+                timestamp = timestamp,
+            )
         }
 
         private fun action(
@@ -303,6 +391,16 @@ class DemoDataSeeder
 private data class DayPlan(
     val dayOfWeek: DayOfWeek?,
     val items: List<WorkoutSeed>,
+)
+
+private data class WorkoutDayChange(
+    val oldDay: DayOfWeek,
+    val newDay: DayOfWeek,
+)
+
+private data class WorkoutOrderChange(
+    val oldOrder: Int,
+    val newOrder: Int,
 )
 
 private data class WorkoutSeed(

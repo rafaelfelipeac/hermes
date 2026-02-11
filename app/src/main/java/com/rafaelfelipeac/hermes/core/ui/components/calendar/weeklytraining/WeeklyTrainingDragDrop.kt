@@ -44,27 +44,35 @@ internal fun findTargetSection(
 ): SectionKey {
     val directMatch = sectionBounds.entries.firstOrNull { it.value.contains(dropPosition) }?.key
 
-    if (directMatch != null) return directMatch
+    val target =
+        directMatch
+            ?: if (sectionBounds.isEmpty()) {
+                fallback
+            } else {
+                val ordered =
+                    sectionBounds.entries
+                        .sortedBy { it.value.top }
+                        .map { it.key to it.value }
+                val first = ordered.first()
+                val last = ordered.last()
+                val boundaryTarget =
+                    ordered
+                        .windowed(2)
+                        .firstOrNull { (current, next) ->
+                            val boundary = (current.second.bottom + next.second.top) / 2f
+                            dropPosition.y <= boundary
+                        }
+                        ?.first()
+                        ?.first
 
-    if (sectionBounds.isEmpty()) return fallback
+                when {
+                    dropPosition.y <= first.second.top -> first.first
+                    boundaryTarget != null -> boundaryTarget
+                    else -> last.first
+                }
+            }
 
-    val ordered =
-        sectionBounds.entries
-            .sortedBy { it.value.top }
-            .map { it.key to it.value }
-
-    val first = ordered.first()
-    if (dropPosition.y <= first.second.top) return first.first
-
-    for (index in 0 until ordered.lastIndex) {
-        val current = ordered[index]
-        val next = ordered[index + 1]
-        val boundary = (current.second.bottom + next.second.top) / 2f
-
-        if (dropPosition.y <= boundary) return current.first
-    }
-
-    return ordered.last().first
+    return target
 }
 
 private fun computeOrderForDrop(

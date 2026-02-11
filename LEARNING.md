@@ -37,3 +37,4 @@ Recent learnings:
 - Rest days are not completable; the ViewModel ignores completion toggles for rest-day items so undo and activity messaging stays consistent with the model.
 - Undoing moves should normalize orders in the affected buckets to prevent duplicate sort indexes when new items are created during the undo window.
 - Undoing deletes should also reindex affected buckets because new items can be added before undo, which otherwise leaves duplicate order values.
+- When detekt flags ViewModel size, move pure helper routines (ordering normalization and action logging) to package-level functions so the ViewModel keeps orchestration responsibilities without losing behavior.

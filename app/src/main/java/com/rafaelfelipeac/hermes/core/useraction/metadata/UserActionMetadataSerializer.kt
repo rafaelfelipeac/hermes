@@ -18,13 +18,14 @@ object UserActionMetadataSerializer {
     }
 
     fun fromJson(raw: String?): Map<String, String> {
-        if (raw.isNullOrBlank()) return emptyMap()
-
-        val element = runCatching { json.parseToJsonElement(raw) }.getOrNull() ?: return emptyMap()
-        val obj = element as? JsonObject ?: return emptyMap()
-
-        return obj.entries.associate { (key, value) ->
-            key to value.jsonPrimitive.content
-        }
+        return raw
+            ?.takeIf { it.isNotBlank() }
+            ?.let { runCatching { json.parseToJsonElement(it) }.getOrNull() }
+            ?.let { it as? JsonObject }
+            ?.entries
+            ?.associate { (key, value) ->
+                key to value.jsonPrimitive.content
+            }
+            ?: emptyMap()
     }
 }

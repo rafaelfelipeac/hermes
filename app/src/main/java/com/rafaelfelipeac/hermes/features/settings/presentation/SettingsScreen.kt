@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -34,8 +34,8 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage

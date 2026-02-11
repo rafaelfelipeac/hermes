@@ -43,11 +43,11 @@ class WeeklyTrainingRepositoryImpl
             return workoutDao.insert(entity)
         }
 
-    override suspend fun addRestDay(
-        weekStartDate: LocalDate,
-        dayOfWeek: DayOfWeek?,
-        order: Int,
-    ): Long {
+        override suspend fun addRestDay(
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            order: Int,
+        ): Long {
             val entity =
                 WorkoutEntity(
                     weekStartDate = weekStartDate,
@@ -59,18 +59,18 @@ class WeeklyTrainingRepositoryImpl
                     sortOrder = order,
                 )
 
-        return workoutDao.insert(entity)
-    }
+            return workoutDao.insert(entity)
+        }
 
-    override suspend fun insertWorkout(workout: Workout): Long {
-        return workoutDao.insertOrReplace(workout.toEntity())
-    }
+        override suspend fun insertWorkout(workout: Workout): Long {
+            return workoutDao.insertOrReplace(workout.toEntity())
+        }
 
-    override suspend fun updateWorkoutDayAndOrder(
-        workoutId: Long,
-        dayOfWeek: DayOfWeek?,
-        order: Int,
-    ) = workoutDao.updateDayAndOrder(workoutId, dayOfWeek?.value, order)
+        override suspend fun updateWorkoutDayAndOrder(
+            workoutId: Long,
+            dayOfWeek: DayOfWeek?,
+            order: Int,
+        ) = workoutDao.updateDayAndOrder(workoutId, dayOfWeek?.value, order)
 
         override suspend fun updateWorkoutCompletion(
             workoutId: Long,

@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.activity.presentation.formatter
 
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
@@ -23,7 +24,6 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
-import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 
 class ActivityUiFormatter(
     private val stringProvider: StringProvider,
@@ -86,7 +86,7 @@ class ActivityUiFormatter(
             when (actionType) {
                 UserActionType.CHANGE_LANGUAGE,
                 UserActionType.CHANGE_THEME,
-                    -> buildValueChangeSubtitle(metadata, actionType)
+                -> buildValueChangeSubtitle(metadata, actionType)
 
                 UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
                 UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)
@@ -96,9 +96,9 @@ class ActivityUiFormatter(
             }
         val shouldSplitLines =
             actionType == UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ||
-                    actionType == UserActionType.REORDER_WORKOUT ||
-                    actionType == UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ||
-                    actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
+                actionType == UserActionType.REORDER_WORKOUT ||
+                actionType == UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ||
+                actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
 
         return if (weekSubtitle != null && actionSubtitle != null && shouldSplitLines) {
             "$weekSubtitle\n$actionSubtitle"
@@ -142,15 +142,18 @@ class ActivityUiFormatter(
         val oldDay = dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK])
         val newDay = dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK])
 
-        if (oldDay.isNullOrBlank() && newDay.isNullOrBlank()) return null
+        val hasAnyDay = !oldDay.isNullOrBlank() || !newDay.isNullOrBlank()
+        val isSameDay = oldDay != null && oldDay == newDay
 
-        if (oldDay != null && oldDay == newDay) return null
-
-        return stringProvider.get(
-            R.string.activity_subtitle_move,
-            oldDay.orEmpty(),
-            newDay.orEmpty(),
-        )
+        return if (!hasAnyDay || isSameDay) {
+            null
+        } else {
+            stringProvider.get(
+                R.string.activity_subtitle_move,
+                oldDay.orEmpty(),
+                newDay.orEmpty(),
+            )
+        }
     }
 
     private fun buildWeekSubtitle(
@@ -247,11 +250,11 @@ class ActivityUiFormatter(
                 ?: DayOfWeek.entries.firstOrNull { dayOfWeek ->
                     dayOfWeek.getDisplayName(java.time.format.TextStyle.SHORT, Locale.ENGLISH)
                         .equals(cleaned, ignoreCase = true) ||
-                            dayOfWeek.getDisplayName(
-                                java.time.format.TextStyle.FULL,
-                                Locale.ENGLISH
-                            )
-                                .equals(cleaned, ignoreCase = true)
+                        dayOfWeek.getDisplayName(
+                            java.time.format.TextStyle.FULL,
+                            Locale.ENGLISH,
+                        )
+                            .equals(cleaned, ignoreCase = true)
                 }
 
         return when (day) {
@@ -347,62 +350,12 @@ class ActivityUiFormatter(
         actionType: UserActionType?,
         quotedWorkoutLabel: String,
     ): String? {
-        return when (actionType) {
-            UserActionType.CREATE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_create_workout, quotedWorkoutLabel)
+        val resId = workoutTitleResByAction[actionType] ?: return null
 
-            UserActionType.UPDATE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_update_workout, quotedWorkoutLabel)
-
-            UserActionType.DELETE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_delete_workout, quotedWorkoutLabel)
-
-            UserActionType.UNDO_DELETE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_undo_delete_workout, quotedWorkoutLabel)
-
-            UserActionType.COMPLETE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_complete_workout, quotedWorkoutLabel)
-
-            UserActionType.INCOMPLETE_WORKOUT ->
-                stringProvider.get(
-                    R.string.activity_action_incomplete_workout,
-                    quotedWorkoutLabel,
-                )
-
-            UserActionType.UNDO_COMPLETE_WORKOUT ->
-                stringProvider.get(
-                    R.string.activity_action_undo_complete_workout,
-                    quotedWorkoutLabel,
-                )
-
-            UserActionType.UNDO_INCOMPLETE_WORKOUT ->
-                stringProvider.get(
-                    R.string.activity_action_undo_incomplete_workout,
-                    quotedWorkoutLabel,
-                )
-
-            UserActionType.REORDER_WORKOUT ->
-                stringProvider.get(R.string.activity_action_reorder_workout, quotedWorkoutLabel)
-
-            UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ->
-                stringProvider.get(R.string.activity_action_move_workout, quotedWorkoutLabel)
-
-            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ->
-                stringProvider.get(
-                    R.string.activity_action_undo_reorder_workout,
-                    quotedWorkoutLabel,
-                )
-
-            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ->
-                stringProvider.get(
-                    R.string.activity_action_undo_move_workout,
-                    quotedWorkoutLabel,
-                )
-
-            UserActionType.CONVERT_REST_DAY_TO_WORKOUT ->
-                stringProvider.get(R.string.activity_action_convert_rest_day_to_workout)
-
-            else -> null
+        return if (resId == R.string.activity_action_convert_rest_day_to_workout) {
+            stringProvider.get(resId)
+        } else {
+            stringProvider.get(resId, quotedWorkoutLabel)
         }
     }
 
@@ -415,4 +368,25 @@ class ActivityUiFormatter(
         const val DAY_NUMBER_SATURDAY = 6
         const val DAY_NUMBER_SUNDAY = 7
     }
+
+    private val workoutTitleResByAction =
+        mapOf(
+            UserActionType.CREATE_WORKOUT to R.string.activity_action_create_workout,
+            UserActionType.UPDATE_WORKOUT to R.string.activity_action_update_workout,
+            UserActionType.DELETE_WORKOUT to R.string.activity_action_delete_workout,
+            UserActionType.UNDO_DELETE_WORKOUT to R.string.activity_action_undo_delete_workout,
+            UserActionType.COMPLETE_WORKOUT to R.string.activity_action_complete_workout,
+            UserActionType.INCOMPLETE_WORKOUT to R.string.activity_action_incomplete_workout,
+            UserActionType.UNDO_COMPLETE_WORKOUT to R.string.activity_action_undo_complete_workout,
+            UserActionType.UNDO_INCOMPLETE_WORKOUT to
+                R.string.activity_action_undo_incomplete_workout,
+            UserActionType.REORDER_WORKOUT to R.string.activity_action_reorder_workout,
+            UserActionType.MOVE_WORKOUT_BETWEEN_DAYS to R.string.activity_action_move_workout,
+            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY to
+                R.string.activity_action_undo_reorder_workout,
+            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS to
+                R.string.activity_action_undo_move_workout,
+            UserActionType.CONVERT_REST_DAY_TO_WORKOUT to
+                R.string.activity_action_convert_rest_day_to_workout,
+        )
 }
