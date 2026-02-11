@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.hilt.android)
 }
 
-val appVersionCode = 4
+val appVersionCode = 5
 val appVersionName = "1.0.1"
 val releaseKeystorePath = providers.gradleProperty("RELEASE_KEYSTORE_PATH").orNull
 val releaseKeystorePassword = providers.gradleProperty("RELEASE_KEYSTORE_PASSWORD").orNull
