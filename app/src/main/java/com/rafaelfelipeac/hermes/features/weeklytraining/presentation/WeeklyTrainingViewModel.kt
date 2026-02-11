@@ -31,8 +31,8 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_RES
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
@@ -149,7 +149,8 @@ class WeeklyTrainingViewModel
             type: String,
             description: String,
         ) {
-            val (currentState, nextOrder) = getNextOrder()
+            val currentState = state.value
+            val nextOrder = nextUnplannedOrder(currentState)
 
             viewModelScope.launch {
                 val workoutId =
@@ -178,7 +179,8 @@ class WeeklyTrainingViewModel
         }
 
         fun addRestDay() {
-            val (currentState, nextOrder) = getNextOrder()
+            val currentState = state.value
+            val nextOrder = nextUnplannedOrder(currentState)
 
             viewModelScope.launch {
                 val restDayId =
@@ -528,49 +530,8 @@ class WeeklyTrainingViewModel
         }
 
         private suspend fun undoDelete(action: PendingUndoAction.Delete) {
+            val restoredId = restoreDeletedWorkout(repository, action)
             val workout = action.workout
-            val restoredId =
-                repository.insertWorkout(
-                    Workout(
-                        id = workout.id,
-                        weekStartDate = action.weekStartDate,
-                        dayOfWeek = workout.dayOfWeek,
-                        type = workout.type,
-                        description = workout.description,
-                        isCompleted = workout.isCompleted,
-                        isRestDay = workout.isRestDay,
-                        order = workout.order,
-                    ),
-                )
-            val updatedWorkouts =
-                buildUpdatedWorkoutsAfterRestore(
-                    restoredId = restoredId,
-                    workout = workout,
-                    weekStartDate = action.weekStartDate,
-                )
-
-            action.previousPositions.forEach { position ->
-                repository.updateWorkoutDayAndOrder(
-                    workoutId = position.id,
-                    dayOfWeek = position.dayOfWeek,
-                    order = position.order,
-                )
-            }
-            val affectedDays =
-                buildList {
-                    add(workout.dayOfWeek)
-                    action.previousPositions.mapTo(this) { it.dayOfWeek }
-                }
-                    .distinct()
-
-            affectedDays.forEach { dayOfWeek ->
-                normalizeOrdersForDay(
-                    dayOfWeek = dayOfWeek,
-                    currentWorkouts = updatedWorkouts,
-                    repository = repository,
-                )
-            }
-
             val entityType =
                 if (workout.isRestDay) REST_DAY else WORKOUT
             val actionType =
@@ -589,22 +550,6 @@ class WeeklyTrainingViewModel
                         NEW_DESCRIPTION to workout.description,
                     ),
             )
-        }
-
-        private suspend fun buildUpdatedWorkoutsAfterRestore(
-            restoredId: Long,
-            workout: WorkoutUi,
-            weekStartDate: LocalDate,
-        ): List<WorkoutUi> {
-            val latestWorkouts =
-                repository.getWorkoutsForWeek(weekStartDate).map { it.toUi() }
-            val restoredWorkout = workout.copy(id = restoredId)
-
-            return if (latestWorkouts.any { it.id == restoredId }) {
-                latestWorkouts
-            } else {
-                latestWorkouts + restoredWorkout
-            }
         }
 
         private suspend fun undoReplaceWeek(action: PendingUndoAction.ReplaceWeek) {
@@ -652,13 +597,6 @@ class WeeklyTrainingViewModel
                         NEW_DESCRIPTION to action.workout.description,
                     ),
             )
-        }
-
-        private fun getNextOrder(): Pair<WeeklyTrainingState, Int> {
-            val currentState = state.value
-            val nextOrder = currentState.workouts.count { it.dayOfWeek == null }
-
-            return Pair(currentState, nextOrder)
         }
 
         private fun setUndoAction(
@@ -724,3 +662,7 @@ class WeeklyTrainingViewModel
             private const val UNDO_TIMEOUT_MS = 4_000L
         }
     }
+
+private fun nextUnplannedOrder(state: WeeklyTrainingState): Int {
+    return state.workouts.count { it.dayOfWeek == null }
+}

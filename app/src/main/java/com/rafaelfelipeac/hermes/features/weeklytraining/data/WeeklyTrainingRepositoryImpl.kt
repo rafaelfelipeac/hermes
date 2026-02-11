@@ -90,8 +90,7 @@ class WeeklyTrainingRepositoryImpl
 
         override suspend fun deleteWorkout(workoutId: Long) = workoutDao.deleteById(workoutId)
 
-        override suspend fun deleteWorkoutsForWeek(weekStartDate: LocalDate) =
-            workoutDao.deleteByWeekStartDate(weekStartDate)
+        override suspend fun deleteWorkoutsForWeek(weekStartDate: LocalDate) = workoutDao.deleteByWeekStartDate(weekStartDate)
     }
 
 private fun WorkoutEntity.toDomain(): Workout {

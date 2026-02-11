@@ -14,7 +14,9 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.slot
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -400,58 +402,40 @@ class WeeklyTrainingViewModelTest {
     fun copyLastWeek_replacesCurrentWeekAndResetsCompletion() =
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
-            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val harness = createWeeklyTrainingHarness(workoutsFlow, backgroundScope)
+            val viewModel = harness.viewModel
+            val repository = harness.repository
+            val userActionLogger = harness.userActionLogger
+            val collectJob = harness.collectJob
+            val fixture = copyLastWeekFixture()
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
-
-            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
-            val collectJob = backgroundScope.launch { viewModel.state.collect() }
-            val selectedDate = LocalDate.of(2026, 8, 20)
-            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
-            val previousWeekStart = weekStart.minusWeeks(1)
-            val sourceWorkout =
-                workout(
-                    id = 300,
-                    weekStart = previousWeekStart,
-                    day = MONDAY,
-                    order = 0,
-                    isCompleted = true,
+            coEvery { repository.getWorkoutsForWeek(fixture.previousWeekStart) } returns
+                listOf(
+                    fixture.sourceWorkout,
+                    fixture.sourceRestDay,
                 )
-            val sourceRestDay =
-                workout(
-                    id = 301,
-                    weekStart = previousWeekStart,
-                    day = TUESDAY,
-                    order = 1,
-                    isRestDay = true,
-                )
+            coEvery { repository.getWorkoutsForWeek(fixture.weekStart) } returns emptyList()
 
-            coEvery { repository.getWorkoutsForWeek(previousWeekStart) } returns
-                listOf(sourceWorkout, sourceRestDay)
-            coEvery { repository.getWorkoutsForWeek(weekStart) } returns emptyList()
-
-            viewModel.onWeekChanged(selectedDate)
+            viewModel.onWeekChanged(fixture.selectedDate)
             runCurrent()
-
             viewModel.copyLastWeek()
             runCurrent()
 
-            coVerify(exactly = 1) { repository.deleteWorkoutsForWeek(weekStart) }
+            coVerify(exactly = 1) { repository.deleteWorkoutsForWeek(fixture.weekStart) }
             coVerify(exactly = 1) {
                 repository.addWorkout(
-                    weekStartDate = weekStart,
+                    weekStartDate = fixture.weekStart,
                     dayOfWeek = MONDAY,
-                    type = sourceWorkout.type,
-                    description = sourceWorkout.description,
-                    order = sourceWorkout.order,
+                    type = fixture.sourceWorkout.type,
+                    description = fixture.sourceWorkout.description,
+                    order = fixture.sourceWorkout.order,
                 )
             }
             coVerify(exactly = 1) {
                 repository.addRestDay(
-                    weekStartDate = weekStart,
+                    weekStartDate = fixture.weekStart,
                     dayOfWeek = TUESDAY,
-                    order = sourceRestDay.order,
+                    order = fixture.sourceRestDay.order,
                 )
             }
             coVerify(exactly = 1) {
@@ -471,55 +455,32 @@ class WeeklyTrainingViewModelTest {
     fun copyLastWeek_undoRestoresPreviousWeekState() =
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
-            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val harness = createWeeklyTrainingHarness(workoutsFlow, backgroundScope)
+            val viewModel = harness.viewModel
+            val repository = harness.repository
+            val userActionLogger = harness.userActionLogger
+            val collectJob = harness.collectJob
+            val fixture = copyLastWeekUndoFixture()
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
-
-            val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
-            val collectJob = backgroundScope.launch { viewModel.state.collect() }
-            val selectedDate = LocalDate.of(2026, 9, 7)
-            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
-            val previousWeekStart = weekStart.minusWeeks(1)
-            val sourceWorkout =
-                workout(
-                    id = 400,
-                    weekStart = previousWeekStart,
-                    day = MONDAY,
-                    order = 0,
+            coEvery { repository.getWorkoutsForWeek(fixture.previousWeekStart) } returns
+                listOf(
+                    fixture.sourceWorkout,
                 )
-            val previousTargetWorkout =
-                workout(
-                    id = 401,
-                    weekStart = weekStart,
-                    day = TUESDAY,
-                    order = 0,
-                    isCompleted = true,
-                )
-            val previousTargetRestDay =
-                workout(
-                    id = 402,
-                    weekStart = weekStart,
-                    day = null,
-                    order = 0,
-                    isRestDay = true,
+            coEvery { repository.getWorkoutsForWeek(fixture.weekStart) } returns
+                listOf(
+                    fixture.previousTargetWorkout,
+                    fixture.previousTargetRestDay,
                 )
 
-            coEvery { repository.getWorkoutsForWeek(previousWeekStart) } returns
-                listOf(sourceWorkout)
-            coEvery { repository.getWorkoutsForWeek(weekStart) } returns
-                listOf(previousTargetWorkout, previousTargetRestDay)
-
-            viewModel.onWeekChanged(selectedDate)
+            viewModel.onWeekChanged(fixture.selectedDate)
             runCurrent()
-
             viewModel.copyLastWeek()
             runCurrent()
             viewModel.undoLastAction()
             runCurrent()
 
             val restoredWorkouts = mutableListOf<Workout>()
-            coVerify(exactly = 2) { repository.deleteWorkoutsForWeek(weekStart) }
+            coVerify(exactly = 2) { repository.deleteWorkoutsForWeek(fixture.weekStart) }
             coVerify(exactly = 2) { repository.insertWorkout(capture(restoredWorkouts)) }
             coVerify(exactly = 1) {
                 userActionLogger.log(
@@ -531,7 +492,7 @@ class WeeklyTrainingViewModelTest {
                 )
             }
             assertEquals(
-                setOf(previousTargetWorkout, previousTargetRestDay),
+                setOf(fixture.previousTargetWorkout, fixture.previousTargetRestDay),
                 restoredWorkouts.toSet(),
             )
 
@@ -591,5 +552,112 @@ private fun workout(
         isCompleted = isCompleted,
         isRestDay = isRestDay,
         order = order,
+    )
+}
+
+private data class WeeklyTrainingHarness(
+    val viewModel: WeeklyTrainingViewModel,
+    val repository: WeeklyTrainingRepository,
+    val userActionLogger: UserActionLogger,
+    val collectJob: Job,
+)
+
+private fun createWeeklyTrainingHarness(
+    workoutsFlow: MutableStateFlow<List<Workout>>,
+    backgroundScope: CoroutineScope,
+): WeeklyTrainingHarness {
+    val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+    val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+    every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+
+    val viewModel = WeeklyTrainingViewModel(repository, userActionLogger)
+    val collectJob = backgroundScope.launch { viewModel.state.collect() }
+
+    return WeeklyTrainingHarness(viewModel, repository, userActionLogger, collectJob)
+}
+
+private data class CopyLastWeekFixture(
+    val selectedDate: LocalDate,
+    val weekStart: LocalDate,
+    val previousWeekStart: LocalDate,
+    val sourceWorkout: Workout,
+    val sourceRestDay: Workout,
+)
+
+private fun copyLastWeekFixture(): CopyLastWeekFixture {
+    val selectedDate = LocalDate.of(2026, 8, 20)
+    val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+    val previousWeekStart = weekStart.minusWeeks(1)
+    val sourceWorkout =
+        workout(
+            id = 300,
+            weekStart = previousWeekStart,
+            day = MONDAY,
+            order = 0,
+            isCompleted = true,
+        )
+    val sourceRestDay =
+        workout(
+            id = 301,
+            weekStart = previousWeekStart,
+            day = TUESDAY,
+            order = 1,
+            isRestDay = true,
+        )
+
+    return CopyLastWeekFixture(
+        selectedDate = selectedDate,
+        weekStart = weekStart,
+        previousWeekStart = previousWeekStart,
+        sourceWorkout = sourceWorkout,
+        sourceRestDay = sourceRestDay,
+    )
+}
+
+private data class CopyLastWeekUndoFixture(
+    val selectedDate: LocalDate,
+    val weekStart: LocalDate,
+    val previousWeekStart: LocalDate,
+    val sourceWorkout: Workout,
+    val previousTargetWorkout: Workout,
+    val previousTargetRestDay: Workout,
+)
+
+private fun copyLastWeekUndoFixture(): CopyLastWeekUndoFixture {
+    val selectedDate = LocalDate.of(2026, 9, 7)
+    val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+    val previousWeekStart = weekStart.minusWeeks(1)
+    val sourceWorkout =
+        workout(
+            id = 400,
+            weekStart = previousWeekStart,
+            day = MONDAY,
+            order = 0,
+        )
+    val previousTargetWorkout =
+        workout(
+            id = 401,
+            weekStart = weekStart,
+            day = TUESDAY,
+            order = 0,
+            isCompleted = true,
+        )
+    val previousTargetRestDay =
+        workout(
+            id = 402,
+            weekStart = weekStart,
+            day = null,
+            order = 0,
+            isRestDay = true,
+        )
+
+    return CopyLastWeekUndoFixture(
+        selectedDate = selectedDate,
+        weekStart = weekStart,
+        previousWeekStart = previousWeekStart,
+        sourceWorkout = sourceWorkout,
+        previousTargetWorkout = previousTargetWorkout,
+        previousTargetRestDay = previousTargetRestDay,
     )
 }

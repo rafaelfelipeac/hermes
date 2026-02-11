@@ -42,3 +42,5 @@ Recent learnings:
 - One-off informational snackbars (like “nothing to copy”) work better as a dedicated `SharedFlow` event channel, while undo continues as stateful data with timeout semantics.
 - Week-level features need dedicated `UserActionType` entries (including undo variants) if they should appear in Activity; relying only on week subtitles without explicit action titles makes the feed fall back to generic messaging.
 - Compose UI tests that only render composables should use `createComposeRule()` so the test activity provided by `ui-test-manifest` is used; relying on `createAndroidComposeRule<ComponentActivity>()` can leave tests without a launched activity and no compose root.
+- Keeping `WeeklyTrainingViewModel` under detekt’s function count is easiest by moving pure helper logic (like post-restore list assembly) to file-level functions that depend only on repositories and mappers.
+- For long undo flows, extracting restore/normalization steps into shared helper functions keeps ViewModel methods short without hiding behavior behind mocks.

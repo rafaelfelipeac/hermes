@@ -15,8 +15,10 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKO
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.updateWorkoutOrderWithRestDayRules
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -179,6 +181,75 @@ internal suspend fun logUndoWorkoutChange(
                 NEW_DESCRIPTION to workout.description,
             ),
     )
+}
+
+internal suspend fun restoreDeletedWorkout(
+    repository: WeeklyTrainingRepository,
+    action: PendingUndoAction.Delete,
+): Long {
+    val workout = action.workout
+    val restoredId =
+        repository.insertWorkout(
+            Workout(
+                id = workout.id,
+                weekStartDate = action.weekStartDate,
+                dayOfWeek = workout.dayOfWeek,
+                type = workout.type,
+                description = workout.description,
+                isCompleted = workout.isCompleted,
+                isRestDay = workout.isRestDay,
+                order = workout.order,
+            ),
+        )
+    val updatedWorkouts =
+        buildUpdatedWorkoutsAfterRestore(
+            repository = repository,
+            restoredId = restoredId,
+            workout = workout,
+            weekStartDate = action.weekStartDate,
+        )
+
+    action.previousPositions.forEach { position ->
+        repository.updateWorkoutDayAndOrder(
+            workoutId = position.id,
+            dayOfWeek = position.dayOfWeek,
+            order = position.order,
+        )
+    }
+
+    val affectedDays =
+        buildList {
+            add(workout.dayOfWeek)
+            action.previousPositions.mapTo(this) { it.dayOfWeek }
+        }
+            .distinct()
+
+    affectedDays.forEach { dayOfWeek ->
+        normalizeOrdersForDay(
+            repository = repository,
+            dayOfWeek = dayOfWeek,
+            currentWorkouts = updatedWorkouts,
+        )
+    }
+
+    return restoredId
+}
+
+internal suspend fun buildUpdatedWorkoutsAfterRestore(
+    repository: WeeklyTrainingRepository,
+    restoredId: Long,
+    workout: WorkoutUi,
+    weekStartDate: LocalDate,
+): List<WorkoutUi> {
+    val latestWorkouts =
+        repository.getWorkoutsForWeek(weekStartDate).map { it.toUi() }
+    val restoredWorkout = workout.copy(id = restoredId)
+
+    return if (latestWorkouts.any { it.id == restoredId }) {
+        latestWorkouts
+    } else {
+        latestWorkouts + restoredWorkout
+    }
 }
 
 internal data class WorkoutChangeDependencies(
