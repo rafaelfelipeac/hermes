@@ -47,6 +47,8 @@ internal suspend fun normalizeOrdersForDay(
     repository: WeeklyTrainingRepository,
     dayOfWeek: DayOfWeek?,
     currentWorkouts: List<WorkoutUi>,
+    forceUpdate: Boolean = false,
+    skipIds: Set<Long> = emptySet(),
 ) {
     val workoutsForDay =
         currentWorkouts
@@ -54,7 +56,7 @@ internal suspend fun normalizeOrdersForDay(
             .sortedBy { it.order }
 
     workoutsForDay.forEachIndexed { index, workout ->
-        if (workout.order != index) {
+        if (workout.id !in skipIds && (forceUpdate || workout.order != index)) {
             repository.updateWorkoutDayAndOrder(
                 workoutId = workout.id,
                 dayOfWeek = dayOfWeek,

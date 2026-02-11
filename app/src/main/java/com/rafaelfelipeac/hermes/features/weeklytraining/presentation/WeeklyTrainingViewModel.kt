@@ -456,6 +456,8 @@ class WeeklyTrainingViewModel
                         dayOfWeek = dayOfWeek,
                         currentWorkouts = updatedWorkouts,
                         repository = repository,
+                        forceUpdate = true,
+                        skipIds = setOf(action.movedWorkoutId),
                     )
                 }
 
