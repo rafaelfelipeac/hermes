@@ -1,11 +1,10 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -18,7 +17,7 @@ import java.time.LocalDate
 
 class WeeklyTrainingContentTest {
     @get:Rule
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    val composeRule = createComposeRule()
 
     @Test
     fun changingSelectedDateScrollsToSection() {

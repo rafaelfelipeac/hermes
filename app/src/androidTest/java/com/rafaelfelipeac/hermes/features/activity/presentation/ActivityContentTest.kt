@@ -1,7 +1,6 @@
 package com.rafaelfelipeac.hermes.features.activity.presentation
 
-import androidx.activity.ComponentActivity
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivitySectionUi
@@ -11,7 +10,7 @@ import java.time.LocalDate
 
 class ActivityContentTest {
     @get:Rule
-    val composeRule = createAndroidComposeRule<ComponentActivity>()
+    val composeRule = createComposeRule()
 
     @Test
     fun activityContent_rendersTitleAndSubtitleWithoutEllipsis() {

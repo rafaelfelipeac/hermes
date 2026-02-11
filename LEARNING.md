@@ -41,3 +41,4 @@ Recent learnings:
 - Week-level replace flows are safer when implemented as `delete target -> copy source placements`, while undo stores a full pre-replace snapshot and restores it with explicit week deletion first; this guarantees exact rollback without residual copied items.
 - One-off informational snackbars (like “nothing to copy”) work better as a dedicated `SharedFlow` event channel, while undo continues as stateful data with timeout semantics.
 - Week-level features need dedicated `UserActionType` entries (including undo variants) if they should appear in Activity; relying only on week subtitles without explicit action titles makes the feed fall back to generic messaging.
+- Compose UI tests that only render composables should use `createComposeRule()` so the test activity provided by `ui-test-manifest` is used; relying on `createAndroidComposeRule<ComponentActivity>()` can leave tests without a launched activity and no compose root.
