@@ -60,6 +60,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val ADD_MENU_SCRIM_ALPHA = 0.30f
@@ -68,6 +69,7 @@ private const val ADD_FAB_TEST_TAG = "add-fab"
 @Composable
 fun WeeklyTrainingScreen(
     modifier: Modifier = Modifier,
+    onManageCategories: () -> Unit = {},
     viewModel: WeeklyTrainingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -84,6 +86,7 @@ fun WeeklyTrainingScreen(
     val undoLabel = stringResource(R.string.undo_action)
     val copiedWeekMessage = stringResource(R.string.week_copied)
     val emptyCopyMessage = stringResource(R.string.copy_last_week_empty)
+    val pickerCategories = state.categories.filter { !it.isHidden || it.id == UNCATEGORIZED_ID }
     val undoMessage =
         undoState?.let { currentUndo ->
             val isRestDay =
@@ -298,6 +301,7 @@ fun WeeklyTrainingScreen(
                                 viewModel.addWorkout(
                                     type = mockType,
                                     description = mockDescription,
+                                    categoryId = UNCATEGORIZED_ID,
                                 )
                             },
                         )
@@ -310,27 +314,45 @@ fun WeeklyTrainingScreen(
     if (isAddDialogVisible) {
         AddWorkoutDialog(
             onDismiss = { isAddDialogVisible = false },
-            onSave = { type, description ->
-                viewModel.addWorkout(type, description)
+            onSave = { type, description, categoryId ->
+                viewModel.addWorkout(type, description, categoryId)
                 isAddDialogVisible = false
             },
+            onManageCategories = {
+                isAddDialogVisible = false
+                onManageCategories()
+            },
             isEdit = false,
+            categories = pickerCategories,
+            selectedCategoryId = UNCATEGORIZED_ID,
         )
     }
 
     editingWorkout?.let { workout ->
+        val editCategories =
+            state.categories
+                .filter { !it.isHidden || it.id == UNCATEGORIZED_ID || it.id == workout.categoryId }
+                .sortedBy { it.sortOrder }
+
         AddWorkoutDialog(
             onDismiss = { editingWorkout = null },
-            onSave = { type, description ->
+            onSave = { type, description, categoryId ->
                 viewModel.updateWorkoutDetails(
                     workoutId = workout.id,
                     type = type,
                     description = description,
                     isRestDay = workout.isRestDay,
+                    categoryId = categoryId,
                 )
                 editingWorkout = null
             },
+            onManageCategories = {
+                editingWorkout = null
+                onManageCategories()
+            },
             isEdit = true,
+            categories = editCategories,
+            selectedCategoryId = workout.categoryId,
             initialType = workout.type,
             initialDescription = workout.description,
         )

@@ -198,6 +198,7 @@ internal suspend fun restoreDeletedWorkout(
                 description = workout.description,
                 isCompleted = workout.isCompleted,
                 isRestDay = workout.isRestDay,
+                categoryId = workout.categoryId,
                 order = workout.order,
             ),
         )
@@ -243,7 +244,7 @@ internal suspend fun buildUpdatedWorkoutsAfterRestore(
     weekStartDate: LocalDate,
 ): List<WorkoutUi> {
     val latestWorkouts =
-        repository.getWorkoutsForWeek(weekStartDate).map { it.toUi() }
+        repository.getWorkoutsForWeek(weekStartDate).map { it.toUi(null) }
     val restoredWorkout = workout.copy(id = restoredId)
 
     return if (latestWorkouts.any { it.id == restoredId }) {

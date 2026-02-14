@@ -32,6 +32,7 @@ class SettingsContentTest {
                 onThemeSelected = { selectedTheme = it },
                 onLanguageSelected = {},
                 onSeedDemoData = {},
+                onCategoriesClick = {},
             )
         }
 
@@ -59,6 +60,7 @@ class SettingsContentTest {
                 onThemeSelected = {},
                 onLanguageSelected = { selectedLanguage = it },
                 onSeedDemoData = {},
+                onCategoriesClick = {},
             )
         }
 

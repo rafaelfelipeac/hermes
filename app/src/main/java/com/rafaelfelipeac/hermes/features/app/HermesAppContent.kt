@@ -19,11 +19,17 @@ import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
+import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
 
 @Composable
 fun HermesAppContent() {
     var currentDestination by rememberSaveable { mutableStateOf(WEEKLY_TRAINING) }
+    var pendingSettingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
+    val openCategoriesSettings = {
+        pendingSettingsRoute = SettingsRoute.CATEGORIES
+        currentDestination = SETTINGS
+    }
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
@@ -44,9 +50,18 @@ fun HermesAppContent() {
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             when (currentDestination) {
-                WEEKLY_TRAINING -> WeeklyTrainingScreen(modifier = Modifier.padding(innerPadding))
+                WEEKLY_TRAINING ->
+                    WeeklyTrainingScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        onManageCategories = openCategoriesSettings,
+                    )
                 ACTIVITY -> ActivityScreen(modifier = Modifier.padding(innerPadding))
-                SETTINGS -> SettingsScreen(modifier = Modifier.padding(innerPadding))
+                SETTINGS ->
+                    SettingsScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        initialRoute = pendingSettingsRoute,
+                        onRouteConsumed = { pendingSettingsRoute = null },
+                    )
             }
         }
     }

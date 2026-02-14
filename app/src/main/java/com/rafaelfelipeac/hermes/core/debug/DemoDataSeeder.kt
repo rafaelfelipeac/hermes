@@ -22,6 +22,13 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSeri
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_CYCLING
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_MOBILITY
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_RUN
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_STRENGTH
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_SWIM
+import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import java.time.DayOfWeek
@@ -45,9 +52,12 @@ class DemoDataSeeder
         private val workoutDao: WorkoutDao,
         private val userActionDao: UserActionDao,
         private val stringProvider: StringProvider,
+        private val categorySeeder: CategorySeeder,
     ) {
         suspend fun seed() {
             if (!BuildConfig.DEBUG) return
+
+            categorySeeder.ensureSeeded()
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
@@ -103,9 +113,44 @@ class DemoDataSeeder
                         description = if (seed.isRestDay) EMPTY else seed.description,
                         isCompleted = isCompleted,
                         isRestDay = seed.isRestDay,
+                        categoryId =
+                            if (seed.isRestDay) {
+                                null
+                            } else {
+                                categoryIdForSeed(seed)
+                            },
                         sortOrder = index,
                     )
                 }
+            }
+        }
+
+        private fun categoryIdForSeed(seed: WorkoutSeed): Long {
+            val run = stringProvider.get(R.string.mock_workout_type_cardio)
+            val swim = stringProvider.get(R.string.mock_workout_type_yoga)
+            val cycling = stringProvider.get(R.string.mock_workout_type_hiits)
+            val strength = stringProvider.get(R.string.mock_workout_type_strength)
+            val mobility = stringProvider.get(R.string.mock_workout_type_mobility)
+            val other = stringProvider.get(R.string.category_other)
+
+            val colorId =
+                when (seed.type) {
+                    run -> COLOR_RUN
+                    swim -> COLOR_SWIM
+                    cycling -> COLOR_CYCLING
+                    strength -> COLOR_STRENGTH
+                    mobility -> COLOR_MOBILITY
+                    other -> CategoryDefaults.COLOR_OTHER
+                    else -> CategoryDefaults.COLOR_OTHER
+                }
+
+            return when (colorId) {
+                COLOR_RUN -> 2L
+                COLOR_CYCLING -> 3L
+                COLOR_STRENGTH -> 4L
+                COLOR_SWIM -> 5L
+                COLOR_MOBILITY -> 6L
+                else -> 7L
             }
         }
 

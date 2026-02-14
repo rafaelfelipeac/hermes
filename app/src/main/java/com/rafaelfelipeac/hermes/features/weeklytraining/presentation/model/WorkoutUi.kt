@@ -11,5 +11,8 @@ data class WorkoutUi(
     val description: String,
     val isCompleted: Boolean,
     val isRestDay: Boolean,
+    val categoryId: Long?,
+    val categoryColorId: String?,
+    val categoryName: String?,
     val order: Int,
 )

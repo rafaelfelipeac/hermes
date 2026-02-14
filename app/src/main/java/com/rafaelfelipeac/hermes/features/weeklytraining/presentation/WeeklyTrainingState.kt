@@ -1,8 +1,7 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.Completed
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.Workout
+import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -12,19 +11,16 @@ data class WeeklyTrainingState(
     val weekStartDate: LocalDate,
     val workouts: List<WorkoutUi>,
     val isWeekLoaded: Boolean,
+    val categories: List<CategoryUi>,
 ) {
-    val dayIndicators: Map<DayOfWeek, DayIndicator> =
+    val dayIndicators: Map<DayOfWeek, WorkoutDayIndicator> =
         workouts
             .filter { it.dayOfWeek != null }
             .groupBy { requireNotNull(it.dayOfWeek) }
             .mapNotNull { (day, items) ->
-                when {
-                    items.any { !it.isRestDay && !it.isCompleted } ->
-                        day to Workout
-                    items.any { !it.isRestDay } ->
-                        day to Completed
-                    else -> null
-                }
+                val lastItem = items.maxByOrNull { it.order } ?: return@mapNotNull null
+                val isDayCompleted = items.all { it.isRestDay || it.isCompleted }
+                day to WorkoutDayIndicator(workout = lastItem, isDayCompleted = isDayCompleted)
             }
             .toMap()
 }

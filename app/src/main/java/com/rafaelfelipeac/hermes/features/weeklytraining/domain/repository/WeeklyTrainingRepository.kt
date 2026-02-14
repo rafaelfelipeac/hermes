@@ -15,6 +15,7 @@ interface WeeklyTrainingRepository {
         dayOfWeek: DayOfWeek?,
         type: String,
         description: String,
+        categoryId: Long?,
         order: Int,
     ): Long
 
@@ -42,6 +43,14 @@ interface WeeklyTrainingRepository {
         type: String,
         description: String,
         isRestDay: Boolean,
+        categoryId: Long?,
+    )
+
+    suspend fun assignNullCategoryTo(uncategorizedId: Long)
+
+    suspend fun reassignCategory(
+        deletedCategoryId: Long,
+        uncategorizedId: Long,
     )
 
     suspend fun deleteWorkout(workoutId: Long)

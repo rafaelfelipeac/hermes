@@ -1,0 +1,50 @@
+package com.rafaelfelipeac.hermes.core.ui.theme
+
+import androidx.compose.ui.graphics.Color
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_CYCLING
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_MOBILITY
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_OTHER
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_RUN
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_STRENGTH
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_SWIM
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_UNCATEGORIZED
+
+private val CategoryRed = Color(0xFFE24A4A)
+private val CategoryOrange = Color(0xFFE3822B)
+private val CategoryAmber = Color(0xFFD7A027)
+private val CategoryTeal = Color(0xFF2EA8A1)
+private val CategoryBlue = Color(0xFF3F7AC6)
+private val CategoryIndigo = Color(0xFF4F63D8)
+private val CategoryPurple = Color(0xFFA057D5)
+private val CategoryPink = Color(0xFFE0549E)
+private val CategoryLime = Color(0xFF7BBB2F)
+private val CategoryOlive = Color(0xFF8DA337)
+private val CategorySlate = Color(0xFF5F6F7F)
+private val CategorySand = Color(0xFFB1845A)
+
+private val categoryPalette =
+    listOf(
+        CategoryColorOption(COLOR_UNCATEGORIZED, CategorySlate),
+        CategoryColorOption(COLOR_RUN, CategoryRed),
+        CategoryColorOption(COLOR_CYCLING, CategoryBlue),
+        CategoryColorOption(COLOR_STRENGTH, CategoryPurple),
+        CategoryColorOption(COLOR_SWIM, CategoryTeal),
+        CategoryColorOption(COLOR_MOBILITY, CategoryLime),
+        CategoryColorOption(COLOR_OTHER, CategorySand),
+        CategoryColorOption("amber", CategoryAmber),
+        CategoryColorOption("orange", CategoryOrange),
+        CategoryColorOption("indigo", CategoryIndigo),
+        CategoryColorOption("pink", CategoryPink),
+        CategoryColorOption("olive", CategoryOlive),
+    )
+
+fun categoryAccentColor(colorId: String): Color {
+    return categoryPalette.firstOrNull { it.id == colorId }?.accent ?: CategorySlate
+}
+
+fun categoryColorOptions(): List<CategoryColorOption> = categoryPalette
+
+data class CategoryColorOption(
+    val id: String,
+    val accent: Color,
+)

@@ -18,7 +18,7 @@
     <string name="copy_last_week_replace_confirm">Substituir</string>
     <string name="copy_last_week_empty">Ainda não há nada para copiar da semana passada.</string>
     <string name="week_copied">Semana copiada.</string>
-    <string name="add_workout_type">Tipo</string>
+    <string name="add_workout_title">Título</string>
     <string name="add_workout_description">Descrição</string>
     <string name="add_workout_confirm">Adicionar</string>
     <string name="add_workout_cancel">Cancelar</string>
@@ -81,7 +81,6 @@
     <string name="day_friday">Sexta-feira</string>
     <string name="day_saturday">Sábado</string>
     <string name="day_sunday">Domingo</string>
-    <string name="workout_completed_emoji">👍</string>
 
     <!-- Settings -->
     <string name="settings_title">Configurações</string>
@@ -148,4 +147,42 @@
     <string name="activity_value_system">Sistema</string>
     <string name="activity_value_unknown">Desconhecido</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
+
+    <!-- Categories -->
+    <string name="add_workout_category">Category</string>
+    <string name="manage_categories">Manage categories</string>
+    <string name="category_uncategorized">Uncategorized</string>
+    <string name="category_run">Run</string>
+    <string name="category_cycling">Cycling</string>
+    <string name="category_strength">Strength</string>
+    <string name="category_swim">Swim</string>
+    <string name="category_mobility">Mobility</string>
+    <string name="category_other">Other</string>
+    <string name="settings_workouts_title">Workouts</string>
+    <string name="settings_categories">Categories</string>
+    <string name="categories_title">Categories</string>
+    <string name="categories_back">Back</string>
+    <string name="categories_add">Add category</string>
+    <string name="categories_add_title">New category</string>
+    <string name="categories_add_confirm">Add</string>
+    <string name="categories_edit_title">Edit category</string>
+    <string name="categories_name_label">Name</string>
+    <string name="categories_color_label">Color</string>
+    <string name="categories_hide_label">Hide</string>
+    <string name="categories_move_up">Move category up</string>
+    <string name="categories_move_down">Move category down</string>
+    <string name="categories_edit_action">Edit category</string>
+    <string name="categories_delete_action">Delete category</string>
+    <string name="categories_delete_title">Delete category "%1$s"?</string>
+    <string name="categories_delete_message">Workouts will be moved to "Uncategorized".</string>
+    <string name="categories_delete_confirm">Delete</string>
+    <string name="activity_action_create_category">You created the category %1$s.</string>
+    <string name="activity_action_update_category_name">You renamed the category %1$s.</string>
+    <string name="activity_action_update_category_color">You changed the color of %1$s.</string>
+    <string name="activity_action_update_category_visibility">You changed the visibility of %1$s.</string>
+    <string name="activity_action_reorder_category">You reordered the category %1$s.</string>
+    <string name="activity_action_delete_category">You deleted the category %1$s.</string>
+    <string name="activity_category_fallback">category</string>
+    <string name="activity_category_visible">Visible</string>
+    <string name="activity_category_hidden">Hidden</string>
 </resources>

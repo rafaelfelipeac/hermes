@@ -20,12 +20,16 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
@@ -38,6 +42,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
+import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ARABIC
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
@@ -57,26 +62,45 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
 fun SettingsScreen(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = hiltViewModel(),
+    initialRoute: SettingsRoute? = null,
+    onRouteConsumed: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val demoDataCreatedMessage = stringResource(R.string.demo_data_created)
+    var route by rememberSaveable { mutableStateOf(SettingsRoute.MAIN) }
 
-    SettingsContent(
-        state = state,
-        appVersion = VERSION_NAME,
-        onThemeSelected = viewModel::setThemeMode,
-        onLanguageSelected = viewModel::setLanguage,
-        onSeedDemoData = {
-            viewModel.seedDemoData()
-            android.widget.Toast.makeText(
-                context,
-                demoDataCreatedMessage,
-                android.widget.Toast.LENGTH_SHORT,
-            ).show()
-        },
-        modifier = modifier,
-    )
+    LaunchedEffect(initialRoute) {
+        if (initialRoute != null) {
+            route = initialRoute
+            onRouteConsumed()
+        }
+    }
+
+    when (route) {
+        SettingsRoute.MAIN ->
+            SettingsContent(
+                state = state,
+                appVersion = VERSION_NAME,
+                onThemeSelected = viewModel::setThemeMode,
+                onLanguageSelected = viewModel::setLanguage,
+                onSeedDemoData = {
+                    viewModel.seedDemoData()
+                    android.widget.Toast.makeText(
+                        context,
+                        demoDataCreatedMessage,
+                        android.widget.Toast.LENGTH_SHORT,
+                    ).show()
+                },
+                onCategoriesClick = { route = SettingsRoute.CATEGORIES },
+                modifier = modifier,
+            )
+        SettingsRoute.CATEGORIES ->
+            CategoriesScreen(
+                onBack = { route = SettingsRoute.MAIN },
+                modifier = modifier,
+            )
+    }
 }
 
 @Composable
@@ -87,6 +111,7 @@ internal fun SettingsContent(
     onThemeSelected: (ThemeMode) -> Unit,
     onLanguageSelected: (AppLanguage) -> Unit,
     onSeedDemoData: () -> Unit,
+    onCategoriesClick: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
@@ -182,6 +207,13 @@ internal fun SettingsContent(
                 label = stringResource(R.string.settings_language_japanese),
                 selected = state.language == JAPANESE,
                 onClick = { onLanguageSelected(JAPANESE) },
+            )
+        }
+
+        SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
+            SettingsNavigationRow(
+                label = stringResource(R.string.settings_categories),
+                onClick = onCategoriesClick,
             )
         }
 
@@ -285,5 +317,25 @@ private fun SettingsActionButton(
                 style = typography.bodyLarge,
             )
         }
+    }
+}
+
+@Composable
+private fun SettingsNavigationRow(
+    label: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(vertical = SpacingXxs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = label,
+            style = typography.bodyLarge,
+        )
     }
 }

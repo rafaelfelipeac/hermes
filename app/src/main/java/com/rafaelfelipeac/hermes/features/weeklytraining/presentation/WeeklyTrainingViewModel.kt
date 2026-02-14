@@ -38,9 +38,15 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELET
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
+import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -71,6 +77,8 @@ class WeeklyTrainingViewModel
     constructor(
         private val repository: WeeklyTrainingRepository,
         private val userActionLogger: UserActionLogger,
+        private val categoryRepository: CategoryRepository,
+        private val categorySeeder: CategorySeeder,
     ) : ViewModel() {
         private val selectedDate = MutableStateFlow(LocalDate.now())
         private val weekStartDate =
@@ -78,12 +86,18 @@ class WeeklyTrainingViewModel
                 .map { it.with(TemporalAdjusters.previousOrSame(MONDAY)) }
                 .distinctUntilChanged()
 
+        private val categoriesFlow =
+            categoryRepository.observeCategories().map { categories ->
+                categories.map { it.toUi() }
+            }
+
         private val workoutsForWeek =
             weekStartDate.flatMapLatest { weekStart ->
-                repository.observeWorkoutsForWeek(weekStart).map { workouts ->
-                    workouts.map { it.toUi() }
-                }
+                repository.observeWorkoutsForWeek(weekStart)
             }
+                .combine(categoriesFlow) { workouts, categories ->
+                    mapWorkoutsToUi(workouts, categories)
+                }
 
         private val workoutsLoadedForWeek =
             weekStartDate.flatMapLatest {
@@ -97,18 +111,27 @@ class WeeklyTrainingViewModel
         private var undoTimeoutJob: Job? = null
         private var undoCounter = 0L
 
+        init {
+            viewModelScope.launch {
+                categorySeeder.ensureSeeded()
+                repository.assignNullCategoryTo(UNCATEGORIZED_ID)
+            }
+        }
+
         val state: StateFlow<WeeklyTrainingState> =
             combine(
                 selectedDate,
                 weekStartDate,
                 workoutsForWeek,
                 workoutsLoadedForWeek,
-            ) { selected, weekStart, workouts, isWeekLoaded ->
+                categoriesFlow,
+            ) { selected, weekStart, workouts, isWeekLoaded, categories ->
                 WeeklyTrainingState(
                     selectedDate = selected,
                     weekStartDate = weekStart,
                     workouts = workouts,
                     isWeekLoaded = isWeekLoaded,
+                    categories = categories,
                 )
             }.stateIn(
                 scope = viewModelScope,
@@ -120,6 +143,7 @@ class WeeklyTrainingViewModel
                             selectedDate.value.with(TemporalAdjusters.previousOrSame(MONDAY)),
                         workouts = emptyList(),
                         isWeekLoaded = false,
+                        categories = emptyList(),
                     ),
             )
 
@@ -158,9 +182,11 @@ class WeeklyTrainingViewModel
         fun addWorkout(
             type: String,
             description: String,
+            categoryId: Long?,
         ) {
             val currentState = state.value
             val nextOrder = nextUnplannedOrder(currentState)
+            val normalizedCategoryId = categoryId ?: UNCATEGORIZED_ID
 
             viewModelScope.launch {
                 val workoutId =
@@ -169,6 +195,7 @@ class WeeklyTrainingViewModel
                         dayOfWeek = null,
                         type = type,
                         description = description,
+                        categoryId = normalizedCategoryId,
                         order = nextOrder,
                     )
 
@@ -363,10 +390,23 @@ class WeeklyTrainingViewModel
             type: String,
             description: String,
             isRestDay: Boolean,
+            categoryId: Long?,
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workoutId }
+            val normalizedCategoryId =
+                if (isRestDay) {
+                    null
+                } else {
+                    categoryId ?: UNCATEGORIZED_ID
+                }
 
-            repository.updateWorkoutDetails(workoutId, type, description, isRestDay)
+            repository.updateWorkoutDetails(
+                workoutId = workoutId,
+                type = type,
+                description = description,
+                isRestDay = isRestDay,
+                categoryId = normalizedCategoryId,
+            )
 
             val entityType =
                 if (isRestDay) REST_DAY else WORKOUT
@@ -633,6 +673,24 @@ class WeeklyTrainingViewModel
         private fun clearUndoTimeout() {
             undoTimeoutJob?.cancel()
             undoTimeoutJob = null
+        }
+
+        private fun mapWorkoutsToUi(
+            workouts: List<Workout>,
+            categories: List<CategoryUi>,
+        ): List<WorkoutUi> {
+            val categoriesById = categories.associateBy { it.id }
+            val fallbackCategory = categoriesById[UNCATEGORIZED_ID]
+
+            return workouts.map { workout ->
+                val category =
+                    if (workout.isRestDay) {
+                        null
+                    } else {
+                        workout.categoryId?.let(categoriesById::get) ?: fallbackCategory
+                    }
+                workout.toUi(category)
+            }
         }
 
         companion object {

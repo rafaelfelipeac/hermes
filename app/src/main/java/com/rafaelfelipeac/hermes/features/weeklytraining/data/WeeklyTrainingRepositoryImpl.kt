@@ -31,6 +31,7 @@ class WeeklyTrainingRepositoryImpl
             dayOfWeek: DayOfWeek?,
             type: String,
             description: String,
+            categoryId: Long?,
             order: Int,
         ): Long {
             val entity =
@@ -41,6 +42,7 @@ class WeeklyTrainingRepositoryImpl
                     description = description,
                     isCompleted = false,
                     isRestDay = false,
+                    categoryId = categoryId,
                     sortOrder = order,
                 )
 
@@ -60,6 +62,7 @@ class WeeklyTrainingRepositoryImpl
                     description = EMPTY,
                     isCompleted = false,
                     isRestDay = true,
+                    categoryId = null,
                     sortOrder = order,
                 )
 
@@ -86,12 +89,24 @@ class WeeklyTrainingRepositoryImpl
             type: String,
             description: String,
             isRestDay: Boolean,
-        ) = workoutDao.updateDetails(workoutId, type, description, isRestDay)
+            categoryId: Long?,
+        ) = workoutDao.updateDetails(workoutId, type, description, isRestDay, categoryId)
 
         override suspend fun deleteWorkout(workoutId: Long) = workoutDao.deleteById(workoutId)
 
         override suspend fun deleteWorkoutsForWeek(weekStartDate: LocalDate) {
             workoutDao.deleteByWeekStartDate(weekStartDate)
+        }
+
+        override suspend fun assignNullCategoryTo(uncategorizedId: Long) {
+            workoutDao.assignNullCategoryTo(uncategorizedId)
+        }
+
+        override suspend fun reassignCategory(
+            deletedCategoryId: Long,
+            uncategorizedId: Long,
+        ) {
+            workoutDao.reassignCategory(deletedCategoryId, uncategorizedId)
         }
 
         override suspend fun replaceWorkoutsForWeek(
@@ -125,6 +140,7 @@ private fun buildReplacementEntities(
                 description = if (isRestDay) EMPTY else workout.description,
                 isCompleted = false,
                 isRestDay = isRestDay,
+                categoryId = if (isRestDay) null else workout.categoryId,
                 sortOrder = workout.order,
             )
         }
@@ -139,6 +155,7 @@ private fun WorkoutEntity.toDomain(): Workout {
         description = description,
         isCompleted = isCompleted,
         isRestDay = isRestDay,
+        categoryId = categoryId,
         order = sortOrder,
     )
 }

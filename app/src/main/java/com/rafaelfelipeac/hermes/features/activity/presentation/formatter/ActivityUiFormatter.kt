@@ -55,10 +55,10 @@ class ActivityUiFormatter(
         val quotedWorkoutLabel = buildQuotedWorkoutLabel(metadata)
 
         val title =
-            if (entityType == UserActionEntityType.REST_DAY) {
-                buildRestDayTitle(actionType, quotedWorkoutLabel)
-            } else {
-                buildWorkoutTitle(actionType, quotedWorkoutLabel)
+            when (entityType) {
+                UserActionEntityType.REST_DAY -> buildRestDayTitle(actionType, quotedWorkoutLabel)
+                UserActionEntityType.CATEGORY -> buildCategoryTitle(actionType, metadata)
+                else -> buildWorkoutTitle(actionType, quotedWorkoutLabel)
             }
 
         return title ?: when (actionType) {
@@ -88,18 +88,21 @@ class ActivityUiFormatter(
     ): String? {
         val actionType = runCatching { UserActionType.valueOf(record.actionType) }.getOrNull()
         val weekSubtitle = buildWeekSubtitle(metadata, currentLocale)
-        val actionSubtitle =
-            when (actionType) {
-                UserActionType.CHANGE_LANGUAGE,
-                UserActionType.CHANGE_THEME,
-                -> buildValueChangeSubtitle(metadata, actionType)
+            val actionSubtitle =
+                when (actionType) {
+                    UserActionType.CHANGE_LANGUAGE,
+                    UserActionType.CHANGE_THEME,
+                    -> buildValueChangeSubtitle(metadata, actionType)
 
-                UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
-                UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)
-                UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
-                UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> buildReorderSubtitle(metadata)
-                else -> null
-            }
+                    UserActionType.UPDATE_CATEGORY_VISIBILITY ->
+                        buildCategoryVisibilitySubtitle(metadata)
+
+                    UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
+                    UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)
+                    UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
+                    UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> buildReorderSubtitle(metadata)
+                    else -> null
+                }
         val shouldSplitLines =
             actionType == UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ||
                 actionType == UserActionType.REORDER_WORKOUT ||
@@ -188,6 +191,65 @@ class ActivityUiFormatter(
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE -> languageLabel(raw)
             UserActionType.CHANGE_THEME -> themeLabel(raw)
+            else -> raw
+        }
+    }
+
+    private fun buildCategoryTitle(
+        actionType: UserActionType?,
+        metadata: Map<String, String>,
+    ): String? {
+        val label = buildCategoryLabel(metadata)
+
+        return when (actionType) {
+            UserActionType.CREATE_CATEGORY ->
+                stringProvider.get(R.string.activity_action_create_category, label)
+
+            UserActionType.UPDATE_CATEGORY_NAME ->
+                stringProvider.get(R.string.activity_action_update_category_name, label)
+
+            UserActionType.UPDATE_CATEGORY_COLOR ->
+                stringProvider.get(R.string.activity_action_update_category_color, label)
+
+            UserActionType.UPDATE_CATEGORY_VISIBILITY ->
+                stringProvider.get(R.string.activity_action_update_category_visibility, label)
+
+            UserActionType.REORDER_CATEGORY ->
+                stringProvider.get(R.string.activity_action_reorder_category, label)
+
+            UserActionType.DELETE_CATEGORY ->
+                stringProvider.get(R.string.activity_action_delete_category, label)
+
+            else -> null
+        }
+    }
+
+    private fun buildCategoryLabel(metadata: Map<String, String>): String {
+        return metadata[UserActionMetadataKeys.CATEGORY_NAME]
+            ?: metadata[UserActionMetadataKeys.NEW_VALUE]
+            ?: metadata[UserActionMetadataKeys.OLD_VALUE]
+            ?: stringProvider.get(R.string.activity_category_fallback)
+    }
+
+    private fun buildCategoryVisibilitySubtitle(metadata: Map<String, String>): String? {
+        val oldValue = formatVisibilityValue(metadata[UserActionMetadataKeys.OLD_VALUE])
+        val newValue = formatVisibilityValue(metadata[UserActionMetadataKeys.NEW_VALUE])
+
+        if (oldValue.isNullOrBlank() && newValue.isNullOrBlank()) return null
+
+        return stringProvider.get(
+            R.string.activity_subtitle_change_value,
+            oldValue.orEmpty(),
+            newValue.orEmpty(),
+        )
+    }
+
+    private fun formatVisibilityValue(raw: String?): String? {
+        return when (raw) {
+            UserActionMetadataValues.CATEGORY_VISIBLE ->
+                stringProvider.get(R.string.activity_category_visible)
+            UserActionMetadataValues.CATEGORY_HIDDEN ->
+                stringProvider.get(R.string.activity_category_hidden)
             else -> raw
         }
     }

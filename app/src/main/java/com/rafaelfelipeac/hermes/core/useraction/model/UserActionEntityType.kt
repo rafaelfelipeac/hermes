@@ -5,5 +5,6 @@ enum class UserActionEntityType {
     REST_DAY,
     WEEK,
     SETTINGS,
+    CATEGORY,
     APP,
 }

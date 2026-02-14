@@ -47,3 +47,10 @@ Recent learnings:
 - Copying a week should be a single Room transaction (delete + insert) to avoid leaving a week empty if a copy fails mid-flight.
 - When undo restores also adjust other rows, re-fetch the week before normalization so ordering uses the post-mutation state.
 - Copy-replace confirmation should rely on a “week loaded” signal, not an empty UI list, to avoid skipping warnings during initial load or week transitions.
+- Category seeding is easier to keep localized when it runs in a domain-level seeder (using `StringProvider`) after Room migrations add the schema; the seeder can also ensure `Uncategorized` exists and backfill null category IDs without hardcoding names in SQL.
+- When a new settings sub-screen is needed but there is no nav graph, a lightweight route flag passed through the app shell keeps navigation simple while allowing deep links like “Manage categories” to jump directly into the settings subsection.
+- We kept the workout data model field as `type`, but updated UI copy to call it “Title” so UX wording can evolve without forcing a data migration or API rename.
+- Reordering the workout row to show category chip first, then title as bold body text, keeps category scanning consistent while making the title feel more like primary content.
+- Day indicators now carry both the last workout (for color) and an aggregate completion flag, so the header can show a completion mark without losing the existing color logic.
+- When the day indicator wraps the weekday letter, the indicator color should be nudged darker in light theme and lighter in dark theme to keep the letter + check readable without changing the category palette itself.
+- Rest day visuals should reuse the same elevated surface color and `onSurfaceVariant` content color as activity/settings cards, keeping rest days muted while matching the app’s card language.
