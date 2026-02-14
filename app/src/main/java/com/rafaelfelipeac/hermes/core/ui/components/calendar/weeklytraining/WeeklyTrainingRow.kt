@@ -171,14 +171,14 @@ internal fun WorkoutRow(
             verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            if (!workout.isRestDay) {
-                Box(
-                    modifier =
-                        Modifier
-                            .size(CheckboxBoxSize + SpacingSm)
-                            .offset(y = CheckboxYOffset),
-                    contentAlignment = Alignment.Center,
-                ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(CheckboxBoxSize + SpacingSm)
+                        .offset(y = CheckboxYOffset),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (!workout.isRestDay) {
                     if (workout.isCompleted) {
                         val completedButtonColor =
                             categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA)
@@ -215,11 +215,26 @@ internal fun WorkoutRow(
                         )
                     }
                 }
+                if (workout.isRestDay) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(CheckboxSize + SpacingSm)
+                                .clip(CircleShape)
+                                .background(colors.content.copy(alpha = TYPE_CHIP_ALPHA)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Bedtime,
+                            contentDescription = null,
+                            tint = colors.content,
+                            modifier = Modifier.size(SmallIconSize),
+                        )
+                    }
+                }
             }
 
-            if (!workout.isRestDay) {
-                Spacer(modifier = Modifier.width(SpacingLg))
-            }
+            Spacer(modifier = Modifier.width(SpacingLg))
 
             Row(
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
@@ -230,22 +245,11 @@ internal fun WorkoutRow(
             ) {
                 Column {
                     if (workout.isRestDay) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Outlined.Bedtime,
-                                contentDescription = null,
-                                tint = colors.content,
-                                modifier = Modifier.size(SmallIconSize),
-                            )
-
-                            Spacer(modifier = Modifier.width(SpacingSm))
-
-                            Text(
-                                text = stringResource(R.string.rest_day_label),
-                                style = typography.titleSmall,
-                                color = colors.content,
-                            )
-                        }
+                        TitleChip(
+                            label = stringResource(R.string.rest_day_label),
+                            containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
+                            contentColor = colors.content,
+                        )
                     } else {
                         Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
                             workout.categoryName?.let { categoryName ->
@@ -384,22 +388,11 @@ internal fun GhostWorkoutRow(
                 ) {
                     Column {
                         if (workout.isRestDay) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Bedtime,
-                                    contentDescription = null,
-                                    tint = colors.content,
-                                    modifier = Modifier.size(SmallIconSize),
-                                )
-
-                                Spacer(modifier = Modifier.width(SpacingSm))
-
-                                Text(
-                                    text = stringResource(R.string.rest_day_label),
-                                    style = typography.titleSmall,
-                                    color = colors.content,
-                                )
-                            }
+                            TitleChip(
+                                label = stringResource(R.string.rest_day_label),
+                                containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
+                                contentColor = colors.content,
+                            )
                         } else {
                             Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
                                 workout.categoryName?.let { categoryName ->
