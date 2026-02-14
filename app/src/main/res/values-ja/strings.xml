@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <!-- App -->
     <string name="app_name">Hermes</string>
@@ -70,7 +71,7 @@
     <string name="mock_workout_description_yoga">テクニック＋持久力、1.5km</string>
     <string name="mock_workout_description_hiits">テンポライド、60分</string>
     <string name="mock_workout_description_mobility">股関節＋肩、15分</string>
-    <string name="mock_workout_description_long_run">ゾーン2、12km</string>
+    <string name="mock_workout_description_long_run">ゾーン2、12 km</string>
     <string name="mock_workout_description_core">複合種目、40分</string>
 
     <!-- Training week: days -->
@@ -149,40 +150,42 @@
     <string name="activity_value_quoted">\"%1$s\"</string>
 
     <!-- Categories -->
-    <string name="add_workout_category">Category</string>
-    <string name="manage_categories">Manage categories</string>
-    <string name="category_uncategorized">Uncategorized</string>
-    <string name="category_run">Run</string>
-    <string name="category_cycling">Cycling</string>
-    <string name="category_strength">Strength</string>
-    <string name="category_swim">Swim</string>
-    <string name="category_mobility">Mobility</string>
-    <string name="category_other">Other</string>
-    <string name="settings_workouts_title">Workouts</string>
-    <string name="settings_categories">Categories</string>
-    <string name="categories_title">Categories</string>
-    <string name="categories_back">Back</string>
-    <string name="categories_add">Add category</string>
-    <string name="categories_add_title">New category</string>
-    <string name="categories_add_confirm">Add</string>
-    <string name="categories_edit_title">Edit category</string>
-    <string name="categories_name_label">Name</string>
-    <string name="categories_color_label">Color</string>
-    <string name="categories_hide_label">Hide</string>
-    <string name="categories_move_up">Move category up</string>
-    <string name="categories_move_down">Move category down</string>
-    <string name="categories_edit_action">Edit category</string>
-    <string name="categories_delete_action">Delete category</string>
-    <string name="categories_delete_title">Delete category "%1$s"?</string>
-    <string name="categories_delete_message">Workouts will be moved to "Uncategorized".</string>
-    <string name="categories_delete_confirm">Delete</string>
-    <string name="activity_action_create_category">You created the category %1$s.</string>
-    <string name="activity_action_update_category_name">You renamed the category %1$s.</string>
-    <string name="activity_action_update_category_color">You changed the color of %1$s.</string>
-    <string name="activity_action_update_category_visibility">You changed the visibility of %1$s.</string>
-    <string name="activity_action_reorder_category">You reordered the category %1$s.</string>
-    <string name="activity_action_delete_category">You deleted the category %1$s.</string>
-    <string name="activity_category_fallback">category</string>
-    <string name="activity_category_visible">Visible</string>
-    <string name="activity_category_hidden">Hidden</string>
+    <string name="add_workout_category">カテゴリ</string>
+    <string name="manage_categories">カテゴリを管理</string>
+    <string name="category_uncategorized">未分類</string>
+    <string name="category_run">ラン</string>
+    <string name="category_cycling">サイクリング</string>
+    <string name="category_strength">筋力</string>
+    <string name="category_swim">スイム</string>
+    <string name="category_mobility">モビリティ</string>
+    <string name="category_other">その他</string>
+    <string name="settings_workouts_title">ワークアウト</string>
+    <string name="settings_categories">カテゴリ</string>
+    <string name="categories_title">カテゴリ</string>
+    <string name="categories_back">戻る</string>
+    <string name="categories_add">カテゴリを追加</string>
+    <string name="categories_add_title">新しいカテゴリ</string>
+    <string name="categories_add_confirm">追加</string>
+    <string name="categories_edit_title">カテゴリを編集</string>
+    <string name="categories_name_label">名前</string>
+    <string name="categories_color_label">色</string>
+    <string name="categories_hide_label">非表示</string>
+    <string name="categories_hide_action">カテゴリを非表示</string>
+    <string name="categories_show_action">カテゴリを表示</string>
+    <string name="categories_move_up">カテゴリを上へ移動</string>
+    <string name="categories_move_down">カテゴリを下へ移動</string>
+    <string name="categories_edit_action">カテゴリを編集</string>
+    <string name="categories_delete_action">カテゴリを削除</string>
+    <string name="categories_delete_title">カテゴリ「%1$s」を削除しますか？</string>
+    <string name="categories_delete_message">ワークアウトは「未分類」に移動されます。</string>
+    <string name="categories_delete_confirm">削除</string>
+    <string name="activity_action_create_category">カテゴリ%1$sを作成しました。</string>
+    <string name="activity_action_update_category_name">カテゴリ%1$sの名前を変更しました。</string>
+    <string name="activity_action_update_category_color">カテゴリ%1$sの色を変更しました。</string>
+    <string name="activity_action_update_category_visibility">カテゴリ%1$sの表示を変更しました。</string>
+    <string name="activity_action_reorder_category">カテゴリ%1$sを並べ替えました。</string>
+    <string name="activity_action_delete_category">カテゴリ%1$sを削除しました。</string>
+    <string name="activity_category_fallback">カテゴリ</string>
+    <string name="activity_category_visible">表示</string>
+    <string name="activity_category_hidden">非表示</string>
 </resources>

@@ -40,7 +40,7 @@ class AddWorkoutDialogTest {
             AddWorkoutDialog(
                 onDismiss = {},
                 onSave = { _, _, _ -> },
-                onManageCategories = {},
+                onManageCategories = { _, _, _ -> },
                 isEdit = false,
                 categories = categories,
                 selectedCategoryId = 1L,

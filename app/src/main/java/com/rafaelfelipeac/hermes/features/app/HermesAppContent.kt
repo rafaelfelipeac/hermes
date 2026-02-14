@@ -9,6 +9,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -21,14 +22,22 @@ import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 
 @Composable
 fun HermesAppContent() {
     var currentDestination by rememberSaveable { mutableStateOf(WEEKLY_TRAINING) }
     var pendingSettingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
-    val openCategoriesSettings = {
+    var pendingWorkoutDraft by remember { mutableStateOf<WorkoutDialogDraft?>(null) }
+    val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
+        pendingWorkoutDraft = draft
         pendingSettingsRoute = SettingsRoute.CATEGORIES
         currentDestination = SETTINGS
+    }
+    val handleCategoriesExit = {
+        if (pendingWorkoutDraft != null) {
+            currentDestination = WEEKLY_TRAINING
+        }
     }
 
     NavigationSuiteScaffold(
@@ -54,6 +63,8 @@ fun HermesAppContent() {
                     WeeklyTrainingScreen(
                         modifier = Modifier.padding(innerPadding),
                         onManageCategories = openCategoriesSettings,
+                        pendingWorkoutDraft = pendingWorkoutDraft,
+                        onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
                     )
                 ACTIVITY -> ActivityScreen(modifier = Modifier.padding(innerPadding))
                 SETTINGS ->
@@ -61,6 +72,7 @@ fun HermesAppContent() {
                         modifier = Modifier.padding(innerPadding),
                         initialRoute = pendingSettingsRoute,
                         onRouteConsumed = { pendingSettingsRoute = null },
+                        onExitCategories = handleCategoriesExit,
                     )
             }
         }

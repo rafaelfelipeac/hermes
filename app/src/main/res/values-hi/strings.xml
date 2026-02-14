@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <!-- App -->
     <string name="app_name">Hermes</string>
@@ -93,11 +94,11 @@
     <string name="settings_language_english">अंग्रेज़ी</string>
     <string name="settings_language_portuguese_brazil">पुर्तगाली (ब्राज़ील)</string>
     <string name="settings_language_german">जर्मन</string>
-    <string name="settings_language_french">फ़्रेंच</string>
+    <string name="settings_language_french">फ्रेंच</string>
     <string name="settings_language_spanish">स्पेनिश</string>
     <string name="settings_language_italian">इतालवी</string>
     <string name="settings_language_arabic">अरबी</string>
-    <string name="settings_language_hindi">हिन्दी</string>
+    <string name="settings_language_hindi">हिंदी</string>
     <string name="settings_language_japanese">जापानी</string>
     <string name="settings_app_version">Hermes - संस्करण: %1$s</string>
 
@@ -149,40 +150,42 @@
     <string name="activity_value_quoted">\"%1$s\"</string>
 
     <!-- Categories -->
-    <string name="add_workout_category">Category</string>
-    <string name="manage_categories">Manage categories</string>
-    <string name="category_uncategorized">Uncategorized</string>
-    <string name="category_run">Run</string>
-    <string name="category_cycling">Cycling</string>
-    <string name="category_strength">Strength</string>
-    <string name="category_swim">Swim</string>
-    <string name="category_mobility">Mobility</string>
-    <string name="category_other">Other</string>
-    <string name="settings_workouts_title">Workouts</string>
-    <string name="settings_categories">Categories</string>
-    <string name="categories_title">Categories</string>
-    <string name="categories_back">Back</string>
-    <string name="categories_add">Add category</string>
-    <string name="categories_add_title">New category</string>
-    <string name="categories_add_confirm">Add</string>
-    <string name="categories_edit_title">Edit category</string>
-    <string name="categories_name_label">Name</string>
-    <string name="categories_color_label">Color</string>
-    <string name="categories_hide_label">Hide</string>
-    <string name="categories_move_up">Move category up</string>
-    <string name="categories_move_down">Move category down</string>
-    <string name="categories_edit_action">Edit category</string>
-    <string name="categories_delete_action">Delete category</string>
-    <string name="categories_delete_title">Delete category "%1$s"?</string>
-    <string name="categories_delete_message">Workouts will be moved to "Uncategorized".</string>
-    <string name="categories_delete_confirm">Delete</string>
-    <string name="activity_action_create_category">You created the category %1$s.</string>
-    <string name="activity_action_update_category_name">You renamed the category %1$s.</string>
-    <string name="activity_action_update_category_color">You changed the color of %1$s.</string>
-    <string name="activity_action_update_category_visibility">You changed the visibility of %1$s.</string>
-    <string name="activity_action_reorder_category">You reordered the category %1$s.</string>
-    <string name="activity_action_delete_category">You deleted the category %1$s.</string>
-    <string name="activity_category_fallback">category</string>
-    <string name="activity_category_visible">Visible</string>
-    <string name="activity_category_hidden">Hidden</string>
+    <string name="add_workout_category">श्रेणी</string>
+    <string name="manage_categories">श्रेणियाँ प्रबंधित करें</string>
+    <string name="category_uncategorized">अवर्गीकृत</string>
+    <string name="category_run">दौड़</string>
+    <string name="category_cycling">साइक्लिंग</string>
+    <string name="category_strength">शक्ति</string>
+    <string name="category_swim">तैराकी</string>
+    <string name="category_mobility">गतिशीलता</string>
+    <string name="category_other">अन्य</string>
+    <string name="settings_workouts_title">वर्कआउट</string>
+    <string name="settings_categories">श्रेणियाँ</string>
+    <string name="categories_title">श्रेणियाँ</string>
+    <string name="categories_back">वापस</string>
+    <string name="categories_add">श्रेणी जोड़ें</string>
+    <string name="categories_add_title">नई श्रेणी</string>
+    <string name="categories_add_confirm">जोड़ें</string>
+    <string name="categories_edit_title">श्रेणी संपादित करें</string>
+    <string name="categories_name_label">नाम</string>
+    <string name="categories_color_label">रंग</string>
+    <string name="categories_hide_label">छिपाएं</string>
+    <string name="categories_hide_action">श्रेणी छिपाएं</string>
+    <string name="categories_show_action">श्रेणी दिखाएं</string>
+    <string name="categories_move_up">श्रेणी ऊपर करें</string>
+    <string name="categories_move_down">श्रेणी नीचे करें</string>
+    <string name="categories_edit_action">श्रेणी संपादित करें</string>
+    <string name="categories_delete_action">श्रेणी हटाएं</string>
+    <string name="categories_delete_title">श्रेणी "%1$s" हटाएं?</string>
+    <string name="categories_delete_message">वर्कआउट "अवर्गीकृत" में ले जाए जाएंगे।</string>
+    <string name="categories_delete_confirm">हटाएं</string>
+    <string name="activity_action_create_category">आपने श्रेणी %1$s बनाई।</string>
+    <string name="activity_action_update_category_name">आपने श्रेणी %1$s का नाम बदला।</string>
+    <string name="activity_action_update_category_color">आपने %1$s का रंग बदला।</string>
+    <string name="activity_action_update_category_visibility">आपने %1$s की दृश्यता बदली।</string>
+    <string name="activity_action_reorder_category">आपने श्रेणी %1$s का क्रम बदला।</string>
+    <string name="activity_action_delete_category">आपने श्रेणी %1$s हटाई।</string>
+    <string name="activity_category_fallback">श्रेणी</string>
+    <string name="activity_category_visible">दृश्यमान</string>
+    <string name="activity_category_hidden">छिपी</string>
 </resources>

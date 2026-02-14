@@ -64,6 +64,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     initialRoute: SettingsRoute? = null,
     onRouteConsumed: () -> Unit = {},
+    onExitCategories: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -97,7 +98,10 @@ fun SettingsScreen(
             )
         SettingsRoute.CATEGORIES ->
             CategoriesScreen(
-                onBack = { route = SettingsRoute.MAIN },
+                onBack = {
+                    route = SettingsRoute.MAIN
+                    onExitCategories()
+                },
                 modifier = modifier,
             )
     }

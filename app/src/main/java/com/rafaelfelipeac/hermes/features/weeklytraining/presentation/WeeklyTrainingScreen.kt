@@ -61,6 +61,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val ADD_MENU_SCRIM_ALPHA = 0.30f
@@ -69,7 +70,9 @@ private const val ADD_FAB_TEST_TAG = "add-fab"
 @Composable
 fun WeeklyTrainingScreen(
     modifier: Modifier = Modifier,
-    onManageCategories: () -> Unit = {},
+    onManageCategories: (WorkoutDialogDraft) -> Unit = {},
+    pendingWorkoutDraft: WorkoutDialogDraft? = null,
+    onWorkoutDraftConsumed: () -> Unit = {},
     viewModel: WeeklyTrainingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -81,6 +84,9 @@ fun WeeklyTrainingScreen(
     var editingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
     var deletingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
     var isCopyReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var draftType by rememberSaveable { mutableStateOf("") }
+    var draftDescription by rememberSaveable { mutableStateOf("") }
+    var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
     val undoLabel = stringResource(R.string.undo_action)
@@ -156,6 +162,31 @@ fun WeeklyTrainingScreen(
                         duration = SnackbarDuration.Short,
                     )
             }
+        }
+    }
+
+    LaunchedEffect(pendingWorkoutDraft, state.categories, state.workouts) {
+        pendingWorkoutDraft?.let { draft ->
+            if (draft.workoutId == null) {
+                draftType = draft.type
+                draftDescription = draft.description
+                draftCategoryId = draft.categoryId ?: UNCATEGORIZED_ID
+                isAddDialogVisible = true
+            } else {
+                val workout = state.workouts.firstOrNull { it.id == draft.workoutId }
+                val category = state.categories.firstOrNull { it.id == draft.categoryId }
+                if (workout != null) {
+                    editingWorkout =
+                        workout.copy(
+                            type = draft.type,
+                            description = draft.description,
+                            categoryId = draft.categoryId,
+                            categoryName = category?.name,
+                            categoryColorId = category?.colorId,
+                        )
+                }
+            }
+            onWorkoutDraftConsumed()
         }
     }
 
@@ -262,6 +293,9 @@ fun WeeklyTrainingScreen(
                         label = stringResource(R.string.add_workout),
                         onClick = {
                             isAddMenuVisible = false
+                            draftType = ""
+                            draftDescription = ""
+                            draftCategoryId = UNCATEGORIZED_ID
                             isAddDialogVisible = true
                         },
                     )
@@ -313,18 +347,35 @@ fun WeeklyTrainingScreen(
 
     if (isAddDialogVisible) {
         AddWorkoutDialog(
-            onDismiss = { isAddDialogVisible = false },
+            onDismiss = {
+                isAddDialogVisible = false
+                draftType = ""
+                draftDescription = ""
+                draftCategoryId = UNCATEGORIZED_ID
+            },
             onSave = { type, description, categoryId ->
                 viewModel.addWorkout(type, description, categoryId)
                 isAddDialogVisible = false
+                draftType = ""
+                draftDescription = ""
+                draftCategoryId = UNCATEGORIZED_ID
             },
-            onManageCategories = {
+            onManageCategories = { type, description, categoryId ->
                 isAddDialogVisible = false
-                onManageCategories()
+                onManageCategories(
+                    WorkoutDialogDraft(
+                        workoutId = null,
+                        type = type,
+                        description = description,
+                        categoryId = categoryId,
+                    ),
+                )
             },
             isEdit = false,
             categories = pickerCategories,
-            selectedCategoryId = UNCATEGORIZED_ID,
+            selectedCategoryId = draftCategoryId,
+            initialType = draftType,
+            initialDescription = draftDescription,
         )
     }
 
@@ -346,9 +397,16 @@ fun WeeklyTrainingScreen(
                 )
                 editingWorkout = null
             },
-            onManageCategories = {
+            onManageCategories = { type, description, categoryId ->
                 editingWorkout = null
-                onManageCategories()
+                onManageCategories(
+                    WorkoutDialogDraft(
+                        workoutId = workout.id,
+                        type = type,
+                        description = description,
+                        categoryId = categoryId,
+                    ),
+                )
             },
             isEdit = true,
             categories = editCategories,

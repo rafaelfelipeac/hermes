@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <!-- App -->
     <string name="app_name">Hermes</string>
@@ -70,7 +71,7 @@
     <string name="mock_workout_description_yoga">تقنية + تحمّل، 1.5 كم</string>
     <string name="mock_workout_description_hiits">إيقاع متوسط، 60 دقيقة</string>
     <string name="mock_workout_description_mobility">الورك + الأكتاف، 15 دقيقة</string>
-    <string name="mock_workout_description_long_run">زون 2، 12 كم</string>
+    <string name="mock_workout_description_long_run">المنطقة 2، 12 كم</string>
     <string name="mock_workout_description_core">تمارين مركبة، 40 دقيقة</string>
 
     <!-- Training week: days -->
@@ -149,40 +150,42 @@
     <string name="activity_value_quoted">\"%1$s\"</string>
 
     <!-- Categories -->
-    <string name="add_workout_category">Category</string>
-    <string name="manage_categories">Manage categories</string>
-    <string name="category_uncategorized">Uncategorized</string>
-    <string name="category_run">Run</string>
-    <string name="category_cycling">Cycling</string>
-    <string name="category_strength">Strength</string>
-    <string name="category_swim">Swim</string>
-    <string name="category_mobility">Mobility</string>
-    <string name="category_other">Other</string>
-    <string name="settings_workouts_title">Workouts</string>
-    <string name="settings_categories">Categories</string>
-    <string name="categories_title">Categories</string>
-    <string name="categories_back">Back</string>
-    <string name="categories_add">Add category</string>
-    <string name="categories_add_title">New category</string>
-    <string name="categories_add_confirm">Add</string>
-    <string name="categories_edit_title">Edit category</string>
-    <string name="categories_name_label">Name</string>
-    <string name="categories_color_label">Color</string>
-    <string name="categories_hide_label">Hide</string>
-    <string name="categories_move_up">Move category up</string>
-    <string name="categories_move_down">Move category down</string>
-    <string name="categories_edit_action">Edit category</string>
-    <string name="categories_delete_action">Delete category</string>
-    <string name="categories_delete_title">Delete category "%1$s"?</string>
-    <string name="categories_delete_message">Workouts will be moved to "Uncategorized".</string>
-    <string name="categories_delete_confirm">Delete</string>
-    <string name="activity_action_create_category">You created the category %1$s.</string>
-    <string name="activity_action_update_category_name">You renamed the category %1$s.</string>
-    <string name="activity_action_update_category_color">You changed the color of %1$s.</string>
-    <string name="activity_action_update_category_visibility">You changed the visibility of %1$s.</string>
-    <string name="activity_action_reorder_category">You reordered the category %1$s.</string>
-    <string name="activity_action_delete_category">You deleted the category %1$s.</string>
-    <string name="activity_category_fallback">category</string>
-    <string name="activity_category_visible">Visible</string>
-    <string name="activity_category_hidden">Hidden</string>
+    <string name="add_workout_category">الفئة</string>
+    <string name="manage_categories">إدارة الفئات</string>
+    <string name="category_uncategorized">غير مصنّف</string>
+    <string name="category_run">جري</string>
+    <string name="category_cycling">ركوب الدراجات</string>
+    <string name="category_strength">قوة</string>
+    <string name="category_swim">سباحة</string>
+    <string name="category_mobility">الحركية</string>
+    <string name="category_other">أخرى</string>
+    <string name="settings_workouts_title">التمارين</string>
+    <string name="settings_categories">الفئات</string>
+    <string name="categories_title">الفئات</string>
+    <string name="categories_back">رجوع</string>
+    <string name="categories_add">إضافة فئة</string>
+    <string name="categories_add_title">فئة جديدة</string>
+    <string name="categories_add_confirm">إضافة</string>
+    <string name="categories_edit_title">تعديل الفئة</string>
+    <string name="categories_name_label">الاسم</string>
+    <string name="categories_color_label">اللون</string>
+    <string name="categories_hide_label">إخفاء</string>
+    <string name="categories_hide_action">إخفاء الفئة</string>
+    <string name="categories_show_action">إظهار الفئة</string>
+    <string name="categories_move_up">نقل الفئة للأعلى</string>
+    <string name="categories_move_down">نقل الفئة للأسفل</string>
+    <string name="categories_edit_action">تعديل الفئة</string>
+    <string name="categories_delete_action">حذف الفئة</string>
+    <string name="categories_delete_title">حذف الفئة "%1$s"؟</string>
+    <string name="categories_delete_message">سيتم نقل التمارين إلى "غير مصنّف".</string>
+    <string name="categories_delete_confirm">حذف</string>
+    <string name="activity_action_create_category">لقد أنشأت الفئة %1$s.</string>
+    <string name="activity_action_update_category_name">لقد أعدت تسمية الفئة %1$s.</string>
+    <string name="activity_action_update_category_color">لقد غيّرت لون %1$s.</string>
+    <string name="activity_action_update_category_visibility">لقد غيّرت ظهور %1$s.</string>
+    <string name="activity_action_reorder_category">لقد أعدت ترتيب الفئة %1$s.</string>
+    <string name="activity_action_delete_category">لقد حذفت الفئة %1$s.</string>
+    <string name="activity_category_fallback">فئة</string>
+    <string name="activity_category_visible">مرئية</string>
+    <string name="activity_category_hidden">مخفية</string>
 </resources>

@@ -48,7 +48,7 @@ fun AddWorkoutDialog(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
     onSave: (type: String, description: String, categoryId: Long?) -> Unit,
-    onManageCategories: () -> Unit,
+    onManageCategories: (type: String, description: String, categoryId: Long?) -> Unit,
     isEdit: Boolean,
     categories: List<CategoryUi>,
     selectedCategoryId: Long?,
@@ -142,7 +142,7 @@ fun AddWorkoutDialog(
                             text = { Text(text = stringResource(R.string.manage_categories)) },
                             onClick = {
                                 expanded = false
-                                onManageCategories()
+                                onManageCategories(type, description, currentCategoryId)
                             },
                         )
                     }
@@ -198,7 +198,7 @@ private fun AddWorkoutDialogPreview(
     AddWorkoutDialog(
         onDismiss = {},
         onSave = { _, _, _ -> },
-        onManageCategories = {},
+        onManageCategories = { _, _, _ -> },
         isEdit = preview.isEdit,
         categories = emptyList(),
         selectedCategoryId = null,

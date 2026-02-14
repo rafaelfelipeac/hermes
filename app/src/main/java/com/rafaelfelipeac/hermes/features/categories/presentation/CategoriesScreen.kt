@@ -19,16 +19,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -38,7 +40,6 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -61,7 +62,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryColorOptions
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -77,61 +78,74 @@ fun CategoriesScreen(
     var editorCategory by remember { mutableStateOf<CategoryUi?>(null) }
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
     var deletingCategory by remember { mutableStateOf<CategoryUi?>(null) }
+    val listState = rememberLazyListState()
 
-    Column(
+    LazyColumn(
         modifier =
             modifier
                 .fillMaxSize()
                 .padding(SpacingXl),
+        state = listState,
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(
-                text = stringResource(R.string.categories_title),
-                style = typography.titleLarge,
-            )
-
-            TextButton(onClick = onBack) {
-                Text(text = stringResource(R.string.categories_back))
+        item {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.Outlined.ArrowBack,
+                    contentDescription = stringResource(R.string.categories_back),
+                )
             }
         }
 
-        Surface(shape = shapes.medium, tonalElevation = ElevationSm) {
-            val listState = rememberLazyListState()
-
-            LazyColumn(
-                state = listState,
+        item {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
             ) {
-                items(state.categories, key = { it.id }) { category ->
-                    CategoryRow(
-                        category = category,
-                        canMoveUp = category != state.categories.firstOrNull(),
-                        canMoveDown = category != state.categories.lastOrNull(),
-                        onMoveUp = { viewModel.moveCategoryUp(category.id) },
-                        onMoveDown = { viewModel.moveCategoryDown(category.id) },
-                        onToggleHidden = { isHidden ->
-                            viewModel.updateCategoryVisibility(category.id, isHidden)
-                        },
-                        onEdit = { editorCategory = category },
-                        onDelete = { deletingCategory = category },
-                        modifier =
-                            Modifier.padding(
-                                horizontal = SpacingMd,
-                                vertical = SpacingSm,
-                            ),
-                    )
+                Text(
+                    text = stringResource(R.string.categories_title),
+                    style = typography.titleLarge,
+                )
+            }
+        }
+
+        item {
+            Button(onClick = { isAddDialogVisible = true }) {
+                Text(text = stringResource(R.string.categories_add))
+            }
+        }
+
+        item {
+            Surface(
+                shape = shapes.medium,
+                tonalElevation = ElevationSm,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier =
+                        Modifier.padding(
+                            horizontal = SpacingMd,
+                            vertical = SpacingXxs,
+                        ),
+                ) {
+                    state.categories.forEachIndexed { index, category ->
+                        CategoryRow(
+                            category = category,
+                            canMoveUp = index != 0,
+                            canMoveDown = index != state.categories.lastIndex,
+                            onMoveUp = { viewModel.moveCategoryUp(category.id) },
+                            onMoveDown = { viewModel.moveCategoryDown(category.id) },
+                            onToggleHidden = { isHidden ->
+                                viewModel.updateCategoryVisibility(category.id, isHidden)
+                            },
+                            onEdit = { editorCategory = category },
+                            onDelete = { deletingCategory = category },
+                            modifier = Modifier.padding(vertical = SpacingXxs),
+                        )
+                    }
                 }
             }
-        }
-
-        Button(onClick = { isAddDialogVisible = true }) {
-            Text(text = stringResource(R.string.categories_add))
         }
     }
 
@@ -214,14 +228,22 @@ private fun CategoryRow(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            IconButton(onClick = onMoveUp, enabled = canMoveUp) {
+            IconButton(
+                onClick = onMoveUp,
+                enabled = canMoveUp,
+                modifier = Modifier.size(42.dp),
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowUpward,
                     contentDescription = stringResource(R.string.categories_move_up),
                 )
             }
 
-            IconButton(onClick = onMoveDown, enabled = canMoveDown) {
+            IconButton(
+                onClick = onMoveDown,
+                enabled = canMoveDown,
+                modifier = Modifier.size(42.dp),
+            ) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowDownward,
                     contentDescription = stringResource(R.string.categories_move_down),
@@ -246,18 +268,18 @@ private fun CategoryRow(
             modifier = Modifier.weight(1f),
         )
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = stringResource(R.string.categories_hide_label),
-                style = typography.labelMedium,
-            )
-
-            Spacer(modifier = Modifier.width(SpacingXs))
-
-            Switch(
-                checked = category.isHidden,
-                onCheckedChange = onToggleHidden,
-                enabled = isHiddenToggleEnabled,
+        IconButton(
+            onClick = { onToggleHidden(!category.isHidden) },
+            enabled = isHiddenToggleEnabled,
+        ) {
+            Icon(
+                imageVector = if (category.isHidden) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                contentDescription =
+                    if (category.isHidden) {
+                        stringResource(R.string.categories_show_action)
+                    } else {
+                        stringResource(R.string.categories_hide_action)
+                    },
             )
         }
 

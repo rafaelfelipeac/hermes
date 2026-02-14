@@ -54,3 +54,4 @@ Recent learnings:
 - Day indicators now carry both the last workout (for color) and an aggregate completion flag, so the header can show a completion mark without losing the existing color logic.
 - When the day indicator wraps the weekday letter, the indicator color should be nudged darker in light theme and lighter in dark theme to keep the letter + check readable without changing the category palette itself.
 - Rest day visuals should reuse the same elevated surface color and `onSurfaceVariant` content color as activity/settings cards, keeping rest days muted while matching the app’s card language.
+- To return users from a settings sub-screen back into an in-progress dialog, capture the dialog draft before navigation and replay it on return instead of relying on composable-local state.

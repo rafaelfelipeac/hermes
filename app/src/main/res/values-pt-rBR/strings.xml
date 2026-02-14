@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
     <!-- App -->
     <string name="app_name">Hermes</string>
@@ -90,15 +91,15 @@
     <string name="settings_theme_dark">Escuro</string>
     <string name="settings_language_title">Idioma</string>
     <string name="settings_language_system">Usar padrão do sistema</string>
-    <string name="settings_language_english">English</string>
+    <string name="settings_language_english">Inglês</string>
     <string name="settings_language_portuguese_brazil">Português (Brasil)</string>
-    <string name="settings_language_german">Deutsch</string>
-    <string name="settings_language_french">Français</string>
-    <string name="settings_language_spanish">Español</string>
+    <string name="settings_language_german">Alemão</string>
+    <string name="settings_language_french">Francês</string>
+    <string name="settings_language_spanish">Espanhol</string>
     <string name="settings_language_italian">Italiano</string>
-    <string name="settings_language_arabic">العربية</string>
-    <string name="settings_language_hindi">हिन्दी</string>
-    <string name="settings_language_japanese">日本語</string>
+    <string name="settings_language_arabic">Árabe</string>
+    <string name="settings_language_hindi">Hindi</string>
+    <string name="settings_language_japanese">Japonês</string>
     <string name="settings_app_version">Hermes - Versão: %1$s</string>
 
     <!-- Activity -->
@@ -149,40 +150,42 @@
     <string name="activity_value_quoted">\"%1$s\"</string>
 
     <!-- Categories -->
-    <string name="add_workout_category">Category</string>
-    <string name="manage_categories">Manage categories</string>
-    <string name="category_uncategorized">Uncategorized</string>
-    <string name="category_run">Run</string>
-    <string name="category_cycling">Cycling</string>
-    <string name="category_strength">Strength</string>
-    <string name="category_swim">Swim</string>
-    <string name="category_mobility">Mobility</string>
-    <string name="category_other">Other</string>
-    <string name="settings_workouts_title">Workouts</string>
-    <string name="settings_categories">Categories</string>
-    <string name="categories_title">Categories</string>
-    <string name="categories_back">Back</string>
-    <string name="categories_add">Add category</string>
-    <string name="categories_add_title">New category</string>
-    <string name="categories_add_confirm">Add</string>
-    <string name="categories_edit_title">Edit category</string>
-    <string name="categories_name_label">Name</string>
-    <string name="categories_color_label">Color</string>
-    <string name="categories_hide_label">Hide</string>
-    <string name="categories_move_up">Move category up</string>
-    <string name="categories_move_down">Move category down</string>
-    <string name="categories_edit_action">Edit category</string>
-    <string name="categories_delete_action">Delete category</string>
-    <string name="categories_delete_title">Delete category "%1$s"?</string>
-    <string name="categories_delete_message">Workouts will be moved to "Uncategorized".</string>
-    <string name="categories_delete_confirm">Delete</string>
-    <string name="activity_action_create_category">You created the category %1$s.</string>
-    <string name="activity_action_update_category_name">You renamed the category %1$s.</string>
-    <string name="activity_action_update_category_color">You changed the color of %1$s.</string>
-    <string name="activity_action_update_category_visibility">You changed the visibility of %1$s.</string>
-    <string name="activity_action_reorder_category">You reordered the category %1$s.</string>
-    <string name="activity_action_delete_category">You deleted the category %1$s.</string>
-    <string name="activity_category_fallback">category</string>
-    <string name="activity_category_visible">Visible</string>
-    <string name="activity_category_hidden">Hidden</string>
+    <string name="add_workout_category">Categoria</string>
+    <string name="manage_categories">Gerenciar categorias</string>
+    <string name="category_uncategorized">Sem categoria</string>
+    <string name="category_run">Corrida</string>
+    <string name="category_cycling">Ciclismo</string>
+    <string name="category_strength">Força</string>
+    <string name="category_swim">Natação</string>
+    <string name="category_mobility">Mobilidade</string>
+    <string name="category_other">Outro</string>
+    <string name="settings_workouts_title">Treinos</string>
+    <string name="settings_categories">Categorias</string>
+    <string name="categories_title">Categorias</string>
+    <string name="categories_back">Voltar</string>
+    <string name="categories_add">Adicionar categoria</string>
+    <string name="categories_add_title">Nova categoria</string>
+    <string name="categories_add_confirm">Adicionar</string>
+    <string name="categories_edit_title">Editar categoria</string>
+    <string name="categories_name_label">Nome</string>
+    <string name="categories_color_label">Cor</string>
+    <string name="categories_hide_label">Ocultar</string>
+    <string name="categories_hide_action">Ocultar categoria</string>
+    <string name="categories_show_action">Mostrar categoria</string>
+    <string name="categories_move_up">Mover categoria para cima</string>
+    <string name="categories_move_down">Mover categoria para baixo</string>
+    <string name="categories_edit_action">Editar categoria</string>
+    <string name="categories_delete_action">Excluir categoria</string>
+    <string name="categories_delete_title">Excluir a categoria "%1$s"?</string>
+    <string name="categories_delete_message">Os treinos serão movidos para "Sem categoria".</string>
+    <string name="categories_delete_confirm">Excluir</string>
+    <string name="activity_action_create_category">Você criou a categoria %1$s.</string>
+    <string name="activity_action_update_category_name">Você renomeou a categoria %1$s.</string>
+    <string name="activity_action_update_category_color">Você mudou a cor de %1$s.</string>
+    <string name="activity_action_update_category_visibility">Você mudou a visibilidade de %1$s.</string>
+    <string name="activity_action_reorder_category">Você reordenou a categoria %1$s.</string>
+    <string name="activity_action_delete_category">Você excluiu a categoria %1$s.</string>
+    <string name="activity_category_fallback">categoria</string>
+    <string name="activity_category_visible">Visível</string>
+    <string name="activity_category_hidden">Oculta</string>
 </resources>
