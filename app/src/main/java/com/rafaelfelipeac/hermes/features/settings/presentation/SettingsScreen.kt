@@ -266,8 +266,7 @@ internal fun SettingsContent(
                 Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .padding(SpacingXl)
-                    .padding(bottom = SpacingXl + SpacingLg),
+                    .padding(SpacingXl),
             verticalArrangement = Arrangement.spacedBy(SpacingXxl),
         ) {
             Text(
@@ -333,26 +332,18 @@ internal fun SettingsContent(
                     onClick = onRateClick,
                 )
             }
-        }
 
-        Column(
-            modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = SpacingXl, vertical = SpacingXs),
-        ) {
-            HorizontalDivider(modifier = Modifier.padding(bottom = SpacingSm))
-
-            Text(
-                text = stringResource(R.string.settings_app_version, appVersion),
-                style = typography.bodySmall,
-                textAlign = TextAlign.Center,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(top = SpacingXs, bottom = SpacingXs),
-            )
+            SettingsSection(title = stringResource(R.string.settings_about_title)) {
+                Text(
+                    text = stringResource(R.string.settings_app_version, appVersion),
+                    style = typography.bodySmall,
+                    textAlign = TextAlign.Center,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = SpacingSm),
+                )
+            }
         }
     }
 }
