@@ -17,9 +17,9 @@ class SettingsContentTest {
 
     @Test
     fun selectingThemeInvokesCallback() {
-        var selectedTheme: ThemeMode? = null
+        var invoked = false
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val darkLabel = context.getString(R.string.settings_theme_dark)
+        val systemLabel = context.getString(R.string.settings_theme_system)
 
         composeRule.setContent {
             SettingsContent(
@@ -29,25 +29,25 @@ class SettingsContentTest {
                         language = AppLanguage.SYSTEM,
                     ),
                 appVersion = "0.0.0-test",
-                onThemeSelected = { selectedTheme = it },
-                onLanguageSelected = {},
+                onThemeClick = { invoked = true },
+                onLanguageClick = {},
                 onSeedDemoData = {},
                 onCategoriesClick = {},
             )
         }
 
-        composeRule.onNodeWithText(darkLabel).performClick()
+        composeRule.onNodeWithText(systemLabel).performClick()
 
         composeRule.runOnIdle {
-            assertEquals(ThemeMode.DARK, selectedTheme)
+            assertEquals(true, invoked)
         }
     }
 
     @Test
     fun selectingLanguageInvokesCallback() {
-        var selectedLanguage: AppLanguage? = null
+        var invoked = false
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val englishLabel = context.getString(R.string.settings_language_english)
+        val systemLabel = context.getString(R.string.settings_language_system)
 
         composeRule.setContent {
             SettingsContent(
@@ -57,17 +57,17 @@ class SettingsContentTest {
                         language = AppLanguage.SYSTEM,
                     ),
                 appVersion = "0.0.0-test",
-                onThemeSelected = {},
-                onLanguageSelected = { selectedLanguage = it },
+                onThemeClick = {},
+                onLanguageClick = { invoked = true },
                 onSeedDemoData = {},
                 onCategoriesClick = {},
             )
         }
 
-        composeRule.onNodeWithText(englishLabel).performClick()
+        composeRule.onNodeWithText(systemLabel).performClick()
 
         composeRule.runOnIdle {
-            assertEquals(AppLanguage.ENGLISH, selectedLanguage)
+            assertEquals(true, invoked)
         }
     }
 }

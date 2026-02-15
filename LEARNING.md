@@ -56,3 +56,4 @@ Recent learnings:
 - Rest day visuals should reuse the same elevated surface color and `onSurfaceVariant` content color as activity/settings cards, keeping rest days muted while matching the app’s card language.
 - To return users from a settings sub-screen back into an in-progress dialog, capture the dialog draft before navigation and replay it on return instead of relying on composable-local state.
 - Restoring starter categories should only insert missing defaults (by their seeded IDs) so custom categories and user edits remain intact; logging a dedicated user action keeps Activity consistent.
+- Moving Settings options into reusable detail screens reduces the main screen to navigable rows while keeping option cards consistent across Theme, Language, and Categories.

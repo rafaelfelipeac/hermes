@@ -2,18 +2,23 @@ package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.RadioButton
@@ -23,13 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
@@ -38,6 +43,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
@@ -83,8 +89,8 @@ fun SettingsScreen(
             SettingsContent(
                 state = state,
                 appVersion = VERSION_NAME,
-                onThemeSelected = viewModel::setThemeMode,
-                onLanguageSelected = viewModel::setLanguage,
+                onThemeClick = { route = SettingsRoute.THEME },
+                onLanguageClick = { route = SettingsRoute.LANGUAGE },
                 onSeedDemoData = {
                     viewModel.seedDemoData()
                     android.widget.Toast.makeText(
@@ -96,6 +102,96 @@ fun SettingsScreen(
                 onCategoriesClick = { route = SettingsRoute.CATEGORIES },
                 modifier = modifier,
             )
+        SettingsRoute.THEME ->
+            SettingsDetailScreen(
+                title = stringResource(R.string.settings_theme_title),
+                onBack = { route = SettingsRoute.MAIN },
+                modifier = modifier,
+            ) {
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_theme_system),
+                    selected = state.themeMode == ThemeMode.SYSTEM,
+                    onClick = { viewModel.setThemeMode(ThemeMode.SYSTEM) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_theme_light),
+                    selected = state.themeMode == LIGHT,
+                    onClick = { viewModel.setThemeMode(LIGHT) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_theme_dark),
+                    selected = state.themeMode == DARK,
+                    onClick = { viewModel.setThemeMode(DARK) },
+                )
+            }
+        SettingsRoute.LANGUAGE ->
+            SettingsDetailScreen(
+                title = stringResource(R.string.settings_language_title),
+                onBack = { route = SettingsRoute.MAIN },
+                modifier = modifier,
+            ) {
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_system),
+                    selected = state.language == SYSTEM,
+                    onClick = { viewModel.setLanguage(SYSTEM) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_english),
+                    selected = state.language == ENGLISH,
+                    onClick = { viewModel.setLanguage(ENGLISH) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_portuguese_brazil),
+                    selected = state.language == PORTUGUESE_BRAZIL,
+                    onClick = { viewModel.setLanguage(PORTUGUESE_BRAZIL) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_german),
+                    selected = state.language == GERMAN,
+                    onClick = { viewModel.setLanguage(GERMAN) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_french),
+                    selected = state.language == FRENCH,
+                    onClick = { viewModel.setLanguage(FRENCH) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_spanish),
+                    selected = state.language == SPANISH,
+                    onClick = { viewModel.setLanguage(SPANISH) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_italian),
+                    selected = state.language == ITALIAN,
+                    onClick = { viewModel.setLanguage(ITALIAN) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_arabic),
+                    selected = state.language == ARABIC,
+                    onClick = { viewModel.setLanguage(ARABIC) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_hindi),
+                    selected = state.language == HINDI,
+                    onClick = { viewModel.setLanguage(HINDI) },
+                )
+
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_language_japanese),
+                    selected = state.language == JAPANESE,
+                    onClick = { viewModel.setLanguage(JAPANESE) },
+                )
+            }
         SettingsRoute.CATEGORIES ->
             CategoriesScreen(
                 onBack = {
@@ -112,137 +208,79 @@ internal fun SettingsContent(
     modifier: Modifier = Modifier,
     state: SettingsState,
     appVersion: String,
-    onThemeSelected: (ThemeMode) -> Unit,
-    onLanguageSelected: (AppLanguage) -> Unit,
+    onThemeClick: () -> Unit,
+    onLanguageClick: () -> Unit,
     onSeedDemoData: () -> Unit,
     onCategoriesClick: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(SpacingXl),
-        verticalArrangement = Arrangement.spacedBy(SpacingXxl),
-    ) {
-        Text(
-            text = stringResource(R.string.settings_title),
-            style = typography.titleLarge,
-        )
-
-        SettingsSection(title = stringResource(R.string.settings_theme_title)) {
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_theme_system),
-                selected = state.themeMode == ThemeMode.SYSTEM,
-                onClick = { onThemeSelected(ThemeMode.SYSTEM) },
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(SpacingXl)
+                    .padding(bottom = SpacingXl + SpacingLg),
+            verticalArrangement = Arrangement.spacedBy(SpacingXxl),
+        ) {
+            Text(
+                text = stringResource(R.string.settings_title),
+                style = typography.titleLarge,
             )
 
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_theme_light),
-                selected = state.themeMode == LIGHT,
-                onClick = { onThemeSelected(LIGHT) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_theme_dark),
-                selected = state.themeMode == DARK,
-                onClick = { onThemeSelected(DARK) },
-            )
-        }
-
-        SettingsSection(title = stringResource(R.string.settings_language_title)) {
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_system),
-                selected = state.language == SYSTEM,
-                onClick = { onLanguageSelected(SYSTEM) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_english),
-                selected = state.language == ENGLISH,
-                onClick = { onLanguageSelected(ENGLISH) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_portuguese_brazil),
-                selected = state.language == PORTUGUESE_BRAZIL,
-                onClick = { onLanguageSelected(PORTUGUESE_BRAZIL) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_german),
-                selected = state.language == GERMAN,
-                onClick = { onLanguageSelected(GERMAN) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_french),
-                selected = state.language == FRENCH,
-                onClick = { onLanguageSelected(FRENCH) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_spanish),
-                selected = state.language == SPANISH,
-                onClick = { onLanguageSelected(SPANISH) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_italian),
-                selected = state.language == ITALIAN,
-                onClick = { onLanguageSelected(ITALIAN) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_arabic),
-                selected = state.language == ARABIC,
-                onClick = { onLanguageSelected(ARABIC) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_hindi),
-                selected = state.language == HINDI,
-                onClick = { onLanguageSelected(HINDI) },
-            )
-
-            SettingsOptionRow(
-                label = stringResource(R.string.settings_language_japanese),
-                selected = state.language == JAPANESE,
-                onClick = { onLanguageSelected(JAPANESE) },
-            )
-        }
-
-        SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
-            SettingsNavigationRow(
-                label = stringResource(R.string.settings_categories),
-                onClick = onCategoriesClick,
-            )
-        }
-
-        if (BuildConfig.DEBUG) {
-            SettingsSection(title = stringResource(R.string.settings_developer_title)) {
-                SettingsActionButton(
-                    label = stringResource(R.string.seed_demo_data),
-                    onClick = onSeedDemoData,
+            SettingsSection(title = stringResource(R.string.settings_theme_title)) {
+                SettingsNavigationRow(
+                    label = themeLabel(state.themeMode),
+                    onClick = onThemeClick,
                 )
+            }
+
+            SettingsSection(title = stringResource(R.string.settings_language_title)) {
+                SettingsNavigationRow(
+                    label = languageLabel(state.language),
+                    onClick = onLanguageClick,
+                )
+            }
+
+            SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_categories),
+                    onClick = onCategoriesClick,
+                )
+            }
+
+            if (BuildConfig.DEBUG) {
+                SettingsSection(title = stringResource(R.string.settings_developer_title)) {
+                    SettingsActionButton(
+                        label = stringResource(R.string.seed_demo_data),
+                        onClick = onSeedDemoData,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
         }
 
-        Spacer(modifier = Modifier.height(SpacingLg))
-
-        HorizontalDivider()
-
-        Text(
-            text = stringResource(R.string.settings_app_version, appVersion),
-            style = typography.bodySmall,
-            textAlign = TextAlign.Center,
+        Column(
             modifier =
                 Modifier
+                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(top = SpacingXs, bottom = SpacingXs),
-        )
+                    .padding(horizontal = SpacingXl, vertical = SpacingXs),
+        ) {
+            HorizontalDivider(modifier = Modifier.padding(bottom = SpacingSm))
+
+            Text(
+                text = stringResource(R.string.settings_app_version, appVersion),
+                style = typography.bodySmall,
+                textAlign = TextAlign.Center,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(top = SpacingXs, bottom = SpacingXs),
+            )
+        }
     }
 }
 
@@ -257,20 +295,58 @@ private fun SettingsSection(
             style = typography.titleMedium,
         )
 
-        Surface(
-            tonalElevation = ElevationSm,
-            shape = shapes.medium,
-            modifier = Modifier.fillMaxWidth(),
+        SettingsCard(content = content)
+    }
+}
+
+@Composable
+private fun SettingsDetailScreen(
+    title: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(SpacingXl),
+        verticalArrangement = Arrangement.spacedBy(SpacingLg),
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.Outlined.ArrowBack,
+                contentDescription = stringResource(R.string.categories_back),
+            )
+        }
+
+        Text(
+            text = title,
+            style = typography.titleLarge,
+        )
+
+        SettingsCard(content = content)
+    }
+}
+
+@Composable
+private fun SettingsCard(content: @Composable () -> Unit) {
+    Surface(
+        tonalElevation = ElevationSm,
+        shape = shapes.medium,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier =
+                Modifier.padding(
+                    horizontal = SpacingLg,
+                    vertical = SpacingMd,
+                ),
         ) {
-            Column(
-                modifier =
-                    Modifier.padding(
-                        horizontal = SpacingLg,
-                        vertical = SpacingMd,
-                    ),
-            ) {
-                content()
-            }
+            content()
         }
     }
 }
@@ -307,15 +383,17 @@ private fun SettingsOptionRow(
 private fun SettingsActionButton(
     label: String,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = SpacingXxs),
+            modifier.padding(vertical = SpacingXxs),
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Button(onClick = onClick) {
+        Button(
+            onClick = onClick,
+        ) {
             Text(
                 text = label,
                 style = typography.bodyLarge,
@@ -340,6 +418,38 @@ private fun SettingsNavigationRow(
         Text(
             text = label,
             style = typography.bodyLarge,
+            modifier = Modifier.weight(1f),
         )
+
+        Icon(
+            imageVector = Icons.Outlined.ChevronRight,
+            contentDescription = null,
+        )
+    }
+}
+
+@Composable
+private fun themeLabel(themeMode: ThemeMode): String {
+    return when (themeMode) {
+        ThemeMode.SYSTEM -> stringResource(R.string.settings_theme_system)
+        LIGHT -> stringResource(R.string.settings_theme_light)
+        DARK -> stringResource(R.string.settings_theme_dark)
+    }
+}
+
+@Composable
+private fun languageLabel(language: AppLanguage): String {
+    return when (language) {
+        SYSTEM -> stringResource(R.string.settings_language_system)
+        ENGLISH -> stringResource(R.string.settings_language_english)
+        PORTUGUESE_BRAZIL ->
+            stringResource(R.string.settings_language_portuguese_brazil)
+        GERMAN -> stringResource(R.string.settings_language_german)
+        FRENCH -> stringResource(R.string.settings_language_french)
+        SPANISH -> stringResource(R.string.settings_language_spanish)
+        ITALIAN -> stringResource(R.string.settings_language_italian)
+        ARABIC -> stringResource(R.string.settings_language_arabic)
+        HINDI -> stringResource(R.string.settings_language_hindi)
+        JAPANESE -> stringResource(R.string.settings_language_japanese)
     }
 }
