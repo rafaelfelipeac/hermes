@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,6 +84,13 @@ fun SettingsScreen(
     val demoDataCreatedMessage = stringResource(R.string.demo_data_created)
     val feedbackEmail = stringResource(R.string.settings_feedback_email)
     var route by rememberSaveable { mutableStateOf(SettingsRoute.MAIN) }
+
+    BackHandler(enabled = route != SettingsRoute.MAIN) {
+        if (route == SettingsRoute.CATEGORIES) {
+            onExitCategories()
+        }
+        route = SettingsRoute.MAIN
+    }
 
     LaunchedEffect(initialRoute) {
         if (initialRoute != null) {
