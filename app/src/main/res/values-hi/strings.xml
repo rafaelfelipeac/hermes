@@ -3,12 +3,10 @@
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
-
     <!-- Navigation -->
     <string name="nav_weekly_training">साप्ताहिक प्रशिक्षण</string>
     <string name="nav_activity">गतिविधि</string>
     <string name="nav_settings">सेटिंग्स</string>
-
     <!-- Training week: actions -->
     <string name="add_item">जोड़ें</string>
     <string name="add_workout">प्रशिक्षण जोड़ें</string>
@@ -49,7 +47,6 @@
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">आराम का दिन</string>
-
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>
     <string name="seed_demo_data">डेमो डेटा बनाएं</string>
@@ -73,7 +70,6 @@
     <string name="mock_workout_description_mobility">हिप्स + शोल्डर, 15 मिनट</string>
     <string name="mock_workout_description_long_run">ज़ोन 2, 12 किमी</string>
     <string name="mock_workout_description_core">कंपाउंड लिफ्ट्स, 40 मिनट</string>
-
     <!-- Training week: days -->
     <string name="day_monday">सोमवार</string>
     <string name="day_tuesday">मंगलवार</string>
@@ -82,7 +78,6 @@
     <string name="day_friday">शुक्रवार</string>
     <string name="day_saturday">शनिवार</string>
     <string name="day_sunday">रविवार</string>
-
     <!-- Settings -->
     <string name="settings_title">सेटिंग्स</string>
     <string name="settings_theme_title">थीम</string>
@@ -101,7 +96,13 @@
     <string name="settings_language_hindi">हिंदी</string>
     <string name="settings_language_japanese">जापानी</string>
     <string name="settings_app_version">Hermes - संस्करण: %1$s</string>
-
+    <string name="settings_feedback_title">प्रतिक्रिया</string>
+    <string name="settings_feedback_body">सवालों, सुझावों या समस्या बताने के लिए हमें ईमेल भेजें। आपका फीडबैक Hermes को बेहतर बनाने में मदद करता है!</string>
+    <string name="settings_rate_title">ऐप को रेट करें</string>
+    <string name="settings_rate_body">क्या Hermes पसंद आया? Play Store पर रिव्यू दें और दूसरों को ऐप खोजने में मदद करें।</string>
+    <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
+    <string name="settings_feedback_subject">%1$s - फीडबैक और सुझाव</string>
+    <string name="settings_feedback_email_body">नमस्ते!__NL____NL__अपने सवाल, सुझाव या बग रिपोर्ट यहाँ लिखें।__NL____NL__हर फीडबैक का स्वागत है :)__NL____NL__---__NL__ऐप संस्करण: %1$s__NL__---</string>
     <!-- Activity -->
     <string name="activity_title">हाल की गतिविधि</string>
     <string name="activity_empty">अभी कोई गतिविधि नहीं है।</string>
@@ -148,7 +149,6 @@
     <string name="activity_value_system">सिस्टम</string>
     <string name="activity_value_unknown">अज्ञात</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
-
     <!-- Categories -->
     <string name="add_workout_category">श्रेणी</string>
     <string name="manage_categories">श्रेणियाँ प्रबंधित करें</string>

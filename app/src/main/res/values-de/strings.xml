@@ -3,12 +3,10 @@
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
-
     <!-- Navigation -->
     <string name="nav_weekly_training">Wöchentliches Training</string>
     <string name="nav_activity">Aktivität</string>
     <string name="nav_settings">Einstellungen</string>
-
     <!-- Training week: actions -->
     <string name="add_item">Hinzufügen</string>
     <string name="add_workout">Training hinzufügen</string>
@@ -49,7 +47,6 @@
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Ruhetag</string>
-
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Entwicklermodus</string>
     <string name="seed_demo_data">Demo-Daten erstellen</string>
@@ -73,7 +70,6 @@
     <string name="mock_workout_description_mobility">Hüfte + Schultern, 15 Min</string>
     <string name="mock_workout_description_long_run">Zone 2, 12 km</string>
     <string name="mock_workout_description_core">Grundübungen, 40 Min</string>
-
     <!-- Training week: days -->
     <string name="day_monday">Montag</string>
     <string name="day_tuesday">Dienstag</string>
@@ -82,7 +78,6 @@
     <string name="day_friday">Freitag</string>
     <string name="day_saturday">Samstag</string>
     <string name="day_sunday">Sonntag</string>
-
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
     <string name="settings_theme_title">Design</string>
@@ -101,7 +96,13 @@
     <string name="settings_language_hindi">Hindi</string>
     <string name="settings_language_japanese">Japanisch</string>
     <string name="settings_app_version">Hermes - Version: %1$s</string>
-
+    <string name="settings_feedback_title">Feedback</string>
+    <string name="settings_feedback_body">Schreib uns eine E-Mail mit Fragen, Vorschlägen oder um ein Problem zu melden. Dein Feedback hilft, Hermes zu verbessern!</string>
+    <string name="settings_rate_title">App bewerten</string>
+    <string name="settings_rate_body">Gefällt dir Hermes? Hinterlasse eine Bewertung im Play Store und hilf anderen, die App zu entdecken.</string>
+    <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
+    <string name="settings_feedback_subject">%1$s - Feedback und Vorschläge</string>
+    <string name="settings_feedback_email_body">Hallo!__NL____NL__Schreib hier deine Fragen, Vorschläge oder Bugmeldungen.__NL____NL__Jedes Feedback ist sehr willkommen :)__NL____NL__---__NL__App-Version: %1$s__NL__---</string>
     <!-- Activity -->
     <string name="activity_title">Letzte Aktivitäten</string>
     <string name="activity_empty">Noch keine Aktivitäten.</string>
@@ -148,7 +149,6 @@
     <string name="activity_value_system">System</string>
     <string name="activity_value_unknown">Unbekannt</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
-
     <!-- Categories -->
     <string name="add_workout_category">Kategorie</string>
     <string name="manage_categories">Kategorien verwalten</string>

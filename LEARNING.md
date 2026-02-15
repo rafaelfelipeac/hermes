@@ -57,3 +57,6 @@ Recent learnings:
 - To return users from a settings sub-screen back into an in-progress dialog, capture the dialog draft before navigation and replay it on return instead of relying on composable-local state.
 - Restoring starter categories should only insert missing defaults (by their seeded IDs) so custom categories and user edits remain intact; logging a dedicated user action keeps Activity consistent.
 - Moving Settings options into reusable detail screens reduces the main screen to navigable rows while keeping option cards consistent across Theme, Language, and Categories.
+- Settings now uses a shared info-row pattern for feedback/rating actions, keeping card visuals consistent while routing to external intents.
+- XML string resources must escape `<`, `>`, and `&` (e.g., week navigation chevrons and “A & B” labels), otherwise resource merging fails at build time.
+- Email intents are more reliable when subject/body are placed in the `mailto:` URI query parameters and mirrored in extras; some mail clients ignore extras for `ACTION_SENDTO`.

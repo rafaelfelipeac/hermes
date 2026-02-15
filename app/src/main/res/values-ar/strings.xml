@@ -3,12 +3,10 @@
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
-
     <!-- Navigation -->
     <string name="nav_weekly_training">التدريب الأسبوعي</string>
     <string name="nav_activity">النشاط</string>
     <string name="nav_settings">الإعدادات</string>
-
     <!-- Training week: actions -->
     <string name="add_item">إضافة</string>
     <string name="add_workout">إضافة تمرين</string>
@@ -49,7 +47,6 @@
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">يوم راحة</string>
-
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">وضع المطوّر</string>
     <string name="seed_demo_data">إنشاء بيانات تجريبية</string>
@@ -73,7 +70,6 @@
     <string name="mock_workout_description_mobility">الورك + الأكتاف، 15 دقيقة</string>
     <string name="mock_workout_description_long_run">المنطقة 2، 12 كم</string>
     <string name="mock_workout_description_core">تمارين مركبة، 40 دقيقة</string>
-
     <!-- Training week: days -->
     <string name="day_monday">الاثنين</string>
     <string name="day_tuesday">الثلاثاء</string>
@@ -82,7 +78,6 @@
     <string name="day_friday">الجمعة</string>
     <string name="day_saturday">السبت</string>
     <string name="day_sunday">الأحد</string>
-
     <!-- Settings -->
     <string name="settings_title">الإعدادات</string>
     <string name="settings_theme_title">المظهر</string>
@@ -101,7 +96,13 @@
     <string name="settings_language_hindi">الهندية</string>
     <string name="settings_language_japanese">اليابانية</string>
     <string name="settings_app_version">Hermes - الإصدار: %1$s</string>
-
+    <string name="settings_feedback_title">ملاحظات</string>
+    <string name="settings_feedback_body">أرسل لنا بريدًا إلكترونيًا بالأسئلة أو الاقتراحات أو للإبلاغ عن مشكلة. ملاحظاتك تساعد في تحسين Hermes!</string>
+    <string name="settings_rate_title">قيّم التطبيق</string>
+    <string name="settings_rate_body">هل أعجبك Hermes؟ اترك تقييمًا على متجر Play وساعد الآخرين على اكتشاف التطبيق.</string>
+    <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
+    <string name="settings_feedback_subject">%1$s - الملاحظات والاقتراحات</string>
+    <string name="settings_feedback_email_body">مرحبًا!__NL____NL__اكتب أسئلتك أو اقتراحاتك أو تقارير الأخطاء هنا.__NL____NL__كل ملاحظة مرحب بها جدًا :)__NL____NL__---__NL__إصدار التطبيق: %1$s__NL__---</string>
     <!-- Activity -->
     <string name="activity_title">النشاط الأخير</string>
     <string name="activity_empty">لا توجد أنشطة بعد.</string>
@@ -148,7 +149,6 @@
     <string name="activity_value_system">النظام</string>
     <string name="activity_value_unknown">غير معروف</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
-
     <!-- Categories -->
     <string name="add_workout_category">الفئة</string>
     <string name="manage_categories">إدارة الفئات</string>

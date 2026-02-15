@@ -3,12 +3,10 @@
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
-
     <!-- Navigation -->
     <string name="nav_weekly_training">Weekly Training</string>
     <string name="nav_activity">Activity</string>
     <string name="nav_settings">Settings</string>
-
     <!-- Training week: actions -->
     <string name="add_item">Add</string>
     <string name="add_workout">Add workout</string>
@@ -49,7 +47,6 @@
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Rest day</string>
-
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Developer mode</string>
     <string name="seed_demo_data">Seed demo data</string>
@@ -101,6 +98,13 @@
     <string name="settings_language_hindi">हिन्दी</string>
     <string name="settings_language_japanese">日本語</string>
     <string name="settings_app_version">Hermes - Version: %1$s</string>
+    <string name="settings_feedback_title">Feedback</string>
+    <string name="settings_feedback_body">Send us an email with questions, suggestions, or to report a problem. Your feedback helps improve Hermes!</string>
+    <string name="settings_rate_title">Rate the app</string>
+    <string name="settings_rate_body">Enjoy Hermes? Leave a review on the Play Store and help others discover the app.</string>
+    <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
+    <string name="settings_feedback_subject">%1$s - Feedback and suggestions</string>
+    <string name="settings_feedback_email_body">Hi!__NL____NL__Write your questions, suggestions or bug reports here.__NL____NL__Any feedback is welcome.__NL____NL__---__NL__App version: %1$s__NL__---</string>
 
     <!-- Activity -->
     <string name="activity_title">Recent activity</string>

@@ -3,12 +3,10 @@
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
-
     <!-- Navigation -->
     <string name="nav_weekly_training">Entrenamiento semanal</string>
     <string name="nav_activity">Actividad</string>
     <string name="nav_settings">Ajustes</string>
-
     <!-- Training week: actions -->
     <string name="add_item">Agregar</string>
     <string name="add_workout">Agregar entrenamiento</string>
@@ -49,7 +47,6 @@
     <string name="week_previous">&lt;</string>
     <string name="week_next">&gt;</string>
     <string name="rest_day_label">Día de descanso</string>
-
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modo desarrollador</string>
     <string name="seed_demo_data">Crear datos de demo</string>
@@ -73,7 +70,6 @@
     <string name="mock_workout_description_mobility">Cadera + hombros, 15 min</string>
     <string name="mock_workout_description_long_run">Zona 2, 12 km</string>
     <string name="mock_workout_description_core">Ejercicios compuestos, 40 min</string>
-
     <!-- Training week: days -->
     <string name="day_monday">Lunes</string>
     <string name="day_tuesday">Martes</string>
@@ -82,7 +78,6 @@
     <string name="day_friday">Viernes</string>
     <string name="day_saturday">Sábado</string>
     <string name="day_sunday">Domingo</string>
-
     <!-- Settings -->
     <string name="settings_title">Ajustes</string>
     <string name="settings_theme_title">Tema</string>
@@ -101,7 +96,13 @@
     <string name="settings_language_hindi">Hindi</string>
     <string name="settings_language_japanese">Japonés</string>
     <string name="settings_app_version">Hermes - Versión: %1$s</string>
-
+    <string name="settings_feedback_title">Feedback</string>
+    <string name="settings_feedback_body">Envíanos un correo con dudas, sugerencias o para reportar un problema. ¡Tu feedback ayuda a mejorar Hermes!</string>
+    <string name="settings_rate_title">Califica la app</string>
+    <string name="settings_rate_body">¿Te gusta Hermes? Deja una reseña en Play Store y ayuda a otros a descubrir la app.</string>
+    <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
+    <string name="settings_feedback_subject">%1$s - Comentarios y sugerencias</string>
+    <string name="settings_feedback_email_body">¡Hola!__NL____NL__Escribe aquí tus dudas, sugerencias o reportes de errores.__NL____NL__Cualquier comentario es muy bienvenido :)__NL____NL__---__NL__Versión de la app: %1$s__NL__---</string>
     <!-- Activity -->
     <string name="activity_title">Actividad reciente</string>
     <string name="activity_empty">Aún no hay actividad.</string>
@@ -148,7 +149,6 @@
     <string name="activity_value_system">Sistema</string>
     <string name="activity_value_unknown">Desconocido</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
-
     <!-- Categories -->
     <string name="add_workout_category">Categoría</string>
     <string name="manage_categories">Administrar categorías</string>

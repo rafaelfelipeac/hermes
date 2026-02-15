@@ -31,6 +31,8 @@ class SettingsContentTest {
                 appVersion = "0.0.0-test",
                 onThemeClick = { invoked = true },
                 onLanguageClick = {},
+                onFeedbackClick = { _, _ -> },
+                onRateClick = {},
                 onSeedDemoData = {},
                 onCategoriesClick = {},
             )
@@ -59,6 +61,8 @@ class SettingsContentTest {
                 appVersion = "0.0.0-test",
                 onThemeClick = {},
                 onLanguageClick = { invoked = true },
+                onFeedbackClick = { _, _ -> },
+                onRateClick = {},
                 onSeedDemoData = {},
                 onCategoriesClick = {},
             )
