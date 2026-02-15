@@ -27,9 +27,24 @@ class CategorySeeder
                 return
             }
 
-            if (repository.getCategory(UNCATEGORIZED_ID) == null) {
-                repository.insertCategory(buildUncategorizedCategory())
+            restoreDefaults()
+        }
+
+        suspend fun restoreDefaults(): Int {
+            val existing = repository.getCategories()
+            val existingIds = existing.map { it.id }.toSet()
+            var nextOrder = (existing.maxOfOrNull { it.sortOrder } ?: -1) + 1
+            val defaults = buildStarterCategories()
+            val missing =
+                defaults.filter { category ->
+                    category.id !in existingIds
+                }
+
+            missing.forEach { category ->
+                repository.insertCategory(category.copy(sortOrder = nextOrder++))
             }
+
+            return missing.size
         }
 
         private fun buildStarterCategories(): List<Category> {

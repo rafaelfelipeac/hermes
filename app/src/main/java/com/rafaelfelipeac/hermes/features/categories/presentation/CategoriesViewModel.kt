@@ -17,6 +17,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_CA
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_COLOR
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_VISIBILITY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_DEFAULT_CATEGORIES
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
@@ -180,6 +181,19 @@ class CategoriesViewModel
                     entityId = categoryId,
                     metadata = mapOf(CATEGORY_NAME to (category?.name ?: "")),
                 )
+            }
+        }
+
+        fun restoreDefaultCategories() {
+            viewModelScope.launch {
+                val addedCount = categorySeeder.restoreDefaults()
+                if (addedCount > 0) {
+                    userActionLogger.log(
+                        actionType = RESTORE_DEFAULT_CATEGORIES,
+                        entityType = CATEGORY,
+                        entityId = 0L,
+                    )
+                }
             }
         }
 

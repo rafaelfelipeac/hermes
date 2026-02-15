@@ -188,4 +188,5 @@
     <string name="activity_category_fallback">فئة</string>
     <string name="activity_category_visible">مرئية</string>
     <string name="activity_category_hidden">مخفية</string>
+    <string name="categories_restore_defaults">استعادة الفئات الافتراضية</string>
 </resources>

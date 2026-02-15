@@ -188,4 +188,5 @@
     <string name="activity_category_fallback">श्रेणी</string>
     <string name="activity_category_visible">दृश्यमान</string>
     <string name="activity_category_hidden">छिपी</string>
+    <string name="categories_restore_defaults">डिफ़ॉल्ट श्रेणियाँ पुनर्स्थापित करें</string>
 </resources>

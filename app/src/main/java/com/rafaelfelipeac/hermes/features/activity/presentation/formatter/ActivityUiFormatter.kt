@@ -220,6 +220,9 @@ class ActivityUiFormatter(
             UserActionType.DELETE_CATEGORY ->
                 stringProvider.get(R.string.activity_action_delete_category, label)
 
+            UserActionType.RESTORE_DEFAULT_CATEGORIES ->
+                stringProvider.get(R.string.categories_restore_defaults)
+
             else -> null
         }
     }

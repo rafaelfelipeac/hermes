@@ -188,4 +188,5 @@
     <string name="activity_category_fallback">カテゴリ</string>
     <string name="activity_category_visible">表示</string>
     <string name="activity_category_hidden">非表示</string>
+    <string name="categories_restore_defaults">デフォルトカテゴリを復元</string>
 </resources>

@@ -188,4 +188,5 @@
     <string name="activity_category_fallback">catégorie</string>
     <string name="activity_category_visible">Visible</string>
     <string name="activity_category_hidden">Masquée</string>
+    <string name="categories_restore_defaults">Restaurer les catégories par défaut</string>
 </resources>

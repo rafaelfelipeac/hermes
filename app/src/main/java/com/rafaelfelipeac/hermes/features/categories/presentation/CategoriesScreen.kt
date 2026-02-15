@@ -33,6 +33,7 @@ import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -145,6 +146,15 @@ fun CategoriesScreen(
                         )
                     }
                 }
+            }
+        }
+
+        item {
+            TextButton(
+                onClick = { viewModel.restoreDefaultCategories() },
+                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
+            ) {
+                Text(text = stringResource(R.string.categories_restore_defaults))
             }
         }
     }
