@@ -160,7 +160,7 @@
     <!-- Categories -->
     <string name="workout_dialog_add_workout_category">Kategorie</string>
     <string name="workout_dialog_manage_categories">Kategorien verwalten</string>
-    <string name="category_uncategorized">Nicht kategorisiert</string>
+    <string name="category_uncategorized">Ohne Kategorie</string>
     <string name="categories_category_run">Laufen</string>
     <string name="categories_category_cycling">Radfahren</string>
     <string name="categories_category_strength">Kraft</string>

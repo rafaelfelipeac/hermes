@@ -160,12 +160,12 @@
     <!-- Categories -->
     <string name="workout_dialog_add_workout_category">الفئة</string>
     <string name="workout_dialog_manage_categories">إدارة الفئات</string>
-    <string name="category_uncategorized">غير مصنّف</string>
-    <string name="categories_category_run">جري</string>
+    <string name="category_uncategorized">بدون تصنيف</string>
+    <string name="categories_category_run">ركض</string>
     <string name="categories_category_cycling">ركوب الدراجات</string>
     <string name="categories_category_strength">قوة</string>
     <string name="categories_category_swim">سباحة</string>
-    <string name="categories_category_mobility">الحركية</string>
+    <string name="categories_category_mobility">مرونة</string>
     <string name="category_other">أخرى</string>
     <string name="settings_workouts_title">التمارين</string>
     <string name="settings_categories">الفئات</string>

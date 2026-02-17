@@ -160,7 +160,7 @@
     <!-- Categories -->
     <string name="workout_dialog_add_workout_category">श्रेणी</string>
     <string name="workout_dialog_manage_categories">श्रेणियाँ प्रबंधित करें</string>
-    <string name="category_uncategorized">अवर्गीकृत</string>
+    <string name="category_uncategorized">बिना श्रेणी</string>
     <string name="categories_category_run">दौड़</string>
     <string name="categories_category_cycling">साइक्लिंग</string>
     <string name="categories_category_strength">शक्ति</string>

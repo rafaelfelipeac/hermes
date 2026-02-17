@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
+import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
@@ -25,6 +26,7 @@ class SettingsViewModel
     @Inject
     constructor(
         private val repository: SettingsRepository,
+        private val categorySeeder: CategorySeeder,
         private val userActionLogger: UserActionLogger,
         private val demoDataSeeder: DemoDataSeeder,
     ) : ViewModel() {
@@ -82,6 +84,7 @@ class SettingsViewModel
                                 NEW_VALUE to language.tag,
                             ),
                     )
+                    categorySeeder.syncLocalizedNames()
                 }
             }
 

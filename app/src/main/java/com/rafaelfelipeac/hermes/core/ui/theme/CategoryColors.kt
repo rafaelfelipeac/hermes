@@ -25,8 +25,8 @@ private val CategorySand = Color(0xFFB1845A)
 private val categoryPalette =
     listOf(
         CategoryColorOption(COLOR_UNCATEGORIZED, CategorySlate),
-        CategoryColorOption(COLOR_RUN, CategoryRed),
-        CategoryColorOption(COLOR_CYCLING, CategoryBlue),
+        CategoryColorOption(COLOR_RUN, CategoryBlue),
+        CategoryColorOption(COLOR_CYCLING, CategoryRed),
         CategoryColorOption(COLOR_STRENGTH, CategoryPurple),
         CategoryColorOption(COLOR_SWIM, CategoryTeal),
         CategoryColorOption(COLOR_MOBILITY, CategoryLime),

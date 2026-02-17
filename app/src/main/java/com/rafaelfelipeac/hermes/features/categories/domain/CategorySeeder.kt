@@ -28,6 +28,7 @@ class CategorySeeder
             }
 
             restoreDefaults()
+            syncLocalizedNames()
         }
 
         suspend fun restoreDefaults(): Int {
@@ -45,6 +46,21 @@ class CategorySeeder
             }
 
             return missing.size
+        }
+
+        suspend fun syncLocalizedNames() {
+            val existing = repository.getCategories()
+            val localizedById = buildStarterCategories().associateBy { it.id }
+
+            existing.forEach { category ->
+                if (!category.isSystem) return@forEach
+
+                val localized = localizedById[category.id] ?: return@forEach
+
+                if (category.name != localized.name) {
+                    repository.updateCategoryName(category.id, localized.name)
+                }
+            }
         }
 
         private fun buildStarterCategories(): List<Category> {
