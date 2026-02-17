@@ -196,7 +196,7 @@ internal fun WorkoutRow(
                         ) {
                             Icon(
                                 imageVector = Icons.Outlined.Check,
-                                contentDescription = stringResource(R.string.workout_completed),
+                                contentDescription = stringResource(R.string.weekly_training_workout_completed),
                                 tint = completedButtonContent,
                                 modifier = Modifier.size(completedIconSize),
                             )
@@ -246,7 +246,7 @@ internal fun WorkoutRow(
                 Column {
                     if (workout.isRestDay) {
                         TitleChip(
-                            label = stringResource(R.string.rest_day_label),
+                            label = stringResource(R.string.weekly_training_rest_day_label),
                             containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                             contentColor = colors.content,
                         )
@@ -287,7 +287,7 @@ internal fun WorkoutRow(
 
         Icon(
             imageVector = Icons.Outlined.Close,
-            contentDescription = stringResource(R.string.delete_workout),
+            contentDescription = stringResource(R.string.weekly_training_delete_workout),
             tint = colors.content,
             modifier =
                 Modifier
@@ -389,7 +389,7 @@ internal fun GhostWorkoutRow(
                     Column {
                         if (workout.isRestDay) {
                             TitleChip(
-                                label = stringResource(R.string.rest_day_label),
+                                label = stringResource(R.string.weekly_training_rest_day_label),
                                 containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                                 contentColor = colors.content,
                             )

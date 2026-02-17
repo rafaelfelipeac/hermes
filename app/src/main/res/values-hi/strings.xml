@@ -1,57 +1,61 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
+
     <!-- Navigation -->
-    <string name="nav_weekly_training">साप्ताहिक प्रशिक्षण</string>
-    <string name="nav_activity">गतिविधि</string>
-    <string name="nav_settings">सेटिंग्स</string>
+    <string name="weekly_training_nav_label">साप्ताहिक प्रशिक्षण</string>
+    <string name="activity_nav_label">गतिविधि</string>
+    <string name="settings_nav_label">सेटिंग्स</string>
+
     <!-- Training week: actions -->
-    <string name="add_item">जोड़ें</string>
+    <string name="weekly_training_add_item">जोड़ें</string>
     <string name="add_workout">प्रशिक्षण जोड़ें</string>
-    <string name="add_rest_day">आराम का दिन जोड़ें</string>
-    <string name="copy_last_week">पिछला सप्ताह कॉपी करें</string>
-    <string name="copy_last_week_replace_title">इस सप्ताह को बदलें?</string>
-    <string name="copy_last_week_replace_message">इससे इस सप्ताह की योजना, पिछले सप्ताह की योजना से बदल जाएगी।</string>
-    <string name="copy_last_week_replace_confirm">बदलें</string>
-    <string name="copy_last_week_empty">पिछले सप्ताह से कॉपी करने के लिए अभी कुछ नहीं है।</string>
-    <string name="week_copied">सप्ताह कॉपी हो गया।</string>
-    <string name="add_workout_title">शीर्षक</string>
-    <string name="add_workout_description">विवरण</string>
-    <string name="add_workout_confirm">जोड़ें</string>
+    <string name="weekly_training_add_rest_day">आराम का दिन जोड़ें</string>
+    <string name="weekly_training_copy_last_week">पिछला सप्ताह कॉपी करें</string>
+    <string name="weekly_training_copy_last_week_replace_title">इस सप्ताह को बदलें?</string>
+    <string name="weekly_training_copy_last_week_replace_message">इससे इस सप्ताह की योजना, पिछले सप्ताह की योजना से बदल जाएगी।</string>
+    <string name="weekly_training_copy_last_week_replace_confirm">बदलें</string>
+    <string name="weekly_training_copy_last_week_empty">पिछले सप्ताह से कॉपी करने के लिए अभी कुछ नहीं है।</string>
+    <string name="weekly_training_week_copied">सप्ताह कॉपी हो गया।</string>
+    <string name="workout_dialog_add_workout_title">शीर्षक</string>
+    <string name="workout_dialog_add_workout_description">विवरण</string>
+    <string name="workout_dialog_add_workout_confirm">जोड़ें</string>
     <string name="add_workout_cancel">रद्द करें</string>
-    <string name="edit_workout">प्रशिक्षण संपादित करें</string>
+    <string name="workout_dialog_edit_workout">प्रशिक्षण संपादित करें</string>
     <string name="save_changes">सहेजें</string>
-    <string name="delete_workout">प्रशिक्षण हटाएं</string>
-    <string name="delete_workout_title">प्रशिक्षण हटाएं?</string>
-    <string name="delete_workout_message">क्या आप वाकई इस प्रशिक्षण को हटाना चाहते हैं?</string>
-    <string name="delete_rest_day">आराम का दिन हटाएं</string>
-    <string name="delete_rest_day_title">आराम का दिन हटाएं?</string>
-    <string name="delete_rest_day_message">क्या आप वाकई इस आराम के दिन को हटाना चाहते हैं?</string>
-    <string name="workout_moved">वर्कआउट स्थानांतरित किया गया।</string>
-    <string name="workout_deleted">वर्कआउट हटाया गया।</string>
-    <string name="workout_completed">वर्कआउट पूरा किया गया।</string>
-    <string name="workout_marked_incomplete">वर्कआउट को अधूरा चिह्नित किया गया।</string>
-    <string name="rest_day_moved">आराम का दिन स्थानांतरित किया गया।</string>
-    <string name="rest_day_deleted">आराम का दिन हटाया गया।</string>
-    <string name="undo_action">पूर्ववत</string>
+    <string name="weekly_training_delete_workout">प्रशिक्षण हटाएं</string>
+    <string name="weekly_training_delete_workout_title">प्रशिक्षण हटाएं?</string>
+    <string name="weekly_training_delete_workout_message">क्या आप वाकई इस प्रशिक्षण को हटाना चाहते हैं?</string>
+    <string name="weekly_training_delete_rest_day">आराम का दिन हटाएं</string>
+    <string name="weekly_training_delete_rest_day_title">आराम का दिन हटाएं?</string>
+    <string name="weekly_training_delete_rest_day_message">क्या आप वाकई इस आराम के दिन को हटाना चाहते हैं?</string>
+    <string name="weekly_training_workout_moved">वर्कआउट स्थानांतरित किया गया।</string>
+    <string name="weekly_training_workout_deleted">वर्कआउट हटाया गया।</string>
+    <string name="weekly_training_workout_completed">वर्कआउट पूरा किया गया।</string>
+    <string name="weekly_training_workout_marked_incomplete">वर्कआउट को अधूरा चिह्नित किया गया।</string>
+    <string name="weekly_training_rest_day_moved">आराम का दिन स्थानांतरित किया गया।</string>
+    <string name="weekly_training_rest_day_deleted">आराम का दिन हटाया गया।</string>
+    <string name="weekly_training_undo_action">पूर्ववत</string>
     <string name="mark_incomplete">अधूरा चिह्नित करें</string>
-    <string name="no_workouts">अभी कुछ भी योजना में नहीं है</string>
+    <string name="weekly_training_no_workouts">अभी कुछ भी योजना में नहीं है</string>
     <string name="drag_label">खींचें</string>
-    <string name="section_to_be_defined">निर्धारित करना बाकी</string>
-    <string name="tbd_help_title">प्रशिक्षण कैसे व्यवस्थित करें</string>
-    <string name="tbd_help_message">किसी प्रशिक्षण को लंबे समय तक दबाकर उसे सप्ताह के दिन पर खींचें। क्रम तय करने के लिए किसी दिन पर या आइटमों के बीच छोड़ें।</string>
-    <string name="tbd_help_confirm">समझ गया</string>
-    <string name="tbd_help_icon">प्रशिक्षण व्यवस्थित करने के लिए सहायता</string>
-    <string name="week_previous">&lt;</string>
-    <string name="week_next">&gt;</string>
-    <string name="rest_day_label">आराम का दिन</string>
+    <string name="weekly_training_section_to_be_defined">निर्धारित करना बाकी</string>
+    <string name="weekly_training_tbd_help_title">प्रशिक्षण कैसे व्यवस्थित करें</string>
+    <string name="weekly_training_tbd_help_message">किसी प्रशिक्षण को लंबे समय तक दबाकर उसे सप्ताह के दिन पर खींचें। क्रम तय करने के लिए किसी दिन पर या आइटमों के बीच छोड़ें।</string>
+    <string name="weekly_training_tbd_help_confirm">समझ गया</string>
+    <string name="weekly_training_tbd_help_icon">प्रशिक्षण व्यवस्थित करने के लिए सहायता</string>
+    <string name="weekly_training_week_previous">&lt;</string>
+    <string name="weekly_training_week_next">&gt;</string>
+    <string name="weekly_training_rest_day_label">आराम का दिन</string>
+
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>
-    <string name="seed_demo_data">डेमो डेटा बनाएं</string>
-    <string name="demo_data_created">डेमो डेटा बन गया</string>
-    <string name="add_mock_workout">मॉक वर्कआउट जोड़ें</string>
+    <string name="settings_seed_demo_data">डेमो डेटा बनाएं</string>
+    <string name="settings_demo_data_created">डेमो डेटा बन गया</string>
+    <string name="weekly_training_add_mock_workout">मॉक वर्कआउट जोड़ें</string>
     <string name="mock_workout_type">फुल बॉडी</string>
     <string name="mock_workout_description">3 सेट, 10 रेप्स</string>
     <string name="mock_workout_type_strength">स्ट्रेंथ</string>
@@ -70,6 +74,7 @@
     <string name="mock_workout_description_mobility">हिप्स + शोल्डर, 15 मिनट</string>
     <string name="mock_workout_description_long_run">ज़ोन 2, 12 किमी</string>
     <string name="mock_workout_description_core">कंपाउंड लिफ्ट्स, 40 मिनट</string>
+
     <!-- Training week: days -->
     <string name="day_monday">सोमवार</string>
     <string name="day_tuesday">मंगलवार</string>
@@ -78,6 +83,7 @@
     <string name="day_friday">शुक्रवार</string>
     <string name="day_saturday">शनिवार</string>
     <string name="day_sunday">रविवार</string>
+
     <!-- Settings -->
     <string name="settings_title">सेटिंग्स</string>
     <string name="settings_theme_title">थीम</string>
@@ -103,6 +109,7 @@
     <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - फीडबैक और सुझाव</string>
     <string name="settings_feedback_email_body">नमस्ते!__NL____NL__अपने सवाल, सुझाव या बग रिपोर्ट यहाँ लिखें।__NL____NL__हर फीडबैक का स्वागत है :)__NL____NL__---__NL__ऐप संस्करण: %1$s__NL__---</string>
+
     <!-- Activity -->
     <string name="activity_title">हाल की गतिविधि</string>
     <string name="activity_empty">अभी कोई गतिविधि नहीं है।</string>
@@ -149,15 +156,16 @@
     <string name="activity_value_system">सिस्टम</string>
     <string name="activity_value_unknown">अज्ञात</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
+
     <!-- Categories -->
-    <string name="add_workout_category">श्रेणी</string>
-    <string name="manage_categories">श्रेणियाँ प्रबंधित करें</string>
+    <string name="workout_dialog_add_workout_category">श्रेणी</string>
+    <string name="workout_dialog_manage_categories">श्रेणियाँ प्रबंधित करें</string>
     <string name="category_uncategorized">अवर्गीकृत</string>
-    <string name="category_run">दौड़</string>
-    <string name="category_cycling">साइक्लिंग</string>
-    <string name="category_strength">शक्ति</string>
-    <string name="category_swim">तैराकी</string>
-    <string name="category_mobility">गतिशीलता</string>
+    <string name="categories_category_run">दौड़</string>
+    <string name="categories_category_cycling">साइक्लिंग</string>
+    <string name="categories_category_strength">शक्ति</string>
+    <string name="categories_category_swim">तैराकी</string>
+    <string name="categories_category_mobility">गतिशीलता</string>
     <string name="category_other">अन्य</string>
     <string name="settings_workouts_title">वर्कआउट</string>
     <string name="settings_categories">श्रेणियाँ</string>

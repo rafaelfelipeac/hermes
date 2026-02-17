@@ -1,57 +1,61 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
+
     <!-- Navigation -->
-    <string name="nav_weekly_training">Wöchentliches Training</string>
-    <string name="nav_activity">Aktivität</string>
-    <string name="nav_settings">Einstellungen</string>
+    <string name="weekly_training_nav_label">Wöchentliches Training</string>
+    <string name="activity_nav_label">Aktivität</string>
+    <string name="settings_nav_label">Einstellungen</string>
+
     <!-- Training week: actions -->
-    <string name="add_item">Hinzufügen</string>
+    <string name="weekly_training_add_item">Hinzufügen</string>
     <string name="add_workout">Training hinzufügen</string>
-    <string name="add_rest_day">Ruhetag hinzufügen</string>
-    <string name="copy_last_week">Letzte Woche kopieren</string>
-    <string name="copy_last_week_replace_title">Diese Woche ersetzen?</string>
-    <string name="copy_last_week_replace_message">Dadurch wird der Plan dieser Woche durch den Plan der letzten Woche ersetzt.</string>
-    <string name="copy_last_week_replace_confirm">Ersetzen</string>
-    <string name="copy_last_week_empty">Es gibt noch nichts aus der letzten Woche zum Kopieren.</string>
-    <string name="week_copied">Woche kopiert.</string>
-    <string name="add_workout_title">Titel</string>
-    <string name="add_workout_description">Beschreibung</string>
-    <string name="add_workout_confirm">Hinzufügen</string>
+    <string name="weekly_training_add_rest_day">Ruhetag hinzufügen</string>
+    <string name="weekly_training_copy_last_week">Letzte Woche kopieren</string>
+    <string name="weekly_training_copy_last_week_replace_title">Diese Woche ersetzen?</string>
+    <string name="weekly_training_copy_last_week_replace_message">Dadurch wird der Plan dieser Woche durch den Plan der letzten Woche ersetzt.</string>
+    <string name="weekly_training_copy_last_week_replace_confirm">Ersetzen</string>
+    <string name="weekly_training_copy_last_week_empty">Es gibt noch nichts aus der letzten Woche zum Kopieren.</string>
+    <string name="weekly_training_week_copied">Woche kopiert.</string>
+    <string name="workout_dialog_add_workout_title">Titel</string>
+    <string name="workout_dialog_add_workout_description">Beschreibung</string>
+    <string name="workout_dialog_add_workout_confirm">Hinzufügen</string>
     <string name="add_workout_cancel">Abbrechen</string>
-    <string name="edit_workout">Training bearbeiten</string>
+    <string name="workout_dialog_edit_workout">Training bearbeiten</string>
     <string name="save_changes">Speichern</string>
-    <string name="delete_workout">Training löschen</string>
-    <string name="delete_workout_title">Training löschen?</string>
-    <string name="delete_workout_message">Möchten Sie dieses Training wirklich löschen?</string>
-    <string name="delete_rest_day">Ruhetag löschen</string>
-    <string name="delete_rest_day_title">Ruhetag löschen?</string>
-    <string name="delete_rest_day_message">Möchten Sie diesen Ruhetag wirklich löschen?</string>
-    <string name="workout_moved">Training verschoben.</string>
-    <string name="workout_deleted">Training gelöscht.</string>
-    <string name="workout_completed">Training abgeschlossen.</string>
-    <string name="workout_marked_incomplete">Training als unvollständig markiert.</string>
-    <string name="rest_day_moved">Ruhetag verschoben.</string>
-    <string name="rest_day_deleted">Ruhetag gelöscht.</string>
-    <string name="undo_action">Rückgängig</string>
+    <string name="weekly_training_delete_workout">Training löschen</string>
+    <string name="weekly_training_delete_workout_title">Training löschen?</string>
+    <string name="weekly_training_delete_workout_message">Möchten Sie dieses Training wirklich löschen?</string>
+    <string name="weekly_training_delete_rest_day">Ruhetag löschen</string>
+    <string name="weekly_training_delete_rest_day_title">Ruhetag löschen?</string>
+    <string name="weekly_training_delete_rest_day_message">Möchten Sie diesen Ruhetag wirklich löschen?</string>
+    <string name="weekly_training_workout_moved">Training verschoben.</string>
+    <string name="weekly_training_workout_deleted">Training gelöscht.</string>
+    <string name="weekly_training_workout_completed">Training abgeschlossen.</string>
+    <string name="weekly_training_workout_marked_incomplete">Training als unvollständig markiert.</string>
+    <string name="weekly_training_rest_day_moved">Ruhetag verschoben.</string>
+    <string name="weekly_training_rest_day_deleted">Ruhetag gelöscht.</string>
+    <string name="weekly_training_undo_action">Rückgängig</string>
     <string name="mark_incomplete">Als unvollständig markieren</string>
-    <string name="no_workouts">Noch nichts geplant</string>
+    <string name="weekly_training_no_workouts">Noch nichts geplant</string>
     <string name="drag_label">Ziehen</string>
-    <string name="section_to_be_defined">Noch festzulegen</string>
-    <string name="tbd_help_title">So organisierst du Trainings</string>
-    <string name="tbd_help_message">Drücke lange auf ein Training, um es auf einen Wochentag zu ziehen. Lege es auf einen Tag oder zwischen Einträge, um die Reihenfolge festzulegen.</string>
-    <string name="tbd_help_confirm">Verstanden</string>
-    <string name="tbd_help_icon">Hilfe zum Organisieren von Trainings</string>
-    <string name="week_previous">&lt;</string>
-    <string name="week_next">&gt;</string>
-    <string name="rest_day_label">Ruhetag</string>
+    <string name="weekly_training_section_to_be_defined">Noch festzulegen</string>
+    <string name="weekly_training_tbd_help_title">So organisierst du Trainings</string>
+    <string name="weekly_training_tbd_help_message">Drücke lange auf ein Training, um es auf einen Wochentag zu ziehen. Lege es auf einen Tag oder zwischen Einträge, um die Reihenfolge festzulegen.</string>
+    <string name="weekly_training_tbd_help_confirm">Verstanden</string>
+    <string name="weekly_training_tbd_help_icon">Hilfe zum Organisieren von Trainings</string>
+    <string name="weekly_training_week_previous">&lt;</string>
+    <string name="weekly_training_week_next">&gt;</string>
+    <string name="weekly_training_rest_day_label">Ruhetag</string>
+
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Entwicklermodus</string>
-    <string name="seed_demo_data">Demo-Daten erstellen</string>
-    <string name="demo_data_created">Demo-Daten erstellt</string>
-    <string name="add_mock_workout">Beispieltraining hinzufügen</string>
+    <string name="settings_seed_demo_data">Demo-Daten erstellen</string>
+    <string name="settings_demo_data_created">Demo-Daten erstellt</string>
+    <string name="weekly_training_add_mock_workout">Beispieltraining hinzufügen</string>
     <string name="mock_workout_type">Ganzkörper</string>
     <string name="mock_workout_description">3 Sätze à 10 Wiederholungen</string>
     <string name="mock_workout_type_strength">Kraft</string>
@@ -70,6 +74,7 @@
     <string name="mock_workout_description_mobility">Hüfte + Schultern, 15 Min</string>
     <string name="mock_workout_description_long_run">Zone 2, 12 km</string>
     <string name="mock_workout_description_core">Grundübungen, 40 Min</string>
+
     <!-- Training week: days -->
     <string name="day_monday">Montag</string>
     <string name="day_tuesday">Dienstag</string>
@@ -78,6 +83,7 @@
     <string name="day_friday">Freitag</string>
     <string name="day_saturday">Samstag</string>
     <string name="day_sunday">Sonntag</string>
+
     <!-- Settings -->
     <string name="settings_title">Einstellungen</string>
     <string name="settings_theme_title">Design</string>
@@ -103,6 +109,7 @@
     <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - Feedback und Vorschläge</string>
     <string name="settings_feedback_email_body">Hallo!__NL____NL__Schreib hier deine Fragen, Vorschläge oder Bugmeldungen.__NL____NL__Jedes Feedback ist sehr willkommen :)__NL____NL__---__NL__App-Version: %1$s__NL__---</string>
+
     <!-- Activity -->
     <string name="activity_title">Letzte Aktivitäten</string>
     <string name="activity_empty">Noch keine Aktivitäten.</string>
@@ -149,15 +156,16 @@
     <string name="activity_value_system">System</string>
     <string name="activity_value_unknown">Unbekannt</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
+
     <!-- Categories -->
-    <string name="add_workout_category">Kategorie</string>
-    <string name="manage_categories">Kategorien verwalten</string>
+    <string name="workout_dialog_add_workout_category">Kategorie</string>
+    <string name="workout_dialog_manage_categories">Kategorien verwalten</string>
     <string name="category_uncategorized">Nicht kategorisiert</string>
-    <string name="category_run">Laufen</string>
-    <string name="category_cycling">Radfahren</string>
-    <string name="category_strength">Kraft</string>
-    <string name="category_swim">Schwimmen</string>
-    <string name="category_mobility">Mobilität</string>
+    <string name="categories_category_run">Laufen</string>
+    <string name="categories_category_cycling">Radfahren</string>
+    <string name="categories_category_strength">Kraft</string>
+    <string name="categories_category_swim">Schwimmen</string>
+    <string name="categories_category_mobility">Mobilität</string>
     <string name="category_other">Andere</string>
     <string name="settings_workouts_title">Trainings</string>
     <string name="settings_categories">Kategorien</string>

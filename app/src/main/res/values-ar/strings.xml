@@ -1,57 +1,61 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
+
     <!-- Navigation -->
-    <string name="nav_weekly_training">التدريب الأسبوعي</string>
-    <string name="nav_activity">النشاط</string>
-    <string name="nav_settings">الإعدادات</string>
+    <string name="weekly_training_nav_label">التدريب الأسبوعي</string>
+    <string name="activity_nav_label">النشاط</string>
+    <string name="settings_nav_label">الإعدادات</string>
+
     <!-- Training week: actions -->
-    <string name="add_item">إضافة</string>
+    <string name="weekly_training_add_item">إضافة</string>
     <string name="add_workout">إضافة تمرين</string>
-    <string name="add_rest_day">إضافة يوم راحة</string>
-    <string name="copy_last_week">نسخ الأسبوع الماضي</string>
-    <string name="copy_last_week_replace_title">استبدال هذا الأسبوع؟</string>
-    <string name="copy_last_week_replace_message">سيتم استبدال خطة هذا الأسبوع بخطة الأسبوع الماضي.</string>
-    <string name="copy_last_week_replace_confirm">استبدال</string>
-    <string name="copy_last_week_empty">لا يوجد ما يمكن نسخه من الأسبوع الماضي بعد.</string>
-    <string name="week_copied">تم نسخ الأسبوع.</string>
-    <string name="add_workout_title">العنوان</string>
-    <string name="add_workout_description">الوصف</string>
-    <string name="add_workout_confirm">إضافة</string>
+    <string name="weekly_training_add_rest_day">إضافة يوم راحة</string>
+    <string name="weekly_training_copy_last_week">نسخ الأسبوع الماضي</string>
+    <string name="weekly_training_copy_last_week_replace_title">استبدال هذا الأسبوع؟</string>
+    <string name="weekly_training_copy_last_week_replace_message">سيتم استبدال خطة هذا الأسبوع بخطة الأسبوع الماضي.</string>
+    <string name="weekly_training_copy_last_week_replace_confirm">استبدال</string>
+    <string name="weekly_training_copy_last_week_empty">لا يوجد ما يمكن نسخه من الأسبوع الماضي بعد.</string>
+    <string name="weekly_training_week_copied">تم نسخ الأسبوع.</string>
+    <string name="workout_dialog_add_workout_title">العنوان</string>
+    <string name="workout_dialog_add_workout_description">الوصف</string>
+    <string name="workout_dialog_add_workout_confirm">إضافة</string>
     <string name="add_workout_cancel">إلغاء</string>
-    <string name="edit_workout">تعديل التمرين</string>
+    <string name="workout_dialog_edit_workout">تعديل التمرين</string>
     <string name="save_changes">حفظ</string>
-    <string name="delete_workout">حذف التمرين</string>
-    <string name="delete_workout_title">حذف التمرين؟</string>
-    <string name="delete_workout_message">هل أنت متأكد أنك تريد حذف هذا التمرين؟</string>
-    <string name="delete_rest_day">حذف يوم الراحة</string>
-    <string name="delete_rest_day_title">حذف يوم الراحة؟</string>
-    <string name="delete_rest_day_message">هل أنت متأكد أنك تريد حذف يوم الراحة؟</string>
-    <string name="workout_moved">تم نقل التمرين.</string>
-    <string name="workout_deleted">تم حذف التمرين.</string>
-    <string name="workout_completed">تم إكمال التمرين.</string>
-    <string name="workout_marked_incomplete">تم وضع التمرين كغير مكتمل.</string>
-    <string name="rest_day_moved">تم نقل يوم الراحة.</string>
-    <string name="rest_day_deleted">تم حذف يوم الراحة.</string>
-    <string name="undo_action">تراجع</string>
+    <string name="weekly_training_delete_workout">حذف التمرين</string>
+    <string name="weekly_training_delete_workout_title">حذف التمرين؟</string>
+    <string name="weekly_training_delete_workout_message">هل أنت متأكد أنك تريد حذف هذا التمرين؟</string>
+    <string name="weekly_training_delete_rest_day">حذف يوم الراحة</string>
+    <string name="weekly_training_delete_rest_day_title">حذف يوم الراحة؟</string>
+    <string name="weekly_training_delete_rest_day_message">هل أنت متأكد أنك تريد حذف يوم الراحة؟</string>
+    <string name="weekly_training_workout_moved">تم نقل التمرين.</string>
+    <string name="weekly_training_workout_deleted">تم حذف التمرين.</string>
+    <string name="weekly_training_workout_completed">تم إكمال التمرين.</string>
+    <string name="weekly_training_workout_marked_incomplete">تم وضع التمرين كغير مكتمل.</string>
+    <string name="weekly_training_rest_day_moved">تم نقل يوم الراحة.</string>
+    <string name="weekly_training_rest_day_deleted">تم حذف يوم الراحة.</string>
+    <string name="weekly_training_undo_action">تراجع</string>
     <string name="mark_incomplete">وضع علامة غير مكتمل</string>
-    <string name="no_workouts">لا شيء مخطط له بعد</string>
+    <string name="weekly_training_no_workouts">لا شيء مخطط له بعد</string>
     <string name="drag_label">مقبض السحب</string>
-    <string name="section_to_be_defined">غير محدد بعد</string>
-    <string name="tbd_help_title">كيفية تنظيم التمارين</string>
-    <string name="tbd_help_message">اضغط مطولاً على تمرين لسحبه إلى يوم من أيام الأسبوع. أفلِته على يوم أو بين العناصر لتحديد الترتيب.</string>
-    <string name="tbd_help_confirm">فهمت</string>
-    <string name="tbd_help_icon">مساعدة لتنظيم التمارين</string>
-    <string name="week_previous">&lt;</string>
-    <string name="week_next">&gt;</string>
-    <string name="rest_day_label">يوم راحة</string>
+    <string name="weekly_training_section_to_be_defined">غير محدد بعد</string>
+    <string name="weekly_training_tbd_help_title">كيفية تنظيم التمارين</string>
+    <string name="weekly_training_tbd_help_message">اضغط مطولاً على تمرين لسحبه إلى يوم من أيام الأسبوع. أفلِته على يوم أو بين العناصر لتحديد الترتيب.</string>
+    <string name="weekly_training_tbd_help_confirm">فهمت</string>
+    <string name="weekly_training_tbd_help_icon">مساعدة لتنظيم التمارين</string>
+    <string name="weekly_training_week_previous">&lt;</string>
+    <string name="weekly_training_week_next">&gt;</string>
+    <string name="weekly_training_rest_day_label">يوم راحة</string>
+
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">وضع المطوّر</string>
-    <string name="seed_demo_data">إنشاء بيانات تجريبية</string>
-    <string name="demo_data_created">تم إنشاء البيانات التجريبية</string>
-    <string name="add_mock_workout">إضافة تمرين تجريبي</string>
+    <string name="settings_seed_demo_data">إنشاء بيانات تجريبية</string>
+    <string name="settings_demo_data_created">تم إنشاء البيانات التجريبية</string>
+    <string name="weekly_training_add_mock_workout">إضافة تمرين تجريبي</string>
     <string name="mock_workout_type">تمرين شامل</string>
     <string name="mock_workout_description">3 مجموعات من 10 تكرارات</string>
     <string name="mock_workout_type_strength">قوة</string>
@@ -70,6 +74,7 @@
     <string name="mock_workout_description_mobility">الورك + الأكتاف، 15 دقيقة</string>
     <string name="mock_workout_description_long_run">المنطقة 2، 12 كم</string>
     <string name="mock_workout_description_core">تمارين مركبة، 40 دقيقة</string>
+
     <!-- Training week: days -->
     <string name="day_monday">الاثنين</string>
     <string name="day_tuesday">الثلاثاء</string>
@@ -78,6 +83,7 @@
     <string name="day_friday">الجمعة</string>
     <string name="day_saturday">السبت</string>
     <string name="day_sunday">الأحد</string>
+
     <!-- Settings -->
     <string name="settings_title">الإعدادات</string>
     <string name="settings_theme_title">المظهر</string>
@@ -103,6 +109,7 @@
     <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - الملاحظات والاقتراحات</string>
     <string name="settings_feedback_email_body">مرحبًا!__NL____NL__اكتب أسئلتك أو اقتراحاتك أو تقارير الأخطاء هنا.__NL____NL__كل ملاحظة مرحب بها جدًا :)__NL____NL__---__NL__إصدار التطبيق: %1$s__NL__---</string>
+
     <!-- Activity -->
     <string name="activity_title">النشاط الأخير</string>
     <string name="activity_empty">لا توجد أنشطة بعد.</string>
@@ -149,15 +156,16 @@
     <string name="activity_value_system">النظام</string>
     <string name="activity_value_unknown">غير معروف</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
+
     <!-- Categories -->
-    <string name="add_workout_category">الفئة</string>
-    <string name="manage_categories">إدارة الفئات</string>
+    <string name="workout_dialog_add_workout_category">الفئة</string>
+    <string name="workout_dialog_manage_categories">إدارة الفئات</string>
     <string name="category_uncategorized">غير مصنّف</string>
-    <string name="category_run">جري</string>
-    <string name="category_cycling">ركوب الدراجات</string>
-    <string name="category_strength">قوة</string>
-    <string name="category_swim">سباحة</string>
-    <string name="category_mobility">الحركية</string>
+    <string name="categories_category_run">جري</string>
+    <string name="categories_category_cycling">ركوب الدراجات</string>
+    <string name="categories_category_strength">قوة</string>
+    <string name="categories_category_swim">سباحة</string>
+    <string name="categories_category_mobility">الحركية</string>
     <string name="category_other">أخرى</string>
     <string name="settings_workouts_title">التمارين</string>
     <string name="settings_categories">الفئات</string>

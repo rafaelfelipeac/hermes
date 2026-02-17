@@ -115,7 +115,7 @@ fun WeeklyCalendarHeader(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ChevronLeft,
-                    contentDescription = stringResource(R.string.week_previous),
+                    contentDescription = stringResource(R.string.weekly_training_week_previous),
                 )
             }
 
@@ -127,7 +127,7 @@ fun WeeklyCalendarHeader(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ChevronRight,
-                    contentDescription = stringResource(R.string.week_next),
+                    contentDescription = stringResource(R.string.weekly_training_week_next),
                 )
             }
         }

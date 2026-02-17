@@ -82,11 +82,11 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
-    val demoDataCreatedMessage = stringResource(R.string.demo_data_created)
+    val demoDataCreatedMessage = stringResource(R.string.settings_demo_data_created)
     val feedbackEmail = stringResource(R.string.settings_feedback_email)
     val mailtoTemplate = stringResource(R.string.settings_feedback_mailto_uri)
-    val marketUrlTemplate = stringResource(R.string.play_store_market_url)
-    val webUrlTemplate = stringResource(R.string.play_store_web_url)
+    val marketUrlTemplate = stringResource(R.string.settings_play_store_market_url)
+    val webUrlTemplate = stringResource(R.string.settings_play_store_web_url)
     var route by rememberSaveable { mutableStateOf(SettingsRoute.MAIN) }
 
     BackHandler(enabled = route != SettingsRoute.MAIN) {
@@ -319,7 +319,7 @@ internal fun SettingsContent(
             if (BuildConfig.DEBUG) {
                 SettingsSection(title = stringResource(R.string.settings_developer_title)) {
                     SettingsActionButton(
-                        label = stringResource(R.string.seed_demo_data),
+                        label = stringResource(R.string.settings_seed_demo_data),
                         onClick = onSeedDemoData,
                         modifier = Modifier.fillMaxWidth(),
                     )

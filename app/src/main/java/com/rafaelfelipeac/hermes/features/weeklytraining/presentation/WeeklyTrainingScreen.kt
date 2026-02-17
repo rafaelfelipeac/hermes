@@ -94,9 +94,9 @@ fun WeeklyTrainingScreen(
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
-    val undoLabel = stringResource(R.string.undo_action)
-    val copiedWeekMessage = stringResource(R.string.week_copied)
-    val emptyCopyMessage = stringResource(R.string.copy_last_week_empty)
+    val undoLabel = stringResource(R.string.weekly_training_undo_action)
+    val copiedWeekMessage = stringResource(R.string.weekly_training_week_copied)
+    val emptyCopyMessage = stringResource(R.string.weekly_training_copy_last_week_empty)
     val pickerCategories = state.categories.filter { !it.isHidden || it.id == UNCATEGORIZED_ID }
     val undoMessage =
         undoState?.let { currentUndo ->
@@ -113,23 +113,23 @@ fun WeeklyTrainingScreen(
                 UndoMessage.Moved ->
                     stringResource(
                         if (isRestDay) {
-                            R.string.rest_day_moved
+                            R.string.weekly_training_rest_day_moved
                         } else {
-                            R.string.workout_moved
+                            R.string.weekly_training_workout_moved
                         },
                     )
                 UndoMessage.Deleted ->
                     stringResource(
                         if (isRestDay) {
-                            R.string.rest_day_deleted
+                            R.string.weekly_training_rest_day_deleted
                         } else {
-                            R.string.workout_deleted
+                            R.string.weekly_training_workout_deleted
                         },
                     )
                 UndoMessage.Completed ->
-                    stringResource(R.string.workout_completed)
+                    stringResource(R.string.weekly_training_workout_completed)
                 UndoMessage.MarkedIncomplete ->
-                    stringResource(R.string.workout_marked_incomplete)
+                    stringResource(R.string.weekly_training_workout_marked_incomplete)
             }
         }
 
@@ -228,7 +228,7 @@ fun WeeklyTrainingScreen(
                         .padding(SpacingXl),
             ) {
                 Text(
-                    text = stringResource(R.string.nav_weekly_training),
+                    text = stringResource(R.string.weekly_training_nav_label),
                     style = typography.titleLarge,
                 )
 
@@ -286,7 +286,7 @@ fun WeeklyTrainingScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.add_item),
+                        contentDescription = stringResource(R.string.weekly_training_add_item),
                     )
                 }
             }
@@ -315,7 +315,7 @@ fun WeeklyTrainingScreen(
 
                     AddActionPill(
                         icon = Icons.Outlined.Bedtime,
-                        label = stringResource(R.string.add_rest_day),
+                        label = stringResource(R.string.weekly_training_add_rest_day),
                         onClick = {
                             isAddMenuVisible = false
                             viewModel.addRestDay()
@@ -324,7 +324,7 @@ fun WeeklyTrainingScreen(
 
                     AddActionPill(
                         icon = Icons.Default.History,
-                        label = stringResource(R.string.copy_last_week),
+                        label = stringResource(R.string.weekly_training_copy_last_week),
                         onClick = {
                             isAddMenuVisible = false
 
@@ -342,7 +342,7 @@ fun WeeklyTrainingScreen(
 
                         AddActionPill(
                             icon = Icons.Default.Settings,
-                            label = stringResource(R.string.add_mock_workout),
+                            label = stringResource(R.string.weekly_training_add_mock_workout),
                             onClick = {
                                 isAddMenuVisible = false
                                 viewModel.addWorkout(
@@ -432,21 +432,21 @@ fun WeeklyTrainingScreen(
     deletingWorkout?.let { workout ->
         val title =
             if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day_title)
+                stringResource(R.string.weekly_training_delete_rest_day_title)
             } else {
-                stringResource(R.string.delete_workout_title)
+                stringResource(R.string.weekly_training_delete_workout_title)
             }
         val message =
             if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day_message)
+                stringResource(R.string.weekly_training_delete_rest_day_message)
             } else {
-                stringResource(R.string.delete_workout_message)
+                stringResource(R.string.weekly_training_delete_workout_message)
             }
         val confirmLabel =
             if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day)
+                stringResource(R.string.weekly_training_delete_rest_day)
             } else {
-                stringResource(R.string.delete_workout)
+                stringResource(R.string.weekly_training_delete_workout)
             }
 
         AlertDialog(
@@ -475,10 +475,10 @@ fun WeeklyTrainingScreen(
         AlertDialog(
             onDismissRequest = { isCopyReplaceDialogVisible = false },
             title = {
-                Text(text = stringResource(R.string.copy_last_week_replace_title))
+                Text(text = stringResource(R.string.weekly_training_copy_last_week_replace_title))
             },
             text = {
-                Text(text = stringResource(R.string.copy_last_week_replace_message))
+                Text(text = stringResource(R.string.weekly_training_copy_last_week_replace_message))
             },
             confirmButton = {
                 TextButton(
@@ -488,7 +488,7 @@ fun WeeklyTrainingScreen(
                         isCopyReplaceDialogVisible = false
                     },
                 ) {
-                    Text(text = stringResource(R.string.copy_last_week_replace_confirm))
+                    Text(text = stringResource(R.string.weekly_training_copy_last_week_replace_confirm))
                 }
             },
             dismissButton = {

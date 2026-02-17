@@ -1,57 +1,61 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
+
     <!-- Navigation -->
-    <string name="nav_weekly_training">週間トレーニング</string>
-    <string name="nav_activity">アクティビティ</string>
-    <string name="nav_settings">設定</string>
+    <string name="weekly_training_nav_label">週間トレーニング</string>
+    <string name="activity_nav_label">アクティビティ</string>
+    <string name="settings_nav_label">設定</string>
+
     <!-- Training week: actions -->
-    <string name="add_item">追加</string>
+    <string name="weekly_training_add_item">追加</string>
     <string name="add_workout">トレーニングを追加</string>
-    <string name="add_rest_day">休息日を追加</string>
-    <string name="copy_last_week">先週をコピー</string>
-    <string name="copy_last_week_replace_title">この週を置き換えますか？</string>
-    <string name="copy_last_week_replace_message">この操作で、今週の計画は先週の計画で置き換えられます。</string>
-    <string name="copy_last_week_replace_confirm">置き換え</string>
-    <string name="copy_last_week_empty">先週からコピーできる内容がまだありません。</string>
-    <string name="week_copied">週をコピーしました。</string>
-    <string name="add_workout_title">タイトル</string>
-    <string name="add_workout_description">説明</string>
-    <string name="add_workout_confirm">追加</string>
+    <string name="weekly_training_add_rest_day">休息日を追加</string>
+    <string name="weekly_training_copy_last_week">先週をコピー</string>
+    <string name="weekly_training_copy_last_week_replace_title">この週を置き換えますか？</string>
+    <string name="weekly_training_copy_last_week_replace_message">この操作で、今週の計画は先週の計画で置き換えられます。</string>
+    <string name="weekly_training_copy_last_week_replace_confirm">置き換え</string>
+    <string name="weekly_training_copy_last_week_empty">先週からコピーできる内容がまだありません。</string>
+    <string name="weekly_training_week_copied">週をコピーしました。</string>
+    <string name="workout_dialog_add_workout_title">タイトル</string>
+    <string name="workout_dialog_add_workout_description">説明</string>
+    <string name="workout_dialog_add_workout_confirm">追加</string>
     <string name="add_workout_cancel">キャンセル</string>
-    <string name="edit_workout">トレーニングを編集</string>
+    <string name="workout_dialog_edit_workout">トレーニングを編集</string>
     <string name="save_changes">保存</string>
-    <string name="delete_workout">トレーニングを削除</string>
-    <string name="delete_workout_title">トレーニングを削除しますか？</string>
-    <string name="delete_workout_message">このトレーニングを削除してもよろしいですか？</string>
-    <string name="delete_rest_day">休息日を削除</string>
-    <string name="delete_rest_day_title">休息日を削除しますか？</string>
-    <string name="delete_rest_day_message">この休息日を削除してもよろしいですか？</string>
-    <string name="workout_moved">トレーニングを移動しました。</string>
-    <string name="workout_deleted">トレーニングを削除しました。</string>
-    <string name="workout_completed">トレーニングを完了しました。</string>
-    <string name="workout_marked_incomplete">トレーニングを未完了にしました。</string>
-    <string name="rest_day_moved">休息日を移動しました。</string>
-    <string name="rest_day_deleted">休息日を削除しました。</string>
-    <string name="undo_action">元に戻す</string>
+    <string name="weekly_training_delete_workout">トレーニングを削除</string>
+    <string name="weekly_training_delete_workout_title">トレーニングを削除しますか？</string>
+    <string name="weekly_training_delete_workout_message">このトレーニングを削除してもよろしいですか？</string>
+    <string name="weekly_training_delete_rest_day">休息日を削除</string>
+    <string name="weekly_training_delete_rest_day_title">休息日を削除しますか？</string>
+    <string name="weekly_training_delete_rest_day_message">この休息日を削除してもよろしいですか？</string>
+    <string name="weekly_training_workout_moved">トレーニングを移動しました。</string>
+    <string name="weekly_training_workout_deleted">トレーニングを削除しました。</string>
+    <string name="weekly_training_workout_completed">トレーニングを完了しました。</string>
+    <string name="weekly_training_workout_marked_incomplete">トレーニングを未完了にしました。</string>
+    <string name="weekly_training_rest_day_moved">休息日を移動しました。</string>
+    <string name="weekly_training_rest_day_deleted">休息日を削除しました。</string>
+    <string name="weekly_training_undo_action">元に戻す</string>
     <string name="mark_incomplete">未完了にする</string>
-    <string name="no_workouts">まだ何も計画されていません</string>
+    <string name="weekly_training_no_workouts">まだ何も計画されていません</string>
     <string name="drag_label">ドラッグ</string>
-    <string name="section_to_be_defined">未定</string>
-    <string name="tbd_help_title">トレーニングの整理方法</string>
-    <string name="tbd_help_message">トレーニングを長押しして曜日へドラッグしてください。曜日の上または項目の間にドロップして順番を決めます。</string>
-    <string name="tbd_help_confirm">了解</string>
-    <string name="tbd_help_icon">トレーニング整理のヘルプ</string>
-    <string name="week_previous">&lt;</string>
-    <string name="week_next">&gt;</string>
-    <string name="rest_day_label">休息日</string>
+    <string name="weekly_training_section_to_be_defined">未定</string>
+    <string name="weekly_training_tbd_help_title">トレーニングの整理方法</string>
+    <string name="weekly_training_tbd_help_message">トレーニングを長押しして曜日へドラッグしてください。曜日の上または項目の間にドロップして順番を決めます。</string>
+    <string name="weekly_training_tbd_help_confirm">了解</string>
+    <string name="weekly_training_tbd_help_icon">トレーニング整理のヘルプ</string>
+    <string name="weekly_training_week_previous">&lt;</string>
+    <string name="weekly_training_week_next">&gt;</string>
+    <string name="weekly_training_rest_day_label">休息日</string>
+
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">開発者モード</string>
-    <string name="seed_demo_data">デモデータを作成</string>
-    <string name="demo_data_created">デモデータを作成しました</string>
-    <string name="add_mock_workout">サンプルワークアウトを追加</string>
+    <string name="settings_seed_demo_data">デモデータを作成</string>
+    <string name="settings_demo_data_created">デモデータを作成しました</string>
+    <string name="weekly_training_add_mock_workout">サンプルワークアウトを追加</string>
     <string name="mock_workout_type">全身</string>
     <string name="mock_workout_description">10回×3セット</string>
     <string name="mock_workout_type_strength">筋力</string>
@@ -70,6 +74,7 @@
     <string name="mock_workout_description_mobility">股関節＋肩、15分</string>
     <string name="mock_workout_description_long_run">ゾーン2、12 km</string>
     <string name="mock_workout_description_core">複合種目、40分</string>
+
     <!-- Training week: days -->
     <string name="day_monday">月曜日</string>
     <string name="day_tuesday">火曜日</string>
@@ -78,6 +83,7 @@
     <string name="day_friday">金曜日</string>
     <string name="day_saturday">土曜日</string>
     <string name="day_sunday">日曜日</string>
+
     <!-- Settings -->
     <string name="settings_title">設定</string>
     <string name="settings_theme_title">テーマ</string>
@@ -103,6 +109,7 @@
     <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - フィードバックと提案</string>
     <string name="settings_feedback_email_body">こんにちは！__NL____NL__質問、提案、バグ報告はこちらにご記入ください。__NL____NL__どんなフィードバックも大歓迎です :)__NL____NL__---__NL__アプリのバージョン: %1$s__NL__---</string>
+
     <!-- Activity -->
     <string name="activity_title">最近のアクティビティ</string>
     <string name="activity_empty">まだアクティビティはありません。</string>
@@ -149,15 +156,16 @@
     <string name="activity_value_system">システム</string>
     <string name="activity_value_unknown">不明</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
+
     <!-- Categories -->
-    <string name="add_workout_category">カテゴリ</string>
-    <string name="manage_categories">カテゴリを管理</string>
+    <string name="workout_dialog_add_workout_category">カテゴリ</string>
+    <string name="workout_dialog_manage_categories">カテゴリを管理</string>
     <string name="category_uncategorized">未分類</string>
-    <string name="category_run">ラン</string>
-    <string name="category_cycling">サイクリング</string>
-    <string name="category_strength">筋力</string>
-    <string name="category_swim">スイム</string>
-    <string name="category_mobility">モビリティ</string>
+    <string name="categories_category_run">ラン</string>
+    <string name="categories_category_cycling">サイクリング</string>
+    <string name="categories_category_strength">筋力</string>
+    <string name="categories_category_swim">スイム</string>
+    <string name="categories_category_mobility">モビリティ</string>
     <string name="category_other">その他</string>
     <string name="settings_workouts_title">ワークアウト</string>
     <string name="settings_categories">カテゴリ</string>

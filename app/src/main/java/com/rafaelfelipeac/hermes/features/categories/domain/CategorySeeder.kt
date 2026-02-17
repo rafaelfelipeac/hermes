@@ -52,7 +52,7 @@ class CategorySeeder
                 buildUncategorizedCategory(),
                 Category(
                     id = 2L,
-                    name = stringProvider.get(R.string.category_run),
+                    name = stringProvider.get(R.string.categories_category_run),
                     colorId = COLOR_RUN,
                     sortOrder = 1,
                     isHidden = false,
@@ -60,7 +60,7 @@ class CategorySeeder
                 ),
                 Category(
                     id = 3L,
-                    name = stringProvider.get(R.string.category_cycling),
+                    name = stringProvider.get(R.string.categories_category_cycling),
                     colorId = COLOR_CYCLING,
                     sortOrder = 2,
                     isHidden = false,
@@ -68,7 +68,7 @@ class CategorySeeder
                 ),
                 Category(
                     id = 4L,
-                    name = stringProvider.get(R.string.category_strength),
+                    name = stringProvider.get(R.string.categories_category_strength),
                     colorId = COLOR_STRENGTH,
                     sortOrder = 3,
                     isHidden = false,
@@ -76,7 +76,7 @@ class CategorySeeder
                 ),
                 Category(
                     id = 5L,
-                    name = stringProvider.get(R.string.category_swim),
+                    name = stringProvider.get(R.string.categories_category_swim),
                     colorId = COLOR_SWIM,
                     sortOrder = 4,
                     isHidden = false,
@@ -84,7 +84,7 @@ class CategorySeeder
                 ),
                 Category(
                     id = 6L,
-                    name = stringProvider.get(R.string.category_mobility),
+                    name = stringProvider.get(R.string.categories_category_mobility),
                     colorId = COLOR_MOBILITY,
                     sortOrder = 5,
                     isHidden = false,

@@ -354,11 +354,11 @@ fun WeeklyTrainingContent(
     if (isTbdHelpVisible) {
         AlertDialog(
             onDismissRequest = { isTbdHelpVisible = false },
-            title = { Text(text = stringResource(R.string.tbd_help_title)) },
-            text = { Text(text = stringResource(R.string.tbd_help_message)) },
+            title = { Text(text = stringResource(R.string.weekly_training_tbd_help_title)) },
+            text = { Text(text = stringResource(R.string.weekly_training_tbd_help_message)) },
             confirmButton = {
                 TextButton(onClick = { isTbdHelpVisible = false }) {
-                    Text(text = stringResource(R.string.tbd_help_confirm))
+                    Text(text = stringResource(R.string.weekly_training_tbd_help_confirm))
                 }
             },
         )

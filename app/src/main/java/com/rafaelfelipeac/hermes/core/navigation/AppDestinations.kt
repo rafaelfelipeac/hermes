@@ -12,7 +12,7 @@ enum class AppDestinations(
     @param:StringRes val labelRes: Int,
     val icon: ImageVector,
 ) {
-    WEEKLY_TRAINING(R.string.nav_weekly_training, Icons.Default.Home),
-    ACTIVITY(R.string.nav_activity, Icons.Default.History),
-    SETTINGS(R.string.nav_settings, Icons.Default.Settings),
+    WEEKLY_TRAINING(R.string.weekly_training_nav_label, Icons.Default.Home),
+    ACTIVITY(R.string.activity_nav_label, Icons.Default.History),
+    SETTINGS(R.string.settings_nav_label, Icons.Default.Settings),
 }

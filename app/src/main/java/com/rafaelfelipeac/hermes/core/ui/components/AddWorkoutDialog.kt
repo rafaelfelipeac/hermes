@@ -69,7 +69,7 @@ fun AddWorkoutDialog(
             Text(
                 text =
                     if (isEdit) {
-                        stringResource(R.string.edit_workout)
+                        stringResource(R.string.workout_dialog_edit_workout)
                     } else {
                         stringResource(R.string.add_workout)
                     },
@@ -80,7 +80,7 @@ fun AddWorkoutDialog(
                 OutlinedTextField(
                     value = type,
                     onValueChange = { type = it },
-                    label = { Text(text = stringResource(R.string.add_workout_title)) },
+                    label = { Text(text = stringResource(R.string.workout_dialog_add_workout_title)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -89,7 +89,7 @@ fun AddWorkoutDialog(
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text(text = stringResource(R.string.add_workout_description)) },
+                    label = { Text(text = stringResource(R.string.workout_dialog_add_workout_description)) },
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -103,7 +103,7 @@ fun AddWorkoutDialog(
                         readOnly = true,
                         value = categoryLabel,
                         onValueChange = {},
-                        label = { Text(text = stringResource(R.string.add_workout_category)) },
+                        label = { Text(text = stringResource(R.string.workout_dialog_add_workout_category)) },
                         leadingIcon = {
                             CategoryColorDot(colorId = currentCategory?.colorId)
                         },
@@ -139,7 +139,7 @@ fun AddWorkoutDialog(
                         HorizontalDivider(modifier = Modifier.padding(vertical = SpacingSm))
 
                         DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.manage_categories)) },
+                            text = { Text(text = stringResource(R.string.workout_dialog_manage_categories)) },
                             onClick = {
                                 expanded = false
                                 onManageCategories(type, description, currentCategoryId)
@@ -159,7 +159,7 @@ fun AddWorkoutDialog(
                         if (isEdit) {
                             stringResource(R.string.save_changes)
                         } else {
-                            stringResource(R.string.add_workout_confirm)
+                            stringResource(R.string.workout_dialog_add_workout_confirm)
                         },
                 )
             }

@@ -82,7 +82,7 @@ internal fun SectionHeader(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.HelpOutline,
-                        contentDescription = stringResource(R.string.tbd_help_icon),
+                        contentDescription = stringResource(R.string.weekly_training_tbd_help_icon),
                     )
                 }
             }
@@ -93,7 +93,7 @@ internal fun SectionHeader(
 @Composable
 internal fun EmptySectionRow() {
     Text(
-        text = stringResource(R.string.no_workouts),
+        text = stringResource(R.string.weekly_training_no_workouts),
         style = typography.bodySmall,
         modifier =
             Modifier.padding(
@@ -112,7 +112,7 @@ sealed class SectionKey(val key: String) {
 @Composable
 internal fun SectionKey.title(): String {
     return when (this) {
-        SectionKey.ToBeDefined -> stringResource(R.string.section_to_be_defined)
+        SectionKey.ToBeDefined -> stringResource(R.string.weekly_training_section_to_be_defined)
         is SectionKey.Day -> stringResource(dayOfWeek.labelRes())
     }
 }
