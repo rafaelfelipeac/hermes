@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import android.content.Intent
 import android.net.Uri
+import java.util.Locale
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
@@ -83,6 +84,9 @@ fun SettingsScreen(
     val context = LocalContext.current
     val demoDataCreatedMessage = stringResource(R.string.demo_data_created)
     val feedbackEmail = stringResource(R.string.settings_feedback_email)
+    val mailtoTemplate = stringResource(R.string.settings_feedback_mailto_uri)
+    val marketUrlTemplate = stringResource(R.string.play_store_market_url)
+    val webUrlTemplate = stringResource(R.string.play_store_web_url)
     var route by rememberSaveable { mutableStateOf(SettingsRoute.MAIN) }
 
     BackHandler(enabled = route != SettingsRoute.MAIN) {
@@ -108,12 +112,13 @@ fun SettingsScreen(
                 onLanguageClick = { route = SettingsRoute.LANGUAGE },
                 onFeedbackClick = { subject, body ->
                     val normalizedBody = body.replace("\n", "\r\n")
-                    val mailToUri =
-                        Uri.parse(
-                            "mailto:$feedbackEmail" +
-                                "?subject=${Uri.encode(subject)}" +
-                                "&body=${Uri.encode(normalizedBody)}",
-                        )
+                    val mailToUri = String.format(
+                        Locale.ROOT,
+                        mailtoTemplate,
+                        feedbackEmail,
+                        Uri.encode(subject),
+                        Uri.encode(normalizedBody),
+                    ).toUri()
                     val intent =
                         Intent(Intent.ACTION_SENDTO, mailToUri).apply {
                             putExtra(Intent.EXTRA_EMAIL, arrayOf(feedbackEmail))
@@ -127,12 +132,20 @@ fun SettingsScreen(
                     val marketIntent =
                         Intent(
                             Intent.ACTION_VIEW,
-                            "market://details?id=$packageName".toUri(),
+                            String.format(
+                                Locale.ROOT,
+                                marketUrlTemplate,
+                                packageName,
+                            ).toUri(),
                         )
                     val webIntent =
                         Intent(
                             Intent.ACTION_VIEW,
-                            "https://play.google.com/store/apps/details?id=$packageName".toUri(),
+                            String.format(
+                                Locale.ROOT,
+                                webUrlTemplate,
+                                packageName,
+                            ).toUri(),
                         )
 
                     if (marketIntent.resolveActivity(context.packageManager) != null) {
@@ -313,44 +326,52 @@ internal fun SettingsContent(
                 }
             }
 
-            SettingsCard {
-                val feedbackSubject =
-                    stringResource(
-                        R.string.settings_feedback_subject,
-                        appName,
-                    )
-                val feedbackBody =
-                    stringResource(
-                        R.string.settings_feedback_email_body,
-                        appVersion,
-                    ).replace("__NL__", "\n")
-                SettingsInfoRow(
-                    icon = Icons.Outlined.Email,
-                    title = stringResource(R.string.settings_feedback_title),
-                    body = stringResource(R.string.settings_feedback_body),
-                    onClick = { onFeedbackClick(feedbackSubject, feedbackBody) },
+            val feedbackSubject =
+                stringResource(
+                    R.string.settings_feedback_subject,
+                    appName,
                 )
+            val feedbackBody =
+                stringResource(
+                    R.string.settings_feedback_email_body,
+                    appVersion,
+                ).replace("__NL__", "\n")
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-
-                SettingsInfoRow(
-                    icon = Icons.Outlined.Star,
-                    title = stringResource(R.string.settings_rate_title),
-                    body = stringResource(R.string.settings_rate_body),
-                    onClick = onRateClick,
-                )
-            }
-
-            SettingsSection(title = stringResource(R.string.settings_about_title)) {
+            Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
                 Text(
-                    text = stringResource(R.string.settings_app_version, appVersion),
-                    style = typography.bodySmall,
-                    textAlign = TextAlign.Center,
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = SpacingSm),
+                    text = stringResource(R.string.settings_about_title),
+                    style = typography.titleMedium,
                 )
+
+                SettingsCard {
+                    SettingsInfoRow(
+                        icon = Icons.Outlined.Email,
+                        title = stringResource(R.string.settings_feedback_title),
+                        body = stringResource(R.string.settings_feedback_body),
+                        onClick = { onFeedbackClick(feedbackSubject, feedbackBody) },
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                    SettingsInfoRow(
+                        icon = Icons.Outlined.Star,
+                        title = stringResource(R.string.settings_rate_title),
+                        body = stringResource(R.string.settings_rate_body),
+                        onClick = onRateClick,
+                    )
+                }
+
+                SettingsCard {
+                    Text(
+                        text = stringResource(R.string.settings_app_version, appVersion),
+                        style = typography.bodySmall,
+                        textAlign = TextAlign.Center,
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = SpacingSm),
+                    )
+                }
             }
         }
     }
