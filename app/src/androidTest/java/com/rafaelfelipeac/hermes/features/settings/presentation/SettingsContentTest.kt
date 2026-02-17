@@ -1,10 +1,8 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.test.platform.app.InstrumentationRegistry
-import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import org.junit.Assert.assertEquals
@@ -18,9 +16,6 @@ class SettingsContentTest {
     @Test
     fun selectingThemeInvokesCallback() {
         var invoked = false
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val systemLabel = context.getString(R.string.settings_theme_system)
-
         composeRule.setContent {
             SettingsContent(
                 state =
@@ -38,7 +33,7 @@ class SettingsContentTest {
             )
         }
 
-        composeRule.onNodeWithText(systemLabel).performClick()
+        composeRule.onNodeWithTag("settings_theme_row").performClick()
 
         composeRule.runOnIdle {
             assertEquals(true, invoked)
@@ -48,9 +43,6 @@ class SettingsContentTest {
     @Test
     fun selectingLanguageInvokesCallback() {
         var invoked = false
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val systemLabel = context.getString(R.string.settings_language_system)
-
         composeRule.setContent {
             SettingsContent(
                 state =
@@ -68,7 +60,7 @@ class SettingsContentTest {
             )
         }
 
-        composeRule.onNodeWithText(systemLabel).performClick()
+        composeRule.onNodeWithTag("settings_language_row").performClick()
 
         composeRule.runOnIdle {
             assertEquals(true, invoked)

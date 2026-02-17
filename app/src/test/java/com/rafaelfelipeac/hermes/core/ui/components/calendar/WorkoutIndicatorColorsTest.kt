@@ -24,6 +24,7 @@ class WorkoutIndicatorColorsTest {
                 isRestDay = false,
                 categoryId = 2L,
                 categoryColorId = COLOR_RUN,
+                categoryName = "Run",
                 order = 0,
             )
         val surface = Color(0xFFF7F9FC)
@@ -45,6 +46,7 @@ class WorkoutIndicatorColorsTest {
                 isRestDay = false,
                 categoryId = 2L,
                 categoryColorId = COLOR_RUN,
+                categoryName = "Run",
                 order = 0,
             )
         val surface = Color(0xFFF7F9FC)
@@ -67,6 +69,7 @@ class WorkoutIndicatorColorsTest {
                 isRestDay = true,
                 categoryId = null,
                 categoryColorId = null,
+                categoryName = null,
                 order = 0,
             )
         val surface = Color(0xFFF7F9FC)
