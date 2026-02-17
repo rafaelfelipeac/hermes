@@ -106,7 +106,7 @@
     <string name="settings_feedback_body">質問や提案、問題の報告はメールでお知らせください。あなたのフィードバックがHermesの改善に役立ちます。</string>
     <string name="settings_rate_title">アプリを評価</string>
     <string name="settings_rate_body">Hermesを気に入っていただけましたか？Play Storeで評価して、他の方におすすめしてください。</string>
-    <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
+    <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - フィードバックと提案</string>
     <string name="settings_feedback_email_body">こんにちは！__NL____NL__質問、提案、バグ報告はこちらにご記入ください。__NL____NL__どんなフィードバックも大歓迎です :)__NL____NL__---__NL__アプリのバージョン: %1$s__NL__---</string>
 

@@ -106,7 +106,7 @@
     <string name="settings_feedback_body">Send us an email with questions, suggestions, or to report a problem. Your feedback helps improve Hermes!</string>
     <string name="settings_rate_title">Rate the app</string>
     <string name="settings_rate_body">Enjoy Hermes? Leave a review on the Play Store and help others discover the app.</string>
-    <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
+    <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - Feedback and suggestions</string>
     <string name="settings_feedback_email_body">Ciao!__NL____NL__Scrivi qui le tue domande, suggerimenti o segnalazioni di bug.__NL____NL__Ogni feedback è molto gradito :)__NL____NL__---__NL__Versione dell’app: %1$s__NL__---</string>
 

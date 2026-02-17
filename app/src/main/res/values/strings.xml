@@ -107,7 +107,7 @@
     <string name="settings_rate_title">Rate the app</string>
     <string name="settings_rate_body">Enjoy Hermes? Leave a review on the Play Store and help others discover the app.</string>
     <string name="settings_about_title">About</string>
-    <string name="settings_feedback_email">rafaelfelipeac@gmail.com</string>
+    <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
     <string name="settings_feedback_mailto_uri" translatable="false">mailto:%1$s?subject=%2$s&amp;body=%3$s</string>
     <string name="settings_play_store_market_url" translatable="false">market://details?id=%1$s</string>
     <string name="settings_play_store_web_url" translatable="false">https://play.google.com/store/apps/details?id=%1$s</string>
