@@ -43,19 +43,31 @@ class CategoryRepositoryImpl
             categoryDao.update(category.toEntity())
         }
 
-        override suspend fun updateCategoryName(id: Long, name: String) {
+        override suspend fun updateCategoryName(
+            id: Long,
+            name: String,
+        ) {
             categoryDao.updateName(id, name)
         }
 
-        override suspend fun updateCategoryColor(id: Long, colorId: String) {
+        override suspend fun updateCategoryColor(
+            id: Long,
+            colorId: String,
+        ) {
             categoryDao.updateColor(id, colorId)
         }
 
-        override suspend fun updateCategoryVisibility(id: Long, isHidden: Boolean) {
+        override suspend fun updateCategoryVisibility(
+            id: Long,
+            isHidden: Boolean,
+        ) {
             categoryDao.updateVisibility(id, isHidden)
         }
 
-        override suspend fun updateCategorySortOrder(id: Long, sortOrder: Int) {
+        override suspend fun updateCategorySortOrder(
+            id: Long,
+            sortOrder: Int,
+        ) {
             categoryDao.updateSortOrder(id, sortOrder)
         }
 

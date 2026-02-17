@@ -46,8 +46,6 @@ fun completedCategoryColor(
     return lerp(base, surface, extraBlend)
 }
 
-fun baseCategoryColor(
-    accent: Color,
-): Color {
+fun baseCategoryColor(accent: Color): Color {
     return accent
 }

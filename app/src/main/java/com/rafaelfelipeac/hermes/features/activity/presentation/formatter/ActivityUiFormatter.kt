@@ -89,21 +89,21 @@ class ActivityUiFormatter(
     ): String? {
         val actionType = runCatching { UserActionType.valueOf(record.actionType) }.getOrNull()
         val weekSubtitle = buildWeekSubtitle(metadata, currentLocale)
-            val actionSubtitle =
-                when (actionType) {
-                    UserActionType.CHANGE_LANGUAGE,
-                    UserActionType.CHANGE_THEME,
-                    -> buildValueChangeSubtitle(metadata, actionType)
+        val actionSubtitle =
+            when (actionType) {
+                UserActionType.CHANGE_LANGUAGE,
+                UserActionType.CHANGE_THEME,
+                -> buildValueChangeSubtitle(metadata, actionType)
 
-                    UserActionType.UPDATE_CATEGORY_VISIBILITY ->
-                        buildCategoryVisibilitySubtitle(metadata)
+                UserActionType.UPDATE_CATEGORY_VISIBILITY ->
+                    buildCategoryVisibilitySubtitle(metadata)
 
-                    UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
-                    UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)
-                    UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
-                    UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> buildReorderSubtitle(metadata)
-                    else -> null
-                }
+                UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
+                UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)
+                UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
+                UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> buildReorderSubtitle(metadata)
+                else -> null
+            }
         val shouldSplitLines =
             actionType == UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ||
                 actionType == UserActionType.REORDER_WORKOUT ||

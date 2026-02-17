@@ -113,13 +113,14 @@ fun SettingsScreen(
                 onLanguageClick = { route = SettingsRoute.LANGUAGE },
                 onFeedbackClick = { subject, body ->
                     val normalizedBody = body.replace("\n", "\r\n")
-                    val mailToUri = String.format(
-                        Locale.ROOT,
-                        mailtoTemplate,
-                        feedbackEmail,
-                        Uri.encode(subject),
-                        Uri.encode(normalizedBody),
-                    ).toUri()
+                    val mailToUri =
+                        String.format(
+                            Locale.ROOT,
+                            mailtoTemplate,
+                            feedbackEmail,
+                            Uri.encode(subject),
+                            Uri.encode(normalizedBody),
+                        ).toUri()
                     val intent =
                         Intent(Intent.ACTION_SENDTO, mailToUri).apply {
                             putExtra(Intent.EXTRA_EMAIL, arrayOf(feedbackEmail))

@@ -31,16 +31,28 @@ interface CategoryDao {
     suspend fun update(category: CategoryEntity)
 
     @Query("UPDATE categories SET name = :name WHERE id = :id")
-    suspend fun updateName(id: Long, name: String)
+    suspend fun updateName(
+        id: Long,
+        name: String,
+    )
 
     @Query("UPDATE categories SET colorId = :colorId WHERE id = :id")
-    suspend fun updateColor(id: Long, colorId: String)
+    suspend fun updateColor(
+        id: Long,
+        colorId: String,
+    )
 
     @Query("UPDATE categories SET isHidden = :isHidden WHERE id = :id")
-    suspend fun updateVisibility(id: Long, isHidden: Boolean)
+    suspend fun updateVisibility(
+        id: Long,
+        isHidden: Boolean,
+    )
 
     @Query("UPDATE categories SET sortOrder = :sortOrder WHERE id = :id")
-    suspend fun updateSortOrder(id: Long, sortOrder: Int)
+    suspend fun updateSortOrder(
+        id: Long,
+        sortOrder: Int,
+    )
 
     @Query("DELETE FROM categories WHERE id = :id")
     suspend fun deleteById(id: Long)

@@ -18,13 +18,25 @@ interface CategoryRepository {
 
     suspend fun updateCategory(category: Category)
 
-    suspend fun updateCategoryName(id: Long, name: String)
+    suspend fun updateCategoryName(
+        id: Long,
+        name: String,
+    )
 
-    suspend fun updateCategoryColor(id: Long, colorId: String)
+    suspend fun updateCategoryColor(
+        id: Long,
+        colorId: String,
+    )
 
-    suspend fun updateCategoryVisibility(id: Long, isHidden: Boolean)
+    suspend fun updateCategoryVisibility(
+        id: Long,
+        isHidden: Boolean,
+    )
 
-    suspend fun updateCategorySortOrder(id: Long, sortOrder: Int)
+    suspend fun updateCategorySortOrder(
+        id: Long,
+        sortOrder: Int,
+    )
 
     suspend fun deleteCategory(id: Long)
 }
