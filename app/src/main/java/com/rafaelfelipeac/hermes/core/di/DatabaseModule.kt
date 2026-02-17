@@ -2,8 +2,8 @@ package com.rafaelfelipeac.hermes.core.di
 
 import android.content.Context
 import androidx.room.Room
-import com.rafaelfelipeac.hermes.core.database.MIGRATION_1_2
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
+import com.rafaelfelipeac.hermes.core.database.MIGRATION_1_2
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao

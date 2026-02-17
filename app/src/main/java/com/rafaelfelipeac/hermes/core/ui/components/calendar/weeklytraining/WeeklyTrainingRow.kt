@@ -93,11 +93,7 @@ internal fun WorkoutRow(
     val isDarkTheme = colorScheme.background.luminance() < 0.5f
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
-            baseCategoryColor(
-                accent = categoryAccentColor(accent),
-                isDarkTheme = isDarkTheme,
-                surface = colorScheme.surface,
-            )
+            baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
         categoryAccent?.let { accent ->
@@ -332,11 +328,7 @@ internal fun GhostWorkoutRow(
     val isDarkTheme = colorScheme.background.luminance() < 0.5f
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
-            baseCategoryColor(
-                accent = categoryAccentColor(accent),
-                isDarkTheme = isDarkTheme,
-                surface = colorScheme.surface,
-            )
+            baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
         categoryAccent?.let { accent ->
@@ -451,11 +443,7 @@ private fun workoutRowColors(
     val restDayContent = themeColorScheme.onSurfaceVariant
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
-            baseCategoryColor(
-                accent = categoryAccentColor(accent),
-                isDarkTheme = isDarkTheme,
-                surface = themeColorScheme.surface,
-            )
+            baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryCompletedBackground =
         categoryAccent?.let { accent ->

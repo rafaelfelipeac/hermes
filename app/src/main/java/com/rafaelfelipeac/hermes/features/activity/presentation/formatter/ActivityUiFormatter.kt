@@ -25,6 +25,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
 
+@Suppress("TooManyFunctions")
 class ActivityUiFormatter(
     private val stringProvider: StringProvider,
 ) {

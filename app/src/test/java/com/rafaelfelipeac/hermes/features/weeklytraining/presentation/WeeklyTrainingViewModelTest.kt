@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNC
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -91,23 +92,17 @@ class WeeklyTrainingViewModelTest {
             viewModel.addWorkout(type = "Run", description = "Easy", categoryId = null)
             advanceUntilIdle()
 
-            val weekStartSlot = slot<LocalDate>()
-            val daySlot = slot<DayOfWeek?>()
-            val orderSlot = slot<Int>()
+            val requestSlot = slot<AddWorkoutRequest>()
 
             coVerify(exactly = 1) {
-                repository.addWorkout(
-                    weekStartDate = capture(weekStartSlot),
-                    dayOfWeek = captureNullable(daySlot),
-                    type = "Run",
-                    description = "Easy",
-                    categoryId = UNCATEGORIZED_ID,
-                    order = capture(orderSlot),
-                )
+                repository.addWorkout(capture(requestSlot))
             }
-            assertEquals(weekStart, weekStartSlot.captured)
-            assertEquals(null, daySlot.captured)
-            assertEquals(2, orderSlot.captured)
+            assertEquals(weekStart, requestSlot.captured.weekStartDate)
+            assertEquals(null, requestSlot.captured.dayOfWeek)
+            assertEquals("Run", requestSlot.captured.type)
+            assertEquals("Easy", requestSlot.captured.description)
+            assertEquals(UNCATEGORIZED_ID, requestSlot.captured.categoryId)
+            assertEquals(2, requestSlot.captured.order)
 
             collectJob.cancel()
         }

@@ -20,11 +20,7 @@ fun workoutIndicatorColor(
 
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
-            baseCategoryColor(
-                accent = categoryAccentColor(accent),
-                isDarkTheme = isDarkTheme,
-                surface = surface,
-            )
+            baseCategoryColor(accent = categoryAccentColor(accent))
         }
 
     return when {
@@ -45,15 +41,13 @@ fun completedCategoryColor(
     isDarkTheme: Boolean,
     surface: Color,
 ): Color {
-    val base = baseCategoryColor(accent = accent, isDarkTheme = isDarkTheme, surface = surface)
+    val base = baseCategoryColor(accent = accent)
     val extraBlend = if (isDarkTheme) 0.12f else 0.16f
     return lerp(base, surface, extraBlend)
 }
 
 fun baseCategoryColor(
     accent: Color,
-    isDarkTheme: Boolean,
-    surface: Color,
 ): Color {
     return accent
 }

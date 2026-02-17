@@ -43,7 +43,8 @@ interface WorkoutDao {
     )
 
     @Query(
-        "UPDATE workouts SET type = :type, description = :description, isRestDay = :isRestDay, categoryId = :categoryId WHERE id = :id",
+        "UPDATE workouts SET type = :type, description = :description, " +
+            "isRestDay = :isRestDay, categoryId = :categoryId WHERE id = :id",
     )
     suspend fun updateDetails(
         id: Long,

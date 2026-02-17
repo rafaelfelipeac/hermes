@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.data
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import kotlinx.coroutines.flow.Flow
@@ -26,24 +27,17 @@ class WeeklyTrainingRepositoryImpl
             }
         }
 
-        override suspend fun addWorkout(
-            weekStartDate: LocalDate,
-            dayOfWeek: DayOfWeek?,
-            type: String,
-            description: String,
-            categoryId: Long?,
-            order: Int,
-        ): Long {
+        override suspend fun addWorkout(request: AddWorkoutRequest): Long {
             val entity =
                 WorkoutEntity(
-                    weekStartDate = weekStartDate,
-                    dayOfWeek = dayOfWeek?.value,
-                    type = type,
-                    description = description,
+                    weekStartDate = request.weekStartDate,
+                    dayOfWeek = request.dayOfWeek?.value,
+                    type = request.type,
+                    description = request.description,
                     isCompleted = false,
                     isRestDay = false,
-                    categoryId = categoryId,
-                    sortOrder = order,
+                    categoryId = request.categoryId,
+                    sortOrder = request.order,
                 )
 
             return workoutDao.insert(entity)

@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository
 
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import kotlinx.coroutines.flow.Flow
 import java.time.DayOfWeek
@@ -10,14 +11,7 @@ interface WeeklyTrainingRepository {
 
     suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<Workout>
 
-    suspend fun addWorkout(
-        weekStartDate: LocalDate,
-        dayOfWeek: DayOfWeek?,
-        type: String,
-        description: String,
-        categoryId: Long?,
-        order: Int,
-    ): Long
+    suspend fun addWorkout(request: AddWorkoutRequest): Long
 
     suspend fun addRestDay(
         weekStartDate: LocalDate,

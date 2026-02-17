@@ -41,12 +41,13 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WOR
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
-import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
+import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -191,12 +192,14 @@ class WeeklyTrainingViewModel
             viewModelScope.launch {
                 val workoutId =
                     repository.addWorkout(
-                        weekStartDate = currentState.weekStartDate,
-                        dayOfWeek = null,
-                        type = type,
-                        description = description,
-                        categoryId = normalizedCategoryId,
-                        order = nextOrder,
+                        AddWorkoutRequest(
+                            weekStartDate = currentState.weekStartDate,
+                            dayOfWeek = null,
+                            type = type,
+                            description = description,
+                            categoryId = normalizedCategoryId,
+                            order = nextOrder,
+                        ),
                     )
 
                 userActionLogger.log(
