@@ -174,7 +174,7 @@ internal fun WorkoutRow(
                 modifier =
                     Modifier
                         .size(CheckboxBoxSize + SpacingSm)
-                        .offset(y = CheckboxYOffset),
+                        .offset(y = if (workout.isRestDay) Zero else CheckboxYOffset),
                 contentAlignment = Alignment.Center,
             ) {
                 if (!workout.isRestDay) {
@@ -305,6 +305,7 @@ internal fun WorkoutRow(
 internal fun GhostWorkoutRow(
     modifier: Modifier = Modifier,
     workout: WorkoutUi,
+    fillMaxWidth: Boolean = true,
 ) {
     val colors = workoutRowColors(workout, isDragging = false)
     val hasDescription = workout.description.isNotBlank()
@@ -336,9 +337,9 @@ internal fun GhostWorkoutRow(
         contentColor = colors.content,
         shape = shapes.medium,
         modifier =
-            modifier
-                .fillMaxWidth()
-                .then(Modifier)
+            Modifier
+                .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
+                .then(modifier)
                 .alpha(GHOST_ROW_ALPHA),
     ) {
         Box {
