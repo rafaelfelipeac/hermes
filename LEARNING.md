@@ -65,3 +65,6 @@ Recent learnings:
 - Activity feed subtitles read clearer when changed values and day labels are consistently quoted, and category-name edits can rely on the subtitle rather than repeating the category label in the action title.
 - Category help dialogs should live in the screen that owns the feature, with localized strings added alongside other category copy to keep UX guidance consistent across locales.
 - Reselecting a bottom-nav destination can be used to reset nested UI state; for Settings, routing the tab click to `SettingsRoute.MAIN` provides a simple “return to root” behavior without adding a separate nav stack.
+- The app window background should match the Compose theme background (including night overrides) to avoid a light/dark flash between the splash and first composable render.
+- Skipping the initial language-apply pass avoids an extra Activity recreation on cold start; apply only after the first language value change to reduce launch flicker.
+- Gating the main content behind a loading indicator avoids showing an empty state briefly before the first data load.

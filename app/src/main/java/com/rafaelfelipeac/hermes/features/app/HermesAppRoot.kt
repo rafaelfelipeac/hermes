@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
@@ -16,6 +18,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
 
 @Composable
@@ -24,8 +27,20 @@ fun HermesAppRoot() {
     val settingsState by settingsViewModel.state.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
+    val lastAppliedLanguage = remember { mutableStateOf<AppLanguage?>(null) }
 
     LaunchedEffect(settingsState.language) {
+        if (lastAppliedLanguage.value == null) {
+            lastAppliedLanguage.value = settingsState.language
+            return@LaunchedEffect
+        }
+
+        if (lastAppliedLanguage.value == settingsState.language) {
+            return@LaunchedEffect
+        }
+
+        lastAppliedLanguage.value = settingsState.language
+
         val applied = applyAppLanguage(context, settingsState.language)
 
         if (applied && activity != null) {

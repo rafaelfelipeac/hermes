@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -242,15 +243,31 @@ fun WeeklyTrainingScreen(
                     onWeekChanged = viewModel::onWeekChanged,
                 )
 
-                WeeklyTrainingContent(
-                    selectedDate = state.selectedDate,
-                    workouts = state.workouts,
-                    onWorkoutMoved = viewModel::moveWorkout,
-                    onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
-                    onWorkoutEdit = { workout -> editingWorkout = workout },
-                    onWorkoutDelete = { workout -> deletingWorkout = workout },
-                    onWeekChanged = viewModel::onWeekChanged,
-                )
+                if (state.isWeekLoaded) {
+                    WeeklyTrainingContent(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        selectedDate = state.selectedDate,
+                        workouts = state.workouts,
+                        onWorkoutMoved = viewModel::moveWorkout,
+                        onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
+                        onWorkoutEdit = { workout -> editingWorkout = workout },
+                        onWorkoutDelete = { workout -> deletingWorkout = workout },
+                        onWeekChanged = viewModel::onWeekChanged,
+                    )
+                } else {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             }
 
             if (isAddMenuVisible) {

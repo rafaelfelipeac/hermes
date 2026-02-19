@@ -4,11 +4,6 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import com.rafaelfelipeac.hermes.features.settings.data.SettingsRepositoryImpl.Companion.LANGUAGE_KEY_NAME
-import com.rafaelfelipeac.hermes.features.settings.data.SettingsRepositoryImpl.Companion.SETTINGS_DATA_STORE_NAME
-import com.rafaelfelipeac.hermes.features.settings.data.SettingsRepositoryImpl.Companion.THEME_MODE_KEY_NAME
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
@@ -19,10 +14,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
-
-private val Context.settingsDataStore by preferencesDataStore(
-    name = SETTINGS_DATA_STORE_NAME,
-)
 
 @Singleton
 class SettingsRepositoryImpl
@@ -61,16 +52,7 @@ class SettingsRepositoryImpl
                 prefs[LANGUAGE_KEY] = language.tag
             }
         }
-
-        companion object {
-            const val SETTINGS_DATA_STORE_NAME = "settings"
-            const val THEME_MODE_KEY_NAME = "theme_mode"
-            const val LANGUAGE_KEY_NAME = "language"
-        }
     }
-
-private val THEME_MODE_KEY = stringPreferencesKey(THEME_MODE_KEY_NAME)
-private val LANGUAGE_KEY = stringPreferencesKey(LANGUAGE_KEY_NAME)
 
 private fun defaultThemeMode(context: Context): ThemeMode {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
