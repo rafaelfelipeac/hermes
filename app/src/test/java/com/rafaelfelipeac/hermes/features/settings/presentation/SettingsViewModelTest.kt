@@ -117,4 +117,38 @@ class SettingsViewModelTest {
 
             coVerify(exactly = 1) { repository.setLanguage(ENGLISH) }
         }
+
+    @Test
+    fun setLanguage_triggersCategoryLocalizationSync() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = mockk<SettingsRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            val languageFlow = MutableStateFlow(PORTUGUESE_BRAZIL)
+
+            every { repository.initialThemeMode() } returns LIGHT
+            every { repository.initialLanguage() } returns PORTUGUESE_BRAZIL
+            every { repository.themeMode } returns MutableStateFlow(LIGHT)
+            every { repository.language } returns languageFlow
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                )
+
+            viewModel.setLanguage(ENGLISH)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                categorySeeder.syncLocalizedNames(
+                    previousLanguage = PORTUGUESE_BRAZIL,
+                    newLanguage = ENGLISH,
+                    force = false,
+                )
+            }
+        }
 }

@@ -85,6 +85,54 @@ class CategoriesScreenTest {
     }
 
     @Test
+    fun restoreDefaultsDialog_dismissesOnCancel() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val repository = FakeCategoryRepository()
+        val workoutRepository = FakeWeeklyTrainingRepository()
+        val categorySeeder = CategorySeeder(repository, FakeStringProvider())
+        val logger = FakeUserActionLogger()
+        val categoriesFlow =
+            MutableStateFlow(
+                listOf(
+                    Category(
+                        id = 2L,
+                        name = "Run",
+                        colorId = "run",
+                        sortOrder = 1,
+                        isHidden = false,
+                        isSystem = true,
+                    ),
+                ),
+            )
+        repository.categoriesFlow = categoriesFlow
+
+        val viewModel =
+            CategoriesViewModel(
+                repository = repository,
+                workoutRepository = workoutRepository,
+                categorySeeder = categorySeeder,
+                userActionLogger = logger,
+            )
+
+        composeRule.setContent {
+            CategoriesScreen(onBack = {}, viewModel = viewModel)
+        }
+
+        composeRule
+            .onNodeWithText(context.getString(R.string.categories_restore_defaults))
+            .performClick()
+
+        composeRule
+            .onNodeWithText(context.getString(R.string.add_workout_cancel))
+            .performClick()
+
+        composeRule.waitForIdle()
+        composeRule
+            .onAllNodesWithText(context.getString(R.string.categories_restore_defaults_title))
+            .assertCountEquals(0)
+    }
+
+    @Test
     fun languageSwitch_updatesCategoryNames() {
         val repository = FakeCategoryRepository()
         val workoutRepository = FakeWeeklyTrainingRepository()

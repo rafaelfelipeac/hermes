@@ -302,6 +302,36 @@ class CategoriesViewModelTest {
             assertTrue(action.metadata.isNullOrEmpty())
         }
 
+    @Test
+    fun restoreDefaults_doesNotLogWhenNoDefaultsAdded() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val logger = FakeUserActionLogger()
+            val repository = mockk<CategoryRepository>(relaxed = true)
+            val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val categoriesFlow = MutableStateFlow(emptyList<Category>())
+
+            coEvery { categorySeeder.ensureSeeded() } returns Unit
+            coEvery { categorySeeder.restoreDefaults() } returns 0
+            coEvery { categorySeeder.syncLocalizedNames(force = true) } returns Unit
+            coEvery { categorySeeder.syncDefaultColors() } returns Unit
+            every { repository.observeCategories() } returns categoriesFlow
+
+            val viewModel =
+                CategoriesViewModel(
+                    repository = repository,
+                    workoutRepository = workoutRepository,
+                    categorySeeder = categorySeeder,
+                    userActionLogger = logger,
+                )
+            primeState(viewModel, expectNonEmpty = false)
+
+            viewModel.restoreDefaultCategories()
+            advanceUntilIdle()
+
+            assertTrue(logger.actions.isEmpty())
+        }
+
     private fun defaultCategory(
         id: Long,
         name: String,

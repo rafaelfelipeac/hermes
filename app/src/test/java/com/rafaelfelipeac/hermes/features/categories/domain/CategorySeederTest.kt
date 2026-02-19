@@ -92,6 +92,24 @@ class CategorySeederTest {
             coVerify(exactly = 0) { repository.updateCategoryColor(99L, any()) }
         }
 
+    @Test
+    fun syncLocalizedNames_doesNotChangeColors() =
+        runTest {
+            val repository = mockk<CategoryRepository>(relaxed = true)
+            val stringProvider = mockk<StringProvider>(relaxed = true)
+
+            every { stringProvider.getForLanguage("en", R.string.categories_category_run) } returns "Run"
+            every { stringProvider.getForLanguage("pt-BR", R.string.categories_category_run) } returns "Corrida"
+
+            coEvery { repository.getCategories() } returns listOf(systemCategory(name = "Run", colorId = "pink"))
+
+            val seeder = CategorySeeder(repository, stringProvider)
+
+            seeder.syncLocalizedNames(previousLanguage = ENGLISH, newLanguage = PORTUGUESE_BRAZIL)
+
+            coVerify(exactly = 0) { repository.updateCategoryColor(any(), any()) }
+        }
+
     private fun systemCategory(
         id: Long = 2L,
         name: String,
