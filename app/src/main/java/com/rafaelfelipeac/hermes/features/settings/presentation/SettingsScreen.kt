@@ -73,6 +73,8 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
 import java.util.Locale
 
+private const val DEBUG_PACKAGE_SUFFIX = ".dev"
+
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
@@ -130,7 +132,12 @@ fun SettingsScreen(
                     context.startActivity(intent)
                 },
                 onRateClick = {
-                    val packageName = context.packageName
+                    val packageName =
+                        if (BuildConfig.DEBUG && context.packageName.endsWith(DEBUG_PACKAGE_SUFFIX)) {
+                            context.packageName.removeSuffix(DEBUG_PACKAGE_SUFFIX)
+                        } else {
+                            context.packageName
+                        }
                     val marketIntent =
                         Intent(
                             Intent.ACTION_VIEW,
