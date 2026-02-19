@@ -20,7 +20,6 @@ private val CategoryPink = Color(0xFFE0549E)
 private val CategoryLime = Color(0xFF7BBB2F)
 private val CategoryOlive = Color(0xFF8DA337)
 private val CategorySlate = Color(0xFF5F6F7F)
-private val CategorySand = Color(0xFFB1845A)
 
 private val categoryPalette =
     listOf(

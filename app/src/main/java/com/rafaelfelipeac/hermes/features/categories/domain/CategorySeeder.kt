@@ -61,7 +61,6 @@ class CategorySeeder
             existing.forEach { category ->
                 if (!category.isSystem) return@forEach
 
-                val defaults = defaultsById[category.id] ?: return@forEach
                 val previousName = getDefaultNameForLanguage(category.id, previousTag)
                 val newName = getDefaultNameForLanguage(category.id, newTag)
 
@@ -72,7 +71,12 @@ class CategorySeeder
                     return@forEach
                 }
 
-                if (previousName != null && newName != null && category.name == previousName && category.name != newName) {
+                val shouldRename =
+                    previousName != null &&
+                        newName != null &&
+                        category.name == previousName &&
+                        category.name != newName
+                if (shouldRename) {
                     repository.updateCategoryName(category.id, newName)
                 }
             }
@@ -96,13 +100,20 @@ class CategorySeeder
             languageTag: String?,
         ): String? {
             return when (categoryId) {
-                UNCATEGORIZED_ID -> stringProvider.getForLanguage(languageTag, R.string.category_uncategorized)
-                2L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_run)
-                3L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_cycling)
-                4L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_strength)
-                5L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_swim)
-                6L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_mobility)
-                7L -> stringProvider.getForLanguage(languageTag, R.string.category_other)
+                UNCATEGORIZED_ID ->
+                    stringProvider.getForLanguage(languageTag, R.string.category_uncategorized)
+                2L ->
+                    stringProvider.getForLanguage(languageTag, R.string.categories_category_run)
+                3L ->
+                    stringProvider.getForLanguage(languageTag, R.string.categories_category_cycling)
+                4L ->
+                    stringProvider.getForLanguage(languageTag, R.string.categories_category_strength)
+                5L ->
+                    stringProvider.getForLanguage(languageTag, R.string.categories_category_swim)
+                6L ->
+                    stringProvider.getForLanguage(languageTag, R.string.categories_category_mobility)
+                7L ->
+                    stringProvider.getForLanguage(languageTag, R.string.category_other)
                 else -> null
             }
         }

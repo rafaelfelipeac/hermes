@@ -20,11 +20,11 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.Weekl
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
-import java.time.DayOfWeek
-import java.time.LocalDate
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.DayOfWeek
+import java.time.LocalDate
 
 class CategoriesScreenTest {
     @get:Rule
@@ -198,8 +198,7 @@ class CategoriesScreenTest {
 
         override suspend fun getCategories(): List<Category> = categoriesFlow.value
 
-        override suspend fun getCategory(id: Long): Category? =
-            categoriesFlow.value.firstOrNull { it.id == id }
+        override suspend fun getCategory(id: Long): Category? = categoriesFlow.value.firstOrNull { it.id == id }
 
         override suspend fun getCount(): Int = categoriesFlow.value.size
 
@@ -246,8 +245,7 @@ class CategoriesScreenTest {
     }
 
     private class FakeWeeklyTrainingRepository : WeeklyTrainingRepository {
-        override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> =
-            emptyFlow()
+        override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> = emptyFlow()
 
         override suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<Workout> = emptyList()
 

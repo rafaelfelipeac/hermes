@@ -44,9 +44,10 @@ class AndroidStringProvider
 
             val locale = Locale.forLanguageTag(languageTag)
             val configuration = context.resources.configuration
-            val localized = Configuration(configuration).apply {
-                setLocale(locale)
-            }
+            val localized =
+                Configuration(configuration).apply {
+                    setLocale(locale)
+                }
             val localizedContext = context.createConfigurationContext(localized)
             return localizedContext.getString(id, *args)
         }

@@ -60,3 +60,6 @@ Recent learnings:
 - Settings now uses a shared info-row pattern for feedback/rating actions, keeping card visuals consistent while routing to external intents.
 - XML string resources must escape `<`, `>`, and `&` (e.g., week navigation chevrons and “A & B” labels), otherwise resource merging fails at build time.
 - Email intents are more reliable when subject/body are placed in the `mailto:` URI query parameters and mirrored in extras; some mail clients ignore extras for `ACTION_SENDTO`.
+- To keep system categories localized without overwriting user edits, only rename a system category on language change when its current name still matches the previous locale’s default; use `StringProvider.getForLanguage` to fetch the target locale string without switching the app language.
+- Restoring default categories should also resync system category colors and localized names after inserts, so seeded defaults stay consistent while user categories remain untouched.
+- Activity feed subtitles read clearer when changed values and day labels are consistently quoted, and category-name edits can rely on the subtitle rather than repeating the category label in the action title.
