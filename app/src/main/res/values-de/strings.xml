@@ -146,8 +146,8 @@
     <string name="activity_action_copy_last_week">Du hast die letzte Woche in diese Woche kopiert.</string>
     <string name="activity_action_undo_copy_last_week">Du hast das Kopieren der letzten Woche in diese Woche rückgängig gemacht.</string>
     <string name="activity_action_fallback">Du hast eine Aktion in der App ausgeführt.</string>
-    <string name="activity_subtitle_change_value">Von \"%1$s\" zu \"%2$s\".</string>
-    <string name="activity_subtitle_move">Von \"%1$s\" zu \"%2$s\".</string>
+    <string name="activity_subtitle_change_value">Von %1$s zu %2$s.</string>
+    <string name="activity_subtitle_move">Von %1$s zu %2$s.</string>
     <string name="activity_subtitle_week">Woche vom %1$s.</string>
     <string name="activity_day_unplanned">Noch zu definieren</string>
     <string name="activity_subtitle_separator"> • </string>
@@ -188,7 +188,7 @@
     <string name="categories_delete_message">Workouts werden nach „Nicht kategorisiert“ verschoben.</string>
     <string name="categories_delete_confirm">Löschen</string>
     <string name="activity_action_create_category">Du hast die Kategorie %1$s erstellt.</string>
-    <string name="activity_action_update_category_name">Du hast die Kategorie %1$s umbenannt.</string>
+    <string name="activity_action_update_category_name">Du hast eine Kategorie umbenannt.</string>
     <string name="activity_action_update_category_color">Du hast die Farbe von %1$s geändert.</string>
     <string name="activity_action_update_category_visibility">Du hast die Sichtbarkeit von %1$s geändert.</string>
     <string name="activity_action_reorder_category">Du hast die Kategorie %1$s neu sortiert.</string>

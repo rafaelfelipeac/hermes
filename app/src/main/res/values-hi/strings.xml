@@ -146,8 +146,8 @@
     <string name="activity_action_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी किया।</string>
     <string name="activity_action_undo_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी करने की क्रिया को पूर्ववत किया।</string>
     <string name="activity_action_fallback">आपने ऐप में एक क्रिया की।</string>
-    <string name="activity_subtitle_change_value">\"%1$s\" से \"%2$s\".</string>
-    <string name="activity_subtitle_move">\"%1$s\" से \"%2$s\".</string>
+    <string name="activity_subtitle_change_value">%1$s से %2$s.</string>
+    <string name="activity_subtitle_move">%1$s से %2$s.</string>
     <string name="activity_subtitle_week">%1$s का सप्ताह.</string>
     <string name="activity_day_unplanned">निर्धारित नहीं</string>
     <string name="activity_subtitle_separator"> • </string>
@@ -188,7 +188,7 @@
     <string name="categories_delete_message">वर्कआउट "अवर्गीकृत" में ले जाए जाएंगे।</string>
     <string name="categories_delete_confirm">हटाएं</string>
     <string name="activity_action_create_category">आपने श्रेणी %1$s बनाई।</string>
-    <string name="activity_action_update_category_name">आपने श्रेणी %1$s का नाम बदला।</string>
+    <string name="activity_action_update_category_name">आपने एक श्रेणी का नाम बदला।</string>
     <string name="activity_action_update_category_color">आपने %1$s का रंग बदला।</string>
     <string name="activity_action_update_category_visibility">आपने %1$s की दृश्यता बदली।</string>
     <string name="activity_action_reorder_category">आपने श्रेणी %1$s का क्रम बदला।</string>

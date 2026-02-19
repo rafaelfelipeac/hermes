@@ -12,6 +12,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COL
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import javax.inject.Inject
 
 class CategorySeeder
@@ -28,7 +29,6 @@ class CategorySeeder
             }
 
             restoreDefaults()
-            syncLocalizedNames()
         }
 
         suspend fun restoreDefaults(): Int {
@@ -48,17 +48,32 @@ class CategorySeeder
             return missing.size
         }
 
-        suspend fun syncLocalizedNames() {
+        suspend fun syncLocalizedNames(
+            previousLanguage: AppLanguage? = null,
+            newLanguage: AppLanguage? = null,
+            force: Boolean = false,
+        ) {
             val existing = repository.getCategories()
-            val localizedById = buildStarterCategories().associateBy { it.id }
+            val defaultsById = buildStarterCategories().associateBy { it.id }
+            val previousTag = languageTag(previousLanguage)
+            val newTag = languageTag(newLanguage)
 
             existing.forEach { category ->
                 if (!category.isSystem) return@forEach
 
-                val localized = localizedById[category.id] ?: return@forEach
+                val defaults = defaultsById[category.id] ?: return@forEach
+                val previousName = getDefaultNameForLanguage(category.id, previousTag)
+                val newName = getDefaultNameForLanguage(category.id, newTag)
 
-                if (category.name != localized.name) {
-                    repository.updateCategoryName(category.id, localized.name)
+                if (force && newName != null) {
+                    if (category.name != newName) {
+                        repository.updateCategoryName(category.id, newName)
+                    }
+                    return@forEach
+                }
+
+                if (previousName != null && newName != null && category.name == previousName && category.name != newName) {
+                    repository.updateCategoryName(category.id, newName)
                 }
             }
         }
@@ -73,6 +88,30 @@ class CategorySeeder
                 if (category.colorId != defaults.colorId) {
                     repository.updateCategoryColor(category.id, defaults.colorId)
                 }
+            }
+        }
+
+        private fun getDefaultNameForLanguage(
+            categoryId: Long,
+            languageTag: String?,
+        ): String? {
+            return when (categoryId) {
+                UNCATEGORIZED_ID -> stringProvider.getForLanguage(languageTag, R.string.category_uncategorized)
+                2L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_run)
+                3L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_cycling)
+                4L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_strength)
+                5L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_swim)
+                6L -> stringProvider.getForLanguage(languageTag, R.string.categories_category_mobility)
+                7L -> stringProvider.getForLanguage(languageTag, R.string.category_other)
+                else -> null
+            }
+        }
+
+        private fun languageTag(language: AppLanguage?): String? {
+            return when (language) {
+                null -> null
+                AppLanguage.SYSTEM -> null
+                else -> language.tag
             }
         }
 

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -34,6 +35,7 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -52,10 +54,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
@@ -63,6 +67,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryColorOptions
@@ -148,6 +153,12 @@ fun CategoriesScreen(
                                 onDelete = { deletingCategory = category },
                                 modifier = Modifier.padding(vertical = SpacingXxs),
                             )
+
+                            if (index != state.categories.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = SpacingXxs),
+                                )
+                            }
                         }
                     }
                 }
@@ -271,7 +282,7 @@ private fun CategoryRow(
             IconButton(
                 onClick = onMoveUp,
                 enabled = canMoveUp,
-                modifier = Modifier.size(42.dp),
+                modifier = Modifier.size(32.dp),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowUpward,
@@ -282,7 +293,7 @@ private fun CategoryRow(
             IconButton(
                 onClick = onMoveDown,
                 enabled = canMoveDown,
-                modifier = Modifier.size(42.dp),
+                modifier = Modifier.size(32.dp),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowDownward,
@@ -293,53 +304,65 @@ private fun CategoryRow(
 
         Spacer(modifier = Modifier.width(SpacingMd))
 
-        Box(
-            modifier =
-                Modifier
-                    .size(SpacingLg)
-                    .background(accent, CircleShape),
-        )
+        Box(modifier = Modifier.weight(1f)) {
+            TitleChip(
+                label = category.name,
+                containerColor = accent,
+                contentColor = Color.White,
+                modifier = Modifier.wrapContentWidth(),
+            )
+        }
 
-        Spacer(modifier = Modifier.width(SpacingMd))
-
-        Text(
-            text = category.name,
-            style = typography.bodyLarge,
-            modifier = Modifier.weight(1f),
-        )
-
-        IconButton(
-            onClick = { onToggleHidden(!category.isHidden) },
-            enabled = isHiddenToggleEnabled,
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(SpacingXxs),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = if (category.isHidden) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
-                contentDescription =
-                    if (category.isHidden) {
-                        stringResource(R.string.categories_show_action)
-                    } else {
-                        stringResource(R.string.categories_hide_action)
-                    },
-            )
-        }
+            if (isHiddenToggleEnabled) {
+                IconButton(
+                    onClick = { onToggleHidden(!category.isHidden) },
+                ) {
+                    Icon(
+                        imageVector =
+                            if (category.isHidden) {
+                                Icons.Outlined.VisibilityOff
+                            } else {
+                                Icons.Outlined.Visibility
+                            },
+                        contentDescription =
+                            if (category.isHidden) {
+                                stringResource(R.string.categories_show_action)
+                            } else {
+                                stringResource(R.string.categories_hide_action)
+                            },
+                    )
+                }
+            }
 
-        IconButton(onClick = onEdit) {
-            Icon(
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = stringResource(R.string.categories_edit_action),
-            )
-        }
-
-        if (category.id != UNCATEGORIZED_ID) {
-            IconButton(onClick = onDelete) {
+            IconButton(
+                onClick = onEdit,
+                modifier = Modifier.size(36.dp),
+            ) {
                 Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = stringResource(R.string.categories_delete_action),
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = stringResource(R.string.categories_edit_action),
                 )
+            }
+
+            if (category.id != UNCATEGORIZED_ID) {
+                IconButton(
+                    onClick = onDelete,
+                    modifier = Modifier.size(36.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Delete,
+                        contentDescription = stringResource(R.string.categories_delete_action),
+                    )
+                }
             }
         }
     }
 }
+
 
 @Composable
 private fun CategoryEditorDialog(

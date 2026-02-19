@@ -146,8 +146,8 @@
     <string name="activity_action_copy_last_week">先週を今週にコピーしました。</string>
     <string name="activity_action_undo_copy_last_week">先週を今週にコピーした操作を取り消しました。</string>
     <string name="activity_action_fallback">アプリで操作を行いました。</string>
-    <string name="activity_subtitle_change_value">\"%1$s\" から \"%2$s\" へ。</string>
-    <string name="activity_subtitle_move">\"%1$s\" から \"%2$s\" へ。</string>
+    <string name="activity_subtitle_change_value">%1$s から %2$s へ。</string>
+    <string name="activity_subtitle_move">%1$s から %2$s へ。</string>
     <string name="activity_subtitle_week">%1$s の週。</string>
     <string name="activity_day_unplanned">未定</string>
     <string name="activity_subtitle_separator"> • </string>
@@ -188,7 +188,7 @@
     <string name="categories_delete_message">ワークアウトは「未分類」に移動されます。</string>
     <string name="categories_delete_confirm">削除</string>
     <string name="activity_action_create_category">カテゴリ%1$sを作成しました。</string>
-    <string name="activity_action_update_category_name">カテゴリ%1$sの名前を変更しました。</string>
+    <string name="activity_action_update_category_name">カテゴリの名前を変更しました。</string>
     <string name="activity_action_update_category_color">カテゴリ%1$sの色を変更しました。</string>
     <string name="activity_action_update_category_visibility">カテゴリ%1$sの表示を変更しました。</string>
     <string name="activity_action_reorder_category">カテゴリ%1$sを並べ替えました。</string>

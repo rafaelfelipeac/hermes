@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
@@ -49,7 +50,9 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
@@ -245,6 +248,7 @@ internal fun WorkoutRow(
                             label = stringResource(R.string.weekly_training_rest_day_label),
                             containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                             contentColor = colors.content,
+                            modifier = Modifier.wrapContentWidth(),
                         )
                     } else {
                         Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
@@ -254,6 +258,7 @@ internal fun WorkoutRow(
                                     containerColor =
                                         categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                                     contentColor = categoryChipContent,
+                                    modifier = Modifier.wrapContentWidth(),
                                 )
                             }
 
@@ -295,28 +300,6 @@ internal fun WorkoutRow(
     }
 }
 
-@Composable
-private fun TitleChip(
-    label: String,
-    containerColor: Color,
-    contentColor: Color,
-) {
-    Surface(
-        color = containerColor,
-        contentColor = contentColor,
-        shape = shapes.small,
-    ) {
-        Text(
-            text = label,
-            style = typography.labelSmall,
-            modifier =
-                Modifier.padding(
-                    horizontal = SpacingMd,
-                    vertical = SpacingXs,
-                ),
-        )
-    }
-}
 
 @Composable
 internal fun GhostWorkoutRow(
@@ -384,6 +367,7 @@ internal fun GhostWorkoutRow(
                                 label = stringResource(R.string.weekly_training_rest_day_label),
                                 containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                                 contentColor = colors.content,
+                                modifier = Modifier.wrapContentWidth(),
                             )
                         } else {
                             Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
@@ -393,6 +377,7 @@ internal fun GhostWorkoutRow(
                                         containerColor =
                                             categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                                         contentColor = categoryChipContent,
+                                        modifier = Modifier.wrapContentWidth(),
                                     )
                                 }
 

@@ -146,8 +146,8 @@
     <string name="activity_action_copy_last_week">Você copiou a semana passada para esta semana.</string>
     <string name="activity_action_undo_copy_last_week">Você desfez a cópia da semana passada para esta semana.</string>
     <string name="activity_action_fallback">Você realizou uma ação no app.</string>
-    <string name="activity_subtitle_change_value">De \"%1$s\" para \"%2$s\".</string>
-    <string name="activity_subtitle_move">De \"%1$s\" para \"%2$s\".</string>
+    <string name="activity_subtitle_change_value">De %1$s para %2$s.</string>
+    <string name="activity_subtitle_move">De %1$s para %2$s.</string>
     <string name="activity_subtitle_week">Semana de %1$s.</string>
     <string name="activity_day_unplanned">A definir</string>
     <string name="activity_subtitle_separator"> • </string>
@@ -188,7 +188,7 @@
     <string name="categories_delete_message">Os treinos serão movidos para "Sem categoria".</string>
     <string name="categories_delete_confirm">Excluir</string>
     <string name="activity_action_create_category">Você criou a categoria %1$s.</string>
-    <string name="activity_action_update_category_name">Você renomeou a categoria %1$s.</string>
+    <string name="activity_action_update_category_name">Você renomeou uma categoria.</string>
     <string name="activity_action_update_category_color">Você mudou a cor de %1$s.</string>
     <string name="activity_action_update_category_visibility">Você mudou a visibilidade de %1$s.</string>
     <string name="activity_action_reorder_category">Você reordenou a categoria %1$s.</string>

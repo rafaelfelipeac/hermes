@@ -93,6 +93,7 @@ class ActivityUiFormatter(
             when (actionType) {
                 UserActionType.CHANGE_LANGUAGE,
                 UserActionType.CHANGE_THEME,
+                UserActionType.UPDATE_CATEGORY_NAME,
                 -> buildValueChangeSubtitle(metadata, actionType)
 
                 UserActionType.UPDATE_CATEGORY_VISIBILITY ->
@@ -123,8 +124,14 @@ class ActivityUiFormatter(
         metadata: Map<String, String>,
         actionType: UserActionType,
     ): String? {
-        val oldValue = formatChangeValue(metadata[UserActionMetadataKeys.OLD_VALUE], actionType)
-        val newValue = formatChangeValue(metadata[UserActionMetadataKeys.NEW_VALUE], actionType)
+        val oldValue =
+            quoteValue(
+                formatChangeValue(metadata[UserActionMetadataKeys.OLD_VALUE], actionType),
+            )
+        val newValue =
+            quoteValue(
+                formatChangeValue(metadata[UserActionMetadataKeys.NEW_VALUE], actionType),
+            )
 
         if (oldValue.isNullOrBlank() && newValue.isNullOrBlank()) return null
 
@@ -136,8 +143,14 @@ class ActivityUiFormatter(
     }
 
     private fun buildMoveSubtitle(metadata: Map<String, String>): String? {
-        val oldDay = dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK])
-        val newDay = dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK])
+        val oldDay =
+            quoteValue(
+                dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK]),
+            )
+        val newDay =
+            quoteValue(
+                dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK]),
+            )
 
         if (oldDay.isNullOrBlank() && newDay.isNullOrBlank()) return null
 
@@ -149,8 +162,14 @@ class ActivityUiFormatter(
     }
 
     private fun buildReorderSubtitle(metadata: Map<String, String>): String? {
-        val oldDay = dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK])
-        val newDay = dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK])
+        val oldDay =
+            quoteValue(
+                dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK]),
+            )
+        val newDay =
+            quoteValue(
+                dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK]),
+            )
 
         val hasAnyDay = !oldDay.isNullOrBlank() || !newDay.isNullOrBlank()
         val isSameDay = oldDay != null && oldDay == newDay
@@ -204,22 +223,37 @@ class ActivityUiFormatter(
 
         return when (actionType) {
             UserActionType.CREATE_CATEGORY ->
-                stringProvider.get(R.string.activity_action_create_category, label)
+                stringProvider.get(
+                    R.string.activity_action_create_category,
+                    quoteValue(label) ?: label,
+                )
 
             UserActionType.UPDATE_CATEGORY_NAME ->
-                stringProvider.get(R.string.activity_action_update_category_name, label)
+                stringProvider.get(R.string.activity_action_update_category_name)
 
             UserActionType.UPDATE_CATEGORY_COLOR ->
-                stringProvider.get(R.string.activity_action_update_category_color, label)
+                stringProvider.get(
+                    R.string.activity_action_update_category_color,
+                    quoteValue(label) ?: label,
+                )
 
             UserActionType.UPDATE_CATEGORY_VISIBILITY ->
-                stringProvider.get(R.string.activity_action_update_category_visibility, label)
+                stringProvider.get(
+                    R.string.activity_action_update_category_visibility,
+                    quoteValue(label) ?: label,
+                )
 
             UserActionType.REORDER_CATEGORY ->
-                stringProvider.get(R.string.activity_action_reorder_category, label)
+                stringProvider.get(
+                    R.string.activity_action_reorder_category,
+                    quoteValue(label) ?: label,
+                )
 
             UserActionType.DELETE_CATEGORY ->
-                stringProvider.get(R.string.activity_action_delete_category, label)
+                stringProvider.get(
+                    R.string.activity_action_delete_category,
+                    quoteValue(label) ?: label,
+                )
 
             UserActionType.RESTORE_DEFAULT_CATEGORIES ->
                 stringProvider.get(R.string.categories_restore_defaults)
@@ -371,6 +405,11 @@ class ActivityUiFormatter(
                 ?: stringProvider.get(R.string.activity_workout_fallback)
 
         return stringProvider.get(R.string.activity_value_quoted, workoutLabel)
+    }
+
+    private fun quoteValue(value: String?): String? {
+        if (value.isNullOrBlank()) return value
+        return stringProvider.get(R.string.activity_value_quoted, value)
     }
 
     private fun buildRestDayTitle(

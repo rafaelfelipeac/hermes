@@ -84,7 +84,11 @@ class SettingsViewModel
                                 NEW_VALUE to language.tag,
                             ),
                     )
-                    categorySeeder.syncLocalizedNames()
+                    categorySeeder.syncLocalizedNames(
+                        previousLanguage = previous,
+                        newLanguage = language,
+                        force = false,
+                    )
                 }
             }
 

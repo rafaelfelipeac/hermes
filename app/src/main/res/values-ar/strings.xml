@@ -146,8 +146,8 @@
     <string name="activity_action_copy_last_week">لقد نسخت الأسبوع الماضي إلى هذا الأسبوع.</string>
     <string name="activity_action_undo_copy_last_week">لقد تراجعت عن نسخ الأسبوع الماضي إلى هذا الأسبوع.</string>
     <string name="activity_action_fallback">لقد قمت بإجراء في التطبيق.</string>
-    <string name="activity_subtitle_change_value">من \"%1$s\" إلى \"%2$s\".</string>
-    <string name="activity_subtitle_move">من \"%1$s\" إلى \"%2$s\".</string>
+    <string name="activity_subtitle_change_value">من %1$s إلى %2$s.</string>
+    <string name="activity_subtitle_move">من %1$s إلى %2$s.</string>
     <string name="activity_subtitle_week">أسبوع %1$s.</string>
     <string name="activity_day_unplanned">قيد التحديد</string>
     <string name="activity_subtitle_separator"> • </string>
@@ -188,7 +188,7 @@
     <string name="categories_delete_message">سيتم نقل التمارين إلى "غير مصنّف".</string>
     <string name="categories_delete_confirm">حذف</string>
     <string name="activity_action_create_category">لقد أنشأت الفئة %1$s.</string>
-    <string name="activity_action_update_category_name">لقد أعدت تسمية الفئة %1$s.</string>
+    <string name="activity_action_update_category_name">لقد أعدت تسمية فئة.</string>
     <string name="activity_action_update_category_color">لقد غيّرت لون %1$s.</string>
     <string name="activity_action_update_category_visibility">لقد غيّرت ظهور %1$s.</string>
     <string name="activity_action_reorder_category">لقد أعدت ترتيب الفئة %1$s.</string>
