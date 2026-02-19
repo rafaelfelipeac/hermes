@@ -187,6 +187,10 @@
     <string name="categories_delete_title">カテゴリ「%1$s」を削除しますか？</string>
     <string name="categories_delete_message">ワークアウトは「未分類」に移動されます。</string>
     <string name="categories_delete_confirm">削除</string>
+    <string name="categories_help_message">カテゴリーはワークアウトを整理するためのものです。\n\n既定のカテゴリーを使うか、自分で作成できます。必要に応じて、名前の変更、色の変更、並べ替え、表示/非表示、削除ができます。\n\nカテゴリーがないワークアウトは「未分類」に残ります。</string>
+    <string name="categories_help_title">カテゴリー</string>
+    <string name="categories_help_confirm">OK</string>
+    <string name="categories_help_icon">カテゴリーのヘルプ</string>
     <string name="activity_action_create_category">カテゴリ%1$sを作成しました。</string>
     <string name="activity_action_update_category_name">カテゴリの名前を変更しました。</string>
     <string name="activity_action_update_category_color">カテゴリ%1$sの色を変更しました。</string>

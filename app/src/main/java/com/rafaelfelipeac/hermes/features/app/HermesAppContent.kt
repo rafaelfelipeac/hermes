@@ -52,7 +52,12 @@ fun HermesAppContent() {
                     },
                     label = { Text(stringResource(it.labelRes)) },
                     selected = it == currentDestination,
-                    onClick = { currentDestination = it },
+                    onClick = {
+                        if (it == SETTINGS) {
+                            pendingSettingsRoute = SettingsRoute.MAIN
+                        }
+                        currentDestination = it
+                    },
                 )
             }
         },

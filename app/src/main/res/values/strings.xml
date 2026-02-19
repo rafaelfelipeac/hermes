@@ -191,6 +191,10 @@
     <string name="categories_delete_title">Delete category "%1$s"?</string>
     <string name="categories_delete_message">Workouts will be moved to "Uncategorized".</string>
     <string name="categories_delete_confirm">Delete</string>
+    <string name="categories_help_message">Categories keep your workouts organized.\n\nStart with the defaults or make your own. Tweak them anytime: rename, change colors, reorder, hide/show, or delete.\n\nIf a workout doesn’t have a category, it stays in “Uncategorized”.</string>
+    <string name="categories_help_title">Categories</string>
+    <string name="categories_help_confirm">Got it</string>
+    <string name="categories_help_icon">Help for categories</string>
     <string name="activity_action_create_category">You created the category %1$s.</string>
     <string name="activity_action_update_category_name">You renamed a category.</string>
     <string name="activity_action_update_category_color">You changed the color of %1$s.</string>

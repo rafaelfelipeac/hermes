@@ -187,6 +187,10 @@
     <string name="categories_delete_title">Excluir a categoria "%1$s"?</string>
     <string name="categories_delete_message">Os treinos serão movidos para "Sem categoria".</string>
     <string name="categories_delete_confirm">Excluir</string>
+    <string name="categories_help_message">As categorias mantêm seus treinos organizados.\n\nComece com as padrões ou crie as suas. Ajuste quando quiser: renomeie, mude as cores, reordene, oculte/mostre ou exclua.\n\nSe um treino não tiver categoria, ele fica em “Sem categoria”.</string>
+    <string name="categories_help_title">Categorias</string>
+    <string name="categories_help_confirm">Entendi</string>
+    <string name="categories_help_icon">Ajuda sobre categorias</string>
     <string name="activity_action_create_category">Você criou a categoria %1$s.</string>
     <string name="activity_action_update_category_name">Você renomeou uma categoria.</string>
     <string name="activity_action_update_category_color">Você mudou a cor de %1$s.</string>

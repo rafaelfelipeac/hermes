@@ -30,6 +30,7 @@ import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
@@ -63,6 +64,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -84,7 +86,9 @@ fun CategoriesScreen(
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
     var isRestoreDefaultsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var deletingCategory by remember { mutableStateOf<CategoryUi?>(null) }
+    var isHelpDialogVisible by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
+    val actionIconTint = colorScheme.onSurfaceVariant
 
     LazyColumn(
         modifier =
@@ -117,9 +121,50 @@ fun CategoriesScreen(
         }
 
         item {
-            Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
-                Button(onClick = { isAddDialogVisible = true }) {
-                    Text(text = stringResource(R.string.categories_add))
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = SpacingXl),
+                verticalArrangement = Arrangement.spacedBy(SpacingSm),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Button(onClick = { isAddDialogVisible = true }) {
+                        Text(text = stringResource(R.string.categories_add))
+                    }
+
+                    Surface(
+                        shape = CircleShape,
+                        color = colorScheme.surfaceVariant,
+                        tonalElevation = ElevationSm,
+                        shadowElevation = ElevationSm,
+                        modifier = Modifier.size(HelpIconSize),
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier =
+                                Modifier
+                                    .fillMaxSize()
+                                    .clickable { isHelpDialogVisible = true },
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.HelpOutline,
+                                contentDescription = stringResource(R.string.categories_help_icon),
+                                tint = actionIconTint,
+                            )
+                        }
+                    }
+                }
+
+                TextButton(
+                    onClick = { isRestoreDefaultsDialogVisible = true },
+                    colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
+                ) {
+                    Text(text = stringResource(R.string.categories_restore_defaults))
                 }
             }
         }
@@ -164,16 +209,6 @@ fun CategoriesScreen(
             }
         }
 
-        item {
-            Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
-                TextButton(
-                    onClick = { isRestoreDefaultsDialogVisible = true },
-                    colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
-                ) {
-                    Text(text = stringResource(R.string.categories_restore_defaults))
-                }
-            }
-        }
     }
 
     if (isAddDialogVisible) {
@@ -256,6 +291,19 @@ fun CategoriesScreen(
             },
         )
     }
+
+    if (isHelpDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { isHelpDialogVisible = false },
+            title = { Text(text = stringResource(R.string.categories_help_title)) },
+            text = { Text(text = stringResource(R.string.categories_help_message)) },
+            confirmButton = {
+                TextButton(onClick = { isHelpDialogVisible = false }) {
+                    Text(text = stringResource(R.string.categories_help_confirm))
+                }
+            },
+        )
+    }
 }
 
 @Composable
@@ -272,6 +320,8 @@ private fun CategoryRow(
 ) {
     val accent = categoryAccentColor(category.colorId)
     val isHiddenToggleEnabled = category.id != UNCATEGORIZED_ID
+    val actionIconTint = colorScheme.onSurfaceVariant
+    val disabledIconTint = actionIconTint.copy(alpha = DISABLED_ICON_ALPHA)
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -286,6 +336,7 @@ private fun CategoryRow(
                 Icon(
                     imageVector = Icons.Outlined.ArrowUpward,
                     contentDescription = stringResource(R.string.categories_move_up),
+                    tint = if (canMoveUp) actionIconTint else disabledIconTint,
                 )
             }
 
@@ -297,6 +348,7 @@ private fun CategoryRow(
                 Icon(
                     imageVector = Icons.Outlined.ArrowDownward,
                     contentDescription = stringResource(R.string.categories_move_down),
+                    tint = if (canMoveDown) actionIconTint else disabledIconTint,
                 )
             }
         }
@@ -333,6 +385,7 @@ private fun CategoryRow(
                             } else {
                                 stringResource(R.string.categories_hide_action)
                             },
+                        tint = actionIconTint,
                     )
                 }
             }
@@ -344,6 +397,7 @@ private fun CategoryRow(
                 Icon(
                     imageVector = Icons.Outlined.Edit,
                     contentDescription = stringResource(R.string.categories_edit_action),
+                    tint = actionIconTint,
                 )
             }
 
@@ -355,6 +409,7 @@ private fun CategoryRow(
                     Icon(
                         imageVector = Icons.Outlined.Delete,
                         contentDescription = stringResource(R.string.categories_delete_action),
+                        tint = actionIconTint,
                     )
                 }
             }
@@ -429,6 +484,8 @@ private fun CategoryEditorDialog(
         },
     )
 }
+
+private const val DISABLED_ICON_ALPHA = 0.38f
 
 @Composable
 private fun CategoryColorSwatch(

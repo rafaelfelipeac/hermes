@@ -187,6 +187,10 @@
     <string name="categories_delete_title">حذف الفئة "%1$s"؟</string>
     <string name="categories_delete_message">سيتم نقل التمارين إلى "غير مصنّف".</string>
     <string name="categories_delete_confirm">حذف</string>
+    <string name="categories_help_message">تُبقي الفئات تمارينك منظمة.\n\nابدأ بالافتراضية أو أنشئ فئاتك. عدّلها في أي وقت: أعد التسمية، غيّر الألوان، أعد الترتيب، أخفِ/أظهِر أو احذف.\n\nإذا لم يكن للتمرين فئة، فسيبقى ضمن “غير مصنّف”.</string>
+    <string name="categories_help_title">الفئات</string>
+    <string name="categories_help_confirm">فهمت</string>
+    <string name="categories_help_icon">مساعدة للفئات</string>
     <string name="activity_action_create_category">لقد أنشأت الفئة %1$s.</string>
     <string name="activity_action_update_category_name">لقد أعدت تسمية فئة.</string>
     <string name="activity_action_update_category_color">لقد غيّرت لون %1$s.</string>

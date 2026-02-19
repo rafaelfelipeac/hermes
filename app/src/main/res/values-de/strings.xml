@@ -187,6 +187,10 @@
     <string name="categories_delete_title">Kategorie „%1$s“ löschen?</string>
     <string name="categories_delete_message">Workouts werden nach „Nicht kategorisiert“ verschoben.</string>
     <string name="categories_delete_confirm">Löschen</string>
+    <string name="categories_help_message">Kategorien halten deine Trainings organisiert.\n\nStarte mit den Standardkategorien oder erstelle eigene. Passe sie jederzeit an: umbenennen, Farben ändern, neu anordnen, ein-/ausblenden oder löschen.\n\nWenn ein Training keine Kategorie hat, bleibt es unter “Ohne Kategorie”.</string>
+    <string name="categories_help_title">Kategorien</string>
+    <string name="categories_help_confirm">Verstanden</string>
+    <string name="categories_help_icon">Hilfe zu Kategorien</string>
     <string name="activity_action_create_category">Du hast die Kategorie %1$s erstellt.</string>
     <string name="activity_action_update_category_name">Du hast eine Kategorie umbenannt.</string>
     <string name="activity_action_update_category_color">Du hast die Farbe von %1$s geändert.</string>

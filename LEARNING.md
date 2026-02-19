@@ -63,3 +63,5 @@ Recent learnings:
 - To keep system categories localized without overwriting user edits, only rename a system category on language change when its current name still matches the previous locale’s default; use `StringProvider.getForLanguage` to fetch the target locale string without switching the app language.
 - Restoring default categories should also resync system category colors and localized names after inserts, so seeded defaults stay consistent while user categories remain untouched.
 - Activity feed subtitles read clearer when changed values and day labels are consistently quoted, and category-name edits can rely on the subtitle rather than repeating the category label in the action title.
+- Category help dialogs should live in the screen that owns the feature, with localized strings added alongside other category copy to keep UX guidance consistent across locales.
+- Reselecting a bottom-nav destination can be used to reset nested UI state; for Settings, routing the tab click to `SettingsRoute.MAIN` provides a simple “return to root” behavior without adding a separate nav stack.
