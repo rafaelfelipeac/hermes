@@ -6,6 +6,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
+import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 import org.junit.Rule
 import org.junit.Test
@@ -53,6 +55,9 @@ class AddWorkoutDialogTest {
 
         composeRule.onAllNodesWithText("Uncategorized").assertCountEquals(2)
         composeRule.onAllNodesWithText("Run").assertCountEquals(2)
-        composeRule.onNodeWithText("Manage categories").assertIsDisplayed()
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        composeRule
+            .onNodeWithText(context.getString(R.string.workout_dialog_manage_categories))
+            .assertIsDisplayed()
     }
 }
