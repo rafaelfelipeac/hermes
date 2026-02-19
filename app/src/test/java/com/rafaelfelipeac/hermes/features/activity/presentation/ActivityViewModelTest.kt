@@ -282,6 +282,14 @@ class ActivityViewModelTest {
             val template = values[id] ?: "missing:$id"
             return String.format(ENGLISH, template, *args)
         }
+
+        override fun getForLanguage(
+            languageTag: String?,
+            id: Int,
+            vararg args: Any,
+        ): String {
+            return get(id, *args)
+        }
     }
 
     private suspend fun ReceiveTurbine<ActivityState>.awaitNonEmptyState(): ActivityState {

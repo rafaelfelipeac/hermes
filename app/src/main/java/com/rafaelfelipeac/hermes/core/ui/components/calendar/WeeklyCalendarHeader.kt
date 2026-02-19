@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -176,20 +175,14 @@ private fun DayIndicator(
     val isDarkTheme = colorScheme.background.luminance() < 0.5f
     val indicatorColor =
         indicator?.let {
-            val baseColor =
-                if (it.workout.isRestDay) {
-                    colorScheme.surfaceColorAtElevation(ElevationSm)
-                } else {
-                    workoutIndicatorColor(
-                        workout = it.workout,
-                        isDarkTheme = isDarkTheme,
-                        surface = colorScheme.surface,
-                    )
-                }
             if (it.workout.isRestDay) {
-                baseColor
+                colorScheme.surfaceColorAtElevation(ElevationSm)
             } else {
-                themedIndicatorColor(baseColor, isDarkTheme = isDarkTheme)
+                workoutIndicatorColor(
+                    workout = it.workout,
+                    isDarkTheme = isDarkTheme,
+                    surface = colorScheme.surface,
+                )
             }
         }
     val contentColor =
@@ -288,15 +281,6 @@ private fun formatWeekRange(
 
 private fun readableContentOn(background: Color): Color {
     return if (background.luminance() > 0.5f) Color.Black else Color.White
-}
-
-private fun themedIndicatorColor(
-    base: Color,
-    isDarkTheme: Boolean,
-): Color {
-    val blend = if (isDarkTheme) 0.2f else 0.2f
-    val target = if (isDarkTheme) Color.White else Color.Black
-    return lerp(base, target, blend)
 }
 
 @Preview(showBackground = true)

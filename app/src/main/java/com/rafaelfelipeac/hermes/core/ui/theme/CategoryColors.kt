@@ -30,7 +30,7 @@ private val categoryPalette =
         CategoryColorOption(COLOR_STRENGTH, CategoryPurple),
         CategoryColorOption(COLOR_SWIM, CategoryTeal),
         CategoryColorOption(COLOR_MOBILITY, CategoryLime),
-        CategoryColorOption(COLOR_OTHER, CategorySand),
+        CategoryColorOption(COLOR_OTHER, CategoryAmber),
         CategoryColorOption("amber", CategoryAmber),
         CategoryColorOption("orange", CategoryOrange),
         CategoryColorOption("indigo", CategoryIndigo),
