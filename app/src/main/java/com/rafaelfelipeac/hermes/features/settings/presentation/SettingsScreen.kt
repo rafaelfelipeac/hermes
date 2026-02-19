@@ -409,23 +409,32 @@ private fun SettingsDetailScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .verticalScroll(scrollState)
-                .padding(SpacingXl),
+                .verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
-        IconButton(onClick = onBack) {
-            Icon(
-                imageVector = Icons.Outlined.ArrowBack,
-                contentDescription = stringResource(R.string.categories_back),
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingSm, vertical = SpacingSm),
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.Outlined.ArrowBack,
+                    contentDescription = stringResource(R.string.categories_back),
+                )
+            }
+
+            Text(
+                text = title,
+                style = typography.titleLarge,
             )
         }
 
-        Text(
-            text = title,
-            style = typography.titleLarge,
-        )
-
-        SettingsCard(content = content)
+        Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
+            SettingsCard(content = content)
+        }
     }
 }
 

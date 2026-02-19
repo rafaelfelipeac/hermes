@@ -86,25 +86,25 @@ fun CategoriesScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(SpacingXl),
+                .padding(bottom = SpacingXl),
         state = listState,
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         item {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Outlined.ArrowBack,
-                    contentDescription = stringResource(R.string.categories_back),
-                )
-            }
-        }
-
-        item {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = SpacingSm, vertical = SpacingSm),
             ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.Outlined.ArrowBack,
+                        contentDescription = stringResource(R.string.categories_back),
+                    )
+                }
+
                 Text(
                     text = stringResource(R.string.categories_title),
                     style = typography.titleLarge,
@@ -113,49 +113,55 @@ fun CategoriesScreen(
         }
 
         item {
-            Button(onClick = { isAddDialogVisible = true }) {
-                Text(text = stringResource(R.string.categories_add))
+            Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
+                Button(onClick = { isAddDialogVisible = true }) {
+                    Text(text = stringResource(R.string.categories_add))
+                }
             }
         }
 
         item {
-            Surface(
-                shape = shapes.medium,
-                tonalElevation = ElevationSm,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Column(
-                    modifier =
-                        Modifier.padding(
-                            horizontal = SpacingMd,
-                            vertical = SpacingXxs,
-                        ),
+            Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
+                Surface(
+                    shape = shapes.medium,
+                    tonalElevation = ElevationSm,
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
-                    state.categories.forEachIndexed { index, category ->
-                        CategoryRow(
-                            category = category,
-                            canMoveUp = index != 0,
-                            canMoveDown = index != state.categories.lastIndex,
-                            onMoveUp = { viewModel.moveCategoryUp(category.id) },
-                            onMoveDown = { viewModel.moveCategoryDown(category.id) },
-                            onToggleHidden = { isHidden ->
-                                viewModel.updateCategoryVisibility(category.id, isHidden)
-                            },
-                            onEdit = { editorCategory = category },
-                            onDelete = { deletingCategory = category },
-                            modifier = Modifier.padding(vertical = SpacingXxs),
-                        )
+                    Column(
+                        modifier =
+                            Modifier.padding(
+                                horizontal = SpacingMd,
+                                vertical = SpacingXxs,
+                            ),
+                    ) {
+                        state.categories.forEachIndexed { index, category ->
+                            CategoryRow(
+                                category = category,
+                                canMoveUp = index != 0,
+                                canMoveDown = index != state.categories.lastIndex,
+                                onMoveUp = { viewModel.moveCategoryUp(category.id) },
+                                onMoveDown = { viewModel.moveCategoryDown(category.id) },
+                                onToggleHidden = { isHidden ->
+                                    viewModel.updateCategoryVisibility(category.id, isHidden)
+                                },
+                                onEdit = { editorCategory = category },
+                                onDelete = { deletingCategory = category },
+                                modifier = Modifier.padding(vertical = SpacingXxs),
+                            )
+                        }
                     }
                 }
             }
         }
 
         item {
-            TextButton(
-                onClick = { isRestoreDefaultsDialogVisible = true },
-                colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
-            ) {
-                Text(text = stringResource(R.string.categories_restore_defaults))
+            Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
+                TextButton(
+                    onClick = { isRestoreDefaultsDialogVisible = true },
+                    colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
+                ) {
+                    Text(text = stringResource(R.string.categories_restore_defaults))
+                }
             }
         }
     }
