@@ -15,10 +15,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.core.ui.preview.HermesAppPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.HermesAppPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
 
 @Composable

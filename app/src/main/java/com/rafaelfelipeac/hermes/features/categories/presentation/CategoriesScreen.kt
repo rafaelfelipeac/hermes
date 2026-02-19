@@ -208,7 +208,6 @@ fun CategoriesScreen(
                 }
             }
         }
-
     }
 
     if (isAddDialogVisible) {
