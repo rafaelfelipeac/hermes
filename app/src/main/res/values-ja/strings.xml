@@ -197,4 +197,7 @@
     <string name="activity_category_visible">表示</string>
     <string name="activity_category_hidden">非表示</string>
     <string name="categories_restore_defaults">デフォルトカテゴリを復元</string>
+    <string name="categories_restore_defaults_confirm">復元</string>
+    <string name="categories_restore_defaults_message">デフォルトのカテゴリの名前と色がリセットされます。カスタムカテゴリは保持されます。</string>
+    <string name="categories_restore_defaults_title">デフォルトのカテゴリを復元しますか？</string>
 </resources>

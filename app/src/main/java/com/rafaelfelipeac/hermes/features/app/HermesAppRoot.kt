@@ -28,6 +28,8 @@ fun HermesAppRoot() {
     LaunchedEffect(settingsState.language) {
         val applied = applyAppLanguage(context, settingsState.language)
 
+        settingsViewModel.syncLocalizedCategories()
+
         if (applied && activity != null) {
             activity.recreate()
         }

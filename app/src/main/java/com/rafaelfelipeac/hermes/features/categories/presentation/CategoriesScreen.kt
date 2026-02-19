@@ -78,6 +78,7 @@ fun CategoriesScreen(
     val state by viewModel.state.collectAsState()
     var editorCategory by remember { mutableStateOf<CategoryUi?>(null) }
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var isRestoreDefaultsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var deletingCategory by remember { mutableStateOf<CategoryUi?>(null) }
     val listState = rememberLazyListState()
 
@@ -151,7 +152,7 @@ fun CategoriesScreen(
 
         item {
             TextButton(
-                onClick = { viewModel.restoreDefaultCategories() },
+                onClick = { isRestoreDefaultsDialogVisible = true },
                 colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
             ) {
                 Text(text = stringResource(R.string.categories_restore_defaults))
@@ -211,6 +212,29 @@ fun CategoriesScreen(
             },
             dismissButton = {
                 TextButton(onClick = { deletingCategory = null }) {
+                    Text(text = stringResource(R.string.add_workout_cancel))
+                }
+            },
+        )
+    }
+
+    if (isRestoreDefaultsDialogVisible) {
+        AlertDialog(
+            onDismissRequest = { isRestoreDefaultsDialogVisible = false },
+            title = { Text(text = stringResource(R.string.categories_restore_defaults_title)) },
+            text = { Text(text = stringResource(R.string.categories_restore_defaults_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.restoreDefaultCategories()
+                        isRestoreDefaultsDialogVisible = false
+                    },
+                ) {
+                    Text(text = stringResource(R.string.categories_restore_defaults_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { isRestoreDefaultsDialogVisible = false }) {
                     Text(text = stringResource(R.string.add_workout_cancel))
                 }
             },

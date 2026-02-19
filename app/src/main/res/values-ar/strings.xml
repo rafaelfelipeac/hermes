@@ -197,4 +197,7 @@
     <string name="activity_category_visible">مرئية</string>
     <string name="activity_category_hidden">مخفية</string>
     <string name="categories_restore_defaults">استعادة الفئات الافتراضية</string>
+    <string name="categories_restore_defaults_confirm">استعادة</string>
+    <string name="categories_restore_defaults_message">سيؤدي ذلك إلى إعادة تعيين أسماء وألوان الفئات الافتراضية. ستظل فئاتك المخصصة محفوظة.</string>
+    <string name="categories_restore_defaults_title">استعادة الفئات الافتراضية؟</string>
 </resources>

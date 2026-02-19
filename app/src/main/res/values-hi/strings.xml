@@ -197,4 +197,7 @@
     <string name="activity_category_visible">दृश्यमान</string>
     <string name="activity_category_hidden">छिपी</string>
     <string name="categories_restore_defaults">डिफ़ॉल्ट श्रेणियाँ पुनर्स्थापित करें</string>
+    <string name="categories_restore_defaults_confirm">बहाल करें</string>
+    <string name="categories_restore_defaults_message">यह डिफ़ॉल्ट श्रेणियों के नाम और रंग रीसेट करेगा। आपकी कस्टम श्रेणियाँ बनी रहेंगी।</string>
+    <string name="categories_restore_defaults_title">डिफ़ॉल्ट श्रेणियाँ बहाल करें?</string>
 </resources>

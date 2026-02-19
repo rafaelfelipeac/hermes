@@ -63,6 +63,19 @@ class CategorySeeder
             }
         }
 
+        suspend fun syncDefaultColors() {
+            val existing = repository.getCategories()
+            val defaultsById = buildStarterCategories().associateBy { it.id }
+
+            existing.forEach { category ->
+                if (!category.isSystem) return@forEach
+                val defaults = defaultsById[category.id] ?: return@forEach
+                if (category.colorId != defaults.colorId) {
+                    repository.updateCategoryColor(category.id, defaults.colorId)
+                }
+            }
+        }
+
         private fun buildStarterCategories(): List<Category> {
             return listOf(
                 buildUncategorizedCategory(),

@@ -93,6 +93,11 @@ class SettingsViewModel
                 demoDataSeeder.seed()
             }
 
+        fun syncLocalizedCategories() =
+            viewModelScope.launch {
+                categorySeeder.syncLocalizedNames()
+            }
+
         private companion object {
             const val SETTINGS_STATE_SHARING_TIMEOUT_MS = 5_000L
         }

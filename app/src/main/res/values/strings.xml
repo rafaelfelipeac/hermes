@@ -201,4 +201,7 @@
     <string name="activity_category_visible">Visible</string>
     <string name="activity_category_hidden">Hidden</string>
     <string name="categories_restore_defaults">Restore default categories</string>
+    <string name="categories_restore_defaults_confirm">Restore</string>
+    <string name="categories_restore_defaults_message">This will reset the names and colors of the default categories. Your custom categories will be kept.</string>
+    <string name="categories_restore_defaults_title">Restore default categories?</string>
 </resources>

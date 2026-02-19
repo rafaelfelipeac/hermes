@@ -197,4 +197,7 @@
     <string name="activity_category_visible">Sichtbar</string>
     <string name="activity_category_hidden">Ausgeblendet</string>
     <string name="categories_restore_defaults">Standardkategorien wiederherstellen</string>
+    <string name="categories_restore_defaults_confirm">Wiederherstellen</string>
+    <string name="categories_restore_defaults_message">Dadurch werden Namen und Farben der Standardkategorien zurückgesetzt. Deine benutzerdefinierten Kategorien bleiben erhalten.</string>
+    <string name="categories_restore_defaults_title">Standardkategorien wiederherstellen?</string>
 </resources>
