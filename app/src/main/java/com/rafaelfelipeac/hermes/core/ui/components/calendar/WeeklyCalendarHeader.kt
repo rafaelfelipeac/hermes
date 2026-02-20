@@ -42,7 +42,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
-import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.IndicatorSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -51,6 +50,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import java.time.DayOfWeek

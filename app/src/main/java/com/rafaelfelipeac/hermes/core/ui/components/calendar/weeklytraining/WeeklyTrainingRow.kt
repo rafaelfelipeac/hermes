@@ -55,8 +55,6 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
-import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
-import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxYOffset
@@ -69,6 +67,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
+import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
+import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor

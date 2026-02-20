@@ -57,13 +57,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
-import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryActionIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorGridHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorSwatchSize
