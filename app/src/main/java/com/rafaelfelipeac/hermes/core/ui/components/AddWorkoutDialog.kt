@@ -2,23 +2,18 @@
 
 package com.rafaelfelipeac.hermes.core.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,10 +22,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
@@ -104,8 +99,14 @@ fun AddWorkoutDialog(
                         value = categoryLabel,
                         onValueChange = {},
                         label = { Text(text = stringResource(R.string.workout_dialog_add_workout_category)) },
-                        leadingIcon = {
-                            CategoryColorDot(colorId = currentCategory?.colorId)
+                        textStyle = TextStyle(color = Color.Transparent),
+                        prefix = {
+                            TitleChip(
+                                label = categoryLabel,
+                                containerColor = currentCategory?.colorId?.let(::categoryAccentColor)
+                                    ?: colorScheme.surfaceVariant,
+                                contentColor = if (currentCategory == null) colorScheme.onSurfaceVariant else Color.White,
+                            )
                         },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
@@ -123,11 +124,11 @@ fun AddWorkoutDialog(
                         categories.forEach { category ->
                             DropdownMenuItem(
                                 text = {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        CategoryColorDot(colorId = category.colorId)
-                                        Spacer(modifier = Modifier.width(SpacingSm))
-                                        Text(text = category.name)
-                                    }
+                                    TitleChip(
+                                        label = category.name,
+                                        containerColor = categoryAccentColor(category.colorId),
+                                        contentColor = Color.White,
+                                    )
                                 },
                                 onClick = {
                                     currentCategoryId = category.id
@@ -139,7 +140,12 @@ fun AddWorkoutDialog(
                         HorizontalDivider(modifier = Modifier.padding(vertical = SpacingSm))
 
                         DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.workout_dialog_manage_categories)) },
+                            text = {
+                                Text(
+                                    text = stringResource(R.string.workout_dialog_manage_categories),
+                                    color = colorScheme.primary,
+                                )
+                            },
                             onClick = {
                                 expanded = false
                                 onManageCategories(type, description, currentCategoryId)
@@ -169,23 +175,6 @@ fun AddWorkoutDialog(
                 Text(text = stringResource(R.string.add_workout_cancel))
             }
         },
-    )
-}
-
-@Composable
-private fun CategoryColorDot(colorId: String?) {
-    val dotColor =
-        if (colorId == null) {
-            Color.Transparent
-        } else {
-            categoryAccentColor(colorId)
-        }
-
-    Box(
-        modifier =
-            Modifier
-                .size(SpacingMd)
-                .background(dotColor, CircleShape),
     )
 }
 

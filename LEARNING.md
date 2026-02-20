@@ -68,3 +68,7 @@ Recent learnings:
 - The app window background should match the Compose theme background (including night overrides) to avoid a light/dark flash between the splash and first composable render.
 - Skipping the initial language-apply pass avoids an extra Activity recreation on cold start; apply only after the first language value change to reduce launch flicker.
 - Gating the main content behind a loading indicator avoids showing an empty state briefly before the first data load.
+- Reusing `TitleChip` for Add Workout dropdown options keeps category label+color semantics aligned with Categories and weekly list surfaces, reducing visual drift between “manage” and “select” flows.
+- In Add Workout, preserving `null` category selection lets the field clearly show “Uncategorized” as the default state until the user explicitly picks a category.
+- For this category picker, keeping `TitleChip` in the `prefix` slot and binding a non-empty field value makes the selected/default category visible consistently; the text value itself can stay visually hidden while the chip carries the UI.
+- In dropdown affordances that jump to a management flow, matching the action text color to existing primary-text actions (like “Restore defaults”) improves visual consistency across category-related entry points.
