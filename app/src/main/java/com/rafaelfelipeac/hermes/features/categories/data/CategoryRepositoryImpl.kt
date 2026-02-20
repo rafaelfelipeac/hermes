@@ -1,7 +1,6 @@
 package com.rafaelfelipeac.hermes.features.categories.data
 
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
-import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import kotlinx.coroutines.flow.Flow
@@ -75,25 +74,3 @@ class CategoryRepositoryImpl
             categoryDao.deleteById(id)
         }
     }
-
-private fun CategoryEntity.toDomain(): Category {
-    return Category(
-        id = id,
-        name = name,
-        colorId = colorId,
-        sortOrder = sortOrder,
-        isHidden = isHidden,
-        isSystem = isSystem,
-    )
-}
-
-private fun Category.toEntity(): CategoryEntity {
-    return CategoryEntity(
-        id = id,
-        name = name,
-        colorId = colorId,
-        sortOrder = sortOrder,
-        isHidden = isHidden,
-        isSystem = isSystem,
-    )
-}

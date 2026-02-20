@@ -28,6 +28,12 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COL
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_STRENGTH
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_SWIM
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.CYCLING_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.MOBILITY_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.OTHER_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.RUN_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.STRENGTH_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWIM_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
@@ -145,12 +151,12 @@ class DemoDataSeeder
                 }
 
             return when (colorId) {
-                COLOR_RUN -> 2L
-                COLOR_CYCLING -> 3L
-                COLOR_STRENGTH -> 4L
-                COLOR_SWIM -> 5L
-                COLOR_MOBILITY -> 6L
-                else -> 7L
+                COLOR_RUN -> RUN_ID
+                COLOR_CYCLING -> CYCLING_ID
+                COLOR_STRENGTH -> STRENGTH_ID
+                COLOR_SWIM -> SWIM_ID
+                COLOR_MOBILITY -> MOBILITY_ID
+                else -> OTHER_ID
             }
         }
 

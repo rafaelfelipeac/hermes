@@ -63,6 +63,11 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryActionIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorGridHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorSwatchSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryMoveIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
@@ -214,7 +219,7 @@ fun CategoriesScreen(
         CategoryEditorDialog(
             title = stringResource(R.string.categories_add_title),
             confirmLabel = stringResource(R.string.categories_add_confirm),
-            initialName = "",
+            initialName = EMPTY,
             initialColorId = categoryColorOptions().first().id,
             onDismiss = { isAddDialogVisible = false },
             onConfirm = { name, colorId ->
@@ -330,7 +335,7 @@ private fun CategoryRow(
             IconButton(
                 onClick = onMoveUp,
                 enabled = canMoveUp,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(CategoryMoveIconSize),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowUpward,
@@ -342,7 +347,7 @@ private fun CategoryRow(
             IconButton(
                 onClick = onMoveDown,
                 enabled = canMoveDown,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(CategoryMoveIconSize),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ArrowDownward,
@@ -391,7 +396,7 @@ private fun CategoryRow(
 
             IconButton(
                 onClick = onEdit,
-                modifier = Modifier.size(36.dp),
+                modifier = Modifier.size(CategoryActionIconSize),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.Edit,
@@ -403,7 +408,7 @@ private fun CategoryRow(
             if (category.id != UNCATEGORIZED_ID) {
                 IconButton(
                     onClick = onDelete,
-                    modifier = Modifier.size(36.dp),
+                    modifier = Modifier.size(CategoryActionIconSize),
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.Delete,
@@ -455,7 +460,7 @@ private fun CategoryEditorDialog(
                     verticalArrangement = Arrangement.spacedBy(SpacingSm),
                     modifier =
                         Modifier
-                            .height(140.dp)
+                            .height(CategoryColorGridHeight)
                             .fillMaxWidth(),
                 ) {
                     items(options) { option ->
@@ -497,7 +502,7 @@ private fun CategoryColorSwatch(
     Box(
         modifier =
             Modifier
-                .size(36.dp)
+                .size(CategoryColorSwatchSize)
                 .background(option.accent, CircleShape)
                 .border(BorderStroke(BorderThin, borderColor), CircleShape)
                 .clickable(onClick = onClick),

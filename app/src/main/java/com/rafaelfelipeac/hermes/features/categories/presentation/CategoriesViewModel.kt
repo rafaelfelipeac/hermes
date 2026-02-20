@@ -4,6 +4,7 @@ package com.rafaelfelipeac.hermes.features.categories.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
@@ -103,7 +104,7 @@ class CategoriesViewModel
                     metadata =
                         mapOf(
                             CATEGORY_NAME to newName,
-                            OLD_VALUE to (category?.name ?: ""),
+                            OLD_VALUE to (category?.name ?: EMPTY),
                             NEW_VALUE to newName,
                         ),
                 )
@@ -125,8 +126,8 @@ class CategoriesViewModel
                     entityId = categoryId,
                     metadata =
                         mapOf(
-                            CATEGORY_NAME to (category?.name ?: ""),
-                            OLD_VALUE to (category?.colorId ?: ""),
+                            CATEGORY_NAME to (category?.name ?: EMPTY),
+                            OLD_VALUE to (category?.colorId ?: EMPTY),
                             NEW_VALUE to colorId,
                         ),
                 )
@@ -149,7 +150,7 @@ class CategoriesViewModel
                     entityId = categoryId,
                     metadata =
                         mapOf(
-                            CATEGORY_NAME to (category?.name ?: ""),
+                            CATEGORY_NAME to (category?.name ?: EMPTY),
                             OLD_VALUE to if (isHidden) CATEGORY_VISIBLE else CATEGORY_HIDDEN,
                             NEW_VALUE to if (isHidden) CATEGORY_HIDDEN else CATEGORY_VISIBLE,
                         ),
@@ -178,7 +179,7 @@ class CategoriesViewModel
                     actionType = DELETE_CATEGORY,
                     entityType = CATEGORY,
                     entityId = categoryId,
-                    metadata = mapOf(CATEGORY_NAME to (category?.name ?: "")),
+                    metadata = mapOf(CATEGORY_NAME to (category?.name ?: EMPTY)),
                 )
             }
         }

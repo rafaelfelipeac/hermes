@@ -3,6 +3,8 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_DARK
+import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_LIGHT
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
@@ -42,7 +44,7 @@ fun completedCategoryColor(
     surface: Color,
 ): Color {
     val base = baseCategoryColor(accent = accent)
-    val extraBlend = if (isDarkTheme) 0.12f else 0.16f
+    val extraBlend = if (isDarkTheme) INDICATOR_EXTRA_BLEND_DARK else INDICATOR_EXTRA_BLEND_LIGHT
     return lerp(base, surface, extraBlend)
 }
 

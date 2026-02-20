@@ -48,6 +48,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
+import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -74,6 +76,8 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
 import java.util.Locale
 
 private const val DEBUG_PACKAGE_SUFFIX = ".dev"
+private const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
+private const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
 
 @Composable
 fun SettingsScreen(
@@ -308,7 +312,7 @@ internal fun SettingsContent(
                 SettingsNavigationRow(
                     label = themeLabel(state.themeMode),
                     onClick = onThemeClick,
-                    modifier = Modifier.testTag("settings_theme_row"),
+                    modifier = Modifier.testTag(SETTINGS_THEME_ROW_TAG),
                 )
             }
 
@@ -316,7 +320,7 @@ internal fun SettingsContent(
                 SettingsNavigationRow(
                     label = languageLabel(state.language),
                     onClick = onLanguageClick,
-                    modifier = Modifier.testTag("settings_language_row"),
+                    modifier = Modifier.testTag(SETTINGS_LANGUAGE_ROW_TAG),
                 )
             }
 
@@ -346,7 +350,7 @@ internal fun SettingsContent(
                 stringResource(
                     R.string.settings_feedback_email_body,
                     appVersion,
-                ).replace("__NL__", "\n")
+                ).replace(NEW_LINE_TOKEN, NEW_LINE)
 
             Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
                 Text(

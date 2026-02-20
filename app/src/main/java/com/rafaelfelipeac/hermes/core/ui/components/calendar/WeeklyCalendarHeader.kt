@@ -31,7 +31,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -43,6 +42,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.IndicatorSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -51,6 +51,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
+import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -172,7 +173,7 @@ private fun DayIndicator(
         date.dayOfWeek.getDisplayName(SHORT, Locale.getDefault())
             .take(1)
             .uppercase(Locale.getDefault())
-    val isDarkTheme = colorScheme.background.luminance() < 0.5f
+    val isDarkTheme = isDarkBackground(colorScheme.background)
     val indicatorColor =
         indicator?.let {
             if (it.workout.isRestDay) {
@@ -280,7 +281,7 @@ private fun formatWeekRange(
 }
 
 private fun readableContentOn(background: Color): Color {
-    return if (background.luminance() > 0.5f) Color.Black else Color.White
+    return contentColorForBackground(background)
 }
 
 @Preview(showBackground = true)

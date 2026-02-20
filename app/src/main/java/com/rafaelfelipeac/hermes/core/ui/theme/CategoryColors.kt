@@ -1,9 +1,14 @@
 package com.rafaelfelipeac.hermes.core.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_AMBER
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_CYCLING
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_INDIGO
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_MOBILITY
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_OLIVE
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_ORANGE
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_OTHER
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_PINK
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_STRENGTH
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_SWIM
@@ -30,11 +35,11 @@ private val categoryPalette =
         CategoryColorOption(COLOR_SWIM, CategoryTeal),
         CategoryColorOption(COLOR_MOBILITY, CategoryLime),
         CategoryColorOption(COLOR_OTHER, CategoryAmber),
-        CategoryColorOption("amber", CategoryAmber),
-        CategoryColorOption("orange", CategoryOrange),
-        CategoryColorOption("indigo", CategoryIndigo),
-        CategoryColorOption("pink", CategoryPink),
-        CategoryColorOption("olive", CategoryOlive),
+        CategoryColorOption(COLOR_AMBER, CategoryAmber),
+        CategoryColorOption(COLOR_ORANGE, CategoryOrange),
+        CategoryColorOption(COLOR_INDIGO, CategoryIndigo),
+        CategoryColorOption(COLOR_PINK, CategoryPink),
+        CategoryColorOption(COLOR_OLIVE, CategoryOlive),
     )
 
 fun categoryAccentColor(colorId: String): Color {

@@ -74,3 +74,6 @@ Recent learnings:
 - In dropdown affordances that jump to a management flow, matching the action text color to existing primary-text actions (like “Restore defaults”) improves visual consistency across category-related entry points.
 - Activity subtitles should fall back to a single category label when only one category name is available, so create and category-change actions still surface category info even with partial metadata.
 - When activity rows show week + category info, put the category subtitle on its own line so the week label stays visually distinct.
+- Centralizing category IDs/color IDs and shared theme thresholds in constants reduces hardcoded strings/numbers and keeps UI contrast logic consistent across screens.
+- Keeping entity/domain mappers in a dedicated data-layer file keeps repositories focused on orchestration while still making mapping helpers easy to reuse.
+- Pulling ad-hoc dp values into `Dimens` keeps sizing consistent and makes future layout tweaks centralized.

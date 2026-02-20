@@ -43,7 +43,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
@@ -56,6 +55,8 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
+import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
+import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxYOffset
@@ -71,6 +72,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
+import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
@@ -91,7 +94,7 @@ internal fun WorkoutRow(
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val colors = workoutRowColors(workout, isDragging = isDragging)
     val hasDescription = workout.description.isNotBlank()
-    val isDarkTheme = colorScheme.background.luminance() < 0.5f
+    val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
@@ -306,7 +309,7 @@ internal fun GhostWorkoutRow(
 ) {
     val colors = workoutRowColors(workout, isDragging = false)
     val hasDescription = workout.description.isNotBlank()
-    val isDarkTheme = colorScheme.background.luminance() < 0.5f
+    val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
@@ -421,7 +424,7 @@ private fun workoutRowColors(
     val completedColor = TodoBlue
     val completedContent = TodoBlueContent
     val isUnscheduled = workout.dayOfWeek == null
-    val isDarkTheme = colorScheme.background.luminance() < 0.5f
+    val isDarkTheme = isDarkBackground(colorScheme.background)
     val restDayBackground = themeColorScheme.surfaceColorAtElevation(ElevationSm)
     val restDayContent = themeColorScheme.onSurfaceVariant
     val categoryAccent =
@@ -473,13 +476,13 @@ private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
 }
 
 private fun readableContentOn(background: Color): Color {
-    return if (background.luminance() > 0.5f) Color.Black else Color.White
+    return contentColorForBackground(background)
 }
 
 private fun lighterTone(
     color: Color,
     isDarkTheme: Boolean,
 ): Color {
-    val blend = if (isDarkTheme) 0.16f else 0.1f
+    val blend = if (isDarkTheme) LIGHTER_TONE_BLEND_DARK else LIGHTER_TONE_BLEND_LIGHT
     return lerp(color, Color.White, blend)
 }

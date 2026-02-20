@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
@@ -66,6 +67,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -90,8 +92,8 @@ fun WeeklyTrainingScreen(
     var editingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
     var deletingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
     var isCopyReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
-    var draftType by rememberSaveable { mutableStateOf("") }
-    var draftDescription by rememberSaveable { mutableStateOf("") }
+    var draftType by rememberSaveable { mutableStateOf(EMPTY) }
+    var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
@@ -212,7 +214,7 @@ fun WeeklyTrainingScreen(
         val contentPadding =
             PaddingValues(
                 start = paddingValues.calculateStartPadding(layoutDirection),
-                top = 0.dp,
+                top = Zero,
                 end = paddingValues.calculateEndPadding(layoutDirection),
                 bottom = paddingValues.calculateBottomPadding(),
             )
@@ -323,8 +325,8 @@ fun WeeklyTrainingScreen(
                         label = stringResource(R.string.add_workout),
                         onClick = {
                             isAddMenuVisible = false
-                            draftType = ""
-                            draftDescription = ""
+                            draftType = EMPTY
+                            draftDescription = EMPTY
                             draftCategoryId = UNCATEGORIZED_ID
                             isAddDialogVisible = true
                         },
@@ -379,15 +381,15 @@ fun WeeklyTrainingScreen(
         AddWorkoutDialog(
             onDismiss = {
                 isAddDialogVisible = false
-                draftType = ""
-                draftDescription = ""
+                draftType = EMPTY
+                draftDescription = EMPTY
                 draftCategoryId = UNCATEGORIZED_ID
             },
             onSave = { type, description, categoryId ->
                 viewModel.addWorkout(type, description, categoryId)
                 isAddDialogVisible = false
-                draftType = ""
-                draftDescription = ""
+                draftType = EMPTY
+                draftDescription = EMPTY
                 draftCategoryId = UNCATEGORIZED_ID
             },
             onManageCategories = { type, description, categoryId ->

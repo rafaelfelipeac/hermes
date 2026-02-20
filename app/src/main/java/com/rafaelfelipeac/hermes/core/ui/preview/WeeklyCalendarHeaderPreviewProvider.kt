@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.core.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
@@ -67,8 +68,8 @@ class WeeklyCalendarHeaderPreviewProvider :
                                     WorkoutUi(
                                         id = 3L,
                                         dayOfWeek = DayOfWeek.FRIDAY,
-                                        type = "",
-                                        description = "",
+                                        type = EMPTY,
+                                        description = EMPTY,
                                         isCompleted = false,
                                         isRestDay = true,
                                         categoryId = null,

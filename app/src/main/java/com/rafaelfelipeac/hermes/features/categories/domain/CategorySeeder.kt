@@ -9,6 +9,12 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COL
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_STRENGTH
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_SWIM
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_UNCATEGORIZED
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.CYCLING_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.MOBILITY_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.OTHER_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.RUN_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.STRENGTH_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWIM_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
@@ -102,17 +108,17 @@ class CategorySeeder
             return when (categoryId) {
                 UNCATEGORIZED_ID ->
                     stringProvider.getForLanguage(languageTag, R.string.category_uncategorized)
-                2L ->
+                RUN_ID ->
                     stringProvider.getForLanguage(languageTag, R.string.categories_category_run)
-                3L ->
+                CYCLING_ID ->
                     stringProvider.getForLanguage(languageTag, R.string.categories_category_cycling)
-                4L ->
+                STRENGTH_ID ->
                     stringProvider.getForLanguage(languageTag, R.string.categories_category_strength)
-                5L ->
+                SWIM_ID ->
                     stringProvider.getForLanguage(languageTag, R.string.categories_category_swim)
-                6L ->
+                MOBILITY_ID ->
                     stringProvider.getForLanguage(languageTag, R.string.categories_category_mobility)
-                7L ->
+                OTHER_ID ->
                     stringProvider.getForLanguage(languageTag, R.string.category_other)
                 else -> null
             }
@@ -130,7 +136,7 @@ class CategorySeeder
             return listOf(
                 buildUncategorizedCategory(),
                 Category(
-                    id = 2L,
+                    id = RUN_ID,
                     name = stringProvider.get(R.string.categories_category_run),
                     colorId = COLOR_RUN,
                     sortOrder = 1,
@@ -138,7 +144,7 @@ class CategorySeeder
                     isSystem = true,
                 ),
                 Category(
-                    id = 3L,
+                    id = CYCLING_ID,
                     name = stringProvider.get(R.string.categories_category_cycling),
                     colorId = COLOR_CYCLING,
                     sortOrder = 2,
@@ -146,7 +152,7 @@ class CategorySeeder
                     isSystem = true,
                 ),
                 Category(
-                    id = 4L,
+                    id = STRENGTH_ID,
                     name = stringProvider.get(R.string.categories_category_strength),
                     colorId = COLOR_STRENGTH,
                     sortOrder = 3,
@@ -154,7 +160,7 @@ class CategorySeeder
                     isSystem = true,
                 ),
                 Category(
-                    id = 5L,
+                    id = SWIM_ID,
                     name = stringProvider.get(R.string.categories_category_swim),
                     colorId = COLOR_SWIM,
                     sortOrder = 4,
@@ -162,7 +168,7 @@ class CategorySeeder
                     isSystem = true,
                 ),
                 Category(
-                    id = 6L,
+                    id = MOBILITY_ID,
                     name = stringProvider.get(R.string.categories_category_mobility),
                     colorId = COLOR_MOBILITY,
                     sortOrder = 5,
@@ -170,7 +176,7 @@ class CategorySeeder
                     isSystem = true,
                 ),
                 Category(
-                    id = 7L,
+                    id = OTHER_ID,
                     name = stringProvider.get(R.string.category_other),
                     colorId = COLOR_OTHER,
                     sortOrder = 6,
