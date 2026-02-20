@@ -745,9 +745,7 @@ private fun resolveCategoryNames(
     return oldCategoryName to newCategoryName
 }
 
-private fun buildWorkoutUpdateMetadata(
-    input: WorkoutUpdateMetadataInput,
-): Map<String, String> {
+private fun buildWorkoutUpdateMetadata(input: WorkoutUpdateMetadataInput): Map<String, String> {
     return mutableMapOf(
         WEEK_START_DATE to input.weekStartDate,
         OLD_TYPE to (input.original?.type ?: EMPTY),
