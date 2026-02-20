@@ -286,6 +286,44 @@ class ActivityViewModelTest {
             }
         }
 
+    @Test
+    fun updateWorkoutCategory_withWeekSubtitleSplitsLines() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val weekStart = LocalDate.of(2026, 2, 2)
+            val metadata =
+                metadataJson(
+                    WEEK_START_DATE to weekStart.toString(),
+                    OLD_CATEGORY_NAME to "Strength",
+                    NEW_CATEGORY_NAME to "Cardio",
+                    NEW_TYPE to "Bike",
+                )
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 8L,
+                        actionType = UPDATE_WORKOUT.name,
+                        entityType = WORKOUT.name,
+                        entityId = 21L,
+                        metadata = metadata,
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                ),
+            )
+
+            viewModel.state.test {
+                val subtitle = awaitNonEmptyState().sections.first().items.first().subtitle
+
+                assertTrue(subtitle?.contains("Week of") == true)
+                assertTrue(subtitle?.contains("Category") == true)
+                assertTrue(subtitle?.contains("\n") == true)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
     private class FakeUserActionRepository : UserActionRepository {
         private val flow = MutableStateFlow<List<UserActionRecord>>(emptyList())
 
