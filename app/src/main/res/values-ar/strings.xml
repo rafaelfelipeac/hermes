@@ -149,6 +149,8 @@
     <string name="activity_subtitle_change_value">من %1$s إلى %2$s.</string>
     <string name="activity_subtitle_move">من %1$s إلى %2$s.</string>
     <string name="activity_subtitle_week">أسبوع %1$s.</string>
+    <string name="activity_subtitle_workout_category">الفئة %1$s.</string>
+    <string name="activity_subtitle_workout_category_change">الفئة من %1$s إلى %2$s.</string>
     <string name="activity_day_unplanned">قيد التحديد</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>

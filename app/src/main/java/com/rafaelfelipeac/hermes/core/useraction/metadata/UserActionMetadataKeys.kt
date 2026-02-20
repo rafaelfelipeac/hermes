@@ -15,6 +15,8 @@ object UserActionMetadataKeys {
     const val NEW_DESCRIPTION = "new_description"
     const val OLD_VALUE = "old_value"
     const val NEW_VALUE = "new_value"
+    const val OLD_CATEGORY_NAME = "old_category_name"
+    const val NEW_CATEGORY_NAME = "new_category_name"
     const val WAS_COMPLETED = "was_completed"
     const val IS_COMPLETED = "is_completed"
     const val CATEGORY_NAME = "category_name"

@@ -72,3 +72,5 @@ Recent learnings:
 - In Add Workout, preserving `null` category selection lets the field clearly show “Uncategorized” as the default state until the user explicitly picks a category.
 - For this category picker, keeping `TitleChip` in the `prefix` slot and binding a non-empty field value makes the selected/default category visible consistently; the text value itself can stay visually hidden while the chip carries the UI.
 - In dropdown affordances that jump to a management flow, matching the action text color to existing primary-text actions (like “Restore defaults”) improves visual consistency across category-related entry points.
+- Activity subtitles should fall back to a single category label when only one category name is available, so create and category-change actions still surface category info even with partial metadata.
+- When activity rows show week + category info, put the category subtitle on its own line so the week label stays visually distinct.

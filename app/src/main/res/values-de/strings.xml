@@ -149,6 +149,8 @@
     <string name="activity_subtitle_change_value">Von %1$s zu %2$s.</string>
     <string name="activity_subtitle_move">Von %1$s zu %2$s.</string>
     <string name="activity_subtitle_week">Woche vom %1$s.</string>
+    <string name="activity_subtitle_workout_category">Kategorie %1$s.</string>
+    <string name="activity_subtitle_workout_category_change">Kategorie von %1$s zu %2$s.</string>
     <string name="activity_day_unplanned">Noch zu definieren</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>

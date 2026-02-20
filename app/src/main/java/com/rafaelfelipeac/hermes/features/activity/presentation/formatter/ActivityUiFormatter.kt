@@ -99,6 +99,12 @@ class ActivityUiFormatter(
                 UserActionType.UPDATE_CATEGORY_VISIBILITY ->
                     buildCategoryVisibilitySubtitle(metadata)
 
+                UserActionType.CREATE_WORKOUT ->
+                    buildWorkoutCategorySubtitle(metadata)
+
+                UserActionType.UPDATE_WORKOUT ->
+                    buildWorkoutCategoryChangeSubtitle(metadata)
+
                 UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
                 UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)
                 UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
@@ -109,7 +115,9 @@ class ActivityUiFormatter(
             actionType == UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ||
                 actionType == UserActionType.REORDER_WORKOUT ||
                 actionType == UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ||
-                actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
+                actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ||
+                actionType == UserActionType.CREATE_WORKOUT ||
+                actionType == UserActionType.UPDATE_WORKOUT
 
         return if (weekSubtitle != null && actionSubtitle != null && shouldSplitLines) {
             "$weekSubtitle\n$actionSubtitle"
@@ -279,6 +287,47 @@ class ActivityUiFormatter(
             R.string.activity_subtitle_change_value,
             oldValue.orEmpty(),
             newValue.orEmpty(),
+        )
+    }
+
+    private fun buildWorkoutCategorySubtitle(metadata: Map<String, String>): String? {
+        val category = metadata[UserActionMetadataKeys.CATEGORY_NAME]?.takeIf { it.isNotBlank() } ?: return null
+        val quotedCategory = quoteValue(category) ?: return null
+
+        return stringProvider.get(
+            R.string.activity_subtitle_workout_category,
+            quotedCategory,
+        )
+    }
+
+    private fun buildWorkoutCategoryChangeSubtitle(metadata: Map<String, String>): String? {
+        val oldCategory = metadata[UserActionMetadataKeys.OLD_CATEGORY_NAME]?.takeIf { it.isNotBlank() }
+        val newCategory = metadata[UserActionMetadataKeys.NEW_CATEGORY_NAME]?.takeIf { it.isNotBlank() }
+
+        if (oldCategory.isNullOrBlank() || newCategory.isNullOrBlank()) {
+            val category =
+                metadata[UserActionMetadataKeys.CATEGORY_NAME]
+                    ?.takeIf { it.isNotBlank() }
+                    ?: newCategory
+                    ?: oldCategory
+                    ?: return null
+            val quotedCategory = quoteValue(category) ?: return null
+
+            return stringProvider.get(
+                R.string.activity_subtitle_workout_category,
+                quotedCategory,
+            )
+        }
+
+        if (oldCategory == newCategory) return null
+
+        val oldQuoted = quoteValue(oldCategory) ?: return null
+        val newQuoted = quoteValue(newCategory) ?: return null
+
+        return stringProvider.get(
+            R.string.activity_subtitle_workout_category_change,
+            oldQuoted,
+            newQuoted,
         )
     }
 

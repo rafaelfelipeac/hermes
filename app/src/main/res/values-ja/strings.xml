@@ -149,6 +149,8 @@
     <string name="activity_subtitle_change_value">%1$s から %2$s へ。</string>
     <string name="activity_subtitle_move">%1$s から %2$s へ。</string>
     <string name="activity_subtitle_week">%1$s の週。</string>
+    <string name="activity_subtitle_workout_category">カテゴリ %1$s。</string>
+    <string name="activity_subtitle_workout_category_change">カテゴリ %1$s から %2$s へ。</string>
     <string name="activity_day_unplanned">未定</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>

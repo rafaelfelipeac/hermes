@@ -5,10 +5,13 @@ import app.cash.turbine.test
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
@@ -20,7 +23,9 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -208,6 +213,79 @@ class ActivityViewModelTest {
             }
         }
 
+    @Test
+    fun createWorkout_includesCategorySubtitle() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val weekStart = LocalDate.of(2026, 2, 2)
+            val metadata =
+                metadataJson(
+                    WEEK_START_DATE to weekStart.toString(),
+                    CATEGORY_NAME to "Strength",
+                    NEW_TYPE to "Bike",
+                )
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 6L,
+                        actionType = CREATE_WORKOUT.name,
+                        entityType = WORKOUT.name,
+                        entityId = 88L,
+                        metadata = metadata,
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                ),
+            )
+
+            viewModel.state.test {
+                val subtitle = awaitNonEmptyState().sections.first().items.first().subtitle
+
+                assertTrue(subtitle?.contains("Category") == true)
+                assertTrue(subtitle?.contains("Strength") == true)
+                assertTrue(subtitle?.contains("\n") == true)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun updateWorkoutCategory_includesCategoryChangeSubtitle() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val metadata =
+                metadataJson(
+                    OLD_CATEGORY_NAME to "Strength",
+                    NEW_CATEGORY_NAME to "Cardio",
+                    NEW_TYPE to "Bike",
+                )
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 7L,
+                        actionType = UPDATE_WORKOUT.name,
+                        entityType = WORKOUT.name,
+                        entityId = 77L,
+                        metadata = metadata,
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                ),
+            )
+
+            viewModel.state.test {
+                val subtitle = awaitNonEmptyState().sections.first().items.first().subtitle
+
+                assertTrue(subtitle?.contains("Category") == true)
+                assertTrue(subtitle?.contains("Strength") == true)
+                assertTrue(subtitle?.contains("Cardio") == true)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
     private class FakeUserActionRepository : UserActionRepository {
         private val flow = MutableStateFlow<List<UserActionRecord>>(emptyList())
 
@@ -246,6 +324,8 @@ class ActivityViewModelTest {
                 R.string.activity_action_fallback to "You performed an action in the app.",
                 R.string.activity_subtitle_change_value to "From \"%1\$s\" to \"%2\$s\".",
                 R.string.activity_subtitle_move to "From \"%1\$s\" to \"%2\$s\".",
+                R.string.activity_subtitle_workout_category to "Category %1\$s.",
+                R.string.activity_subtitle_workout_category_change to "Category from %1\$s to %2\$s.",
                 R.string.activity_subtitle_week to "Week of %1\$s.",
                 R.string.activity_subtitle_separator to " • ",
                 R.string.activity_time_pattern to "HH:mm",

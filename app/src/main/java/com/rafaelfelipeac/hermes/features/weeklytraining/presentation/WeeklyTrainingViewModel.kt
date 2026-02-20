@@ -8,10 +8,13 @@ import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
@@ -188,6 +191,8 @@ class WeeklyTrainingViewModel
             val currentState = state.value
             val nextOrder = nextUnplannedOrder(currentState)
             val normalizedCategoryId = categoryId ?: UNCATEGORIZED_ID
+            val categoryName =
+                currentState.categories.firstOrNull { it.id == normalizedCategoryId }?.name
 
             viewModelScope.launch {
                 val workoutId =
@@ -207,13 +212,17 @@ class WeeklyTrainingViewModel
                     entityType = WORKOUT,
                     entityId = workoutId,
                     metadata =
-                        mapOf(
+                        mutableMapOf(
                             WEEK_START_DATE to currentState.weekStartDate.toString(),
                             DAY_OF_WEEK to UNPLANNED,
                             NEW_ORDER to nextOrder.toString(),
                             NEW_TYPE to type,
                             NEW_DESCRIPTION to description,
-                        ),
+                        ).apply {
+                            if (!categoryName.isNullOrBlank()) {
+                                put(CATEGORY_NAME, categoryName)
+                            }
+                        },
                 )
             }
         }
@@ -396,11 +405,19 @@ class WeeklyTrainingViewModel
             categoryId: Long?,
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workoutId }
+            val categories = state.value.categories
             val normalizedCategoryId =
                 if (isRestDay) {
                     null
                 } else {
                     categoryId ?: UNCATEGORIZED_ID
+                }
+            val oldCategoryName = original?.takeIf { !it.isRestDay }?.categoryName
+            val newCategoryName =
+                if (isRestDay) {
+                    null
+                } else {
+                    categories.firstOrNull { it.id == normalizedCategoryId }?.name
                 }
 
             repository.updateWorkoutDetails(
@@ -431,13 +448,23 @@ class WeeklyTrainingViewModel
                 entityType = entityType,
                 entityId = workoutId,
                 metadata =
-                    mapOf(
+                    mutableMapOf(
                         WEEK_START_DATE to state.value.weekStartDate.toString(),
                         OLD_TYPE to (original?.type ?: EMPTY),
                         NEW_TYPE to type,
                         OLD_DESCRIPTION to (original?.description ?: EMPTY),
                         NEW_DESCRIPTION to description,
-                    ),
+                    ).apply {
+                        if (!isRestDay) {
+                            if (!oldCategoryName.isNullOrBlank()) {
+                                put(OLD_CATEGORY_NAME, oldCategoryName)
+                            }
+                            if (!newCategoryName.isNullOrBlank()) {
+                                put(NEW_CATEGORY_NAME, newCategoryName)
+                                put(CATEGORY_NAME, newCategoryName)
+                            }
+                        }
+                    },
             )
         }
 
