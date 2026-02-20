@@ -33,7 +33,6 @@ import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
@@ -103,9 +102,15 @@ fun AddWorkoutDialog(
                         prefix = {
                             TitleChip(
                                 label = categoryLabel,
-                                containerColor = currentCategory?.colorId?.let(::categoryAccentColor)
-                                    ?: colorScheme.surfaceVariant,
-                                contentColor = if (currentCategory == null) colorScheme.onSurfaceVariant else Color.White,
+                                containerColor =
+                                    currentCategory?.colorId?.let(::categoryAccentColor)
+                                        ?: colorScheme.surfaceVariant,
+                                contentColor =
+                                    if (currentCategory == null) {
+                                        colorScheme.onSurfaceVariant
+                                    } else {
+                                        Color.White
+                                    },
                             )
                         },
                         trailingIcon = {

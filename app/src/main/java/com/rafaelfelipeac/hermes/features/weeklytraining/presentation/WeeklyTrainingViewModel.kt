@@ -6,11 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
@@ -405,20 +405,14 @@ class WeeklyTrainingViewModel
             categoryId: Long?,
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workoutId }
-            val categories = state.value.categories
-            val normalizedCategoryId =
-                if (isRestDay) {
-                    null
-                } else {
-                    categoryId ?: UNCATEGORIZED_ID
-                }
-            val oldCategoryName = original?.takeIf { !it.isRestDay }?.categoryName
-            val newCategoryName =
-                if (isRestDay) {
-                    null
-                } else {
-                    categories.firstOrNull { it.id == normalizedCategoryId }?.name
-                }
+            val normalizedCategoryId = normalizeCategoryId(isRestDay, categoryId)
+            val (oldCategoryName, newCategoryName) =
+                resolveCategoryNames(
+                    isRestDay = isRestDay,
+                    normalizedCategoryId = normalizedCategoryId,
+                    categories = state.value.categories,
+                    original = original,
+                )
 
             repository.updateWorkoutDetails(
                 workoutId = workoutId,
@@ -448,23 +442,17 @@ class WeeklyTrainingViewModel
                 entityType = entityType,
                 entityId = workoutId,
                 metadata =
-                    mutableMapOf(
-                        WEEK_START_DATE to state.value.weekStartDate.toString(),
-                        OLD_TYPE to (original?.type ?: EMPTY),
-                        NEW_TYPE to type,
-                        OLD_DESCRIPTION to (original?.description ?: EMPTY),
-                        NEW_DESCRIPTION to description,
-                    ).apply {
-                        if (!isRestDay) {
-                            if (!oldCategoryName.isNullOrBlank()) {
-                                put(OLD_CATEGORY_NAME, oldCategoryName)
-                            }
-                            if (!newCategoryName.isNullOrBlank()) {
-                                put(NEW_CATEGORY_NAME, newCategoryName)
-                                put(CATEGORY_NAME, newCategoryName)
-                            }
-                        }
-                    },
+                    buildWorkoutUpdateMetadata(
+                        WorkoutUpdateMetadataInput(
+                            weekStartDate = state.value.weekStartDate.toString(),
+                            original = original,
+                            type = type,
+                            description = description,
+                            isRestDay = isRestDay,
+                            oldCategoryName = oldCategoryName,
+                            newCategoryName = newCategoryName,
+                        ),
+                    ),
             )
         }
 
@@ -728,6 +716,56 @@ class WeeklyTrainingViewModel
             private const val UNDO_TIMEOUT_MS = 4_000L
         }
     }
+
+private fun normalizeCategoryId(
+    isRestDay: Boolean,
+    categoryId: Long?,
+): Long? {
+    return if (isRestDay) {
+        null
+    } else {
+        categoryId ?: UNCATEGORIZED_ID
+    }
+}
+
+private fun resolveCategoryNames(
+    isRestDay: Boolean,
+    normalizedCategoryId: Long?,
+    categories: List<CategoryUi>,
+    original: WorkoutUi?,
+): Pair<String?, String?> {
+    val oldCategoryName = original?.takeIf { !it.isRestDay }?.categoryName
+    val newCategoryName =
+        if (isRestDay || normalizedCategoryId == null) {
+            null
+        } else {
+            categories.firstOrNull { it.id == normalizedCategoryId }?.name
+        }
+
+    return oldCategoryName to newCategoryName
+}
+
+private fun buildWorkoutUpdateMetadata(
+    input: WorkoutUpdateMetadataInput,
+): Map<String, String> {
+    return mutableMapOf(
+        WEEK_START_DATE to input.weekStartDate,
+        OLD_TYPE to (input.original?.type ?: EMPTY),
+        NEW_TYPE to input.type,
+        OLD_DESCRIPTION to (input.original?.description ?: EMPTY),
+        NEW_DESCRIPTION to input.description,
+    ).apply {
+        if (!input.isRestDay) {
+            if (!input.oldCategoryName.isNullOrBlank()) {
+                put(OLD_CATEGORY_NAME, input.oldCategoryName)
+            }
+            if (!input.newCategoryName.isNullOrBlank()) {
+                put(NEW_CATEGORY_NAME, input.newCategoryName)
+                put(CATEGORY_NAME, input.newCategoryName)
+            }
+        }
+    }
+}
 
 private fun nextUnplannedOrder(state: WeeklyTrainingState): Int {
     return state.workouts.count { it.dayOfWeek == null }
