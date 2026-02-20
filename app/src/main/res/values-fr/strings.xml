@@ -86,6 +86,7 @@
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>
+    <string name="settings_about_title">À propos</string>
     <string name="settings_theme_title">Theme</string>
     <string name="settings_theme_system">Uses system default</string>
     <string name="settings_theme_light">Light</string>

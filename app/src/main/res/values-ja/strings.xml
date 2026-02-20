@@ -86,6 +86,7 @@
 
     <!-- Settings -->
     <string name="settings_title">設定</string>
+    <string name="settings_about_title">このアプリについて</string>
     <string name="settings_theme_title">テーマ</string>
     <string name="settings_theme_system">システムの既定を使用</string>
     <string name="settings_theme_light">ライト</string>

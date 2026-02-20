@@ -86,6 +86,7 @@
 
     <!-- Settings -->
     <string name="settings_title">Ajustes</string>
+    <string name="settings_about_title">Acerca de</string>
     <string name="settings_theme_title">Tema</string>
     <string name="settings_theme_system">Usar configuración del sistema</string>
     <string name="settings_theme_light">Claro</string>
