@@ -47,3 +47,38 @@ Recent learnings:
 - Copying a week should be a single Room transaction (delete + insert) to avoid leaving a week empty if a copy fails mid-flight.
 - When undo restores also adjust other rows, re-fetch the week before normalization so ordering uses the post-mutation state.
 - Copy-replace confirmation should rely on a “week loaded” signal, not an empty UI list, to avoid skipping warnings during initial load or week transitions.
+- Category seeding is easier to keep localized when it runs in a domain-level seeder (using `StringProvider`) after Room migrations add the schema; the seeder can also ensure `Uncategorized` exists and backfill null category IDs without hardcoding names in SQL.
+- When a new settings sub-screen is needed but there is no nav graph, a lightweight route flag passed through the app shell keeps navigation simple while allowing deep links like “Manage categories” to jump directly into the settings subsection.
+- We kept the workout data model field as `type`, but updated UI copy to call it “Title” so UX wording can evolve without forcing a data migration or API rename.
+- Reordering the workout row to show category chip first, then title as bold body text, keeps category scanning consistent while making the title feel more like primary content.
+- Day indicators now carry both the last workout (for color) and an aggregate completion flag, so the header can show a completion mark without losing the existing color logic.
+- When the day indicator wraps the weekday letter, the indicator color should be nudged darker in light theme and lighter in dark theme to keep the letter + check readable without changing the category palette itself.
+- Rest day visuals should reuse the same elevated surface color and `onSurfaceVariant` content color as activity/settings cards, keeping rest days muted while matching the app’s card language.
+- To return users from a settings sub-screen back into an in-progress dialog, capture the dialog draft before navigation and replay it on return instead of relying on composable-local state.
+- Restoring starter categories should only insert missing defaults (by their seeded IDs) so custom categories and user edits remain intact; logging a dedicated user action keeps Activity consistent.
+- Moving Settings options into reusable detail screens reduces the main screen to navigable rows while keeping option cards consistent across Theme, Language, and Categories.
+- Settings now uses a shared info-row pattern for feedback/rating actions, keeping card visuals consistent while routing to external intents.
+- XML string resources must escape `<`, `>`, and `&` (e.g., week navigation chevrons and “A & B” labels), otherwise resource merging fails at build time.
+- Email intents are more reliable when subject/body are placed in the `mailto:` URI query parameters and mirrored in extras; some mail clients ignore extras for `ACTION_SENDTO`.
+- To keep system categories localized without overwriting user edits, only rename a system category on language change when its current name still matches the previous locale’s default; use `StringProvider.getForLanguage` to fetch the target locale string without switching the app language.
+- Restoring default categories should also resync system category colors and localized names after inserts, so seeded defaults stay consistent while user categories remain untouched.
+- Activity feed subtitles read clearer when changed values and day labels are consistently quoted, and category-name edits can rely on the subtitle rather than repeating the category label in the action title.
+- Category help dialogs should live in the screen that owns the feature, with localized strings added alongside other category copy to keep UX guidance consistent across locales.
+- Reselecting a bottom-nav destination can be used to reset nested UI state; for Settings, routing the tab click to `SettingsRoute.MAIN` provides a simple “return to root” behavior without adding a separate nav stack.
+- The app window background should match the Compose theme background (including night overrides) to avoid a light/dark flash between the splash and first composable render.
+- Skipping the initial language-apply pass avoids an extra Activity recreation on cold start; apply only after the first language value change to reduce launch flicker.
+- Gating the main content behind a loading indicator avoids showing an empty state briefly before the first data load.
+- Reusing `TitleChip` for Add Workout dropdown options keeps category label+color semantics aligned with Categories and weekly list surfaces, reducing visual drift between “manage” and “select” flows.
+- In Add Workout, preserving `null` category selection lets the field clearly show “Uncategorized” as the default state until the user explicitly picks a category.
+- For this category picker, keeping `TitleChip` in the `prefix` slot and binding a non-empty field value makes the selected/default category visible consistently; the text value itself can stay visually hidden while the chip carries the UI.
+- In dropdown affordances that jump to a management flow, matching the action text color to existing primary-text actions (like “Restore defaults”) improves visual consistency across category-related entry points.
+- Activity subtitles should fall back to a single category label when only one category name is available, so create and category-change actions still surface category info even with partial metadata.
+- When activity rows show week + category info, put the category subtitle on its own line so the week label stays visually distinct.
+- Centralizing category IDs/color IDs and shared theme thresholds in constants reduces hardcoded strings/numbers and keeps UI contrast logic consistent across screens.
+- Keeping entity/domain mappers in a dedicated data-layer file keeps repositories focused on orchestration while still making mapping helpers easy to reuse.
+- Pulling ad-hoc dp values into `Dimens` keeps sizing consistent and makes future layout tweaks centralized.
+- When a dialog can navigate to a management flow that mutates its backing list, revalidate the selected ID on return and defensively normalize IDs again in the ViewModel to avoid persisting stale references.
+- If a “restore defaults” action can mutate existing rows (names/colors), log the action whenever any of those updates happen, not only when new rows are added, to keep Activity history complete.
+- Keeping locale files in sync with `values/strings.xml` includes adding non-translatable URL/intent templates so the key set matches across locales.
+- Typed `menuAnchor` APIs in Material3 require a newer Compose BOM; pinning the BOM to a release that includes Material3 ≥ 1.4.0 avoids unresolved reference errors.
+- For async settings actions like seeding demo data, emit a one-shot event from the ViewModel and show UI feedback only after completion so the toast reflects actual state.

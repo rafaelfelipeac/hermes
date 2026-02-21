@@ -42,12 +42,29 @@ interface WorkoutDao {
         order: Int,
     )
 
-    @Query("UPDATE workouts SET type = :type, description = :description, isRestDay = :isRestDay WHERE id = :id")
+    @Query(
+        "UPDATE workouts SET type = :type, description = :description, " +
+            "isRestDay = :isRestDay, categoryId = :categoryId WHERE id = :id",
+    )
     suspend fun updateDetails(
         id: Long,
         type: String,
         description: String,
         isRestDay: Boolean,
+        categoryId: Long?,
+    )
+
+    @Query(
+        "UPDATE workouts SET categoryId = :uncategorizedId WHERE categoryId IS NULL AND isRestDay = 0",
+    )
+    suspend fun assignNullCategoryTo(uncategorizedId: Long)
+
+    @Query(
+        "UPDATE workouts SET categoryId = :uncategorizedId WHERE categoryId = :deletedCategoryId",
+    )
+    suspend fun reassignCategory(
+        deletedCategoryId: Long,
+        uncategorizedId: Long,
     )
 
     @Query("DELETE FROM workouts WHERE id = :id")

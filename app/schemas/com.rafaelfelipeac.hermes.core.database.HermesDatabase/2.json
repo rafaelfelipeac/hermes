@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 2,
-    "identityHash": "a9b512577168d1ac44f1cc437e35a014",
+    "identityHash": "480539dfe5bbc4cfd0afaaa9d5b237db",
     "entities": [
       {
         "tableName": "workouts",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `weekStartDate` TEXT NOT NULL, `dayOfWeek` INTEGER, `type` TEXT NOT NULL, `description` TEXT NOT NULL, `isCompleted` INTEGER NOT NULL, `isRestDay` INTEGER NOT NULL, `sort_order` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `weekStartDate` TEXT NOT NULL, `dayOfWeek` INTEGER, `type` TEXT NOT NULL, `description` TEXT NOT NULL, `isCompleted` INTEGER NOT NULL, `isRestDay` INTEGER NOT NULL, `categoryId` INTEGER, `sort_order` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -48,6 +48,11 @@
             "columnName": "isRestDay",
             "affinity": "INTEGER",
             "notNull": true
+          },
+          {
+            "fieldPath": "categoryId",
+            "columnName": "categoryId",
+            "affinity": "INTEGER"
           },
           {
             "fieldPath": "sortOrder",
@@ -108,11 +113,59 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "categories",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `colorId` TEXT NOT NULL, `sortOrder` INTEGER NOT NULL, `isHidden` INTEGER NOT NULL, `isSystem` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "colorId",
+            "columnName": "colorId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sortOrder",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isHidden",
+            "columnName": "isHidden",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSystem",
+            "columnName": "isSystem",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a9b512577168d1ac44f1cc437e35a014')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '480539dfe5bbc4cfd0afaaa9d5b237db')"
     ]
   }
 }

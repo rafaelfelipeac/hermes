@@ -1,3 +1,5 @@
+@file:Suppress("ImportOrdering")
+
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import androidx.lifecycle.ViewModel
@@ -9,12 +11,16 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
+import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -25,9 +31,13 @@ class SettingsViewModel
     @Inject
     constructor(
         private val repository: SettingsRepository,
+        private val categorySeeder: CategorySeeder,
         private val userActionLogger: UserActionLogger,
         private val demoDataSeeder: DemoDataSeeder,
     ) : ViewModel() {
+        private val demoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val demoSeedCompletedEvents: SharedFlow<Unit> = demoSeedEvents.asSharedFlow()
+
         val state: StateFlow<SettingsState> =
             combine(
                 repository.themeMode,
@@ -82,12 +92,23 @@ class SettingsViewModel
                                 NEW_VALUE to language.tag,
                             ),
                     )
+                    categorySeeder.syncLocalizedNames(
+                        previousLanguage = previous,
+                        newLanguage = language,
+                        force = false,
+                    )
                 }
             }
 
         fun seedDemoData() =
             viewModelScope.launch {
                 demoDataSeeder.seed()
+                demoSeedEvents.emit(Unit)
+            }
+
+        fun syncLocalizedCategories() =
+            viewModelScope.launch {
+                categorySeeder.syncLocalizedNames()
             }
 
         private companion object {

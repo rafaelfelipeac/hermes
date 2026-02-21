@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
@@ -123,7 +124,7 @@ fun WeeklyTrainingContent(
     var previousUnscheduledIds by remember { mutableStateOf<Set<WorkoutId>>(emptySet()) }
     var isTbdHelpVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(selectedDate, sections) {
+    LaunchedEffect(selectedDate) {
         if (draggedWorkoutId == null) {
             val targetSection = Day(selectedDate.dayOfWeek)
             val targetIndex = sections.indexOf(targetSection)
@@ -339,14 +340,31 @@ fun WeeklyTrainingContent(
                 } else {
                     itemBounds[draggedWorkout.id]?.height ?: 0f
                 }
+            val ghostWidth = itemBounds[draggedWorkout.id]?.width ?: 0f
             val ghostYOffset = currentDragPosition.y - containerBounds.top - ghostHeight / 2f
 
             GhostWorkoutRow(
                 workout = draggedWorkout,
                 modifier =
-                    Modifier.graphicsLayer {
-                        translationY = ghostYOffset
-                    },
+                    Modifier
+                        .graphicsLayer {
+                            translationY = ghostYOffset
+                        }
+                        .then(
+                            if (ghostHeight > 0f) {
+                                Modifier.height(with(LocalDensity.current) { ghostHeight.toDp() })
+                            } else {
+                                Modifier
+                            },
+                        )
+                        .then(
+                            if (ghostWidth > 0f) {
+                                Modifier.width(with(LocalDensity.current) { ghostWidth.toDp() })
+                            } else {
+                                Modifier
+                            },
+                        ),
+                fillMaxWidth = ghostWidth <= 0f,
             )
         }
     }
@@ -354,11 +372,11 @@ fun WeeklyTrainingContent(
     if (isTbdHelpVisible) {
         AlertDialog(
             onDismissRequest = { isTbdHelpVisible = false },
-            title = { Text(text = stringResource(R.string.tbd_help_title)) },
-            text = { Text(text = stringResource(R.string.tbd_help_message)) },
+            title = { Text(text = stringResource(R.string.weekly_training_tbd_help_title)) },
+            text = { Text(text = stringResource(R.string.weekly_training_tbd_help_message)) },
             confirmButton = {
                 TextButton(onClick = { isTbdHelpVisible = false }) {
-                    Text(text = stringResource(R.string.tbd_help_confirm))
+                    Text(text = stringResource(R.string.weekly_training_tbd_help_confirm))
                 }
             },
         )

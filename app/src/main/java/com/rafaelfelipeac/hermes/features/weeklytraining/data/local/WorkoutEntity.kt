@@ -19,6 +19,7 @@ data class WorkoutEntity(
     val description: String,
     val isCompleted: Boolean,
     val isRestDay: Boolean,
+    val categoryId: Long?,
     @ColumnInfo(name = WORKOUT_SORT_ORDER_COLUMN)
     val sortOrder: Int,
 )

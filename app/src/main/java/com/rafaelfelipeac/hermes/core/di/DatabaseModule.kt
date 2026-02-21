@@ -3,7 +3,9 @@ package com.rafaelfelipeac.hermes.core.di
 import android.content.Context
 import androidx.room.Room
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
+import com.rafaelfelipeac.hermes.core.database.MIGRATION_1_2
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
+import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import dagger.Module
 import dagger.Provides
@@ -25,6 +27,7 @@ object DatabaseModule {
             HermesDatabase::class.java,
             DATABASE_NAME,
         )
+            .addMigrations(MIGRATION_1_2)
             .build()
     }
 
@@ -36,6 +39,11 @@ object DatabaseModule {
     @Provides
     fun provideUserActionDao(database: HermesDatabase): UserActionDao {
         return database.userActionDao()
+    }
+
+    @Provides
+    fun provideCategoryDao(database: HermesDatabase): CategoryDao {
+        return database.categoryDao()
     }
 }
 

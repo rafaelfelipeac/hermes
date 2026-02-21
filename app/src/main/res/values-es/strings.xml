@@ -1,59 +1,61 @@
+<?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="nav_weekly_training">Entrenamiento semanal</string>
-    <string name="nav_activity">Actividad</string>
-    <string name="nav_settings">Ajustes</string>
+    <string name="weekly_training_nav_label">Entrenamiento semanal</string>
+    <string name="activity_nav_label">Actividad</string>
+    <string name="settings_nav_label">Ajustes</string>
 
     <!-- Training week: actions -->
-    <string name="add_item">Agregar</string>
+    <string name="weekly_training_add_item">Agregar</string>
     <string name="add_workout">Agregar entrenamiento</string>
-    <string name="add_rest_day">Agregar día de descanso</string>
-    <string name="copy_last_week">Copiar semana pasada</string>
-    <string name="copy_last_week_replace_title">¿Reemplazar esta semana?</string>
-    <string name="copy_last_week_replace_message">Esto reemplazará el plan de esta semana con el plan de la semana pasada.</string>
-    <string name="copy_last_week_replace_confirm">Reemplazar</string>
-    <string name="copy_last_week_empty">Todavía no hay nada para copiar de la semana pasada.</string>
-    <string name="week_copied">Semana copiada.</string>
-    <string name="add_workout_type">Tipo</string>
-    <string name="add_workout_description">Descripción</string>
-    <string name="add_workout_confirm">Agregar</string>
+    <string name="weekly_training_add_rest_day">Agregar día de descanso</string>
+    <string name="weekly_training_copy_last_week">Copiar semana pasada</string>
+    <string name="weekly_training_copy_last_week_replace_title">¿Reemplazar esta semana?</string>
+    <string name="weekly_training_copy_last_week_replace_message">Esto reemplazará el plan de esta semana con el plan de la semana pasada.</string>
+    <string name="weekly_training_copy_last_week_replace_confirm">Reemplazar</string>
+    <string name="weekly_training_copy_last_week_empty">Todavía no hay nada para copiar de la semana pasada.</string>
+    <string name="weekly_training_week_copied">Semana copiada.</string>
+    <string name="workout_dialog_add_workout_title">Título</string>
+    <string name="workout_dialog_add_workout_description">Descripción</string>
+    <string name="workout_dialog_add_workout_confirm">Agregar</string>
     <string name="add_workout_cancel">Cancelar</string>
-    <string name="edit_workout">Editar entrenamiento</string>
+    <string name="workout_dialog_edit_workout">Editar entrenamiento</string>
     <string name="save_changes">Guardar</string>
-    <string name="delete_workout">Eliminar entrenamiento</string>
-    <string name="delete_workout_title">¿Eliminar entrenamiento?</string>
-    <string name="delete_workout_message">¿Seguro que quieres eliminar este entrenamiento?</string>
-    <string name="delete_rest_day">Eliminar día de descanso</string>
-    <string name="delete_rest_day_title">¿Eliminar día de descanso?</string>
-    <string name="delete_rest_day_message">¿Seguro que quieres eliminar este día de descanso?</string>
-    <string name="workout_moved">Entrenamiento movido.</string>
-    <string name="workout_deleted">Entrenamiento eliminado.</string>
-    <string name="workout_completed">Entrenamiento completado.</string>
-    <string name="workout_marked_incomplete">Entrenamiento marcado como incompleto.</string>
-    <string name="rest_day_moved">Día de descanso movido.</string>
-    <string name="rest_day_deleted">Día de descanso eliminado.</string>
-    <string name="undo_action">Deshacer</string>
+    <string name="weekly_training_delete_workout">Eliminar entrenamiento</string>
+    <string name="weekly_training_delete_workout_title">¿Eliminar entrenamiento?</string>
+    <string name="weekly_training_delete_workout_message">¿Seguro que quieres eliminar este entrenamiento?</string>
+    <string name="weekly_training_delete_rest_day">Eliminar día de descanso</string>
+    <string name="weekly_training_delete_rest_day_title">¿Eliminar día de descanso?</string>
+    <string name="weekly_training_delete_rest_day_message">¿Seguro que quieres eliminar este día de descanso?</string>
+    <string name="weekly_training_workout_moved">Entrenamiento movido.</string>
+    <string name="weekly_training_workout_deleted">Entrenamiento eliminado.</string>
+    <string name="weekly_training_workout_completed">Entrenamiento completado.</string>
+    <string name="weekly_training_workout_marked_incomplete">Entrenamiento marcado como incompleto.</string>
+    <string name="weekly_training_rest_day_moved">Día de descanso movido.</string>
+    <string name="weekly_training_rest_day_deleted">Día de descanso eliminado.</string>
+    <string name="weekly_training_undo_action">Deshacer</string>
     <string name="mark_incomplete">Marcar como incompleto</string>
-    <string name="no_workouts">Nada planificado todavía</string>
+    <string name="weekly_training_no_workouts">Nada planificado todavía</string>
     <string name="drag_label">Arrastrar</string>
-    <string name="section_to_be_defined">Por definir</string>
-    <string name="tbd_help_title">Cómo organizar los entrenamientos</string>
-    <string name="tbd_help_message">Mantén pulsado un entrenamiento para arrastrarlo a un día de la semana. Suéltalo sobre un día o entre elementos para definir el orden.</string>
-    <string name="tbd_help_confirm">Entendido</string>
-    <string name="tbd_help_icon">Ayuda para organizar entrenamientos</string>
-    <string name="week_previous">&lt;</string>
-    <string name="week_next">&gt;</string>
-    <string name="rest_day_label">Día de descanso</string>
+    <string name="weekly_training_section_to_be_defined">Por definir</string>
+    <string name="weekly_training_tbd_help_title">Cómo organizar los entrenamientos</string>
+    <string name="weekly_training_tbd_help_message">Mantén pulsado un entrenamiento para arrastrarlo a un día de la semana. Suéltalo sobre un día o entre elementos para definir el orden.</string>
+    <string name="weekly_training_tbd_help_confirm">Entendido</string>
+    <string name="weekly_training_tbd_help_icon">Ayuda para organizar entrenamientos</string>
+    <string name="weekly_training_week_previous">&lt;</string>
+    <string name="weekly_training_week_next">&gt;</string>
+    <string name="weekly_training_rest_day_label">Día de descanso</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modo desarrollador</string>
-    <string name="seed_demo_data">Crear datos de demo</string>
-    <string name="demo_data_created">Datos de demo creados</string>
-    <string name="add_mock_workout">Agregar entrenamiento de ejemplo</string>
+    <string name="settings_seed_demo_data">Crear datos de demo</string>
+    <string name="settings_demo_data_created">Datos de demo creados</string>
+    <string name="weekly_training_add_mock_workout">Agregar entrenamiento de ejemplo</string>
     <string name="mock_workout_type">Cuerpo completo</string>
     <string name="mock_workout_description">3 series de 10 repeticiones</string>
     <string name="mock_workout_type_strength">Fuerza</string>
@@ -81,10 +83,10 @@
     <string name="day_friday">Viernes</string>
     <string name="day_saturday">Sábado</string>
     <string name="day_sunday">Domingo</string>
-    <string name="workout_completed_emoji">👍</string>
 
     <!-- Settings -->
     <string name="settings_title">Ajustes</string>
+    <string name="settings_about_title">Acerca de</string>
     <string name="settings_theme_title">Tema</string>
     <string name="settings_theme_system">Usar configuración del sistema</string>
     <string name="settings_theme_light">Claro</string>
@@ -101,6 +103,17 @@
     <string name="settings_language_hindi">Hindi</string>
     <string name="settings_language_japanese">Japonés</string>
     <string name="settings_app_version">Hermes - Versión: %1$s</string>
+    <string name="settings_back">Volver</string>
+    <string name="settings_feedback_title">Feedback</string>
+    <string name="settings_feedback_body">Envíanos un correo con dudas, sugerencias o para reportar un problema. ¡Tu feedback ayuda a mejorar Hermes!</string>
+    <string name="settings_rate_title">Califica la app</string>
+    <string name="settings_rate_body">¿Te gusta Hermes? Deja una reseña en Play Store y ayuda a otros a descubrir la app.</string>
+    <string name="settings_rate_unavailable">No hay aplicaciones de tienda ni de navegador disponibles.</string>
+    <string name="settings_feedback_email" translatable="false">rafaelfelipeac.dev@gmail.com</string>
+    <string name="settings_feedback_mailto_uri" translatable="false">mailto:%1$s?subject=%2$s&amp;body=%3$s</string>
+    <string name="settings_feedback_subject">%1$s - Comentarios y sugerencias</string>
+    <string name="settings_feedback_email_body">¡Hola!__NL____NL__Escribe aquí tus dudas, sugerencias o reportes de errores.__NL____NL__Cualquier comentario es muy bienvenido :)__NL____NL__---__NL__Versión de la app: %1$s__NL__---</string>
+    <string name="settings_feedback_unavailable">No hay aplicaciones de correo disponibles.</string>
 
     <!-- Activity -->
     <string name="activity_title">Actividad reciente</string>
@@ -138,9 +151,11 @@
     <string name="activity_action_copy_last_week">Copiaste la semana pasada en esta semana.</string>
     <string name="activity_action_undo_copy_last_week">Deshiciste la copia de la semana pasada en esta semana.</string>
     <string name="activity_action_fallback">Realizaste una acción en la app.</string>
-    <string name="activity_subtitle_change_value">De \"%1$s\" a \"%2$s\".</string>
-    <string name="activity_subtitle_move">De \"%1$s\" a \"%2$s\".</string>
+    <string name="activity_subtitle_change_value">De %1$s a %2$s.</string>
+    <string name="activity_subtitle_move">De %1$s a %2$s.</string>
     <string name="activity_subtitle_week">Semana del %1$s.</string>
+    <string name="activity_subtitle_workout_category">Categoría %1$s.</string>
+    <string name="activity_subtitle_workout_category_change">Categoría de %1$s a %2$s.</string>
     <string name="activity_day_unplanned">Por definir</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>
@@ -148,4 +163,52 @@
     <string name="activity_value_system">Sistema</string>
     <string name="activity_value_unknown">Desconocido</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
+
+    <!-- Categories -->
+    <string name="workout_dialog_add_workout_category">Categoría</string>
+    <string name="workout_dialog_manage_categories">Administrar categorías</string>
+    <string name="category_uncategorized">Sin categoría</string>
+    <string name="categories_category_run">Correr</string>
+    <string name="categories_category_cycling">Ciclismo</string>
+    <string name="categories_category_strength">Fuerza</string>
+    <string name="categories_category_swim">Natación</string>
+    <string name="categories_category_mobility">Movilidad</string>
+    <string name="category_other">Otros</string>
+    <string name="settings_workouts_title">Entrenamientos</string>
+    <string name="settings_categories">Categorías</string>
+    <string name="categories_title">Categorías</string>
+    <string name="categories_back">Atrás</string>
+    <string name="categories_add">Añadir categoría</string>
+    <string name="categories_add_title">Nueva categoría</string>
+    <string name="categories_add_confirm">Añadir</string>
+    <string name="categories_edit_title">Editar categoría</string>
+    <string name="categories_name_label">Nombre</string>
+    <string name="categories_color_label">Color</string>
+    <string name="categories_hide_label">Ocultar</string>
+    <string name="categories_hide_action">Ocultar categoría</string>
+    <string name="categories_show_action">Mostrar categoría</string>
+    <string name="categories_move_up">Mover categoría arriba</string>
+    <string name="categories_move_down">Mover categoría abajo</string>
+    <string name="categories_edit_action">Editar categoría</string>
+    <string name="categories_delete_action">Eliminar categoría</string>
+    <string name="categories_delete_title">¿Eliminar categoría "%1$s"?</string>
+    <string name="categories_delete_message">Los entrenamientos se moverán a "Sin categoría".</string>
+    <string name="categories_delete_confirm">Eliminar</string>
+    <string name="categories_help_message">Las categorías mantienen tus entrenamientos organizados.\n\nEmpieza con las predeterminadas o crea las tuyas. Ajústalas cuando quieras: renombra, cambia colores, reordena, oculta/muestra o elimina.\n\nSi un entrenamiento no tiene categoría, se queda en “Sin categoría”.</string>
+    <string name="categories_help_title">Categorías</string>
+    <string name="categories_help_confirm">Entendido</string>
+    <string name="categories_help_icon">Ayuda sobre categorías</string>
+    <string name="activity_action_create_category">Has creado la categoría %1$s.</string>
+    <string name="activity_action_update_category_name">Has renombrado una categoría.</string>
+    <string name="activity_action_update_category_color">Has cambiado el color de %1$s.</string>
+    <string name="activity_action_update_category_visibility">Has cambiado la visibilidad de %1$s.</string>
+    <string name="activity_action_reorder_category">Has reordenado la categoría %1$s.</string>
+    <string name="activity_action_delete_category">Has eliminado la categoría %1$s.</string>
+    <string name="activity_category_fallback">categoría</string>
+    <string name="activity_category_visible">Visible</string>
+    <string name="activity_category_hidden">Oculta</string>
+    <string name="categories_restore_defaults">Restaurar categorías predeterminadas</string>
+    <string name="categories_restore_defaults_confirm">Restaurar</string>
+    <string name="categories_restore_defaults_message">Esto restablecerá los nombres y colores de las categorías predeterminadas. Tus categorías personalizadas se mantendrán.</string>
+    <string name="categories_restore_defaults_title">¿Restaurar categorías predeterminadas?</string>
 </resources>

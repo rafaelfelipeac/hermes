@@ -10,6 +10,10 @@ Project-level conventions for Codex and similar agents.
   - `import androidx.compose.material3.MaterialTheme.typography`
   - `import androidx.compose.material3.MaterialTheme.shapes`
   Then reference `colorScheme`, `typography`, and `shapes` directly (no `MaterialTheme.`).
+- Avoid hardcoded `dp` values in UI; add new sizes to `Dimens` and use named constants.
+- Avoid hardcoded string tokens (including `""`, `"\n"`, and magic `testTag` strings). Use `AppConstants` or file-level constants.
+- Avoid hardcoded category IDs or color IDs; rely on `CategoryDefaults` constants.
+- Avoid hardcoded theme thresholds/blend values; use constants from `core/ui/theme/ThemeConstants.kt`.
 
 ## Architecture & data flow
 - Follow UI → ViewModel → Repository boundaries; UI should not access Room or DataStore directly.
@@ -27,6 +31,7 @@ Project-level conventions for Codex and similar agents.
 - Compose + Material 3 only; no XML layouts.
 - No hardcoded strings; use `StringProvider` for non-UI formatting/strings.
 - When adding a string to `app/src/main/res/values/strings.xml`, add equivalent entries to all localized `values-*/strings.xml` files.
+- Do not add English placeholder text in localized `values-*/strings.xml` files; provide proper translations for each locale.
 
 ## User actions
 - Log user actions via `UserActionLogger` when state changes, using existing metadata keys.

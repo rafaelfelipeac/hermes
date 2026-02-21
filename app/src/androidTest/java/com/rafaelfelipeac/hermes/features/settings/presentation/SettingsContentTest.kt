@@ -1,10 +1,8 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.test.platform.app.InstrumentationRegistry
-import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import org.junit.Assert.assertEquals
@@ -17,10 +15,7 @@ class SettingsContentTest {
 
     @Test
     fun selectingThemeInvokesCallback() {
-        var selectedTheme: ThemeMode? = null
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val darkLabel = context.getString(R.string.settings_theme_dark)
-
+        var invoked = false
         composeRule.setContent {
             SettingsContent(
                 state =
@@ -29,25 +24,25 @@ class SettingsContentTest {
                         language = AppLanguage.SYSTEM,
                     ),
                 appVersion = "0.0.0-test",
-                onThemeSelected = { selectedTheme = it },
-                onLanguageSelected = {},
+                onThemeClick = { invoked = true },
+                onLanguageClick = {},
+                onFeedbackClick = { _, _ -> },
+                onRateClick = {},
                 onSeedDemoData = {},
+                onCategoriesClick = {},
             )
         }
 
-        composeRule.onNodeWithText(darkLabel).performClick()
+        composeRule.onNodeWithTag("settings_theme_row").performClick()
 
         composeRule.runOnIdle {
-            assertEquals(ThemeMode.DARK, selectedTheme)
+            assertEquals(true, invoked)
         }
     }
 
     @Test
     fun selectingLanguageInvokesCallback() {
-        var selectedLanguage: AppLanguage? = null
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val englishLabel = context.getString(R.string.settings_language_english)
-
+        var invoked = false
         composeRule.setContent {
             SettingsContent(
                 state =
@@ -56,16 +51,19 @@ class SettingsContentTest {
                         language = AppLanguage.SYSTEM,
                     ),
                 appVersion = "0.0.0-test",
-                onThemeSelected = {},
-                onLanguageSelected = { selectedLanguage = it },
+                onThemeClick = {},
+                onLanguageClick = { invoked = true },
+                onFeedbackClick = { _, _ -> },
+                onRateClick = {},
                 onSeedDemoData = {},
+                onCategoriesClick = {},
             )
         }
 
-        composeRule.onNodeWithText(englishLabel).performClick()
+        composeRule.onNodeWithTag("settings_language_row").performClick()
 
         composeRule.runOnIdle {
-            assertEquals(AppLanguage.ENGLISH, selectedLanguage)
+            assertEquals(true, invoked)
         }
     }
 }

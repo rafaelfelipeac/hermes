@@ -3,7 +3,6 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,13 +12,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -28,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -37,18 +40,19 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.Completed
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.RestDay
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.DayIndicator.Workout
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.IndicatorSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
-import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
-import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
-import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
+import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle.SHORT
@@ -69,7 +73,7 @@ fun WeeklyCalendarHeader(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     weekStartDate: LocalDate,
-    dayIndicators: Map<DayOfWeek, DayIndicator>,
+    dayIndicators: Map<DayOfWeek, WorkoutDayIndicator>,
     onDateSelected: (LocalDate) -> Unit,
     onWeekChanged: (LocalDate) -> Unit,
 ) {
@@ -111,7 +115,7 @@ fun WeeklyCalendarHeader(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ChevronLeft,
-                    contentDescription = stringResource(R.string.week_previous),
+                    contentDescription = stringResource(R.string.weekly_training_week_previous),
                 )
             }
 
@@ -123,7 +127,7 @@ fun WeeklyCalendarHeader(
             ) {
                 Icon(
                     imageVector = Icons.Outlined.ChevronRight,
-                    contentDescription = stringResource(R.string.week_next),
+                    contentDescription = stringResource(R.string.weekly_training_week_next),
                 )
             }
         }
@@ -148,13 +152,11 @@ fun WeeklyCalendarHeader(
                             .padding(vertical = SpacingMd),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    DefaultDayContent(
+                    DayIndicator(
                         date = date,
                         isSelected = isSelected,
-                        hasWorkout = indicator != null,
+                        indicator = indicator,
                     )
-
-                    IndicatorDot(indicator = indicator)
                 }
             }
         }
@@ -162,50 +164,74 @@ fun WeeklyCalendarHeader(
 }
 
 @Composable
-private fun DefaultDayContent(
+private fun DayIndicator(
     date: LocalDate,
     isSelected: Boolean,
-    hasWorkout: Boolean,
+    indicator: WorkoutDayIndicator?,
 ) {
     val label =
         date.dayOfWeek.getDisplayName(SHORT, Locale.getDefault())
             .take(1)
             .uppercase(Locale.getDefault())
-
-    Text(
-        text = label,
-        fontWeight = if (isSelected) Bold else Normal,
-    )
-
-    if (!hasWorkout) {
-        Spacer(modifier = Modifier.size(IndicatorSize))
-    }
-}
-
-@Composable
-private fun IndicatorDot(indicator: DayIndicator?) {
-    if (indicator == null) {
-        Spacer(modifier = Modifier.size(IndicatorSize))
-        return
-    }
-
-    val isDarkTheme = isSystemInDarkTheme()
-    val completedColor = TodoBlue
-    val restDayColor = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
-    val color =
-        when (indicator) {
-            Workout -> CompletedBlue
-            RestDay -> restDayColor
-            Completed -> completedColor
+    val isDarkTheme = isDarkBackground(colorScheme.background)
+    val indicatorColor =
+        indicator?.let {
+            if (it.workout.isRestDay) {
+                colorScheme.surfaceColorAtElevation(ElevationSm)
+            } else {
+                workoutIndicatorColor(
+                    workout = it.workout,
+                    isDarkTheme = isDarkTheme,
+                    surface = colorScheme.surface,
+                )
+            }
         }
+    val contentColor =
+        when {
+            indicator == null -> colorScheme.onSurface
+            indicator.workout.isRestDay -> colorScheme.onSurfaceVariant
+            indicatorColor != null -> readableContentOn(indicatorColor)
+            else -> colorScheme.onSurface
+        }
+    val containerHeight = IndicatorSize + SpacingXxl
+    val containerWidth = IndicatorSize + SpacingXs
+    val shape = RoundedCornerShape(SpacingSm)
 
     Box(
         modifier =
             Modifier
-                .size(IndicatorSize)
-                .clip(CircleShape)
-                .background(color),
-    )
+                .size(width = containerWidth, height = containerHeight)
+                .clip(shape)
+                .background(indicatorColor ?: Color.Transparent),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                text = label,
+                fontWeight = if (isSelected) Bold else Normal,
+                color = contentColor,
+            )
+
+            if (indicator?.isDayCompleted == true && indicator.workout.isRestDay.not()) {
+                Icon(
+                    imageVector = Icons.Outlined.Check,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier =
+                        Modifier
+                            .size(SpacingXxl)
+                            .padding(bottom = SpacingXs),
+                )
+            } else {
+                Spacer(
+                    modifier =
+                        Modifier
+                            .size(SpacingXxl)
+                            .padding(vertical = SpacingXxs),
+                )
+            }
+        }
+    }
 }
 
 private fun formatWeekRange(
@@ -252,6 +278,10 @@ private fun formatWeekRange(
                 end.year,
             )
     }
+}
+
+private fun readableContentOn(background: Color): Color {
+    return contentColorForBackground(background)
 }
 
 @Preview(showBackground = true)

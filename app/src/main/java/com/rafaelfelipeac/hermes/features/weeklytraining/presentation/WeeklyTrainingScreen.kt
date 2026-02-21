@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +24,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -46,11 +50,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
@@ -60,6 +66,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val ADD_MENU_SCRIM_ALPHA = 0.30f
@@ -68,6 +76,9 @@ private const val ADD_FAB_TEST_TAG = "add-fab"
 @Composable
 fun WeeklyTrainingScreen(
     modifier: Modifier = Modifier,
+    onManageCategories: (WorkoutDialogDraft) -> Unit = {},
+    pendingWorkoutDraft: WorkoutDialogDraft? = null,
+    onWorkoutDraftConsumed: () -> Unit = {},
     viewModel: WeeklyTrainingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -79,11 +90,16 @@ fun WeeklyTrainingScreen(
     var editingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
     var deletingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
     var isCopyReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var draftType by rememberSaveable { mutableStateOf(EMPTY) }
+    var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
+    var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
+    var draftConsumedLocally by remember { mutableStateOf(false) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
-    val undoLabel = stringResource(R.string.undo_action)
-    val copiedWeekMessage = stringResource(R.string.week_copied)
-    val emptyCopyMessage = stringResource(R.string.copy_last_week_empty)
+    val undoLabel = stringResource(R.string.weekly_training_undo_action)
+    val copiedWeekMessage = stringResource(R.string.weekly_training_week_copied)
+    val emptyCopyMessage = stringResource(R.string.weekly_training_copy_last_week_empty)
+    val pickerCategories = state.categories.filter { !it.isHidden || it.id == UNCATEGORIZED_ID }
     val undoMessage =
         undoState?.let { currentUndo ->
             val isRestDay =
@@ -99,23 +115,23 @@ fun WeeklyTrainingScreen(
                 UndoMessage.Moved ->
                     stringResource(
                         if (isRestDay) {
-                            R.string.rest_day_moved
+                            R.string.weekly_training_rest_day_moved
                         } else {
-                            R.string.workout_moved
+                            R.string.weekly_training_workout_moved
                         },
                     )
                 UndoMessage.Deleted ->
                     stringResource(
                         if (isRestDay) {
-                            R.string.rest_day_deleted
+                            R.string.weekly_training_rest_day_deleted
                         } else {
-                            R.string.workout_deleted
+                            R.string.weekly_training_workout_deleted
                         },
                     )
                 UndoMessage.Completed ->
-                    stringResource(R.string.workout_completed)
+                    stringResource(R.string.weekly_training_workout_completed)
                 UndoMessage.MarkedIncomplete ->
-                    stringResource(R.string.workout_marked_incomplete)
+                    stringResource(R.string.weekly_training_workout_marked_incomplete)
             }
         }
 
@@ -156,6 +172,38 @@ fun WeeklyTrainingScreen(
         }
     }
 
+    LaunchedEffect(pendingWorkoutDraft, state.categories, state.workouts) {
+        if (pendingWorkoutDraft == null) {
+            draftConsumedLocally = false
+            return@LaunchedEffect
+        }
+        if (draftConsumedLocally) return@LaunchedEffect
+
+        if (pendingWorkoutDraft.workoutId == null) {
+            draftType = pendingWorkoutDraft.type
+            draftDescription = pendingWorkoutDraft.description
+            draftCategoryId = pendingWorkoutDraft.categoryId ?: UNCATEGORIZED_ID
+            isAddDialogVisible = true
+            draftConsumedLocally = true
+            onWorkoutDraftConsumed()
+        } else {
+            val workout = state.workouts.firstOrNull { it.id == pendingWorkoutDraft.workoutId }
+            val category = state.categories.firstOrNull { it.id == pendingWorkoutDraft.categoryId }
+            if (workout != null) {
+                editingWorkout =
+                    workout.copy(
+                        type = pendingWorkoutDraft.type,
+                        description = pendingWorkoutDraft.description,
+                        categoryId = pendingWorkoutDraft.categoryId,
+                        categoryName = category?.name,
+                        categoryColorId = category?.colorId,
+                    )
+                draftConsumedLocally = true
+                onWorkoutDraftConsumed()
+            }
+        }
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
@@ -168,11 +216,19 @@ fun WeeklyTrainingScreen(
             }
         },
     ) { paddingValues ->
+        val layoutDirection = LocalLayoutDirection.current
+        val contentPadding =
+            PaddingValues(
+                start = paddingValues.calculateStartPadding(layoutDirection),
+                top = paddingValues.calculateTopPadding(),
+                end = paddingValues.calculateEndPadding(layoutDirection),
+                bottom = paddingValues.calculateBottomPadding(),
+            )
         Box(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
+                    .padding(contentPadding),
         ) {
             Column(
                 modifier =
@@ -181,7 +237,7 @@ fun WeeklyTrainingScreen(
                         .padding(SpacingXl),
             ) {
                 Text(
-                    text = stringResource(R.string.nav_weekly_training),
+                    text = stringResource(R.string.weekly_training_nav_label),
                     style = typography.titleLarge,
                 )
 
@@ -195,15 +251,31 @@ fun WeeklyTrainingScreen(
                     onWeekChanged = viewModel::onWeekChanged,
                 )
 
-                WeeklyTrainingContent(
-                    selectedDate = state.selectedDate,
-                    workouts = state.workouts,
-                    onWorkoutMoved = viewModel::moveWorkout,
-                    onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
-                    onWorkoutEdit = { workout -> editingWorkout = workout },
-                    onWorkoutDelete = { workout -> deletingWorkout = workout },
-                    onWeekChanged = viewModel::onWeekChanged,
-                )
+                if (state.isWeekLoaded) {
+                    WeeklyTrainingContent(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        selectedDate = state.selectedDate,
+                        workouts = state.workouts,
+                        onWorkoutMoved = viewModel::moveWorkout,
+                        onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
+                        onWorkoutEdit = { workout -> editingWorkout = workout },
+                        onWorkoutDelete = { workout -> deletingWorkout = workout },
+                        onWeekChanged = viewModel::onWeekChanged,
+                    )
+                } else {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             }
 
             if (isAddMenuVisible) {
@@ -239,7 +311,7 @@ fun WeeklyTrainingScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.add_item),
+                        contentDescription = stringResource(R.string.weekly_training_add_item),
                     )
                 }
             }
@@ -259,13 +331,16 @@ fun WeeklyTrainingScreen(
                         label = stringResource(R.string.add_workout),
                         onClick = {
                             isAddMenuVisible = false
+                            draftType = EMPTY
+                            draftDescription = EMPTY
+                            draftCategoryId = UNCATEGORIZED_ID
                             isAddDialogVisible = true
                         },
                     )
 
                     AddActionPill(
                         icon = Icons.Outlined.Bedtime,
-                        label = stringResource(R.string.add_rest_day),
+                        label = stringResource(R.string.weekly_training_add_rest_day),
                         onClick = {
                             isAddMenuVisible = false
                             viewModel.addRestDay()
@@ -274,7 +349,7 @@ fun WeeklyTrainingScreen(
 
                     AddActionPill(
                         icon = Icons.Default.History,
-                        label = stringResource(R.string.copy_last_week),
+                        label = stringResource(R.string.weekly_training_copy_last_week),
                         onClick = {
                             isAddMenuVisible = false
 
@@ -292,12 +367,13 @@ fun WeeklyTrainingScreen(
 
                         AddActionPill(
                             icon = Icons.Default.Settings,
-                            label = stringResource(R.string.add_mock_workout),
+                            label = stringResource(R.string.weekly_training_add_mock_workout),
                             onClick = {
                                 isAddMenuVisible = false
                                 viewModel.addWorkout(
                                     type = mockType,
                                     description = mockDescription,
+                                    categoryId = UNCATEGORIZED_ID,
                                 )
                             },
                         )
@@ -309,28 +385,70 @@ fun WeeklyTrainingScreen(
 
     if (isAddDialogVisible) {
         AddWorkoutDialog(
-            onDismiss = { isAddDialogVisible = false },
-            onSave = { type, description ->
-                viewModel.addWorkout(type, description)
+            onDismiss = {
                 isAddDialogVisible = false
+                draftType = EMPTY
+                draftDescription = EMPTY
+                draftCategoryId = UNCATEGORIZED_ID
+            },
+            onSave = { type, description, categoryId ->
+                viewModel.addWorkout(type, description, categoryId)
+                isAddDialogVisible = false
+                draftType = EMPTY
+                draftDescription = EMPTY
+                draftCategoryId = UNCATEGORIZED_ID
+            },
+            onManageCategories = { type, description, categoryId ->
+                isAddDialogVisible = false
+                onManageCategories(
+                    WorkoutDialogDraft(
+                        workoutId = null,
+                        type = type,
+                        description = description,
+                        categoryId = categoryId,
+                    ),
+                )
             },
             isEdit = false,
+            categories = pickerCategories,
+            selectedCategoryId = draftCategoryId,
+            initialType = draftType,
+            initialDescription = draftDescription,
         )
     }
 
     editingWorkout?.let { workout ->
+        val editCategories =
+            state.categories
+                .filter { !it.isHidden || it.id == UNCATEGORIZED_ID || it.id == workout.categoryId }
+                .sortedBy { it.sortOrder }
+
         AddWorkoutDialog(
             onDismiss = { editingWorkout = null },
-            onSave = { type, description ->
+            onSave = { type, description, categoryId ->
                 viewModel.updateWorkoutDetails(
                     workoutId = workout.id,
                     type = type,
                     description = description,
                     isRestDay = workout.isRestDay,
+                    categoryId = categoryId,
                 )
                 editingWorkout = null
             },
+            onManageCategories = { type, description, categoryId ->
+                editingWorkout = null
+                onManageCategories(
+                    WorkoutDialogDraft(
+                        workoutId = workout.id,
+                        type = type,
+                        description = description,
+                        categoryId = categoryId,
+                    ),
+                )
+            },
             isEdit = true,
+            categories = editCategories,
+            selectedCategoryId = workout.categoryId,
             initialType = workout.type,
             initialDescription = workout.description,
         )
@@ -339,21 +457,21 @@ fun WeeklyTrainingScreen(
     deletingWorkout?.let { workout ->
         val title =
             if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day_title)
+                stringResource(R.string.weekly_training_delete_rest_day_title)
             } else {
-                stringResource(R.string.delete_workout_title)
+                stringResource(R.string.weekly_training_delete_workout_title)
             }
         val message =
             if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day_message)
+                stringResource(R.string.weekly_training_delete_rest_day_message)
             } else {
-                stringResource(R.string.delete_workout_message)
+                stringResource(R.string.weekly_training_delete_workout_message)
             }
         val confirmLabel =
             if (workout.isRestDay) {
-                stringResource(R.string.delete_rest_day)
+                stringResource(R.string.weekly_training_delete_rest_day)
             } else {
-                stringResource(R.string.delete_workout)
+                stringResource(R.string.weekly_training_delete_workout)
             }
 
         AlertDialog(
@@ -382,10 +500,10 @@ fun WeeklyTrainingScreen(
         AlertDialog(
             onDismissRequest = { isCopyReplaceDialogVisible = false },
             title = {
-                Text(text = stringResource(R.string.copy_last_week_replace_title))
+                Text(text = stringResource(R.string.weekly_training_copy_last_week_replace_title))
             },
             text = {
-                Text(text = stringResource(R.string.copy_last_week_replace_message))
+                Text(text = stringResource(R.string.weekly_training_copy_last_week_replace_message))
             },
             confirmButton = {
                 TextButton(
@@ -395,7 +513,7 @@ fun WeeklyTrainingScreen(
                         isCopyReplaceDialogVisible = false
                     },
                 ) {
-                    Text(text = stringResource(R.string.copy_last_week_replace_confirm))
+                    Text(text = stringResource(R.string.weekly_training_copy_last_week_replace_confirm))
                 }
             },
             dismissButton = {

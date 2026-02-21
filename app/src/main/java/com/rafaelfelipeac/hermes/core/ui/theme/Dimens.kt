@@ -29,6 +29,10 @@ object Dimens {
     val CheckboxSize = 26.dp
     val CloseIconSize = 14.dp
     val SmallIconSize = 16.dp
-    val IndicatorSize = SpacingMd
+    val IndicatorSize = 24.dp
+    val CategoryMoveIconSize = 32.dp
+    val CategoryActionIconSize = 36.dp
+    val CategoryColorSwatchSize = 36.dp
+    val CategoryColorGridHeight = 140.dp
     val CheckboxYOffset = (-2).dp
 }

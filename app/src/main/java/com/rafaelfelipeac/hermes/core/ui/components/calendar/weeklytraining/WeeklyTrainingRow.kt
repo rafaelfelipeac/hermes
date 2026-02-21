@@ -1,23 +1,25 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -27,6 +29,7 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,39 +42,42 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxYOffset
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CloseIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
-import com.rafaelfelipeac.hermes.core.ui.theme.RestDayContentDark
-import com.rafaelfelipeac.hermes.core.ui.theme.RestDayContentLight
-import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
-import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
-import com.rafaelfelipeac.hermes.core.ui.theme.TextSizes
+import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
+import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
+import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
+import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
 private const val WORKOUT_ROW_CONTENT_ALPHA = 1f
-private const val WORKOUT_BORDER_ALPHA = 0.6f
 private const val GHOST_ROW_ALPHA = 0.45f
 private const val TYPE_CHIP_ALPHA = 0.18f
 
@@ -88,6 +94,32 @@ internal fun WorkoutRow(
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val colors = workoutRowColors(workout, isDragging = isDragging)
     val hasDescription = workout.description.isNotBlank()
+    val isDarkTheme = isDarkBackground(colorScheme.background)
+    val categoryAccent =
+        workout.categoryColorId?.let { accent ->
+            baseCategoryColor(accent = categoryAccentColor(accent))
+        }
+    val categoryChipBase =
+        categoryAccent?.let { accent ->
+            if (workout.isCompleted) {
+                completedCategoryColor(
+                    accent = accent,
+                    isDarkTheme = isDarkTheme,
+                    surface = colorScheme.surface,
+                )
+            } else {
+                accent
+            }
+        }
+    val categoryChipBackground =
+        categoryChipBase?.let { base ->
+            lighterTone(base, isDarkTheme = isDarkTheme)
+        }
+    val categoryChipContent =
+        categoryChipBackground?.let { background ->
+            readableContentOn(background)
+        } ?: Color.White
+
     val rowModifier =
         Modifier
             .fillMaxWidth()
@@ -100,17 +132,7 @@ internal fun WorkoutRow(
             }
             .clip(shapes.medium)
             .background(if (isDragging) Color.Transparent else colors.background)
-            .then(
-                if (!isDragging && !workout.isRestDay) {
-                    Modifier.border(
-                        width = BorderThin,
-                        color = colors.background.copy(alpha = WORKOUT_BORDER_ALPHA),
-                        shape = shapes.medium,
-                    )
-                } else {
-                    Modifier
-                },
-            )
+            .then(Modifier)
             .then(
                 if (isDragging) {
                     Modifier
@@ -125,6 +147,16 @@ internal fun WorkoutRow(
             )
 
     Box(modifier = rowModifier) {
+        if (!workout.isRestDay && categoryAccent != null) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .width(SpacingXs)
+                        .background(categoryAccent),
+            )
+        }
+
         Row(
             modifier =
                 Modifier
@@ -143,28 +175,42 @@ internal fun WorkoutRow(
             verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
         ) {
-            if (!workout.isRestDay) {
-                Box(
-                    modifier =
-                        Modifier
-                            .size(CheckboxBoxSize)
-                            .offset(y = CheckboxYOffset),
-                    contentAlignment = Alignment.Center,
-                ) {
+            Box(
+                modifier =
+                    Modifier
+                        .size(CheckboxBoxSize + SpacingSm)
+                        .offset(y = if (workout.isRestDay) Zero else CheckboxYOffset),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (!workout.isRestDay) {
                     if (workout.isCompleted) {
-                        Text(
-                            text = stringResource(R.string.workout_completed_emoji),
+                        val completedButtonColor =
+                            categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA)
+                        val completedButtonContent =
+                            readableContentOn(completedButtonColor)
+                        val completedIconSize = CheckboxSize - SpacingXs
+
+                        Box(
                             modifier =
                                 Modifier
-                                    .clickable { onToggleCompleted(false) }
-                                    .size(CheckboxSize),
-                            fontSize = TextSizes.CompletedEmojiFontSize,
-                        )
+                                    .size(CheckboxSize + SpacingSm)
+                                    .clip(CircleShape)
+                                    .background(completedButtonColor)
+                                    .clickable { onToggleCompleted(false) },
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Check,
+                                contentDescription = stringResource(R.string.weekly_training_workout_completed),
+                                tint = completedButtonContent,
+                                modifier = Modifier.size(completedIconSize),
+                            )
+                        }
                     } else {
                         Checkbox(
                             checked = false,
                             onCheckedChange = onToggleCompleted,
-                            modifier = Modifier.size(CheckboxSize),
+                            modifier = Modifier.size(CheckboxSize + SpacingSm),
                             colors =
                                 CheckboxDefaults.colors(
                                     checkedColor = colors.content,
@@ -174,11 +220,26 @@ internal fun WorkoutRow(
                         )
                     }
                 }
+                if (workout.isRestDay) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(CheckboxSize + SpacingSm)
+                                .clip(CircleShape)
+                                .background(colors.content.copy(alpha = TYPE_CHIP_ALPHA)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Bedtime,
+                            contentDescription = null,
+                            tint = colors.content,
+                            modifier = Modifier.size(SmallIconSize),
+                        )
+                    }
+                }
             }
 
-            if (!workout.isRestDay) {
-                Spacer(modifier = Modifier.width(SpacingLg))
-            }
+            Spacer(modifier = Modifier.width(SpacingLg))
 
             Row(
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
@@ -189,28 +250,32 @@ internal fun WorkoutRow(
             ) {
                 Column {
                     if (workout.isRestDay) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Outlined.Bedtime,
-                                contentDescription = null,
-                                tint = colors.content,
-                                modifier = Modifier.size(SmallIconSize),
-                            )
-
-                            Spacer(modifier = Modifier.width(SpacingSm))
-
-                            Text(
-                                text = stringResource(R.string.rest_day_label),
-                                style = typography.titleSmall,
-                                color = colors.content,
-                            )
-                        }
-                    } else {
-                        TypeChip(
-                            label = workout.type,
+                        TitleChip(
+                            label = stringResource(R.string.weekly_training_rest_day_label),
                             containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                             contentColor = colors.content,
+                            modifier = Modifier.wrapContentWidth(),
                         )
+                    } else {
+                        Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+                            workout.categoryName?.let { categoryName ->
+                                TitleChip(
+                                    label = categoryName,
+                                    containerColor =
+                                        categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
+                                    contentColor = categoryChipContent,
+                                    modifier = Modifier.wrapContentWidth(),
+                                )
+                            }
+
+                            Column(modifier = Modifier.padding(start = SpacingXs)) {
+                                Text(
+                                    text = workout.type,
+                                    style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                    color = colors.content,
+                                )
+                            }
+                        }
                     }
 
                     if (hasDescription) {
@@ -220,6 +285,7 @@ internal fun WorkoutRow(
                             text = workout.description,
                             style = typography.bodySmall,
                             color = colors.content,
+                            modifier = Modifier.padding(start = SpacingXs),
                         )
                     }
                 }
@@ -228,7 +294,7 @@ internal fun WorkoutRow(
 
         Icon(
             imageVector = Icons.Outlined.Close,
-            contentDescription = stringResource(R.string.delete_workout),
+            contentDescription = stringResource(R.string.weekly_training_delete_workout),
             tint = colors.content,
             modifier =
                 Modifier
@@ -241,97 +307,108 @@ internal fun WorkoutRow(
 }
 
 @Composable
-private fun TypeChip(
-    label: String,
-    containerColor: Color,
-    contentColor: Color,
-) {
-    Surface(
-        color = containerColor,
-        contentColor = contentColor,
-        shape = shapes.small,
-    ) {
-        Text(
-            text = label,
-            style = typography.labelSmall,
-            modifier =
-                Modifier.padding(
-                    horizontal = SpacingMd,
-                    vertical = SpacingXs,
-                ),
-        )
-    }
-}
-
-@Composable
 internal fun GhostWorkoutRow(
     modifier: Modifier = Modifier,
     workout: WorkoutUi,
+    fillMaxWidth: Boolean = true,
 ) {
     val colors = workoutRowColors(workout, isDragging = false)
     val hasDescription = workout.description.isNotBlank()
+    val isDarkTheme = isDarkBackground(colorScheme.background)
+    val categoryAccent =
+        workout.categoryColorId?.let { accent ->
+            baseCategoryColor(accent = categoryAccentColor(accent))
+        }
+    val categoryChipBase =
+        categoryAccent?.let { accent ->
+            if (workout.isCompleted) {
+                completedCategoryColor(
+                    accent = accent,
+                    isDarkTheme = isDarkTheme,
+                    surface = colorScheme.surface,
+                )
+            } else {
+                accent
+            }
+        }
+    val categoryChipBackground =
+        categoryChipBase?.let { base ->
+            lighterTone(base, isDarkTheme = isDarkTheme)
+        }
+    val categoryChipContent =
+        categoryChipBackground?.let { background ->
+            readableContentOn(background)
+        } ?: Color.White
 
     Surface(
         color = colors.background,
         contentColor = colors.content,
         shape = shapes.medium,
         modifier =
-            modifier
-                .fillMaxWidth()
-                .then(
-                    if (!workout.isRestDay) {
-                        Modifier.border(
-                            width = BorderThin,
-                            color = colors.background.copy(alpha = WORKOUT_BORDER_ALPHA),
-                            shape = shapes.medium,
-                        )
-                    } else {
-                        Modifier
-                    },
-                )
+            Modifier
+                .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
+                .then(modifier)
                 .alpha(GHOST_ROW_ALPHA),
     ) {
-        Row(
-            modifier = Modifier.padding(ContentPadding),
-            verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
+        Box {
+            if (!workout.isRestDay && categoryAccent != null) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxHeight()
+                            .width(SpacingXs)
+                            .background(categoryAccent),
+                )
+            }
+
             Row(
+                modifier = Modifier.padding(ContentPadding),
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
-                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Column {
-                    if (workout.isRestDay) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                imageVector = Icons.Outlined.Bedtime,
-                                contentDescription = null,
-                                tint = colors.content,
-                                modifier = Modifier.size(SmallIconSize),
+                Row(
+                    verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Column {
+                        if (workout.isRestDay) {
+                            TitleChip(
+                                label = stringResource(R.string.weekly_training_rest_day_label),
+                                containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
+                                contentColor = colors.content,
+                                modifier = Modifier.wrapContentWidth(),
                             )
+                        } else {
+                            Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+                                workout.categoryName?.let { categoryName ->
+                                    TitleChip(
+                                        label = categoryName,
+                                        containerColor =
+                                            categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
+                                        contentColor = categoryChipContent,
+                                        modifier = Modifier.wrapContentWidth(),
+                                    )
+                                }
 
-                            Spacer(modifier = Modifier.width(SpacingSm))
+                                Column(modifier = Modifier.padding(start = SpacingXs)) {
+                                    Text(
+                                        text = workout.type,
+                                        style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                        color = colors.content,
+                                    )
+                                }
+                            }
+                        }
 
+                        if (hasDescription) {
+                            Spacer(modifier = Modifier.height(SpacingXs))
                             Text(
-                                text = stringResource(R.string.rest_day_label),
-                                style = typography.titleSmall,
+                                text = workout.description,
+                                style = typography.bodySmall,
                                 color = colors.content,
+                                modifier = Modifier.padding(start = SpacingXs),
                             )
                         }
-                    } else {
-                        TypeChip(
-                            label = workout.type,
-                            containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
-                            contentColor = colors.content,
-                        )
-                    }
-
-                    if (hasDescription) {
-                        Text(
-                            text = workout.description,
-                            style = typography.bodySmall,
-                            color = colors.content,
-                        )
                     }
                 }
             }
@@ -354,24 +431,45 @@ private fun workoutRowColors(
     val todoContent = CompletedBlueContent
     val completedColor = TodoBlue
     val completedContent = TodoBlueContent
-    val isUnscheduled = workout.dayOfWeek == null
-    val isDarkTheme = isSystemInDarkTheme()
-    val restDayBackground = if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
-    val restDayContent = if (isDarkTheme) RestDayContentDark else RestDayContentLight
+    val isDarkTheme = isDarkBackground(colorScheme.background)
+    val restDayBackground = themeColorScheme.surfaceColorAtElevation(ElevationSm)
+    val restDayContent = themeColorScheme.onSurfaceVariant
+    val categoryAccent =
+        workout.categoryColorId?.let { accent ->
+            baseCategoryColor(accent = categoryAccentColor(accent))
+        }
+    val categoryCompletedBackground =
+        categoryAccent?.let { accent ->
+            completedCategoryColor(
+                accent = accent,
+                isDarkTheme = isDarkTheme,
+                surface = themeColorScheme.surface,
+            )
+        }
+    val categoryContent =
+        categoryAccent?.let { background ->
+            readableContentOn(background)
+        }
+    val categoryCompletedContent =
+        categoryCompletedBackground?.let { background ->
+            readableContentOn(background)
+        }
 
     val background =
         when {
             isDragging -> themeColorScheme.surfaceVariant
-            workout.isCompleted -> completedColor
             workout.isRestDay -> restDayBackground
-            isUnscheduled -> todoColor
+            workout.isCompleted && categoryAccent == null -> completedColor
+            workout.isCompleted && categoryCompletedBackground != null -> categoryCompletedBackground
+            categoryAccent != null -> categoryAccent
             else -> todoColor
         }
     val content =
         when {
             workout.isRestDay -> restDayContent
-            workout.isCompleted -> completedContent
-            isUnscheduled -> todoContent
+            workout.isCompleted && categoryContent == null -> completedContent
+            workout.isCompleted && categoryCompletedContent != null -> categoryCompletedContent
+            categoryContent != null -> categoryContent
             else -> todoContent
         }
 
@@ -380,4 +478,16 @@ private fun workoutRowColors(
 
 private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
     return coordinates?.boundsInRoot()?.height ?: 0f
+}
+
+private fun readableContentOn(background: Color): Color {
+    return contentColorForBackground(background)
+}
+
+private fun lighterTone(
+    color: Color,
+    isDarkTheme: Boolean,
+): Color {
+    val blend = if (isDarkTheme) LIGHTER_TONE_BLEND_DARK else LIGHTER_TONE_BLEND_LIGHT
+    return lerp(color, Color.White, blend)
 }
