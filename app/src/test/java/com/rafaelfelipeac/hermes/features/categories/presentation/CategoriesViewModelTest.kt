@@ -282,7 +282,7 @@ class CategoriesViewModelTest {
             coEvery { categorySeeder.restoreDefaults() } returns 2
             coEvery { categorySeeder.syncLocalizedNames(force = true) } returns 0
             coEvery { categorySeeder.syncDefaultColors() } returns 0
-            coEvery { repository.observeCategories() } returns categoriesFlow
+            every { repository.observeCategories() } returns categoriesFlow
 
             val viewModel =
                 CategoriesViewModel(

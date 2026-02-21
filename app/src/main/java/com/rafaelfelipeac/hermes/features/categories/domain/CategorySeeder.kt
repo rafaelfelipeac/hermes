@@ -84,8 +84,10 @@ class CategorySeeder
                         category.name == previousName &&
                         category.name != newName
                 if (shouldRename) {
-                    repository.updateCategoryName(category.id, newName)
-                    updatedCount += 1
+                    newName.let { safeName ->
+                        repository.updateCategoryName(category.id, safeName)
+                        updatedCount += 1
+                    }
                 }
             }
 

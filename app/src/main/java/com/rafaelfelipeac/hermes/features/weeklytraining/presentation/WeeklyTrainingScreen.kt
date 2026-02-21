@@ -184,6 +184,8 @@ fun WeeklyTrainingScreen(
             draftDescription = pendingWorkoutDraft.description
             draftCategoryId = pendingWorkoutDraft.categoryId ?: UNCATEGORIZED_ID
             isAddDialogVisible = true
+            draftConsumedLocally = true
+            onWorkoutDraftConsumed()
         } else {
             val workout = state.workouts.firstOrNull { it.id == pendingWorkoutDraft.workoutId }
             val category = state.categories.firstOrNull { it.id == pendingWorkoutDraft.categoryId }
@@ -196,11 +198,10 @@ fun WeeklyTrainingScreen(
                         categoryName = category?.name,
                         categoryColorId = category?.colorId,
                     )
+                draftConsumedLocally = true
+                onWorkoutDraftConsumed()
             }
         }
-
-        draftConsumedLocally = true
-        onWorkoutDraftConsumed()
     }
 
     Scaffold(

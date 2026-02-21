@@ -109,6 +109,7 @@
     <string name="settings_rate_body">क्या Hermes पसंद आया? Play Store पर रिव्यू दें और दूसरों को ऐप खोजने में मदद करें।</string>
     <string name="settings_rate_unavailable">कोई स्टोर या ब्राउज़र ऐप उपलब्ध नहीं है।</string>
     <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
+    <string name="settings_feedback_mailto_uri" translatable="false">mailto:%1$s?subject=%2$s&amp;body=%3$s</string>
     <string name="settings_feedback_subject">%1$s - फीडबैक और सुझाव</string>
     <string name="settings_feedback_email_body">नमस्ते!__NL____NL__अपने सवाल, सुझाव या बग रिपोर्ट यहाँ लिखें।__NL____NL__हर फीडबैक का स्वागत है :)__NL____NL__---__NL__ऐप संस्करण: %1$s__NL__---</string>
     <string name="settings_feedback_unavailable">कोई ईमेल ऐप उपलब्ध नहीं है।</string>

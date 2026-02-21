@@ -80,3 +80,4 @@ Recent learnings:
 - When a dialog can navigate to a management flow that mutates its backing list, revalidate the selected ID on return and defensively normalize IDs again in the ViewModel to avoid persisting stale references.
 - If a “restore defaults” action can mutate existing rows (names/colors), log the action whenever any of those updates happen, not only when new rows are added, to keep Activity history complete.
 - Keeping locale files in sync with `values/strings.xml` includes adding non-translatable URL/intent templates so the key set matches across locales.
+- Typed `menuAnchor` APIs in Material3 require a newer Compose BOM; pinning the BOM to a release that includes Material3 ≥ 1.4.0 avoids unresolved reference errors.

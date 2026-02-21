@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,7 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Star
@@ -139,13 +140,21 @@ fun SettingsScreen(
                             putExtra(Intent.EXTRA_TEXT, normalizedBody)
                         }
 
-                    if (intent.resolveActivity(context.packageManager) != null) {
+                    try {
                         context.startActivity(intent)
-                    } else {
-                        android.widget.Toast.makeText(
+                    } catch (error: ActivityNotFoundException) {
+                        Log.e(SETTINGS_SCREEN_TAG, "Feedback intent not found.", error)
+                        Toast.makeText(
                             context,
                             feedbackUnavailableMessage,
-                            android.widget.Toast.LENGTH_SHORT,
+                            Toast.LENGTH_SHORT,
+                        ).show()
+                    } catch (error: SecurityException) {
+                        Log.e(SETTINGS_SCREEN_TAG, "Feedback intent blocked by security policy.", error)
+                        Toast.makeText(
+                            context,
+                            feedbackUnavailableMessage,
+                            Toast.LENGTH_SHORT,
                         ).show()
                     }
                 },
@@ -201,20 +210,20 @@ fun SettingsScreen(
                             }
 
                         if (webLaunchFailed) {
-                            android.widget.Toast.makeText(
+                            Toast.makeText(
                                 context,
                                 rateUnavailableMessage,
-                                android.widget.Toast.LENGTH_SHORT,
+                                Toast.LENGTH_SHORT,
                             ).show()
                         }
                     }
                 },
                 onSeedDemoData = {
                     viewModel.seedDemoData()
-                    android.widget.Toast.makeText(
+                    Toast.makeText(
                         context,
                         demoDataCreatedMessage,
-                        android.widget.Toast.LENGTH_SHORT,
+                        Toast.LENGTH_SHORT,
                     ).show()
                 },
                 onCategoriesClick = { route = SettingsRoute.CATEGORIES },
@@ -474,7 +483,7 @@ private fun SettingsDetailScreen(
         ) {
             IconButton(onClick = onBack) {
                 Icon(
-                    imageVector = Icons.Outlined.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = stringResource(R.string.categories_back),
                 )
             }

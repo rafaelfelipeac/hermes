@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -36,6 +37,7 @@ import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 
@@ -56,6 +58,7 @@ fun AddWorkoutDialog(
     var expanded by rememberSaveable { mutableStateOf(false) }
     var currentCategoryId by rememberSaveable(selectedCategoryId) { mutableStateOf(selectedCategoryId) }
     val currentCategory = categories.firstOrNull { it.id == currentCategoryId }
+    val currentCategoryAccent = currentCategory?.colorId?.let(::categoryAccentColor)
     val categoryLabel =
         currentCategory?.name ?: stringResource(R.string.category_uncategorized)
 
@@ -111,13 +114,12 @@ fun AddWorkoutDialog(
                             TitleChip(
                                 label = categoryLabel,
                                 containerColor =
-                                    currentCategory?.colorId?.let(::categoryAccentColor)
-                                        ?: colorScheme.surfaceVariant,
+                                    currentCategoryAccent ?: colorScheme.surfaceVariant,
                                 contentColor =
-                                    if (currentCategory == null) {
+                                    if (currentCategoryAccent == null) {
                                         colorScheme.onSurfaceVariant
                                     } else {
-                                        Color.White
+                                        contentColorForBackground(currentCategoryAccent)
                                     },
                             )
                         },
@@ -127,7 +129,7 @@ fun AddWorkoutDialog(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .menuAnchor(),
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                     )
 
                     ExposedDropdownMenu(
@@ -135,12 +137,13 @@ fun AddWorkoutDialog(
                         onDismissRequest = { expanded = false },
                     ) {
                         categories.forEach { category ->
+                            val accent = categoryAccentColor(category.colorId)
                             DropdownMenuItem(
                                 text = {
                                     TitleChip(
                                         label = category.name,
-                                        containerColor = categoryAccentColor(category.colorId),
-                                        contentColor = Color.White,
+                                        containerColor = accent,
+                                        contentColor = contentColorForBackground(accent),
                                     )
                                 },
                                 onClick = {

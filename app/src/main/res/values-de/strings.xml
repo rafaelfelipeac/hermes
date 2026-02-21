@@ -109,6 +109,7 @@
     <string name="settings_rate_body">Gefällt dir Hermes? Hinterlasse eine Bewertung im Play Store und hilf anderen, die App zu entdecken.</string>
     <string name="settings_rate_unavailable">Keine Store- oder Browser-Apps verfügbar.</string>
     <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
+    <string name="settings_feedback_mailto_uri" translatable="false">mailto:%1$s?subject=%2$s&amp;body=%3$s</string>
     <string name="settings_feedback_subject">%1$s - Feedback und Vorschläge</string>
     <string name="settings_feedback_email_body">Hallo!__NL____NL__Schreib hier deine Fragen, Vorschläge oder Bugmeldungen.__NL____NL__Jedes Feedback ist sehr willkommen :)__NL____NL__---__NL__App-Version: %1$s__NL__---</string>
     <string name="settings_feedback_unavailable">Keine E-Mail-Apps verfügbar.</string>
@@ -190,7 +191,7 @@
     <string name="categories_edit_action">Kategorie bearbeiten</string>
     <string name="categories_delete_action">Kategorie löschen</string>
     <string name="categories_delete_title">Kategorie „%1$s“ löschen?</string>
-    <string name="categories_delete_message">Workouts werden nach „Nicht kategorisiert“ verschoben.</string>
+    <string name="categories_delete_message">Trainings werden nach „Ohne Kategorie“ verschoben.</string>
     <string name="categories_delete_confirm">Löschen</string>
     <string name="categories_help_message">Kategorien halten deine Trainings organisiert.\n\nStarte mit den Standardkategorien oder erstelle eigene. Passe sie jederzeit an: umbenennen, Farben ändern, neu anordnen, ein-/ausblenden oder löschen.\n\nWenn ein Training keine Kategorie hat, bleibt es unter “Ohne Kategorie”.</string>
     <string name="categories_help_title">Kategorien</string>

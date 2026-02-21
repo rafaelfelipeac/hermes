@@ -109,9 +109,6 @@
     <string name="settings_rate_unavailable">Nessuna app di store o browser disponibile.</string>
     <string name="settings_about_title">Informazioni</string>
     <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
-    <string name="settings_feedback_mailto_uri" translatable="false">mailto:%1$s?subject=%2$s&amp;body=%3$s</string>
-    <string name="settings_play_store_market_url" translatable="false">market://details?id=%1$s</string>
-    <string name="settings_play_store_web_url" translatable="false">https://play.google.com/store/apps/details?id=%1$s</string>
     <string name="settings_feedback_subject">%1$s - Feedback e suggerimenti</string>
     <string name="settings_feedback_email_body">Ciao!__NL____NL__Scrivi qui le tue domande, suggerimenti o segnalazioni di bug.__NL____NL__Ogni feedback è molto gradito :)__NL____NL__---__NL__Versione dell’app: %1$s__NL__---</string>
     <string name="settings_feedback_unavailable">Nessuna app email disponibile.</string>

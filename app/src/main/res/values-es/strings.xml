@@ -109,6 +109,7 @@
     <string name="settings_rate_body">¿Te gusta Hermes? Deja una reseña en Play Store y ayuda a otros a descubrir la app.</string>
     <string name="settings_rate_unavailable">No hay aplicaciones de tienda ni de navegador disponibles.</string>
     <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
+    <string name="settings_feedback_mailto_uri" translatable="false">mailto:%1$s?subject=%2$s&amp;body=%3$s</string>
     <string name="settings_feedback_subject">%1$s - Comentarios y sugerencias</string>
     <string name="settings_feedback_email_body">¡Hola!__NL____NL__Escribe aquí tus dudas, sugerencias o reportes de errores.__NL____NL__Cualquier comentario es muy bienvenido :)__NL____NL__---__NL__Versión de la app: %1$s__NL__---</string>
     <string name="settings_feedback_unavailable">No hay aplicaciones de correo disponibles.</string>

@@ -431,7 +431,6 @@ private fun workoutRowColors(
     val todoContent = CompletedBlueContent
     val completedColor = TodoBlue
     val completedContent = TodoBlueContent
-    val isUnscheduled = workout.dayOfWeek == null
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val restDayBackground = themeColorScheme.surfaceColorAtElevation(ElevationSm)
     val restDayContent = themeColorScheme.onSurfaceVariant
@@ -459,11 +458,10 @@ private fun workoutRowColors(
     val background =
         when {
             isDragging -> themeColorScheme.surfaceVariant
-            workout.isCompleted && categoryAccent == null -> completedColor
             workout.isRestDay -> restDayBackground
+            workout.isCompleted && categoryAccent == null -> completedColor
             workout.isCompleted && categoryCompletedBackground != null -> categoryCompletedBackground
             categoryAccent != null -> categoryAccent
-            isUnscheduled -> todoColor
             else -> todoColor
         }
     val content =
@@ -472,7 +470,6 @@ private fun workoutRowColors(
             workout.isCompleted && categoryContent == null -> completedContent
             workout.isCompleted && categoryCompletedContent != null -> categoryCompletedContent
             categoryContent != null -> categoryContent
-            isUnscheduled -> todoContent
             else -> todoContent
         }
 
