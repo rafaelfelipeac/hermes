@@ -66,7 +66,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -94,6 +93,7 @@ fun WeeklyTrainingScreen(
     var draftType by rememberSaveable { mutableStateOf(EMPTY) }
     var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
+    var draftConsumedLocally by remember { mutableStateOf(false) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
     val undoLabel = stringResource(R.string.weekly_training_undo_action)
@@ -173,28 +173,34 @@ fun WeeklyTrainingScreen(
     }
 
     LaunchedEffect(pendingWorkoutDraft, state.categories, state.workouts) {
-        pendingWorkoutDraft?.let { draft ->
-            if (draft.workoutId == null) {
-                draftType = draft.type
-                draftDescription = draft.description
-                draftCategoryId = draft.categoryId ?: UNCATEGORIZED_ID
-                isAddDialogVisible = true
-            } else {
-                val workout = state.workouts.firstOrNull { it.id == draft.workoutId }
-                val category = state.categories.firstOrNull { it.id == draft.categoryId }
-                if (workout != null) {
-                    editingWorkout =
-                        workout.copy(
-                            type = draft.type,
-                            description = draft.description,
-                            categoryId = draft.categoryId,
-                            categoryName = category?.name,
-                            categoryColorId = category?.colorId,
-                        )
-                }
-            }
-            onWorkoutDraftConsumed()
+        if (pendingWorkoutDraft == null) {
+            draftConsumedLocally = false
+            return@LaunchedEffect
         }
+        if (draftConsumedLocally) return@LaunchedEffect
+
+        if (pendingWorkoutDraft.workoutId == null) {
+            draftType = pendingWorkoutDraft.type
+            draftDescription = pendingWorkoutDraft.description
+            draftCategoryId = pendingWorkoutDraft.categoryId ?: UNCATEGORIZED_ID
+            isAddDialogVisible = true
+        } else {
+            val workout = state.workouts.firstOrNull { it.id == pendingWorkoutDraft.workoutId }
+            val category = state.categories.firstOrNull { it.id == pendingWorkoutDraft.categoryId }
+            if (workout != null) {
+                editingWorkout =
+                    workout.copy(
+                        type = pendingWorkoutDraft.type,
+                        description = pendingWorkoutDraft.description,
+                        categoryId = pendingWorkoutDraft.categoryId,
+                        categoryName = category?.name,
+                        categoryColorId = category?.colorId,
+                    )
+            }
+        }
+
+        draftConsumedLocally = true
+        onWorkoutDraftConsumed()
     }
 
     Scaffold(
@@ -213,7 +219,7 @@ fun WeeklyTrainingScreen(
         val contentPadding =
             PaddingValues(
                 start = paddingValues.calculateStartPadding(layoutDirection),
-                top = Zero,
+                top = paddingValues.calculateTopPadding(),
                 end = paddingValues.calculateEndPadding(layoutDirection),
                 bottom = paddingValues.calculateBottomPadding(),
             )

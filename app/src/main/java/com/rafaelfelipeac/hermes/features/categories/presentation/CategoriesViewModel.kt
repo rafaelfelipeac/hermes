@@ -187,9 +187,10 @@ class CategoriesViewModel
         fun restoreDefaultCategories() {
             viewModelScope.launch {
                 val addedCount = categorySeeder.restoreDefaults()
-                categorySeeder.syncLocalizedNames(force = true)
-                categorySeeder.syncDefaultColors()
-                if (addedCount > 0) {
+                val renamedCount = categorySeeder.syncLocalizedNames(force = true)
+                val recolorCount = categorySeeder.syncDefaultColors()
+
+                if (addedCount + renamedCount + recolorCount > 0) {
                     userActionLogger.log(
                         actionType = RESTORE_DEFAULT_CATEGORIES,
                         entityType = CATEGORY,

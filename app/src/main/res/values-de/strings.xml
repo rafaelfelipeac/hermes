@@ -107,9 +107,11 @@
     <string name="settings_feedback_body">Schreib uns eine E-Mail mit Fragen, Vorschlägen oder um ein Problem zu melden. Dein Feedback hilft, Hermes zu verbessern!</string>
     <string name="settings_rate_title">App bewerten</string>
     <string name="settings_rate_body">Gefällt dir Hermes? Hinterlasse eine Bewertung im Play Store und hilf anderen, die App zu entdecken.</string>
+    <string name="settings_rate_unavailable">Keine Store- oder Browser-Apps verfügbar.</string>
     <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - Feedback und Vorschläge</string>
     <string name="settings_feedback_email_body">Hallo!__NL____NL__Schreib hier deine Fragen, Vorschläge oder Bugmeldungen.__NL____NL__Jedes Feedback ist sehr willkommen :)__NL____NL__---__NL__App-Version: %1$s__NL__---</string>
+    <string name="settings_feedback_unavailable">Keine E-Mail-Apps verfügbar.</string>
 
     <!-- Activity -->
     <string name="activity_title">Letzte Aktivitäten</string>

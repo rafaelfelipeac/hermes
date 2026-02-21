@@ -6,7 +6,9 @@ import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryR
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class CategoryRepositoryImpl
     @Inject
     constructor(

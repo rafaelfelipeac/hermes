@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,6 +36,7 @@ import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 
 @Composable
@@ -56,6 +58,12 @@ fun AddWorkoutDialog(
     val currentCategory = categories.firstOrNull { it.id == currentCategoryId }
     val categoryLabel =
         currentCategory?.name ?: stringResource(R.string.category_uncategorized)
+
+    LaunchedEffect(categories, currentCategoryId) {
+        if (currentCategoryId != null && categories.none { it.id == currentCategoryId }) {
+            currentCategoryId = UNCATEGORIZED_ID
+        }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,

@@ -190,7 +190,12 @@ class WeeklyTrainingViewModel
         ) {
             val currentState = state.value
             val nextOrder = nextUnplannedOrder(currentState)
-            val normalizedCategoryId = categoryId ?: UNCATEGORIZED_ID
+            val normalizedCategoryId =
+                resolveCategoryId(
+                    isRestDay = false,
+                    categoryId = categoryId,
+                    categories = currentState.categories,
+                )
             val categoryName =
                 currentState.categories.firstOrNull { it.id == normalizedCategoryId }?.name
 
@@ -405,7 +410,12 @@ class WeeklyTrainingViewModel
             categoryId: Long?,
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workoutId }
-            val normalizedCategoryId = normalizeCategoryId(isRestDay, categoryId)
+            val normalizedCategoryId =
+                resolveCategoryId(
+                    isRestDay = isRestDay,
+                    categoryId = categoryId,
+                    categories = state.value.categories,
+                )
             val (oldCategoryName, newCategoryName) =
                 resolveCategoryNames(
                     isRestDay = isRestDay,
@@ -726,6 +736,15 @@ private fun normalizeCategoryId(
     } else {
         categoryId ?: UNCATEGORIZED_ID
     }
+}
+
+private fun resolveCategoryId(
+    isRestDay: Boolean,
+    categoryId: Long?,
+    categories: List<CategoryUi>,
+): Long? {
+    val normalized = normalizeCategoryId(isRestDay, categoryId) ?: return null
+    return if (categories.any { it.id == normalized }) normalized else UNCATEGORIZED_ID
 }
 
 private fun resolveCategoryNames(

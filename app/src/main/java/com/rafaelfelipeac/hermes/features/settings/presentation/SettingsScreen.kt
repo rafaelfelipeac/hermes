@@ -1,7 +1,9 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -78,6 +80,7 @@ import java.util.Locale
 private const val DEBUG_PACKAGE_SUFFIX = ".dev"
 private const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
 private const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
+private const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 
 @Composable
 fun SettingsScreen(
@@ -90,6 +93,8 @@ fun SettingsScreen(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val demoDataCreatedMessage = stringResource(R.string.settings_demo_data_created)
+    val feedbackUnavailableMessage = stringResource(R.string.settings_feedback_unavailable)
+    val rateUnavailableMessage = stringResource(R.string.settings_rate_unavailable)
     val feedbackEmail = stringResource(R.string.settings_feedback_email)
     val mailtoTemplate = stringResource(R.string.settings_feedback_mailto_uri)
     val marketUrlTemplate = stringResource(R.string.settings_play_store_market_url)
@@ -133,7 +138,16 @@ fun SettingsScreen(
                             putExtra(Intent.EXTRA_SUBJECT, subject)
                             putExtra(Intent.EXTRA_TEXT, normalizedBody)
                         }
-                    context.startActivity(intent)
+
+                    if (intent.resolveActivity(context.packageManager) != null) {
+                        context.startActivity(intent)
+                    } else {
+                        android.widget.Toast.makeText(
+                            context,
+                            feedbackUnavailableMessage,
+                            android.widget.Toast.LENGTH_SHORT,
+                        ).show()
+                    }
                 },
                 onRateClick = {
                     val packageName =
@@ -161,10 +175,38 @@ fun SettingsScreen(
                             ).toUri(),
                         )
 
-                    if (marketIntent.resolveActivity(context.packageManager) != null) {
-                        context.startActivity(marketIntent)
-                    } else {
-                        context.startActivity(webIntent)
+                    val launchFailed =
+                        try {
+                            context.startActivity(marketIntent)
+                            false
+                        } catch (error: ActivityNotFoundException) {
+                            Log.e(SETTINGS_SCREEN_TAG, "Market intent not found.", error)
+                            true
+                        } catch (error: SecurityException) {
+                            Log.e(SETTINGS_SCREEN_TAG, "Market intent blocked by security policy.", error)
+                            true
+                        }
+
+                    if (launchFailed) {
+                        val webLaunchFailed =
+                            try {
+                                context.startActivity(webIntent)
+                                false
+                            } catch (error: ActivityNotFoundException) {
+                                Log.e(SETTINGS_SCREEN_TAG, "Web intent not found.", error)
+                                true
+                            } catch (error: SecurityException) {
+                                Log.e(SETTINGS_SCREEN_TAG, "Web intent blocked by security policy.", error)
+                                true
+                            }
+
+                        if (webLaunchFailed) {
+                            android.widget.Toast.makeText(
+                                context,
+                                rateUnavailableMessage,
+                                android.widget.Toast.LENGTH_SHORT,
+                            ).show()
+                        }
                     }
                 },
                 onSeedDemoData = {

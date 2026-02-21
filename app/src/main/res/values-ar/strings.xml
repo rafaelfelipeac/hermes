@@ -107,9 +107,11 @@
     <string name="settings_feedback_body">أرسل لنا بريدًا إلكترونيًا بالأسئلة أو الاقتراحات أو للإبلاغ عن مشكلة. ملاحظاتك تساعد في تحسين Hermes!</string>
     <string name="settings_rate_title">قيّم التطبيق</string>
     <string name="settings_rate_body">هل أعجبك Hermes؟ اترك تقييمًا على متجر Play وساعد الآخرين على اكتشاف التطبيق.</string>
+    <string name="settings_rate_unavailable">لا توجد تطبيقات متجر أو متصفح متاحة.</string>
     <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - الملاحظات والاقتراحات</string>
     <string name="settings_feedback_email_body">مرحبًا!__NL____NL__اكتب أسئلتك أو اقتراحاتك أو تقارير الأخطاء هنا.__NL____NL__كل ملاحظة مرحب بها جدًا :)__NL____NL__---__NL__إصدار التطبيق: %1$s__NL__---</string>
+    <string name="settings_feedback_unavailable">لا توجد تطبيقات بريد إلكتروني متاحة.</string>
 
     <!-- Activity -->
     <string name="activity_title">النشاط الأخير</string>

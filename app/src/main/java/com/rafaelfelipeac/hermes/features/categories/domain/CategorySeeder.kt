@@ -58,11 +58,11 @@ class CategorySeeder
             previousLanguage: AppLanguage? = null,
             newLanguage: AppLanguage? = null,
             force: Boolean = false,
-        ) {
+        ): Int {
             val existing = repository.getCategories()
-            val defaultsById = buildStarterCategories().associateBy { it.id }
             val previousTag = languageTag(previousLanguage)
             val newTag = languageTag(newLanguage)
+            var updatedCount = 0
 
             existing.forEach { category ->
                 if (!category.isSystem) return@forEach
@@ -73,6 +73,7 @@ class CategorySeeder
                 if (force && newName != null) {
                     if (category.name != newName) {
                         repository.updateCategoryName(category.id, newName)
+                        updatedCount += 1
                     }
                     return@forEach
                 }
@@ -84,21 +85,28 @@ class CategorySeeder
                         category.name != newName
                 if (shouldRename) {
                     repository.updateCategoryName(category.id, newName)
+                    updatedCount += 1
                 }
             }
+
+            return updatedCount
         }
 
-        suspend fun syncDefaultColors() {
+        suspend fun syncDefaultColors(): Int {
             val existing = repository.getCategories()
             val defaultsById = buildStarterCategories().associateBy { it.id }
+            var updatedCount = 0
 
             existing.forEach { category ->
                 if (!category.isSystem) return@forEach
                 val defaults = defaultsById[category.id] ?: return@forEach
                 if (category.colorId != defaults.colorId) {
                     repository.updateCategoryColor(category.id, defaults.colorId)
+                    updatedCount += 1
                 }
             }
+
+            return updatedCount
         }
 
         private fun getDefaultNameForLanguage(

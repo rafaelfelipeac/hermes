@@ -280,8 +280,8 @@ class CategoriesViewModelTest {
 
             coEvery { categorySeeder.ensureSeeded() } returns Unit
             coEvery { categorySeeder.restoreDefaults() } returns 2
-            coEvery { categorySeeder.syncLocalizedNames(force = true) } returns Unit
-            coEvery { categorySeeder.syncDefaultColors() } returns Unit
+            coEvery { categorySeeder.syncLocalizedNames(force = true) } returns 0
+            coEvery { categorySeeder.syncDefaultColors() } returns 0
             coEvery { repository.observeCategories() } returns categoriesFlow
 
             val viewModel =
@@ -313,8 +313,8 @@ class CategoriesViewModelTest {
 
             coEvery { categorySeeder.ensureSeeded() } returns Unit
             coEvery { categorySeeder.restoreDefaults() } returns 0
-            coEvery { categorySeeder.syncLocalizedNames(force = true) } returns Unit
-            coEvery { categorySeeder.syncDefaultColors() } returns Unit
+            coEvery { categorySeeder.syncLocalizedNames(force = true) } returns 0
+            coEvery { categorySeeder.syncDefaultColors() } returns 0
             every { repository.observeCategories() } returns categoriesFlow
 
             val viewModel =

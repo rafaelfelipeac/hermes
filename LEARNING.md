@@ -77,3 +77,6 @@ Recent learnings:
 - Centralizing category IDs/color IDs and shared theme thresholds in constants reduces hardcoded strings/numbers and keeps UI contrast logic consistent across screens.
 - Keeping entity/domain mappers in a dedicated data-layer file keeps repositories focused on orchestration while still making mapping helpers easy to reuse.
 - Pulling ad-hoc dp values into `Dimens` keeps sizing consistent and makes future layout tweaks centralized.
+- When a dialog can navigate to a management flow that mutates its backing list, revalidate the selected ID on return and defensively normalize IDs again in the ViewModel to avoid persisting stale references.
+- If a “restore defaults” action can mutate existing rows (names/colors), log the action whenever any of those updates happen, not only when new rows are added, to keep Activity history complete.
+- Keeping locale files in sync with `values/strings.xml` includes adding non-translatable URL/intent templates so the key set matches across locales.

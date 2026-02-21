@@ -25,7 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Delete
@@ -50,12 +50,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
@@ -76,6 +74,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryColorOptions
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 
@@ -86,10 +85,10 @@ fun CategoriesScreen(
     viewModel: CategoriesViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    var editorCategory by remember { mutableStateOf<CategoryUi?>(null) }
+    var editorCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
     var isRestoreDefaultsDialogVisible by rememberSaveable { mutableStateOf(false) }
-    var deletingCategory by remember { mutableStateOf<CategoryUi?>(null) }
+    var deletingCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var isHelpDialogVisible by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val actionIconTint = colorScheme.onSurfaceVariant
@@ -112,7 +111,7 @@ fun CategoriesScreen(
             ) {
                 IconButton(onClick = onBack) {
                     Icon(
-                        imageVector = Icons.Outlined.ArrowBack,
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                         contentDescription = stringResource(R.string.categories_back),
                     )
                 }
@@ -197,8 +196,8 @@ fun CategoriesScreen(
                                 onToggleHidden = { isHidden ->
                                     viewModel.updateCategoryVisibility(category.id, isHidden)
                                 },
-                                onEdit = { editorCategory = category },
-                                onDelete = { deletingCategory = category },
+                                onEdit = { editorCategoryId = category.id },
+                                onDelete = { deletingCategoryId = category.id },
                                 modifier = Modifier.padding(vertical = SpacingXxs),
                             )
 
@@ -228,13 +227,18 @@ fun CategoriesScreen(
         )
     }
 
+    val editorCategory =
+        editorCategoryId?.let { id ->
+            state.categories.firstOrNull { it.id == id }
+        }
+
     editorCategory?.let { category ->
         CategoryEditorDialog(
             title = stringResource(R.string.categories_edit_title),
             confirmLabel = stringResource(R.string.save_changes),
             initialName = category.name,
             initialColorId = category.colorId,
-            onDismiss = { editorCategory = null },
+            onDismiss = { editorCategoryId = null },
             onConfirm = { name, colorId ->
                 if (name != category.name) {
                     viewModel.renameCategory(category.id, name)
@@ -244,28 +248,33 @@ fun CategoriesScreen(
                     viewModel.updateCategoryColor(category.id, colorId)
                 }
 
-                editorCategory = null
+                editorCategoryId = null
             },
         )
     }
 
+    val deletingCategory =
+        deletingCategoryId?.let { id ->
+            state.categories.firstOrNull { it.id == id }
+        }
+
     deletingCategory?.let { category ->
         AlertDialog(
-            onDismissRequest = { deletingCategory = null },
+            onDismissRequest = { deletingCategoryId = null },
             title = { Text(text = stringResource(R.string.categories_delete_title, category.name)) },
             text = { Text(text = stringResource(R.string.categories_delete_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         viewModel.deleteCategory(category.id)
-                        deletingCategory = null
+                        deletingCategoryId = null
                     },
                 ) {
                     Text(text = stringResource(R.string.categories_delete_confirm))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { deletingCategory = null }) {
+                TextButton(onClick = { deletingCategoryId = null }) {
                     Text(text = stringResource(R.string.add_workout_cancel))
                 }
             },
@@ -362,7 +371,7 @@ private fun CategoryRow(
             TitleChip(
                 label = category.name,
                 containerColor = accent,
-                contentColor = Color.White,
+                contentColor = contentColorForBackground(accent),
                 modifier = Modifier.wrapContentWidth(),
             )
         }

@@ -115,7 +115,11 @@ internal fun WorkoutRow(
         categoryChipBase?.let { base ->
             lighterTone(base, isDarkTheme = isDarkTheme)
         }
-    val categoryChipContent = Color.White
+    val categoryChipContent =
+        categoryChipBackground?.let { background ->
+            readableContentOn(background)
+        } ?: Color.White
+
     val rowModifier =
         Modifier
             .fillMaxWidth()
@@ -182,7 +186,8 @@ internal fun WorkoutRow(
                     if (workout.isCompleted) {
                         val completedButtonColor =
                             categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA)
-                        val completedButtonContent = Color.White
+                        val completedButtonContent =
+                            readableContentOn(completedButtonColor)
                         val completedIconSize = CheckboxSize - SpacingXs
 
                         Box(
@@ -330,7 +335,10 @@ internal fun GhostWorkoutRow(
         categoryChipBase?.let { base ->
             lighterTone(base, isDarkTheme = isDarkTheme)
         }
-    val categoryChipContent = Color.White
+    val categoryChipContent =
+        categoryChipBackground?.let { background ->
+            readableContentOn(background)
+        } ?: Color.White
 
     Surface(
         color = colors.background,

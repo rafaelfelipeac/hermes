@@ -4,7 +4,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_CYCLING
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_SWIM
-import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.CYCLING_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.RUN_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWIM_ID
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek.MONDAY
 import java.time.DayOfWeek.WEDNESDAY
@@ -44,7 +46,7 @@ class WeeklyTrainingContentPreviewProvider :
                             description = PREVIEW_WORKOUT_DESCRIPTION_RUN,
                             isCompleted = false,
                             isRestDay = false,
-                            categoryId = UNCATEGORIZED_ID,
+                            categoryId = RUN_ID,
                             categoryColorId = COLOR_RUN,
                             categoryName = "Run",
                             order = PREVIEW_ORDER,
@@ -56,7 +58,7 @@ class WeeklyTrainingContentPreviewProvider :
                             description = PREVIEW_WORKOUT_DESCRIPTION_SWIM,
                             isCompleted = false,
                             isRestDay = false,
-                            categoryId = 2L,
+                            categoryId = SWIM_ID,
                             categoryColorId = COLOR_SWIM,
                             categoryName = "Swim",
                             order = PREVIEW_ORDER,
@@ -68,7 +70,7 @@ class WeeklyTrainingContentPreviewProvider :
                             description = PREVIEW_WORKOUT_DESCRIPTION_BIKE,
                             isCompleted = true,
                             isRestDay = false,
-                            categoryId = 3L,
+                            categoryId = CYCLING_ID,
                             categoryColorId = COLOR_CYCLING,
                             categoryName = "Cycling",
                             order = PREVIEW_ORDER,
