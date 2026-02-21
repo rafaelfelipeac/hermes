@@ -66,6 +66,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -220,7 +221,7 @@ fun WeeklyTrainingScreen(
         val contentPadding =
             PaddingValues(
                 start = paddingValues.calculateStartPadding(layoutDirection),
-                top = paddingValues.calculateTopPadding(),
+                top = Zero,
                 end = paddingValues.calculateEndPadding(layoutDirection),
                 bottom = paddingValues.calculateBottomPadding(),
             )
