@@ -191,9 +191,9 @@
     <string name="categories_edit_action">श्रेणी संपादित करें</string>
     <string name="categories_delete_action">श्रेणी हटाएं</string>
     <string name="categories_delete_title">श्रेणी "%1$s" हटाएं?</string>
-    <string name="categories_delete_message">वर्कआउट "अवर्गीकृत" में ले जाए जाएंगे।</string>
+    <string name="categories_delete_message">वर्कआउट "बिना श्रेणी" में ले जाए जाएंगे।</string>
     <string name="categories_delete_confirm">हटाएं</string>
-    <string name="categories_help_message">श्रेणियाँ आपके वर्कआउट को व्यवस्थित रखती हैं.\n\nडिफ़ॉल्ट से शुरू करें या अपनी बनाएँ. जब चाहें बदलाव करें: नाम बदलें, रंग बदलें, क्रम बदलें, छिपाएँ/दिखाएँ या हटाएँ.\n\nयदि किसी वर्कआउट की श्रेणी नहीं है, तो वह “प्रवर्गीकृत” में रहता है।</string>
+    <string name="categories_help_message">श्रेणियाँ आपके वर्कआउट को व्यवस्थित रखती हैं.\n\nडिफ़ॉल्ट से शुरू करें या अपनी बनाएँ. जब चाहें बदलाव करें: नाम बदलें, रंग बदलें, क्रम बदलें, छिपाएँ/दिखाएँ या हटाएँ.\n\nयदि किसी वर्कआउट की श्रेणी नहीं है, तो वह “बिना श्रेणी” में रहता है।</string>
     <string name="categories_help_title">श्रेणियाँ</string>
     <string name="categories_help_confirm">समझ गया</string>
     <string name="categories_help_icon">श्रेणियों के लिए सहायता</string>

@@ -81,3 +81,4 @@ Recent learnings:
 - If a “restore defaults” action can mutate existing rows (names/colors), log the action whenever any of those updates happen, not only when new rows are added, to keep Activity history complete.
 - Keeping locale files in sync with `values/strings.xml` includes adding non-translatable URL/intent templates so the key set matches across locales.
 - Typed `menuAnchor` APIs in Material3 require a newer Compose BOM; pinning the BOM to a release that includes Material3 ≥ 1.4.0 avoids unresolved reference errors.
+- For async settings actions like seeding demo data, emit a one-shot event from the ViewModel and show UI feedback only after completion so the toast reflects actual state.

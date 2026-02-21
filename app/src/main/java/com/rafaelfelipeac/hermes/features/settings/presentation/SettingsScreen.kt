@@ -116,6 +116,16 @@ fun SettingsScreen(
         }
     }
 
+    LaunchedEffect(viewModel) {
+        viewModel.demoSeedCompletedEvents.collect {
+            Toast.makeText(
+                context,
+                demoDataCreatedMessage,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+    }
+
     when (route) {
         SettingsRoute.MAIN ->
             SettingsContent(
@@ -220,11 +230,6 @@ fun SettingsScreen(
                 },
                 onSeedDemoData = {
                     viewModel.seedDemoData()
-                    Toast.makeText(
-                        context,
-                        demoDataCreatedMessage,
-                        Toast.LENGTH_SHORT,
-                    ).show()
                 },
                 onCategoriesClick = { route = SettingsRoute.CATEGORIES },
                 modifier = modifier,
