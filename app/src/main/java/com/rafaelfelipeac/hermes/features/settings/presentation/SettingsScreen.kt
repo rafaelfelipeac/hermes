@@ -489,7 +489,7 @@ private fun SettingsDetailScreen(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = stringResource(R.string.categories_back),
+                    contentDescription = stringResource(R.string.settings_back),
                 )
             }
 

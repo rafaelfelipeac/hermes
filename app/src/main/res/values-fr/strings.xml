@@ -102,13 +102,14 @@
     <string name="settings_language_hindi">Hindi</string>
     <string name="settings_language_japanese">Japonais</string>
     <string name="settings_app_version">Hermes - Version : %1$s</string>
+    <string name="settings_back">Retour</string>
     <string name="settings_feedback_title">Commentaires</string>
     <string name="settings_feedback_body">Envoyez-nous un e-mail avec vos questions, suggestions ou pour signaler un problème. Vos retours aident à améliorer Hermes !</string>
     <string name="settings_rate_title">Noter l’app</string>
     <string name="settings_rate_body">Vous aimez Hermes ? Laissez un avis sur le Play Store et aidez d’autres personnes à découvrir l’app.</string>
     <string name="settings_rate_unavailable">Aucune application de boutique ou de navigateur disponible.</string>
     <string name="settings_about_title">À propos</string>
-    <string name="settings_feedback_email">rafaelfelipeac.dev@gmail.com</string>
+    <string name="settings_feedback_email" translatable="false">rafaelfelipeac.dev@gmail.com</string>
     <string name="settings_feedback_subject">%1$s - Commentaires et suggestions</string>
     <string name="settings_feedback_email_body">Bonjour !__NL____NL__Écrivez ici vos questions, suggestions ou rapports de bugs.__NL____NL__Tout retour est très bienvenu :)__NL____NL__---__NL__Version de l’app : %1$s__NL__---</string>
     <string name="settings_feedback_unavailable">Aucune application e-mail disponible.</string>
