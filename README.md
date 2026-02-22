@@ -67,6 +67,7 @@ A quick look at Hermes in action — focused on clarity and flexibility.
   <img src="docs/screenshots/light/hermes-light-1.jpeg" width="24%" />
   <img src="docs/screenshots/light/hermes-light-2.jpeg" width="24%" />
   <img src="docs/screenshots/light/hermes-light-3.jpeg" width="24%" />
+  <img src="docs/screenshots/light/hermes-light-4.jpeg" width="24%" />
 </p>
 
 ### 🌙 Dark mode
@@ -74,6 +75,7 @@ A quick look at Hermes in action — focused on clarity and flexibility.
   <img src="docs/screenshots/dark/hermes-dark-1.jpeg" width="24%" />
   <img src="docs/screenshots/dark/hermes-dark-2.jpeg" width="24%" />
   <img src="docs/screenshots/dark/hermes-dark-3.jpeg" width="24%" />
+  <img src="docs/screenshots/dark/hermes-dark-4.jpeg" width="24%" />
 </p>
 
 ---
