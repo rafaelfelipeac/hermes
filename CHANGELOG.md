@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [v1.0.2]
+## [v1.2.0]
 ### Added
 - Categories management (create/edit/reorder/hide/restore defaults) with color support
 - Demo data seeding completion feedback in Settings
@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 - Localization consistency across multiple locales
 - Workout row chip/checkmark contrast behavior
 
-## [v1.0.1]
+## [v1.1.0]
 ### Added
 - Undo support for delete, move/reorder and completion actions
 - “Copy last week” to duplicate the previous week into the current one
