@@ -11,7 +11,7 @@
 
 **Hermes** is a simple, offline-first **weekly training planner** — built to help you plan the week and keep it adaptable.
 
-Like **Hermes, the messenger god** 🪽, it’s made for movement: trainings can be **reordered, rescheduled and rearranged** as the week changes — without turning into a rigid routine or a performance tracker.
+Like **Hermes, the messenger god** 🪽, it’s made for movement: workouts can be reordered, rescheduled and rearranged as the week changes — and organized with categories that match your routine.
 
 It focuses on clarity and consistency, with a lightweight weekly view that embraces one idea:
 
@@ -32,6 +32,7 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 
 - Weekly-based training view (calendar-style, but lighter)
 - Plan sessions by day of the week
+- Organize workouts with categories (create, edit, reorder, hide, restore defaults) with color support
 - A **“To be defined”** area for sessions not assigned yet
 - Drag & drop to **reschedule** sessions between days
 - Mark days or sessions as:
