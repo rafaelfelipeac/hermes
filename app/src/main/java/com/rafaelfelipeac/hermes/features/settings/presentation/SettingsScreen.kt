@@ -26,8 +26,8 @@ import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Button
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,12 +76,11 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.JAPA
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SPANISH
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
-import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
-import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
-import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import java.util.Locale
 
 private const val DEBUG_PACKAGE_SUFFIX = ".dev"

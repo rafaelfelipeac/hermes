@@ -9,6 +9,15 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
+data class WorkoutDetailsUpdate(
+    val id: Long,
+    val type: String,
+    val description: String,
+    val isRestDay: Boolean,
+    val eventType: String,
+    val categoryId: Long?,
+)
+
 @Dao
 interface WorkoutDao {
     @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
@@ -44,17 +53,11 @@ interface WorkoutDao {
     )
 
     @Query(
-        "UPDATE workouts SET type = :type, description = :description, " +
-            "isRestDay = :isRestDay, eventType = :eventType, categoryId = :categoryId WHERE id = :id",
+        "UPDATE workouts SET type = :details.type, description = :details.description, " +
+            "isRestDay = :details.isRestDay, eventType = :details.eventType, categoryId = :details.categoryId " +
+            "WHERE id = :details.id",
     )
-    suspend fun updateDetails(
-        id: Long,
-        type: String,
-        description: String,
-        isRestDay: Boolean,
-        eventType: String,
-        categoryId: Long?,
-    )
+    suspend fun updateDetails(details: WorkoutDetailsUpdate)
 
     @Query(
         "UPDATE workouts SET categoryId = :uncategorizedId WHERE categoryId IS NULL AND isRestDay = 0",

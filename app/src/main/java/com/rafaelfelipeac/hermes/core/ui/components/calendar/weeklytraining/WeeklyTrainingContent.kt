@@ -1,8 +1,8 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,9 +43,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.Day
@@ -259,108 +259,105 @@ fun WeeklyTrainingContent(
                             if (activeId == null || containerBounds == Zero) {
                                 dragPointerId = null
                                 liveDropPreview = null
-                                continue
-                            }
-
-                            val trackedChange =
-                                dragPointerId?.let { pointerId ->
-                                    event.changes.firstOrNull { it.id == pointerId }
-                                }
-                            val change =
-                                trackedChange
-                                    ?: run {
-                                        val pressedChanges = event.changes.filter { it.pressed }
-                                        if (pressedChanges.isEmpty()) {
-                                            null
-                                        } else {
-                                            val referencePosition =
-                                                dragPosition?.let { currentRoot ->
-                                                    Offset(
-                                                        x = currentRoot.x - containerBounds.left,
-                                                        y = currentRoot.y - containerBounds.top,
-                                                    )
-                                                }
-                                            val nearestPressed =
-                                                if (referencePosition == null) {
-                                                    pressedChanges.first()
-                                                } else {
-                                                    pressedChanges.minByOrNull { pointerChange ->
-                                                        val dx = pointerChange.position.x - referencePosition.x
-                                                        val dy = pointerChange.position.y - referencePosition.y
-                                                        dx * dx + dy * dy
-                                                    } ?: pressedChanges.first()
-                                                }
-                                            dragPointerId = nearestPressed.id
-                                            nearestPressed
+                            } else {
+                                val trackedChange =
+                                    dragPointerId?.let { pointerId ->
+                                        event.changes.firstOrNull { it.id == pointerId }
+                                    }
+                                val change =
+                                    trackedChange
+                                        ?: run {
+                                            val pressedChanges = event.changes.filter { it.pressed }
+                                            if (pressedChanges.isEmpty()) {
+                                                null
+                                            } else {
+                                                val referencePosition =
+                                                    dragPosition?.let { currentRoot ->
+                                                        Offset(
+                                                            x = currentRoot.x - containerBounds.left,
+                                                            y = currentRoot.y - containerBounds.top,
+                                                        )
+                                                    }
+                                                val nearestPressed =
+                                                    if (referencePosition == null) {
+                                                        pressedChanges.first()
+                                                    } else {
+                                                        pressedChanges.minByOrNull { pointerChange ->
+                                                            val dx = pointerChange.position.x - referencePosition.x
+                                                            val dy = pointerChange.position.y - referencePosition.y
+                                                            dx * dx + dy * dy
+                                                        } ?: pressedChanges.first()
+                                                    }
+                                                dragPointerId = nearestPressed.id
+                                                nearestPressed
+                                            }
                                         }
+
+                                if (change != null) {
+                                    val root =
+                                        Offset(
+                                            containerBounds.left + change.position.x,
+                                            containerBounds.top + change.position.y,
+                                        )
+
+                                    dragPosition = root
+
+                                    val activeWorkout =
+                                        activeId.let { id -> workouts.firstOrNull { it.id == id } }
+                                    if (activeWorkout != null) {
+                                        val fallbackSection = activeWorkout.dayOfWeek.toSectionKey()
+                                        hoveredSection =
+                                            findTargetSection(root, sectionBounds, fallbackSection)
+                                        liveDropPreview =
+                                            computeDropPreview(
+                                                draggedWorkoutId = activeId,
+                                                dragPosition = root,
+                                                context =
+                                                    DropContext(
+                                                        workouts = workouts,
+                                                        workoutsBySection = workoutsBySection,
+                                                        sectionBounds = sectionBounds,
+                                                        dayUsesSlots = dayUsesSlots,
+                                                        itemBounds = itemBounds,
+                                                        onWorkoutMoved = onWorkoutMoved,
+                                                    ),
+                                                targetSectionOverride = hoveredSection,
+                                            )
                                     }
 
-                            if (change == null) {
-                                continue
-                            }
-
-                            val root =
-                                Offset(
-                                    containerBounds.left + change.position.x,
-                                    containerBounds.top + change.position.y,
-                                )
-
-                            dragPosition = root
-
-                            val activeWorkout =
-                                activeId.let { id -> workouts.firstOrNull { it.id == id } }
-                            if (activeWorkout != null) {
-                                val fallbackSection = activeWorkout.dayOfWeek.toSectionKey()
-                                hoveredSection =
-                                    findTargetSection(root, sectionBounds, fallbackSection)
-                                liveDropPreview =
-                                    computeDropPreview(
-                                        draggedWorkoutId = activeId,
-                                        dragPosition = root,
-                                        context =
-                                            DropContext(
+                                    if (!change.pressed) {
+                                        val preview = liveDropPreview
+                                        if (preview != null) {
+                                            applyDropPreview(
+                                                draggedWorkoutId = activeId,
                                                 workouts = workouts,
-                                                workoutsBySection = workoutsBySection,
-                                                sectionBounds = sectionBounds,
-                                                dayUsesSlots = dayUsesSlots,
-                                                itemBounds = itemBounds,
+                                                preview = preview,
                                                 onWorkoutMoved = onWorkoutMoved,
-                                            ),
-                                        targetSectionOverride = hoveredSection,
-                                    )
-                            }
-
-                            if (!change.pressed) {
-                                val preview = liveDropPreview
-                                if (preview != null) {
-                                    applyDropPreview(
-                                        draggedWorkoutId = activeId,
-                                        workouts = workouts,
-                                        preview = preview,
-                                        onWorkoutMoved = onWorkoutMoved,
-                                    )
-                                } else {
-                                    handleDrop(
-                                        draggedWorkoutId = activeId,
-                                        dragPosition = root,
-                                        context =
-                                            DropContext(
-                                                workouts = workouts,
-                                                workoutsBySection = workoutsBySection,
-                                                sectionBounds = sectionBounds,
-                                                dayUsesSlots = dayUsesSlots,
-                                                itemBounds = itemBounds,
-                                                onWorkoutMoved = onWorkoutMoved,
-                                            ),
-                                        targetSectionOverride = hoveredSection,
-                                    )
+                                            )
+                                        } else {
+                                            handleDrop(
+                                                draggedWorkoutId = activeId,
+                                                dragPosition = root,
+                                                context =
+                                                    DropContext(
+                                                        workouts = workouts,
+                                                        workoutsBySection = workoutsBySection,
+                                                        sectionBounds = sectionBounds,
+                                                        dayUsesSlots = dayUsesSlots,
+                                                        itemBounds = itemBounds,
+                                                        onWorkoutMoved = onWorkoutMoved,
+                                                    ),
+                                                targetSectionOverride = hoveredSection,
+                                            )
+                                        }
+                                        draggedWorkoutId = null
+                                        dragPosition = null
+                                        draggedItemHeight = 0f
+                                        hoveredSection = null
+                                        dragPointerId = null
+                                        liveDropPreview = null
+                                    }
                                 }
-                                draggedWorkoutId = null
-                                dragPosition = null
-                                draggedItemHeight = 0f
-                                hoveredSection = null
-                                dragPointerId = null
-                                liveDropPreview = null
                             }
                         }
                     }

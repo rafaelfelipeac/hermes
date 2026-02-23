@@ -1,8 +1,8 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.domain
 
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 
 fun updateWorkoutOrderWithRestDayRules(
     workouts: List<WorkoutUi>,

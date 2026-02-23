@@ -1,7 +1,7 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
@@ -62,7 +62,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxYOffset
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CloseIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm

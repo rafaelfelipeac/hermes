@@ -107,3 +107,4 @@ Recent learnings:
 - Reusing identical header spacing (`start/end` padding + right-aligned help action) across Settings and Categories improves scan consistency and keeps navigation affordances in predictable positions.
 - Main settings navigation labels should stay stable (feature name) rather than reflecting current selected value when the row navigates to a detail screen; it reads clearer for discovery.
 - When UI tests need to assert on composable test tags, keeping tag constants `internal` (instead of private) avoids hardcoded strings while staying scoped to the module.
+- Moving undo workflow helpers (reorder/delete/replace) into shared helper files keeps `WeeklyTrainingViewModel` under detekt size thresholds without changing behavior.
