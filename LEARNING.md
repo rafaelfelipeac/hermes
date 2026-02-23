@@ -95,3 +95,4 @@ Recent learnings:
 - For slot-mode readability, wrapping each turno as a single surface block (header + rows together) communicates grouping better than styling only the header, especially when multiple events exist in one day.
 - Non-workout weekly rows can reuse the weekly divider visual language by applying a `1.dp` `outlineVariant` border; this adds separation for rest/busy/sick items without introducing a new color token.
 - If non-workout rows need stronger separation, setting both border and background to `outlineVariant` creates a high-contrast “status block” style while still reusing existing theme tokens.
+- Drag/ghost handling in a parent `awaitPointerEventScope` should track a stable `PointerId` for the active drag; using `event.changes.firstOrNull()` can bind ghost movement/drop to a different finger or pointer change.

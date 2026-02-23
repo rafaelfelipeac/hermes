@@ -35,6 +35,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Rect.Companion.Zero
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -123,6 +124,7 @@ fun WeeklyTrainingContent(
     var draggedWorkoutId by remember { mutableStateOf<WorkoutId?>(null) }
     var dragPosition by remember { mutableStateOf<Offset?>(null) }
     var draggedItemHeight by remember { mutableFloatStateOf(0f) }
+    var dragPointerId by remember { mutableStateOf<PointerId?>(null) }
     var containerBounds by remember { mutableStateOf(Zero) }
     var hoveredSection by remember { mutableStateOf<SectionKey?>(null) }
     val listState = rememberLazyListState()
@@ -249,10 +251,47 @@ fun WeeklyTrainingContent(
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull()
                             val activeId = draggedWorkoutId
 
-                            if (change == null || activeId == null || containerBounds == Zero) {
+                            if (activeId == null || containerBounds == Zero) {
+                                dragPointerId = null
+                                continue
+                            }
+
+                            val trackedChange =
+                                dragPointerId?.let { pointerId ->
+                                    event.changes.firstOrNull { it.id == pointerId }
+                                }
+                            val change =
+                                trackedChange
+                                    ?: run {
+                                        val pressedChanges = event.changes.filter { it.pressed }
+                                        if (pressedChanges.isEmpty()) {
+                                            null
+                                        } else {
+                                            val referencePosition =
+                                                dragPosition?.let { currentRoot ->
+                                                    Offset(
+                                                        x = currentRoot.x - containerBounds.left,
+                                                        y = currentRoot.y - containerBounds.top,
+                                                    )
+                                                }
+                                            val nearestPressed =
+                                                if (referencePosition == null) {
+                                                    pressedChanges.first()
+                                                } else {
+                                                    pressedChanges.minByOrNull { pointerChange ->
+                                                        val dx = pointerChange.position.x - referencePosition.x
+                                                        val dy = pointerChange.position.y - referencePosition.y
+                                                        dx * dx + dy * dy
+                                                    } ?: pressedChanges.first()
+                                                }
+                                            dragPointerId = nearestPressed.id
+                                            nearestPressed
+                                        }
+                                    }
+
+                            if (change == null) {
                                 continue
                             }
 
@@ -291,6 +330,7 @@ fun WeeklyTrainingContent(
                                 dragPosition = null
                                 draggedItemHeight = 0f
                                 hoveredSection = null
+                                dragPointerId = null
                             }
                         }
                     }
@@ -346,9 +386,12 @@ fun WeeklyTrainingContent(
                                                         onWorkoutCompletionChanged(workout, checked)
                                                     },
                                                     onDragStarted = { position, height ->
-                                                        draggedWorkoutId = workout.id
-                                                        dragPosition = position
-                                                        draggedItemHeight = height
+                                                        if (draggedWorkoutId == null) {
+                                                            draggedWorkoutId = workout.id
+                                                            dragPosition = position
+                                                            draggedItemHeight = height
+                                                            dragPointerId = null
+                                                        }
                                                     },
                                                     onEdit = { onWorkoutEdit(workout) },
                                                     onDelete = { onWorkoutDelete(workout) },
@@ -381,9 +424,12 @@ fun WeeklyTrainingContent(
                                             onWorkoutCompletionChanged(workout, checked)
                                         },
                                         onDragStarted = { position, height ->
-                                            draggedWorkoutId = workout.id
-                                            dragPosition = position
-                                            draggedItemHeight = height
+                                            if (draggedWorkoutId == null) {
+                                                draggedWorkoutId = workout.id
+                                                dragPosition = position
+                                                draggedItemHeight = height
+                                                dragPointerId = null
+                                            }
                                         },
                                         onEdit = { onWorkoutEdit(workout) },
                                         onDelete = { onWorkoutDelete(workout) },
