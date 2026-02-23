@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.Day
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.ToBeDefined
@@ -52,6 +53,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyCalendarBottomPadding
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
@@ -326,7 +328,7 @@ fun WeeklyTrainingContent(
                                 section is Day && shouldUseSlotMode(slotModePolicy, items.size)
                             if (shouldUseSlots) {
                                 val slots = listOf(MORNING, AFTERNOON, NIGHT)
-                                slots.forEach { slot ->
+                                slots.forEachIndexed { index, slot ->
                                     val slotItems = items.filter { effectiveSlot(it.timeSlot) == slot }
                                     SlotSectionCard(title = stringResource(slot.labelRes())) {
                                         if (slotItems.isEmpty()) {
@@ -355,6 +357,16 @@ fun WeeklyTrainingContent(
                                             }
                                         }
                                     }
+                                    Spacer(
+                                        modifier =
+                                            Modifier.height(
+                                                if (index < slots.lastIndex) {
+                                                    SpacingMd
+                                                } else {
+                                                    SpacingXs
+                                                },
+                                            ),
+                                    )
                                 }
                             } else {
                                 items.forEachIndexed { index, workout ->
@@ -454,13 +466,15 @@ private fun SlotSectionCard(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(bottom = SpacingMd),
+                .padding(bottom = 0.dp),
     ) {
         Column(
             modifier =
                 Modifier.padding(
-                    horizontal = SpacingLg,
-                    vertical = SpacingMd,
+                    start = SpacingLg,
+                    end = SpacingLg,
+                    top = SpacingMd,
+                    bottom = SpacingLg,
                 ),
         ) {
             Text(
