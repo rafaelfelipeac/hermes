@@ -516,7 +516,7 @@ fun WeeklyTrainingContent(
                             } else {
                                 Modifier
                             },
-                ),
+                        ),
                 fillMaxWidth = ghostWidth <= 0f,
             )
 

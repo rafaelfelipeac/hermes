@@ -503,9 +503,10 @@ class WeeklyTrainingViewModel
                 val bucketPositions =
                     original?.let {
                         currentWorkouts
-                                .filter { workout -> workout.dayOfWeek == it.dayOfWeek }
-                                .filter { workout -> workout.timeSlot == it.timeSlot }
-                                .sortedBy { workout -> workout.order }
+                            .asSequence()
+                            .filter { workout -> workout.dayOfWeek == it.dayOfWeek }
+                            .filter { workout -> workout.timeSlot == it.timeSlot }
+                            .sortedBy { workout -> workout.order }
                             .filter { workout -> workout.id != workoutId }
                             .map { workout ->
                                 WorkoutPosition(
@@ -515,6 +516,7 @@ class WeeklyTrainingViewModel
                                     order = workout.order,
                                 )
                             }
+                            .toList()
                     }.orEmpty()
 
                 repository.deleteWorkout(workoutId)
