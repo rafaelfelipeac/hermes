@@ -22,6 +22,12 @@ internal data class DropContext(
     val onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
 )
 
+internal data class DropPreview(
+    val targetSection: SectionKey,
+    val targetTimeSlot: TimeSlot?,
+    val targetOrder: Int,
+)
+
 internal fun handleDrop(
     draggedWorkoutId: WorkoutId,
     dragPosition: Offset,
@@ -29,6 +35,29 @@ internal fun handleDrop(
     targetSectionOverride: SectionKey? = null,
 ) {
     val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
+    val preview =
+        computeDropPreview(
+            draggedWorkoutId = draggedWorkoutId,
+            dragPosition = dragPosition,
+            context = context,
+            targetSectionOverride = targetSectionOverride,
+        ) ?: return
+    val newDay = preview.targetSection.dayOfWeekOrNull()
+    val newTimeSlot = preview.targetTimeSlot
+    val newOrder = preview.targetOrder
+
+    if (newDay != workout.dayOfWeek || newTimeSlot != workout.timeSlot || newOrder != workout.order) {
+        context.onWorkoutMoved(workout.id, newDay, newTimeSlot, newOrder)
+    }
+}
+
+internal fun computeDropPreview(
+    draggedWorkoutId: WorkoutId,
+    dragPosition: Offset,
+    context: DropContext,
+    targetSectionOverride: SectionKey? = null,
+): DropPreview? {
+    val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return null
     val fallbackSection = workout.dayOfWeek.toSectionKey()
     val targetSection =
         targetSectionOverride ?: findTargetSection(dragPosition, context.sectionBounds, fallbackSection)
@@ -52,9 +81,11 @@ internal fun handleDrop(
             }
     val newOrder = computeOrderForDrop(dragPosition, targetItems, workout.id, context.itemBounds)
 
-    if (newDay != workout.dayOfWeek || newTimeSlot != workout.timeSlot || newOrder != workout.order) {
-        context.onWorkoutMoved(workout.id, newDay, newTimeSlot, newOrder)
-    }
+    return DropPreview(
+        targetSection = targetSection,
+        targetTimeSlot = newTimeSlot,
+        targetOrder = newOrder,
+    )
 }
 
 private fun slotFromDropPosition(

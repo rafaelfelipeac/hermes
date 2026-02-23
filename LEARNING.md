@@ -96,3 +96,7 @@ Recent learnings:
 - Non-workout weekly rows can reuse the weekly divider visual language by applying a `1.dp` `outlineVariant` border; this adds separation for rest/busy/sick items without introducing a new color token.
 - If non-workout rows need stronger separation, setting both border and background to `outlineVariant` creates a high-contrast “status block” style while still reusing existing theme tokens.
 - Drag/ghost handling in a parent `awaitPointerEventScope` should track a stable `PointerId` for the active drag; using `event.changes.firstOrNull()` can bind ghost movement/drop to a different finger or pointer change.
+- A live drop-preview badge (computed with the same helper used by final drop) reduces perceived slot mismatch because users see the exact interpreted destination before release.
+- To avoid “preview says #N but drop lands at #N+1”, commit drop using the last live preview snapshot instead of recomputing on pointer-up; this keeps final placement aligned with what the user just saw.
+- Drop preview affordances can reuse workout category accent as border color, giving immediate visual continuity between dragged item and landing hint.
+- In slot mode, highlighting the currently targeted slot card from live drop preview state (instead of pointer math duplicated in UI) keeps drag feedback accurate and avoids desync between visual hint and drop behavior.
