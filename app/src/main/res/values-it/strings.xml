@@ -39,9 +39,7 @@
     <string name="weekly_training_rest_day_moved">Giorno di riposo spostato.</string>
     <string name="weekly_training_rest_day_deleted">Giorno di riposo eliminato.</string>
     <string name="weekly_training_undo_action">Annulla</string>
-    <string name="mark_incomplete">Segna come incompleto</string>
     <string name="weekly_training_no_workouts">Nessun piano per ora.</string>
-    <string name="drag_label">Maniglia di trascinamento</string>
     <string name="weekly_training_section_to_be_defined">Da definire</string>
     <string name="weekly_training_tbd_help_title">Come organizzare gli allenamenti</string>
     <string name="weekly_training_tbd_help_message">Tieni premuto un allenamento per trascinarlo in un giorno della settimana. Rilascialo su un giorno o tra gli elementi per definire l’ordine.</string>
@@ -183,7 +181,6 @@
     <string name="categories_edit_title">Modifica categoria</string>
     <string name="categories_name_label">Nome</string>
     <string name="categories_color_label">Colore</string>
-    <string name="categories_hide_label">Nascondi</string>
     <string name="categories_hide_action">Nascondi categoria</string>
     <string name="categories_show_action">Mostra categoria</string>
     <string name="categories_move_up">Sposta categoria su</string>

@@ -39,9 +39,7 @@
     <string name="weekly_training_rest_day_moved">休息日を移動しました。</string>
     <string name="weekly_training_rest_day_deleted">休息日を削除しました。</string>
     <string name="weekly_training_undo_action">元に戻す</string>
-    <string name="mark_incomplete">未完了にする</string>
     <string name="weekly_training_no_workouts">まだ何も計画されていません.</string>
-    <string name="drag_label">ドラッグ</string>
     <string name="weekly_training_section_to_be_defined">未定</string>
     <string name="weekly_training_tbd_help_title">トレーニングの整理方法</string>
     <string name="weekly_training_tbd_help_message">トレーニングを長押しして曜日へドラッグしてください。曜日の上または項目の間にドロップして順番を決めます。</string>
@@ -184,7 +182,6 @@
     <string name="categories_edit_title">カテゴリを編集</string>
     <string name="categories_name_label">名前</string>
     <string name="categories_color_label">色</string>
-    <string name="categories_hide_label">非表示</string>
     <string name="categories_hide_action">カテゴリを非表示</string>
     <string name="categories_show_action">カテゴリを表示</string>
     <string name="categories_move_up">カテゴリを上へ移動</string>

@@ -39,9 +39,7 @@
     <string name="weekly_training_rest_day_moved">आराम का दिन स्थानांतरित किया गया।</string>
     <string name="weekly_training_rest_day_deleted">आराम का दिन हटाया गया।</string>
     <string name="weekly_training_undo_action">पूर्ववत</string>
-    <string name="mark_incomplete">अधूरा चिह्नित करें</string>
     <string name="weekly_training_no_workouts">अभी कुछ भी योजना में नहीं है.</string>
-    <string name="drag_label">खींचें</string>
     <string name="weekly_training_section_to_be_defined">निर्धारित करना बाकी</string>
     <string name="weekly_training_tbd_help_title">प्रशिक्षण कैसे व्यवस्थित करें</string>
     <string name="weekly_training_tbd_help_message">किसी प्रशिक्षण को लंबे समय तक दबाकर उसे सप्ताह के दिन पर खींचें। क्रम तय करने के लिए किसी दिन पर या आइटमों के बीच छोड़ें।</string>
@@ -184,7 +182,6 @@
     <string name="categories_edit_title">श्रेणी संपादित करें</string>
     <string name="categories_name_label">नाम</string>
     <string name="categories_color_label">रंग</string>
-    <string name="categories_hide_label">छिपाएं</string>
     <string name="categories_hide_action">श्रेणी छिपाएं</string>
     <string name="categories_show_action">श्रेणी दिखाएं</string>
     <string name="categories_move_up">श्रेणी ऊपर करें</string>

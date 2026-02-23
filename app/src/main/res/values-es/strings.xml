@@ -39,9 +39,7 @@
     <string name="weekly_training_rest_day_moved">Día de descanso movido.</string>
     <string name="weekly_training_rest_day_deleted">Día de descanso eliminado.</string>
     <string name="weekly_training_undo_action">Deshacer</string>
-    <string name="mark_incomplete">Marcar como incompleto</string>
     <string name="weekly_training_no_workouts">Nada planificado todavía.</string>
-    <string name="drag_label">Arrastrar</string>
     <string name="weekly_training_section_to_be_defined">Por definir</string>
     <string name="weekly_training_tbd_help_title">Cómo organizar los entrenamientos</string>
     <string name="weekly_training_tbd_help_message">Mantén pulsado un entrenamiento para arrastrarlo a un día de la semana. Suéltalo sobre un día o entre elementos para definir el orden.</string>
@@ -184,7 +182,6 @@
     <string name="categories_edit_title">Editar categoría</string>
     <string name="categories_name_label">Nombre</string>
     <string name="categories_color_label">Color</string>
-    <string name="categories_hide_label">Ocultar</string>
     <string name="categories_hide_action">Ocultar categoría</string>
     <string name="categories_show_action">Mostrar categoría</string>
     <string name="categories_move_up">Mover categoría arriba</string>

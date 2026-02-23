@@ -100,3 +100,4 @@ Recent learnings:
 - To avoid “preview says #N but drop lands at #N+1”, commit drop using the last live preview snapshot instead of recomputing on pointer-up; this keeps final placement aligned with what the user just saw.
 - Drop preview affordances can reuse workout category accent as border color, giving immediate visual continuity between dragged item and landing hint.
 - In slot mode, highlighting the currently targeted slot card from live drop preview state (instead of pointer math duplicated in UI) keeps drag feedback accurate and avoids desync between visual hint and drop behavior.
+- Running lint’s `UnusedResources` check before cleanup is a safe way to prune legacy starter assets (old Material color swatches, unused launcher drawables, and stale strings) without guessing references.

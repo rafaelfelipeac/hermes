@@ -39,9 +39,7 @@
     <string name="weekly_training_rest_day_moved">تم نقل يوم الراحة.</string>
     <string name="weekly_training_rest_day_deleted">تم حذف يوم الراحة.</string>
     <string name="weekly_training_undo_action">تراجع</string>
-    <string name="mark_incomplete">وضع علامة غير مكتمل</string>
     <string name="weekly_training_no_workouts">لا شيء مخطط له بعد.</string>
-    <string name="drag_label">مقبض السحب</string>
     <string name="weekly_training_section_to_be_defined">غير محدد بعد</string>
     <string name="weekly_training_tbd_help_title">كيفية تنظيم التمارين</string>
     <string name="weekly_training_tbd_help_message">اضغط مطولاً على تمرين لسحبه إلى يوم من أيام الأسبوع. أفلِته على يوم أو بين العناصر لتحديد الترتيب.</string>
@@ -184,7 +182,6 @@
     <string name="categories_edit_title">تعديل الفئة</string>
     <string name="categories_name_label">الاسم</string>
     <string name="categories_color_label">اللون</string>
-    <string name="categories_hide_label">إخفاء</string>
     <string name="categories_hide_action">إخفاء الفئة</string>
     <string name="categories_show_action">إظهار الفئة</string>
     <string name="categories_move_up">نقل الفئة للأعلى</string>

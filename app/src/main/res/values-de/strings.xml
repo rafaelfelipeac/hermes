@@ -39,9 +39,7 @@
     <string name="weekly_training_rest_day_moved">Ruhetag verschoben.</string>
     <string name="weekly_training_rest_day_deleted">Ruhetag gelöscht.</string>
     <string name="weekly_training_undo_action">Rückgängig</string>
-    <string name="mark_incomplete">Als unvollständig markieren</string>
     <string name="weekly_training_no_workouts">Noch nichts geplant.</string>
-    <string name="drag_label">Ziehen</string>
     <string name="weekly_training_section_to_be_defined">Noch festzulegen</string>
     <string name="weekly_training_tbd_help_title">So organisierst du Trainings</string>
     <string name="weekly_training_tbd_help_message">Drücke lange auf ein Training, um es auf einen Wochentag zu ziehen. Lege es auf einen Tag oder zwischen Einträge, um die Reihenfolge festzulegen.</string>
@@ -184,7 +182,6 @@
     <string name="categories_edit_title">Kategorie bearbeiten</string>
     <string name="categories_name_label">Name</string>
     <string name="categories_color_label">Farbe</string>
-    <string name="categories_hide_label">Ausblenden</string>
     <string name="categories_hide_action">Kategorie ausblenden</string>
     <string name="categories_show_action">Kategorie anzeigen</string>
     <string name="categories_move_up">Kategorie nach oben</string>

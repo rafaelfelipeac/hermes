@@ -39,9 +39,7 @@
     <string name="weekly_training_rest_day_moved">Rest day moved.</string>
     <string name="weekly_training_rest_day_deleted">Rest day deleted.</string>
     <string name="weekly_training_undo_action">Undo</string>
-    <string name="mark_incomplete">Mark as incomplete</string>
     <string name="weekly_training_no_workouts">Nothing planned yet.</string>
-    <string name="drag_label">Drag handle</string>
     <string name="weekly_training_section_to_be_defined">To be defined</string>
     <string name="weekly_training_tbd_help_title">How to organize workouts</string>
     <string name="weekly_training_tbd_help_message">Long press a workout to drag it to a weekday. Drop it on a day or between items to set the order.</string>
@@ -186,7 +184,6 @@
     <string name="categories_edit_title">Edit category</string>
     <string name="categories_name_label">Name</string>
     <string name="categories_color_label">Color</string>
-    <string name="categories_hide_label">Hide</string>
     <string name="categories_hide_action">Hide category</string>
     <string name="categories_show_action">Show category</string>
     <string name="categories_move_up">Move category up</string>
