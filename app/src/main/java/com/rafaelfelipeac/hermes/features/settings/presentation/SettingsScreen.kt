@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -343,6 +344,8 @@ fun SettingsScreen(
             SettingsDetailScreen(
                 title = stringResource(R.string.settings_slot_mode_title),
                 onBack = { route = SettingsRoute.MAIN },
+                onHelpClick = { isSlotModeHelpVisible = true },
+                helpContentDescription = stringResource(R.string.settings_slot_mode_help_title),
                 modifier = modifier,
             ) {
                 SettingsOptionRow(
@@ -354,13 +357,6 @@ fun SettingsScreen(
                     label = stringResource(R.string.settings_slot_mode_always),
                     selected = state.slotModePolicy == ALWAYS_SHOW,
                     onClick = { viewModel.setSlotModePolicy(ALWAYS_SHOW) },
-                )
-                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-                SettingsInfoRow(
-                    icon = Icons.Outlined.HelpOutline,
-                    title = stringResource(R.string.settings_slot_mode_help_title),
-                    body = stringResource(R.string.settings_slot_mode_help_body),
-                    onClick = { isSlotModeHelpVisible = true },
                 )
             }
     }
@@ -409,6 +405,20 @@ internal fun SettingsContent(
                 style = typography.titleLarge,
             )
 
+            SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_categories),
+                    onClick = onCategoriesClick,
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_slot_mode_title),
+                    onClick = onSlotModeClick,
+                )
+            }
+
             SettingsSection(title = stringResource(R.string.settings_theme_title)) {
                 SettingsNavigationRow(
                     label = themeLabel(state.themeMode),
@@ -422,20 +432,6 @@ internal fun SettingsContent(
                     label = languageLabel(state.language),
                     onClick = onLanguageClick,
                     modifier = Modifier.testTag(SETTINGS_LANGUAGE_ROW_TAG),
-                )
-            }
-
-            SettingsSection(title = stringResource(R.string.settings_planning_title)) {
-                SettingsNavigationRow(
-                    label = slotModeLabel(state.slotModePolicy),
-                    onClick = onSlotModeClick,
-                )
-            }
-
-            SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
-                SettingsNavigationRow(
-                    label = stringResource(R.string.settings_categories),
-                    onClick = onCategoriesClick,
                 )
             }
 
@@ -519,6 +515,8 @@ private fun SettingsSection(
 private fun SettingsDetailScreen(
     title: String,
     onBack: () -> Unit,
+    onHelpClick: (() -> Unit)? = null,
+    helpContentDescription: String? = null,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -536,7 +534,12 @@ private fun SettingsDetailScreen(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingSm, vertical = SpacingSm),
+                    .padding(
+                        start = SpacingSm,
+                        end = SpacingXl,
+                        top = SpacingSm,
+                        bottom = SpacingSm,
+                    ),
         ) {
             IconButton(onClick = onBack) {
                 Icon(
@@ -549,6 +552,33 @@ private fun SettingsDetailScreen(
                 text = title,
                 style = typography.titleLarge,
             )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            if (onHelpClick != null) {
+                Surface(
+                    shape = androidx.compose.foundation.shape.CircleShape,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                    tonalElevation = ElevationSm,
+                    shadowElevation = ElevationSm,
+                    modifier = Modifier.size(com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .clickable(onClick = onHelpClick),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.HelpOutline,
+                            contentDescription =
+                                helpContentDescription
+                                    ?: stringResource(R.string.settings_slot_mode_help_title),
+                        )
+                    }
+                }
+            }
         }
 
         Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
@@ -716,13 +746,5 @@ private fun languageLabel(language: AppLanguage): String {
         ARABIC -> stringResource(R.string.settings_language_arabic)
         HINDI -> stringResource(R.string.settings_language_hindi)
         JAPANESE -> stringResource(R.string.settings_language_japanese)
-    }
-}
-
-@Composable
-private fun slotModeLabel(policy: SlotModePolicy): String {
-    return when (policy) {
-        AUTO_WHEN_MULTIPLE -> stringResource(R.string.settings_slot_mode_auto)
-        ALWAYS_SHOW -> stringResource(R.string.settings_slot_mode_always)
     }
 }

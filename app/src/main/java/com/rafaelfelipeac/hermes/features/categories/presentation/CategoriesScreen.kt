@@ -107,7 +107,12 @@ fun CategoriesScreen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = SpacingSm, vertical = SpacingSm),
+                        .padding(
+                            start = SpacingSm,
+                            end = SpacingXl,
+                            top = SpacingSm,
+                            bottom = SpacingSm,
+                        ),
             ) {
                 IconButton(onClick = onBack) {
                     Icon(
@@ -120,6 +125,30 @@ fun CategoriesScreen(
                     text = stringResource(R.string.categories_title),
                     style = typography.titleLarge,
                 )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Surface(
+                    shape = CircleShape,
+                    color = colorScheme.surfaceVariant,
+                    tonalElevation = ElevationSm,
+                    shadowElevation = ElevationSm,
+                    modifier = Modifier.size(HelpIconSize),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .clickable { isHelpDialogVisible = true },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.HelpOutline,
+                            contentDescription = stringResource(R.string.categories_help_icon),
+                            tint = actionIconTint,
+                        )
+                    }
+                }
             }
         }
 
@@ -133,33 +162,10 @@ fun CategoriesScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Button(onClick = { isAddDialogVisible = true }) {
                         Text(text = stringResource(R.string.categories_add))
-                    }
-
-                    Surface(
-                        shape = CircleShape,
-                        color = colorScheme.surfaceVariant,
-                        tonalElevation = ElevationSm,
-                        shadowElevation = ElevationSm,
-                        modifier = Modifier.size(HelpIconSize),
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .clickable { isHelpDialogVisible = true },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.HelpOutline,
-                                contentDescription = stringResource(R.string.categories_help_icon),
-                                tint = actionIconTint,
-                            )
-                        }
                     }
                 }
 

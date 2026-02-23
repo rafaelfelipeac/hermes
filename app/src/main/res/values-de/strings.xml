@@ -224,7 +224,7 @@
     <string name="settings_slot_mode_always">Zeitfenster immer anzeigen</string>
     <string name="settings_slot_mode_help_title">So funktioniert der Zeitfenster-Modus</string>
     <string name="settings_slot_mode_help_body">Erfahre, wann die Gruppen Morgen, Nachmittag und Nacht erscheinen.</string>
-    <string name="settings_slot_mode_help_message">Wenn aktiviert, helfen Zeitfenster dabei, mehrere Ereignisse am selben Tag zu organisieren. Im Auto-Modus erscheinen Zeitfenster nur, wenn ein Tag zwei oder mehr Ereignisse hat. Im Immer-Modus sind Zeitfenster immer sichtbar.</string>
+    <string name="settings_slot_mode_help_message">Wenn aktiviert, helfen Zeitfenster dabei, mehrere Ereignisse am selben Tag zu organisieren.\n\nIm Auto-Modus erscheinen Zeitfenster nur, wenn ein Tag zwei oder mehr Ereignisse hat.\n\nIm Immer-Modus sind Zeitfenster immer sichtbar.</string>
     <string name="activity_action_change_slot_mode">Du hast den Zeitfenster-Modus geändert.</string>
     <string name="weekly_training_slot_morning">Morgen</string>
     <string name="weekly_training_slot_afternoon">Nachmittag</string>

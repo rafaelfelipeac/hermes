@@ -223,7 +223,7 @@
     <string name="settings_slot_mode_always">Mostra sempre i turni</string>
     <string name="settings_slot_mode_help_title">Come funziona la modalità turni</string>
     <string name="settings_slot_mode_help_body">Scopri quando compaiono i gruppi mattina, pomeriggio e notte.</string>
-    <string name="settings_slot_mode_help_message">Quando è attiva, i turni aiutano a organizzare più eventi nello stesso giorno. In modalità auto, i turni appaiono solo quando un giorno ha due o più eventi. In modalità sempre, i turni sono sempre visibili.</string>
+    <string name="settings_slot_mode_help_message">Quando è attiva, i turni aiutano a organizzare più eventi nello stesso giorno.\n\nIn modalità auto, i turni appaiono solo quando un giorno ha due o più eventi.\n\nIn modalità sempre, i turni sono sempre visibili.</string>
     <string name="activity_action_change_slot_mode">Hai cambiato la modalità turni.</string>
     <string name="weekly_training_slot_morning">Mattina</string>
     <string name="weekly_training_slot_afternoon">Pomeriggio</string>

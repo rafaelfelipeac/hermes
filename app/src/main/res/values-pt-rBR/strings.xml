@@ -224,7 +224,7 @@
     <string name="settings_slot_mode_always">Sempre mostrar turnos</string>
     <string name="settings_slot_mode_help_title">Como o modo por turnos funciona</string>
     <string name="settings_slot_mode_help_body">Saiba quando os grupos de manhã, tarde e noite aparecem.</string>
-    <string name="settings_slot_mode_help_message">Quando ativado, os turnos ajudam a organizar vários eventos no mesmo dia. No modo auto, os turnos aparecem apenas quando um dia tem dois ou mais eventos. No modo sempre, os turnos ficam sempre visíveis.</string>
+    <string name="settings_slot_mode_help_message">Quando ativado, os turnos ajudam a organizar vários eventos no mesmo dia.\n\nNo modo auto, os turnos aparecem apenas quando um dia tem dois ou mais eventos.\n\nNo modo sempre, os turnos ficam sempre visíveis.</string>
     <string name="activity_action_change_slot_mode">Você alterou o modo por turnos.</string>
     <string name="weekly_training_slot_morning">Manhã</string>
     <string name="weekly_training_slot_afternoon">Tarde</string>

@@ -223,7 +223,7 @@
     <string name="settings_slot_mode_always">Toujours afficher les créneaux</string>
     <string name="settings_slot_mode_help_title">Comment fonctionne le mode des créneaux</string>
     <string name="settings_slot_mode_help_body">Découvrez quand les groupes matin, après-midi et nuit apparaissent.</string>
-    <string name="settings_slot_mode_help_message">Lorsqu’il est activé, les créneaux aident à organiser plusieurs événements le même jour. En mode auto, les créneaux apparaissent seulement lorsqu’un jour a au moins deux événements. En mode toujours, les créneaux sont toujours visibles.</string>
+    <string name="settings_slot_mode_help_message">Lorsqu’il est activé, les créneaux aident à organiser plusieurs événements le même jour.\n\nEn mode auto, les créneaux apparaissent seulement lorsqu’un jour a au moins deux événements.\n\nEn mode toujours, les créneaux sont toujours visibles.</string>
     <string name="activity_action_change_slot_mode">Vous avez changé le mode des créneaux.</string>
     <string name="weekly_training_slot_morning">Matin</string>
     <string name="weekly_training_slot_afternoon">Après-midi</string>

@@ -224,7 +224,7 @@
     <string name="settings_slot_mode_always">常に時間帯を表示</string>
     <string name="settings_slot_mode_help_title">時間帯モードの仕組み</string>
     <string name="settings_slot_mode_help_body">朝・午後・夜のグループがいつ表示されるかを確認できます。</string>
-    <string name="settings_slot_mode_help_message">有効にすると、同じ日の複数イベントを時間帯で整理できます。自動モードでは、1日に2件以上のイベントがある場合のみ表示されます。常時表示モードでは常に表示されます。</string>
+    <string name="settings_slot_mode_help_message">有効にすると、同じ日の複数イベントを時間帯で整理できます。\n\n自動モードでは、1日に2件以上のイベントがある場合のみ表示されます。\n\n常時表示モードでは常に表示されます。</string>
     <string name="activity_action_change_slot_mode">時間帯モードを変更しました。</string>
     <string name="weekly_training_slot_morning">朝</string>
     <string name="weekly_training_slot_afternoon">午後</string>

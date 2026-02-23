@@ -226,7 +226,7 @@
     <string name="settings_slot_mode_always">Always show slots</string>
     <string name="settings_slot_mode_help_title">How slot mode works</string>
     <string name="settings_slot_mode_help_body">Learn when morning, afternoon, and night groups appear.</string>
-    <string name="settings_slot_mode_help_message">When enabled, slots help organize multiple events in the same day. In auto mode, slots appear only when a day has two or more events. In always mode, slots are always visible.</string>
+    <string name="settings_slot_mode_help_message">When enabled, slots help organize multiple events in the same day.\n\nIn auto mode, slots appear only when a day has two or more events.\n\nIn always mode, slots are always visible.</string>
     <string name="activity_action_change_slot_mode">You changed slot mode.</string>
     <string name="weekly_training_slot_morning">Morning</string>
     <string name="weekly_training_slot_afternoon">Afternoon</string>

@@ -101,3 +101,8 @@ Recent learnings:
 - Drop preview affordances can reuse workout category accent as border color, giving immediate visual continuity between dragged item and landing hint.
 - In slot mode, highlighting the currently targeted slot card from live drop preview state (instead of pointer math duplicated in UI) keeps drag feedback accurate and avoids desync between visual hint and drop behavior.
 - Running lint’s `UnusedResources` check before cleanup is a safe way to prune legacy starter assets (old Material color swatches, unused launcher drawables, and stale strings) without guessing references.
+- Grouping related planner settings under the Workouts section (Categories + Slot mode) reduces top-level fragmentation and makes weekly-planning controls easier to discover.
+- Reusing a shared detail-header pattern with an optional top-right help action keeps Settings sub-screens aligned with Categories-style discoverability while avoiding per-screen header duplication.
+- For help dialogs, storing paragraph breaks directly in localized `strings.xml` (`\n\n`) keeps copy layout controlled by translators and avoids hardcoded line-break logic in composables.
+- Reusing identical header spacing (`start/end` padding + right-aligned help action) across Settings and Categories improves scan consistency and keeps navigation affordances in predictable positions.
+- Main settings navigation labels should stay stable (feature name) rather than reflecting current selected value when the row navigates to a detail screen; it reads clearer for discovery.
