@@ -52,6 +52,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -176,7 +177,7 @@ private fun DayIndicator(
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val indicatorColor =
         indicator?.let {
-            if (it.workout.isRestDay) {
+            if (it.workout.eventType != WORKOUT) {
                 colorScheme.surfaceColorAtElevation(ElevationSm)
             } else {
                 workoutIndicatorColor(
@@ -189,7 +190,7 @@ private fun DayIndicator(
     val contentColor =
         when {
             indicator == null -> colorScheme.onSurface
-            indicator.workout.isRestDay -> colorScheme.onSurfaceVariant
+            indicator.workout.eventType != WORKOUT -> colorScheme.onSurfaceVariant
             indicatorColor != null -> readableContentOn(indicatorColor)
             else -> colorScheme.onSurface
         }
@@ -212,7 +213,7 @@ private fun DayIndicator(
                 color = contentColor,
             )
 
-            if (indicator?.isDayCompleted == true && indicator.workout.isRestDay.not()) {
+            if (indicator?.isDayCompleted == true && indicator.workout.eventType == WORKOUT) {
                 Icon(
                     imageVector = Icons.Outlined.Check,
                     contentDescription = null,

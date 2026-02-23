@@ -57,7 +57,15 @@ class ActivityUiFormatter(
 
         val title =
             when (entityType) {
-                UserActionEntityType.REST_DAY -> buildRestDayTitle(actionType, quotedWorkoutLabel)
+                UserActionEntityType.REST_DAY,
+                UserActionEntityType.BUSY,
+                UserActionEntityType.SICK,
+                ->
+                    buildNonWorkoutTitle(
+                        entityType = entityType,
+                        actionType = actionType,
+                        quotedWorkoutLabel = quotedWorkoutLabel,
+                    )
                 UserActionEntityType.CATEGORY -> buildCategoryTitle(actionType, metadata)
                 else -> buildWorkoutTitle(actionType, quotedWorkoutLabel)
             }
@@ -68,6 +76,9 @@ class ActivityUiFormatter(
 
             UserActionType.CHANGE_THEME ->
                 stringProvider.get(R.string.activity_action_change_theme)
+
+            UserActionType.CHANGE_SLOT_MODE ->
+                stringProvider.get(R.string.activity_action_change_slot_mode)
 
             UserActionType.OPEN_WEEK ->
                 stringProvider.get(R.string.activity_action_open_week)
@@ -189,6 +200,15 @@ class ActivityUiFormatter(
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE -> languageLabel(raw)
             UserActionType.CHANGE_THEME -> themeLabel(raw)
+            UserActionType.CHANGE_SLOT_MODE -> slotModeLabel(raw)
+            else -> raw
+        }
+    }
+
+    private fun slotModeLabel(raw: String): String {
+        return when (raw.uppercase(Locale.ENGLISH)) {
+            "AUTO_WHEN_MULTIPLE" -> stringProvider.get(R.string.settings_slot_mode_auto)
+            "ALWAYS_SHOW" -> stringProvider.get(R.string.settings_slot_mode_always)
             else -> raw
         }
     }
@@ -488,48 +508,160 @@ class ActivityUiFormatter(
         return stringProvider.get(R.string.activity_value_quoted, value)
     }
 
-    private fun buildRestDayTitle(
+    private fun buildNonWorkoutTitle(
+        entityType: UserActionEntityType,
         actionType: UserActionType?,
         quotedWorkoutLabel: String,
     ): String? {
+        val convertFromWorkoutRes = convertFromWorkoutRes(entityType)
+        val convertToWorkoutRes = convertToWorkoutRes(entityType)
+
         return when (actionType) {
             UserActionType.COMPLETE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_complete_rest_day)
+                stringProvider.get(completeNonWorkoutRes(entityType))
 
             UserActionType.INCOMPLETE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_incomplete_rest_day)
+                stringProvider.get(incompleteNonWorkoutRes(entityType))
 
             UserActionType.REORDER_WORKOUT ->
-                stringProvider.get(R.string.activity_action_reorder_rest_day)
+                stringProvider.get(reorderNonWorkoutRes(entityType))
 
             UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ->
-                stringProvider.get(R.string.activity_action_move_rest_day)
+                stringProvider.get(moveNonWorkoutRes(entityType))
 
             UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ->
-                stringProvider.get(R.string.activity_action_undo_reorder_rest_day)
+                stringProvider.get(undoReorderNonWorkoutRes(entityType))
 
             UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ->
-                stringProvider.get(R.string.activity_action_undo_move_rest_day)
+                stringProvider.get(undoMoveNonWorkoutRes(entityType))
 
             UserActionType.CREATE_REST_DAY ->
-                stringProvider.get(R.string.activity_action_create_rest_day)
+                stringProvider.get(createNonWorkoutRes(entityType))
 
             UserActionType.UPDATE_REST_DAY ->
-                stringProvider.get(R.string.activity_action_update_rest_day)
+                stringProvider.get(updateNonWorkoutRes(entityType))
 
             UserActionType.DELETE_REST_DAY ->
-                stringProvider.get(R.string.activity_action_delete_rest_day)
+                stringProvider.get(deleteNonWorkoutRes(entityType))
 
             UserActionType.UNDO_DELETE_REST_DAY ->
-                stringProvider.get(R.string.activity_action_undo_delete_rest_day)
+                stringProvider.get(undoDeleteNonWorkoutRes(entityType))
 
             UserActionType.CONVERT_WORKOUT_TO_REST_DAY ->
-                stringProvider.get(
-                    R.string.activity_action_convert_workout_to_rest_day,
-                    quotedWorkoutLabel,
-                )
+                stringProvider.get(convertFromWorkoutRes, quotedWorkoutLabel)
+
+            UserActionType.CONVERT_REST_DAY_TO_WORKOUT ->
+                stringProvider.get(convertToWorkoutRes)
 
             else -> null
+        }
+    }
+
+    private fun createNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_create_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_create_busy
+            UserActionEntityType.SICK -> R.string.activity_action_create_sick
+            else -> R.string.activity_action_create_rest_day
+        }
+    }
+
+    private fun updateNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_update_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_update_busy
+            UserActionEntityType.SICK -> R.string.activity_action_update_sick
+            else -> R.string.activity_action_update_rest_day
+        }
+    }
+
+    private fun deleteNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_delete_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_delete_busy
+            UserActionEntityType.SICK -> R.string.activity_action_delete_sick
+            else -> R.string.activity_action_delete_rest_day
+        }
+    }
+
+    private fun undoDeleteNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_undo_delete_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_undo_delete_busy
+            UserActionEntityType.SICK -> R.string.activity_action_undo_delete_sick
+            else -> R.string.activity_action_undo_delete_rest_day
+        }
+    }
+
+    private fun reorderNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_reorder_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_reorder_busy
+            UserActionEntityType.SICK -> R.string.activity_action_reorder_sick
+            else -> R.string.activity_action_reorder_rest_day
+        }
+    }
+
+    private fun moveNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_move_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_move_busy
+            UserActionEntityType.SICK -> R.string.activity_action_move_sick
+            else -> R.string.activity_action_move_rest_day
+        }
+    }
+
+    private fun undoReorderNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_undo_reorder_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_undo_reorder_busy
+            UserActionEntityType.SICK -> R.string.activity_action_undo_reorder_sick
+            else -> R.string.activity_action_undo_reorder_rest_day
+        }
+    }
+
+    private fun undoMoveNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_undo_move_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_undo_move_busy
+            UserActionEntityType.SICK -> R.string.activity_action_undo_move_sick
+            else -> R.string.activity_action_undo_move_rest_day
+        }
+    }
+
+    private fun completeNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_complete_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_complete_busy
+            UserActionEntityType.SICK -> R.string.activity_action_complete_sick
+            else -> R.string.activity_action_complete_rest_day
+        }
+    }
+
+    private fun incompleteNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_incomplete_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_incomplete_busy
+            UserActionEntityType.SICK -> R.string.activity_action_incomplete_sick
+            else -> R.string.activity_action_incomplete_rest_day
+        }
+    }
+
+    private fun convertFromWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_convert_workout_to_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_convert_workout_to_busy
+            UserActionEntityType.SICK -> R.string.activity_action_convert_workout_to_sick
+            else -> R.string.activity_action_convert_workout_to_rest_day
+        }
+    }
+
+    private fun convertToWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST_DAY -> R.string.activity_action_convert_rest_day_to_workout
+            UserActionEntityType.BUSY -> R.string.activity_action_convert_busy_to_workout
+            UserActionEntityType.SICK -> R.string.activity_action_convert_sick_to_workout
+            else -> R.string.activity_action_convert_rest_day_to_workout
         }
     }
 

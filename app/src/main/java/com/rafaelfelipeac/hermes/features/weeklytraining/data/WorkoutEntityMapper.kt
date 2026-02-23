@@ -12,6 +12,8 @@ internal fun Workout.toEntity(): WorkoutEntity {
         description = description,
         isCompleted = isCompleted,
         isRestDay = isRestDay,
+        eventType = eventType.name,
+        timeSlot = timeSlot?.name,
         categoryId = categoryId,
         sortOrder = order,
     )

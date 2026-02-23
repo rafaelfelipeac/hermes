@@ -1,6 +1,9 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
@@ -12,6 +15,7 @@ data class WeeklyTrainingState(
     val workouts: List<WorkoutUi>,
     val isWeekLoaded: Boolean,
     val categories: List<CategoryUi>,
+    val slotModePolicy: SlotModePolicy = AUTO_WHEN_MULTIPLE,
 ) {
     val dayIndicators: Map<DayOfWeek, WorkoutDayIndicator> =
         workouts
@@ -19,7 +23,7 @@ data class WeeklyTrainingState(
             .groupBy { requireNotNull(it.dayOfWeek) }
             .mapNotNull { (day, items) ->
                 val lastItem = items.maxByOrNull { it.order } ?: return@mapNotNull null
-                val isDayCompleted = items.all { it.isRestDay || it.isCompleted }
+                val isDayCompleted = items.all { it.eventType != WORKOUT || it.isCompleted }
                 day to WorkoutDayIndicator(workout = lastItem, isDayCompleted = isDayCompleted)
             }
             .toMap()

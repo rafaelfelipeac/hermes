@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.datastore.preferences.core.edit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,9 +38,19 @@ class SettingsRepositoryImpl
                 }
                 .distinctUntilChanged()
 
+        override val slotModePolicy: Flow<SlotModePolicy> =
+            dataStore.data
+                .map { prefs ->
+                    prefs[SLOT_MODE_POLICY_KEY]?.let(SlotModePolicy::valueOf)
+                        ?: defaultSlotModePolicy()
+                }
+                .distinctUntilChanged()
+
         override fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
 
         override fun initialLanguage(): AppLanguage = defaultLanguage()
+
+        override fun initialSlotModePolicy(): SlotModePolicy = defaultSlotModePolicy()
 
         override suspend fun setThemeMode(mode: ThemeMode) {
             dataStore.edit { prefs ->
@@ -50,6 +61,12 @@ class SettingsRepositoryImpl
         override suspend fun setLanguage(language: AppLanguage) {
             dataStore.edit { prefs ->
                 prefs[LANGUAGE_KEY] = language.tag
+            }
+        }
+
+        override suspend fun setSlotModePolicy(policy: SlotModePolicy) {
+            dataStore.edit { prefs ->
+                prefs[SLOT_MODE_POLICY_KEY] = policy.name
             }
         }
     }
@@ -66,4 +83,8 @@ private fun defaultThemeMode(context: Context): ThemeMode {
 
 private fun defaultLanguage(): AppLanguage {
     return SYSTEM
+}
+
+private fun defaultSlotModePolicy(): SlotModePolicy {
+    return SlotModePolicy.AUTO_WHEN_MULTIPLE
 }

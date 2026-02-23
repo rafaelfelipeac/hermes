@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +17,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -44,10 +48,19 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.Sect
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.ToBeDefined
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewProvider
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyCalendarBottomPadding
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.NIGHT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutId
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import kotlinx.coroutines.delay
@@ -79,7 +92,8 @@ fun WeeklyTrainingContent(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     workouts: List<WorkoutUi>,
-    onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
+    slotModePolicy: SlotModePolicy = AUTO_WHEN_MULTIPLE,
+    onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
     onWorkoutCompletionChanged: (WorkoutUi, Boolean) -> Unit,
     onWorkoutEdit: (WorkoutUi) -> Unit,
     onWorkoutDelete: (WorkoutUi) -> Unit,
@@ -119,6 +133,15 @@ fun WeeklyTrainingContent(
                     .filter { it.dayOfWeek == section.dayOfWeekOrNull() }
                     .sortedBy { it.order }
             }
+        }
+    val dayUsesSlots =
+        remember(workouts, slotModePolicy) {
+            sections
+                .mapNotNull { section -> (section as? Day)?.dayOfWeek }
+                .associateWith { day ->
+                    val count = workouts.count { it.dayOfWeek == day }
+                    shouldUseSlotMode(slotModePolicy, count)
+                }
         }
     val draggedWorkout = draggedWorkoutId?.let { id -> workouts.firstOrNull { it.id == id } }
     var previousUnscheduledIds by remember { mutableStateOf<Set<WorkoutId>>(emptySet()) }
@@ -256,6 +279,7 @@ fun WeeklyTrainingContent(
                                             workouts = workouts,
                                             workoutsBySection = workoutsBySection,
                                             sectionBounds = sectionBounds,
+                                            dayUsesSlots = dayUsesSlots,
                                             itemBounds = itemBounds,
                                             onWorkoutMoved = onWorkoutMoved,
                                         ),
@@ -298,26 +322,62 @@ fun WeeklyTrainingContent(
                         if (items.isEmpty()) {
                             EmptySectionRow()
                         } else {
-                            items.forEachIndexed { index, workout ->
-                                if (index > FIRST_LIST_INDEX) {
-                                    Spacer(modifier = Modifier.height(SpacingMd))
-                                }
+                            val shouldUseSlots =
+                                section is Day && shouldUseSlotMode(slotModePolicy, items.size)
+                            if (shouldUseSlots) {
+                                val slots = listOf(MORNING, AFTERNOON, NIGHT)
+                                slots.forEach { slot ->
+                                    val slotItems = items.filter { effectiveSlot(it.timeSlot) == slot }
+                                    SlotSectionCard(title = stringResource(slot.labelRes())) {
+                                        if (slotItems.isEmpty()) {
+                                            EmptySectionRow()
+                                        } else {
+                                            slotItems.forEachIndexed { index, workout ->
+                                                if (index > FIRST_LIST_INDEX) {
+                                                    Spacer(modifier = Modifier.height(SpacingMd))
+                                                }
 
-                                WorkoutRow(
-                                    workout = workout,
-                                    isDragging = draggedWorkoutId == workout.id,
-                                    onToggleCompleted = { checked ->
-                                        onWorkoutCompletionChanged(workout, checked)
-                                    },
-                                    onDragStarted = { position, height ->
-                                        draggedWorkoutId = workout.id
-                                        dragPosition = position
-                                        draggedItemHeight = height
-                                    },
-                                    onEdit = { onWorkoutEdit(workout) },
-                                    onDelete = { onWorkoutDelete(workout) },
-                                    onItemPositioned = { itemBounds[workout.id] = it },
-                                )
+                                                WorkoutRow(
+                                                    workout = workout,
+                                                    isDragging = draggedWorkoutId == workout.id,
+                                                    onToggleCompleted = { checked ->
+                                                        onWorkoutCompletionChanged(workout, checked)
+                                                    },
+                                                    onDragStarted = { position, height ->
+                                                        draggedWorkoutId = workout.id
+                                                        dragPosition = position
+                                                        draggedItemHeight = height
+                                                    },
+                                                    onEdit = { onWorkoutEdit(workout) },
+                                                    onDelete = { onWorkoutDelete(workout) },
+                                                    onItemPositioned = { itemBounds[workout.id] = it },
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                items.forEachIndexed { index, workout ->
+                                    if (index > FIRST_LIST_INDEX) {
+                                        Spacer(modifier = Modifier.height(SpacingMd))
+                                    }
+
+                                    WorkoutRow(
+                                        workout = workout,
+                                        isDragging = draggedWorkoutId == workout.id,
+                                        onToggleCompleted = { checked ->
+                                            onWorkoutCompletionChanged(workout, checked)
+                                        },
+                                        onDragStarted = { position, height ->
+                                            draggedWorkoutId = workout.id
+                                            dragPosition = position
+                                            draggedItemHeight = height
+                                        },
+                                        onEdit = { onWorkoutEdit(workout) },
+                                        onDelete = { onWorkoutDelete(workout) },
+                                        onItemPositioned = { itemBounds[workout.id] = it },
+                                    )
+                                }
                             }
                         }
                     }
@@ -383,6 +443,59 @@ fun WeeklyTrainingContent(
     }
 }
 
+@Composable
+private fun SlotSectionCard(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Surface(
+        tonalElevation = ElevationSm,
+        shape = shapes.medium,
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = SpacingMd),
+    ) {
+        Column(
+            modifier =
+                Modifier.padding(
+                    horizontal = SpacingLg,
+                    vertical = SpacingMd,
+                ),
+        ) {
+            Text(
+                text = title,
+                style = typography.labelLarge,
+                color = colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = SpacingSm),
+            )
+            content()
+        }
+    }
+}
+
+private fun shouldUseSlotMode(
+    policy: SlotModePolicy,
+    dayItemCount: Int,
+): Boolean {
+    return when (policy) {
+        ALWAYS_SHOW -> true
+        AUTO_WHEN_MULTIPLE -> dayItemCount >= 2
+    }
+}
+
+private fun effectiveSlot(timeSlot: TimeSlot?): TimeSlot {
+    return timeSlot ?: MORNING
+}
+
+private fun TimeSlot.labelRes(): Int {
+    return when (this) {
+        MORNING -> R.string.weekly_training_slot_morning
+        AFTERNOON -> R.string.weekly_training_slot_afternoon
+        NIGHT -> R.string.weekly_training_slot_night
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun WeeklyTrainingContentPreview(
@@ -392,7 +505,7 @@ private fun WeeklyTrainingContentPreview(
     WeeklyTrainingContent(
         selectedDate = preview.selectedDate,
         workouts = preview.workouts,
-        onWorkoutMoved = { _, _, _ -> },
+        onWorkoutMoved = { _, _, _, _ -> },
         onWorkoutCompletionChanged = { _, _ -> },
         onWorkoutEdit = {},
         onWorkoutDelete = {},

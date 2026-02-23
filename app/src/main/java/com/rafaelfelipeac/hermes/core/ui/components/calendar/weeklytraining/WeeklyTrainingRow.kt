@@ -1,6 +1,8 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
@@ -29,7 +31,6 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
@@ -74,6 +76,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
@@ -96,7 +100,7 @@ internal fun WorkoutRow(
     val hasDescription = workout.description.isNotBlank()
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
-        workout.categoryColorId?.let { accent ->
+        workout.categoryColorId?.takeIf { workout.eventType == WORKOUT }?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
@@ -128,6 +132,17 @@ internal fun WorkoutRow(
                 }
             }
             .clip(shapes.medium)
+            .then(
+                if (workout.eventType != WORKOUT) {
+                    Modifier.border(
+                        width = 1.dp,
+                        color = colorScheme.outlineVariant,
+                        shape = shapes.medium,
+                    )
+                } else {
+                    Modifier
+                },
+            )
             .background(if (isDragging) Color.Transparent else colors.background)
             .then(Modifier)
             .then(
@@ -144,7 +159,7 @@ internal fun WorkoutRow(
             )
 
     Box(modifier = rowModifier) {
-        if (!workout.isRestDay && categoryAccent != null) {
+        if (workout.eventType == WORKOUT && categoryAccent != null) {
             Box(
                 modifier =
                     Modifier
@@ -176,10 +191,10 @@ internal fun WorkoutRow(
                 modifier =
                     Modifier
                         .size(CheckboxBoxSize + SpacingSm)
-                        .offset(y = if (workout.isRestDay) Zero else CheckboxYOffset),
+                        .offset(y = if (workout.eventType == WORKOUT) CheckboxYOffset else Zero),
                 contentAlignment = Alignment.Center,
             ) {
-                if (!workout.isRestDay) {
+                if (workout.eventType == WORKOUT) {
                     if (workout.isCompleted) {
                         val completedButtonColor =
                             categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA)
@@ -216,7 +231,7 @@ internal fun WorkoutRow(
                         )
                     }
                 }
-                if (workout.isRestDay) {
+                if (workout.eventType != WORKOUT) {
                     Box(
                         modifier =
                             Modifier
@@ -242,12 +257,12 @@ internal fun WorkoutRow(
                 modifier =
                     Modifier
                         .weight(1f)
-                        .clickable(enabled = !workout.isRestDay) { onEdit() },
+                        .clickable(enabled = workout.eventType == WORKOUT) { onEdit() },
             ) {
                 Column {
-                    if (workout.isRestDay) {
+                    if (workout.eventType != WORKOUT) {
                         TitleChip(
-                            label = stringResource(R.string.weekly_training_rest_day_label),
+                            label = stringResource(eventTypeLabelRes(workout.eventType)),
                             containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                             contentColor = colors.content,
                             modifier = Modifier.wrapContentWidth(),
@@ -312,7 +327,7 @@ internal fun GhostWorkoutRow(
     val hasDescription = workout.description.isNotBlank()
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
-        workout.categoryColorId?.let { accent ->
+        workout.categoryColorId?.takeIf { workout.eventType == WORKOUT }?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
@@ -337,6 +352,12 @@ internal fun GhostWorkoutRow(
         color = colors.background,
         contentColor = colors.content,
         shape = shapes.medium,
+        border =
+            if (workout.eventType != WORKOUT) {
+                BorderStroke(width = 1.dp, color = colorScheme.outlineVariant)
+            } else {
+                null
+            },
         modifier =
             Modifier
                 .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
@@ -344,7 +365,7 @@ internal fun GhostWorkoutRow(
                 .alpha(GHOST_ROW_ALPHA),
     ) {
         Box {
-            if (!workout.isRestDay && categoryAccent != null) {
+            if (workout.eventType == WORKOUT && categoryAccent != null) {
                 Box(
                     modifier =
                         Modifier
@@ -364,9 +385,9 @@ internal fun GhostWorkoutRow(
                     modifier = Modifier.weight(1f),
                 ) {
                     Column {
-                        if (workout.isRestDay) {
+                        if (workout.eventType != WORKOUT) {
                             TitleChip(
-                                label = stringResource(R.string.weekly_training_rest_day_label),
+                                label = stringResource(eventTypeLabelRes(workout.eventType)),
                                 containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                                 contentColor = colors.content,
                                 modifier = Modifier.wrapContentWidth(),
@@ -425,7 +446,7 @@ private fun workoutRowColors(
     val completedColor = TodoBlue
     val completedContent = TodoBlueContent
     val isDarkTheme = isDarkBackground(colorScheme.background)
-    val restDayBackground = themeColorScheme.surfaceColorAtElevation(ElevationSm)
+    val restDayBackground = themeColorScheme.outlineVariant
     val restDayContent = themeColorScheme.onSurfaceVariant
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
@@ -451,7 +472,7 @@ private fun workoutRowColors(
     val background =
         when {
             isDragging -> themeColorScheme.surfaceVariant
-            workout.isRestDay -> restDayBackground
+            workout.eventType != WORKOUT -> restDayBackground
             workout.isCompleted && categoryAccent == null -> completedColor
             workout.isCompleted && categoryCompletedBackground != null -> categoryCompletedBackground
             categoryAccent != null -> categoryAccent
@@ -459,7 +480,7 @@ private fun workoutRowColors(
         }
     val content =
         when {
-            workout.isRestDay -> restDayContent
+            workout.eventType != WORKOUT -> restDayContent
             workout.isCompleted && categoryContent == null -> completedContent
             workout.isCompleted && categoryCompletedContent != null -> categoryCompletedContent
             categoryContent != null -> categoryContent
@@ -483,4 +504,13 @@ private fun lighterTone(
 ): Color {
     val blend = if (isDarkTheme) LIGHTER_TONE_BLEND_DARK else LIGHTER_TONE_BLEND_LIGHT
     return lerp(color, Color.White, blend)
+}
+
+private fun eventTypeLabelRes(eventType: EventType): Int {
+    return when (eventType) {
+        EventType.WORKOUT -> R.string.add_workout
+        EventType.REST -> R.string.weekly_training_rest_day_label
+        EventType.BUSY -> R.string.weekly_training_busy_label
+        EventType.SICK -> R.string.weekly_training_sick_label
+    }
 }

@@ -23,8 +23,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -76,6 +78,9 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYST
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import java.util.Locale
 
 private const val DEBUG_PACKAGE_SUFFIX = ".dev"
@@ -101,6 +106,7 @@ fun SettingsScreen(
     val marketUrlTemplate = stringResource(R.string.settings_play_store_market_url)
     val webUrlTemplate = stringResource(R.string.settings_play_store_web_url)
     var route by rememberSaveable { mutableStateOf(SettingsRoute.MAIN) }
+    var isSlotModeHelpVisible by rememberSaveable { mutableStateOf(false) }
 
     BackHandler(enabled = route != SettingsRoute.MAIN) {
         if (route == SettingsRoute.CATEGORIES) {
@@ -133,6 +139,7 @@ fun SettingsScreen(
                 appVersion = VERSION_NAME,
                 onThemeClick = { route = SettingsRoute.THEME },
                 onLanguageClick = { route = SettingsRoute.LANGUAGE },
+                onSlotModeClick = { route = SettingsRoute.SLOT_MODE },
                 onFeedbackClick = { subject, body ->
                     val normalizedBody = body.replace("\n", "\r\n")
                     val mailToUri =
@@ -332,6 +339,43 @@ fun SettingsScreen(
                 },
                 modifier = modifier,
             )
+        SettingsRoute.SLOT_MODE ->
+            SettingsDetailScreen(
+                title = stringResource(R.string.settings_slot_mode_title),
+                onBack = { route = SettingsRoute.MAIN },
+                modifier = modifier,
+            ) {
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_slot_mode_auto),
+                    selected = state.slotModePolicy == AUTO_WHEN_MULTIPLE,
+                    onClick = { viewModel.setSlotModePolicy(AUTO_WHEN_MULTIPLE) },
+                )
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_slot_mode_always),
+                    selected = state.slotModePolicy == ALWAYS_SHOW,
+                    onClick = { viewModel.setSlotModePolicy(ALWAYS_SHOW) },
+                )
+                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+                SettingsInfoRow(
+                    icon = Icons.Outlined.HelpOutline,
+                    title = stringResource(R.string.settings_slot_mode_help_title),
+                    body = stringResource(R.string.settings_slot_mode_help_body),
+                    onClick = { isSlotModeHelpVisible = true },
+                )
+            }
+    }
+
+    if (isSlotModeHelpVisible) {
+        AlertDialog(
+            onDismissRequest = { isSlotModeHelpVisible = false },
+            title = { Text(text = stringResource(R.string.settings_slot_mode_help_title)) },
+            text = { Text(text = stringResource(R.string.settings_slot_mode_help_message)) },
+            confirmButton = {
+                Button(onClick = { isSlotModeHelpVisible = false }) {
+                    Text(text = stringResource(R.string.weekly_training_tbd_help_confirm))
+                }
+            },
+        )
     }
 }
 
@@ -342,6 +386,7 @@ internal fun SettingsContent(
     appVersion: String,
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
+    onSlotModeClick: () -> Unit,
     onFeedbackClick: (String, String) -> Unit,
     onRateClick: () -> Unit,
     onSeedDemoData: () -> Unit,
@@ -377,6 +422,13 @@ internal fun SettingsContent(
                     label = languageLabel(state.language),
                     onClick = onLanguageClick,
                     modifier = Modifier.testTag(SETTINGS_LANGUAGE_ROW_TAG),
+                )
+            }
+
+            SettingsSection(title = stringResource(R.string.settings_planning_title)) {
+                SettingsNavigationRow(
+                    label = slotModeLabel(state.slotModePolicy),
+                    onClick = onSlotModeClick,
                 )
             }
 
@@ -664,5 +716,13 @@ private fun languageLabel(language: AppLanguage): String {
         ARABIC -> stringResource(R.string.settings_language_arabic)
         HINDI -> stringResource(R.string.settings_language_hindi)
         JAPANESE -> stringResource(R.string.settings_language_japanese)
+    }
+}
+
+@Composable
+private fun slotModeLabel(policy: SlotModePolicy): String {
+    return when (policy) {
+        AUTO_WHEN_MULTIPLE -> stringResource(R.string.settings_slot_mode_auto)
+        ALWAYS_SHOW -> stringResource(R.string.settings_slot_mode_always)
     }
 }

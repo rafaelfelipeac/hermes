@@ -9,12 +9,11 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.REST_DAY
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.updateWorkoutOrderWithRestDayRules
@@ -27,11 +26,12 @@ internal suspend fun normalizeOrdersAfterDelete(
     repository: WeeklyTrainingRepository,
     deletedWorkoutId: Long,
     dayOfWeek: DayOfWeek?,
+    timeSlot: TimeSlot?,
     currentWorkouts: List<WorkoutUi>,
 ) {
     val remaining =
         currentWorkouts
-            .filter { it.id != deletedWorkoutId && it.dayOfWeek == dayOfWeek }
+            .filter { it.id != deletedWorkoutId && it.dayOfWeek == dayOfWeek && it.timeSlot == timeSlot }
             .sortedBy { it.order }
 
     remaining.forEachIndexed { index, workout ->
@@ -39,6 +39,7 @@ internal suspend fun normalizeOrdersAfterDelete(
             repository.updateWorkoutDayAndOrder(
                 workoutId = workout.id,
                 dayOfWeek = dayOfWeek,
+                timeSlot = timeSlot,
                 order = index,
             )
         }
@@ -48,13 +49,14 @@ internal suspend fun normalizeOrdersAfterDelete(
 internal suspend fun normalizeOrdersForDay(
     repository: WeeklyTrainingRepository,
     dayOfWeek: DayOfWeek?,
+    timeSlot: TimeSlot?,
     currentWorkouts: List<WorkoutUi>,
     forceUpdate: Boolean = false,
     skipIds: Set<Long> = emptySet(),
 ) {
     val workoutsForDay =
         currentWorkouts
-            .filter { it.dayOfWeek == dayOfWeek }
+            .filter { it.dayOfWeek == dayOfWeek && it.timeSlot == timeSlot }
             .sortedBy { it.order }
 
     workoutsForDay.forEachIndexed { index, workout ->
@@ -62,6 +64,7 @@ internal suspend fun normalizeOrdersForDay(
             repository.updateWorkoutDayAndOrder(
                 workoutId = workout.id,
                 dayOfWeek = dayOfWeek,
+                timeSlot = timeSlot,
                 order = index,
             )
         }
@@ -72,6 +75,7 @@ internal fun resolveWorkoutChanges(
     currentWorkouts: List<WorkoutUi>,
     workoutId: Long,
     newDayOfWeek: DayOfWeek?,
+    newTimeSlot: TimeSlot?,
     newOrder: Int,
 ): List<WorkoutUi> {
     val updated =
@@ -79,13 +83,18 @@ internal fun resolveWorkoutChanges(
             currentWorkouts,
             workoutId,
             newDayOfWeek,
+            newTimeSlot,
             newOrder,
         )
 
     return updated.mapNotNull { workout ->
         val original = currentWorkouts.firstOrNull { it.id == workout.id } ?: return@mapNotNull null
 
-        if (original.dayOfWeek != workout.dayOfWeek || original.order != workout.order) {
+        if (
+            original.dayOfWeek != workout.dayOfWeek ||
+            original.timeSlot != workout.timeSlot ||
+            original.order != workout.order
+        ) {
             workout
         } else {
             null
@@ -105,6 +114,7 @@ internal suspend fun persistWorkoutChanges(
         dependencies.repository.updateWorkoutDayAndOrder(
             workoutId = workout.id,
             dayOfWeek = workout.dayOfWeek,
+            timeSlot = workout.timeSlot,
             order = workout.order,
         )
 
@@ -126,7 +136,7 @@ internal suspend fun logWorkoutChange(
     weekStartDate: LocalDate,
 ) {
     val entityType =
-        if (workout.isRestDay) REST_DAY else WORKOUT
+        workout.eventType.toUserActionEntityType()
     val actionType =
         if (original.dayOfWeek != workout.dayOfWeek) {
             MOVE_WORKOUT_BETWEEN_DAYS
@@ -158,7 +168,7 @@ internal suspend fun logUndoWorkoutChange(
     weekStartDate: LocalDate,
 ) {
     val entityType =
-        if (workout.isRestDay) REST_DAY else WORKOUT
+        workout.eventType.toUserActionEntityType()
     val actionType =
         if (original.dayOfWeek != workout.dayOfWeek) {
             UNDO_MOVE_WORKOUT_BETWEEN_DAYS
@@ -200,6 +210,8 @@ internal suspend fun restoreDeletedWorkout(
                 isRestDay = workout.isRestDay,
                 categoryId = workout.categoryId,
                 order = workout.order,
+                eventType = workout.eventType,
+                timeSlot = workout.timeSlot,
             ),
         )
 
@@ -207,6 +219,7 @@ internal suspend fun restoreDeletedWorkout(
         repository.updateWorkoutDayAndOrder(
             workoutId = position.id,
             dayOfWeek = position.dayOfWeek,
+            timeSlot = position.timeSlot,
             order = position.order,
         )
     }
@@ -219,17 +232,18 @@ internal suspend fun restoreDeletedWorkout(
             weekStartDate = action.weekStartDate,
         )
 
-    val affectedDays =
+    val affectedBuckets =
         buildList {
-            add(workout.dayOfWeek)
-            action.previousPositions.mapTo(this) { it.dayOfWeek }
+            add(workout.dayOfWeek to workout.timeSlot)
+            action.previousPositions.mapTo(this) { it.dayOfWeek to it.timeSlot }
         }
             .distinct()
 
-    affectedDays.forEach { dayOfWeek ->
+    affectedBuckets.forEach { (dayOfWeek, timeSlot) ->
         normalizeOrdersForDay(
             repository = repository,
             dayOfWeek = dayOfWeek,
+            timeSlot = timeSlot,
             currentWorkouts = updatedWorkouts,
         )
     }

@@ -68,6 +68,10 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
@@ -105,8 +109,8 @@ fun WeeklyTrainingScreen(
         undoState?.let { currentUndo ->
             val isRestDay =
                 when (val action = currentUndo.action) {
-                    is PendingUndoAction.Delete -> action.workout.isRestDay
-                    is PendingUndoAction.Completion -> action.workout.isRestDay
+                    is PendingUndoAction.Delete -> action.workout.eventType != WORKOUT
+                    is PendingUndoAction.Completion -> action.workout.eventType != WORKOUT
                     is PendingUndoAction.MoveOrReorder -> action.isRestDay
                     is PendingUndoAction.ReplaceWeek -> false
                 }
@@ -260,6 +264,7 @@ fun WeeklyTrainingScreen(
                                 .weight(1f),
                         selectedDate = state.selectedDate,
                         workouts = state.workouts,
+                        slotModePolicy = state.slotModePolicy,
                         onWorkoutMoved = viewModel::moveWorkout,
                         onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
                         onWorkoutEdit = { workout -> editingWorkout = workout },
@@ -344,7 +349,25 @@ fun WeeklyTrainingScreen(
                         label = stringResource(R.string.weekly_training_add_rest_day),
                         onClick = {
                             isAddMenuVisible = false
-                            viewModel.addRestDay()
+                            viewModel.addRest()
+                        },
+                    )
+
+                    AddActionPill(
+                        icon = Icons.Outlined.Bedtime,
+                        label = stringResource(R.string.weekly_training_add_busy),
+                        onClick = {
+                            isAddMenuVisible = false
+                            viewModel.addBusy()
+                        },
+                    )
+
+                    AddActionPill(
+                        icon = Icons.Outlined.Bedtime,
+                        label = stringResource(R.string.weekly_training_add_sick),
+                        onClick = {
+                            isAddMenuVisible = false
+                            viewModel.addSick()
                         },
                     )
 
@@ -431,7 +454,7 @@ fun WeeklyTrainingScreen(
                     workoutId = workout.id,
                     type = type,
                     description = description,
-                    isRestDay = workout.isRestDay,
+                    eventType = workout.eventType,
                     categoryId = categoryId,
                 )
                 editingWorkout = null
@@ -457,22 +480,25 @@ fun WeeklyTrainingScreen(
 
     deletingWorkout?.let { workout ->
         val title =
-            if (workout.isRestDay) {
-                stringResource(R.string.weekly_training_delete_rest_day_title)
-            } else {
-                stringResource(R.string.weekly_training_delete_workout_title)
+            when (workout.eventType) {
+                WORKOUT -> stringResource(R.string.weekly_training_delete_workout_title)
+                REST -> stringResource(R.string.weekly_training_delete_rest_day_title)
+                BUSY -> stringResource(R.string.weekly_training_delete_busy_title)
+                SICK -> stringResource(R.string.weekly_training_delete_sick_title)
             }
         val message =
-            if (workout.isRestDay) {
-                stringResource(R.string.weekly_training_delete_rest_day_message)
-            } else {
-                stringResource(R.string.weekly_training_delete_workout_message)
+            when (workout.eventType) {
+                WORKOUT -> stringResource(R.string.weekly_training_delete_workout_message)
+                REST -> stringResource(R.string.weekly_training_delete_rest_day_message)
+                BUSY -> stringResource(R.string.weekly_training_delete_busy_message)
+                SICK -> stringResource(R.string.weekly_training_delete_sick_message)
             }
         val confirmLabel =
-            if (workout.isRestDay) {
-                stringResource(R.string.weekly_training_delete_rest_day)
-            } else {
-                stringResource(R.string.weekly_training_delete_workout)
+            when (workout.eventType) {
+                WORKOUT -> stringResource(R.string.weekly_training_delete_workout)
+                REST -> stringResource(R.string.weekly_training_delete_rest_day)
+                BUSY -> stringResource(R.string.weekly_training_delete_busy)
+                SICK -> stringResource(R.string.weekly_training_delete_sick)
             }
 
         AlertDialog(

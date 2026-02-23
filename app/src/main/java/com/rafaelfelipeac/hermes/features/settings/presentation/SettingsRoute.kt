@@ -5,4 +5,5 @@ enum class SettingsRoute {
     CATEGORIES,
     THEME,
     LANGUAGE,
+    SLOT_MODE,
 }

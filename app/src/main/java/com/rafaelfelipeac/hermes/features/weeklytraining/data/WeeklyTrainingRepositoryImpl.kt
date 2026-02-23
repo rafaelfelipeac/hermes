@@ -4,6 +4,8 @@ import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +38,8 @@ class WeeklyTrainingRepositoryImpl
                     description = request.description,
                     isCompleted = false,
                     isRestDay = false,
+                    eventType = EventType.WORKOUT.name,
+                    timeSlot = null,
                     categoryId = request.categoryId,
                     sortOrder = request.order,
                 )
@@ -43,9 +47,10 @@ class WeeklyTrainingRepositoryImpl
             return workoutDao.insert(entity)
         }
 
-        override suspend fun addRestDay(
+        override suspend fun addEvent(
             weekStartDate: LocalDate,
             dayOfWeek: DayOfWeek?,
+            eventType: EventType,
             order: Int,
         ): Long {
             val entity =
@@ -55,7 +60,9 @@ class WeeklyTrainingRepositoryImpl
                     type = EMPTY,
                     description = EMPTY,
                     isCompleted = false,
-                    isRestDay = true,
+                    isRestDay = eventType == EventType.REST,
+                    eventType = eventType.name,
+                    timeSlot = null,
                     categoryId = null,
                     sortOrder = order,
                 )
@@ -70,8 +77,9 @@ class WeeklyTrainingRepositoryImpl
         override suspend fun updateWorkoutDayAndOrder(
             workoutId: Long,
             dayOfWeek: DayOfWeek?,
+            timeSlot: TimeSlot?,
             order: Int,
-        ) = workoutDao.updateDayAndOrder(workoutId, dayOfWeek?.value, order)
+        ) = workoutDao.updateDayAndOrder(workoutId, dayOfWeek?.value, timeSlot?.name, order)
 
         override suspend fun updateWorkoutCompletion(
             workoutId: Long,
@@ -82,9 +90,16 @@ class WeeklyTrainingRepositoryImpl
             workoutId: Long,
             type: String,
             description: String,
-            isRestDay: Boolean,
+            eventType: EventType,
             categoryId: Long?,
-        ) = workoutDao.updateDetails(workoutId, type, description, isRestDay, categoryId)
+        ) = workoutDao.updateDetails(
+            id = workoutId,
+            type = type,
+            description = description,
+            isRestDay = eventType == EventType.REST,
+            eventType = eventType.name,
+            categoryId = categoryId,
+        )
 
         override suspend fun deleteWorkout(workoutId: Long) = workoutDao.deleteById(workoutId)
 
@@ -134,6 +149,8 @@ private fun buildReplacementEntities(
                 description = if (isRestDay) EMPTY else workout.description,
                 isCompleted = false,
                 isRestDay = isRestDay,
+                eventType = workout.eventType.name,
+                timeSlot = workout.timeSlot?.name,
                 categoryId = if (isRestDay) null else workout.categoryId,
                 sortOrder = workout.order,
             )
@@ -149,6 +166,10 @@ private fun WorkoutEntity.toDomain(): Workout {
         description = description,
         isCompleted = isCompleted,
         isRestDay = isRestDay,
+        eventType =
+            runCatching { EventType.valueOf(eventType) }
+                .getOrDefault(if (isRestDay) EventType.REST else EventType.WORKOUT),
+        timeSlot = timeSlot?.let { raw -> runCatching { TimeSlot.valueOf(raw) }.getOrNull() },
         categoryId = categoryId,
         order = sortOrder,
     )

@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
 import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 fun workoutIndicatorColor(
@@ -16,7 +17,7 @@ fun workoutIndicatorColor(
     isDarkTheme: Boolean,
     surface: Color,
 ): Color {
-    if (workout.isRestDay) {
+    if (workout.eventType != WORKOUT) {
         return if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
     }
 

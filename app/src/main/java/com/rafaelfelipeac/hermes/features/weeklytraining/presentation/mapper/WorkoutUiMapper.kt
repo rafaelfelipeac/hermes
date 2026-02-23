@@ -16,5 +16,7 @@ fun Workout.toUi(category: CategoryUi?): WorkoutUi {
         categoryColorId = category?.colorId,
         categoryName = category?.name,
         order = order,
+        eventType = eventType,
+        timeSlot = timeSlot,
     )
 }
