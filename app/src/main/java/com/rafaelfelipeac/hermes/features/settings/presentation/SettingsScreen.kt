@@ -85,8 +85,8 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.A
 import java.util.Locale
 
 private const val DEBUG_PACKAGE_SUFFIX = ".dev"
-private const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
-private const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
+internal const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
+internal const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
 private const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 
 @Composable

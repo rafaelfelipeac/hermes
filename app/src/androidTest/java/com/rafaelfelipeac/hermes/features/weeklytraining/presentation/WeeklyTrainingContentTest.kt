@@ -9,10 +9,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SECTION_HEADER_TAG_PREFIX
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WEEKLY_TRAINING_CONTENT_TAG
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import java.time.DayOfWeek
 import java.time.LocalDate
 
 class WeeklyTrainingContentTest {
@@ -28,7 +31,7 @@ class WeeklyTrainingContentTest {
             WeeklyTrainingContent(
                 selectedDate = selectedDateState.value,
                 workouts = emptyList(),
-                onWorkoutMoved = { _, _, _ -> },
+                onWorkoutMoved = { _, _, _, _ -> },
                 onWorkoutCompletionChanged = { _, _ -> },
                 onWorkoutEdit = {},
                 onWorkoutDelete = {},
@@ -40,7 +43,7 @@ class WeeklyTrainingContentTest {
             selectedDateState.value = weekStart.plusDays(6)
         }
 
-        composeRule.onNodeWithTag("section-header-SUNDAY").assertIsDisplayed()
+        composeRule.onNodeWithTag("$SECTION_HEADER_TAG_PREFIX${DayOfWeek.SUNDAY}").assertIsDisplayed()
     }
 
     @Test
@@ -52,7 +55,7 @@ class WeeklyTrainingContentTest {
             WeeklyTrainingContent(
                 selectedDate = selectedDate,
                 workouts = emptyList(),
-                onWorkoutMoved = { _, _, _ -> },
+                onWorkoutMoved = { _, _, _, _ -> },
                 onWorkoutCompletionChanged = { _, _ -> },
                 onWorkoutEdit = {},
                 onWorkoutDelete = {},
@@ -60,7 +63,7 @@ class WeeklyTrainingContentTest {
             )
         }
 
-        composeRule.onNodeWithTag("weekly-training-content").performTouchInput {
+        composeRule.onNodeWithTag(WEEKLY_TRAINING_CONTENT_TAG).performTouchInput {
             swipeLeft()
         }
 

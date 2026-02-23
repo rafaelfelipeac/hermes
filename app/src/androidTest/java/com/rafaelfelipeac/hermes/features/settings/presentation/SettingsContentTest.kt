@@ -4,10 +4,13 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+
+private const val APP_VERSION_TEST = "0.0.0-test"
 
 class SettingsContentTest {
     @get:Rule
@@ -22,10 +25,12 @@ class SettingsContentTest {
                     SettingsState(
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
+                        slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
                     ),
-                appVersion = "0.0.0-test",
+                appVersion = APP_VERSION_TEST,
                 onThemeClick = { invoked = true },
                 onLanguageClick = {},
+                onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
                 onSeedDemoData = {},
@@ -33,7 +38,7 @@ class SettingsContentTest {
             )
         }
 
-        composeRule.onNodeWithTag("settings_theme_row").performClick()
+        composeRule.onNodeWithTag(SETTINGS_THEME_ROW_TAG).performClick()
 
         composeRule.runOnIdle {
             assertEquals(true, invoked)
@@ -49,10 +54,12 @@ class SettingsContentTest {
                     SettingsState(
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
+                        slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
                     ),
-                appVersion = "0.0.0-test",
+                appVersion = APP_VERSION_TEST,
                 onThemeClick = {},
                 onLanguageClick = { invoked = true },
+                onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
                 onSeedDemoData = {},
@@ -60,7 +67,7 @@ class SettingsContentTest {
             )
         }
 
-        composeRule.onNodeWithTag("settings_language_row").performClick()
+        composeRule.onNodeWithTag(SETTINGS_LANGUAGE_ROW_TAG).performClick()
 
         composeRule.runOnIdle {
             assertEquals(true, invoked)

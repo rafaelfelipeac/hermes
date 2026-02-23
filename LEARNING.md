@@ -106,3 +106,4 @@ Recent learnings:
 - For help dialogs, storing paragraph breaks directly in localized `strings.xml` (`\n\n`) keeps copy layout controlled by translators and avoids hardcoded line-break logic in composables.
 - Reusing identical header spacing (`start/end` padding + right-aligned help action) across Settings and Categories improves scan consistency and keeps navigation affordances in predictable positions.
 - Main settings navigation labels should stay stable (feature name) rather than reflecting current selected value when the row navigates to a detail screen; it reads clearer for discovery.
+- When UI tests need to assert on composable test tags, keeping tag constants `internal` (instead of private) avoids hardcoded strings while staying scoped to the module.

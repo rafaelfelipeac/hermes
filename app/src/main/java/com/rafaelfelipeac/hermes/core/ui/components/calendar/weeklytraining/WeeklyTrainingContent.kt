@@ -87,10 +87,10 @@ private const val AUTO_SCROLL_EDGE = 96f
 private const val AUTO_SCROLL_MAX_SPEED = 18f
 private const val AUTO_SCROLL_SAFE_PADDING = 16f
 private const val AUTO_SCROLL_FRAME_DELAY_MS = 16L
-private const val WEEKLY_TRAINING_CONTENT_TAG = "weekly-training-content"
+internal const val WEEKLY_TRAINING_CONTENT_TAG = "weekly-training-content"
 private const val SECTION_ITEM_KEY_PREFIX = "section-"
 private const val DIVIDER_ITEM_KEY_PREFIX = "divider-"
-private const val SECTION_HEADER_TAG_PREFIX = "section-header-"
+internal const val SECTION_HEADER_TAG_PREFIX = "section-header-"
 
 @Composable
 fun WeeklyTrainingContent(

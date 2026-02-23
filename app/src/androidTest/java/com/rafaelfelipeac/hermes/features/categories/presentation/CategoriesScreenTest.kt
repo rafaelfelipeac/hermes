@@ -15,6 +15,8 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +27,8 @@ import org.junit.Rule
 import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
+
+private const val EMPTY_STRING = ""
 
 class CategoriesScreenTest {
     @get:Rule
@@ -251,6 +255,13 @@ class CategoriesScreenTest {
 
         override suspend fun addWorkout(request: AddWorkoutRequest): Long = 0L
 
+        override suspend fun addEvent(
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            eventType: EventType,
+            order: Int,
+        ): Long = 0L
+
         override suspend fun addRestDay(
             weekStartDate: LocalDate,
             dayOfWeek: DayOfWeek?,
@@ -262,6 +273,7 @@ class CategoriesScreenTest {
         override suspend fun updateWorkoutDayAndOrder(
             workoutId: Long,
             dayOfWeek: DayOfWeek?,
+            timeSlot: TimeSlot?,
             order: Int,
         ) = Unit
 
@@ -274,7 +286,7 @@ class CategoriesScreenTest {
             workoutId: Long,
             type: String,
             description: String,
-            isRestDay: Boolean,
+            eventType: EventType,
             categoryId: Long?,
         ) = Unit
 
@@ -299,12 +311,12 @@ class CategoriesScreenTest {
         override fun get(
             id: Int,
             vararg args: Any,
-        ): String = ""
+        ): String = EMPTY_STRING
 
         override fun getForLanguage(
             languageTag: String?,
             id: Int,
             vararg args: Any,
-        ): String = ""
+        ): String = EMPTY_STRING
     }
 }
