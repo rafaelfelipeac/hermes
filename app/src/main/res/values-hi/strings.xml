@@ -224,11 +224,11 @@
     <string name="weekly_training_delete_sick_message">क्या आप वाकई इस बीमारी इवेंट को हटाना चाहते हैं?</string>
     <string name="settings_planning_title">योजना</string>
     <string name="settings_slot_mode_title">स्लॉट मोड</string>
-    <string name="settings_slot_mode_auto">ऑटो (2+ इवेंट/दिन)</string>
+    <string name="settings_slot_mode_auto">स्वचालित (2+ इवेंट/दिन)</string>
     <string name="settings_slot_mode_always">स्लॉट हमेशा दिखाएँ</string>
     <string name="settings_slot_mode_help_title">स्लॉट मोड कैसे काम करता है</string>
     <string name="settings_slot_mode_help_body">जानें कि सुबह, दोपहर और रात के समूह कब दिखते हैं।</string>
-    <string name="settings_slot_mode_help_message">सक्षम होने पर, स्लॉट एक ही दिन में कई इवेंट व्यवस्थित करने में मदद करते हैं।\n\nऑटो मोड में स्लॉट तभी दिखते हैं जब एक दिन में दो या अधिक इवेंट हों।\n\nहमेशा मोड में स्लॉट हमेशा दिखाई देते हैं।</string>
+    <string name="settings_slot_mode_help_message">सक्षम होने पर, स्लॉट एक ही दिन में कई इवेंट व्यवस्थित करने में मदद करते हैं।\n\nस्वचालित मोड में स्लॉट तभी दिखते हैं जब एक दिन में दो या अधिक इवेंट हों।\n\nहमेशा मोड में स्लॉट हमेशा दिखाई देते हैं।</string>
     <string name="activity_action_change_slot_mode">आपने स्लॉट मोड बदला।</string>
     <string name="weekly_training_slot_morning">सुबह</string>
     <string name="weekly_training_slot_afternoon">दोपहर</string>

@@ -223,11 +223,11 @@
     <string name="weekly_training_delete_sick_message">Vuoi davvero eliminare questo evento di malattia?</string>
     <string name="settings_planning_title">Pianificazione</string>
     <string name="settings_slot_mode_title">Modalità turni</string>
-    <string name="settings_slot_mode_auto">Auto (2+ eventi/giorno)</string>
+    <string name="settings_slot_mode_auto">Automatico (2+ eventi/giorno)</string>
     <string name="settings_slot_mode_always">Mostra sempre i turni</string>
     <string name="settings_slot_mode_help_title">Come funziona la modalità turni</string>
     <string name="settings_slot_mode_help_body">Scopri quando compaiono i gruppi mattina, pomeriggio e notte.</string>
-    <string name="settings_slot_mode_help_message">Quando è attiva, i turni aiutano a organizzare più eventi nello stesso giorno.\n\nIn modalità auto, i turni appaiono solo quando un giorno ha due o più eventi.\n\nIn modalità sempre, i turni sono sempre visibili.</string>
+    <string name="settings_slot_mode_help_message">Quando è attiva, i turni aiutano a organizzare più eventi nello stesso giorno.\n\nIn modalità automatica, i turni appaiono solo quando un giorno ha due o più eventi.\n\nIn modalità sempre, i turni sono sempre visibili.</string>
     <string name="activity_action_change_slot_mode">Hai cambiato la modalità turni.</string>
     <string name="weekly_training_slot_morning">Mattina</string>
     <string name="weekly_training_slot_afternoon">Pomeriggio</string>

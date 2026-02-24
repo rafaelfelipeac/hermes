@@ -335,6 +335,7 @@ class ActivityUiFormatter(
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE,
             UserActionType.CHANGE_THEME,
+            UserActionType.CHANGE_SLOT_MODE,
             UserActionType.UPDATE_CATEGORY_NAME,
             -> buildValueChangeSubtitle(metadata, actionType)
 
@@ -361,7 +362,8 @@ class ActivityUiFormatter(
             actionType == UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ||
             actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ||
             actionType == UserActionType.CREATE_WORKOUT ||
-            actionType == UserActionType.UPDATE_WORKOUT
+            actionType == UserActionType.UPDATE_WORKOUT ||
+            actionType == UserActionType.CHANGE_SLOT_MODE
     }
 
     private fun combineSubtitles(

@@ -122,3 +122,5 @@ Recent learnings:
 - Even when resource keys remain legacy (`*_rest_day`), user-facing copy can and should evolve to new product terminology (for example, "rest event") across dialogs and activity logs in all locales to keep language consistent.
 - For destructive confirm actions in event-specific dialogs, a generic confirm label (for example, "Delete") improves button clarity while keeping event context in title/body copy.
 - Undo toast copy should derive from concrete `eventType` (not legacy booleans like `isRestDay`) to avoid collapsing busy/sick into rest messaging for move/delete actions.
+- Option labels and help copy should use the same localized term for policies (for example, "Automático") to avoid mixed-language UI in settings detail screens.
+- In pt-BR, slot settings copy reads more naturally as the feature concept ("Divisão do dia") than a literal technical label ("modo por turnos"); updating title, help text, option label, and activity action together keeps terminology consistent across Settings and Activity history.
