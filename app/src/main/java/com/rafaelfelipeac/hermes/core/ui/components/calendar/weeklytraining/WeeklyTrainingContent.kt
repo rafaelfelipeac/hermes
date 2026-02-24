@@ -53,6 +53,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.Sect
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.ToBeDefined
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewProvider
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -571,7 +572,7 @@ private fun SlotSectionCard(
         shape = shapes.medium,
         border =
             if (isDropTarget) {
-                BorderStroke(width = 1.dp, color = colorScheme.outlineVariant)
+                BorderStroke(width = BorderHairline, color = colorScheme.outlineVariant)
             } else {
                 null
             },
@@ -644,7 +645,7 @@ private fun DropPreviewBadge(
     Surface(
         tonalElevation = ElevationSm,
         shape = shapes.medium,
-        border = BorderStroke(width = 1.dp, color = borderColor),
+        border = BorderStroke(width = BorderHairline, color = borderColor),
         modifier = modifier.padding(top = SpacingXs),
     ) {
         Text(

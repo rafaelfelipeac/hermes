@@ -371,7 +371,7 @@ class DemoDataSeeder
         ): UserActionEntity {
             return action(
                 type = UserActionType.CREATE_REST_DAY,
-                entityType = UserActionEntityType.REST_DAY,
+                entityType = UserActionEntityType.REST,
                 metadata =
                     mapOf(
                         WEEK_START_DATE to weekStartDate.toString(),

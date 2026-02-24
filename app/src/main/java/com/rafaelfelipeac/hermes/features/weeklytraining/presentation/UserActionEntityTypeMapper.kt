@@ -6,7 +6,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 internal fun EventType.toUserActionEntityType(): UserActionEntityType {
     return when (this) {
         EventType.WORKOUT -> UserActionEntityType.WORKOUT
-        EventType.REST -> UserActionEntityType.REST_DAY
+        EventType.REST -> UserActionEntityType.REST
         EventType.BUSY -> UserActionEntityType.BUSY
         EventType.SICK -> UserActionEntityType.SICK
     }

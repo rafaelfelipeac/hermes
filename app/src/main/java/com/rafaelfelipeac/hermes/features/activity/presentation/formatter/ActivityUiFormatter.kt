@@ -10,6 +10,8 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import java.time.DayOfWeek
@@ -58,6 +60,7 @@ class ActivityUiFormatter(
 
         val title =
             when (entityType) {
+                UserActionEntityType.REST,
                 UserActionEntityType.REST_DAY,
                 UserActionEntityType.BUSY,
                 UserActionEntityType.SICK,
@@ -207,8 +210,8 @@ class ActivityUiFormatter(
 
     private fun slotModeLabel(raw: String): String {
         return when (raw.uppercase(Locale.ENGLISH)) {
-            "AUTO_WHEN_MULTIPLE" -> stringProvider.get(R.string.settings_slot_mode_auto)
-            "ALWAYS_SHOW" -> stringProvider.get(R.string.settings_slot_mode_always)
+            AUTO_WHEN_MULTIPLE.name -> stringProvider.get(R.string.settings_slot_mode_auto)
+            ALWAYS_SHOW.name -> stringProvider.get(R.string.settings_slot_mode_always)
             else -> raw
         }
     }
@@ -590,6 +593,7 @@ class ActivityUiFormatter(
 
     private fun createNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_create_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_create_busy
             UserActionEntityType.SICK -> R.string.activity_action_create_sick
@@ -599,6 +603,7 @@ class ActivityUiFormatter(
 
     private fun updateNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_update_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_update_busy
             UserActionEntityType.SICK -> R.string.activity_action_update_sick
@@ -608,6 +613,7 @@ class ActivityUiFormatter(
 
     private fun deleteNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_delete_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_delete_busy
             UserActionEntityType.SICK -> R.string.activity_action_delete_sick
@@ -617,6 +623,7 @@ class ActivityUiFormatter(
 
     private fun undoDeleteNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_undo_delete_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_undo_delete_busy
             UserActionEntityType.SICK -> R.string.activity_action_undo_delete_sick
@@ -626,6 +633,7 @@ class ActivityUiFormatter(
 
     private fun reorderNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_reorder_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_reorder_busy
             UserActionEntityType.SICK -> R.string.activity_action_reorder_sick
@@ -635,6 +643,7 @@ class ActivityUiFormatter(
 
     private fun moveNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_move_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_move_busy
             UserActionEntityType.SICK -> R.string.activity_action_move_sick
@@ -644,6 +653,7 @@ class ActivityUiFormatter(
 
     private fun undoReorderNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_undo_reorder_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_undo_reorder_busy
             UserActionEntityType.SICK -> R.string.activity_action_undo_reorder_sick
@@ -653,6 +663,7 @@ class ActivityUiFormatter(
 
     private fun undoMoveNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_undo_move_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_undo_move_busy
             UserActionEntityType.SICK -> R.string.activity_action_undo_move_sick
@@ -662,6 +673,7 @@ class ActivityUiFormatter(
 
     private fun completeNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_complete_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_complete_busy
             UserActionEntityType.SICK -> R.string.activity_action_complete_sick
@@ -671,6 +683,7 @@ class ActivityUiFormatter(
 
     private fun incompleteNonWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_incomplete_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_incomplete_busy
             UserActionEntityType.SICK -> R.string.activity_action_incomplete_sick
@@ -680,6 +693,7 @@ class ActivityUiFormatter(
 
     private fun convertFromWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_convert_workout_to_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_convert_workout_to_busy
             UserActionEntityType.SICK -> R.string.activity_action_convert_workout_to_sick
@@ -689,6 +703,7 @@ class ActivityUiFormatter(
 
     private fun convertToWorkoutRes(entityType: UserActionEntityType): Int {
         return when (entityType) {
+            UserActionEntityType.REST,
             UserActionEntityType.REST_DAY -> R.string.activity_action_convert_rest_day_to_workout
             UserActionEntityType.BUSY -> R.string.activity_action_convert_busy_to_workout
             UserActionEntityType.SICK -> R.string.activity_action_convert_sick_to_workout

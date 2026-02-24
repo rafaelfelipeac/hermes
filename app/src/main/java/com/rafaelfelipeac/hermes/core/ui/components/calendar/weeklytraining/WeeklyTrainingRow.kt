@@ -53,13 +53,13 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxYOffset
@@ -137,7 +137,7 @@ internal fun WorkoutRow(
             .then(
                 if (workout.eventType != WORKOUT) {
                     Modifier.border(
-                        width = 1.dp,
+                        width = BorderHairline,
                         color = colorScheme.outlineVariant,
                         shape = shapes.medium,
                     )
@@ -356,7 +356,7 @@ internal fun GhostWorkoutRow(
         shape = shapes.medium,
         border =
             if (workout.eventType != WORKOUT) {
-                BorderStroke(width = 1.dp, color = colorScheme.outlineVariant)
+                BorderStroke(width = BorderHairline, color = colorScheme.outlineVariant)
             } else {
                 null
             },

@@ -4,6 +4,7 @@ import androidx.compose.ui.unit.dp
 
 object Dimens {
     val Zero = 0.dp
+    val BorderHairline = 1.dp
     val BorderThin = 2.dp
     val ElevationSm = 1.dp
     val ElevationMd = 6.dp
