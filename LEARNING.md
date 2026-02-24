@@ -124,3 +124,4 @@ Recent learnings:
 - Undo toast copy should derive from concrete `eventType` (not legacy booleans like `isRestDay`) to avoid collapsing busy/sick into rest messaging for move/delete actions.
 - Option labels and help copy should use the same localized term for policies (for example, "Automático") to avoid mixed-language UI in settings detail screens.
 - In pt-BR, slot settings copy reads more naturally as the feature concept ("Divisão do dia") than a literal technical label ("modo por turnos"); updating title, help text, option label, and activity action together keeps terminology consistent across Settings and Activity history.
+- For Detekt compliance in formatter-heavy files, a targeted suppression for size (`LargeClass`) plus small refactors for rule-specific findings (`ReturnCount`, import ordering, max line length) is a low-risk cleanup path that keeps behavior unchanged while restoring CI signal.

@@ -70,6 +70,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
@@ -542,7 +543,7 @@ fun WeeklyTrainingScreen(
     }
 }
 
-private fun undoMovedMessageRes(eventType: com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType): Int {
+private fun undoMovedMessageRes(eventType: EventType): Int {
     return when (eventType) {
         WORKOUT -> R.string.weekly_training_workout_moved
         REST -> R.string.weekly_training_rest_day_moved
@@ -551,7 +552,7 @@ private fun undoMovedMessageRes(eventType: com.rafaelfelipeac.hermes.features.we
     }
 }
 
-private fun undoDeletedMessageRes(eventType: com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType): Int {
+private fun undoDeletedMessageRes(eventType: EventType): Int {
     return when (eventType) {
         WORKOUT -> R.string.weekly_training_workout_deleted
         REST -> R.string.weekly_training_rest_day_deleted

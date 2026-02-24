@@ -26,7 +26,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
 
-@Suppress("TooManyFunctions")
+@Suppress("LargeClass", "TooManyFunctions")
 class ActivityUiFormatter(
     private val stringProvider: StringProvider,
 ) {
@@ -444,17 +444,19 @@ class ActivityUiFormatter(
     }
 
     private fun timeSlotLabel(raw: String?): String? {
-        val cleaned = raw?.takeIf { it.isNotBlank() } ?: return null
-        if (cleaned == UserActionMetadataValues.UNPLANNED) return null
+        val cleaned = raw?.takeIf { it.isNotBlank() }
+        val parsedSlot =
+            cleaned
+                ?.takeUnless { it == UserActionMetadataValues.UNPLANNED }
+                ?.let { value ->
+                    runCatching { TimeSlot.valueOf(value.uppercase(Locale.ENGLISH)) }.getOrNull()
+                }
 
-        val slot =
-            runCatching { TimeSlot.valueOf(cleaned.uppercase(Locale.ENGLISH)) }.getOrNull()
-                ?: return cleaned
-
-        return when (slot) {
+        return when (parsedSlot) {
             TimeSlot.MORNING -> stringProvider.get(R.string.weekly_training_slot_morning)
             TimeSlot.AFTERNOON -> stringProvider.get(R.string.weekly_training_slot_afternoon)
             TimeSlot.NIGHT -> stringProvider.get(R.string.weekly_training_slot_night)
+            null -> cleaned?.takeUnless { it == UserActionMetadataValues.UNPLANNED }
         }
     }
 
