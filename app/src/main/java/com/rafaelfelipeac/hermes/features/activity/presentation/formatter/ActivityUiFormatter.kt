@@ -11,6 +11,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY
 import java.time.DayOfWeek.MONDAY
@@ -132,21 +133,20 @@ class ActivityUiFormatter(
     }
 
     private fun buildMoveSubtitle(metadata: Map<String, String>): String? {
-        val oldDay =
-            quoteValue(
-                dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK]),
-            )
-        val newDay =
-            quoteValue(
-                dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK]),
-            )
+        val oldDay = dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK])
+        val newDay = dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK])
+        val oldSlot = timeSlotLabel(metadata[UserActionMetadataKeys.OLD_TIME_SLOT])
+        val newSlot = timeSlotLabel(metadata[UserActionMetadataKeys.NEW_TIME_SLOT])
 
-        if (oldDay.isNullOrBlank() && newDay.isNullOrBlank()) return null
+        val oldLocation = quoteValue(locationLabel(oldDay, oldSlot))
+        val newLocation = quoteValue(locationLabel(newDay, newSlot))
+
+        if (oldLocation.isNullOrBlank() && newLocation.isNullOrBlank()) return null
 
         return stringProvider.get(
             R.string.activity_subtitle_move,
-            oldDay.orEmpty(),
-            newDay.orEmpty(),
+            oldLocation.orEmpty(),
+            newLocation.orEmpty(),
         )
     }
 
@@ -438,6 +438,33 @@ class ActivityUiFormatter(
                     dayNumberLabel(dayNumber, cleaned)
                 }
             }
+        }
+    }
+
+    private fun timeSlotLabel(raw: String?): String? {
+        val cleaned = raw?.takeIf { it.isNotBlank() } ?: return null
+        if (cleaned == UserActionMetadataValues.UNPLANNED) return null
+
+        val slot =
+            runCatching { TimeSlot.valueOf(cleaned.uppercase(Locale.ENGLISH)) }.getOrNull()
+                ?: return cleaned
+
+        return when (slot) {
+            TimeSlot.MORNING -> stringProvider.get(R.string.weekly_training_slot_morning)
+            TimeSlot.AFTERNOON -> stringProvider.get(R.string.weekly_training_slot_afternoon)
+            TimeSlot.NIGHT -> stringProvider.get(R.string.weekly_training_slot_night)
+        }
+    }
+
+    private fun locationLabel(
+        dayLabel: String?,
+        timeSlotLabel: String?,
+    ): String? {
+        return when {
+            dayLabel.isNullOrBlank() && timeSlotLabel.isNullOrBlank() -> null
+            dayLabel.isNullOrBlank() -> timeSlotLabel
+            timeSlotLabel.isNullOrBlank() -> dayLabel
+            else -> "$dayLabel | $timeSlotLabel"
         }
     }
 

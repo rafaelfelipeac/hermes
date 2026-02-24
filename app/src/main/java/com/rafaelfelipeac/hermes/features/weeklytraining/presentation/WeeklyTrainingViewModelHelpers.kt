@@ -5,10 +5,12 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
@@ -146,7 +148,7 @@ internal suspend fun logWorkoutChange(
     val entityType =
         workout.eventType.toUserActionEntityType()
     val actionType =
-        if (original.dayOfWeek != workout.dayOfWeek) {
+        if (original.dayOfWeek != workout.dayOfWeek || original.timeSlot != workout.timeSlot) {
             MOVE_WORKOUT_BETWEEN_DAYS
         } else {
             REORDER_WORKOUT
@@ -161,6 +163,8 @@ internal suspend fun logWorkoutChange(
                 WEEK_START_DATE to weekStartDate.toString(),
                 OLD_DAY_OF_WEEK to (original.dayOfWeek?.value?.toString() ?: UNPLANNED),
                 NEW_DAY_OF_WEEK to (workout.dayOfWeek?.value?.toString() ?: UNPLANNED),
+                OLD_TIME_SLOT to (original.timeSlot?.name ?: UNPLANNED),
+                NEW_TIME_SLOT to (workout.timeSlot?.name ?: UNPLANNED),
                 OLD_ORDER to original.order.toString(),
                 NEW_ORDER to workout.order.toString(),
                 NEW_TYPE to workout.type,
@@ -178,7 +182,7 @@ internal suspend fun logUndoWorkoutChange(
     val entityType =
         workout.eventType.toUserActionEntityType()
     val actionType =
-        if (original.dayOfWeek != workout.dayOfWeek) {
+        if (original.dayOfWeek != workout.dayOfWeek || original.timeSlot != workout.timeSlot) {
             UNDO_MOVE_WORKOUT_BETWEEN_DAYS
         } else {
             UNDO_REORDER_WORKOUT_SAME_DAY
@@ -193,6 +197,8 @@ internal suspend fun logUndoWorkoutChange(
                 WEEK_START_DATE to weekStartDate.toString(),
                 OLD_DAY_OF_WEEK to (original.dayOfWeek?.value?.toString() ?: UNPLANNED),
                 NEW_DAY_OF_WEEK to (workout.dayOfWeek?.value?.toString() ?: UNPLANNED),
+                OLD_TIME_SLOT to (original.timeSlot?.name ?: UNPLANNED),
+                NEW_TIME_SLOT to (workout.timeSlot?.name ?: UNPLANNED),
                 OLD_ORDER to original.order.toString(),
                 NEW_ORDER to workout.order.toString(),
                 NEW_TYPE to workout.type,

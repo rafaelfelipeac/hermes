@@ -108,3 +108,17 @@ Recent learnings:
 - Main settings navigation labels should stay stable (feature name) rather than reflecting current selected value when the row navigates to a detail screen; it reads clearer for discovery.
 - When UI tests need to assert on composable test tags, keeping tag constants `internal` (instead of private) avoids hardcoded strings while staying scoped to the module.
 - Moving undo workflow helpers (reorder/delete/replace) into shared helper files keeps `WeeklyTrainingViewModel` under detekt size thresholds without changing behavior.
+- Reorder vs move logging for weekly events should treat time-slot changes as moves (even on the same day), otherwise Activity history can misleadingly show a reorder while the item actually changed turno.
+- For multi-locale feature rollouts, audit newly added keys by diffing localized values against base (`values/`) to catch accidental English fallbacks (for example, newly added action labels).
+- For planner action labels, concise verb+noun copy (for example, "Add rest" / "Adicionar descanso") localizes better than literal event-day phrasing and remains clear in both full-day and slot contexts.
+- Keeping related localized action keys grouped together in each `values-*/strings.xml` makes cross-locale review simpler and reduces misses when copy changes for the same feature.
+- Event-type icon mapping should be centralized and reused across list rows and day indicators; otherwise new event types stay visually inconsistent even when action menus are already updated.
+- In Compose drag rows, avoid `pointerInput(Unit)` when row identity can change; keying pointer input by stable item ID prevents stale drag callbacks from selecting a previous item after recomposition/reordering.
+- Day-header indicator selection cannot rely on raw `order` when slot mode exists, because order is scoped per slot; use visual ordering `(slot rank, order)` to reflect the actual last item shown in the day.
+- Calendar non-workout indicators should receive the same non-workout background token used in rows (`outlineVariant`) to avoid color drift between header and list.
+- Day indicator ownership should prioritize workouts over non-workout events on mixed days, even if a non-workout is later in slot/order; users read the top indicator primarily as training status when training exists.
+- For same-slot/same-order ties, day indicator ownership must include source-list index as final tiebreaker to match the last visually rendered workout, otherwise the header can pick the wrong color owner.
+- Header indicator icon alignment should share the same bottom offset across completed and non-workout states; mixing bottom-only and vertical padding creates visible jitter between days.
+- Even when resource keys remain legacy (`*_rest_day`), user-facing copy can and should evolve to new product terminology (for example, "rest event") across dialogs and activity logs in all locales to keep language consistent.
+- For destructive confirm actions in event-specific dialogs, a generic confirm label (for example, "Delete") improves button clarity while keeping event context in title/body copy.
+- Undo toast copy should derive from concrete `eventType` (not legacy booleans like `isRestDay`) to avoid collapsing busy/sick into rest messaging for move/delete actions.

@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -30,7 +31,7 @@ data class WorkoutPosition(
 sealed class PendingUndoAction {
     data class MoveOrReorder(
         val movedWorkoutId: Long,
-        val isRestDay: Boolean,
+        val movedEventType: EventType,
         val previousPositions: List<WorkoutPosition>,
         val weekStartDate: LocalDate,
     ) : PendingUndoAction()

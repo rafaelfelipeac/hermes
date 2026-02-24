@@ -350,7 +350,7 @@ class WeeklyTrainingViewModel
                         )
                     }
                 }
-            val isNonWorkout = originalWorkout?.eventType != WORKOUT_EVENT
+            val movedEventType = originalWorkout?.eventType ?: WORKOUT_EVENT
 
             viewModelScope.launch {
                 persistWorkoutChanges(
@@ -370,7 +370,7 @@ class WeeklyTrainingViewModel
                         action =
                             PendingUndoAction.MoveOrReorder(
                                 movedWorkoutId = workoutId,
-                                isRestDay = isNonWorkout,
+                                movedEventType = movedEventType,
                                 previousPositions = undoPositions,
                                 weekStartDate = state.value.weekStartDate,
                             ),

@@ -23,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
@@ -44,6 +46,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
@@ -173,7 +176,7 @@ internal fun WorkoutRow(
                 Modifier
                     .fillMaxWidth()
                     .padding(end = SpacingXl)
-                    .pointerInput(Unit) {
+                    .pointerInput(workout.id) {
                         detectDragGesturesAfterLongPress(
                             onDragStart = { offset ->
                                 coordinates?.localToRoot(offset)?.let {
@@ -240,8 +243,8 @@ internal fun WorkoutRow(
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.Bedtime,
-                            contentDescription = null,
+                            imageVector = eventTypeIcon(workout.eventType),
+                            contentDescription = stringResource(eventTypeLabelRes(workout.eventType)),
                             tint = colors.content,
                             modifier = Modifier.size(SmallIconSize),
                         )
@@ -511,5 +514,14 @@ private fun eventTypeLabelRes(eventType: EventType): Int {
         EventType.REST -> R.string.weekly_training_rest_day_label
         EventType.BUSY -> R.string.weekly_training_busy_label
         EventType.SICK -> R.string.weekly_training_sick_label
+    }
+}
+
+private fun eventTypeIcon(eventType: EventType): ImageVector {
+    return when (eventType) {
+        EventType.WORKOUT -> Icons.Outlined.Check
+        EventType.REST -> Icons.Outlined.Bedtime
+        EventType.BUSY -> Icons.Outlined.EventBusy
+        EventType.SICK -> Icons.Outlined.MedicalServices
     }
 }

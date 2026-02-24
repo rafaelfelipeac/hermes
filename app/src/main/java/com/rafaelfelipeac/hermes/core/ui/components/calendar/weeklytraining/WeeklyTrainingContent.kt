@@ -26,6 +26,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -413,24 +414,26 @@ fun WeeklyTrainingContent(
                                                     Spacer(modifier = Modifier.height(SpacingMd))
                                                 }
 
-                                                WorkoutRow(
-                                                    workout = workout,
-                                                    isDragging = draggedWorkoutId == workout.id,
-                                                    onToggleCompleted = { checked ->
-                                                        onWorkoutCompletionChanged(workout, checked)
-                                                    },
-                                                    onDragStarted = { position, height ->
-                                                        if (draggedWorkoutId == null) {
-                                                            draggedWorkoutId = workout.id
-                                                            dragPosition = position
-                                                            draggedItemHeight = height
-                                                            dragPointerId = null
-                                                        }
-                                                    },
-                                                    onEdit = { onWorkoutEdit(workout) },
-                                                    onDelete = { onWorkoutDelete(workout) },
-                                                    onItemPositioned = { itemBounds[workout.id] = it },
-                                                )
+                                                key(workout.id) {
+                                                    WorkoutRow(
+                                                        workout = workout,
+                                                        isDragging = draggedWorkoutId == workout.id,
+                                                        onToggleCompleted = { checked ->
+                                                            onWorkoutCompletionChanged(workout, checked)
+                                                        },
+                                                        onDragStarted = { position, height ->
+                                                            if (draggedWorkoutId == null) {
+                                                                draggedWorkoutId = workout.id
+                                                                dragPosition = position
+                                                                draggedItemHeight = height
+                                                                dragPointerId = null
+                                                            }
+                                                        },
+                                                        onEdit = { onWorkoutEdit(workout) },
+                                                        onDelete = { onWorkoutDelete(workout) },
+                                                        onItemPositioned = { itemBounds[workout.id] = it },
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -451,24 +454,26 @@ fun WeeklyTrainingContent(
                                         Spacer(modifier = Modifier.height(SpacingMd))
                                     }
 
-                                    WorkoutRow(
-                                        workout = workout,
-                                        isDragging = draggedWorkoutId == workout.id,
-                                        onToggleCompleted = { checked ->
-                                            onWorkoutCompletionChanged(workout, checked)
-                                        },
-                                        onDragStarted = { position, height ->
-                                            if (draggedWorkoutId == null) {
-                                                draggedWorkoutId = workout.id
-                                                dragPosition = position
-                                                draggedItemHeight = height
-                                                dragPointerId = null
-                                            }
-                                        },
-                                        onEdit = { onWorkoutEdit(workout) },
-                                        onDelete = { onWorkoutDelete(workout) },
-                                        onItemPositioned = { itemBounds[workout.id] = it },
-                                    )
+                                    key(workout.id) {
+                                        WorkoutRow(
+                                            workout = workout,
+                                            isDragging = draggedWorkoutId == workout.id,
+                                            onToggleCompleted = { checked ->
+                                                onWorkoutCompletionChanged(workout, checked)
+                                            },
+                                            onDragStarted = { position, height ->
+                                                if (draggedWorkoutId == null) {
+                                                    draggedWorkoutId = workout.id
+                                                    dragPosition = position
+                                                    draggedItemHeight = height
+                                                    dragPointerId = null
+                                                }
+                                            },
+                                            onEdit = { onWorkoutEdit(workout) },
+                                            onDelete = { onWorkoutDelete(workout) },
+                                            onItemPositioned = { itemBounds[workout.id] = it },
+                                        )
+                                    }
                                 }
                             }
                         }

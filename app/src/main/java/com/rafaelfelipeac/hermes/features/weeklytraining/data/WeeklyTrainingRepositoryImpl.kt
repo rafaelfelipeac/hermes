@@ -2,7 +2,6 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.data
 
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
-import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDetailsUpdate
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
@@ -94,14 +93,12 @@ class WeeklyTrainingRepositoryImpl
             eventType: EventType,
             categoryId: Long?,
         ) = workoutDao.updateDetails(
-            WorkoutDetailsUpdate(
-                id = workoutId,
-                type = type,
-                description = description,
-                isRestDay = eventType == EventType.REST,
-                eventType = eventType.name,
-                categoryId = categoryId,
-            ),
+            id = workoutId,
+            type = type,
+            description = description,
+            isRestDay = eventType == EventType.REST,
+            eventType = eventType.name,
+            categoryId = categoryId,
         )
 
         override suspend fun deleteWorkout(workoutId: Long) = workoutDao.deleteById(workoutId)
