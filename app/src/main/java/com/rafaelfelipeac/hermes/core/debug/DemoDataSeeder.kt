@@ -225,40 +225,40 @@ class DemoDataSeeder
         ): List<UserActionEntity> {
             val trainingActions =
                 listOf(
-                openWeekAction(
-                    oldWeekStart = previousWeekStart,
-                    newWeekStart = currentWeekStart,
-                    timestamp = now - dayMillis * 6,
-                ),
-                createWorkoutAction(
-                    weekStartDate = currentWeekStart,
-                    dayOfWeek = TUESDAY,
-                    order = 0,
-                    seed = workoutSeed(2, AFTERNOON),
-                    timestamp = now - dayMillis * 5,
-                ),
-                moveWorkoutAction(
-                    weekStartDate = currentWeekStart,
-                    dayChange = WorkoutDayChange(oldDay = THURSDAY, newDay = FRIDAY),
-                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
-                    slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = AFTERNOON),
-                    seed = workoutSeed(4, AFTERNOON),
-                    timestamp = now - dayMillis * 4,
-                ),
-                moveWorkoutAction(
-                    weekStartDate = currentWeekStart,
-                    dayChange = WorkoutDayChange(oldDay = MONDAY, newDay = MONDAY),
-                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
-                    slotChange = WorkoutSlotChange(oldTimeSlot = NIGHT, newTimeSlot = MORNING),
-                    seed = workoutSeed(1, MORNING),
-                    timestamp = now - dayMillis * 3,
-                ),
-                completeWorkoutAction(
-                    weekStartDate = currentWeekStart,
-                    seed = workoutSeed(0, MORNING),
-                    timestamp = now - dayMillis * 2,
-                ),
-            )
+                    openWeekAction(
+                        oldWeekStart = previousWeekStart,
+                        newWeekStart = currentWeekStart,
+                        timestamp = now - dayMillis * 6,
+                    ),
+                    createWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayOfWeek = TUESDAY,
+                        order = 0,
+                        seed = workoutSeed(2, AFTERNOON),
+                        timestamp = now - dayMillis * 5,
+                    ),
+                    moveWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayChange = WorkoutDayChange(oldDay = THURSDAY, newDay = FRIDAY),
+                        orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                        slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = AFTERNOON),
+                        seed = workoutSeed(4, AFTERNOON),
+                        timestamp = now - dayMillis * 4,
+                    ),
+                    moveWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayChange = WorkoutDayChange(oldDay = MONDAY, newDay = MONDAY),
+                        orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                        slotChange = WorkoutSlotChange(oldTimeSlot = NIGHT, newTimeSlot = MORNING),
+                        seed = workoutSeed(1, MORNING),
+                        timestamp = now - dayMillis * 3,
+                    ),
+                    completeWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        seed = workoutSeed(0, MORNING),
+                        timestamp = now - dayMillis * 2,
+                    ),
+                )
             val plannerActions =
                 listOf(
                     createNonWorkoutAction(
@@ -293,16 +293,16 @@ class DemoDataSeeder
                 )
             val navigationActions =
                 listOf(
-                openWeekAction(
-                    oldWeekStart = currentWeekStart,
-                    newWeekStart = nextWeekStart,
-                    timestamp = now - dayMillis,
-                ),
-                openWeekAction(
-                    oldWeekStart = nextWeekStart,
-                    newWeekStart = currentWeekStart,
-                    timestamp = now - dayMillis + 3_000,
-                ),
+                    openWeekAction(
+                        oldWeekStart = currentWeekStart,
+                        newWeekStart = nextWeekStart,
+                        timestamp = now - dayMillis,
+                    ),
+                    openWeekAction(
+                        oldWeekStart = nextWeekStart,
+                        newWeekStart = currentWeekStart,
+                        timestamp = now - dayMillis + 3_000,
+                    ),
                 )
 
             return trainingActions + plannerActions + navigationActions
