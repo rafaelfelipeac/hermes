@@ -227,7 +227,7 @@
     <string name="settings_slot_mode_auto">स्वचालित (2+ इवेंट/दिन)</string>
     <string name="settings_slot_mode_always">स्लॉट हमेशा दिखाएँ</string>
     <string name="settings_slot_mode_help_title">स्लॉट मोड कैसे काम करता है</string>
-    <string name="settings_slot_mode_help_body">जानें कि सुबह, दोपहर और शाम के समूह कब दिखते हैं।</string>
+    <string name="settings_slot_mode_help_body">जानें कि सुबह, दोपहर और रात के समूह कब दिखते हैं।</string>
     <string name="settings_slot_mode_help_message">सक्षम होने पर, स्लॉट एक ही दिन में कई इवेंट व्यवस्थित करने में मदद करते हैं।\n\nस्वचालित मोड में स्लॉट तभी दिखते हैं जब एक दिन में दो या अधिक इवेंट हों।\n\nहमेशा मोड में स्लॉट हमेशा दिखाई देते हैं।</string>
     <string name="activity_action_change_slot_mode">आपने स्लॉट मोड बदला।</string>
     <string name="weekly_training_slot_morning">सुबह</string>
@@ -245,7 +245,7 @@
     <string name="activity_action_undo_move_busy">आपने एक व्यस्त इवेंट का स्थानांतरण वापस लिया।</string>
     <string name="activity_action_complete_busy">आपने एक व्यस्त इवेंट पूरा किया।</string>
     <string name="activity_action_incomplete_busy">आपने एक व्यस्त इवेंट को अपूर्ण चिह्नित किया।</string>
-    <string name="activity_action_convert_workout_to_busy">आपने वर्कआउट %1$s को एक व्यस्त इवेंट में बदला।</string>
+    <string name="activity_action_convert_workout_to_busy">आपने %1$s वर्कआउट को एक व्यस्त इवेंट में बदला।</string>
     <string name="activity_action_convert_busy_to_workout">आपने एक व्यस्त इवेंट को वर्कआउट में बदला।</string>
     <string name="activity_action_create_sick">आपने एक बीमारी इवेंट बनाया।</string>
     <string name="activity_action_update_sick">आपने एक बीमारी इवेंट अपडेट किया।</string>
@@ -257,6 +257,6 @@
     <string name="activity_action_undo_move_sick">आपने एक बीमारी इवेंट का स्थानांतरण वापस लिया।</string>
     <string name="activity_action_complete_sick">आपने एक बीमारी इवेंट पूरा किया।</string>
     <string name="activity_action_incomplete_sick">आपने एक बीमारी इवेंट को अपूर्ण चिह्नित किया।</string>
-    <string name="activity_action_convert_workout_to_sick">आपने वर्कआउट %1$s को एक बीमारी इवेंट में बदला।</string>
+    <string name="activity_action_convert_workout_to_sick">आपने %1$s वर्कआउट को एक बीमारी इवेंट में बदला।</string>
     <string name="activity_action_convert_sick_to_workout">आपने एक बीमारी इवेंट को वर्कआउट में बदला।</string>
 </resources>

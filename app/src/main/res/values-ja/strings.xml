@@ -144,7 +144,7 @@
     <string name="activity_action_update_rest_day">休息イベントを更新しました。</string>
     <string name="activity_action_delete_rest_day">休息イベントを削除しました。</string>
     <string name="activity_action_undo_delete_rest_day">休息イベントの削除を取り消しました。</string>
-    <string name="activity_action_convert_workout_to_rest_day">%1$s のワークアウトを休息イベントに変換しました。</string>
+    <string name="activity_action_convert_workout_to_rest_day">ワークアウト %1$s を休息イベントに変換しました。</string>
     <string name="activity_action_convert_rest_day_to_workout">休息イベントをワークアウトに変換しました。</string>
     <string name="activity_action_change_language">言語を変更しました。</string>
     <string name="activity_action_change_theme">テーマを変更しました。</string>

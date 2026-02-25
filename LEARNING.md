@@ -137,3 +137,7 @@ Recent learnings:
 - For localized BUSY terminology, keep the same noun across add-label, status label, delete copy, and activity strings per locale to avoid mixed concepts in the same UI flow.
 - Slot label translations should preserve the exact day-part semantics (`morning`/`afternoon`/`night`), otherwise drag/drop grouping language and settings help can become ambiguous.
 - When a locale changes the slot day-part noun (e.g., `night`), update both the slot label key and help-body copy that enumerates slot names to keep terminology aligned.
+- Demo activity seed builders should keep metadata parity across workout actions (create/move/complete), including optional slot keys, so Activity replay and formatter paths are exercised consistently.
+- After slot-label translation updates in a locale, re-check help-body copy in the same locale (`settings_slot_mode_help_body`) to avoid stale day-part wording.
+- For localized activity strings with `%1$s` workout placeholders, keep placeholder ordering consistent within each locale file; mixed `%1$s` position creates uneven grammar in logs.
+- In locale files, conversion action keys for the same pattern (workout -> rest/busy/sick) should share the same sentence structure so Activity entries feel coherent when compared side by side.
