@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -83,6 +84,7 @@ internal fun SectionHeader(
                     Icon(
                         imageVector = Icons.Outlined.HelpOutline,
                         contentDescription = stringResource(R.string.weekly_training_tbd_help_icon),
+                        modifier = Modifier.size(HelpIconGlyphSize),
                     )
                 }
             }

@@ -59,6 +59,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -583,6 +584,7 @@ private fun SettingsDetailScreen(
                         Icon(
                             imageVector = Icons.Outlined.HelpOutline,
                             contentDescription = resolvedHelpContentDescription,
+                            modifier = Modifier.size(HelpIconGlyphSize),
                         )
                     }
                 }

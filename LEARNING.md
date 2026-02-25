@@ -141,3 +141,5 @@ Recent learnings:
 - After slot-label translation updates in a locale, re-check help-body copy in the same locale (`settings_slot_mode_help_body`) to avoid stale day-part wording.
 - For localized activity strings with `%1$s` workout placeholders, keep placeholder ordering consistent within each locale file; mixed `%1$s` position creates uneven grammar in logs.
 - In locale files, conversion action keys for the same pattern (workout -> rest/busy/sick) should share the same sentence structure so Activity entries feel coherent when compared side by side.
+- For compact icon-only help actions, keep a shared glyph-size token and apply it consistently across screens; otherwise the same `?` action appears visually inconsistent between Settings/Categories/Weekly.
+- If the help affordance feels oversized, prefer tuning the container token (`HelpIconSize`) while keeping glyph token stable; that preserves icon legibility and only changes visual prominence.
