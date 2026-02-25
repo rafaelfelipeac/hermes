@@ -216,7 +216,7 @@
     <string name="weekly_training_add_rest_day">Adicionar descanso</string>
     <string name="weekly_training_busy_label">Indisponibilidade</string>
     <string name="weekly_training_sick_label">Doença</string>
-    <string name="weekly_training_delete_busy">Excluir indisponibilidade</string>
+    <string name="weekly_training_delete_busy">Excluir</string>
     <string name="weekly_training_delete_busy_title">Excluir evento de indisponibilidade?</string>
     <string name="weekly_training_delete_busy_message">Tem certeza de que deseja excluir este evento de indisponibilidade?</string>
     <string name="weekly_training_delete_sick">Excluir</string>

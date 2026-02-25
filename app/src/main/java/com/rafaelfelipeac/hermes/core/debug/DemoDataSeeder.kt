@@ -440,7 +440,10 @@ class DemoDataSeeder
                     -> UserActionType.CREATE_REST_DAY
                     UserActionEntityType.BUSY -> UserActionType.CREATE_BUSY
                     UserActionEntityType.SICK -> UserActionType.CREATE_SICK
-                    else -> UserActionType.CREATE_REST_DAY
+                    else ->
+                        throw IllegalArgumentException(
+                            "Unsupported UserActionEntityType: $entityType in DemoDataSeeder",
+                        )
                 }
             return action(
                 type = actionType,

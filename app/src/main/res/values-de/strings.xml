@@ -227,12 +227,12 @@
     <string name="settings_slot_mode_auto">Automatisch (2+ Ereignisse/Tag)</string>
     <string name="settings_slot_mode_always">Zeitfenster immer anzeigen</string>
     <string name="settings_slot_mode_help_title">So funktioniert der Zeitfenster-Modus</string>
-    <string name="settings_slot_mode_help_body">Erfahre, wann die Gruppen Morgen, Nachmittag und Nacht erscheinen.</string>
+    <string name="settings_slot_mode_help_body">Erfahre, wann die Gruppen Morgen, Nachmittag und Abend erscheinen.</string>
     <string name="settings_slot_mode_help_message">Wenn aktiviert, helfen Zeitfenster dabei, mehrere Ereignisse am selben Tag zu organisieren.\n\nIm automatischen Modus erscheinen Zeitfenster nur, wenn ein Tag zwei oder mehr Ereignisse hat.\n\nIm Immer-Modus sind Zeitfenster immer sichtbar.</string>
     <string name="activity_action_change_slot_mode">Du hast den Zeitfenster-Modus geändert.</string>
     <string name="weekly_training_slot_morning">Morgen</string>
     <string name="weekly_training_slot_afternoon">Nachmittag</string>
-    <string name="weekly_training_slot_night">Nacht</string>
+    <string name="weekly_training_slot_night">Abend</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | Nr. %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | Nr. %2$s</string>
     <string name="activity_action_create_busy">Du hast ein beschäftigtes Ereignis erstellt.</string>

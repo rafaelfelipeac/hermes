@@ -39,8 +39,8 @@
     <string name="weekly_training_rest_day_deleted">Événement de repos supprimé.</string>
     <string name="weekly_training_busy_moved">Événement occupé déplacé.</string>
     <string name="weekly_training_busy_deleted">Événement occupé supprimé.</string>
-    <string name="weekly_training_sick_moved">Événement maladie déplacé.</string>
-    <string name="weekly_training_sick_deleted">Événement maladie supprimé.</string>
+    <string name="weekly_training_sick_moved">Événement de maladie déplacé.</string>
+    <string name="weekly_training_sick_deleted">Événement de maladie supprimé.</string>
     <string name="weekly_training_undo_action">Annuler</string>
     <string name="weekly_training_no_workouts">Rien de prévu pour l’instant.</string>
     <string name="weekly_training_section_to_be_defined">À définir</string>
@@ -111,6 +111,9 @@
     <string name="settings_rate_unavailable">Aucune application de boutique ou de navigateur disponible.</string>
     <string name="settings_about_title">À propos</string>
     <string name="settings_feedback_email" translatable="false">rafaelfelipeac.dev@gmail.com</string>
+    <string name="settings_feedback_mailto_uri" translatable="false">mailto:%1$s?subject=%2$s&amp;body=%3$s</string>
+    <string name="settings_play_store_market_url" translatable="false">market://details?id=%1$s</string>
+    <string name="settings_play_store_web_url" translatable="false">https://play.google.com/store/apps/details?id=%1$s</string>
     <string name="settings_feedback_subject">%1$s - Commentaires et suggestions</string>
     <string name="settings_feedback_email_body">Bonjour !__NL____NL__Écrivez ici vos questions, suggestions ou rapports de bugs.__NL____NL__Tout retour est très bienvenu :)__NL____NL__---__NL__Version de l’app : %1$s__NL__---</string>
     <string name="settings_feedback_unavailable">Aucune application e-mail disponible.</string>
@@ -219,19 +222,19 @@
     <string name="weekly_training_delete_busy_title">Supprimer l’événement occupé ?</string>
     <string name="weekly_training_delete_busy_message">Voulez-vous vraiment supprimer cet événement occupé ?</string>
     <string name="weekly_training_delete_sick">Supprimer</string>
-    <string name="weekly_training_delete_sick_title">Supprimer l’événement maladie ?</string>
-    <string name="weekly_training_delete_sick_message">Voulez-vous vraiment supprimer cet événement maladie ?</string>
+    <string name="weekly_training_delete_sick_title">Supprimer l’événement de maladie ?</string>
+    <string name="weekly_training_delete_sick_message">Voulez-vous vraiment supprimer cet événement de maladie ?</string>
     <string name="settings_planning_title">Planification</string>
     <string name="settings_slot_mode_title">Mode des créneaux</string>
     <string name="settings_slot_mode_auto">Automatique (2+ événements/jour)</string>
     <string name="settings_slot_mode_always">Toujours afficher les créneaux</string>
     <string name="settings_slot_mode_help_title">Comment fonctionne le mode des créneaux</string>
-    <string name="settings_slot_mode_help_body">Découvrez quand les groupes matin, après-midi et nuit apparaissent.</string>
+    <string name="settings_slot_mode_help_body">Découvrez quand les groupes matin, après-midi et soir apparaissent.</string>
     <string name="settings_slot_mode_help_message">Lorsqu’il est activé, les créneaux aident à organiser plusieurs événements le même jour.\n\nEn mode automatique, les créneaux apparaissent seulement lorsqu’un jour a au moins deux événements.\n\nEn mode toujours, les créneaux sont toujours visibles.</string>
     <string name="activity_action_change_slot_mode">Vous avez changé le mode des créneaux.</string>
     <string name="weekly_training_slot_morning">Matin</string>
     <string name="weekly_training_slot_afternoon">Après-midi</string>
-    <string name="weekly_training_slot_night">Nuit</string>
+    <string name="weekly_training_slot_night">Soir</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | n° %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | n° %2$s</string>
     <string name="activity_action_create_busy">Vous avez créé un événement occupé.</string>
@@ -246,16 +249,16 @@
     <string name="activity_action_incomplete_busy">Vous avez marqué un événement occupé comme incomplet.</string>
     <string name="activity_action_convert_workout_to_busy">Vous avez converti l’entraînement %1$s en événement occupé.</string>
     <string name="activity_action_convert_busy_to_workout">Vous avez converti un événement occupé en entraînement.</string>
-    <string name="activity_action_create_sick">Vous avez créé un événement maladie.</string>
-    <string name="activity_action_update_sick">Vous avez mis à jour un événement maladie.</string>
-    <string name="activity_action_delete_sick">Vous avez supprimé un événement maladie.</string>
-    <string name="activity_action_undo_delete_sick">Vous avez restauré un événement maladie.</string>
-    <string name="activity_action_reorder_sick">Vous avez réordonné un événement maladie.</string>
-    <string name="activity_action_move_sick">Vous avez déplacé un événement maladie.</string>
-    <string name="activity_action_undo_reorder_sick">Vous avez annulé le réordonnancement d’un événement maladie.</string>
-    <string name="activity_action_undo_move_sick">Vous avez annulé le déplacement d’un événement maladie.</string>
-    <string name="activity_action_complete_sick">Vous avez terminé un événement maladie.</string>
-    <string name="activity_action_incomplete_sick">Vous avez marqué un événement maladie comme incomplet.</string>
-    <string name="activity_action_convert_workout_to_sick">Vous avez converti l’entraînement %1$s en événement maladie.</string>
-    <string name="activity_action_convert_sick_to_workout">Vous avez converti un événement maladie en entraînement.</string>
+    <string name="activity_action_create_sick">Vous avez créé un événement de maladie.</string>
+    <string name="activity_action_update_sick">Vous avez mis à jour un événement de maladie.</string>
+    <string name="activity_action_delete_sick">Vous avez supprimé un événement de maladie.</string>
+    <string name="activity_action_undo_delete_sick">Vous avez restauré un événement de maladie.</string>
+    <string name="activity_action_reorder_sick">Vous avez réordonné un événement de maladie.</string>
+    <string name="activity_action_move_sick">Vous avez déplacé un événement de maladie.</string>
+    <string name="activity_action_undo_reorder_sick">Vous avez annulé le réordonnancement d’un événement de maladie.</string>
+    <string name="activity_action_undo_move_sick">Vous avez annulé le déplacement d’un événement de maladie.</string>
+    <string name="activity_action_complete_sick">Vous avez terminé un événement de maladie.</string>
+    <string name="activity_action_incomplete_sick">Vous avez marqué un événement de maladie comme incomplet.</string>
+    <string name="activity_action_convert_workout_to_sick">Vous avez converti l’entraînement %1$s en événement de maladie.</string>
+    <string name="activity_action_convert_sick_to_workout">Vous avez converti un événement de maladie en entraînement.</string>
 </resources>

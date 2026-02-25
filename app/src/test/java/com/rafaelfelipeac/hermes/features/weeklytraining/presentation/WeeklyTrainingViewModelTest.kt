@@ -596,7 +596,7 @@ class WeeklyTrainingViewModelTest {
                 userActionLogger.log(
                     actionType = UNDO_COPY_LAST_WEEK,
                     entityType = WEEK,
-                    entityId = null,
+                    entityId = fixture.weekStart.toEpochDay(),
                     metadata = any(),
                     timestamp = any(),
                 )

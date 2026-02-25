@@ -227,12 +227,12 @@
     <string name="settings_slot_mode_auto">تلقائي (2+ أحداث/اليوم)</string>
     <string name="settings_slot_mode_always">إظهار الفترات دائمًا</string>
     <string name="settings_slot_mode_help_title">كيف يعمل وضع الفترات</string>
-    <string name="settings_slot_mode_help_body">تعرّف على وقت ظهور مجموعات الصباح وبعد الظهر والليل.</string>
+    <string name="settings_slot_mode_help_body">تعرّف على وقت ظهور مجموعات الصباح وبعد الظهر والمساء.</string>
     <string name="settings_slot_mode_help_message">عند التفعيل، تساعد الفترات على تنظيم عدة أحداث في اليوم نفسه.\n\nفي الوضع التلقائي، تظهر الفترات فقط عندما يحتوي اليوم على حدثين أو أكثر.\n\nفي وضع دائمًا، تكون الفترات مرئية دائمًا.</string>
     <string name="activity_action_change_slot_mode">لقد غيّرت وضع الفترات.</string>
     <string name="weekly_training_slot_morning">صباح</string>
     <string name="weekly_training_slot_afternoon">بعد الظهر</string>
-    <string name="weekly_training_slot_night">ليل</string>
+    <string name="weekly_training_slot_night">مساء</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | رقم %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | رقم %2$s</string>
     <string name="activity_action_create_busy">لقد أنشأت حدثًا مشغولًا.</string>
