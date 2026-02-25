@@ -17,9 +17,15 @@ internal data class DropContext(
     val workouts: List<WorkoutUi>,
     val workoutsBySection: Map<SectionKey, List<WorkoutUi>>,
     val sectionBounds: Map<SectionKey, Rect>,
+    val slotBounds: Map<SlotSectionKey, Rect>,
     val dayUsesSlots: Map<DayOfWeek, Boolean>,
     val itemBounds: Map<WorkoutId, Rect>,
     val onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
+)
+
+internal data class SlotSectionKey(
+    val section: SectionKey,
+    val slot: TimeSlot,
 )
 
 internal data class DropPreview(
@@ -67,7 +73,13 @@ internal fun computeDropPreview(
         when {
             newDay == null -> null
             !usesSlots -> null
-            else -> slotFromDropPosition(dragPosition, context.sectionBounds[targetSection])
+            else ->
+                slotFromDropPosition(
+                    dropPosition = dragPosition,
+                    targetSection = targetSection,
+                    sectionRect = context.sectionBounds[targetSection],
+                    slotBounds = context.slotBounds,
+                )
         }
     val targetItems =
         context.workoutsBySection[targetSection]
@@ -90,19 +102,39 @@ internal fun computeDropPreview(
 
 private fun slotFromDropPosition(
     dropPosition: Offset,
+    targetSection: SectionKey,
     sectionRect: Rect?,
+    slotBounds: Map<SlotSectionKey, Rect>,
 ): TimeSlot {
-    if (sectionRect == null || sectionRect.height <= 0f) {
-        return MORNING
-    }
-    val relativeY = (dropPosition.y - sectionRect.top).coerceIn(0f, sectionRect.height)
-    val third = sectionRect.height / 3f
+    val slots = listOf(MORNING, AFTERNOON, NIGHT)
+    val targetSlotRects =
+        slots.mapNotNull { slot ->
+            slotBounds[SlotSectionKey(section = targetSection, slot = slot)]?.let { rect ->
+                slot to rect
+            }
+        }
 
-    return when {
-        relativeY < third -> MORNING
-        relativeY < third * 2f -> AFTERNOON
-        else -> NIGHT
-    }
+    val directSlotMatch =
+        targetSlotRects.firstOrNull { (_, rect) -> rect.contains(dropPosition) }?.first
+    val nearestSlotFromCards =
+        targetSlotRects
+            .takeIf { it.isNotEmpty() }
+            ?.minBy { (_, rect) -> kotlin.math.abs(dropPosition.y - rect.center.y) }
+            ?.first
+    val fallbackThirdsSlot =
+        if (sectionRect == null || sectionRect.height <= 0f) {
+            MORNING
+        } else {
+            val relativeY = (dropPosition.y - sectionRect.top).coerceIn(0f, sectionRect.height)
+            val third = sectionRect.height / 3f
+            when {
+                relativeY < third -> MORNING
+                relativeY < third * 2f -> AFTERNOON
+                else -> NIGHT
+            }
+        }
+
+    return directSlotMatch ?: nearestSlotFromCards ?: fallbackThirdsSlot
 }
 
 internal fun findTargetSection(

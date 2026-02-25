@@ -66,6 +66,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorGridHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorSwatchSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryMoveIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -129,6 +130,7 @@ fun CategoriesScreen(
                 Spacer(modifier = Modifier.weight(1f))
 
                 Surface(
+                    onClick = { isHelpDialogVisible = true },
                     shape = CircleShape,
                     color = colorScheme.surfaceVariant,
                     tonalElevation = ElevationSm,
@@ -137,15 +139,13 @@ fun CategoriesScreen(
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .clickable { isHelpDialogVisible = true },
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.HelpOutline,
                             contentDescription = stringResource(R.string.categories_help_icon),
                             tint = actionIconTint,
+                            modifier = Modifier.size(HelpIconGlyphSize),
                         )
                     }
                 }

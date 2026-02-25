@@ -432,8 +432,17 @@ class DemoDataSeeder
             timeSlot: TimeSlot? = null,
             timestamp: Long,
         ): UserActionEntity {
+            val actionType =
+                when (entityType) {
+                    UserActionEntityType.REST,
+                    UserActionEntityType.REST_DAY,
+                    -> UserActionType.CREATE_REST_DAY
+                    UserActionEntityType.BUSY -> UserActionType.CREATE_BUSY
+                    UserActionEntityType.SICK -> UserActionType.CREATE_SICK
+                    else -> UserActionType.CREATE_REST_DAY
+                }
             return action(
-                type = UserActionType.CREATE_REST_DAY,
+                type = actionType,
                 entityType = entityType,
                 metadata =
                     buildMap {

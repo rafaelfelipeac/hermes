@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_LIGHT
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_RUN
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -56,7 +57,7 @@ class WorkoutIndicatorColorsTest {
             )
         val surface = Color(0xFFF7F9FC)
         val nonWorkoutColor = Color(0xFFE8E8E8)
-        val expected = lerp(categoryAccentColor(COLOR_RUN), surface, 0.16f)
+        val expected = lerp(categoryAccentColor(COLOR_RUN), surface, INDICATOR_EXTRA_BLEND_LIGHT)
 
         val color =
             workoutIndicatorColor(

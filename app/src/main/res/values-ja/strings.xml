@@ -42,7 +42,7 @@
     <string name="weekly_training_sick_moved">体調不良の予定を移動しました。</string>
     <string name="weekly_training_sick_deleted">体調不良の予定を削除しました。</string>
     <string name="weekly_training_undo_action">元に戻す</string>
-    <string name="weekly_training_no_workouts">まだ何も計画されていません.</string>
+    <string name="weekly_training_no_workouts">まだ何も計画されていません。</string>
     <string name="weekly_training_section_to_be_defined">未定</string>
     <string name="weekly_training_tbd_help_title">トレーニングの整理方法</string>
     <string name="weekly_training_tbd_help_message">トレーニングを長押しして曜日へドラッグしてください。曜日の上または項目の間にドロップして順番を決めます。</string>
@@ -211,7 +211,7 @@
     <string name="categories_restore_defaults_confirm">復元</string>
     <string name="categories_restore_defaults_message">デフォルトのカテゴリの名前と色がリセットされます。カスタムカテゴリは保持されます。</string>
     <string name="categories_restore_defaults_title">デフォルトのカテゴリを復元しますか？</string>
-    <string name="weekly_training_add_busy">利用不可を追加</string>
+    <string name="weekly_training_add_busy">忙しい予定を追加</string>
     <string name="weekly_training_add_sick">体調不良を追加</string>
     <string name="weekly_training_add_rest_day">休息を追加</string>
     <string name="weekly_training_busy_label">忙しい</string>
@@ -233,6 +233,8 @@
     <string name="weekly_training_slot_morning">朝</string>
     <string name="weekly_training_slot_afternoon">午後</string>
     <string name="weekly_training_slot_night">夜</string>
+    <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | %3$s番</string>
+    <string name="weekly_training_drop_preview_without_slot">%1$s | %2$s番</string>
     <string name="activity_action_create_busy">忙しい予定を作成しました。</string>
     <string name="activity_action_update_busy">忙しい予定を更新しました。</string>
     <string name="activity_action_delete_busy">忙しい予定を削除しました。</string>

@@ -27,15 +27,12 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_W
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_REST_DAY_TO_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_WORKOUT_TO_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
@@ -269,7 +266,7 @@ class WeeklyTrainingViewModel
                     )
 
                 userActionLogger.log(
-                    actionType = CREATE_REST_DAY,
+                    actionType = eventType.toCreateActionType(),
                     entityType = eventType.toUserActionEntityType(),
                     entityId = eventId,
                     metadata =
@@ -473,7 +470,7 @@ class WeeklyTrainingViewModel
                         } else {
                             CONVERT_REST_DAY_TO_WORKOUT
                         }
-                    eventType != WORKOUT_EVENT -> UPDATE_REST_DAY
+                    eventType != WORKOUT_EVENT -> eventType.toUpdateActionType()
                     else -> UPDATE_WORKOUT
                 }
 
@@ -544,7 +541,7 @@ class WeeklyTrainingViewModel
                 val entityType =
                     original?.eventType?.toUserActionEntityType() ?: WORKOUT
                 val actionType =
-                    if (original?.eventType == WORKOUT_EVENT) DELETE_WORKOUT else DELETE_REST_DAY
+                    original?.eventType?.toDeleteActionType() ?: DELETE_WORKOUT
 
                 userActionLogger.log(
                     actionType = actionType,

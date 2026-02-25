@@ -41,7 +41,8 @@ class SettingsRepositoryImpl
         override val slotModePolicy: Flow<SlotModePolicy> =
             dataStore.data
                 .map { prefs ->
-                    prefs[SLOT_MODE_POLICY_KEY]?.let(SlotModePolicy::valueOf)
+                    prefs[SLOT_MODE_POLICY_KEY]
+                        ?.let { raw -> runCatching { SlotModePolicy.valueOf(raw) }.getOrNull() }
                         ?: defaultSlotModePolicy()
                 }
                 .distinctUntilChanged()

@@ -542,51 +542,36 @@ class ActivityUiFormatter(
         return stringProvider.get(R.string.activity_value_quoted, value)
     }
 
+    @Suppress("CyclomaticComplexMethod", "ReturnCount")
     private fun buildNonWorkoutTitle(
         entityType: UserActionEntityType,
         actionType: UserActionType?,
         quotedWorkoutLabel: String,
     ): String? {
-        val convertFromWorkoutRes = convertFromWorkoutRes(entityType)
-        val convertToWorkoutRes = convertToWorkoutRes(entityType)
+        if (actionType == null) return null
+
+        val simpleResId =
+            when (actionType) {
+                UserActionType.COMPLETE_WORKOUT -> completeNonWorkoutRes(entityType)
+                UserActionType.INCOMPLETE_WORKOUT -> incompleteNonWorkoutRes(entityType)
+                UserActionType.REORDER_WORKOUT -> reorderNonWorkoutRes(entityType)
+                UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> moveNonWorkoutRes(entityType)
+                UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> undoReorderNonWorkoutRes(entityType)
+                UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> undoMoveNonWorkoutRes(entityType)
+                in nonWorkoutCreateActions -> createNonWorkoutRes(entityType)
+                in nonWorkoutUpdateActions -> updateNonWorkoutRes(entityType)
+                in nonWorkoutDeleteActions -> deleteNonWorkoutRes(entityType)
+                in nonWorkoutUndoDeleteActions -> undoDeleteNonWorkoutRes(entityType)
+                else -> null
+            }
+
+        if (simpleResId != null) return stringProvider.get(simpleResId)
 
         return when (actionType) {
-            UserActionType.COMPLETE_WORKOUT ->
-                stringProvider.get(completeNonWorkoutRes(entityType))
-
-            UserActionType.INCOMPLETE_WORKOUT ->
-                stringProvider.get(incompleteNonWorkoutRes(entityType))
-
-            UserActionType.REORDER_WORKOUT ->
-                stringProvider.get(reorderNonWorkoutRes(entityType))
-
-            UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ->
-                stringProvider.get(moveNonWorkoutRes(entityType))
-
-            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ->
-                stringProvider.get(undoReorderNonWorkoutRes(entityType))
-
-            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ->
-                stringProvider.get(undoMoveNonWorkoutRes(entityType))
-
-            UserActionType.CREATE_REST_DAY ->
-                stringProvider.get(createNonWorkoutRes(entityType))
-
-            UserActionType.UPDATE_REST_DAY ->
-                stringProvider.get(updateNonWorkoutRes(entityType))
-
-            UserActionType.DELETE_REST_DAY ->
-                stringProvider.get(deleteNonWorkoutRes(entityType))
-
-            UserActionType.UNDO_DELETE_REST_DAY ->
-                stringProvider.get(undoDeleteNonWorkoutRes(entityType))
-
             UserActionType.CONVERT_WORKOUT_TO_REST_DAY ->
-                stringProvider.get(convertFromWorkoutRes, quotedWorkoutLabel)
-
+                stringProvider.get(convertFromWorkoutRes(entityType), quotedWorkoutLabel)
             UserActionType.CONVERT_REST_DAY_TO_WORKOUT ->
-                stringProvider.get(convertToWorkoutRes)
-
+                stringProvider.get(convertToWorkoutRes(entityType))
             else -> null
         }
     }
@@ -765,5 +750,33 @@ class ActivityUiFormatter(
                 R.string.activity_action_undo_move_workout,
             UserActionType.CONVERT_REST_DAY_TO_WORKOUT to
                 R.string.activity_action_convert_rest_day_to_workout,
+        )
+
+    private val nonWorkoutCreateActions =
+        setOf(
+            UserActionType.CREATE_REST_DAY,
+            UserActionType.CREATE_BUSY,
+            UserActionType.CREATE_SICK,
+        )
+
+    private val nonWorkoutUpdateActions =
+        setOf(
+            UserActionType.UPDATE_REST_DAY,
+            UserActionType.UPDATE_BUSY,
+            UserActionType.UPDATE_SICK,
+        )
+
+    private val nonWorkoutDeleteActions =
+        setOf(
+            UserActionType.DELETE_REST_DAY,
+            UserActionType.DELETE_BUSY,
+            UserActionType.DELETE_SICK,
+        )
+
+    private val nonWorkoutUndoDeleteActions =
+        setOf(
+            UserActionType.UNDO_DELETE_REST_DAY,
+            UserActionType.UNDO_DELETE_BUSY,
+            UserActionType.UNDO_DELETE_SICK,
         )
 }

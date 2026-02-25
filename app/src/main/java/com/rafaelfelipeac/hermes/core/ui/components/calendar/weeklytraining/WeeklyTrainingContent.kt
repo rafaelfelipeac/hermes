@@ -124,6 +124,7 @@ fun WeeklyTrainingContent(
         }
 
     val sectionBounds = remember { mutableStateMapOf<SectionKey, Rect>() }
+    val slotBounds = remember { mutableStateMapOf<SlotSectionKey, Rect>() }
     val itemBounds = remember { mutableStateMapOf<WorkoutId, Rect>() }
     var draggedWorkoutId by remember { mutableStateOf<WorkoutId?>(null) }
     var dragPosition by remember { mutableStateOf<Offset?>(null) }
@@ -319,6 +320,7 @@ fun WeeklyTrainingContent(
                                                         workouts = workouts,
                                                         workoutsBySection = workoutsBySection,
                                                         sectionBounds = sectionBounds,
+                                                        slotBounds = slotBounds,
                                                         dayUsesSlots = dayUsesSlots,
                                                         itemBounds = itemBounds,
                                                         onWorkoutMoved = onWorkoutMoved,
@@ -345,6 +347,7 @@ fun WeeklyTrainingContent(
                                                         workouts = workouts,
                                                         workoutsBySection = workoutsBySection,
                                                         sectionBounds = sectionBounds,
+                                                        slotBounds = slotBounds,
                                                         dayUsesSlots = dayUsesSlots,
                                                         itemBounds = itemBounds,
                                                         onWorkoutMoved = onWorkoutMoved,
@@ -389,92 +392,95 @@ fun WeeklyTrainingContent(
                         )
 
                         val items = workoutsBySection[section].orEmpty()
+                        val shouldUseSlots =
+                            section is Day && shouldUseSlotMode(slotModePolicy, items.size)
 
-                        if (items.isEmpty()) {
-                            EmptySectionRow()
-                        } else {
-                            val shouldUseSlots =
-                                section is Day && shouldUseSlotMode(slotModePolicy, items.size)
-                            if (shouldUseSlots) {
-                                val slots = listOf(MORNING, AFTERNOON, NIGHT)
-                                slots.forEachIndexed { index, slot ->
-                                    val slotItems = items.filter { effectiveSlot(it.timeSlot) == slot }
-                                    val isSlotDropTarget =
-                                        draggedWorkoutId != null &&
-                                            liveDropPreview?.targetSection == section &&
-                                            liveDropPreview?.targetTimeSlot == slot
-                                    SlotSectionCard(
-                                        title = stringResource(slot.labelRes()),
-                                        isDropTarget = isSlotDropTarget,
-                                    ) {
-                                        if (slotItems.isEmpty()) {
-                                            EmptySectionRow()
-                                        } else {
-                                            slotItems.forEachIndexed { index, workout ->
-                                                if (index > FIRST_LIST_INDEX) {
-                                                    Spacer(modifier = Modifier.height(SpacingMd))
-                                                }
+                        if (shouldUseSlots) {
+                            val slots = listOf(MORNING, AFTERNOON, NIGHT)
+                            slots.forEachIndexed { index, slot ->
+                                val slotItems = items.filter { effectiveSlot(it.timeSlot) == slot }
+                                val isSlotDropTarget =
+                                    draggedWorkoutId != null &&
+                                        liveDropPreview?.targetSection == section &&
+                                        liveDropPreview?.targetTimeSlot == slot
+                                SlotSectionCard(
+                                    title = stringResource(slot.labelRes()),
+                                    isDropTarget = isSlotDropTarget,
+                                    modifier =
+                                        Modifier.onGloballyPositioned {
+                                            slotBounds[SlotSectionKey(section, slot)] =
+                                                it.boundsInRoot()
+                                        },
+                                ) {
+                                    if (slotItems.isEmpty()) {
+                                        EmptySectionRow()
+                                    } else {
+                                        slotItems.forEachIndexed { index, workout ->
+                                            if (index > FIRST_LIST_INDEX) {
+                                                Spacer(modifier = Modifier.height(SpacingMd))
+                                            }
 
-                                                key(workout.id) {
-                                                    WorkoutRow(
-                                                        workout = workout,
-                                                        isDragging = draggedWorkoutId == workout.id,
-                                                        onToggleCompleted = { checked ->
-                                                            onWorkoutCompletionChanged(workout, checked)
-                                                        },
-                                                        onDragStarted = { position, height ->
-                                                            if (draggedWorkoutId == null) {
-                                                                draggedWorkoutId = workout.id
-                                                                dragPosition = position
-                                                                draggedItemHeight = height
-                                                                dragPointerId = null
-                                                            }
-                                                        },
-                                                        onEdit = { onWorkoutEdit(workout) },
-                                                        onDelete = { onWorkoutDelete(workout) },
-                                                        onItemPositioned = { itemBounds[workout.id] = it },
-                                                    )
-                                                }
+                                            key(workout.id) {
+                                                WorkoutRow(
+                                                    workout = workout,
+                                                    isDragging = draggedWorkoutId == workout.id,
+                                                    onToggleCompleted = { checked ->
+                                                        onWorkoutCompletionChanged(workout, checked)
+                                                    },
+                                                    onDragStarted = { position, height ->
+                                                        if (draggedWorkoutId == null) {
+                                                            draggedWorkoutId = workout.id
+                                                            dragPosition = position
+                                                            draggedItemHeight = height
+                                                            dragPointerId = null
+                                                        }
+                                                    },
+                                                    onEdit = { onWorkoutEdit(workout) },
+                                                    onDelete = { onWorkoutDelete(workout) },
+                                                    onItemPositioned = { itemBounds[workout.id] = it },
+                                                )
                                             }
                                         }
                                     }
-                                    Spacer(
-                                        modifier =
-                                            Modifier.height(
-                                                if (index < slots.lastIndex) {
-                                                    SpacingMd
-                                                } else {
-                                                    SpacingXs
-                                                },
-                                            ),
-                                    )
                                 }
-                            } else {
-                                items.forEachIndexed { index, workout ->
-                                    if (index > FIRST_LIST_INDEX) {
-                                        Spacer(modifier = Modifier.height(SpacingMd))
-                                    }
+                                Spacer(
+                                    modifier =
+                                        Modifier.height(
+                                            if (index < slots.lastIndex) {
+                                                SpacingMd
+                                            } else {
+                                                SpacingXs
+                                            },
+                                        ),
+                                )
+                            }
+                        } else if (items.isEmpty()) {
+                            EmptySectionRow()
+                        } else {
+                            items.forEachIndexed { index, workout ->
+                                if (index > FIRST_LIST_INDEX) {
+                                    Spacer(modifier = Modifier.height(SpacingMd))
+                                }
 
-                                    key(workout.id) {
-                                        WorkoutRow(
-                                            workout = workout,
-                                            isDragging = draggedWorkoutId == workout.id,
-                                            onToggleCompleted = { checked ->
-                                                onWorkoutCompletionChanged(workout, checked)
-                                            },
-                                            onDragStarted = { position, height ->
-                                                if (draggedWorkoutId == null) {
-                                                    draggedWorkoutId = workout.id
-                                                    dragPosition = position
-                                                    draggedItemHeight = height
-                                                    dragPointerId = null
-                                                }
-                                            },
-                                            onEdit = { onWorkoutEdit(workout) },
-                                            onDelete = { onWorkoutDelete(workout) },
-                                            onItemPositioned = { itemBounds[workout.id] = it },
-                                        )
-                                    }
+                                key(workout.id) {
+                                    WorkoutRow(
+                                        workout = workout,
+                                        isDragging = draggedWorkoutId == workout.id,
+                                        onToggleCompleted = { checked ->
+                                            onWorkoutCompletionChanged(workout, checked)
+                                        },
+                                        onDragStarted = { position, height ->
+                                            if (draggedWorkoutId == null) {
+                                                draggedWorkoutId = workout.id
+                                                dragPosition = position
+                                                draggedItemHeight = height
+                                                dragPointerId = null
+                                            }
+                                        },
+                                        onEdit = { onWorkoutEdit(workout) },
+                                        onDelete = { onWorkoutDelete(workout) },
+                                        onItemPositioned = { itemBounds[workout.id] = it },
+                                    )
                                 }
                             }
                         }
@@ -565,6 +571,7 @@ fun WeeklyTrainingContent(
 private fun SlotSectionCard(
     title: String,
     isDropTarget: Boolean = false,
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(
@@ -577,7 +584,7 @@ private fun SlotSectionCard(
                 null
             },
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .padding(bottom = 0.dp),
     ) {
@@ -637,9 +644,18 @@ private fun DropPreviewBadge(
     val orderLabel = (preview.targetOrder + 1).toString()
     val label =
         if (slotLabel != null) {
-            "$sectionLabel | $slotLabel | #$orderLabel"
+            stringResource(
+                R.string.weekly_training_drop_preview_with_slot,
+                sectionLabel,
+                slotLabel,
+                orderLabel,
+            )
         } else {
-            "$sectionLabel | #$orderLabel"
+            stringResource(
+                R.string.weekly_training_drop_preview_without_slot,
+                sectionLabel,
+                orderLabel,
+            )
         }
 
     Surface(

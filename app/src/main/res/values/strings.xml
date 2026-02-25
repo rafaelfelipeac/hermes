@@ -235,6 +235,8 @@
     <string name="weekly_training_slot_morning">Morning</string>
     <string name="weekly_training_slot_afternoon">Afternoon</string>
     <string name="weekly_training_slot_night">Night</string>
+    <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | #%3$s</string>
+    <string name="weekly_training_drop_preview_without_slot">%1$s | #%2$s</string>
     <string name="activity_action_create_busy">You created a busy event.</string>
     <string name="activity_action_update_busy">You updated a busy event.</string>
     <string name="activity_action_delete_busy">You deleted a busy event.</string>

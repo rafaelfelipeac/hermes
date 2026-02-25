@@ -233,6 +233,8 @@
     <string name="weekly_training_slot_morning">सुबह</string>
     <string name="weekly_training_slot_afternoon">दोपहर</string>
     <string name="weekly_training_slot_night">रात</string>
+    <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | क्रम %3$s</string>
+    <string name="weekly_training_drop_preview_without_slot">%1$s | क्रम %2$s</string>
     <string name="activity_action_create_busy">आपने एक व्यस्त इवेंट बनाया।</string>
     <string name="activity_action_update_busy">आपने एक व्यस्त इवेंट अपडेट किया।</string>
     <string name="activity_action_delete_busy">आपने एक व्यस्त इवेंट हटाया।</string>

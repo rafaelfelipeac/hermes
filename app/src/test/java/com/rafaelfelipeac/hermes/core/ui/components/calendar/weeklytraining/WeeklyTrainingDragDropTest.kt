@@ -67,6 +67,38 @@ class WeeklyTrainingDragDropTest {
     }
 
     @Test
+    fun computeDropPreview_slotModeUsesActualSlotBounds_whenCardsHaveUnevenHeights() {
+        val dragged = workout(id = 20, day = MONDAY, order = 0, slot = TimeSlot.MORNING)
+        val daySection = SectionKey.Day(MONDAY)
+        val context =
+            dropContext(
+                workouts = listOf(dragged),
+                section = daySection,
+                sectionRect = Rect(left = 0f, top = 0f, right = 320f, bottom = 500f),
+                slotBounds =
+                    mapOf(
+                        SlotSectionKey(daySection, TimeSlot.MORNING) to
+                            Rect(left = 0f, top = 60f, right = 320f, bottom = 320f),
+                        SlotSectionKey(daySection, TimeSlot.AFTERNOON) to
+                            Rect(left = 0f, top = 330f, right = 320f, bottom = 380f),
+                        SlotSectionKey(daySection, TimeSlot.NIGHT) to
+                            Rect(left = 0f, top = 390f, right = 320f, bottom = 440f),
+                    ),
+                itemBounds = emptyMap(),
+                usesSlots = true,
+            )
+
+        val preview =
+            computeDropPreview(
+                draggedWorkoutId = dragged.id,
+                dragPosition = Offset(x = 16f, y = 350f),
+                context = context,
+            )
+
+        assertEquals(TimeSlot.AFTERNOON, preview?.targetTimeSlot)
+    }
+
+    @Test
     fun handleDrop_usesSameOrderAsPreview() {
         val dragged = workout(id = 30, day = MONDAY, order = 2, slot = TimeSlot.MORNING)
         val morningA = workout(id = 11, day = MONDAY, order = 0, slot = TimeSlot.MORNING)
@@ -142,6 +174,7 @@ private fun dropContext(
     workouts: List<WorkoutUi>,
     section: SectionKey,
     sectionRect: Rect,
+    slotBounds: Map<SlotSectionKey, Rect> = emptyMap(),
     itemBounds: Map<Long, Rect>,
     usesSlots: Boolean,
     onMoved: (Long, java.time.DayOfWeek?, TimeSlot?, Int) -> Unit = { _, _, _, _ -> },
@@ -159,6 +192,7 @@ private fun dropContext(
         workouts = workouts,
         workoutsBySection = workoutsBySection,
         sectionBounds = mapOf(section to sectionRect),
+        slotBounds = slotBounds,
         dayUsesSlots = dayUsesSlots,
         itemBounds = itemBounds,
         onWorkoutMoved = onMoved,

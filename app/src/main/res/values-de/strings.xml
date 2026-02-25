@@ -233,6 +233,8 @@
     <string name="weekly_training_slot_morning">Morgen</string>
     <string name="weekly_training_slot_afternoon">Nachmittag</string>
     <string name="weekly_training_slot_night">Nacht</string>
+    <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | Nr. %3$s</string>
+    <string name="weekly_training_drop_preview_without_slot">%1$s | Nr. %2$s</string>
     <string name="activity_action_create_busy">Du hast ein beschäftigtes Ereignis erstellt.</string>
     <string name="activity_action_update_busy">Du hast ein beschäftigtes Ereignis aktualisiert.</string>
     <string name="activity_action_delete_busy">Du hast ein beschäftigtes Ereignis gelöscht.</string>

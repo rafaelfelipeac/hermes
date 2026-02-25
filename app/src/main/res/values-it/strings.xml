@@ -232,6 +232,8 @@
     <string name="weekly_training_slot_morning">Mattina</string>
     <string name="weekly_training_slot_afternoon">Pomeriggio</string>
     <string name="weekly_training_slot_night">Notte</string>
+    <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | n. %3$s</string>
+    <string name="weekly_training_drop_preview_without_slot">%1$s | n. %2$s</string>
     <string name="activity_action_create_busy">Hai creato un evento impegnato.</string>
     <string name="activity_action_update_busy">Hai aggiornato un evento impegnato.</string>
     <string name="activity_action_delete_busy">Hai eliminato un evento impegnato.</string>

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -31,6 +32,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.RadioButton
@@ -57,6 +59,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -520,6 +523,14 @@ private fun SettingsDetailScreen(
     content: @Composable () -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val resolvedHelpContentDescription =
+        if (onHelpClick != null) {
+            requireNotNull(helpContentDescription) {
+                "helpContentDescription is required when onHelpClick is provided."
+            }
+        } else {
+            null
+        }
 
     Column(
         modifier =
@@ -556,11 +567,11 @@ private fun SettingsDetailScreen(
 
             if (onHelpClick != null) {
                 Surface(
-                    shape = androidx.compose.foundation.shape.CircleShape,
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant,
+                    shape = CircleShape,
+                    color = colorScheme.surfaceVariant,
                     tonalElevation = ElevationSm,
                     shadowElevation = ElevationSm,
-                    modifier = Modifier.size(com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize),
+                    modifier = Modifier.size(HelpIconSize),
                 ) {
                     Box(
                         contentAlignment = Alignment.Center,
@@ -571,9 +582,7 @@ private fun SettingsDetailScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Outlined.HelpOutline,
-                            contentDescription =
-                                helpContentDescription
-                                    ?: stringResource(R.string.settings_slot_mode_help_title),
+                            contentDescription = resolvedHelpContentDescription,
                         )
                     }
                 }

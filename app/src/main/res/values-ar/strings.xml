@@ -233,6 +233,8 @@
     <string name="weekly_training_slot_morning">صباح</string>
     <string name="weekly_training_slot_afternoon">بعد الظهر</string>
     <string name="weekly_training_slot_night">ليل</string>
+    <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | رقم %3$s</string>
+    <string name="weekly_training_drop_preview_without_slot">%1$s | رقم %2$s</string>
     <string name="activity_action_create_busy">لقد أنشأت حدثًا مشغولًا.</string>
     <string name="activity_action_update_busy">لقد حدّثت حدثًا مشغولًا.</string>
     <string name="activity_action_delete_busy">لقد حذفت حدثًا مشغولًا.</string>
