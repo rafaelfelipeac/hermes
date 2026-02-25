@@ -10,9 +10,11 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_SLOT_MODE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,10 +44,12 @@ class SettingsViewModel
             combine(
                 repository.themeMode,
                 repository.language,
-            ) { themeMode, language ->
+                repository.slotModePolicy,
+            ) { themeMode, language, slotModePolicy ->
                 SettingsState(
                     themeMode = themeMode,
                     language = language,
+                    slotModePolicy = slotModePolicy,
                 )
             }.stateIn(
                 scope = viewModelScope,
@@ -54,6 +58,7 @@ class SettingsViewModel
                     SettingsState(
                         themeMode = repository.initialThemeMode(),
                         language = repository.initialLanguage(),
+                        slotModePolicy = repository.initialSlotModePolicy(),
                     ),
             )
 
@@ -96,6 +101,25 @@ class SettingsViewModel
                         previousLanguage = previous,
                         newLanguage = language,
                         force = false,
+                    )
+                }
+            }
+
+        fun setSlotModePolicy(policy: SlotModePolicy) =
+            viewModelScope.launch {
+                val previous = state.value.slotModePolicy
+
+                repository.setSlotModePolicy(policy)
+
+                if (previous != policy) {
+                    userActionLogger.log(
+                        actionType = CHANGE_SLOT_MODE,
+                        entityType = SETTINGS,
+                        metadata =
+                            mapOf(
+                                OLD_VALUE to previous.name,
+                                NEW_VALUE to policy.name,
+                            ),
                     )
                 }
             }

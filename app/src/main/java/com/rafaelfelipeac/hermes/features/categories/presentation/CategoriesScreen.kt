@@ -66,6 +66,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorGridHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorSwatchSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryMoveIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -107,7 +108,12 @@ fun CategoriesScreen(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = SpacingSm, vertical = SpacingSm),
+                        .padding(
+                            start = SpacingSm,
+                            end = SpacingXl,
+                            top = SpacingSm,
+                            bottom = SpacingSm,
+                        ),
             ) {
                 IconButton(onClick = onBack) {
                     Icon(
@@ -120,6 +126,29 @@ fun CategoriesScreen(
                     text = stringResource(R.string.categories_title),
                     style = typography.titleLarge,
                 )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Surface(
+                    onClick = { isHelpDialogVisible = true },
+                    shape = CircleShape,
+                    color = colorScheme.surfaceVariant,
+                    tonalElevation = ElevationSm,
+                    shadowElevation = ElevationSm,
+                    modifier = Modifier.size(HelpIconSize),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.HelpOutline,
+                            contentDescription = stringResource(R.string.categories_help_icon),
+                            tint = actionIconTint,
+                            modifier = Modifier.size(HelpIconGlyphSize),
+                        )
+                    }
+                }
             }
         }
 
@@ -133,33 +162,10 @@ fun CategoriesScreen(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Button(onClick = { isAddDialogVisible = true }) {
                         Text(text = stringResource(R.string.categories_add))
-                    }
-
-                    Surface(
-                        shape = CircleShape,
-                        color = colorScheme.surfaceVariant,
-                        tonalElevation = ElevationSm,
-                        shadowElevation = ElevationSm,
-                        modifier = Modifier.size(HelpIconSize),
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .clickable { isHelpDialogVisible = true },
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.HelpOutline,
-                                contentDescription = stringResource(R.string.categories_help_icon),
-                                tint = actionIconTint,
-                            )
-                        }
                     }
                 }
 

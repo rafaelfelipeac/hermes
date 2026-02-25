@@ -16,18 +16,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.RadioButton
@@ -54,6 +59,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -73,14 +79,16 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.JAPA
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SPANISH
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
 import java.util.Locale
 
 private const val DEBUG_PACKAGE_SUFFIX = ".dev"
-private const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
-private const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
+internal const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
+internal const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
 private const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 
 @Composable
@@ -101,6 +109,7 @@ fun SettingsScreen(
     val marketUrlTemplate = stringResource(R.string.settings_play_store_market_url)
     val webUrlTemplate = stringResource(R.string.settings_play_store_web_url)
     var route by rememberSaveable { mutableStateOf(SettingsRoute.MAIN) }
+    var isSlotModeHelpVisible by rememberSaveable { mutableStateOf(false) }
 
     BackHandler(enabled = route != SettingsRoute.MAIN) {
         if (route == SettingsRoute.CATEGORIES) {
@@ -133,6 +142,7 @@ fun SettingsScreen(
                 appVersion = VERSION_NAME,
                 onThemeClick = { route = SettingsRoute.THEME },
                 onLanguageClick = { route = SettingsRoute.LANGUAGE },
+                onSlotModeClick = { route = SettingsRoute.SLOT_MODE },
                 onFeedbackClick = { subject, body ->
                     val normalizedBody = body.replace("\n", "\r\n")
                     val mailToUri =
@@ -332,6 +342,38 @@ fun SettingsScreen(
                 },
                 modifier = modifier,
             )
+        SettingsRoute.SLOT_MODE ->
+            SettingsDetailScreen(
+                title = stringResource(R.string.settings_slot_mode_title),
+                onBack = { route = SettingsRoute.MAIN },
+                onHelpClick = { isSlotModeHelpVisible = true },
+                helpContentDescription = stringResource(R.string.settings_slot_mode_help_title),
+                modifier = modifier,
+            ) {
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_slot_mode_auto),
+                    selected = state.slotModePolicy == AUTO_WHEN_MULTIPLE,
+                    onClick = { viewModel.setSlotModePolicy(AUTO_WHEN_MULTIPLE) },
+                )
+                SettingsOptionRow(
+                    label = stringResource(R.string.settings_slot_mode_always),
+                    selected = state.slotModePolicy == ALWAYS_SHOW,
+                    onClick = { viewModel.setSlotModePolicy(ALWAYS_SHOW) },
+                )
+            }
+    }
+
+    if (isSlotModeHelpVisible) {
+        AlertDialog(
+            onDismissRequest = { isSlotModeHelpVisible = false },
+            title = { Text(text = stringResource(R.string.settings_slot_mode_help_title)) },
+            text = { Text(text = stringResource(R.string.settings_slot_mode_help_message)) },
+            confirmButton = {
+                Button(onClick = { isSlotModeHelpVisible = false }) {
+                    Text(text = stringResource(R.string.weekly_training_tbd_help_confirm))
+                }
+            },
+        )
     }
 }
 
@@ -342,6 +384,7 @@ internal fun SettingsContent(
     appVersion: String,
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
+    onSlotModeClick: () -> Unit,
     onFeedbackClick: (String, String) -> Unit,
     onRateClick: () -> Unit,
     onSeedDemoData: () -> Unit,
@@ -364,6 +407,20 @@ internal fun SettingsContent(
                 style = typography.titleLarge,
             )
 
+            SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_categories),
+                    onClick = onCategoriesClick,
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_slot_mode_title),
+                    onClick = onSlotModeClick,
+                )
+            }
+
             SettingsSection(title = stringResource(R.string.settings_theme_title)) {
                 SettingsNavigationRow(
                     label = themeLabel(state.themeMode),
@@ -377,13 +434,6 @@ internal fun SettingsContent(
                     label = languageLabel(state.language),
                     onClick = onLanguageClick,
                     modifier = Modifier.testTag(SETTINGS_LANGUAGE_ROW_TAG),
-                )
-            }
-
-            SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
-                SettingsNavigationRow(
-                    label = stringResource(R.string.settings_categories),
-                    onClick = onCategoriesClick,
                 )
             }
 
@@ -467,10 +517,20 @@ private fun SettingsSection(
 private fun SettingsDetailScreen(
     title: String,
     onBack: () -> Unit,
+    onHelpClick: (() -> Unit)? = null,
+    helpContentDescription: String? = null,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     val scrollState = rememberScrollState()
+    val resolvedHelpContentDescription =
+        if (onHelpClick != null) {
+            requireNotNull(helpContentDescription) {
+                "helpContentDescription is required when onHelpClick is provided."
+            }
+        } else {
+            null
+        }
 
     Column(
         modifier =
@@ -484,7 +544,12 @@ private fun SettingsDetailScreen(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = SpacingSm, vertical = SpacingSm),
+                    .padding(
+                        start = SpacingSm,
+                        end = SpacingXl,
+                        top = SpacingSm,
+                        bottom = SpacingSm,
+                    ),
         ) {
             IconButton(onClick = onBack) {
                 Icon(
@@ -497,6 +562,31 @@ private fun SettingsDetailScreen(
                 text = title,
                 style = typography.titleLarge,
             )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            if (onHelpClick != null) {
+                Surface(
+                    shape = CircleShape,
+                    color = colorScheme.surfaceVariant,
+                    tonalElevation = ElevationSm,
+                    shadowElevation = ElevationSm,
+                    modifier = Modifier.size(HelpIconSize),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .clickable(onClick = onHelpClick),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.HelpOutline,
+                            contentDescription = resolvedHelpContentDescription,
+                        )
+                    }
+                }
+            }
         }
 
         Box(modifier = Modifier.padding(horizontal = SpacingXl)) {

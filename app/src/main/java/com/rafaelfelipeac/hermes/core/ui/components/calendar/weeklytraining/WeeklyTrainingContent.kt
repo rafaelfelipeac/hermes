@@ -1,10 +1,12 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,11 +18,15 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,23 +37,37 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Rect.Companion.Zero
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.Day
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.ToBeDefined
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyTrainingContentPreviewProvider
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyCalendarBottomPadding
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.NIGHT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutId
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import kotlinx.coroutines.delay
@@ -69,17 +89,18 @@ private const val AUTO_SCROLL_EDGE = 96f
 private const val AUTO_SCROLL_MAX_SPEED = 18f
 private const val AUTO_SCROLL_SAFE_PADDING = 16f
 private const val AUTO_SCROLL_FRAME_DELAY_MS = 16L
-private const val WEEKLY_TRAINING_CONTENT_TAG = "weekly-training-content"
+internal const val WEEKLY_TRAINING_CONTENT_TAG = "weekly-training-content"
 private const val SECTION_ITEM_KEY_PREFIX = "section-"
 private const val DIVIDER_ITEM_KEY_PREFIX = "divider-"
-private const val SECTION_HEADER_TAG_PREFIX = "section-header-"
+internal const val SECTION_HEADER_TAG_PREFIX = "section-header-"
 
 @Composable
 fun WeeklyTrainingContent(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     workouts: List<WorkoutUi>,
-    onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
+    slotModePolicy: SlotModePolicy = AUTO_WHEN_MULTIPLE,
+    onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
     onWorkoutCompletionChanged: (WorkoutUi, Boolean) -> Unit,
     onWorkoutEdit: (WorkoutUi) -> Unit,
     onWorkoutDelete: (WorkoutUi) -> Unit,
@@ -103,10 +124,13 @@ fun WeeklyTrainingContent(
         }
 
     val sectionBounds = remember { mutableStateMapOf<SectionKey, Rect>() }
+    val slotBounds = remember { mutableStateMapOf<SlotSectionKey, Rect>() }
     val itemBounds = remember { mutableStateMapOf<WorkoutId, Rect>() }
     var draggedWorkoutId by remember { mutableStateOf<WorkoutId?>(null) }
     var dragPosition by remember { mutableStateOf<Offset?>(null) }
     var draggedItemHeight by remember { mutableFloatStateOf(0f) }
+    var dragPointerId by remember { mutableStateOf<PointerId?>(null) }
+    var liveDropPreview by remember { mutableStateOf<DropPreview?>(null) }
     var containerBounds by remember { mutableStateOf(Zero) }
     var hoveredSection by remember { mutableStateOf<SectionKey?>(null) }
     val listState = rememberLazyListState()
@@ -119,6 +143,15 @@ fun WeeklyTrainingContent(
                     .filter { it.dayOfWeek == section.dayOfWeekOrNull() }
                     .sortedBy { it.order }
             }
+        }
+    val dayUsesSlots =
+        remember(workouts, slotModePolicy) {
+            sections
+                .mapNotNull { section -> (section as? Day)?.dayOfWeek }
+                .associateWith { day ->
+                    val count = workouts.count { it.dayOfWeek == day }
+                    shouldUseSlotMode(slotModePolicy, count)
+                }
         }
     val draggedWorkout = draggedWorkoutId?.let { id -> workouts.firstOrNull { it.id == id } }
     var previousUnscheduledIds by remember { mutableStateOf<Set<WorkoutId>>(emptySet()) }
@@ -224,47 +257,112 @@ fun WeeklyTrainingContent(
                     awaitPointerEventScope {
                         while (true) {
                             val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull()
                             val activeId = draggedWorkoutId
 
-                            if (change == null || activeId == null || containerBounds == Zero) {
-                                continue
-                            }
+                            if (activeId == null || containerBounds == Zero) {
+                                dragPointerId = null
+                                liveDropPreview = null
+                            } else {
+                                val trackedChange =
+                                    dragPointerId?.let { pointerId ->
+                                        event.changes.firstOrNull { it.id == pointerId }
+                                    }
+                                val change =
+                                    trackedChange
+                                        ?: run {
+                                            val pressedChanges = event.changes.filter { it.pressed }
+                                            if (pressedChanges.isEmpty()) {
+                                                null
+                                            } else {
+                                                val referencePosition =
+                                                    dragPosition?.let { currentRoot ->
+                                                        Offset(
+                                                            x = currentRoot.x - containerBounds.left,
+                                                            y = currentRoot.y - containerBounds.top,
+                                                        )
+                                                    }
+                                                val nearestPressed =
+                                                    if (referencePosition == null) {
+                                                        pressedChanges.first()
+                                                    } else {
+                                                        pressedChanges.minByOrNull { pointerChange ->
+                                                            val dx = pointerChange.position.x - referencePosition.x
+                                                            val dy = pointerChange.position.y - referencePosition.y
+                                                            dx * dx + dy * dy
+                                                        } ?: pressedChanges.first()
+                                                    }
+                                                dragPointerId = nearestPressed.id
+                                                nearestPressed
+                                            }
+                                        }
 
-                            val root =
-                                Offset(
-                                    containerBounds.left + change.position.x,
-                                    containerBounds.top + change.position.y,
-                                )
+                                if (change != null) {
+                                    val root =
+                                        Offset(
+                                            containerBounds.left + change.position.x,
+                                            containerBounds.top + change.position.y,
+                                        )
 
-                            dragPosition = root
+                                    dragPosition = root
 
-                            val activeWorkout =
-                                activeId.let { id -> workouts.firstOrNull { it.id == id } }
-                            if (activeWorkout != null) {
-                                val fallbackSection = activeWorkout.dayOfWeek.toSectionKey()
-                                hoveredSection =
-                                    findTargetSection(root, sectionBounds, fallbackSection)
-                            }
+                                    val activeWorkout =
+                                        activeId.let { id -> workouts.firstOrNull { it.id == id } }
+                                    if (activeWorkout != null) {
+                                        val fallbackSection = activeWorkout.dayOfWeek.toSectionKey()
+                                        hoveredSection =
+                                            findTargetSection(root, sectionBounds, fallbackSection)
+                                        liveDropPreview =
+                                            computeDropPreview(
+                                                draggedWorkoutId = activeId,
+                                                dragPosition = root,
+                                                context =
+                                                    DropContext(
+                                                        workouts = workouts,
+                                                        workoutsBySection = workoutsBySection,
+                                                        sectionBounds = sectionBounds,
+                                                        slotBounds = slotBounds,
+                                                        dayUsesSlots = dayUsesSlots,
+                                                        itemBounds = itemBounds,
+                                                        onWorkoutMoved = onWorkoutMoved,
+                                                    ),
+                                                targetSectionOverride = hoveredSection,
+                                            )
+                                    }
 
-                            if (!change.pressed) {
-                                handleDrop(
-                                    draggedWorkoutId = activeId,
-                                    dragPosition = root,
-                                    context =
-                                        DropContext(
-                                            workouts = workouts,
-                                            workoutsBySection = workoutsBySection,
-                                            sectionBounds = sectionBounds,
-                                            itemBounds = itemBounds,
-                                            onWorkoutMoved = onWorkoutMoved,
-                                        ),
-                                    targetSectionOverride = hoveredSection,
-                                )
-                                draggedWorkoutId = null
-                                dragPosition = null
-                                draggedItemHeight = 0f
-                                hoveredSection = null
+                                    if (!change.pressed) {
+                                        val preview = liveDropPreview
+                                        if (preview != null) {
+                                            applyDropPreview(
+                                                draggedWorkoutId = activeId,
+                                                workouts = workouts,
+                                                preview = preview,
+                                                onWorkoutMoved = onWorkoutMoved,
+                                            )
+                                        } else {
+                                            handleDrop(
+                                                draggedWorkoutId = activeId,
+                                                dragPosition = root,
+                                                context =
+                                                    DropContext(
+                                                        workouts = workouts,
+                                                        workoutsBySection = workoutsBySection,
+                                                        sectionBounds = sectionBounds,
+                                                        slotBounds = slotBounds,
+                                                        dayUsesSlots = dayUsesSlots,
+                                                        itemBounds = itemBounds,
+                                                        onWorkoutMoved = onWorkoutMoved,
+                                                    ),
+                                                targetSectionOverride = hoveredSection,
+                                            )
+                                        }
+                                        draggedWorkoutId = null
+                                        dragPosition = null
+                                        draggedItemHeight = 0f
+                                        hoveredSection = null
+                                        dragPointerId = null
+                                        liveDropPreview = null
+                                    }
+                                }
                             }
                         }
                     }
@@ -294,8 +392,69 @@ fun WeeklyTrainingContent(
                         )
 
                         val items = workoutsBySection[section].orEmpty()
+                        val shouldUseSlots =
+                            section is Day && shouldUseSlotMode(slotModePolicy, items.size)
 
-                        if (items.isEmpty()) {
+                        if (shouldUseSlots) {
+                            val slots = listOf(MORNING, AFTERNOON, NIGHT)
+                            slots.forEachIndexed { index, slot ->
+                                val slotItems = items.filter { effectiveSlot(it.timeSlot) == slot }
+                                val isSlotDropTarget =
+                                    draggedWorkoutId != null &&
+                                        liveDropPreview?.targetSection == section &&
+                                        liveDropPreview?.targetTimeSlot == slot
+                                SlotSectionCard(
+                                    title = stringResource(slot.labelRes()),
+                                    isDropTarget = isSlotDropTarget,
+                                    modifier =
+                                        Modifier.onGloballyPositioned {
+                                            slotBounds[SlotSectionKey(section, slot)] =
+                                                it.boundsInRoot()
+                                        },
+                                ) {
+                                    if (slotItems.isEmpty()) {
+                                        EmptySectionRow()
+                                    } else {
+                                        slotItems.forEachIndexed { index, workout ->
+                                            if (index > FIRST_LIST_INDEX) {
+                                                Spacer(modifier = Modifier.height(SpacingMd))
+                                            }
+
+                                            key(workout.id) {
+                                                WorkoutRow(
+                                                    workout = workout,
+                                                    isDragging = draggedWorkoutId == workout.id,
+                                                    onToggleCompleted = { checked ->
+                                                        onWorkoutCompletionChanged(workout, checked)
+                                                    },
+                                                    onDragStarted = { position, height ->
+                                                        if (draggedWorkoutId == null) {
+                                                            draggedWorkoutId = workout.id
+                                                            dragPosition = position
+                                                            draggedItemHeight = height
+                                                            dragPointerId = null
+                                                        }
+                                                    },
+                                                    onEdit = { onWorkoutEdit(workout) },
+                                                    onDelete = { onWorkoutDelete(workout) },
+                                                    onItemPositioned = { itemBounds[workout.id] = it },
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                                Spacer(
+                                    modifier =
+                                        Modifier.height(
+                                            if (index < slots.lastIndex) {
+                                                SpacingMd
+                                            } else {
+                                                SpacingXs
+                                            },
+                                        ),
+                                )
+                            }
+                        } else if (items.isEmpty()) {
                             EmptySectionRow()
                         } else {
                             items.forEachIndexed { index, workout ->
@@ -303,21 +462,26 @@ fun WeeklyTrainingContent(
                                     Spacer(modifier = Modifier.height(SpacingMd))
                                 }
 
-                                WorkoutRow(
-                                    workout = workout,
-                                    isDragging = draggedWorkoutId == workout.id,
-                                    onToggleCompleted = { checked ->
-                                        onWorkoutCompletionChanged(workout, checked)
-                                    },
-                                    onDragStarted = { position, height ->
-                                        draggedWorkoutId = workout.id
-                                        dragPosition = position
-                                        draggedItemHeight = height
-                                    },
-                                    onEdit = { onWorkoutEdit(workout) },
-                                    onDelete = { onWorkoutDelete(workout) },
-                                    onItemPositioned = { itemBounds[workout.id] = it },
-                                )
+                                key(workout.id) {
+                                    WorkoutRow(
+                                        workout = workout,
+                                        isDragging = draggedWorkoutId == workout.id,
+                                        onToggleCompleted = { checked ->
+                                            onWorkoutCompletionChanged(workout, checked)
+                                        },
+                                        onDragStarted = { position, height ->
+                                            if (draggedWorkoutId == null) {
+                                                draggedWorkoutId = workout.id
+                                                dragPosition = position
+                                                draggedItemHeight = height
+                                                dragPointerId = null
+                                            }
+                                        },
+                                        onEdit = { onWorkoutEdit(workout) },
+                                        onDelete = { onWorkoutDelete(workout) },
+                                        onItemPositioned = { itemBounds[workout.id] = it },
+                                    )
+                                }
                             }
                         }
                     }
@@ -334,6 +498,7 @@ fun WeeklyTrainingContent(
 
         if (draggedWorkout != null && dragPosition != null) {
             val currentDragPosition = checkNotNull(dragPosition)
+            val preview = liveDropPreview
             val ghostHeight =
                 if (draggedItemHeight > 0f) {
                     draggedItemHeight
@@ -366,6 +531,25 @@ fun WeeklyTrainingContent(
                         ),
                 fillMaxWidth = ghostWidth <= 0f,
             )
+
+            if (preview != null) {
+                DropPreviewBadge(
+                    preview = preview,
+                    borderColor = colorScheme.outlineVariant,
+                    modifier =
+                        Modifier
+                            .graphicsLayer {
+                                translationY = ghostYOffset + ghostHeight + AUTO_SCROLL_SAFE_PADDING
+                            }
+                            .then(
+                                if (ghostWidth > 0f) {
+                                    Modifier.width(with(LocalDensity.current) { ghostWidth.toDp() })
+                                } else {
+                                    Modifier.fillMaxWidth()
+                                },
+                            ),
+                )
+            }
         }
     }
 
@@ -383,6 +567,135 @@ fun WeeklyTrainingContent(
     }
 }
 
+@Composable
+private fun SlotSectionCard(
+    title: String,
+    isDropTarget: Boolean = false,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Surface(
+        tonalElevation = ElevationSm,
+        shape = shapes.medium,
+        border =
+            if (isDropTarget) {
+                BorderStroke(width = BorderHairline, color = colorScheme.outlineVariant)
+            } else {
+                null
+            },
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(bottom = 0.dp),
+    ) {
+        Column(
+            modifier =
+                Modifier.padding(
+                    start = SpacingLg,
+                    end = SpacingLg,
+                    top = SpacingMd,
+                    bottom = SpacingLg,
+                ),
+        ) {
+            Text(
+                text = title,
+                style = typography.labelLarge,
+                color = colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(bottom = SpacingSm),
+            )
+            content()
+        }
+    }
+}
+
+private fun shouldUseSlotMode(
+    policy: SlotModePolicy,
+    dayItemCount: Int,
+): Boolean {
+    return when (policy) {
+        ALWAYS_SHOW -> true
+        AUTO_WHEN_MULTIPLE -> dayItemCount >= 2
+    }
+}
+
+private fun effectiveSlot(timeSlot: TimeSlot?): TimeSlot {
+    return timeSlot ?: MORNING
+}
+
+private fun TimeSlot.labelRes(): Int {
+    return when (this) {
+        MORNING -> R.string.weekly_training_slot_morning
+        AFTERNOON -> R.string.weekly_training_slot_afternoon
+        NIGHT -> R.string.weekly_training_slot_night
+    }
+}
+
+@Composable
+private fun DropPreviewBadge(
+    preview: DropPreview,
+    borderColor: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier,
+) {
+    val sectionLabel = preview.targetSection.title()
+    val slotLabel =
+        preview.targetTimeSlot
+            ?.let { stringResource(it.labelRes()) }
+            ?.takeIf { preview.targetSection is Day }
+    val orderLabel = (preview.targetOrder + 1).toString()
+    val label =
+        if (slotLabel != null) {
+            stringResource(
+                R.string.weekly_training_drop_preview_with_slot,
+                sectionLabel,
+                slotLabel,
+                orderLabel,
+            )
+        } else {
+            stringResource(
+                R.string.weekly_training_drop_preview_without_slot,
+                sectionLabel,
+                orderLabel,
+            )
+        }
+
+    Surface(
+        tonalElevation = ElevationSm,
+        shape = shapes.medium,
+        border = BorderStroke(width = BorderHairline, color = borderColor),
+        modifier = modifier.padding(top = SpacingXs),
+    ) {
+        Text(
+            text = label,
+            style = typography.labelMedium,
+            color = colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        horizontal = SpacingMd,
+                        vertical = SpacingSm,
+                    ),
+        )
+    }
+}
+
+private fun applyDropPreview(
+    draggedWorkoutId: WorkoutId,
+    workouts: List<WorkoutUi>,
+    preview: DropPreview,
+    onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
+) {
+    val workout = workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
+    val newDay = preview.targetSection.dayOfWeekOrNull()
+    val newTimeSlot = preview.targetTimeSlot
+    val newOrder = preview.targetOrder
+
+    if (newDay != workout.dayOfWeek || newTimeSlot != workout.timeSlot || newOrder != workout.order) {
+        onWorkoutMoved(workout.id, newDay, newTimeSlot, newOrder)
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun WeeklyTrainingContentPreview(
@@ -392,7 +705,7 @@ private fun WeeklyTrainingContentPreview(
     WeeklyTrainingContent(
         selectedDate = preview.selectedDate,
         workouts = preview.workouts,
-        onWorkoutMoved = { _, _, _ -> },
+        onWorkoutMoved = { _, _, _, _ -> },
         onWorkoutCompletionChanged = { _, _ -> },
         onWorkoutEdit = {},
         onWorkoutDelete = {},

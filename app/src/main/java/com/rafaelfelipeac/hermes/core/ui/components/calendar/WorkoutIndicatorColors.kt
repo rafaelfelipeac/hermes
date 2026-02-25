@@ -5,19 +5,19 @@ import androidx.compose.ui.graphics.lerp
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_DARK
 import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_LIGHT
-import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceDark
-import com.rafaelfelipeac.hermes.core.ui.theme.RestDaySurfaceLight
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 fun workoutIndicatorColor(
     workout: WorkoutUi,
     isDarkTheme: Boolean,
     surface: Color,
+    nonWorkoutColor: Color,
 ): Color {
-    if (workout.isRestDay) {
-        return if (isDarkTheme) RestDaySurfaceDark else RestDaySurfaceLight
+    if (workout.eventType != WORKOUT) {
+        return nonWorkoutColor
     }
 
     val categoryAccent =

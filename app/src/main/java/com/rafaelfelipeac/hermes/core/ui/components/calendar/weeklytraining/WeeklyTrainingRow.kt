@@ -1,6 +1,8 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
@@ -29,7 +33,6 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,6 +46,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
@@ -55,12 +59,12 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxYOffset
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CloseIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -74,6 +78,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
@@ -96,7 +102,7 @@ internal fun WorkoutRow(
     val hasDescription = workout.description.isNotBlank()
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
-        workout.categoryColorId?.let { accent ->
+        workout.categoryColorId?.takeIf { workout.eventType == WORKOUT }?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
@@ -128,6 +134,17 @@ internal fun WorkoutRow(
                 }
             }
             .clip(shapes.medium)
+            .then(
+                if (workout.eventType != WORKOUT) {
+                    Modifier.border(
+                        width = BorderHairline,
+                        color = colorScheme.outlineVariant,
+                        shape = shapes.medium,
+                    )
+                } else {
+                    Modifier
+                },
+            )
             .background(if (isDragging) Color.Transparent else colors.background)
             .then(Modifier)
             .then(
@@ -144,7 +161,7 @@ internal fun WorkoutRow(
             )
 
     Box(modifier = rowModifier) {
-        if (!workout.isRestDay && categoryAccent != null) {
+        if (workout.eventType == WORKOUT && categoryAccent != null) {
             Box(
                 modifier =
                     Modifier
@@ -159,7 +176,7 @@ internal fun WorkoutRow(
                 Modifier
                     .fillMaxWidth()
                     .padding(end = SpacingXl)
-                    .pointerInput(Unit) {
+                    .pointerInput(workout.id) {
                         detectDragGesturesAfterLongPress(
                             onDragStart = { offset ->
                                 coordinates?.localToRoot(offset)?.let {
@@ -176,10 +193,10 @@ internal fun WorkoutRow(
                 modifier =
                     Modifier
                         .size(CheckboxBoxSize + SpacingSm)
-                        .offset(y = if (workout.isRestDay) Zero else CheckboxYOffset),
+                        .offset(y = if (workout.eventType == WORKOUT) CheckboxYOffset else Zero),
                 contentAlignment = Alignment.Center,
             ) {
-                if (!workout.isRestDay) {
+                if (workout.eventType == WORKOUT) {
                     if (workout.isCompleted) {
                         val completedButtonColor =
                             categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA)
@@ -216,7 +233,7 @@ internal fun WorkoutRow(
                         )
                     }
                 }
-                if (workout.isRestDay) {
+                if (workout.eventType != WORKOUT) {
                     Box(
                         modifier =
                             Modifier
@@ -226,8 +243,8 @@ internal fun WorkoutRow(
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.Bedtime,
-                            contentDescription = null,
+                            imageVector = eventTypeIcon(workout.eventType),
+                            contentDescription = stringResource(eventTypeLabelRes(workout.eventType)),
                             tint = colors.content,
                             modifier = Modifier.size(SmallIconSize),
                         )
@@ -242,12 +259,12 @@ internal fun WorkoutRow(
                 modifier =
                     Modifier
                         .weight(1f)
-                        .clickable(enabled = !workout.isRestDay) { onEdit() },
+                        .clickable(enabled = workout.eventType == WORKOUT) { onEdit() },
             ) {
                 Column {
-                    if (workout.isRestDay) {
+                    if (workout.eventType != WORKOUT) {
                         TitleChip(
-                            label = stringResource(R.string.weekly_training_rest_day_label),
+                            label = stringResource(eventTypeLabelRes(workout.eventType)),
                             containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                             contentColor = colors.content,
                             modifier = Modifier.wrapContentWidth(),
@@ -312,7 +329,7 @@ internal fun GhostWorkoutRow(
     val hasDescription = workout.description.isNotBlank()
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
-        workout.categoryColorId?.let { accent ->
+        workout.categoryColorId?.takeIf { workout.eventType == WORKOUT }?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
@@ -337,6 +354,12 @@ internal fun GhostWorkoutRow(
         color = colors.background,
         contentColor = colors.content,
         shape = shapes.medium,
+        border =
+            if (workout.eventType != WORKOUT) {
+                BorderStroke(width = BorderHairline, color = colorScheme.outlineVariant)
+            } else {
+                null
+            },
         modifier =
             Modifier
                 .then(if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier)
@@ -344,7 +367,7 @@ internal fun GhostWorkoutRow(
                 .alpha(GHOST_ROW_ALPHA),
     ) {
         Box {
-            if (!workout.isRestDay && categoryAccent != null) {
+            if (workout.eventType == WORKOUT && categoryAccent != null) {
                 Box(
                     modifier =
                         Modifier
@@ -364,9 +387,9 @@ internal fun GhostWorkoutRow(
                     modifier = Modifier.weight(1f),
                 ) {
                     Column {
-                        if (workout.isRestDay) {
+                        if (workout.eventType != WORKOUT) {
                             TitleChip(
-                                label = stringResource(R.string.weekly_training_rest_day_label),
+                                label = stringResource(eventTypeLabelRes(workout.eventType)),
                                 containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                                 contentColor = colors.content,
                                 modifier = Modifier.wrapContentWidth(),
@@ -425,7 +448,7 @@ private fun workoutRowColors(
     val completedColor = TodoBlue
     val completedContent = TodoBlueContent
     val isDarkTheme = isDarkBackground(colorScheme.background)
-    val restDayBackground = themeColorScheme.surfaceColorAtElevation(ElevationSm)
+    val restDayBackground = themeColorScheme.outlineVariant
     val restDayContent = themeColorScheme.onSurfaceVariant
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
@@ -451,7 +474,7 @@ private fun workoutRowColors(
     val background =
         when {
             isDragging -> themeColorScheme.surfaceVariant
-            workout.isRestDay -> restDayBackground
+            workout.eventType != WORKOUT -> restDayBackground
             workout.isCompleted && categoryAccent == null -> completedColor
             workout.isCompleted && categoryCompletedBackground != null -> categoryCompletedBackground
             categoryAccent != null -> categoryAccent
@@ -459,7 +482,7 @@ private fun workoutRowColors(
         }
     val content =
         when {
-            workout.isRestDay -> restDayContent
+            workout.eventType != WORKOUT -> restDayContent
             workout.isCompleted && categoryContent == null -> completedContent
             workout.isCompleted && categoryCompletedContent != null -> categoryCompletedContent
             categoryContent != null -> categoryContent
@@ -483,4 +506,22 @@ private fun lighterTone(
 ): Color {
     val blend = if (isDarkTheme) LIGHTER_TONE_BLEND_DARK else LIGHTER_TONE_BLEND_LIGHT
     return lerp(color, Color.White, blend)
+}
+
+private fun eventTypeLabelRes(eventType: EventType): Int {
+    return when (eventType) {
+        EventType.WORKOUT -> R.string.add_workout
+        EventType.REST -> R.string.weekly_training_rest_day_label
+        EventType.BUSY -> R.string.weekly_training_busy_label
+        EventType.SICK -> R.string.weekly_training_sick_label
+    }
+}
+
+private fun eventTypeIcon(eventType: EventType): ImageVector {
+    return when (eventType) {
+        EventType.WORKOUT -> Icons.Outlined.Check
+        EventType.REST -> Icons.Outlined.Bedtime
+        EventType.BUSY -> Icons.Outlined.EventBusy
+        EventType.SICK -> Icons.Outlined.MedicalServices
+    }
 }

@@ -21,3 +21,14 @@ val MIGRATION_1_2 =
             )
         }
     }
+
+val MIGRATION_2_3 =
+    object : Migration(2, 3) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE workouts ADD COLUMN eventType TEXT NOT NULL DEFAULT 'WORKOUT'")
+            db.execSQL("ALTER TABLE workouts ADD COLUMN timeSlot TEXT")
+            db.execSQL(
+                "UPDATE workouts SET eventType = CASE WHEN isRestDay = 1 THEN 'REST' ELSE 'WORKOUT' END",
+            )
+        }
+    }

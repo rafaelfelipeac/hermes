@@ -21,6 +21,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_SLOT_MODE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
@@ -144,6 +145,44 @@ class ActivityViewModelTest {
 
                 assertTrue(subtitle?.contains("\"System\"") == true)
                 assertTrue(subtitle?.contains("\"English\"") == true)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun changeSlotMode_formatsSelectedValueOnSecondLine() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val weekStart = LocalDate.of(2026, 2, 2)
+            val metadata =
+                metadataJson(
+                    WEEK_START_DATE to weekStart.toString(),
+                    OLD_VALUE to "AUTO_WHEN_MULTIPLE",
+                    NEW_VALUE to "ALWAYS_SHOW",
+                )
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 31L,
+                        actionType = CHANGE_SLOT_MODE.name,
+                        entityType = SETTINGS.name,
+                        entityId = null,
+                        metadata = metadata,
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                ),
+            )
+
+            viewModel.state.test {
+                val subtitle = awaitNonEmptyState().sections.first().items.first().subtitle
+
+                assertTrue(subtitle?.contains("Week of") == true)
+                assertTrue(subtitle?.contains("Auto") == true)
+                assertTrue(subtitle?.contains("Always show slots") == true)
+                assertTrue(subtitle?.contains("\n") == true)
 
                 cancelAndIgnoreRemainingEvents()
             }
@@ -355,6 +394,7 @@ class ActivityViewModelTest {
                     "You converted the workout %1\$s to a rest day.",
                 R.string.activity_action_convert_rest_day_to_workout to "You converted a rest day to a workout.",
                 R.string.activity_action_change_language to "You changed the language.",
+                R.string.activity_action_change_slot_mode to "You changed slot mode.",
                 R.string.activity_action_change_theme to "You changed the theme.",
                 R.string.activity_action_open_week to "You opened another week.",
                 R.string.activity_action_copy_last_week to "You copied last week into this week.",
@@ -384,6 +424,8 @@ class ActivityViewModelTest {
                 R.string.settings_language_japanese to "Japanese",
                 R.string.settings_theme_light to "Light",
                 R.string.settings_theme_dark to "Dark",
+                R.string.settings_slot_mode_auto to "Auto (2+ events/day)",
+                R.string.settings_slot_mode_always to "Always show slots",
                 R.string.day_monday to "Monday",
                 R.string.day_tuesday to "Tuesday",
                 R.string.day_wednesday to "Wednesday",

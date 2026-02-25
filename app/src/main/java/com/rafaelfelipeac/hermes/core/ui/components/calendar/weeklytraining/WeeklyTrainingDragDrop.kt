@@ -2,6 +2,10 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.NIGHT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutId
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
@@ -13,8 +17,21 @@ internal data class DropContext(
     val workouts: List<WorkoutUi>,
     val workoutsBySection: Map<SectionKey, List<WorkoutUi>>,
     val sectionBounds: Map<SectionKey, Rect>,
+    val slotBounds: Map<SlotSectionKey, Rect>,
+    val dayUsesSlots: Map<DayOfWeek, Boolean>,
     val itemBounds: Map<WorkoutId, Rect>,
-    val onWorkoutMoved: (WorkoutId, DayOfWeek?, Int) -> Unit,
+    val onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
+)
+
+internal data class SlotSectionKey(
+    val section: SectionKey,
+    val slot: TimeSlot,
+)
+
+internal data class DropPreview(
+    val targetSection: SectionKey,
+    val targetTimeSlot: TimeSlot?,
+    val targetOrder: Int,
 )
 
 internal fun handleDrop(
@@ -24,17 +41,100 @@ internal fun handleDrop(
     targetSectionOverride: SectionKey? = null,
 ) {
     val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return
+    val preview =
+        computeDropPreview(
+            draggedWorkoutId = draggedWorkoutId,
+            dragPosition = dragPosition,
+            context = context,
+            targetSectionOverride = targetSectionOverride,
+        ) ?: return
+    val newDay = preview.targetSection.dayOfWeekOrNull()
+    val newTimeSlot = preview.targetTimeSlot
+    val newOrder = preview.targetOrder
+
+    if (newDay != workout.dayOfWeek || newTimeSlot != workout.timeSlot || newOrder != workout.order) {
+        context.onWorkoutMoved(workout.id, newDay, newTimeSlot, newOrder)
+    }
+}
+
+internal fun computeDropPreview(
+    draggedWorkoutId: WorkoutId,
+    dragPosition: Offset,
+    context: DropContext,
+    targetSectionOverride: SectionKey? = null,
+): DropPreview? {
+    val workout = context.workouts.firstOrNull { it.id == draggedWorkoutId } ?: return null
     val fallbackSection = workout.dayOfWeek.toSectionKey()
     val targetSection =
         targetSectionOverride ?: findTargetSection(dragPosition, context.sectionBounds, fallbackSection)
-    val targetItems = context.workoutsBySection[targetSection].orEmpty()
-    val newOrder =
-        computeOrderForDrop(dragPosition, targetItems, workout.id, context.itemBounds)
     val newDay = targetSection.dayOfWeekOrNull()
+    val usesSlots = newDay?.let { day -> context.dayUsesSlots[day] == true } == true
+    val newTimeSlot =
+        when {
+            newDay == null -> null
+            !usesSlots -> null
+            else ->
+                slotFromDropPosition(
+                    dropPosition = dragPosition,
+                    targetSection = targetSection,
+                    sectionRect = context.sectionBounds[targetSection],
+                    slotBounds = context.slotBounds,
+                )
+        }
+    val targetItems =
+        context.workoutsBySection[targetSection]
+            .orEmpty()
+            .filter { item ->
+                if (!usesSlots) {
+                    true
+                } else {
+                    (item.timeSlot ?: MORNING) == newTimeSlot
+                }
+            }
+    val newOrder = computeOrderForDrop(dragPosition, targetItems, workout.id, context.itemBounds)
 
-    if (newDay != workout.dayOfWeek || newOrder != workout.order) {
-        context.onWorkoutMoved(workout.id, newDay, newOrder)
-    }
+    return DropPreview(
+        targetSection = targetSection,
+        targetTimeSlot = newTimeSlot,
+        targetOrder = newOrder,
+    )
+}
+
+private fun slotFromDropPosition(
+    dropPosition: Offset,
+    targetSection: SectionKey,
+    sectionRect: Rect?,
+    slotBounds: Map<SlotSectionKey, Rect>,
+): TimeSlot {
+    val slots = listOf(MORNING, AFTERNOON, NIGHT)
+    val targetSlotRects =
+        slots.mapNotNull { slot ->
+            slotBounds[SlotSectionKey(section = targetSection, slot = slot)]?.let { rect ->
+                slot to rect
+            }
+        }
+
+    val directSlotMatch =
+        targetSlotRects.firstOrNull { (_, rect) -> rect.contains(dropPosition) }?.first
+    val nearestSlotFromCards =
+        targetSlotRects
+            .takeIf { it.isNotEmpty() }
+            ?.minBy { (_, rect) -> kotlin.math.abs(dropPosition.y - rect.center.y) }
+            ?.first
+    val fallbackThirdsSlot =
+        if (sectionRect == null || sectionRect.height <= 0f) {
+            MORNING
+        } else {
+            val relativeY = (dropPosition.y - sectionRect.top).coerceIn(0f, sectionRect.height)
+            val third = sectionRect.height / 3f
+            when {
+                relativeY < third -> MORNING
+                relativeY < third * 2f -> AFTERNOON
+                else -> NIGHT
+            }
+        }
+
+    return directSlotMatch ?: nearestSlotFromCards ?: fallbackThirdsSlot
 }
 
 internal fun findTargetSection(

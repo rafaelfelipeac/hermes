@@ -14,14 +14,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -31,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -42,7 +45,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.IndicatorSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -52,6 +54,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -176,20 +180,17 @@ private fun DayIndicator(
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val indicatorColor =
         indicator?.let {
-            if (it.workout.isRestDay) {
-                colorScheme.surfaceColorAtElevation(ElevationSm)
-            } else {
-                workoutIndicatorColor(
-                    workout = it.workout,
-                    isDarkTheme = isDarkTheme,
-                    surface = colorScheme.surface,
-                )
-            }
+            workoutIndicatorColor(
+                workout = it.workout,
+                isDarkTheme = isDarkTheme,
+                surface = colorScheme.surface,
+                nonWorkoutColor = colorScheme.outlineVariant,
+            )
         }
     val contentColor =
         when {
             indicator == null -> colorScheme.onSurface
-            indicator.workout.isRestDay -> colorScheme.onSurfaceVariant
+            indicator.workout.eventType != WORKOUT -> colorScheme.onSurfaceVariant
             indicatorColor != null -> readableContentOn(indicatorColor)
             else -> colorScheme.onSurface
         }
@@ -212,9 +213,19 @@ private fun DayIndicator(
                 color = contentColor,
             )
 
-            if (indicator?.isDayCompleted == true && indicator.workout.isRestDay.not()) {
+            if (indicator?.isDayCompleted == true && indicator.workout.eventType == WORKOUT) {
                 Icon(
                     imageVector = Icons.Outlined.Check,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier =
+                        Modifier
+                            .size(SpacingXxl)
+                            .padding(bottom = SpacingXs),
+                )
+            } else if (indicator?.workout?.eventType != null && indicator.workout.eventType != WORKOUT) {
+                Icon(
+                    imageVector = nonWorkoutEventIcon(indicator.workout.eventType),
                     contentDescription = null,
                     tint = contentColor,
                     modifier =
@@ -282,6 +293,15 @@ private fun formatWeekRange(
 
 private fun readableContentOn(background: Color): Color {
     return contentColorForBackground(background)
+}
+
+private fun nonWorkoutEventIcon(eventType: EventType): ImageVector {
+    return when (eventType) {
+        EventType.REST -> Icons.Outlined.Bedtime
+        EventType.BUSY -> Icons.Outlined.EventBusy
+        EventType.SICK -> Icons.Outlined.MedicalServices
+        WORKOUT -> Icons.Outlined.Check
+    }
 }
 
 @Preview(showBackground = true)

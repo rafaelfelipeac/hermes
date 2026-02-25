@@ -2,18 +2,28 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
+import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -108,7 +118,7 @@ class WeeklyTrainingViewModelTest {
         }
 
     @Test
-    fun addRestDay_usesNextOrderForUnscheduled() =
+    fun addRest_usesNextOrderForUnscheduled() =
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
@@ -128,22 +138,25 @@ class WeeklyTrainingViewModelTest {
                 )
             advanceUntilIdle()
 
-            viewModel.addRestDay()
+            viewModel.addRest()
             advanceUntilIdle()
 
             val weekStartSlot = slot<LocalDate>()
             val daySlot = slot<DayOfWeek?>()
+            val eventTypeSlot = slot<EventType>()
             val orderSlot = slot<Int>()
 
             coVerify(exactly = 1) {
-                repository.addRestDay(
+                repository.addEvent(
                     weekStartDate = capture(weekStartSlot),
                     dayOfWeek = captureNullable(daySlot),
+                    eventType = capture(eventTypeSlot),
                     order = capture(orderSlot),
                 )
             }
             assertEquals(weekStart, weekStartSlot.captured)
             assertEquals(null, daySlot.captured)
+            assertEquals(EventType.REST, eventTypeSlot.captured)
             assertEquals(1, orderSlot.captured)
 
             collectJob.cancel()
@@ -182,13 +195,14 @@ class WeeklyTrainingViewModelTest {
             workoutsFlow.value = listOf(restDay, mondayWorkout)
             advanceUntilIdle()
 
-            viewModel.moveWorkout(restDay.id, TUESDAY, 0)
+            viewModel.moveWorkout(restDay.id, TUESDAY, null, 0)
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
                 repository.updateWorkoutDayAndOrder(
                     workoutId = mondayWorkout.id,
                     dayOfWeek = MONDAY,
+                    timeSlot = null,
                     order = 0,
                 )
             }
@@ -196,7 +210,93 @@ class WeeklyTrainingViewModelTest {
                 repository.updateWorkoutDayAndOrder(
                     workoutId = restDay.id,
                     dayOfWeek = TUESDAY,
+                    timeSlot = null,
                     order = 0,
+                )
+            }
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun moveWorkout_betweenSlots_sameDay_logsMoveAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 3, 4)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+            val mondayWorkoutA =
+                workout(id = 11, weekStart = weekStart, day = MONDAY, order = 0)
+                    .copy(timeSlot = MORNING)
+            val mondayWorkoutB =
+                workout(id = 12, weekStart = weekStart, day = MONDAY, order = 1)
+                    .copy(timeSlot = MORNING)
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value = listOf(mondayWorkoutA, mondayWorkoutB)
+            runCurrent()
+            clearMocks(userActionLogger)
+
+            viewModel.moveWorkout(mondayWorkoutB.id, MONDAY, AFTERNOON, 0)
+            advanceUntilIdle()
+
+            val metadataSlot = slot<Map<String, String>>()
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = MOVE_WORKOUT_BETWEEN_DAYS,
+                    entityType = any(),
+                    entityId = mondayWorkoutB.id,
+                    metadata = capture(metadataSlot),
+                    timestamp = any(),
+                )
+            }
+            assertEquals(MORNING.name, metadataSlot.captured[OLD_TIME_SLOT])
+            assertEquals(AFTERNOON.name, metadataSlot.captured[NEW_TIME_SLOT])
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun moveWorkout_sameDaySameSlot_logsReorderAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 3, 4)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+            val mondayWorkoutA =
+                workout(id = 11, weekStart = weekStart, day = MONDAY, order = 0)
+                    .copy(timeSlot = MORNING)
+            val mondayWorkoutB =
+                workout(id = 12, weekStart = weekStart, day = MONDAY, order = 1)
+                    .copy(timeSlot = MORNING)
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value = listOf(mondayWorkoutA, mondayWorkoutB)
+            runCurrent()
+            clearMocks(userActionLogger)
+
+            viewModel.moveWorkout(mondayWorkoutB.id, MONDAY, MORNING, 0)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = REORDER_WORKOUT,
+                    entityType = any(),
+                    entityId = mondayWorkoutB.id,
+                    metadata = any(),
+                    timestamp = any(),
                 )
             }
 
@@ -214,6 +314,17 @@ class WeeklyTrainingViewModelTest {
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 4, 7)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 42, weekStart = weekStart, day = null, order = 0),
+                    workout(id = 43, weekStart = weekStart, day = null, order = 1),
+                    workout(id = 44, weekStart = weekStart, day = null, order = 2),
+                )
+            runCurrent()
 
             viewModel.updateWorkoutCompletion(
                 workout =
@@ -235,7 +346,7 @@ class WeeklyTrainingViewModelTest {
                 workoutId = 43,
                 type = "Bike",
                 description = "Tempo",
-                isRestDay = false,
+                eventType = EventType.WORKOUT,
                 categoryId = null,
             )
             viewModel.deleteWorkout(workoutId = 44)
@@ -247,7 +358,7 @@ class WeeklyTrainingViewModelTest {
                     workoutId = 43,
                     type = "Bike",
                     description = "Tempo",
-                    isRestDay = false,
+                    eventType = EventType.WORKOUT,
                     categoryId = UNCATEGORIZED_ID,
                 )
             }
@@ -288,7 +399,7 @@ class WeeklyTrainingViewModelTest {
             workoutsFlow.value = listOf(mondayWorkout, movedWorkout)
             runCurrent()
 
-            viewModel.moveWorkout(movedWorkout.id, TUESDAY, 0)
+            viewModel.moveWorkout(movedWorkout.id, TUESDAY, null, 0)
             runCurrent()
 
             viewModel.undoLastAction()
@@ -298,6 +409,7 @@ class WeeklyTrainingViewModelTest {
                 repository.updateWorkoutDayAndOrder(
                     workoutId = movedWorkout.id,
                     dayOfWeek = MONDAY,
+                    timeSlot = null,
                     order = 1,
                 )
             }
@@ -305,6 +417,7 @@ class WeeklyTrainingViewModelTest {
                 repository.updateWorkoutDayAndOrder(
                     workoutId = mondayWorkout.id,
                     dayOfWeek = MONDAY,
+                    timeSlot = null,
                     order = 0,
                 )
             }
@@ -483,7 +596,7 @@ class WeeklyTrainingViewModelTest {
                 userActionLogger.log(
                     actionType = UNDO_COPY_LAST_WEEK,
                     entityType = WEEK,
-                    entityId = null,
+                    entityId = fixture.weekStart.toEpochDay(),
                     metadata = any(),
                     timestamp = any(),
                 )
@@ -559,6 +672,7 @@ private data class WeeklyTrainingHarness(
     val repository: WeeklyTrainingRepository,
     val userActionLogger: UserActionLogger,
     val categoryRepository: CategoryRepository,
+    val settingsRepository: SettingsRepository,
     val collectJob: Job,
 )
 
@@ -571,9 +685,12 @@ private fun createWeeklyTrainingHarness(
     val categoriesFlow = MutableStateFlow(listOf(defaultCategory()))
     val categoryRepository = mockk<CategoryRepository>(relaxed = true)
     val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+    val settingsRepository = mockk<SettingsRepository>()
 
     every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
     every { categoryRepository.observeCategories() } returns categoriesFlow
+    every { settingsRepository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+    every { settingsRepository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
 
     val viewModel =
         WeeklyTrainingViewModel(
@@ -581,10 +698,18 @@ private fun createWeeklyTrainingHarness(
             userActionLogger,
             categoryRepository,
             categorySeeder,
+            settingsRepository,
         )
     val collectJob = backgroundScope.launch { viewModel.state.collect() }
 
-    return WeeklyTrainingHarness(viewModel, repository, userActionLogger, categoryRepository, collectJob)
+    return WeeklyTrainingHarness(
+        viewModel = viewModel,
+        repository = repository,
+        userActionLogger = userActionLogger,
+        categoryRepository = categoryRepository,
+        settingsRepository = settingsRepository,
+        collectJob = collectJob,
+    )
 }
 
 private fun defaultCategory(): Category {
@@ -605,14 +730,18 @@ private fun createViewModel(
 ): WeeklyTrainingViewModel {
     val categoryRepository = mockk<CategoryRepository>(relaxed = true)
     val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+    val settingsRepository = mockk<SettingsRepository>()
 
     every { categoryRepository.observeCategories() } returns categoriesFlow
+    every { settingsRepository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+    every { settingsRepository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
 
     return WeeklyTrainingViewModel(
         repository,
         userActionLogger,
         categoryRepository,
         categorySeeder,
+        settingsRepository,
     )
 }
 

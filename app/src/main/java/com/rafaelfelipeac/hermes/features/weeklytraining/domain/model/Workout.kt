@@ -13,4 +13,11 @@ data class Workout(
     val isRestDay: Boolean,
     val categoryId: Long?,
     val order: Int,
+    val eventType: EventType =
+        if (isRestDay) {
+            EventType.REST
+        } else {
+            EventType.WORKOUT
+        },
+    val timeSlot: TimeSlot? = null,
 )

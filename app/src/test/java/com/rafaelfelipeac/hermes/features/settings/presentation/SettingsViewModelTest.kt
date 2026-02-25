@@ -7,6 +7,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
@@ -33,6 +34,7 @@ class SettingsViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val themeFlow = MutableStateFlow(ThemeMode.SYSTEM)
             val languageFlow = MutableStateFlow(AppLanguage.SYSTEM)
+            val slotModePolicyFlow = MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
             val repository = mockk<SettingsRepository>()
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
@@ -40,8 +42,10 @@ class SettingsViewModelTest {
 
             every { repository.themeMode } returns themeFlow
             every { repository.language } returns languageFlow
+            every { repository.slotModePolicy } returns slotModePolicyFlow
             every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
             every { repository.initialLanguage() } returns AppLanguage.SYSTEM
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
 
             val viewModel =
                 SettingsViewModel(
@@ -52,13 +56,34 @@ class SettingsViewModelTest {
                 )
 
             viewModel.state.test {
-                assertEquals(SettingsState(ThemeMode.SYSTEM, AppLanguage.SYSTEM), awaitItem())
+                assertEquals(
+                    SettingsState(
+                        themeMode = ThemeMode.SYSTEM,
+                        language = AppLanguage.SYSTEM,
+                        slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                    ),
+                    awaitItem(),
+                )
 
                 themeFlow.value = DARK
-                assertEquals(SettingsState(DARK, AppLanguage.SYSTEM), awaitItem())
+                assertEquals(
+                    SettingsState(
+                        themeMode = DARK,
+                        language = AppLanguage.SYSTEM,
+                        slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                    ),
+                    awaitItem(),
+                )
 
                 languageFlow.value = PORTUGUESE_BRAZIL
-                assertEquals(SettingsState(DARK, PORTUGUESE_BRAZIL), awaitItem())
+                assertEquals(
+                    SettingsState(
+                        themeMode = DARK,
+                        language = PORTUGUESE_BRAZIL,
+                        slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                    ),
+                    awaitItem(),
+                )
 
                 cancelAndIgnoreRemainingEvents()
             }
@@ -74,8 +99,10 @@ class SettingsViewModelTest {
 
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
+            every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
 
             val viewModel =
                 SettingsViewModel(
@@ -101,8 +128,10 @@ class SettingsViewModelTest {
 
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
+            every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
 
             val viewModel =
                 SettingsViewModel(
@@ -129,8 +158,10 @@ class SettingsViewModelTest {
 
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns PORTUGUESE_BRAZIL
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns languageFlow
+            every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
 
             val viewModel =
                 SettingsViewModel(

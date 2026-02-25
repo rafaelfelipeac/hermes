@@ -1,5 +1,7 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
@@ -22,13 +24,14 @@ enum class UndoMessage {
 data class WorkoutPosition(
     val id: Long,
     val dayOfWeek: DayOfWeek?,
+    val timeSlot: TimeSlot?,
     val order: Int,
 )
 
 sealed class PendingUndoAction {
     data class MoveOrReorder(
         val movedWorkoutId: Long,
-        val isRestDay: Boolean,
+        val movedEventType: EventType,
         val previousPositions: List<WorkoutPosition>,
         val weekStartDate: LocalDate,
     ) : PendingUndoAction()

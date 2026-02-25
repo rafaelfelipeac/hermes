@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -68,6 +70,11 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
@@ -103,32 +110,20 @@ fun WeeklyTrainingScreen(
     val pickerCategories = state.categories.filter { !it.isHidden || it.id == UNCATEGORIZED_ID }
     val undoMessage =
         undoState?.let { currentUndo ->
-            val isRestDay =
+            val eventType =
                 when (val action = currentUndo.action) {
-                    is PendingUndoAction.Delete -> action.workout.isRestDay
-                    is PendingUndoAction.Completion -> action.workout.isRestDay
-                    is PendingUndoAction.MoveOrReorder -> action.isRestDay
-                    is PendingUndoAction.ReplaceWeek -> false
+                    is PendingUndoAction.Delete -> action.workout.eventType
+                    is PendingUndoAction.Completion -> action.workout.eventType
+                    is PendingUndoAction.MoveOrReorder -> action.movedEventType
+                    is PendingUndoAction.ReplaceWeek -> WORKOUT
                 }
 
             when (currentUndo.message) {
                 UndoMessage.WeekCopied -> copiedWeekMessage
                 UndoMessage.Moved ->
-                    stringResource(
-                        if (isRestDay) {
-                            R.string.weekly_training_rest_day_moved
-                        } else {
-                            R.string.weekly_training_workout_moved
-                        },
-                    )
+                    stringResource(undoMovedMessageRes(eventType))
                 UndoMessage.Deleted ->
-                    stringResource(
-                        if (isRestDay) {
-                            R.string.weekly_training_rest_day_deleted
-                        } else {
-                            R.string.weekly_training_workout_deleted
-                        },
-                    )
+                    stringResource(undoDeletedMessageRes(eventType))
                 UndoMessage.Completed ->
                     stringResource(R.string.weekly_training_workout_completed)
                 UndoMessage.MarkedIncomplete ->
@@ -260,6 +255,7 @@ fun WeeklyTrainingScreen(
                                 .weight(1f),
                         selectedDate = state.selectedDate,
                         workouts = state.workouts,
+                        slotModePolicy = state.slotModePolicy,
                         onWorkoutMoved = viewModel::moveWorkout,
                         onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
                         onWorkoutEdit = { workout -> editingWorkout = workout },
@@ -344,7 +340,25 @@ fun WeeklyTrainingScreen(
                         label = stringResource(R.string.weekly_training_add_rest_day),
                         onClick = {
                             isAddMenuVisible = false
-                            viewModel.addRestDay()
+                            viewModel.addRest()
+                        },
+                    )
+
+                    AddActionPill(
+                        icon = Icons.Outlined.EventBusy,
+                        label = stringResource(R.string.weekly_training_add_busy),
+                        onClick = {
+                            isAddMenuVisible = false
+                            viewModel.addBusy()
+                        },
+                    )
+
+                    AddActionPill(
+                        icon = Icons.Outlined.MedicalServices,
+                        label = stringResource(R.string.weekly_training_add_sick),
+                        onClick = {
+                            isAddMenuVisible = false
+                            viewModel.addSick()
                         },
                     )
 
@@ -431,7 +445,7 @@ fun WeeklyTrainingScreen(
                     workoutId = workout.id,
                     type = type,
                     description = description,
-                    isRestDay = workout.isRestDay,
+                    eventType = workout.eventType,
                     categoryId = categoryId,
                 )
                 editingWorkout = null
@@ -457,22 +471,25 @@ fun WeeklyTrainingScreen(
 
     deletingWorkout?.let { workout ->
         val title =
-            if (workout.isRestDay) {
-                stringResource(R.string.weekly_training_delete_rest_day_title)
-            } else {
-                stringResource(R.string.weekly_training_delete_workout_title)
+            when (workout.eventType) {
+                WORKOUT -> stringResource(R.string.weekly_training_delete_workout_title)
+                REST -> stringResource(R.string.weekly_training_delete_rest_day_title)
+                BUSY -> stringResource(R.string.weekly_training_delete_busy_title)
+                SICK -> stringResource(R.string.weekly_training_delete_sick_title)
             }
         val message =
-            if (workout.isRestDay) {
-                stringResource(R.string.weekly_training_delete_rest_day_message)
-            } else {
-                stringResource(R.string.weekly_training_delete_workout_message)
+            when (workout.eventType) {
+                WORKOUT -> stringResource(R.string.weekly_training_delete_workout_message)
+                REST -> stringResource(R.string.weekly_training_delete_rest_day_message)
+                BUSY -> stringResource(R.string.weekly_training_delete_busy_message)
+                SICK -> stringResource(R.string.weekly_training_delete_sick_message)
             }
         val confirmLabel =
-            if (workout.isRestDay) {
-                stringResource(R.string.weekly_training_delete_rest_day)
-            } else {
-                stringResource(R.string.weekly_training_delete_workout)
+            when (workout.eventType) {
+                WORKOUT -> stringResource(R.string.weekly_training_delete_workout)
+                REST -> stringResource(R.string.weekly_training_delete_rest_day)
+                BUSY -> stringResource(R.string.weekly_training_delete_busy)
+                SICK -> stringResource(R.string.weekly_training_delete_sick)
             }
 
         AlertDialog(
@@ -523,6 +540,24 @@ fun WeeklyTrainingScreen(
                 }
             },
         )
+    }
+}
+
+private fun undoMovedMessageRes(eventType: EventType): Int {
+    return when (eventType) {
+        WORKOUT -> R.string.weekly_training_workout_moved
+        REST -> R.string.weekly_training_rest_day_moved
+        BUSY -> R.string.weekly_training_busy_moved
+        SICK -> R.string.weekly_training_sick_moved
+    }
+}
+
+private fun undoDeletedMessageRes(eventType: EventType): Int {
+    return when (eventType) {
+        WORKOUT -> R.string.weekly_training_workout_deleted
+        REST -> R.string.weekly_training_rest_day_deleted
+        BUSY -> R.string.weekly_training_busy_deleted
+        SICK -> R.string.weekly_training_sick_deleted
     }
 }
 

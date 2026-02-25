@@ -35,22 +35,25 @@ interface WorkoutDao {
         isCompleted: Boolean,
     )
 
-    @Query("UPDATE workouts SET dayOfWeek = :dayOfWeek, sort_order = :order WHERE id = :id")
+    @Query("UPDATE workouts SET dayOfWeek = :dayOfWeek, timeSlot = :timeSlot, sort_order = :order WHERE id = :id")
     suspend fun updateDayAndOrder(
         id: Long,
         dayOfWeek: Int?,
+        timeSlot: String?,
         order: Int,
     )
 
+    @Suppress("LongParameterList")
     @Query(
         "UPDATE workouts SET type = :type, description = :description, " +
-            "isRestDay = :isRestDay, categoryId = :categoryId WHERE id = :id",
+            "isRestDay = :isRestDay, eventType = :eventType, categoryId = :categoryId WHERE id = :id",
     )
     suspend fun updateDetails(
         id: Long,
         type: String,
         description: String,
         isRestDay: Boolean,
+        eventType: String,
         categoryId: Long?,
     )
 

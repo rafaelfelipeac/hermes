@@ -10,7 +10,10 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY
 import java.time.DayOfWeek.MONDAY
@@ -25,7 +28,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
 
-@Suppress("TooManyFunctions")
+@Suppress("LargeClass", "TooManyFunctions")
 class ActivityUiFormatter(
     private val stringProvider: StringProvider,
 ) {
@@ -57,7 +60,16 @@ class ActivityUiFormatter(
 
         val title =
             when (entityType) {
-                UserActionEntityType.REST_DAY -> buildRestDayTitle(actionType, quotedWorkoutLabel)
+                UserActionEntityType.REST,
+                UserActionEntityType.REST_DAY,
+                UserActionEntityType.BUSY,
+                UserActionEntityType.SICK,
+                ->
+                    buildNonWorkoutTitle(
+                        entityType = entityType,
+                        actionType = actionType,
+                        quotedWorkoutLabel = quotedWorkoutLabel,
+                    )
                 UserActionEntityType.CATEGORY -> buildCategoryTitle(actionType, metadata)
                 else -> buildWorkoutTitle(actionType, quotedWorkoutLabel)
             }
@@ -68,6 +80,9 @@ class ActivityUiFormatter(
 
             UserActionType.CHANGE_THEME ->
                 stringProvider.get(R.string.activity_action_change_theme)
+
+            UserActionType.CHANGE_SLOT_MODE ->
+                stringProvider.get(R.string.activity_action_change_slot_mode)
 
             UserActionType.OPEN_WEEK ->
                 stringProvider.get(R.string.activity_action_open_week)
@@ -121,21 +136,20 @@ class ActivityUiFormatter(
     }
 
     private fun buildMoveSubtitle(metadata: Map<String, String>): String? {
-        val oldDay =
-            quoteValue(
-                dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK]),
-            )
-        val newDay =
-            quoteValue(
-                dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK]),
-            )
+        val oldDay = dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK])
+        val newDay = dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK])
+        val oldSlot = timeSlotLabel(metadata[UserActionMetadataKeys.OLD_TIME_SLOT])
+        val newSlot = timeSlotLabel(metadata[UserActionMetadataKeys.NEW_TIME_SLOT])
 
-        if (oldDay.isNullOrBlank() && newDay.isNullOrBlank()) return null
+        val oldLocation = quoteValue(locationLabel(oldDay, oldSlot))
+        val newLocation = quoteValue(locationLabel(newDay, newSlot))
+
+        if (oldLocation.isNullOrBlank() && newLocation.isNullOrBlank()) return null
 
         return stringProvider.get(
             R.string.activity_subtitle_move,
-            oldDay.orEmpty(),
-            newDay.orEmpty(),
+            oldLocation.orEmpty(),
+            newLocation.orEmpty(),
         )
     }
 
@@ -189,6 +203,15 @@ class ActivityUiFormatter(
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE -> languageLabel(raw)
             UserActionType.CHANGE_THEME -> themeLabel(raw)
+            UserActionType.CHANGE_SLOT_MODE -> slotModeLabel(raw)
+            else -> raw
+        }
+    }
+
+    private fun slotModeLabel(raw: String): String {
+        return when (raw.uppercase(Locale.ENGLISH)) {
+            AUTO_WHEN_MULTIPLE.name -> stringProvider.get(R.string.settings_slot_mode_auto)
+            ALWAYS_SHOW.name -> stringProvider.get(R.string.settings_slot_mode_always)
             else -> raw
         }
     }
@@ -315,6 +338,7 @@ class ActivityUiFormatter(
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE,
             UserActionType.CHANGE_THEME,
+            UserActionType.CHANGE_SLOT_MODE,
             UserActionType.UPDATE_CATEGORY_NAME,
             -> buildValueChangeSubtitle(metadata, actionType)
 
@@ -341,7 +365,8 @@ class ActivityUiFormatter(
             actionType == UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ||
             actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ||
             actionType == UserActionType.CREATE_WORKOUT ||
-            actionType == UserActionType.UPDATE_WORKOUT
+            actionType == UserActionType.UPDATE_WORKOUT ||
+            actionType == UserActionType.CHANGE_SLOT_MODE
     }
 
     private fun combineSubtitles(
@@ -421,6 +446,35 @@ class ActivityUiFormatter(
         }
     }
 
+    private fun timeSlotLabel(raw: String?): String? {
+        val cleaned = raw?.takeIf { it.isNotBlank() }
+        val parsedSlot =
+            cleaned
+                ?.takeUnless { it == UserActionMetadataValues.UNPLANNED }
+                ?.let { value ->
+                    runCatching { TimeSlot.valueOf(value.uppercase(Locale.ENGLISH)) }.getOrNull()
+                }
+
+        return when (parsedSlot) {
+            TimeSlot.MORNING -> stringProvider.get(R.string.weekly_training_slot_morning)
+            TimeSlot.AFTERNOON -> stringProvider.get(R.string.weekly_training_slot_afternoon)
+            TimeSlot.NIGHT -> stringProvider.get(R.string.weekly_training_slot_night)
+            null -> cleaned?.takeUnless { it == UserActionMetadataValues.UNPLANNED }
+        }
+    }
+
+    private fun locationLabel(
+        dayLabel: String?,
+        timeSlotLabel: String?,
+    ): String? {
+        return when {
+            dayLabel.isNullOrBlank() && timeSlotLabel.isNullOrBlank() -> null
+            dayLabel.isNullOrBlank() -> timeSlotLabel
+            timeSlotLabel.isNullOrBlank() -> dayLabel
+            else -> "$dayLabel | $timeSlotLabel"
+        }
+    }
+
     private fun normalizeDayToken(raw: String): String {
         val cleaned = raw.trim().replace(Regex("[^A-Za-z]"), EMPTY)
 
@@ -488,48 +542,169 @@ class ActivityUiFormatter(
         return stringProvider.get(R.string.activity_value_quoted, value)
     }
 
-    private fun buildRestDayTitle(
+    @Suppress("CyclomaticComplexMethod", "ReturnCount")
+    private fun buildNonWorkoutTitle(
+        entityType: UserActionEntityType,
         actionType: UserActionType?,
         quotedWorkoutLabel: String,
     ): String? {
+        if (actionType == null) return null
+
+        val simpleResId =
+            when (actionType) {
+                UserActionType.COMPLETE_WORKOUT -> completeNonWorkoutRes(entityType)
+                UserActionType.INCOMPLETE_WORKOUT -> incompleteNonWorkoutRes(entityType)
+                UserActionType.REORDER_WORKOUT -> reorderNonWorkoutRes(entityType)
+                UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> moveNonWorkoutRes(entityType)
+                UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> undoReorderNonWorkoutRes(entityType)
+                UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> undoMoveNonWorkoutRes(entityType)
+                in nonWorkoutCreateActions -> createNonWorkoutRes(entityType)
+                in nonWorkoutUpdateActions -> updateNonWorkoutRes(entityType)
+                in nonWorkoutDeleteActions -> deleteNonWorkoutRes(entityType)
+                in nonWorkoutUndoDeleteActions -> undoDeleteNonWorkoutRes(entityType)
+                else -> null
+            }
+
+        if (simpleResId != null) return stringProvider.get(simpleResId)
+
         return when (actionType) {
-            UserActionType.COMPLETE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_complete_rest_day)
-
-            UserActionType.INCOMPLETE_WORKOUT ->
-                stringProvider.get(R.string.activity_action_incomplete_rest_day)
-
-            UserActionType.REORDER_WORKOUT ->
-                stringProvider.get(R.string.activity_action_reorder_rest_day)
-
-            UserActionType.MOVE_WORKOUT_BETWEEN_DAYS ->
-                stringProvider.get(R.string.activity_action_move_rest_day)
-
-            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ->
-                stringProvider.get(R.string.activity_action_undo_reorder_rest_day)
-
-            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ->
-                stringProvider.get(R.string.activity_action_undo_move_rest_day)
-
-            UserActionType.CREATE_REST_DAY ->
-                stringProvider.get(R.string.activity_action_create_rest_day)
-
-            UserActionType.UPDATE_REST_DAY ->
-                stringProvider.get(R.string.activity_action_update_rest_day)
-
-            UserActionType.DELETE_REST_DAY ->
-                stringProvider.get(R.string.activity_action_delete_rest_day)
-
-            UserActionType.UNDO_DELETE_REST_DAY ->
-                stringProvider.get(R.string.activity_action_undo_delete_rest_day)
-
             UserActionType.CONVERT_WORKOUT_TO_REST_DAY ->
-                stringProvider.get(
-                    R.string.activity_action_convert_workout_to_rest_day,
-                    quotedWorkoutLabel,
-                )
-
+                stringProvider.get(convertFromWorkoutRes(entityType), quotedWorkoutLabel)
+            UserActionType.CONVERT_REST_DAY_TO_WORKOUT ->
+                stringProvider.get(convertToWorkoutRes(entityType))
             else -> null
+        }
+    }
+
+    private fun createNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_create_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_create_busy
+            UserActionEntityType.SICK -> R.string.activity_action_create_sick
+            else -> R.string.activity_action_create_rest_day
+        }
+    }
+
+    private fun updateNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_update_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_update_busy
+            UserActionEntityType.SICK -> R.string.activity_action_update_sick
+            else -> R.string.activity_action_update_rest_day
+        }
+    }
+
+    private fun deleteNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_delete_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_delete_busy
+            UserActionEntityType.SICK -> R.string.activity_action_delete_sick
+            else -> R.string.activity_action_delete_rest_day
+        }
+    }
+
+    private fun undoDeleteNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_undo_delete_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_undo_delete_busy
+            UserActionEntityType.SICK -> R.string.activity_action_undo_delete_sick
+            else -> R.string.activity_action_undo_delete_rest_day
+        }
+    }
+
+    private fun reorderNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_reorder_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_reorder_busy
+            UserActionEntityType.SICK -> R.string.activity_action_reorder_sick
+            else -> R.string.activity_action_reorder_rest_day
+        }
+    }
+
+    private fun moveNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_move_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_move_busy
+            UserActionEntityType.SICK -> R.string.activity_action_move_sick
+            else -> R.string.activity_action_move_rest_day
+        }
+    }
+
+    private fun undoReorderNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_undo_reorder_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_undo_reorder_busy
+            UserActionEntityType.SICK -> R.string.activity_action_undo_reorder_sick
+            else -> R.string.activity_action_undo_reorder_rest_day
+        }
+    }
+
+    private fun undoMoveNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_undo_move_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_undo_move_busy
+            UserActionEntityType.SICK -> R.string.activity_action_undo_move_sick
+            else -> R.string.activity_action_undo_move_rest_day
+        }
+    }
+
+    private fun completeNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_complete_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_complete_busy
+            UserActionEntityType.SICK -> R.string.activity_action_complete_sick
+            else -> R.string.activity_action_complete_rest_day
+        }
+    }
+
+    private fun incompleteNonWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_incomplete_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_incomplete_busy
+            UserActionEntityType.SICK -> R.string.activity_action_incomplete_sick
+            else -> R.string.activity_action_incomplete_rest_day
+        }
+    }
+
+    private fun convertFromWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_convert_workout_to_rest_day
+            UserActionEntityType.BUSY -> R.string.activity_action_convert_workout_to_busy
+            UserActionEntityType.SICK -> R.string.activity_action_convert_workout_to_sick
+            else -> R.string.activity_action_convert_workout_to_rest_day
+        }
+    }
+
+    private fun convertToWorkoutRes(entityType: UserActionEntityType): Int {
+        return when (entityType) {
+            UserActionEntityType.REST,
+            UserActionEntityType.REST_DAY,
+            -> R.string.activity_action_convert_rest_day_to_workout
+            UserActionEntityType.BUSY -> R.string.activity_action_convert_busy_to_workout
+            UserActionEntityType.SICK -> R.string.activity_action_convert_sick_to_workout
+            else -> R.string.activity_action_convert_rest_day_to_workout
         }
     }
 
@@ -575,5 +750,33 @@ class ActivityUiFormatter(
                 R.string.activity_action_undo_move_workout,
             UserActionType.CONVERT_REST_DAY_TO_WORKOUT to
                 R.string.activity_action_convert_rest_day_to_workout,
+        )
+
+    private val nonWorkoutCreateActions =
+        setOf(
+            UserActionType.CREATE_REST_DAY,
+            UserActionType.CREATE_BUSY,
+            UserActionType.CREATE_SICK,
+        )
+
+    private val nonWorkoutUpdateActions =
+        setOf(
+            UserActionType.UPDATE_REST_DAY,
+            UserActionType.UPDATE_BUSY,
+            UserActionType.UPDATE_SICK,
+        )
+
+    private val nonWorkoutDeleteActions =
+        setOf(
+            UserActionType.DELETE_REST_DAY,
+            UserActionType.DELETE_BUSY,
+            UserActionType.DELETE_SICK,
+        )
+
+    private val nonWorkoutUndoDeleteActions =
+        setOf(
+            UserActionType.UNDO_DELETE_REST_DAY,
+            UserActionType.UNDO_DELETE_BUSY,
+            UserActionType.UNDO_DELETE_SICK,
         )
 }

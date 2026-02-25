@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.core.debug
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.AppConstants.UNSUPPORTED_USER_ACTION_ENTITY_TYPE
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
@@ -11,10 +12,14 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
@@ -35,8 +40,19 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.STRENGTH_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWIM_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.NIGHT
 import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY
 import java.time.DayOfWeek.MONDAY
@@ -93,39 +109,45 @@ class DemoDataSeeder
         ): List<WorkoutEntity> {
             val plan =
                 listOf(
-                    DayPlan(MONDAY, listOf(mockWorkout(0), mockWorkout(1))),
-                    DayPlan(TUESDAY, listOf(mockWorkout(2))),
-                    DayPlan(WEDNESDAY, listOf(restDay())),
-                    DayPlan(THURSDAY, listOf(mockWorkout(3), mockWorkout(4))),
-                    DayPlan(FRIDAY, listOf(mockWorkout(5))),
-                    DayPlan(SATURDAY, listOf(restDay())),
-                    DayPlan(SUNDAY, listOf(mockWorkout(6))),
-                    DayPlan(null, listOf(mockWorkout(7))),
+                    DayPlan(MONDAY, listOf(workoutSeed(0, MORNING), workoutSeed(1, NIGHT))),
+                    DayPlan(TUESDAY, listOf(busySeed(MORNING), workoutSeed(2, AFTERNOON), sickSeed(NIGHT))),
+                    DayPlan(WEDNESDAY, listOf(restSeed())),
+                    DayPlan(THURSDAY, listOf(workoutSeed(3, MORNING), workoutSeed(4, MORNING))),
+                    DayPlan(FRIDAY, listOf(workoutSeed(5))),
+                    DayPlan(SATURDAY, listOf(restSeed(NIGHT))),
+                    DayPlan(SUNDAY, listOf(workoutSeed(6, AFTERNOON))),
+                    DayPlan(null, listOf(workoutSeed(7))),
                 )
 
             val completedDays = completionProfile.completedDays()
 
             return plan.flatMap { dayPlan ->
-                dayPlan.items.mapIndexed { index, seed ->
+                val slotOrderByDay = mutableMapOf<TimeSlot?, Int>()
+
+                dayPlan.items.map { seed ->
+                    val orderInSlot = slotOrderByDay.getOrDefault(seed.timeSlot, 0)
+                    slotOrderByDay[seed.timeSlot] = orderInSlot + 1
                     val isCompleted =
-                        !seed.isRestDay &&
+                        seed.eventType == WORKOUT &&
                             dayPlan.dayOfWeek != null &&
                             completedDays.contains(dayPlan.dayOfWeek)
 
                     WorkoutEntity(
                         weekStartDate = weekStartDate,
                         dayOfWeek = dayPlan.dayOfWeek?.value,
-                        type = if (seed.isRestDay) EMPTY else seed.type,
-                        description = if (seed.isRestDay) EMPTY else seed.description,
+                        type = if (seed.eventType == WORKOUT) seed.type else EMPTY,
+                        description = if (seed.eventType == WORKOUT) seed.description else EMPTY,
                         isCompleted = isCompleted,
-                        isRestDay = seed.isRestDay,
+                        isRestDay = seed.eventType == REST,
+                        eventType = seed.eventType.name,
+                        timeSlot = seed.timeSlot?.name,
                         categoryId =
-                            if (seed.isRestDay) {
+                            if (seed.eventType != WORKOUT) {
                                 null
                             } else {
                                 categoryIdForSeed(seed)
                             },
-                        sortOrder = index,
+                        sortOrder = orderInSlot,
                     )
                 }
             }
@@ -194,6 +216,7 @@ class DemoDataSeeder
                 )
         }
 
+        @Suppress("LongMethod")
         private fun buildCurrentWeekActions(
             currentWeekStart: LocalDate,
             previousWeekStart: LocalDate,
@@ -201,55 +224,89 @@ class DemoDataSeeder
             now: Long,
             dayMillis: Long,
         ): List<UserActionEntity> {
-            return listOf(
-                openWeekAction(
-                    oldWeekStart = previousWeekStart,
-                    newWeekStart = currentWeekStart,
-                    timestamp = now - dayMillis * 6,
-                ),
-                createWorkoutAction(
-                    weekStartDate = currentWeekStart,
-                    dayOfWeek = TUESDAY,
-                    order = 0,
-                    seed = mockWorkout(2),
-                    timestamp = now - dayMillis * 5,
-                ),
-                moveWorkoutAction(
-                    weekStartDate = currentWeekStart,
-                    dayChange = WorkoutDayChange(oldDay = THURSDAY, newDay = FRIDAY),
-                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
-                    seed = mockWorkout(4),
-                    timestamp = now - dayMillis * 4,
-                ),
-                moveWorkoutAction(
-                    weekStartDate = currentWeekStart,
-                    dayChange = WorkoutDayChange(oldDay = MONDAY, newDay = MONDAY),
-                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
-                    seed = mockWorkout(1),
-                    timestamp = now - dayMillis * 3,
-                ),
-                completeWorkoutAction(
-                    weekStartDate = currentWeekStart,
-                    seed = mockWorkout(0),
-                    timestamp = now - dayMillis * 2,
-                ),
-                createRestDayAction(
-                    weekStartDate = currentWeekStart,
-                    dayOfWeek = WEDNESDAY,
-                    order = 0,
-                    timestamp = now - dayMillis * 2 + 2_000,
-                ),
-                openWeekAction(
-                    oldWeekStart = currentWeekStart,
-                    newWeekStart = nextWeekStart,
-                    timestamp = now - dayMillis,
-                ),
-                openWeekAction(
-                    oldWeekStart = nextWeekStart,
-                    newWeekStart = currentWeekStart,
-                    timestamp = now - dayMillis + 3_000,
-                ),
-            )
+            val trainingActions =
+                listOf(
+                    openWeekAction(
+                        oldWeekStart = previousWeekStart,
+                        newWeekStart = currentWeekStart,
+                        timestamp = now - dayMillis * 6,
+                    ),
+                    createWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayOfWeek = TUESDAY,
+                        order = 0,
+                        seed = workoutSeed(2, AFTERNOON),
+                        timestamp = now - dayMillis * 5,
+                    ),
+                    moveWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayChange = WorkoutDayChange(oldDay = THURSDAY, newDay = FRIDAY),
+                        orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                        slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = AFTERNOON),
+                        seed = workoutSeed(4, AFTERNOON),
+                        timestamp = now - dayMillis * 4,
+                    ),
+                    moveWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayChange = WorkoutDayChange(oldDay = MONDAY, newDay = MONDAY),
+                        orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                        slotChange = WorkoutSlotChange(oldTimeSlot = NIGHT, newTimeSlot = MORNING),
+                        seed = workoutSeed(1, MORNING),
+                        timestamp = now - dayMillis * 3,
+                    ),
+                    completeWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        seed = workoutSeed(0, MORNING),
+                        timestamp = now - dayMillis * 2,
+                    ),
+                )
+            val plannerActions =
+                listOf(
+                    createNonWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayOfWeek = WEDNESDAY,
+                        order = 0,
+                        entityType = UserActionEntityType.REST,
+                        timestamp = now - dayMillis * 2 + 2_000,
+                    ),
+                    createNonWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayOfWeek = TUESDAY,
+                        order = 0,
+                        entityType = UserActionEntityType.BUSY,
+                        timeSlot = MORNING,
+                        timestamp = now - dayMillis * 2 + 3_000,
+                    ),
+                    createNonWorkoutAction(
+                        weekStartDate = currentWeekStart,
+                        dayOfWeek = TUESDAY,
+                        order = 0,
+                        entityType = UserActionEntityType.SICK,
+                        timeSlot = NIGHT,
+                        timestamp = now - dayMillis * 2 + 4_000,
+                    ),
+                    changeSlotModeAction(
+                        weekStartDate = currentWeekStart,
+                        oldPolicy = AUTO_WHEN_MULTIPLE.name,
+                        newPolicy = ALWAYS_SHOW.name,
+                        timestamp = now - dayMillis * 2 + 5_000,
+                    ),
+                )
+            val navigationActions =
+                listOf(
+                    openWeekAction(
+                        oldWeekStart = currentWeekStart,
+                        newWeekStart = nextWeekStart,
+                        timestamp = now - dayMillis,
+                    ),
+                    openWeekAction(
+                        oldWeekStart = nextWeekStart,
+                        newWeekStart = currentWeekStart,
+                        timestamp = now - dayMillis + 3_000,
+                    ),
+                )
+
+            return trainingActions + plannerActions + navigationActions
         }
 
         private fun buildPreviousWeekActions(
@@ -261,7 +318,7 @@ class DemoDataSeeder
                     weekStartDate = previousWeekStart,
                     dayOfWeek = null,
                     order = 0,
-                    seed = mockWorkout(7),
+                    seed = workoutSeed(7),
                     timestamp =
                         previousWeekStart
                             .atStartOfDay(zoneId)
@@ -301,13 +358,14 @@ class DemoDataSeeder
                 type = UserActionType.CREATE_WORKOUT,
                 entityType = UserActionEntityType.WORKOUT,
                 metadata =
-                    mapOf(
-                        WEEK_START_DATE to weekStartDate.toString(),
-                        DAY_OF_WEEK to (dayOfWeek?.value?.toString() ?: UNPLANNED),
-                        NEW_ORDER to order.toString(),
-                        NEW_TYPE to seed.type,
-                        NEW_DESCRIPTION to seed.description,
-                    ),
+                    buildMap {
+                        put(WEEK_START_DATE, weekStartDate.toString())
+                        put(DAY_OF_WEEK, dayOfWeek?.value?.toString() ?: UNPLANNED)
+                        put(NEW_ORDER, order.toString())
+                        put(NEW_TYPE, seed.type)
+                        put(NEW_DESCRIPTION, seed.description)
+                        seed.timeSlot?.let { put(NEW_TIME_SLOT, it.name) }
+                    },
                 timestamp = timestamp,
             )
         }
@@ -316,6 +374,7 @@ class DemoDataSeeder
             weekStartDate: LocalDate,
             dayChange: WorkoutDayChange,
             orderChange: WorkoutOrderChange,
+            slotChange: WorkoutSlotChange? = null,
             seed: WorkoutSeed,
             timestamp: Long,
         ): UserActionEntity {
@@ -330,15 +389,19 @@ class DemoDataSeeder
                 type = actionType,
                 entityType = UserActionEntityType.WORKOUT,
                 metadata =
-                    mapOf(
-                        WEEK_START_DATE to weekStartDate.toString(),
-                        OLD_DAY_OF_WEEK to dayChange.oldDay.value.toString(),
-                        NEW_DAY_OF_WEEK to dayChange.newDay.value.toString(),
-                        OLD_ORDER to orderChange.oldOrder.toString(),
-                        NEW_ORDER to orderChange.newOrder.toString(),
-                        NEW_TYPE to seed.type,
-                        NEW_DESCRIPTION to seed.description,
-                    ),
+                    buildMap {
+                        put(WEEK_START_DATE, weekStartDate.toString())
+                        put(OLD_DAY_OF_WEEK, dayChange.oldDay.value.toString())
+                        put(NEW_DAY_OF_WEEK, dayChange.newDay.value.toString())
+                        put(OLD_ORDER, orderChange.oldOrder.toString())
+                        put(NEW_ORDER, orderChange.newOrder.toString())
+                        slotChange?.let {
+                            put(OLD_TIME_SLOT, it.oldTimeSlot.name)
+                            put(NEW_TIME_SLOT, it.newTimeSlot.name)
+                        }
+                        put(NEW_TYPE, seed.type)
+                        put(NEW_DESCRIPTION, seed.description)
+                    },
                 timestamp = timestamp,
             )
         }
@@ -352,31 +415,66 @@ class DemoDataSeeder
                 type = UserActionType.COMPLETE_WORKOUT,
                 entityType = UserActionEntityType.WORKOUT,
                 metadata =
-                    mapOf(
-                        WEEK_START_DATE to weekStartDate.toString(),
-                        WAS_COMPLETED to "false",
-                        IS_COMPLETED to "true",
-                        NEW_TYPE to seed.type,
-                        NEW_DESCRIPTION to seed.description,
-                    ),
+                    buildMap {
+                        put(WEEK_START_DATE, weekStartDate.toString())
+                        put(WAS_COMPLETED, "false")
+                        put(IS_COMPLETED, "true")
+                        put(NEW_TYPE, seed.type)
+                        put(NEW_DESCRIPTION, seed.description)
+                        seed.timeSlot?.let { put(NEW_TIME_SLOT, it.name) }
+                    },
                 timestamp = timestamp,
             )
         }
 
-        private fun createRestDayAction(
+        private fun createNonWorkoutAction(
             weekStartDate: LocalDate,
             dayOfWeek: DayOfWeek,
             order: Int,
+            entityType: UserActionEntityType,
+            timeSlot: TimeSlot? = null,
+            timestamp: Long,
+        ): UserActionEntity {
+            val actionType =
+                when (entityType) {
+                    UserActionEntityType.REST,
+                    UserActionEntityType.REST_DAY,
+                    -> UserActionType.CREATE_REST_DAY
+                    UserActionEntityType.BUSY -> UserActionType.CREATE_BUSY
+                    UserActionEntityType.SICK -> UserActionType.CREATE_SICK
+                    else ->
+                        throw IllegalArgumentException(
+                            UNSUPPORTED_USER_ACTION_ENTITY_TYPE.format(entityType),
+                        )
+                }
+            return action(
+                type = actionType,
+                entityType = entityType,
+                metadata =
+                    buildMap {
+                        put(WEEK_START_DATE, weekStartDate.toString())
+                        put(DAY_OF_WEEK, dayOfWeek.value.toString())
+                        put(NEW_ORDER, order.toString())
+                        timeSlot?.let { put(NEW_TIME_SLOT, it.name) }
+                    },
+                timestamp = timestamp,
+            )
+        }
+
+        private fun changeSlotModeAction(
+            weekStartDate: LocalDate,
+            oldPolicy: String,
+            newPolicy: String,
             timestamp: Long,
         ): UserActionEntity {
             return action(
-                type = UserActionType.CREATE_REST_DAY,
-                entityType = UserActionEntityType.REST_DAY,
+                type = UserActionType.CHANGE_SLOT_MODE,
+                entityType = UserActionEntityType.SETTINGS,
                 metadata =
                     mapOf(
                         WEEK_START_DATE to weekStartDate.toString(),
-                        DAY_OF_WEEK to dayOfWeek.value.toString(),
-                        NEW_ORDER to order.toString(),
+                        OLD_VALUE to oldPolicy,
+                        NEW_VALUE to newPolicy,
                     ),
                 timestamp = timestamp,
             )
@@ -397,7 +495,10 @@ class DemoDataSeeder
             )
         }
 
-        private fun mockWorkout(index: Int): WorkoutSeed {
+        private fun workoutSeed(
+            index: Int,
+            timeSlot: TimeSlot? = null,
+        ): WorkoutSeed {
             val types =
                 listOf(
                     stringProvider.get(R.string.mock_workout_type_strength),
@@ -424,17 +525,37 @@ class DemoDataSeeder
             val safeIndex = index % types.size
 
             return WorkoutSeed(
+                eventType = WORKOUT,
                 type = types[safeIndex],
                 description = descriptions[safeIndex],
-                isRestDay = false,
+                timeSlot = timeSlot,
             )
         }
 
-        private fun restDay(): WorkoutSeed {
+        private fun restSeed(timeSlot: TimeSlot? = null): WorkoutSeed {
             return WorkoutSeed(
+                eventType = REST,
                 type = EMPTY,
                 description = EMPTY,
-                isRestDay = true,
+                timeSlot = timeSlot,
+            )
+        }
+
+        private fun busySeed(timeSlot: TimeSlot? = null): WorkoutSeed {
+            return WorkoutSeed(
+                eventType = BUSY,
+                type = EMPTY,
+                description = EMPTY,
+                timeSlot = timeSlot,
+            )
+        }
+
+        private fun sickSeed(timeSlot: TimeSlot? = null): WorkoutSeed {
+            return WorkoutSeed(
+                eventType = SICK,
+                type = EMPTY,
+                description = EMPTY,
+                timeSlot = timeSlot,
             )
         }
     }
@@ -454,10 +575,16 @@ private data class WorkoutOrderChange(
     val newOrder: Int,
 )
 
+private data class WorkoutSlotChange(
+    val oldTimeSlot: TimeSlot,
+    val newTimeSlot: TimeSlot,
+)
+
 private data class WorkoutSeed(
+    val eventType: EventType,
     val type: String,
     val description: String,
-    val isRestDay: Boolean,
+    val timeSlot: TimeSlot? = null,
 )
 
 private enum class CompletionProfile {

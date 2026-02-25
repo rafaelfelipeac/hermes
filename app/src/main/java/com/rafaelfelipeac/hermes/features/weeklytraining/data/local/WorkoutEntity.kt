@@ -19,7 +19,11 @@ data class WorkoutEntity(
     val description: String,
     val isCompleted: Boolean,
     val isRestDay: Boolean,
+    val eventType: String = DEFAULT_EVENT_TYPE,
+    val timeSlot: String? = null,
     val categoryId: Long?,
     @ColumnInfo(name = WORKOUT_SORT_ORDER_COLUMN)
     val sortOrder: Int,
 )
+
+private const val DEFAULT_EVENT_TYPE = "WORKOUT"

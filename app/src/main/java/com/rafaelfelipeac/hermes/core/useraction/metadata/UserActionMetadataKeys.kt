@@ -7,6 +7,8 @@ object UserActionMetadataKeys {
     const val DAY_OF_WEEK = "day_of_week"
     const val OLD_DAY_OF_WEEK = "old_day_of_week"
     const val NEW_DAY_OF_WEEK = "new_day_of_week"
+    const val OLD_TIME_SLOT = "old_time_slot"
+    const val NEW_TIME_SLOT = "new_time_slot"
     const val OLD_ORDER = "old_order"
     const val NEW_ORDER = "new_order"
     const val OLD_TYPE = "old_type"
