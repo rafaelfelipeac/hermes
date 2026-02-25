@@ -364,6 +364,7 @@ internal suspend fun undoDelete(
             mapOf(
                 WEEK_START_DATE to action.weekStartDate.toString(),
                 DAY_OF_WEEK to (workout.dayOfWeek?.value?.toString() ?: UNPLANNED),
+                NEW_TIME_SLOT to (workout.timeSlot?.name ?: UNPLANNED),
                 NEW_ORDER to workout.order.toString(),
                 NEW_TYPE to workout.type,
                 NEW_DESCRIPTION to workout.description,

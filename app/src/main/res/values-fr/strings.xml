@@ -210,9 +210,9 @@
     <string name="categories_restore_defaults_confirm">Restaurer</string>
     <string name="categories_restore_defaults_message">Cela réinitialisera les noms et couleurs des catégories par défaut. Vos catégories personnalisées seront conservées.</string>
     <string name="categories_restore_defaults_title">Restaurer les catégories par défaut ?</string>
-    <string name="weekly_training_add_busy">Ajouter indisponibilité</string>
-    <string name="weekly_training_add_sick">Ajouter maladie</string>
-    <string name="weekly_training_add_rest_day">Ajouter repos</string>
+    <string name="weekly_training_add_busy">Ajouter une indisponibilité</string>
+    <string name="weekly_training_add_sick">Ajouter une maladie</string>
+    <string name="weekly_training_add_rest_day">Ajouter un repos</string>
     <string name="weekly_training_busy_label">Occupé</string>
     <string name="weekly_training_sick_label">Maladie</string>
     <string name="weekly_training_delete_busy">Supprimer</string>

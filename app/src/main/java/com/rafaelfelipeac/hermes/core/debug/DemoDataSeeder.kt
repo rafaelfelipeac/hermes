@@ -357,13 +357,14 @@ class DemoDataSeeder
                 type = UserActionType.CREATE_WORKOUT,
                 entityType = UserActionEntityType.WORKOUT,
                 metadata =
-                    mapOf(
-                        WEEK_START_DATE to weekStartDate.toString(),
-                        DAY_OF_WEEK to (dayOfWeek?.value?.toString() ?: UNPLANNED),
-                        NEW_ORDER to order.toString(),
-                        NEW_TYPE to seed.type,
-                        NEW_DESCRIPTION to seed.description,
-                    ),
+                    buildMap {
+                        put(WEEK_START_DATE, weekStartDate.toString())
+                        put(DAY_OF_WEEK, dayOfWeek?.value?.toString() ?: UNPLANNED)
+                        put(NEW_ORDER, order.toString())
+                        put(NEW_TYPE, seed.type)
+                        put(NEW_DESCRIPTION, seed.description)
+                        seed.timeSlot?.let { put(NEW_TIME_SLOT, it.name) }
+                    },
                 timestamp = timestamp,
             )
         }
