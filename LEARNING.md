@@ -133,3 +133,7 @@ Recent learnings:
 - For icon-only affordances in Compose, prefer `Surface(onClick=...)` over nested `Box.clickable`: it provides button semantics and contained ripple, while keeping accessibility touch target (48dp) independent from glyph size (22dp).
 - Distinguishing non-workout actions by event type at the `UserActionType` level (busy/sick/rest) improves analytics fidelity while preserving backward-compatible formatter behavior via shared resource mapping by entity type.
 - When logging contracts add `entityId` for undo actions, unit tests that verify logger calls must assert the concrete ID (for example, `weekStartDate.toEpochDay()`) instead of `null`.
+- For debug-only seeders, keep thrown exception message templates in shared constants (instead of inline literals) so static checks and wording updates remain centralized.
+- For localized BUSY terminology, keep the same noun across add-label, status label, delete copy, and activity strings per locale to avoid mixed concepts in the same UI flow.
+- Slot label translations should preserve the exact day-part semantics (`morning`/`afternoon`/`night`), otherwise drag/drop grouping language and settings help can become ambiguous.
+- When a locale changes the slot day-part noun (e.g., `night`), update both the slot label key and help-body copy that enumerates slot names to keep terminology aligned.

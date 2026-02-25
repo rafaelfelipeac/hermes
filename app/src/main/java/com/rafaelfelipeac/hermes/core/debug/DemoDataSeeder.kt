@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.core.debug
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.AppConstants.UNSUPPORTED_USER_ACTION_ENTITY_TYPE
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
@@ -442,7 +443,7 @@ class DemoDataSeeder
                     UserActionEntityType.SICK -> UserActionType.CREATE_SICK
                     else ->
                         throw IllegalArgumentException(
-                            "Unsupported UserActionEntityType: $entityType in DemoDataSeeder",
+                            UNSUPPORTED_USER_ACTION_ENTITY_TYPE.format(entityType),
                         )
                 }
             return action(

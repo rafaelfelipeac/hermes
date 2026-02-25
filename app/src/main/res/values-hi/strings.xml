@@ -211,7 +211,7 @@
     <string name="categories_restore_defaults_confirm">बहाल करें</string>
     <string name="categories_restore_defaults_message">यह डिफ़ॉल्ट श्रेणियों के नाम और रंग रीसेट करेगा। आपकी कस्टम श्रेणियाँ बनी रहेंगी।</string>
     <string name="categories_restore_defaults_title">डिफ़ॉल्ट श्रेणियाँ बहाल करें?</string>
-    <string name="weekly_training_add_busy">अनुपलब्धता जोड़ें</string>
+    <string name="weekly_training_add_busy">व्यस्त जोड़ें</string>
     <string name="weekly_training_add_sick">बीमारी जोड़ें</string>
     <string name="weekly_training_add_rest_day">आराम जोड़ें</string>
     <string name="weekly_training_busy_label">व्यस्त</string>
@@ -232,7 +232,7 @@
     <string name="activity_action_change_slot_mode">आपने स्लॉट मोड बदला।</string>
     <string name="weekly_training_slot_morning">सुबह</string>
     <string name="weekly_training_slot_afternoon">दोपहर</string>
-    <string name="weekly_training_slot_night">शाम</string>
+    <string name="weekly_training_slot_night">रात</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | क्रम %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | क्रम %2$s</string>
     <string name="activity_action_create_busy">आपने एक व्यस्त इवेंट बनाया।</string>
