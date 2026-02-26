@@ -92,7 +92,6 @@ fun WeeklyTrainingScreen(
     val state by viewModel.state.collectAsState()
     val undoState by viewModel.undoUiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
     var isAddMenuVisible by rememberSaveable { mutableStateOf(false) }
     var editingWorkout by remember { mutableStateOf<WorkoutUi?>(null) }
@@ -173,6 +172,7 @@ fun WeeklyTrainingScreen(
             draftConsumedLocally = false
             return@LaunchedEffect
         }
+
         if (draftConsumedLocally) return@LaunchedEffect
 
         if (pendingWorkoutDraft.workoutId == null) {
@@ -185,6 +185,7 @@ fun WeeklyTrainingScreen(
         } else {
             val workout = state.workouts.firstOrNull { it.id == pendingWorkoutDraft.workoutId }
             val category = state.categories.firstOrNull { it.id == pendingWorkoutDraft.categoryId }
+
             if (workout != null) {
                 editingWorkout =
                     workout.copy(

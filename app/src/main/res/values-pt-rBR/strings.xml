@@ -222,7 +222,6 @@
     <string name="weekly_training_delete_sick">Excluir</string>
     <string name="weekly_training_delete_sick_title">Excluir evento de doença?</string>
     <string name="weekly_training_delete_sick_message">Tem certeza de que deseja excluir este evento de doença?</string>
-    <string name="settings_planning_title">Planejamento</string>
     <string name="settings_data_title">Dados</string>
     <string name="settings_backup_title">Backup</string>
     <string name="settings_backup_help_title">Mantenha seus dados seguros</string>
@@ -243,7 +242,6 @@
     <string name="settings_slot_mode_auto">Automático (2+ eventos/dia)</string>
     <string name="settings_slot_mode_always">Sempre mostrar divisão do dia</string>
     <string name="settings_slot_mode_help_title">Como a divisão do dia funciona</string>
-    <string name="settings_slot_mode_help_body">Saiba quando os grupos de manhã, tarde e noite aparecem.</string>
     <string name="settings_slot_mode_help_message">Quando ativada, a divisão do dia ajuda a organizar vários eventos no mesmo dia.\n\nNo modo automático, a divisão do dia aparece apenas quando um dia tem dois ou mais eventos.\n\nNo modo sempre, a divisão do dia fica sempre visível.</string>
     <string name="activity_action_change_slot_mode">Você alterou a divisão do dia.</string>
     <string name="activity_action_export_backup">Você exportou um backup.</string>

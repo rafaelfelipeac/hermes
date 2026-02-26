@@ -222,7 +222,6 @@
     <string name="weekly_training_delete_sick">حذف</string>
     <string name="weekly_training_delete_sick_title">حذف حدث مرض؟</string>
     <string name="weekly_training_delete_sick_message">هل أنت متأكد أنك تريد حذف حدث المرض هذا؟</string>
-    <string name="settings_planning_title">التخطيط</string>
     <string name="settings_data_title">البيانات</string>
     <string name="settings_backup_title">النسخ الاحتياطي</string>
     <string name="settings_backup_help_title">حافظ على بياناتك بأمان</string>
@@ -243,7 +242,6 @@
     <string name="settings_slot_mode_auto">تلقائي (2+ أحداث/اليوم)</string>
     <string name="settings_slot_mode_always">إظهار الفترات دائمًا</string>
     <string name="settings_slot_mode_help_title">كيف يعمل وضع الفترات</string>
-    <string name="settings_slot_mode_help_body">تعرّف على وقت ظهور مجموعات الصباح وبعد الظهر والمساء.</string>
     <string name="settings_slot_mode_help_message">عند التفعيل، تساعد الفترات على تنظيم عدة أحداث في اليوم نفسه.\n\nفي الوضع التلقائي، تظهر الفترات فقط عندما يحتوي اليوم على حدثين أو أكثر.\n\nفي وضع دائمًا، تكون الفترات مرئية دائمًا.</string>
     <string name="activity_action_change_slot_mode">لقد غيّرت وضع الفترات.</string>
     <string name="activity_action_export_backup">لقد صدّرت نسخة احتياطية.</string>

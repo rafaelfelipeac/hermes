@@ -150,3 +150,5 @@ Recent learnings:
 - Keeping backup domain types one top-level type per file (`Snapshot`, records, decode error/result, import error/result) reduced cross-file churn during review and makes future model/schema changes easier to isolate.
 - Backup validation should avoid magic weekday ranges; deriving valid bounds from `DayOfWeek.MONDAY.value..DayOfWeek.SUNDAY.value` keeps ISO weekday assumptions explicit and prevents hidden drift if related code evolves.
 - Backup file naming is easier to maintain when prefix/separator tokens are centralized constants (`hermes-backup-`, `:`, `-`) instead of inline string literals in UI helpers.
+- For feature-local logging text (for example, Settings intent-launch failures), file-level constants are preferable to global `AppConstants`; this keeps global constants focused on shared cross-feature tokens while still avoiding inline literals.
+- If a file contains a top-level enum with the same name as a composable (`DayIndicator`), verify real call sites; in this case only the composable was used, so removing the unused enum reduced naming ambiguity.

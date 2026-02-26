@@ -146,7 +146,6 @@ class ActivityUiFormatter(
         val newDay = dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK])
         val oldSlot = timeSlotLabel(metadata[UserActionMetadataKeys.OLD_TIME_SLOT])
         val newSlot = timeSlotLabel(metadata[UserActionMetadataKeys.NEW_TIME_SLOT])
-
         val oldLocation = quoteValue(locationLabel(oldDay, oldSlot))
         val newLocation = quoteValue(locationLabel(newDay, newSlot))
 

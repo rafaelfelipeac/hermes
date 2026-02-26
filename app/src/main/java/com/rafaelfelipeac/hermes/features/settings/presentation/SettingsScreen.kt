@@ -108,6 +108,12 @@ private const val BACKUP_EXTENSION = ".json"
 private const val BACKUP_FILE_NAME_PREFIX = "hermes-backup-"
 private const val ISO_TIME_SEPARATOR = ":"
 private const val FILE_SAFE_TIME_SEPARATOR = "-"
+private const val LOG_FEEDBACK_INTENT_NOT_FOUND = "Feedback intent not found."
+private const val LOG_FEEDBACK_INTENT_BLOCKED = "Feedback intent blocked by security policy."
+private const val LOG_MARKET_INTENT_NOT_FOUND = "Market intent not found."
+private const val LOG_MARKET_INTENT_BLOCKED = "Market intent blocked by security policy."
+private const val LOG_WEB_INTENT_NOT_FOUND = "Web intent not found."
+private const val LOG_WEB_INTENT_BLOCKED = "Web intent blocked by security policy."
 
 @Composable
 fun SettingsScreen(
@@ -144,8 +150,8 @@ fun SettingsScreen(
                 val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
                 val writeSucceeded =
                     jsonResult.getOrNull()?.let { payload -> writeTextToUri(context, uri, payload) } ?: false
-
                 val message = if (writeSucceeded) null else exportFailedMessage
+
                 message?.let {
                     Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                 }
@@ -200,6 +206,7 @@ fun SettingsScreen(
         if (route == SettingsRoute.CATEGORIES) {
             onExitCategories()
         }
+
         route = SettingsRoute.MAIN
     }
 
@@ -248,14 +255,16 @@ fun SettingsScreen(
                     try {
                         context.startActivity(intent)
                     } catch (error: ActivityNotFoundException) {
-                        Log.e(SETTINGS_SCREEN_TAG, "Feedback intent not found.", error)
+                        Log.e(SETTINGS_SCREEN_TAG, LOG_FEEDBACK_INTENT_NOT_FOUND, error)
+
                         Toast.makeText(
                             context,
                             feedbackUnavailableMessage,
                             Toast.LENGTH_SHORT,
                         ).show()
                     } catch (error: SecurityException) {
-                        Log.e(SETTINGS_SCREEN_TAG, "Feedback intent blocked by security policy.", error)
+                        Log.e(SETTINGS_SCREEN_TAG, LOG_FEEDBACK_INTENT_BLOCKED, error)
+
                         Toast.makeText(
                             context,
                             feedbackUnavailableMessage,
@@ -288,16 +297,15 @@ fun SettingsScreen(
                                 packageName,
                             ).toUri(),
                         )
-
                     val launchFailed =
                         try {
                             context.startActivity(marketIntent)
                             false
                         } catch (error: ActivityNotFoundException) {
-                            Log.e(SETTINGS_SCREEN_TAG, "Market intent not found.", error)
+                            Log.e(SETTINGS_SCREEN_TAG, LOG_MARKET_INTENT_NOT_FOUND, error)
                             true
                         } catch (error: SecurityException) {
-                            Log.e(SETTINGS_SCREEN_TAG, "Market intent blocked by security policy.", error)
+                            Log.e(SETTINGS_SCREEN_TAG, LOG_MARKET_INTENT_BLOCKED, error)
                             true
                         }
 
@@ -307,10 +315,10 @@ fun SettingsScreen(
                                 context.startActivity(webIntent)
                                 false
                             } catch (error: ActivityNotFoundException) {
-                                Log.e(SETTINGS_SCREEN_TAG, "Web intent not found.", error)
+                                Log.e(SETTINGS_SCREEN_TAG, LOG_WEB_INTENT_NOT_FOUND, error)
                                 true
                             } catch (error: SecurityException) {
-                                Log.e(SETTINGS_SCREEN_TAG, "Web intent blocked by security policy.", error)
+                                Log.e(SETTINGS_SCREEN_TAG, LOG_WEB_INTENT_BLOCKED, error)
                                 true
                             }
 

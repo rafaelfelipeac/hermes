@@ -2,9 +2,8 @@ package com.rafaelfelipeac.hermes.core.di
 
 import android.content.Context
 import androidx.room.Room
+import com.rafaelfelipeac.hermes.core.database.ALL_MIGRATIONS
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
-import com.rafaelfelipeac.hermes.core.database.MIGRATION_1_2
-import com.rafaelfelipeac.hermes.core.database.MIGRATION_2_3
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
@@ -23,14 +22,18 @@ object DatabaseModule {
     fun provideDatabase(
         @ApplicationContext context: Context,
     ): HermesDatabase {
-        return Room.databaseBuilder(
-            context,
-            HermesDatabase::class.java,
-            DATABASE_NAME,
-        )
-            .addMigrations(MIGRATION_1_2)
-            .addMigrations(MIGRATION_2_3)
-            .build()
+        val builder =
+            Room.databaseBuilder(
+                context,
+                HermesDatabase::class.java,
+                DATABASE_NAME,
+            )
+
+        ALL_MIGRATIONS.forEach { migration ->
+            builder.addMigrations(migration)
+        }
+
+        return builder.build()
     }
 
     @Provides

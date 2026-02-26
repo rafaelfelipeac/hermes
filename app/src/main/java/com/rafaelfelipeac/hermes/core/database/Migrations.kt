@@ -32,3 +32,9 @@ val MIGRATION_2_3 =
             )
         }
     }
+
+val ALL_MIGRATIONS =
+    listOf(
+        MIGRATION_1_2,
+        MIGRATION_2_3,
+    )

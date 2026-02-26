@@ -265,7 +265,6 @@ private fun formatWeekRange(
                 startMonth,
                 start.year,
             )
-
         start.year == end.year ->
             String.format(
                 locale,
@@ -276,7 +275,6 @@ private fun formatWeekRange(
                 endMonth,
                 start.year,
             )
-
         else ->
             String.format(
                 locale,

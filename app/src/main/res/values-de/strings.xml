@@ -222,7 +222,6 @@
     <string name="weekly_training_delete_sick">Löschen</string>
     <string name="weekly_training_delete_sick_title">Krankheitsereignis löschen?</string>
     <string name="weekly_training_delete_sick_message">Möchten Sie dieses Krankheitsereignis wirklich löschen?</string>
-    <string name="settings_planning_title">Planung</string>
     <string name="settings_data_title">Daten</string>
     <string name="settings_backup_title">Backup</string>
     <string name="settings_backup_help_title">Halte deine Daten sicher</string>
@@ -243,7 +242,6 @@
     <string name="settings_slot_mode_auto">Automatisch (2+ Ereignisse/Tag)</string>
     <string name="settings_slot_mode_always">Zeitfenster immer anzeigen</string>
     <string name="settings_slot_mode_help_title">So funktioniert der Zeitfenster-Modus</string>
-    <string name="settings_slot_mode_help_body">Erfahre, wann die Gruppen Morgen, Nachmittag und Abend erscheinen.</string>
     <string name="settings_slot_mode_help_message">Wenn aktiviert, helfen Zeitfenster dabei, mehrere Ereignisse am selben Tag zu organisieren.\n\nIm automatischen Modus erscheinen Zeitfenster nur, wenn ein Tag zwei oder mehr Ereignisse hat.\n\nIm Immer-Modus sind Zeitfenster immer sichtbar.</string>
     <string name="activity_action_change_slot_mode">Du hast den Zeitfenster-Modus geändert.</string>
     <string name="activity_action_export_backup">Du hast ein Backup exportiert.</string>

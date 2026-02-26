@@ -75,6 +75,7 @@ class CategorySeeder
                         repository.updateCategoryName(category.id, newName)
                         updatedCount += 1
                     }
+
                     return@forEach
                 }
 
@@ -101,7 +102,9 @@ class CategorySeeder
 
             existing.forEach { category ->
                 if (!category.isSystem) return@forEach
+
                 val defaults = defaultsById[category.id] ?: return@forEach
+
                 if (category.colorId != defaults.colorId) {
                     repository.updateCategoryColor(category.id, defaults.colorId)
                     updatedCount += 1

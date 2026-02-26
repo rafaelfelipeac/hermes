@@ -224,7 +224,6 @@
     <string name="weekly_training_delete_sick">Delete</string>
     <string name="weekly_training_delete_sick_title">Delete sick event?</string>
     <string name="weekly_training_delete_sick_message">Are you sure you want to delete this sick event?</string>
-    <string name="settings_planning_title">Planning</string>
     <string name="settings_data_title">Data</string>
     <string name="settings_backup_title">Backup</string>
     <string name="settings_backup_help_title">Keep your data safe</string>
@@ -245,7 +244,6 @@
     <string name="settings_slot_mode_auto">Auto (2+ events/day)</string>
     <string name="settings_slot_mode_always">Always show slots</string>
     <string name="settings_slot_mode_help_title">How slot mode works</string>
-    <string name="settings_slot_mode_help_body">Learn when morning, afternoon, and evening groups appear.</string>
     <string name="settings_slot_mode_help_message">When enabled, slots help organize multiple events in the same day.\n\nIn auto mode, slots appear only when a day has two or more events.\n\nIn always mode, slots are always visible.</string>
     <string name="activity_action_change_slot_mode">You changed slot mode.</string>
     <string name="activity_action_export_backup">You exported a backup.</string>

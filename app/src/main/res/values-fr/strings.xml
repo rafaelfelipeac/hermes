@@ -224,7 +224,6 @@
     <string name="weekly_training_delete_sick">Supprimer</string>
     <string name="weekly_training_delete_sick_title">Supprimer l’événement de maladie ?</string>
     <string name="weekly_training_delete_sick_message">Voulez-vous vraiment supprimer cet événement de maladie ?</string>
-    <string name="settings_planning_title">Planification</string>
     <string name="settings_data_title">Données</string>
     <string name="settings_backup_title">Sauvegarde</string>
     <string name="settings_backup_help_title">Gardez vos données en sécurité</string>
@@ -245,7 +244,6 @@
     <string name="settings_slot_mode_auto">Automatique (2+ événements/jour)</string>
     <string name="settings_slot_mode_always">Toujours afficher les créneaux</string>
     <string name="settings_slot_mode_help_title">Comment fonctionne le mode des créneaux</string>
-    <string name="settings_slot_mode_help_body">Découvrez quand les groupes matin, après-midi et soir apparaissent.</string>
     <string name="settings_slot_mode_help_message">Lorsqu’il est activé, les créneaux aident à organiser plusieurs événements le même jour.\n\nEn mode automatique, les créneaux apparaissent seulement lorsqu’un jour a au moins deux événements.\n\nEn mode toujours, les créneaux sont toujours visibles.</string>
     <string name="activity_action_change_slot_mode">Vous avez changé le mode des créneaux.</string>
     <string name="activity_action_export_backup">Vous avez exporté une sauvegarde.</string>
