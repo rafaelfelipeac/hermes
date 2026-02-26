@@ -84,6 +84,12 @@ class ActivityUiFormatter(
             UserActionType.CHANGE_SLOT_MODE ->
                 stringProvider.get(R.string.activity_action_change_slot_mode)
 
+            UserActionType.EXPORT_BACKUP ->
+                stringProvider.get(R.string.activity_action_export_backup)
+
+            UserActionType.IMPORT_BACKUP ->
+                stringProvider.get(R.string.activity_action_import_backup)
+
             UserActionType.OPEN_WEEK ->
                 stringProvider.get(R.string.activity_action_open_week)
 

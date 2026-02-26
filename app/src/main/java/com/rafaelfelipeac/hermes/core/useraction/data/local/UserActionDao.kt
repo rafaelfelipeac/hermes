@@ -8,8 +8,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserActionDao {
+    @Query("SELECT * FROM user_actions ORDER BY timestamp DESC")
+    suspend fun getAll(): List<UserActionEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(action: UserActionEntity): Long
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(actions: List<UserActionEntity>): List<Long>
 
     @Query("SELECT * FROM user_actions ORDER BY timestamp DESC")
     fun observeAll(): Flow<List<UserActionEntity>>

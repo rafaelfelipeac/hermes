@@ -143,3 +143,7 @@ Recent learnings:
 - In locale files, conversion action keys for the same pattern (workout -> rest/busy/sick) should share the same sentence structure so Activity entries feel coherent when compared side by side.
 - For compact icon-only help actions, keep a shared glyph-size token and apply it consistently across screens; otherwise the same `?` action appears visually inconsistent between Settings/Categories/Weekly.
 - If the help affordance feels oversized, prefer tuning the container token (`HelpIconSize`) while keeping glyph token stable; that preserves icon legibility and only changes visual prominence.
+- For offline JSON backup/restore, workouts alone are insufficient in this app model; categories and user action rows are part of the minimal consistent snapshot because workouts reference category IDs and Activity depends on persisted action records.
+- A replace-style import is safest when executed in a single Room transaction across all tables involved in reconstruction (workouts, categories, user_actions), with settings applied only after DB replacement succeeds.
+- User-visible data portability actions (backup export/import) should be logged as explicit `UserActionType` entries so Activity history captures maintenance operations, not only planner edits.
+- In Settings, grouping data portability under a single `Backup` detail screen (with contextual help and last export/import timestamps) keeps the main page cleaner while preserving discoverability.
