@@ -227,8 +227,8 @@
     <string name="settings_planning_title">Planning</string>
     <string name="settings_data_title">Data</string>
     <string name="settings_backup_title">Backup</string>
-    <string name="settings_backup_help_title">How backup works</string>
-    <string name="settings_backup_help_message">Export creates a local JSON file with your app data.\n\nImport restores data from a backup JSON file.\n\nImport replaces your current local data after confirmation.</string>
+    <string name="settings_backup_help_title">Keep your data safe</string>
+    <string name="settings_backup_help_message">Create a backup file to keep a safe copy of your workouts, activity history and settings.\n\nIf needed, you can restore from that backup at any time.\n\nImport will replace what is currently in the app.</string>
     <string name="settings_backup_last_exported">Last exported: %1$s</string>
     <string name="settings_backup_last_imported">Last imported: %1$s</string>
     <string name="settings_backup_never">Never</string>

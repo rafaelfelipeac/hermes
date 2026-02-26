@@ -225,8 +225,8 @@
     <string name="settings_planning_title">التخطيط</string>
     <string name="settings_data_title">البيانات</string>
     <string name="settings_backup_title">النسخ الاحتياطي</string>
-    <string name="settings_backup_help_title">كيف يعمل النسخ الاحتياطي</string>
-    <string name="settings_backup_help_message">يؤدي التصدير إلى إنشاء ملف JSON محلي يحتوي على بيانات التطبيق.\n\nيستعيد الاستيراد البيانات من ملف JSON للنسخ الاحتياطي.\n\nبعد التأكيد، يستبدل الاستيراد بياناتك المحلية الحالية.</string>
+    <string name="settings_backup_help_title">حافظ على بياناتك بأمان</string>
+    <string name="settings_backup_help_message">أنشئ ملف نسخ احتياطي للاحتفاظ بنسخة آمنة من تمارينك وسجل النشاط والإعدادات.\n\nعند الحاجة، يمكنك الاستعادة من هذا النسخ الاحتياطي في أي وقت.\n\nسيستبدل الاستيراد ما هو موجود حاليًا في التطبيق.</string>
     <string name="settings_backup_last_exported">آخر تصدير: %1$s</string>
     <string name="settings_backup_last_imported">آخر استيراد: %1$s</string>
     <string name="settings_backup_never">أبدًا</string>

@@ -225,8 +225,8 @@
     <string name="settings_planning_title">Planung</string>
     <string name="settings_data_title">Daten</string>
     <string name="settings_backup_title">Backup</string>
-    <string name="settings_backup_help_title">So funktioniert Backup</string>
-    <string name="settings_backup_help_message">Beim Export wird eine lokale JSON-Datei mit deinen App-Daten erstellt.\n\nBeim Import werden Daten aus einer JSON-Backup-Datei wiederhergestellt.\n\nDer Import ersetzt nach Bestätigung deine aktuellen lokalen Daten.</string>
+    <string name="settings_backup_help_title">Halte deine Daten sicher</string>
+    <string name="settings_backup_help_message">Erstelle eine Backupdatei, um eine sichere Kopie deiner Trainings, deines Aktivitätsverlaufs und deiner Einstellungen aufzubewahren.\n\nFalls nötig, kannst du diese Sicherung jederzeit wiederherstellen.\n\nBeim Import wird ersetzt, was sich aktuell in der App befindet.</string>
     <string name="settings_backup_last_exported">Zuletzt exportiert: %1$s</string>
     <string name="settings_backup_last_imported">Zuletzt importiert: %1$s</string>
     <string name="settings_backup_never">Nie</string>

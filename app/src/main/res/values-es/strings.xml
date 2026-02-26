@@ -225,8 +225,8 @@
     <string name="settings_planning_title">Planificación</string>
     <string name="settings_data_title">Datos</string>
     <string name="settings_backup_title">Copia de seguridad</string>
-    <string name="settings_backup_help_title">Cómo funciona la copia de seguridad</string>
-    <string name="settings_backup_help_message">Exportar crea un archivo JSON local con los datos de la app.\n\nImportar restaura los datos desde un archivo JSON de copia de seguridad.\n\nLa importación reemplaza tus datos locales actuales después de la confirmación.</string>
+    <string name="settings_backup_help_title">Mantén tus datos seguros</string>
+    <string name="settings_backup_help_message">Crea un archivo de copia de seguridad para mantener una copia segura de tus entrenamientos, historial de actividad y ajustes.\n\nSi lo necesitas, puedes restaurar esa copia en cualquier momento.\n\nLa importación reemplazará lo que hay actualmente en la app.</string>
     <string name="settings_backup_last_exported">Última exportación: %1$s</string>
     <string name="settings_backup_last_imported">Última importación: %1$s</string>
     <string name="settings_backup_never">Nunca</string>

@@ -225,8 +225,8 @@
     <string name="settings_planning_title">योजना</string>
     <string name="settings_data_title">डेटा</string>
     <string name="settings_backup_title">बैकअप</string>
-    <string name="settings_backup_help_title">बैकअप कैसे काम करता है</string>
-    <string name="settings_backup_help_message">निर्यात ऐप डेटा के साथ एक स्थानीय JSON फ़ाइल बनाता है।\n\nआयात बैकअप JSON फ़ाइल से डेटा पुनर्स्थापित करता है।\n\nपुष्टि के बाद आयात आपके वर्तमान स्थानीय डेटा को बदल देता है।</string>
+    <string name="settings_backup_help_title">अपने डेटा को सुरक्षित रखें</string>
+    <string name="settings_backup_help_message">अपने वर्कआउट, गतिविधि इतिहास और सेटिंग्स की सुरक्षित कॉपी रखने के लिए बैकअप फ़ाइल बनाएं।\n\nज़रूरत पड़ने पर, आप कभी भी उसी बैकअप से पुनर्स्थापित कर सकते हैं।\n\nआयात करने पर ऐप में मौजूद वर्तमान डेटा बदल दिया जाएगा।</string>
     <string name="settings_backup_last_exported">अंतिम निर्यात: %1$s</string>
     <string name="settings_backup_last_imported">अंतिम आयात: %1$s</string>
     <string name="settings_backup_never">कभी नहीं</string>

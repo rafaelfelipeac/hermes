@@ -225,8 +225,8 @@
     <string name="settings_planning_title">計画</string>
     <string name="settings_data_title">データ</string>
     <string name="settings_backup_title">バックアップ</string>
-    <string name="settings_backup_help_title">バックアップの仕組み</string>
-    <string name="settings_backup_help_message">エクスポートでは、アプリデータを含むローカルJSONファイルを作成します。\n\nインポートでは、バックアップJSONファイルからデータを復元します。\n\nインポートは確認後に現在のローカルデータを置き換えます。</string>
+    <string name="settings_backup_help_title">データを安全に保つ</string>
+    <string name="settings_backup_help_message">バックアップファイルを作成して、ワークアウト、アクティビティ履歴、設定の安全なコピーを保存できます。\n\n必要なときは、いつでもそのバックアップから復元できます。\n\nインポートすると、現在アプリ内にある内容は置き換えられます。</string>
     <string name="settings_backup_last_exported">最終エクスポート: %1$s</string>
     <string name="settings_backup_last_imported">最終インポート: %1$s</string>
     <string name="settings_backup_never">なし</string>
