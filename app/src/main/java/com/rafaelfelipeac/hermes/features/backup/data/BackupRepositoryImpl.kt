@@ -6,6 +6,8 @@ import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
+import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.SUPPORTED_SCHEMA_VERSION
+import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.decode
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
@@ -15,6 +17,8 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecor
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
+import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult.Failure
+import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult.Success
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.toImportBackupError
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
@@ -27,8 +31,10 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntit
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import kotlinx.coroutines.flow.first
+import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 import java.time.format.DateTimeParseException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -47,8 +53,8 @@ class BackupRepositoryImpl
             return runCatching {
                 val snapshot =
                     BackupSnapshot(
-                        schemaVersion = BackupJsonCodec.SUPPORTED_SCHEMA_VERSION,
-                        exportedAt = java.time.Instant.now().atOffset(ZoneOffset.UTC).toString(),
+                        schemaVersion = SUPPORTED_SCHEMA_VERSION,
+                        exportedAt = Instant.now().atOffset(UTC).toString(),
                         appVersion = appVersion,
                         workouts = workoutDao.getAll().map { it.toBackupRecord() },
                         categories = categoryDao.getCategories().map { it.toBackupRecord() },
@@ -67,18 +73,17 @@ class BackupRepositoryImpl
 
         @Suppress("ReturnCount")
         override suspend fun importBackupJson(rawJson: String): ImportBackupResult {
-            val decoded = BackupJsonCodec.decode(rawJson)
             val snapshot =
-                when (decoded) {
+                when (val decoded = decode(rawJson)) {
                     is BackupDecodeResult.Failure -> {
-                        return ImportBackupResult.Failure(decoded.error.toImportBackupError())
+                        return Failure(decoded.error.toImportBackupError())
                     }
                     is BackupDecodeResult.Success -> decoded.snapshot
                 }
 
             val validationError = validateSnapshot(snapshot)
             if (validationError != null) {
-                return ImportBackupResult.Failure(validationError)
+                return Failure(validationError)
             }
 
             val dbResult =
@@ -106,7 +111,7 @@ class BackupRepositoryImpl
                 }
 
             if (dbResult.isFailure) {
-                return ImportBackupResult.Failure(ImportBackupError.WRITE_FAILED)
+                return Failure(ImportBackupError.WRITE_FAILED)
             }
 
             val settings = snapshot.settings
@@ -116,11 +121,11 @@ class BackupRepositoryImpl
                     settingsRepository.setLanguage(AppLanguage.fromTag(settings.languageTag))
                     settingsRepository.setSlotModePolicy(SlotModePolicy.valueOf(settings.slotModePolicy))
                 }.onFailure {
-                    return ImportBackupResult.Failure(ImportBackupError.WRITE_FAILED)
+                    return Failure(ImportBackupError.WRITE_FAILED)
                 }
             }
 
-            return ImportBackupResult.Success
+            return Success
         }
 
         override suspend fun hasAnyData(): Boolean {
@@ -134,7 +139,7 @@ class BackupRepositoryImpl
             val categoryIds = snapshot.categories.map { it.id }.toSet()
 
             snapshot.workouts.forEach { workout ->
-                if (workout.dayOfWeek != null && workout.dayOfWeek !in 1..7) {
+                if (workout.dayOfWeek != null && workout.dayOfWeek !in VALID_DAY_OF_WEEK_RANGE) {
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
 
@@ -182,6 +187,8 @@ class BackupRepositoryImpl
             return null
         }
     }
+
+private val VALID_DAY_OF_WEEK_RANGE = DayOfWeek.MONDAY.value..DayOfWeek.SUNDAY.value
 
 private fun WorkoutEntity.toBackupRecord(): BackupWorkoutRecord {
     return BackupWorkoutRecord(

@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -104,6 +105,9 @@ internal const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
 private const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 private const val BACKUP_MIME_TYPE = "application/json"
 private const val BACKUP_EXTENSION = ".json"
+private const val BACKUP_FILE_NAME_PREFIX = "hermes-backup-"
+private const val ISO_TIME_SEPARATOR = ":"
+private const val FILE_SAFE_TIME_SEPARATOR = "-"
 
 @Composable
 fun SettingsScreen(
@@ -135,6 +139,7 @@ fun SettingsScreen(
     val exportDocumentLauncher =
         rememberLauncherForActivityResult(CreateDocument(BACKUP_MIME_TYPE)) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
+
             scope.launch {
                 val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
                 val writeSucceeded =
@@ -165,6 +170,7 @@ fun SettingsScreen(
                             ImportBackupError.WRITE_FAILED,
                             -> importFailedMessage
                         }
+
                     Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
             }
@@ -657,12 +663,12 @@ internal fun SettingsContent(
 }
 
 private fun backupFileName(): String {
-    val timestamp = java.time.LocalDateTime.now().toString().replace(":", "-")
-    return "hermes-backup-$timestamp$BACKUP_EXTENSION"
+    val timestamp = java.time.LocalDateTime.now().toString().replace(ISO_TIME_SEPARATOR, FILE_SAFE_TIME_SEPARATOR)
+    return "$BACKUP_FILE_NAME_PREFIX$timestamp$BACKUP_EXTENSION"
 }
 
 private fun writeTextToUri(
-    context: android.content.Context,
+    context: Context,
     uri: Uri,
     content: String,
 ): Boolean {
@@ -675,7 +681,7 @@ private fun writeTextToUri(
 }
 
 private fun readTextFromUri(
-    context: android.content.Context,
+    context: Context,
     uri: Uri,
 ): String? {
     return runCatching {

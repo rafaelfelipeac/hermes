@@ -147,3 +147,6 @@ Recent learnings:
 - A replace-style import is safest when executed in a single Room transaction across all tables involved in reconstruction (workouts, categories, user_actions), with settings applied only after DB replacement succeeds.
 - User-visible data portability actions (backup export/import) should be logged as explicit `UserActionType` entries so Activity history captures maintenance operations, not only planner edits.
 - In Settings, grouping data portability under a single `Backup` detail screen (with contextual help and last export/import timestamps) keeps the main page cleaner while preserving discoverability.
+- Keeping backup domain types one top-level type per file (`Snapshot`, records, decode error/result, import error/result) reduced cross-file churn during review and makes future model/schema changes easier to isolate.
+- Backup validation should avoid magic weekday ranges; deriving valid bounds from `DayOfWeek.MONDAY.value..DayOfWeek.SUNDAY.value` keeps ISO weekday assumptions explicit and prevents hidden drift if related code evolves.
+- Backup file naming is easier to maintain when prefix/separator tokens are centralized constants (`hermes-backup-`, `:`, `-`) instead of inline string literals in UI helpers.

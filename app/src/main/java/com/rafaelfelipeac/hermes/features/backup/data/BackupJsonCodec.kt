@@ -2,7 +2,12 @@ package com.rafaelfelipeac.hermes.features.backup.data
 
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.INVALID_FIELD_VALUE
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.MISSING_REQUIRED_SECTION
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.UNSUPPORTED_SCHEMA_VERSION
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Failure
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Success
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
@@ -38,16 +43,21 @@ internal object BackupJsonCodec {
         return buildJsonObject {
             put(KEY_SCHEMA_VERSION, snapshot.schemaVersion)
             put(KEY_EXPORTED_AT, snapshot.exportedAt)
+
             snapshot.appVersion?.let { put(KEY_APP_VERSION, it) }
+
             putJsonArray(KEY_WORKOUTS) {
                 snapshot.workouts.forEach { addWorkout(it) }
             }
+
             putJsonArray(KEY_CATEGORIES) {
                 snapshot.categories.forEach { addCategory(it) }
             }
+
             putJsonArray(KEY_USER_ACTIONS) {
                 snapshot.userActions.forEach { addUserAction(it) }
             }
+
             snapshot.settings?.let { settings ->
                 putJsonObject(KEY_SETTINGS) {
                     put(KEY_THEME_MODE, settings.themeMode)
@@ -61,49 +71,54 @@ internal object BackupJsonCodec {
     fun decode(raw: String): BackupDecodeResult {
         val root =
             runCatching { json.parseToJsonElement(raw).jsonObject }
-                .getOrElse { return BackupDecodeResult.Failure(BackupDecodeError.INVALID_JSON) }
+                .getOrElse { return Failure(BackupDecodeError.INVALID_JSON) }
 
         val schemaVersion =
             root.intOrNull(KEY_SCHEMA_VERSION)
-                ?: return BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE)
+                ?: return Failure(INVALID_FIELD_VALUE)
+
         if (schemaVersion != SUPPORTED_SCHEMA_VERSION) {
-            return BackupDecodeResult.Failure(BackupDecodeError.UNSUPPORTED_SCHEMA_VERSION)
+            return Failure(UNSUPPORTED_SCHEMA_VERSION)
         }
 
         val exportedAt =
             root.stringOrNull(KEY_EXPORTED_AT)
-                ?: return BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE)
+                ?: return Failure(INVALID_FIELD_VALUE)
 
         val workoutsJson =
             root.arrayOrNull(KEY_WORKOUTS)
-                ?: return BackupDecodeResult.Failure(BackupDecodeError.MISSING_REQUIRED_SECTION)
+                ?: return Failure(MISSING_REQUIRED_SECTION)
+
         val categoriesJson =
             root.arrayOrNull(KEY_CATEGORIES)
-                ?: return BackupDecodeResult.Failure(BackupDecodeError.MISSING_REQUIRED_SECTION)
+                ?: return Failure(MISSING_REQUIRED_SECTION)
+
         val userActionsJson =
             root.arrayOrNull(KEY_USER_ACTIONS)
-                ?: return BackupDecodeResult.Failure(BackupDecodeError.MISSING_REQUIRED_SECTION)
+                ?: return Failure(MISSING_REQUIRED_SECTION)
 
         val workouts =
             workoutsJson.mapOrNull(::decodeWorkout)
-                ?: return BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE)
+                ?: return Failure(INVALID_FIELD_VALUE)
+
         val categories =
             categoriesJson.mapOrNull(::decodeCategory)
-                ?: return BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE)
+                ?: return Failure(INVALID_FIELD_VALUE)
+
         val userActions =
             userActionsJson.mapOrNull(::decodeUserAction)
-                ?: return BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE)
+                ?: return Failure(INVALID_FIELD_VALUE)
 
         val settings =
             root.objectOrNull(KEY_SETTINGS)?.let(::decodeSettings)
                 ?: run {
                     if (root.containsKey(KEY_SETTINGS)) {
-                        return BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE)
+                        return Failure(INVALID_FIELD_VALUE)
                     }
                     null
                 }
 
-        return BackupDecodeResult.Success(
+        return Success(
             snapshot =
                 BackupSnapshot(
                     schemaVersion = schemaVersion,
@@ -119,6 +134,7 @@ internal object BackupJsonCodec {
 
     private fun decodeWorkout(element: JsonElement): BackupWorkoutRecord? {
         val obj = element as? JsonObject ?: return null
+
         return BackupWorkoutRecord(
             id = obj.longOrNull(KEY_ID) ?: return null,
             weekStartDate = obj.stringOrNull(KEY_WEEK_START_DATE) ?: return null,
@@ -135,6 +151,7 @@ internal object BackupJsonCodec {
 
     private fun decodeCategory(element: JsonElement): BackupCategoryRecord? {
         val obj = element as? JsonObject ?: return null
+
         return BackupCategoryRecord(
             id = obj.longOrNull(KEY_ID) ?: return null,
             name = obj.stringOrNull(KEY_NAME) ?: return null,
@@ -147,6 +164,7 @@ internal object BackupJsonCodec {
 
     private fun decodeUserAction(element: JsonElement): BackupUserActionRecord? {
         val obj = element as? JsonObject ?: return null
+
         return BackupUserActionRecord(
             id = obj.longOrNull(KEY_ID) ?: return null,
             actionType = obj.stringOrNull(KEY_ACTION_TYPE) ?: return null,
@@ -179,10 +197,12 @@ internal object BackupJsonCodec {
 
     private fun <T> JsonArray.mapOrNull(transform: (JsonElement) -> T?): List<T>? {
         val mapped = mutableListOf<T>()
+
         for (element in this) {
             val value = transform(element) ?: return null
             mapped += value
         }
+
         return mapped
     }
 
