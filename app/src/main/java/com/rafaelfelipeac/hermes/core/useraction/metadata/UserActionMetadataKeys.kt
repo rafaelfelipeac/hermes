@@ -22,4 +22,10 @@ object UserActionMetadataKeys {
     const val WAS_COMPLETED = "was_completed"
     const val IS_COMPLETED = "is_completed"
     const val CATEGORY_NAME = "category_name"
+    const val SCHEMA_VERSION = "schema_version"
+    const val WORKOUTS_COUNT = "workouts_count"
+    const val CATEGORIES_COUNT = "categories_count"
+    const val USER_ACTIONS_COUNT = "user_actions_count"
+    const val RESULT = "result"
+    const val FAILURE_REASON = "failure_reason"
 }

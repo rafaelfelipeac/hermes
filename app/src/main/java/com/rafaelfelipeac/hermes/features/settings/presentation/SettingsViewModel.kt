@@ -6,8 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.FAILURE_REASON
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.SCHEMA_VERSION
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.USER_ACTIONS_COUNT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WORKOUTS_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.APP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
@@ -19,7 +25,9 @@ import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupReposit
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,10 +37,12 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
+import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.SYSTEM as SYSTEM_THEME
 
 @HiltViewModel
 class SettingsViewModel
@@ -150,33 +160,73 @@ class SettingsViewModel
 
         suspend fun exportBackupJson(appVersion: String): Result<String> {
             val result = backupRepository.exportBackupJson(appVersion)
+            val metadata = mutableMapOf(RESULT to RESULT_FAILURE)
+
             if (result.isSuccess) {
                 repository.setLastBackupExportedAt(Instant.now().toString())
-                userActionLogger.log(
-                    actionType = EXPORT_BACKUP,
-                    entityType = APP,
-                )
+
+                val stats = backupRepository.getDataStats()
+                metadata[RESULT] = RESULT_SUCCESS
+                metadata[SCHEMA_VERSION] = stats.schemaVersion.toString()
+                metadata[WORKOUTS_COUNT] = stats.workoutsCount.toString()
+                metadata[CATEGORIES_COUNT] = stats.categoriesCount.toString()
+                metadata[USER_ACTIONS_COUNT] = stats.userActionsCount.toString()
+            } else {
+                metadata[FAILURE_REASON] =
+                    result.exceptionOrNull()?.javaClass?.simpleName ?: UNKNOWN_FAILURE_REASON
             }
+
+            userActionLogger.log(
+                actionType = EXPORT_BACKUP,
+                entityType = APP,
+                metadata = metadata,
+            )
+
             return result
         }
 
         suspend fun importBackupJson(rawJson: String): ImportBackupResult {
             val result = backupRepository.importBackupJson(rawJson)
+            val metadata = mutableMapOf(RESULT to RESULT_FAILURE)
+
             if (result is ImportBackupResult.Success) {
+                metadata[RESULT] = RESULT_SUCCESS
+                metadata[SCHEMA_VERSION] = result.schemaVersion.toString()
+                metadata[WORKOUTS_COUNT] = result.workoutsCount.toString()
+                metadata[CATEGORIES_COUNT] = result.categoriesCount.toString()
+                metadata[USER_ACTIONS_COUNT] = result.userActionsCount.toString()
                 repository.setLastBackupImportedAt(Instant.now().toString())
-                userActionLogger.log(
-                    actionType = IMPORT_BACKUP,
-                    entityType = APP,
-                )
+            } else if (result is ImportBackupResult.Failure) {
+                metadata[FAILURE_REASON] = result.error.name
             }
+
+            userActionLogger.log(
+                actionType = IMPORT_BACKUP,
+                entityType = APP,
+                metadata = metadata,
+            )
+
             return result
         }
 
         suspend fun hasBackupData(): Boolean {
-            return backupRepository.hasAnyData()
+            return backupRepository.hasAnyData() || hasNonDefaultSettings()
+        }
+
+        private suspend fun hasNonDefaultSettings(): Boolean {
+            val themeMode = repository.themeMode.first()
+            val language = repository.language.first()
+            val slotModePolicy = repository.slotModePolicy.first()
+
+            return themeMode != SYSTEM_THEME ||
+                language != SYSTEM ||
+                slotModePolicy != AUTO_WHEN_MULTIPLE
         }
 
         private companion object {
             const val SETTINGS_STATE_SHARING_TIMEOUT_MS = 5_000L
+            const val RESULT_SUCCESS = "success"
+            const val RESULT_FAILURE = "failure"
+            const val UNKNOWN_FAILURE_REASON = "unknown"
         }
     }

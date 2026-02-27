@@ -152,3 +152,5 @@ Recent learnings:
 - Backup file naming is easier to maintain when prefix/separator tokens are centralized constants (`hermes-backup-`, `:`, `-`) instead of inline string literals in UI helpers.
 - For feature-local logging text (for example, Settings intent-launch failures), file-level constants are preferable to global `AppConstants`; this keeps global constants focused on shared cross-feature tokens while still avoiding inline literals.
 - If a file contains a top-level enum with the same name as a composable (`DayIndicator`), verify real call sites; in this case only the composable was used, so removing the unused enum reduced naming ambiguity.
+- For replace-import confirmation in Settings, using `state.value` can under-read settings when the `StateFlow` is `WhileSubscribed`; querying repository flows with `first()` avoids false negatives when no collector is active.
+- Backup action logging is more useful when emitted for both success and failure paths with explicit metadata keys (`result`, `failure_reason`, schema and counts), instead of logging only successful actions.

@@ -14,11 +14,11 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsReco
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupDataStats
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult.Failure
-import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult.Success
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.toImportBackupError
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
@@ -125,7 +125,21 @@ class BackupRepositoryImpl
                 }
             }
 
-            return Success
+            return ImportBackupResult.Success(
+                schemaVersion = snapshot.schemaVersion,
+                workoutsCount = snapshot.workouts.size,
+                categoriesCount = snapshot.categories.size,
+                userActionsCount = snapshot.userActions.size,
+            )
+        }
+
+        override suspend fun getDataStats(): BackupDataStats {
+            return BackupDataStats(
+                schemaVersion = SUPPORTED_SCHEMA_VERSION,
+                workoutsCount = workoutDao.getAll().size,
+                categoriesCount = categoryDao.getCategories().size,
+                userActionsCount = userActionDao.getAll().size,
+            )
         }
 
         override suspend fun hasAnyData(): Boolean {

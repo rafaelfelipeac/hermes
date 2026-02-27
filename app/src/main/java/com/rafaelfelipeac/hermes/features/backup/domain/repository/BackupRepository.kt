@@ -5,5 +5,7 @@ interface BackupRepository {
 
     suspend fun importBackupJson(rawJson: String): ImportBackupResult
 
+    suspend fun getDataStats(): BackupDataStats
+
     suspend fun hasAnyData(): Boolean
 }

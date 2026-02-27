@@ -161,7 +161,7 @@ fun SettingsScreen(
     fun importPayload(raw: String) {
         scope.launch {
             when (val result = viewModel.importBackupJson(raw)) {
-                ImportBackupResult.Success -> {
+                is ImportBackupResult.Success -> {
                     Toast.makeText(context, importSuccessMessage, Toast.LENGTH_SHORT).show()
                 }
 
