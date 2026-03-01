@@ -168,3 +168,4 @@ Recent learnings:
 - In ViewModel operation logging, post-success side effects (stats/timestamps) should be isolated with `runCatching`; they can enrich metadata but must not flip a successful export/import into failure or block the action log write.
 - For cleanup flows that can be triggered by system state (for example, inaccessible persisted URI), expose an explicit `logUserAction` flag in ViewModel commands so only user-initiated actions appear in Activity history.
 - Release prep in Hermes stays consistent when the changelog section and app module version fields are updated together (`CHANGELOG.md` + `appVersionCode`/`appVersionName` in `app/build.gradle.kts`), using git tags (e.g., `v1.3.0`) as the boundary for summarizing changes.
+- For public-facing release surfaces (Play Store/README), backup notes read better with user-task wording ("export/import data", "choose default backup folder") instead of internal terms like schema compatibility.

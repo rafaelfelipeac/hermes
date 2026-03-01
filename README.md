@@ -35,6 +35,7 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 - Organize workouts with categories (create, edit, reorder, hide, restore defaults) with color support
 - A **“To be defined”** area for sessions not assigned yet
 - Drag & drop to **reschedule** sessions between days
+- Backup support: export/import your data, choose a default backup folder in Settings and clear it anytime
 - Mark days or sessions as:
   - **Training**
   - **Rest day**
@@ -54,8 +55,6 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
   - हिन्दी
   - 日本語
 - Offline-first — no account, no server, no noise
-
-> ⚠️ This is an early MVP focused on structure and flow. Many ideas are planned, but intentionally not rushed.
 
 ---
 
@@ -114,15 +113,6 @@ This is a tool meant to support training — not judge it. Gentle, optional reco
 
 ---
 
-## 🧪 Current status
-
-Hermes is an early-stage personal project, built slowly and intentionally.
-The focus is on getting the weekly planning experience right before adding complexity.
-
-Expect changes. Expect refactors. Expect experiments.
-
----
-
 ## 🗺️ Ideas for the future
 
 Some things on the radar (not guaranteed):
@@ -141,15 +131,6 @@ Some things on the radar (not guaranteed):
 
 Contributions are not open at the moment. This is a personal playground. 
 But forks, ideas and feedback are always welcome.
-
----
-
-## ⭐ Why this project exists
-
-Hermes exists as:
-- a design and architecture playground
-- a Kotlin + Android learning space
-- a way to build a training planner that feels calm and flexible
 
 ---
 
