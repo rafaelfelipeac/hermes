@@ -166,3 +166,4 @@ Recent learnings:
 - Under a stable backup schema, `userActions` enum strings should be treated as forward-compatible payload data (stored as raw text), not hard-validated against the current app enums; otherwise newer-app backups can be rejected unnecessarily.
 - In replace-import flows where core DB data commits inside a Room transaction but settings are applied separately, settings restore failures should be non-fatal and explicitly logged; failing the whole import after commit creates misleading error semantics.
 - In ViewModel operation logging, post-success side effects (stats/timestamps) should be isolated with `runCatching`; they can enrich metadata but must not flip a successful export/import into failure or block the action log write.
+- For cleanup flows that can be triggered by system state (for example, inaccessible persisted URI), expose an explicit `logUserAction` flag in ViewModel commands so only user-initiated actions appear in Activity history.

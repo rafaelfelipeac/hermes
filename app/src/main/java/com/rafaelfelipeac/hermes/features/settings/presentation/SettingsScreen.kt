@@ -281,7 +281,7 @@ fun SettingsScreen(
             }.getOrDefault(false)
 
         if (!isAccessible) {
-            viewModel.clearBackupFolderUri()
+            viewModel.clearBackupFolderUri(logUserAction = false)
 
             Toast.makeText(context, backupFolderUnavailableMessage, Toast.LENGTH_SHORT).show()
         }

@@ -285,12 +285,12 @@ class SettingsViewModel
             }
         }
 
-        suspend fun clearBackupFolderUri() {
+        suspend fun clearBackupFolderUri(logUserAction: Boolean = true) {
             val hadFolder = !repository.backupFolderUri.first().isNullOrBlank()
 
             repository.setBackupFolderUri(null)
 
-            if (hadFolder) {
+            if (hadFolder && logUserAction) {
                 userActionLogger.log(
                     actionType = CLEAR_BACKUP_FOLDER,
                     entityType = SETTINGS,
