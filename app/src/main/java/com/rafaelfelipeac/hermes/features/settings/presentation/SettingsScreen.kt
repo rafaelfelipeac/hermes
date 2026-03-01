@@ -537,28 +537,44 @@ fun SettingsScreen(
                                     exportDocumentLauncher.launch(backupFileName())
                                 } else {
                                     val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
-                                    val writeSucceeded =
-                                        jsonResult.getOrNull()?.let { payload ->
-                                            writeTextToBackupFolder(
-                                                context = context,
-                                                treeUri = configuredUri.toUri(),
-                                                content = payload,
-                                            )
-                                        } ?: false
-
-                                    if (writeSucceeded) {
-                                        Toast.makeText(context, exportSuccessMessage, Toast.LENGTH_SHORT).show()
+                                    if (jsonResult.isFailure) {
+                                        Toast.makeText(context, exportFallbackMessage, Toast.LENGTH_SHORT).show()
 
                                         viewModel.logExportBackupResult(
                                             exportResult = jsonResult,
                                             destinationType = EXPORT_DESTINATION_FOLDER,
-                                            destinationConfigured = true,
+                                            destinationConfigured = false,
                                         )
                                     } else {
-                                        Toast.makeText(context, exportFallbackMessage, Toast.LENGTH_SHORT).show()
+                                        val writeSucceeded =
+                                            jsonResult.getOrNull()?.let { payload ->
+                                                writeTextToBackupFolder(
+                                                    context = context,
+                                                    treeUri = configuredUri.toUri(),
+                                                    content = payload,
+                                                )
+                                            } ?: false
 
-                                        pendingSaveAsDestinationConfigured = true
-                                        exportDocumentLauncher.launch(backupFileName())
+                                        if (writeSucceeded) {
+                                            Toast.makeText(context, exportSuccessMessage, Toast.LENGTH_SHORT).show()
+
+                                            viewModel.logExportBackupResult(
+                                                exportResult = jsonResult,
+                                                destinationType = EXPORT_DESTINATION_FOLDER,
+                                                destinationConfigured = true,
+                                            )
+                                        } else {
+                                            Toast.makeText(context, exportFallbackMessage, Toast.LENGTH_SHORT).show()
+
+                                            pendingSaveAsDestinationConfigured = true
+                                            exportDocumentLauncher.launch(backupFileName())
+
+                                            viewModel.logExportBackupResult(
+                                                exportResult = jsonResult,
+                                                destinationType = EXPORT_DESTINATION_FOLDER,
+                                                destinationConfigured = true,
+                                            )
+                                        }
                                     }
                                 }
                             }
