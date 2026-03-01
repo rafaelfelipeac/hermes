@@ -7,6 +7,8 @@ import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_CONFIGURED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.FAILURE_REASON
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
@@ -19,8 +21,10 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_SLOT_MODE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
@@ -71,7 +75,12 @@ class SettingsViewModel
                     slotModePolicy = slotModePolicy,
                     lastBackupExportedAt = lastBackupExportedAt,
                     lastBackupImportedAt = lastBackupImportedAt,
+                    backupFolderUri = null,
                 )
+            }.let { baseState ->
+                combine(baseState, repository.backupFolderUri) { base, backupFolderUri ->
+                    base.copy(backupFolderUri = backupFolderUri)
+                }
             }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(SETTINGS_STATE_SHARING_TIMEOUT_MS),
@@ -82,6 +91,7 @@ class SettingsViewModel
                         slotModePolicy = repository.initialSlotModePolicy(),
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
+                        backupFolderUri = null,
                     ),
             )
 
@@ -159,21 +169,34 @@ class SettingsViewModel
             }
 
         suspend fun exportBackupJson(appVersion: String): Result<String> {
-            val result = backupRepository.exportBackupJson(appVersion)
-            val metadata = mutableMapOf(RESULT to RESULT_FAILURE)
+            return backupRepository.exportBackupJson(appVersion)
+        }
 
-            if (result.isSuccess) {
-                repository.setLastBackupExportedAt(Instant.now().toString())
+        suspend fun logExportBackupResult(
+            exportResult: Result<String>,
+            destinationType: String,
+            destinationConfigured: Boolean,
+        ) {
+            val metadata =
+                mutableMapOf(
+                    RESULT to RESULT_FAILURE,
+                    DESTINATION_TYPE to destinationType,
+                    DESTINATION_CONFIGURED to destinationConfigured.toString(),
+                )
 
+            if (exportResult.isSuccess) {
                 val stats = backupRepository.getDataStats()
+
                 metadata[RESULT] = RESULT_SUCCESS
                 metadata[SCHEMA_VERSION] = stats.schemaVersion.toString()
                 metadata[WORKOUTS_COUNT] = stats.workoutsCount.toString()
                 metadata[CATEGORIES_COUNT] = stats.categoriesCount.toString()
                 metadata[USER_ACTIONS_COUNT] = stats.userActionsCount.toString()
+
+                repository.setLastBackupExportedAt(Instant.now().toString())
             } else {
                 metadata[FAILURE_REASON] =
-                    result.exceptionOrNull()?.javaClass?.simpleName ?: UNKNOWN_FAILURE_REASON
+                    exportResult.exceptionOrNull()?.javaClass?.simpleName ?: UNKNOWN_FAILURE_REASON
             }
 
             userActionLogger.log(
@@ -181,8 +204,6 @@ class SettingsViewModel
                 entityType = APP,
                 metadata = metadata,
             )
-
-            return result
         }
 
         suspend fun importBackupJson(rawJson: String): ImportBackupResult {
@@ -209,6 +230,53 @@ class SettingsViewModel
             return result
         }
 
+        suspend fun setBackupFolderUri(value: String?) {
+            val previous = repository.backupFolderUri.first()
+
+            repository.setBackupFolderUri(value)
+
+            if (value != null && previous != value) {
+                val oldValue =
+                    if (previous.isNullOrBlank()) {
+                        BACKUP_FOLDER_DEFAULT
+                    } else {
+                        BACKUP_FOLDER_CONFIGURED
+                    }
+
+                userActionLogger.log(
+                    actionType = SET_BACKUP_FOLDER,
+                    entityType = SETTINGS,
+                    metadata =
+                        mapOf(
+                            OLD_VALUE to oldValue,
+                            NEW_VALUE to BACKUP_FOLDER_CONFIGURED,
+                        ),
+                )
+            }
+        }
+
+        suspend fun clearBackupFolderUri() {
+            val hadFolder = !repository.backupFolderUri.first().isNullOrBlank()
+
+            repository.setBackupFolderUri(null)
+
+            if (hadFolder) {
+                userActionLogger.log(
+                    actionType = CLEAR_BACKUP_FOLDER,
+                    entityType = SETTINGS,
+                    metadata =
+                        mapOf(
+                            OLD_VALUE to BACKUP_FOLDER_CONFIGURED,
+                            NEW_VALUE to BACKUP_FOLDER_DEFAULT,
+                        ),
+                )
+            }
+        }
+
+        suspend fun currentBackupFolderUri(): String? {
+            return repository.backupFolderUri.first()
+        }
+
         suspend fun hasBackupData(): Boolean {
             return backupRepository.hasAnyData() || hasNonDefaultSettings()
         }
@@ -228,5 +296,7 @@ class SettingsViewModel
             const val RESULT_SUCCESS = "success"
             const val RESULT_FAILURE = "failure"
             const val UNKNOWN_FAILURE_REASON = "unknown"
+            const val BACKUP_FOLDER_DEFAULT = "default"
+            const val BACKUP_FOLDER_CONFIGURED = "configured"
         }
     }

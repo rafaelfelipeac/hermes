@@ -229,10 +229,19 @@
     <string name="settings_backup_last_exported">最終エクスポート: %1$s</string>
     <string name="settings_backup_last_imported">最終インポート: %1$s</string>
     <string name="settings_backup_never">なし</string>
+
+    <string name="settings_export_backup_fallback_save_as">バックアップフォルダを使用できませんでした。保存先を選択してください。</string>
+    <string name="settings_backup_folder_title">バックアップフォルダ</string>
+    <string name="settings_backup_folder_default">デフォルト（毎回確認）</string>
+    <string name="settings_backup_folder_selected">フォルダ選択済み</string>
+    <string name="settings_backup_folder_clear">フォルダを解除</string>
+    <string name="settings_backup_folder_clear_detail">既定の保存フローを使用します。</string>
+    <string name="settings_backup_folder_unavailable">保存済みのバックアップフォルダにアクセスできません。</string>
     <string name="settings_export_backup_title">バックアップをエクスポート（JSON）</string>
     <string name="settings_import_backup_title">バックアップをインポート（JSON）</string>
     <string name="settings_export_backup_error">今はエクスポートできません。もう一度お試しください。</string>
-    <string name="settings_import_backup_error">このバックアップはインポートできません。ファイルを確認してもう一度お試しください。</string>
+
+    <string name="settings_export_backup_success">バックアップをエクスポートしました。</string>    <string name="settings_import_backup_error">このバックアップはインポートできません。ファイルを確認してもう一度お試しください。</string>
     <string name="settings_import_backup_success">バックアップをインポートしました。</string>
     <string name="settings_import_backup_replace_title">インポートすると現在のデータが置き換えられます。</string>
     <string name="settings_import_backup_replace_message">このインポートは、ローカルデータを選択したバックアップで置き換えます。</string>
@@ -246,6 +255,8 @@
     <string name="activity_action_change_slot_mode">時間帯モードを変更しました。</string>
     <string name="activity_action_export_backup">バックアップをエクスポートしました。</string>
     <string name="activity_action_import_backup">バックアップをインポートしました。</string>
+    <string name="activity_action_set_backup_folder">バックアップフォルダを設定しました。</string>
+    <string name="activity_action_clear_backup_folder">バックアップフォルダを解除しました。</string>
     <string name="weekly_training_slot_morning">朝</string>
     <string name="weekly_training_slot_afternoon">午後</string>
     <string name="weekly_training_slot_night">夜</string>

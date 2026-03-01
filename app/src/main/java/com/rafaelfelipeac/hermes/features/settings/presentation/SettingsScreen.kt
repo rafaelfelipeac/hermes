@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import android.content.ActivityNotFoundException
@@ -10,6 +12,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +60,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
@@ -114,6 +118,8 @@ private const val LOG_MARKET_INTENT_NOT_FOUND = "Market intent not found."
 private const val LOG_MARKET_INTENT_BLOCKED = "Market intent blocked by security policy."
 private const val LOG_WEB_INTENT_NOT_FOUND = "Web intent not found."
 private const val LOG_WEB_INTENT_BLOCKED = "Web intent blocked by security policy."
+private const val EXPORT_DESTINATION_SAVE_AS = "save_as"
+private const val EXPORT_DESTINATION_FOLDER = "folder"
 
 @Composable
 fun SettingsScreen(
@@ -137,10 +143,14 @@ fun SettingsScreen(
     var isBackupHelpVisible by rememberSaveable { mutableStateOf(false) }
     var isImportReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
     var pendingImportPayload by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingSaveAsDestinationConfigured by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val exportFailedMessage = stringResource(R.string.settings_export_backup_error)
+    val exportSuccessMessage = stringResource(R.string.settings_export_backup_success)
+    val exportFallbackMessage = stringResource(R.string.settings_export_backup_fallback_save_as)
     val importFailedMessage = stringResource(R.string.settings_import_backup_error)
     val importSuccessMessage = stringResource(R.string.settings_import_backup_success)
+    val backupFolderUnavailableMessage = stringResource(R.string.settings_backup_folder_unavailable)
 
     val exportDocumentLauncher =
         rememberLauncherForActivityResult(CreateDocument(BACKUP_MIME_TYPE)) { uri ->
@@ -150,11 +160,39 @@ fun SettingsScreen(
                 val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
                 val writeSucceeded =
                     jsonResult.getOrNull()?.let { payload -> writeTextToUri(context, uri, payload) } ?: false
-                val message = if (writeSucceeded) null else exportFailedMessage
+                val message = if (writeSucceeded) exportSuccessMessage else exportFailedMessage
+                val exportResult =
+                    if (writeSucceeded) {
+                        jsonResult
+                    } else {
+                        Result.failure(IllegalStateException("write_failed"))
+                    }
+
+                viewModel.logExportBackupResult(
+                    exportResult = exportResult,
+                    destinationType = EXPORT_DESTINATION_SAVE_AS,
+                    destinationConfigured = pendingSaveAsDestinationConfigured,
+                )
+                pendingSaveAsDestinationConfigured = false
 
                 message?.let {
                     Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
                 }
+            }
+        }
+
+    val backupFolderLauncher =
+        rememberLauncherForActivityResult(OpenDocumentTree()) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+
+            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(uri, flags)
+            }
+
+            scope.launch {
+                viewModel.setBackupFolderUri(uri.toString())
             }
         }
 
@@ -224,6 +262,22 @@ fun SettingsScreen(
                 demoDataCreatedMessage,
                 Toast.LENGTH_SHORT,
             ).show()
+        }
+    }
+
+    LaunchedEffect(state.backupFolderUri) {
+        val rawUri = state.backupFolderUri ?: return@LaunchedEffect
+        val folderUri = rawUri.toUri()
+        val isAccessible =
+            runCatching {
+                val root = DocumentFile.fromTreeUri(context, folderUri)
+                root != null && root.exists() && root.canWrite()
+            }.getOrDefault(false)
+
+        if (!isAccessible) {
+            viewModel.clearBackupFolderUri()
+
+            Toast.makeText(context, backupFolderUnavailableMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -461,21 +515,80 @@ fun SettingsScreen(
                 onBack = { route = SettingsRoute.MAIN },
                 onHelpClick = { isBackupHelpVisible = true },
                 helpContentDescription = stringResource(R.string.settings_backup_help_title),
+                contentInsideCard = false,
                 modifier = modifier,
             ) {
-                SettingsBackupActionRow(
-                    label = stringResource(R.string.settings_export_backup_title),
-                    detail = backupExportLabel(state.lastBackupExportedAt),
-                    onClick = { exportDocumentLauncher.launch(backupFileName()) },
-                )
+                SettingsCard {
+                    SettingsBackupActionRow(
+                        label = stringResource(R.string.settings_export_backup_title),
+                        detail = backupExportLabel(state.lastBackupExportedAt),
+                        onClick = {
+                            scope.launch {
+                                val configuredUri = state.backupFolderUri
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+                                if (configuredUri == null) {
+                                    pendingSaveAsDestinationConfigured = false
+                                    exportDocumentLauncher.launch(backupFileName())
+                                } else {
+                                    val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
+                                    val writeSucceeded =
+                                        jsonResult.getOrNull()?.let { payload ->
+                                            writeTextToBackupFolder(
+                                                context = context,
+                                                treeUri = configuredUri.toUri(),
+                                                content = payload,
+                                            )
+                                        } ?: false
 
-                SettingsBackupActionRow(
-                    label = stringResource(R.string.settings_import_backup_title),
-                    detail = backupImportLabel(state.lastBackupImportedAt),
-                    onClick = { importDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE)) },
-                )
+                                    if (writeSucceeded) {
+                                        Toast.makeText(context, exportSuccessMessage, Toast.LENGTH_SHORT).show()
+
+                                        viewModel.logExportBackupResult(
+                                            exportResult = jsonResult,
+                                            destinationType = EXPORT_DESTINATION_FOLDER,
+                                            destinationConfigured = true,
+                                        )
+                                    } else {
+                                        Toast.makeText(context, exportFallbackMessage, Toast.LENGTH_SHORT).show()
+
+                                        pendingSaveAsDestinationConfigured = true
+                                        exportDocumentLauncher.launch(backupFileName())
+                                    }
+                                }
+                            }
+                        },
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                    SettingsBackupActionRow(
+                        label = stringResource(R.string.settings_import_backup_title),
+                        detail = backupImportLabel(state.lastBackupImportedAt),
+                        onClick = { importDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE)) },
+                    )
+                }
+
+                SettingsCard {
+                    SettingsBackupActionRow(
+                        label = stringResource(R.string.settings_backup_folder_title),
+                        detail = backupFolderLabel(state.backupFolderUri),
+                        onClick = { backupFolderLauncher.launch(null) },
+                    )
+
+                    if (state.backupFolderUri != null) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                        SettingsBackupActionRow(
+                            label = stringResource(R.string.settings_backup_folder_clear),
+                            detail = stringResource(R.string.settings_backup_folder_clear_detail),
+                            onClick = {
+                                scope.launch {
+                                    viewModel.clearBackupFolderUri()
+                                }
+                            },
+                        )
+                    }
+                }
             }
     }
 
@@ -697,6 +810,25 @@ private fun readTextFromUri(
     }.getOrNull()
 }
 
+private fun writeTextToBackupFolder(
+    context: Context,
+    treeUri: Uri,
+    content: String,
+): Boolean {
+    val backupFile =
+        runCatching {
+            val root = DocumentFile.fromTreeUri(context, treeUri)
+
+            if (root == null || !root.canWrite()) {
+                null
+            } else {
+                root.createFile(BACKUP_MIME_TYPE, backupFileName())
+            }
+        }.getOrNull()
+
+    return backupFile?.let { file -> writeTextToUri(context, file.uri, content) } ?: false
+}
+
 @Composable
 private fun SettingsSection(
     title: String,
@@ -718,6 +850,7 @@ private fun SettingsDetailScreen(
     onBack: () -> Unit,
     onHelpClick: (() -> Unit)? = null,
     helpContentDescription: String? = null,
+    contentInsideCard: Boolean = true,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -790,7 +923,13 @@ private fun SettingsDetailScreen(
         }
 
         Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
-            SettingsCard(content = content)
+            if (contentInsideCard) {
+                SettingsCard(content = content)
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingLg)) {
+                    content()
+                }
+            }
         }
     }
 }
@@ -978,6 +1117,15 @@ private fun backupImportLabel(rawTimestamp: String?): String {
     val never = stringResource(R.string.settings_backup_never)
     val formatted = formatBackupTimestamp(rawTimestamp) ?: never
     return stringResource(R.string.settings_backup_last_imported, formatted)
+}
+
+@Composable
+private fun backupFolderLabel(rawUri: String?): String {
+    return if (rawUri.isNullOrBlank()) {
+        stringResource(R.string.settings_backup_folder_default)
+    } else {
+        stringResource(R.string.settings_backup_folder_selected)
+    }
 }
 
 @Composable

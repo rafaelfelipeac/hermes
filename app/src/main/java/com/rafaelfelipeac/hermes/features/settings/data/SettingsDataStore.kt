@@ -10,6 +10,7 @@ internal const val LANGUAGE_KEY_NAME = "language"
 internal const val SLOT_MODE_POLICY_KEY_NAME = "slot_mode_policy"
 internal const val LAST_BACKUP_EXPORTED_AT_KEY_NAME = "last_backup_exported_at"
 internal const val LAST_BACKUP_IMPORTED_AT_KEY_NAME = "last_backup_imported_at"
+internal const val BACKUP_FOLDER_URI_KEY_NAME = "backup_folder_uri"
 
 internal val Context.settingsDataStore by preferencesDataStore(
     name = SETTINGS_DATA_STORE_NAME,
@@ -20,3 +21,4 @@ internal val LANGUAGE_KEY = stringPreferencesKey(LANGUAGE_KEY_NAME)
 internal val SLOT_MODE_POLICY_KEY = stringPreferencesKey(SLOT_MODE_POLICY_KEY_NAME)
 internal val LAST_BACKUP_EXPORTED_AT_KEY = stringPreferencesKey(LAST_BACKUP_EXPORTED_AT_KEY_NAME)
 internal val LAST_BACKUP_IMPORTED_AT_KEY = stringPreferencesKey(LAST_BACKUP_IMPORTED_AT_KEY_NAME)
+internal val BACKUP_FOLDER_URI_KEY = stringPreferencesKey(BACKUP_FOLDER_URI_KEY_NAME)

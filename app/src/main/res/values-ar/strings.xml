@@ -229,10 +229,19 @@
     <string name="settings_backup_last_exported">آخر تصدير: %1$s</string>
     <string name="settings_backup_last_imported">آخر استيراد: %1$s</string>
     <string name="settings_backup_never">أبدًا</string>
+
+    <string name="settings_export_backup_fallback_save_as">تعذر استخدام مجلد النسخ الاحتياطي. اختر مكان الحفظ.</string>
+    <string name="settings_backup_folder_title">مجلد النسخ الاحتياطي</string>
+    <string name="settings_backup_folder_default">افتراضي (اسأل في كل مرة)</string>
+    <string name="settings_backup_folder_selected">تم اختيار المجلد</string>
+    <string name="settings_backup_folder_clear">مسح المجلد</string>
+    <string name="settings_backup_folder_clear_detail">استخدام مسار الحفظ الافتراضي.</string>
+    <string name="settings_backup_folder_unavailable">مجلد النسخ الاحتياطي المحفوظ لم يعد متاحًا.</string>
     <string name="settings_export_backup_title">تصدير نسخة احتياطية (JSON)</string>
     <string name="settings_import_backup_title">استيراد نسخة احتياطية (JSON)</string>
     <string name="settings_export_backup_error">تعذر التصدير الآن. حاول مرة أخرى.</string>
-    <string name="settings_import_backup_error">تعذر استيراد هذه النسخة الاحتياطية. تحقق من الملف وحاول مرة أخرى.</string>
+
+    <string name="settings_export_backup_success">تم تصدير النسخة الاحتياطية.</string>    <string name="settings_import_backup_error">تعذر استيراد هذه النسخة الاحتياطية. تحقق من الملف وحاول مرة أخرى.</string>
     <string name="settings_import_backup_success">تم استيراد النسخة الاحتياطية.</string>
     <string name="settings_import_backup_replace_title">سيؤدي الاستيراد إلى استبدال بياناتك الحالية.</string>
     <string name="settings_import_backup_replace_message">سيستبدل هذا الاستيراد بياناتك المحلية بالنسخة الاحتياطية المحددة.</string>
@@ -246,6 +255,8 @@
     <string name="activity_action_change_slot_mode">لقد غيّرت وضع الفترات.</string>
     <string name="activity_action_export_backup">لقد صدّرت نسخة احتياطية.</string>
     <string name="activity_action_import_backup">لقد استوردت نسخة احتياطية.</string>
+    <string name="activity_action_set_backup_folder">لقد قمت بتحديد مجلد نسخ احتياطي.</string>
+    <string name="activity_action_clear_backup_folder">لقد قمت بمسح مجلد النسخ الاحتياطي.</string>
     <string name="weekly_training_slot_morning">صباح</string>
     <string name="weekly_training_slot_afternoon">بعد الظهر</string>
     <string name="weekly_training_slot_night">مساء</string>

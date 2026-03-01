@@ -4,13 +4,18 @@ import app.cash.turbine.test
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_CONFIGURED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.SCHEMA_VERSION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.USER_ACTIONS_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WORKOUTS_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.APP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupDataStats
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
@@ -61,6 +66,7 @@ class SettingsViewModelTest {
             every { repository.slotModePolicy } returns slotModePolicyFlow
             every { repository.lastBackupExportedAt } returns lastBackupExportedAtFlow
             every { repository.lastBackupImportedAt } returns lastBackupImportedAtFlow
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
             every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
             every { repository.initialLanguage() } returns AppLanguage.SYSTEM
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
@@ -82,6 +88,7 @@ class SettingsViewModelTest {
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
+                        backupFolderUri = null,
                     ),
                     awaitItem(),
                 )
@@ -94,6 +101,7 @@ class SettingsViewModelTest {
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
+                        backupFolderUri = null,
                     ),
                     awaitItem(),
                 )
@@ -106,6 +114,7 @@ class SettingsViewModelTest {
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
+                        backupFolderUri = null,
                     ),
                     awaitItem(),
                 )
@@ -131,6 +140,7 @@ class SettingsViewModelTest {
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
 
             val viewModel =
                 SettingsViewModel(
@@ -164,6 +174,7 @@ class SettingsViewModelTest {
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
 
             val viewModel =
                 SettingsViewModel(
@@ -198,6 +209,7 @@ class SettingsViewModelTest {
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
 
             val viewModel =
                 SettingsViewModel(
@@ -221,7 +233,7 @@ class SettingsViewModelTest {
         }
 
     @Test
-    fun exportBackupJson_success_logsAction() =
+    fun logExportBackupResult_success_logsAction() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = mockk<SettingsRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
@@ -237,6 +249,7 @@ class SettingsViewModelTest {
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
             coEvery { backupRepository.exportBackupJson(any()) } returns Result.success("{}")
             coEvery { backupRepository.getDataStats() } returns
                 BackupDataStats(
@@ -255,7 +268,12 @@ class SettingsViewModelTest {
                     backupRepository,
                 )
 
-            viewModel.exportBackupJson("1.3.0")
+            val exportResult = viewModel.exportBackupJson("1.3.0")
+            viewModel.logExportBackupResult(
+                exportResult = exportResult,
+                destinationType = "save_as",
+                destinationConfigured = false,
+            )
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
@@ -266,6 +284,8 @@ class SettingsViewModelTest {
                     metadata =
                         mapOf(
                             RESULT to "success",
+                            DESTINATION_TYPE to "save_as",
+                            DESTINATION_CONFIGURED to "false",
                             SCHEMA_VERSION to "1",
                             WORKOUTS_COUNT to "2",
                             CATEGORIES_COUNT to "3",
@@ -293,6 +313,7 @@ class SettingsViewModelTest {
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
             coEvery { backupRepository.importBackupJson(any()) } returns
                 ImportBackupResult.Success(
                     schemaVersion = 1,
@@ -348,6 +369,7 @@ class SettingsViewModelTest {
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
             coEvery { backupRepository.hasAnyData() } returns true
 
             val viewModel =
@@ -379,6 +401,7 @@ class SettingsViewModelTest {
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
             coEvery { backupRepository.hasAnyData() } returns false
 
             val viewModel =
@@ -391,5 +414,89 @@ class SettingsViewModelTest {
                 )
 
             assertEquals(true, viewModel.hasBackupData())
+        }
+
+    @Test
+    fun setBackupFolderUri_logsAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = mockk<SettingsRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+
+            every { repository.initialThemeMode() } returns LIGHT
+            every { repository.initialLanguage() } returns ENGLISH
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.themeMode } returns MutableStateFlow(LIGHT)
+            every { repository.language } returns MutableStateFlow(ENGLISH)
+            every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
+            every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                    backupRepository,
+                )
+
+            viewModel.setBackupFolderUri("content://tree/test")
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = SET_BACKUP_FOLDER,
+                    entityType = SETTINGS,
+                    metadata = any(),
+                    entityId = null,
+                    timestamp = any(),
+                )
+            }
+        }
+
+    @Test
+    fun clearBackupFolderUri_logsAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = mockk<SettingsRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+
+            every { repository.initialThemeMode() } returns LIGHT
+            every { repository.initialLanguage() } returns ENGLISH
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.themeMode } returns MutableStateFlow(LIGHT)
+            every { repository.language } returns MutableStateFlow(ENGLISH)
+            every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
+            every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow("content://tree/test")
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                    backupRepository,
+                )
+
+            viewModel.clearBackupFolderUri()
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = CLEAR_BACKUP_FOLDER,
+                    entityType = SETTINGS,
+                    metadata = any(),
+                    entityId = null,
+                    timestamp = any(),
+                )
+            }
         }
 }

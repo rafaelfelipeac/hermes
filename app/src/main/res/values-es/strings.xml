@@ -229,10 +229,18 @@
     <string name="settings_backup_last_exported">Última exportación: %1$s</string>
     <string name="settings_backup_last_imported">Última importación: %1$s</string>
     <string name="settings_backup_never">Nunca</string>
+    <string name="settings_export_backup_fallback_save_as">No se pudo usar tu carpeta de copia de seguridad. Elige dónde guardar.</string>
+    <string name="settings_backup_folder_title">Carpeta de copia de seguridad</string>
+    <string name="settings_backup_folder_default">Predeterminado (preguntar siempre)</string>
+    <string name="settings_backup_folder_selected">Carpeta seleccionada</string>
+    <string name="settings_backup_folder_clear">Borrar carpeta</string>
+    <string name="settings_backup_folder_clear_detail">Usar el flujo de guardado predeterminado.</string>
+    <string name="settings_backup_folder_unavailable">La carpeta de copia guardada ya no es accesible.</string>
     <string name="settings_export_backup_title">Exportar copia de seguridad (JSON)</string>
     <string name="settings_import_backup_title">Importar copia de seguridad (JSON)</string>
     <string name="settings_export_backup_error">No se pudo exportar ahora. Inténtalo de nuevo.</string>
-    <string name="settings_import_backup_error">No se pudo importar esta copia de seguridad. Revisa el archivo e inténtalo de nuevo.</string>
+
+    <string name="settings_export_backup_success">Copia de seguridad exportada.</string>    <string name="settings_import_backup_error">No se pudo importar esta copia de seguridad. Revisa el archivo e inténtalo de nuevo.</string>
     <string name="settings_import_backup_success">Copia de seguridad importada.</string>
     <string name="settings_import_backup_replace_title">La importación reemplazará tus datos actuales.</string>
     <string name="settings_import_backup_replace_message">Esta importación reemplaza tus datos locales con la copia seleccionada.</string>
@@ -246,6 +254,8 @@
     <string name="activity_action_change_slot_mode">Cambiaste el modo por turnos.</string>
     <string name="activity_action_export_backup">Exportaste una copia de seguridad.</string>
     <string name="activity_action_import_backup">Importaste una copia de seguridad.</string>
+    <string name="activity_action_set_backup_folder">Definiste una carpeta de copia de seguridad.</string>
+    <string name="activity_action_clear_backup_folder">Borraste la carpeta de copia de seguridad.</string>
     <string name="weekly_training_slot_morning">Mañana</string>
     <string name="weekly_training_slot_afternoon">Tarde</string>
     <string name="weekly_training_slot_night">Noche</string>

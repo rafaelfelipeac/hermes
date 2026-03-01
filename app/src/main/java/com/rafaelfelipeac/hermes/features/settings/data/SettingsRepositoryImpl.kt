@@ -57,6 +57,11 @@ class SettingsRepositoryImpl
                 .map { prefs -> prefs[LAST_BACKUP_IMPORTED_AT_KEY] }
                 .distinctUntilChanged()
 
+        override val backupFolderUri: Flow<String?> =
+            dataStore.data
+                .map { prefs -> prefs[BACKUP_FOLDER_URI_KEY] }
+                .distinctUntilChanged()
+
         override fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
 
         override fun initialLanguage(): AppLanguage = defaultLanguage()
@@ -90,6 +95,16 @@ class SettingsRepositoryImpl
         override suspend fun setLastBackupImportedAt(value: String) {
             dataStore.edit { prefs ->
                 prefs[LAST_BACKUP_IMPORTED_AT_KEY] = value
+            }
+        }
+
+        override suspend fun setBackupFolderUri(value: String?) {
+            dataStore.edit { prefs ->
+                if (value == null) {
+                    prefs.remove(BACKUP_FOLDER_URI_KEY)
+                } else {
+                    prefs[BACKUP_FOLDER_URI_KEY] = value
+                }
             }
         }
     }

@@ -28,4 +28,6 @@ object UserActionMetadataKeys {
     const val USER_ACTIONS_COUNT = "user_actions_count"
     const val RESULT = "result"
     const val FAILURE_REASON = "failure_reason"
+    const val DESTINATION_TYPE = "destination_type"
+    const val DESTINATION_CONFIGURED = "destination_configured"
 }

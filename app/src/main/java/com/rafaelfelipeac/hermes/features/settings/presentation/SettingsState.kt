@@ -10,4 +10,5 @@ data class SettingsState(
     val slotModePolicy: SlotModePolicy,
     val lastBackupExportedAt: String?,
     val lastBackupImportedAt: String?,
+    val backupFolderUri: String?,
 )

@@ -229,10 +229,19 @@
     <string name="settings_backup_last_exported">अंतिम निर्यात: %1$s</string>
     <string name="settings_backup_last_imported">अंतिम आयात: %1$s</string>
     <string name="settings_backup_never">कभी नहीं</string>
+
+    <string name="settings_export_backup_fallback_save_as">आपके बैकअप फ़ोल्डर का उपयोग नहीं हो सका। कहाँ सहेजना है चुनें।</string>
+    <string name="settings_backup_folder_title">बैकअप फ़ोल्डर</string>
+    <string name="settings_backup_folder_default">डिफ़ॉल्ट (हर बार पूछें)</string>
+    <string name="settings_backup_folder_selected">फ़ोल्डर चुना गया</string>
+    <string name="settings_backup_folder_clear">फ़ोल्डर साफ़ करें</string>
+    <string name="settings_backup_folder_clear_detail">डिफ़ॉल्ट सेव फ़्लो का उपयोग करें।</string>
+    <string name="settings_backup_folder_unavailable">सहेजा गया बैकअप फ़ोल्डर अब उपलब्ध नहीं है।</string>
     <string name="settings_export_backup_title">बैकअप निर्यात करें (JSON)</string>
     <string name="settings_import_backup_title">बैकअप आयात करें (JSON)</string>
     <string name="settings_export_backup_error">अभी निर्यात नहीं हो सका। फिर से प्रयास करें।</string>
-    <string name="settings_import_backup_error">इस बैकअप को आयात नहीं किया जा सका। फ़ाइल जाँचें और फिर से प्रयास करें।</string>
+
+    <string name="settings_export_backup_success">बैकअप निर्यात किया गया।</string>    <string name="settings_import_backup_error">इस बैकअप को आयात नहीं किया जा सका। फ़ाइल जाँचें और फिर से प्रयास करें।</string>
     <string name="settings_import_backup_success">बैकअप आयात किया गया।</string>
     <string name="settings_import_backup_replace_title">आयात आपके वर्तमान डेटा को बदल देगा।</string>
     <string name="settings_import_backup_replace_message">यह आयात आपके स्थानीय डेटा को चुने गए बैकअप से बदल देगा।</string>
@@ -246,6 +255,8 @@
     <string name="activity_action_change_slot_mode">आपने स्लॉट मोड बदला।</string>
     <string name="activity_action_export_backup">आपने एक बैकअप निर्यात किया।</string>
     <string name="activity_action_import_backup">आपने एक बैकअप आयात किया।</string>
+    <string name="activity_action_set_backup_folder">आपने एक बैकअप फ़ोल्डर सेट किया।</string>
+    <string name="activity_action_clear_backup_folder">आपने बैकअप फ़ोल्डर साफ़ किया।</string>
     <string name="weekly_training_slot_morning">सुबह</string>
     <string name="weekly_training_slot_afternoon">दोपहर</string>
     <string name="weekly_training_slot_night">रात</string>

@@ -228,10 +228,19 @@
     <string name="settings_backup_last_exported">Ultima esportazione: %1$s</string>
     <string name="settings_backup_last_imported">Ultima importazione: %1$s</string>
     <string name="settings_backup_never">Mai</string>
+
+    <string name="settings_export_backup_fallback_save_as">Impossibile usare la cartella di backup. Scegli dove salvare.</string>
+    <string name="settings_backup_folder_title">Cartella di backup</string>
+    <string name="settings_backup_folder_default">Predefinito (chiedi ogni volta)</string>
+    <string name="settings_backup_folder_selected">Cartella selezionata</string>
+    <string name="settings_backup_folder_clear">Cancella cartella</string>
+    <string name="settings_backup_folder_clear_detail">Usa il flusso di salvataggio predefinito.</string>
+    <string name="settings_backup_folder_unavailable">La cartella di backup salvata non è più accessibile.</string>
     <string name="settings_export_backup_title">Esporta backup (JSON)</string>
     <string name="settings_import_backup_title">Importa backup (JSON)</string>
     <string name="settings_export_backup_error">Impossibile esportare ora. Riprova.</string>
-    <string name="settings_import_backup_error">Impossibile importare questo backup. Controlla il file e riprova.</string>
+
+    <string name="settings_export_backup_success">Backup esportato.</string>    <string name="settings_import_backup_error">Impossibile importare questo backup. Controlla il file e riprova.</string>
     <string name="settings_import_backup_success">Backup importato.</string>
     <string name="settings_import_backup_replace_title">Questa importazione sostituirà i dati attuali.</string>
     <string name="settings_import_backup_replace_message">Questa importazione sostituisce i dati locali con il backup selezionato.</string>
@@ -245,6 +254,8 @@
     <string name="activity_action_change_slot_mode">Hai cambiato la modalità turni.</string>
     <string name="activity_action_export_backup">Hai esportato un backup.</string>
     <string name="activity_action_import_backup">Hai importato un backup.</string>
+    <string name="activity_action_set_backup_folder">Hai impostato una cartella di backup.</string>
+    <string name="activity_action_clear_backup_folder">Hai cancellato la cartella di backup.</string>
     <string name="weekly_training_slot_morning">Mattina</string>
     <string name="weekly_training_slot_afternoon">Pomeriggio</string>
     <string name="weekly_training_slot_night">Sera</string>

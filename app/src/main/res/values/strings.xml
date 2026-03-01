@@ -231,10 +231,18 @@
     <string name="settings_backup_last_exported">Last exported: %1$s</string>
     <string name="settings_backup_last_imported">Last imported: %1$s</string>
     <string name="settings_backup_never">Never</string>
+    <string name="settings_export_backup_fallback_save_as">Couldn’t use your backup folder. Choose where to save.</string>
+    <string name="settings_backup_folder_title">Backup folder</string>
+    <string name="settings_backup_folder_default">Default (ask every time)</string>
+    <string name="settings_backup_folder_selected">Folder selected</string>
+    <string name="settings_backup_folder_clear">Clear folder</string>
+    <string name="settings_backup_folder_clear_detail">Use default save flow.</string>
+    <string name="settings_backup_folder_unavailable">Saved backup folder is no longer accessible.</string>
     <string name="settings_export_backup_title">Export backup (JSON)</string>
     <string name="settings_import_backup_title">Import backup (JSON)</string>
     <string name="settings_export_backup_error">Couldn’t export right now. Try again.</string>
-    <string name="settings_import_backup_error">Couldn’t import this backup. Check the file and try again.</string>
+
+    <string name="settings_export_backup_success">Backup exported.</string>    <string name="settings_import_backup_error">Couldn’t import this backup. Check the file and try again.</string>
     <string name="settings_import_backup_success">Backup imported.</string>
     <string name="settings_import_backup_replace_title">Import will replace your current data.</string>
     <string name="settings_import_backup_replace_message">This import replaces your local data with the selected backup.</string>
@@ -248,6 +256,8 @@
     <string name="activity_action_change_slot_mode">You changed slot mode.</string>
     <string name="activity_action_export_backup">You exported a backup.</string>
     <string name="activity_action_import_backup">You imported a backup.</string>
+    <string name="activity_action_set_backup_folder">You set a backup folder.</string>
+    <string name="activity_action_clear_backup_folder">You cleared the backup folder.</string>
     <string name="weekly_training_slot_morning">Morning</string>
     <string name="weekly_training_slot_afternoon">Afternoon</string>
     <string name="weekly_training_slot_night">Evening</string>

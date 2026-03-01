@@ -231,10 +231,19 @@
     <string name="settings_backup_last_exported">Dernière exportation : %1$s</string>
     <string name="settings_backup_last_imported">Dernière importation : %1$s</string>
     <string name="settings_backup_never">Jamais</string>
+
+    <string name="settings_export_backup_fallback_save_as">Impossible d’utiliser votre dossier de sauvegarde. Choisissez où enregistrer.</string>
+    <string name="settings_backup_folder_title">Dossier de sauvegarde</string>
+    <string name="settings_backup_folder_default">Par défaut (demander à chaque fois)</string>
+    <string name="settings_backup_folder_selected">Dossier sélectionné</string>
+    <string name="settings_backup_folder_clear">Effacer le dossier</string>
+    <string name="settings_backup_folder_clear_detail">Utiliser le flux d’enregistrement par défaut.</string>
+    <string name="settings_backup_folder_unavailable">Le dossier de sauvegarde enregistré n’est plus accessible.</string>
     <string name="settings_export_backup_title">Exporter une sauvegarde (JSON)</string>
     <string name="settings_import_backup_title">Importer une sauvegarde (JSON)</string>
     <string name="settings_export_backup_error">Impossible d’exporter pour le moment. Réessayez.</string>
-    <string name="settings_import_backup_error">Impossible d’importer cette sauvegarde. Vérifiez le fichier et réessayez.</string>
+
+    <string name="settings_export_backup_success">Sauvegarde exportée.</string>    <string name="settings_import_backup_error">Impossible d’importer cette sauvegarde. Vérifiez le fichier et réessayez.</string>
     <string name="settings_import_backup_success">Sauvegarde importée.</string>
     <string name="settings_import_backup_replace_title">L’importation remplacera vos données actuelles.</string>
     <string name="settings_import_backup_replace_message">Cette importation remplace vos données locales par la sauvegarde sélectionnée.</string>
@@ -248,6 +257,8 @@
     <string name="activity_action_change_slot_mode">Vous avez changé le mode des créneaux.</string>
     <string name="activity_action_export_backup">Vous avez exporté une sauvegarde.</string>
     <string name="activity_action_import_backup">Vous avez importé une sauvegarde.</string>
+    <string name="activity_action_set_backup_folder">Vous avez défini un dossier de sauvegarde.</string>
+    <string name="activity_action_clear_backup_folder">Vous avez effacé le dossier de sauvegarde.</string>
     <string name="weekly_training_slot_morning">Matin</string>
     <string name="weekly_training_slot_afternoon">Après-midi</string>
     <string name="weekly_training_slot_night">Soir</string>

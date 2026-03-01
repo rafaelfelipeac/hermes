@@ -154,3 +154,9 @@ Recent learnings:
 - If a file contains a top-level enum with the same name as a composable (`DayIndicator`), verify real call sites; in this case only the composable was used, so removing the unused enum reduced naming ambiguity.
 - For replace-import confirmation in Settings, using `state.value` can under-read settings when the `StateFlow` is `WhileSubscribed`; querying repository flows with `first()` avoids false negatives when no collector is active.
 - Backup action logging is more useful when emitted for both success and failure paths with explicit metadata keys (`result`, `failure_reason`, schema and counts), instead of logging only successful actions.
+- For SAF-based backup destinations, persist a user-selected tree URI and write exports directly into that selected folder; do not auto-create app-owned nested subfolders because that hides the real save location from users.
+- Export action logging should happen after the final destination write outcome (folder or Save As), not when JSON serialization succeeds, otherwise Activity can report false-positive export success.
+- When combining more than five Flows in Settings state, prefer composing two `combine` calls (base state + extra flow) to avoid vararg-array combine type inference regressions.
+- In formatter-heavy classes, moving cross-cutting fallback mappings into focused helpers is an easy way to stay under Detekt complexity thresholds without changing output behavior.
+- For user-selected SAF backup destinations, avoid silently creating app-owned nested folders; writing directly to the selected tree keeps behavior predictable and reduces confusion about where files are saved.
+- When backup-folder behavior changes, update `settings_backup_folder_selected` copy across all locales in the same task so UI text stays truthful (for example, removing stale `(Hermes/Backup)` hints).
