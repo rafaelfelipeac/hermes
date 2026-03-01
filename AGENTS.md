@@ -27,7 +27,7 @@ Project-level conventions for Codex and similar agents.
 - Room is the source of truth for entities and DAOs; map `*Entity` ↔ domain models in the data layer.
 - DataStore (Preferences) is only for settings (theme/language).
 - Backup JSON compatibility is schema-driven: use `schemaVersion` as the import gate, keep versioned decoders (`BackupV1Decoder`, `BackupV2Decoder`, ...), and do not use `appVersion` to decide compatibility.
-- For any backup export/import contract change (schema, decode, migration, validation), you must follow `/Users/rafaelcordeiro/AndroidStudioProjects/hermes/docs/backup-compatibility-policy.md` and keep it updated in the same task.
+- For any backup export/import contract change (schema, decode, migration, validation), you must follow `docs/backup-compatibility-policy.md` and keep it updated in the same task.
 
 ## UI & resources
 - Compose + Material 3 only; no XML layouts.

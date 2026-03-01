@@ -1,11 +1,10 @@
 package com.rafaelfelipeac.hermes.features.backup.data
 
+import android.util.Log
 import androidx.room.withTransaction
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.SUPPORTED_SCHEMA_VERSION
 import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.decode
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
@@ -121,7 +120,11 @@ class BackupRepositoryImpl
                     settingsRepository.setLanguage(AppLanguage.fromTag(settings.languageTag))
                     settingsRepository.setSlotModePolicy(SlotModePolicy.valueOf(settings.slotModePolicy))
                 }.onFailure {
-                    return Failure(ImportBackupError.WRITE_FAILED)
+                    Log.w(
+                        BACKUP_REPOSITORY_LOG_TAG,
+                        LOG_SETTINGS_IMPORT_FAILED,
+                        it,
+                    )
                 }
             }
 
@@ -180,15 +183,6 @@ class BackupRepositoryImpl
                 }
             }
 
-            snapshot.userActions.forEach { action ->
-                if (runCatching { UserActionType.valueOf(action.actionType) }.isFailure) {
-                    return ImportBackupError.INVALID_FIELD_VALUE
-                }
-                if (runCatching { UserActionEntityType.valueOf(action.entityType) }.isFailure) {
-                    return ImportBackupError.INVALID_FIELD_VALUE
-                }
-            }
-
             snapshot.settings?.let { settings ->
                 if (runCatching { ThemeMode.valueOf(settings.themeMode) }.isFailure) {
                     return ImportBackupError.INVALID_FIELD_VALUE
@@ -203,6 +197,8 @@ class BackupRepositoryImpl
     }
 
 private val VALID_DAY_OF_WEEK_RANGE = DayOfWeek.MONDAY.value..DayOfWeek.SUNDAY.value
+private const val BACKUP_REPOSITORY_LOG_TAG = "BackupRepository"
+private const val LOG_SETTINGS_IMPORT_FAILED = "Backup import committed core data, but settings restore failed."
 
 private fun WorkoutEntity.toBackupRecord(): BackupWorkoutRecord {
     return BackupWorkoutRecord(

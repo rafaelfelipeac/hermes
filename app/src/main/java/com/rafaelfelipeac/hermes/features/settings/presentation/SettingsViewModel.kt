@@ -2,6 +2,7 @@
 
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
@@ -185,15 +186,34 @@ class SettingsViewModel
                 )
 
             if (exportResult.isSuccess) {
-                val stats = backupRepository.getDataStats()
-
                 metadata[RESULT] = RESULT_SUCCESS
-                metadata[SCHEMA_VERSION] = stats.schemaVersion.toString()
-                metadata[WORKOUTS_COUNT] = stats.workoutsCount.toString()
-                metadata[CATEGORIES_COUNT] = stats.categoriesCount.toString()
-                metadata[USER_ACTIONS_COUNT] = stats.userActionsCount.toString()
 
-                repository.setLastBackupExportedAt(Instant.now().toString())
+                runCatching {
+                    backupRepository.getDataStats()
+                }.onSuccess { stats ->
+                    metadata[SCHEMA_VERSION] = stats.schemaVersion.toString()
+                    metadata[WORKOUTS_COUNT] = stats.workoutsCount.toString()
+                    metadata[CATEGORIES_COUNT] = stats.categoriesCount.toString()
+                    metadata[USER_ACTIONS_COUNT] = stats.userActionsCount.toString()
+                }.onFailure { throwable ->
+                    metadata[FAILURE_REASON] = throwable.toSideEffectFailureReason()
+                    Log.w(
+                        SETTINGS_VIEW_MODEL_LOG_TAG,
+                        LOG_EXPORT_STATS_SIDE_EFFECT_FAILED,
+                        throwable,
+                    )
+                }
+
+                runCatching {
+                    repository.setLastBackupExportedAt(Instant.now().toString())
+                }.onFailure { throwable ->
+                    metadata[FAILURE_REASON] = throwable.toSideEffectFailureReason()
+                    Log.w(
+                        SETTINGS_VIEW_MODEL_LOG_TAG,
+                        LOG_EXPORT_TIMESTAMP_SIDE_EFFECT_FAILED,
+                        throwable,
+                    )
+                }
             } else {
                 metadata[FAILURE_REASON] =
                     exportResult.exceptionOrNull()?.javaClass?.simpleName ?: UNKNOWN_FAILURE_REASON
@@ -216,7 +236,17 @@ class SettingsViewModel
                 metadata[WORKOUTS_COUNT] = result.workoutsCount.toString()
                 metadata[CATEGORIES_COUNT] = result.categoriesCount.toString()
                 metadata[USER_ACTIONS_COUNT] = result.userActionsCount.toString()
-                repository.setLastBackupImportedAt(Instant.now().toString())
+
+                runCatching {
+                    repository.setLastBackupImportedAt(Instant.now().toString())
+                }.onFailure { throwable ->
+                    metadata[FAILURE_REASON] = throwable.toSideEffectFailureReason()
+                    Log.w(
+                        SETTINGS_VIEW_MODEL_LOG_TAG,
+                        LOG_IMPORT_TIMESTAMP_SIDE_EFFECT_FAILED,
+                        throwable,
+                    )
+                }
             } else if (result is ImportBackupResult.Failure) {
                 metadata[FAILURE_REASON] = result.error.name
             }
@@ -298,5 +328,21 @@ class SettingsViewModel
             const val UNKNOWN_FAILURE_REASON = "unknown"
             const val BACKUP_FOLDER_DEFAULT = "default"
             const val BACKUP_FOLDER_CONFIGURED = "configured"
+            const val SETTINGS_VIEW_MODEL_LOG_TAG = "SettingsViewModel"
+            const val LOG_EXPORT_STATS_SIDE_EFFECT_FAILED = "Export side effect failed while gathering backup stats."
+            const val LOG_EXPORT_TIMESTAMP_SIDE_EFFECT_FAILED =
+                "Export side effect failed while persisting last exported timestamp."
+            const val LOG_IMPORT_TIMESTAMP_SIDE_EFFECT_FAILED =
+                "Import side effect failed while persisting last imported timestamp."
         }
     }
+
+private fun Throwable.toSideEffectFailureReason(): String {
+    return buildString {
+        append(javaClass.simpleName ?: "Exception")
+        message?.takeIf { it.isNotBlank() }?.let { nonBlankMessage ->
+            append(": ")
+            append(nonBlankMessage)
+        }
+    }
+}

@@ -120,4 +120,49 @@ class BackupJsonCodecTest {
             (result as BackupDecodeResult.Failure).error,
         )
     }
+
+    @Test
+    fun decode_workoutsWrongType_returnsInvalidFieldValue() {
+        val raw =
+            """
+            {
+              "schemaVersion": 1,
+              "exportedAt": "2026-02-25T10:00:00Z",
+              "workouts": {},
+              "categories": [],
+              "userActions": []
+            }
+            """.trimIndent()
+
+        val result = BackupJsonCodec.decode(raw)
+
+        assertTrue(result is BackupDecodeResult.Failure)
+        assertEquals(
+            BackupDecodeError.INVALID_FIELD_VALUE,
+            (result as BackupDecodeResult.Failure).error,
+        )
+    }
+
+    @Test
+    fun decode_settingsWrongType_returnsInvalidFieldValue() {
+        val raw =
+            """
+            {
+              "schemaVersion": 1,
+              "exportedAt": "2026-02-25T10:00:00Z",
+              "workouts": [],
+              "categories": [],
+              "userActions": [],
+              "settings": []
+            }
+            """.trimIndent()
+
+        val result = BackupJsonCodec.decode(raw)
+
+        assertTrue(result is BackupDecodeResult.Failure)
+        assertEquals(
+            BackupDecodeError.INVALID_FIELD_VALUE,
+            (result as BackupDecodeResult.Failure).error,
+        )
+    }
 }

@@ -50,6 +50,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -96,7 +97,9 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.A
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -118,6 +121,7 @@ private const val LOG_MARKET_INTENT_NOT_FOUND = "Market intent not found."
 private const val LOG_MARKET_INTENT_BLOCKED = "Market intent blocked by security policy."
 private const val LOG_WEB_INTENT_NOT_FOUND = "Web intent not found."
 private const val LOG_WEB_INTENT_BLOCKED = "Web intent blocked by security policy."
+private const val EXPORT_WRITE_FAILED = "export_write_failed"
 private const val EXPORT_DESTINATION_SAVE_AS = "save_as"
 private const val EXPORT_DESTINATION_FOLDER = "folder"
 
@@ -142,7 +146,7 @@ fun SettingsScreen(
     var isSlotModeHelpVisible by rememberSaveable { mutableStateOf(false) }
     var isBackupHelpVisible by rememberSaveable { mutableStateOf(false) }
     var isImportReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
-    var pendingImportPayload by rememberSaveable { mutableStateOf<String?>(null) }
+    var pendingImportPayload by remember { mutableStateOf<String?>(null) }
     var pendingSaveAsDestinationConfigured by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val exportFailedMessage = stringResource(R.string.settings_export_backup_error)
@@ -162,10 +166,12 @@ fun SettingsScreen(
                     jsonResult.getOrNull()?.let { payload -> writeTextToUri(context, uri, payload) } ?: false
                 val message = if (writeSucceeded) exportSuccessMessage else exportFailedMessage
                 val exportResult =
-                    if (writeSucceeded) {
+                    if (jsonResult.isFailure) {
+                        jsonResult
+                    } else if (writeSucceeded) {
                         jsonResult
                     } else {
-                        Result.failure(IllegalStateException("write_failed"))
+                        Result.failure(IllegalStateException(EXPORT_WRITE_FAILED))
                     }
 
                 viewModel.logExportBackupResult(
@@ -788,43 +794,49 @@ private fun backupFileName(): String {
     return "$BACKUP_FILE_NAME_PREFIX$timestamp$BACKUP_EXTENSION"
 }
 
-private fun writeTextToUri(
+private suspend fun writeTextToUri(
     context: Context,
     uri: Uri,
     content: String,
 ): Boolean {
-    return runCatching {
-        context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { writer ->
-            writer.write(content)
-            true
-        } ?: false
-    }.getOrDefault(false)
+    return withContext(Dispatchers.IO) {
+        runCatching {
+            context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { writer ->
+                writer.write(content)
+                true
+            } ?: false
+        }.getOrDefault(false)
+    }
 }
 
-private fun readTextFromUri(
+private suspend fun readTextFromUri(
     context: Context,
     uri: Uri,
 ): String? {
-    return runCatching {
-        context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
-    }.getOrNull()
+    return withContext(Dispatchers.IO) {
+        runCatching {
+            context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+        }.getOrNull()
+    }
 }
 
-private fun writeTextToBackupFolder(
+private suspend fun writeTextToBackupFolder(
     context: Context,
     treeUri: Uri,
     content: String,
 ): Boolean {
     val backupFile =
-        runCatching {
-            val root = DocumentFile.fromTreeUri(context, treeUri)
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val root = DocumentFile.fromTreeUri(context, treeUri)
 
-            if (root == null || !root.canWrite()) {
-                null
-            } else {
-                root.createFile(BACKUP_MIME_TYPE, backupFileName())
-            }
-        }.getOrNull()
+                if (root == null || !root.canWrite()) {
+                    null
+                } else {
+                    root.createFile(BACKUP_MIME_TYPE, backupFileName())
+                }
+            }.getOrNull()
+        }
 
     return backupFile?.let { file -> writeTextToUri(context, file.uri, content) } ?: false
 }

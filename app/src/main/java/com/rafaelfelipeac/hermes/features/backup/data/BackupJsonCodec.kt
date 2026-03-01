@@ -11,10 +11,10 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRe
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArrayBuilder
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
@@ -64,7 +64,7 @@ internal object BackupJsonCodec {
                 .getOrElse { return Failure(BackupDecodeError.INVALID_JSON) }
 
         val schemaVersion =
-            root[KEY_SCHEMA_VERSION]?.jsonPrimitive?.intOrNull
+            (root[KEY_SCHEMA_VERSION] as? JsonPrimitive)?.intOrNull
                 ?: return Failure(INVALID_FIELD_VALUE)
 
         return when (schemaVersion) {

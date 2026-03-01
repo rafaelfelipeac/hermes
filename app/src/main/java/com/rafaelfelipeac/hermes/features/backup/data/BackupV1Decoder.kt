@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.backup.data
 
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.INVALID_FIELD_VALUE
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.MISSING_REQUIRED_SECTION
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
@@ -13,12 +14,10 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecor
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.longOrNull
 
 @Suppress("ReturnCount")
@@ -30,15 +29,15 @@ internal object BackupV1Decoder {
 
         val workoutsJson =
             root.arrayOrNull(KEY_WORKOUTS)
-                ?: return Failure(MISSING_REQUIRED_SECTION)
+                ?: return Failure(root.requiredArrayError(KEY_WORKOUTS))
 
         val categoriesJson =
             root.arrayOrNull(KEY_CATEGORIES)
-                ?: return Failure(MISSING_REQUIRED_SECTION)
+                ?: return Failure(root.requiredArrayError(KEY_CATEGORIES))
 
         val userActionsJson =
             root.arrayOrNull(KEY_USER_ACTIONS)
-                ?: return Failure(MISSING_REQUIRED_SECTION)
+                ?: return Failure(root.requiredArrayError(KEY_USER_ACTIONS))
 
         val workouts =
             workoutsJson.mapOrNull(::decodeWorkout)
@@ -126,17 +125,25 @@ internal object BackupV1Decoder {
         )
     }
 
-    private fun JsonObject.stringOrNull(key: String): String? = this[key]?.jsonPrimitive?.contentOrNull
+    private fun JsonObject.stringOrNull(key: String): String? = (this[key] as? JsonPrimitive)?.contentOrNull
 
-    private fun JsonObject.intOrNull(key: String): Int? = this[key]?.jsonPrimitive?.intOrNull
+    private fun JsonObject.intOrNull(key: String): Int? = (this[key] as? JsonPrimitive)?.intOrNull
 
-    private fun JsonObject.longOrNull(key: String): Long? = this[key]?.jsonPrimitive?.longOrNull
+    private fun JsonObject.longOrNull(key: String): Long? = (this[key] as? JsonPrimitive)?.longOrNull
 
-    private fun JsonObject.booleanOrNull(key: String): Boolean? = this[key]?.jsonPrimitive?.booleanOrNull
+    private fun JsonObject.booleanOrNull(key: String): Boolean? = (this[key] as? JsonPrimitive)?.booleanOrNull
 
-    private fun JsonObject.arrayOrNull(key: String): JsonArray? = this[key]?.jsonArray
+    private fun JsonObject.arrayOrNull(key: String): JsonArray? = this[key] as? JsonArray
 
-    private fun JsonObject.objectOrNull(key: String): JsonObject? = this[key]?.jsonObject
+    private fun JsonObject.requiredArrayError(key: String): BackupDecodeError {
+        return if (containsKey(key)) {
+            INVALID_FIELD_VALUE
+        } else {
+            MISSING_REQUIRED_SECTION
+        }
+    }
+
+    private fun JsonObject.objectOrNull(key: String): JsonObject? = this[key] as? JsonObject
 
     private fun <T> JsonArray.mapOrNull(transform: (JsonElement) -> T?): List<T>? {
         val mapped = mutableListOf<T>()
