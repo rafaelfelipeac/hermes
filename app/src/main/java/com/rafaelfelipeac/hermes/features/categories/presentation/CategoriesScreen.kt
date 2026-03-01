@@ -469,7 +469,7 @@ private fun CategoryEditorDialog(
                 )
 
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
+                    columns = GridCells.Fixed(CATEGORY_COLOR_GRID_COLUMNS),
                     horizontalArrangement = Arrangement.spacedBy(SpacingSm),
                     verticalArrangement = Arrangement.spacedBy(SpacingSm),
                     modifier =
@@ -504,6 +504,7 @@ private fun CategoryEditorDialog(
 }
 
 private const val DISABLED_ICON_ALPHA = 0.38f
+private const val CATEGORY_COLOR_GRID_COLUMNS = 4
 
 @Composable
 private fun CategoryColorSwatch(

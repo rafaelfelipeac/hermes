@@ -11,6 +11,9 @@ import java.time.LocalDate
 
 @Dao
 interface WorkoutDao {
+    @Query("SELECT * FROM workouts")
+    suspend fun getAll(): List<WorkoutEntity>
+
     @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
     suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<WorkoutEntity>
 
@@ -22,6 +25,9 @@ interface WorkoutDao {
 
     @Insert
     suspend fun insertAll(workouts: List<WorkoutEntity>): List<Long>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAllReplace(workouts: List<WorkoutEntity>): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrReplace(workout: WorkoutEntity): Long

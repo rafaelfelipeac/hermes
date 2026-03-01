@@ -8,4 +8,7 @@ data class SettingsState(
     val themeMode: ThemeMode,
     val language: AppLanguage,
     val slotModePolicy: SlotModePolicy,
+    val lastBackupExportedAt: String?,
+    val lastBackupImportedAt: String?,
+    val backupFolderUri: String?,
 )

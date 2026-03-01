@@ -38,6 +38,7 @@ data class WeeklyTrainingState(
                     )
                         ?: return@mapNotNull null
                 val isDayCompleted = items.all { it.eventType != WORKOUT || it.isCompleted }
+
                 day to WorkoutDayIndicator(workout = lastItem, isDayCompleted = isDayCompleted)
             }
             .toMap()

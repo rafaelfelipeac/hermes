@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Rect.Companion.Zero
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.pointerInput
@@ -633,7 +634,7 @@ private fun TimeSlot.labelRes(): Int {
 @Composable
 private fun DropPreviewBadge(
     preview: DropPreview,
-    borderColor: androidx.compose.ui.graphics.Color,
+    borderColor: Color,
     modifier: Modifier = Modifier,
 ) {
     val sectionLabel = preview.targetSection.title()

@@ -26,6 +26,9 @@ class SettingsContentTest {
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                        lastBackupExportedAt = null,
+                        lastBackupImportedAt = null,
+                        backupFolderUri = null,
                     ),
                 appVersion = APP_VERSION_TEST,
                 onThemeClick = { invoked = true },
@@ -35,6 +38,7 @@ class SettingsContentTest {
                 onRateClick = {},
                 onSeedDemoData = {},
                 onCategoriesClick = {},
+                onBackupClick = {},
             )
         }
 
@@ -55,6 +59,9 @@ class SettingsContentTest {
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                        lastBackupExportedAt = null,
+                        lastBackupImportedAt = null,
+                        backupFolderUri = null,
                     ),
                 appVersion = APP_VERSION_TEST,
                 onThemeClick = {},
@@ -64,6 +71,7 @@ class SettingsContentTest {
                 onRateClick = {},
                 onSeedDemoData = {},
                 onCategoriesClick = {},
+                onBackupClick = {},
             )
         }
 

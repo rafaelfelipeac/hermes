@@ -1,11 +1,18 @@
+@file:Suppress("TooManyFunctions")
+
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -43,6 +50,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -52,6 +61,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
@@ -68,6 +78,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
+import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
+import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ARABIC
@@ -85,12 +97,33 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.A
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 private const val DEBUG_PACKAGE_SUFFIX = ".dev"
 internal const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
 internal const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
 private const val SETTINGS_SCREEN_TAG = "SettingsScreen"
+private const val BACKUP_MIME_TYPE = "application/json"
+private const val BACKUP_EXTENSION = ".json"
+private const val BACKUP_FILE_NAME_PREFIX = "hermes-backup-"
+private const val ISO_TIME_SEPARATOR = ":"
+private const val FILE_SAFE_TIME_SEPARATOR = "-"
+private const val LOG_FEEDBACK_INTENT_NOT_FOUND = "Feedback intent not found."
+private const val LOG_FEEDBACK_INTENT_BLOCKED = "Feedback intent blocked by security policy."
+private const val LOG_MARKET_INTENT_NOT_FOUND = "Market intent not found."
+private const val LOG_MARKET_INTENT_BLOCKED = "Market intent blocked by security policy."
+private const val LOG_WEB_INTENT_NOT_FOUND = "Web intent not found."
+private const val LOG_WEB_INTENT_BLOCKED = "Web intent blocked by security policy."
+private const val EXPORT_WRITE_FAILED = "export_write_failed"
+private const val EXPORT_DESTINATION_SAVE_AS = "save_as"
+private const val EXPORT_DESTINATION_FOLDER = "folder"
 
 @Composable
 fun SettingsScreen(
@@ -111,11 +144,113 @@ fun SettingsScreen(
     val webUrlTemplate = stringResource(R.string.settings_play_store_web_url)
     var route by rememberSaveable { mutableStateOf(SettingsRoute.MAIN) }
     var isSlotModeHelpVisible by rememberSaveable { mutableStateOf(false) }
+    var isBackupHelpVisible by rememberSaveable { mutableStateOf(false) }
+    var isImportReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var pendingImportPayload by remember { mutableStateOf<String?>(null) }
+    var pendingSaveAsDestinationConfigured by rememberSaveable { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val exportFailedMessage = stringResource(R.string.settings_export_backup_error)
+    val exportSuccessMessage = stringResource(R.string.settings_export_backup_success)
+    val exportFallbackMessage = stringResource(R.string.settings_export_backup_fallback_save_as)
+    val importFailedMessage = stringResource(R.string.settings_import_backup_error)
+    val importSuccessMessage = stringResource(R.string.settings_import_backup_success)
+    val backupFolderUnavailableMessage = stringResource(R.string.settings_backup_folder_unavailable)
+
+    val exportDocumentLauncher =
+        rememberLauncherForActivityResult(CreateDocument(BACKUP_MIME_TYPE)) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+
+            scope.launch {
+                val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
+                val writeSucceeded =
+                    jsonResult.getOrNull()?.let { payload -> writeTextToUri(context, uri, payload) } ?: false
+                val message = if (writeSucceeded) exportSuccessMessage else exportFailedMessage
+                val exportResult =
+                    if (jsonResult.isFailure) {
+                        jsonResult
+                    } else if (writeSucceeded) {
+                        jsonResult
+                    } else {
+                        Result.failure(IllegalStateException(EXPORT_WRITE_FAILED))
+                    }
+
+                viewModel.logExportBackupResult(
+                    exportResult = exportResult,
+                    destinationType = EXPORT_DESTINATION_SAVE_AS,
+                    destinationConfigured = pendingSaveAsDestinationConfigured,
+                )
+                pendingSaveAsDestinationConfigured = false
+
+                message?.let {
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+    val backupFolderLauncher =
+        rememberLauncherForActivityResult(OpenDocumentTree()) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+
+            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+
+            runCatching {
+                context.contentResolver.takePersistableUriPermission(uri, flags)
+            }
+
+            scope.launch {
+                viewModel.setBackupFolderUri(uri.toString())
+            }
+        }
+
+    fun importPayload(raw: String) {
+        scope.launch {
+            when (val result = viewModel.importBackupJson(raw)) {
+                is ImportBackupResult.Success -> {
+                    Toast.makeText(context, importSuccessMessage, Toast.LENGTH_SHORT).show()
+                }
+
+                is ImportBackupResult.Failure -> {
+                    val message =
+                        when (result.error) {
+                            ImportBackupError.INVALID_JSON,
+                            ImportBackupError.UNSUPPORTED_SCHEMA_VERSION,
+                            ImportBackupError.MISSING_REQUIRED_SECTION,
+                            ImportBackupError.INVALID_FIELD_VALUE,
+                            ImportBackupError.INVALID_REFERENCE,
+                            ImportBackupError.WRITE_FAILED,
+                            -> importFailedMessage
+                        }
+
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    val importDocumentLauncher =
+        rememberLauncherForActivityResult(OpenDocument()) { uri ->
+            if (uri == null) return@rememberLauncherForActivityResult
+            scope.launch {
+                val payload = readTextFromUri(context, uri)
+                if (payload == null) {
+                    Toast.makeText(context, importFailedMessage, Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+
+                if (viewModel.hasBackupData()) {
+                    pendingImportPayload = payload
+                    isImportReplaceDialogVisible = true
+                } else {
+                    importPayload(payload)
+                }
+            }
+        }
 
     BackHandler(enabled = route != SettingsRoute.MAIN) {
         if (route == SettingsRoute.CATEGORIES) {
             onExitCategories()
         }
+
         route = SettingsRoute.MAIN
     }
 
@@ -133,6 +268,22 @@ fun SettingsScreen(
                 demoDataCreatedMessage,
                 Toast.LENGTH_SHORT,
             ).show()
+        }
+    }
+
+    LaunchedEffect(state.backupFolderUri) {
+        val rawUri = state.backupFolderUri ?: return@LaunchedEffect
+        val folderUri = rawUri.toUri()
+        val isAccessible =
+            runCatching {
+                val root = DocumentFile.fromTreeUri(context, folderUri)
+                root != null && root.exists() && root.canWrite()
+            }.getOrDefault(false)
+
+        if (!isAccessible) {
+            viewModel.clearBackupFolderUri(logUserAction = false)
+
+            Toast.makeText(context, backupFolderUnavailableMessage, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -164,14 +315,16 @@ fun SettingsScreen(
                     try {
                         context.startActivity(intent)
                     } catch (error: ActivityNotFoundException) {
-                        Log.e(SETTINGS_SCREEN_TAG, "Feedback intent not found.", error)
+                        Log.e(SETTINGS_SCREEN_TAG, LOG_FEEDBACK_INTENT_NOT_FOUND, error)
+
                         Toast.makeText(
                             context,
                             feedbackUnavailableMessage,
                             Toast.LENGTH_SHORT,
                         ).show()
                     } catch (error: SecurityException) {
-                        Log.e(SETTINGS_SCREEN_TAG, "Feedback intent blocked by security policy.", error)
+                        Log.e(SETTINGS_SCREEN_TAG, LOG_FEEDBACK_INTENT_BLOCKED, error)
+
                         Toast.makeText(
                             context,
                             feedbackUnavailableMessage,
@@ -204,16 +357,15 @@ fun SettingsScreen(
                                 packageName,
                             ).toUri(),
                         )
-
                     val launchFailed =
                         try {
                             context.startActivity(marketIntent)
                             false
                         } catch (error: ActivityNotFoundException) {
-                            Log.e(SETTINGS_SCREEN_TAG, "Market intent not found.", error)
+                            Log.e(SETTINGS_SCREEN_TAG, LOG_MARKET_INTENT_NOT_FOUND, error)
                             true
                         } catch (error: SecurityException) {
-                            Log.e(SETTINGS_SCREEN_TAG, "Market intent blocked by security policy.", error)
+                            Log.e(SETTINGS_SCREEN_TAG, LOG_MARKET_INTENT_BLOCKED, error)
                             true
                         }
 
@@ -223,10 +375,10 @@ fun SettingsScreen(
                                 context.startActivity(webIntent)
                                 false
                             } catch (error: ActivityNotFoundException) {
-                                Log.e(SETTINGS_SCREEN_TAG, "Web intent not found.", error)
+                                Log.e(SETTINGS_SCREEN_TAG, LOG_WEB_INTENT_NOT_FOUND, error)
                                 true
                             } catch (error: SecurityException) {
-                                Log.e(SETTINGS_SCREEN_TAG, "Web intent blocked by security policy.", error)
+                                Log.e(SETTINGS_SCREEN_TAG, LOG_WEB_INTENT_BLOCKED, error)
                                 true
                             }
 
@@ -243,6 +395,7 @@ fun SettingsScreen(
                     viewModel.seedDemoData()
                 },
                 onCategoriesClick = { route = SettingsRoute.CATEGORIES },
+                onBackupClick = { route = SettingsRoute.BACKUP },
                 modifier = modifier,
             )
         SettingsRoute.THEME ->
@@ -362,6 +515,103 @@ fun SettingsScreen(
                     onClick = { viewModel.setSlotModePolicy(ALWAYS_SHOW) },
                 )
             }
+        SettingsRoute.BACKUP ->
+            SettingsDetailScreen(
+                title = stringResource(R.string.settings_backup_title),
+                onBack = { route = SettingsRoute.MAIN },
+                onHelpClick = { isBackupHelpVisible = true },
+                helpContentDescription = stringResource(R.string.settings_backup_help_title),
+                contentInsideCard = false,
+                modifier = modifier,
+            ) {
+                SettingsCard {
+                    SettingsBackupActionRow(
+                        label = stringResource(R.string.settings_export_backup_title),
+                        detail = backupExportLabel(state.lastBackupExportedAt),
+                        onClick = {
+                            scope.launch {
+                                val configuredUri = state.backupFolderUri
+
+                                if (configuredUri == null) {
+                                    pendingSaveAsDestinationConfigured = false
+                                    exportDocumentLauncher.launch(backupFileName())
+                                } else {
+                                    val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
+                                    if (jsonResult.isFailure) {
+                                        Toast.makeText(context, exportFallbackMessage, Toast.LENGTH_SHORT).show()
+
+                                        viewModel.logExportBackupResult(
+                                            exportResult = jsonResult,
+                                            destinationType = EXPORT_DESTINATION_FOLDER,
+                                            destinationConfigured = false,
+                                        )
+                                    } else {
+                                        val writeSucceeded =
+                                            jsonResult.getOrNull()?.let { payload ->
+                                                writeTextToBackupFolder(
+                                                    context = context,
+                                                    treeUri = configuredUri.toUri(),
+                                                    content = payload,
+                                                )
+                                            } ?: false
+
+                                        if (writeSucceeded) {
+                                            Toast.makeText(context, exportSuccessMessage, Toast.LENGTH_SHORT).show()
+
+                                            viewModel.logExportBackupResult(
+                                                exportResult = jsonResult,
+                                                destinationType = EXPORT_DESTINATION_FOLDER,
+                                                destinationConfigured = true,
+                                            )
+                                        } else {
+                                            Toast.makeText(context, exportFallbackMessage, Toast.LENGTH_SHORT).show()
+
+                                            pendingSaveAsDestinationConfigured = true
+                                            exportDocumentLauncher.launch(backupFileName())
+
+                                            viewModel.logExportBackupResult(
+                                                exportResult = jsonResult,
+                                                destinationType = EXPORT_DESTINATION_FOLDER,
+                                                destinationConfigured = true,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                    SettingsBackupActionRow(
+                        label = stringResource(R.string.settings_import_backup_title),
+                        detail = backupImportLabel(state.lastBackupImportedAt),
+                        onClick = { importDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE)) },
+                    )
+                }
+
+                SettingsCard {
+                    SettingsBackupActionRow(
+                        label = stringResource(R.string.settings_backup_folder_title),
+                        detail = backupFolderLabel(state.backupFolderUri),
+                        onClick = { backupFolderLauncher.launch(null) },
+                    )
+
+                    if (state.backupFolderUri != null) {
+                        HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                        SettingsBackupActionRow(
+                            label = stringResource(R.string.settings_backup_folder_clear),
+                            detail = stringResource(R.string.settings_backup_folder_clear_detail),
+                            onClick = {
+                                scope.launch {
+                                    viewModel.clearBackupFolderUri()
+                                }
+                            },
+                        )
+                    }
+                }
+            }
     }
 
     if (isSlotModeHelpVisible) {
@@ -372,6 +622,54 @@ fun SettingsScreen(
             confirmButton = {
                 Button(onClick = { isSlotModeHelpVisible = false }) {
                     Text(text = stringResource(R.string.weekly_training_tbd_help_confirm))
+                }
+            },
+        )
+    }
+
+    if (isBackupHelpVisible) {
+        AlertDialog(
+            onDismissRequest = { isBackupHelpVisible = false },
+            title = { Text(text = stringResource(R.string.settings_backup_help_title)) },
+            text = { Text(text = stringResource(R.string.settings_backup_help_message)) },
+            confirmButton = {
+                Button(onClick = { isBackupHelpVisible = false }) {
+                    Text(text = stringResource(R.string.weekly_training_tbd_help_confirm))
+                }
+            },
+        )
+    }
+
+    if (isImportReplaceDialogVisible) {
+        AlertDialog(
+            onDismissRequest = {
+                isImportReplaceDialogVisible = false
+                pendingImportPayload = null
+            },
+            title = { Text(text = stringResource(R.string.settings_import_backup_replace_title)) },
+            text = { Text(text = stringResource(R.string.settings_import_backup_replace_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val payload = pendingImportPayload
+                        if (payload != null) {
+                            importPayload(payload)
+                        }
+                        isImportReplaceDialogVisible = false
+                        pendingImportPayload = null
+                    },
+                ) {
+                    Text(text = stringResource(R.string.settings_import_backup_replace_confirm))
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        isImportReplaceDialogVisible = false
+                        pendingImportPayload = null
+                    },
+                ) {
+                    Text(text = stringResource(R.string.settings_import_backup_replace_cancel))
                 }
             },
         )
@@ -390,6 +688,7 @@ internal fun SettingsContent(
     onRateClick: () -> Unit,
     onSeedDemoData: () -> Unit,
     onCategoriesClick: () -> Unit,
+    onBackupClick: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val appName = stringResource(R.string.app_name)
@@ -419,6 +718,13 @@ internal fun SettingsContent(
                 SettingsNavigationRow(
                     label = stringResource(R.string.settings_slot_mode_title),
                     onClick = onSlotModeClick,
+                )
+            }
+
+            SettingsSection(title = stringResource(R.string.settings_data_title)) {
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_backup_title),
+                    onClick = onBackupClick,
                 )
             }
 
@@ -499,6 +805,58 @@ internal fun SettingsContent(
     }
 }
 
+private fun backupFileName(): String {
+    val timestamp = java.time.LocalDateTime.now().toString().replace(ISO_TIME_SEPARATOR, FILE_SAFE_TIME_SEPARATOR)
+    return "$BACKUP_FILE_NAME_PREFIX$timestamp$BACKUP_EXTENSION"
+}
+
+private suspend fun writeTextToUri(
+    context: Context,
+    uri: Uri,
+    content: String,
+): Boolean {
+    return withContext(Dispatchers.IO) {
+        runCatching {
+            context.contentResolver.openOutputStream(uri)?.bufferedWriter()?.use { writer ->
+                writer.write(content)
+                true
+            } ?: false
+        }.getOrDefault(false)
+    }
+}
+
+private suspend fun readTextFromUri(
+    context: Context,
+    uri: Uri,
+): String? {
+    return withContext(Dispatchers.IO) {
+        runCatching {
+            context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+        }.getOrNull()
+    }
+}
+
+private suspend fun writeTextToBackupFolder(
+    context: Context,
+    treeUri: Uri,
+    content: String,
+): Boolean {
+    val backupFile =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val root = DocumentFile.fromTreeUri(context, treeUri)
+
+                if (root == null || !root.canWrite()) {
+                    null
+                } else {
+                    root.createFile(BACKUP_MIME_TYPE, backupFileName())
+                }
+            }.getOrNull()
+        }
+
+    return backupFile?.let { file -> writeTextToUri(context, file.uri, content) } ?: false
+}
+
 @Composable
 private fun SettingsSection(
     title: String,
@@ -520,6 +878,7 @@ private fun SettingsDetailScreen(
     onBack: () -> Unit,
     onHelpClick: (() -> Unit)? = null,
     helpContentDescription: String? = null,
+    contentInsideCard: Boolean = true,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
@@ -592,7 +951,13 @@ private fun SettingsDetailScreen(
         }
 
         Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
-            SettingsCard(content = content)
+            if (contentInsideCard) {
+                SettingsCard(content = content)
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingLg)) {
+                    content()
+                }
+            }
         }
     }
 }
@@ -731,6 +1096,79 @@ private fun SettingsInfoRow(
             )
         }
     }
+}
+
+@Composable
+private fun SettingsBackupActionRow(
+    label: String,
+    detail: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick)
+                .padding(vertical = SpacingXs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(SpacingXxs),
+        ) {
+            Text(
+                text = label,
+                style = typography.bodyLarge,
+            )
+            Text(
+                text = detail,
+                style = typography.bodySmall,
+            )
+        }
+
+        Icon(
+            imageVector = Icons.Outlined.ChevronRight,
+            contentDescription = null,
+        )
+    }
+}
+
+@Composable
+private fun backupExportLabel(rawTimestamp: String?): String {
+    val never = stringResource(R.string.settings_backup_never)
+    val formatted = formatBackupTimestamp(rawTimestamp) ?: never
+    return stringResource(R.string.settings_backup_last_exported, formatted)
+}
+
+@Composable
+private fun backupImportLabel(rawTimestamp: String?): String {
+    val never = stringResource(R.string.settings_backup_never)
+    val formatted = formatBackupTimestamp(rawTimestamp) ?: never
+    return stringResource(R.string.settings_backup_last_imported, formatted)
+}
+
+@Composable
+private fun backupFolderLabel(rawUri: String?): String {
+    return if (rawUri.isNullOrBlank()) {
+        stringResource(R.string.settings_backup_folder_default)
+    } else {
+        stringResource(R.string.settings_backup_folder_selected)
+    }
+}
+
+@Composable
+private fun formatBackupTimestamp(rawTimestamp: String?): String? {
+    if (rawTimestamp.isNullOrBlank()) return null
+    val locale = Locale.getDefault()
+    val zoneId = ZoneId.systemDefault()
+    val formatter =
+        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
+            .withLocale(locale)
+            .withZone(zoneId)
+
+    return runCatching {
+        formatter.format(Instant.parse(rawTimestamp))
+    }.getOrDefault(rawTimestamp)
 }
 
 @Composable

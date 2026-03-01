@@ -102,6 +102,7 @@ dependencies {
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.documentfile)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.kotlinx.serialization.json)
     testImplementation(libs.junit)

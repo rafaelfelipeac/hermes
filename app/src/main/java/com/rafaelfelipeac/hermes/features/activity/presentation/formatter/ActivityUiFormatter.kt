@@ -74,27 +74,7 @@ class ActivityUiFormatter(
                 else -> buildWorkoutTitle(actionType, quotedWorkoutLabel)
             }
 
-        return title ?: when (actionType) {
-            UserActionType.CHANGE_LANGUAGE ->
-                stringProvider.get(R.string.activity_action_change_language)
-
-            UserActionType.CHANGE_THEME ->
-                stringProvider.get(R.string.activity_action_change_theme)
-
-            UserActionType.CHANGE_SLOT_MODE ->
-                stringProvider.get(R.string.activity_action_change_slot_mode)
-
-            UserActionType.OPEN_WEEK ->
-                stringProvider.get(R.string.activity_action_open_week)
-
-            UserActionType.COPY_LAST_WEEK ->
-                stringProvider.get(R.string.activity_action_copy_last_week)
-
-            UserActionType.UNDO_COPY_LAST_WEEK ->
-                stringProvider.get(R.string.activity_action_undo_copy_last_week)
-
-            else -> stringProvider.get(R.string.activity_action_fallback)
-        }
+        return title ?: buildGlobalActionTitle(actionType)
     }
 
     fun buildSubtitle(
@@ -135,12 +115,47 @@ class ActivityUiFormatter(
         )
     }
 
+    private fun buildGlobalActionTitle(actionType: UserActionType?): String {
+        return when (actionType) {
+            UserActionType.CHANGE_LANGUAGE ->
+                stringProvider.get(R.string.activity_action_change_language)
+
+            UserActionType.CHANGE_THEME ->
+                stringProvider.get(R.string.activity_action_change_theme)
+
+            UserActionType.CHANGE_SLOT_MODE ->
+                stringProvider.get(R.string.activity_action_change_slot_mode)
+
+            UserActionType.EXPORT_BACKUP ->
+                stringProvider.get(R.string.activity_action_export_backup)
+
+            UserActionType.IMPORT_BACKUP ->
+                stringProvider.get(R.string.activity_action_import_backup)
+
+            UserActionType.SET_BACKUP_FOLDER ->
+                stringProvider.get(R.string.activity_action_set_backup_folder)
+
+            UserActionType.CLEAR_BACKUP_FOLDER ->
+                stringProvider.get(R.string.activity_action_clear_backup_folder)
+
+            UserActionType.OPEN_WEEK ->
+                stringProvider.get(R.string.activity_action_open_week)
+
+            UserActionType.COPY_LAST_WEEK ->
+                stringProvider.get(R.string.activity_action_copy_last_week)
+
+            UserActionType.UNDO_COPY_LAST_WEEK ->
+                stringProvider.get(R.string.activity_action_undo_copy_last_week)
+
+            else -> stringProvider.get(R.string.activity_action_fallback)
+        }
+    }
+
     private fun buildMoveSubtitle(metadata: Map<String, String>): String? {
         val oldDay = dayLabel(metadata[UserActionMetadataKeys.OLD_DAY_OF_WEEK])
         val newDay = dayLabel(metadata[UserActionMetadataKeys.NEW_DAY_OF_WEEK])
         val oldSlot = timeSlotLabel(metadata[UserActionMetadataKeys.OLD_TIME_SLOT])
         val newSlot = timeSlotLabel(metadata[UserActionMetadataKeys.NEW_TIME_SLOT])
-
         val oldLocation = quoteValue(locationLabel(oldDay, oldSlot))
         val newLocation = quoteValue(locationLabel(newDay, newSlot))
 

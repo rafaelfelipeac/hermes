@@ -20,6 +20,8 @@ import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
+import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.CATEGORIES
+import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.MAIN
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
@@ -31,7 +33,7 @@ fun HermesAppContent() {
     var pendingWorkoutDraft by remember { mutableStateOf<WorkoutDialogDraft?>(null) }
     val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingWorkoutDraft = draft
-        pendingSettingsRoute = SettingsRoute.CATEGORIES
+        pendingSettingsRoute = CATEGORIES
         currentDestination = SETTINGS
     }
     val handleCategoriesExit = {
@@ -54,7 +56,7 @@ fun HermesAppContent() {
                     selected = it == currentDestination,
                     onClick = {
                         if (it == SETTINGS) {
-                            pendingSettingsRoute = SettingsRoute.MAIN
+                            pendingSettingsRoute = MAIN
                         }
                         currentDestination = it
                     },

@@ -406,7 +406,7 @@ class WeeklyTrainingViewModel
                     ),
             )
 
-            if (original != null && original.isCompleted != isCompleted) {
+            if (original.isCompleted != isCompleted) {
                 val message =
                     if (isCompleted) {
                         UndoMessage.Completed

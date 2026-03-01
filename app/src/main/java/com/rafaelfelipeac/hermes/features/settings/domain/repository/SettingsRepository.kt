@@ -9,6 +9,9 @@ interface SettingsRepository {
     val themeMode: Flow<ThemeMode>
     val language: Flow<AppLanguage>
     val slotModePolicy: Flow<SlotModePolicy>
+    val lastBackupExportedAt: Flow<String?>
+    val lastBackupImportedAt: Flow<String?>
+    val backupFolderUri: Flow<String?>
 
     fun initialThemeMode(): ThemeMode
 
@@ -21,4 +24,10 @@ interface SettingsRepository {
     suspend fun setLanguage(language: AppLanguage)
 
     suspend fun setSlotModePolicy(policy: SlotModePolicy)
+
+    suspend fun setLastBackupExportedAt(value: String)
+
+    suspend fun setLastBackupImportedAt(value: String)
+
+    suspend fun setBackupFolderUri(value: String?)
 }
