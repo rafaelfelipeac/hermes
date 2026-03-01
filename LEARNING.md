@@ -160,3 +160,5 @@ Recent learnings:
 - In formatter-heavy classes, moving cross-cutting fallback mappings into focused helpers is an easy way to stay under Detekt complexity thresholds without changing output behavior.
 - For user-selected SAF backup destinations, avoid silently creating app-owned nested folders; writing directly to the selected tree keeps behavior predictable and reduces confusion about where files are saved.
 - When backup-folder behavior changes, update `settings_backup_folder_selected` copy across all locales in the same task so UI text stays truthful (for example, removing stale `(Hermes/Backup)` hints).
+- For long-lived backup support, keep decode logic versioned by schema (`BackupV1Decoder`, `BackupV2Decoder`, ...) and route by `schemaVersion`; this avoids coupling compatibility decisions to app release versions.
+- Feature-specific docs are only effective if linked from `AGENTS.md`; adding a mandatory reference there turns docs from passive notes into active implementation constraints.
