@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.4.0]
+### Added
+- JSON backup export/import support with schema-versioned compatibility handling
+- Backup folder actions in Settings (save default folder and clear default folder)
+- Backup compatibility policy documentation
+
 ## [v1.3.0]
 ### Added
 - Slot mode for weekly planning with morning/afternoon/night grouping
