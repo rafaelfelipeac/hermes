@@ -338,11 +338,5 @@ class SettingsViewModel
     }
 
 private fun Throwable.toSideEffectFailureReason(): String {
-    return buildString {
-        append(javaClass.simpleName ?: "Exception")
-        message?.takeIf { it.isNotBlank() }?.let { nonBlankMessage ->
-            append(": ")
-            append(nonBlankMessage)
-        }
-    }
+    return javaClass.simpleName ?: "Exception"
 }
