@@ -29,6 +29,12 @@ class WeeklyTrainingRepositoryImpl
             }
         }
 
+        override fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>> {
+            return workoutDao.observeWorkoutsForWeekStarts(weekStartDates).map { entities ->
+                entities.map { it.toDomain() }
+            }
+        }
+
         override suspend fun addWorkout(request: AddWorkoutRequest): Long {
             val entity =
                 WorkoutEntity(
@@ -70,6 +76,10 @@ class WeeklyTrainingRepositoryImpl
             return workoutDao.insert(entity)
         }
 
+        override suspend fun getWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): List<Workout> {
+            return workoutDao.getWorkoutsForWeekStarts(weekStartDates).map { it.toDomain() }
+        }
+
         override suspend fun insertWorkout(workout: Workout): Long {
             return workoutDao.insertOrReplace(workout.toEntity())
         }
@@ -80,6 +90,20 @@ class WeeklyTrainingRepositoryImpl
             timeSlot: TimeSlot?,
             order: Int,
         ) = workoutDao.updateDayAndOrder(workoutId, dayOfWeek?.value, timeSlot?.name, order)
+
+        override suspend fun updateWorkoutSchedule(
+            workoutId: Long,
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            timeSlot: TimeSlot?,
+            order: Int,
+        ) = workoutDao.updateSchedule(
+            id = workoutId,
+            weekStartDate = weekStartDate,
+            dayOfWeek = dayOfWeek?.value,
+            timeSlot = timeSlot?.name,
+            order = order,
+        )
 
         override suspend fun updateWorkoutCompletion(
             workoutId: Long,

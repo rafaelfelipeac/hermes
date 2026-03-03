@@ -3,11 +3,13 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import java.time.DayOfWeek
+import java.time.LocalDate
 
 typealias WorkoutId = Long
 
 data class WorkoutUi(
     val id: WorkoutId,
+    val weekStartDate: LocalDate = LocalDate.MIN,
     val dayOfWeek: DayOfWeek?,
     val type: String,
     val description: String,

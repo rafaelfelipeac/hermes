@@ -20,6 +20,12 @@ interface WorkoutDao {
     @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<WorkoutEntity>>
 
+    @Query("SELECT * FROM workouts WHERE weekStartDate IN (:weekStartDates)")
+    suspend fun getWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): List<WorkoutEntity>
+
+    @Query("SELECT * FROM workouts WHERE weekStartDate IN (:weekStartDates)")
+    fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<WorkoutEntity>>
+
     @Insert
     suspend fun insert(workout: WorkoutEntity): Long
 
@@ -44,6 +50,18 @@ interface WorkoutDao {
     @Query("UPDATE workouts SET dayOfWeek = :dayOfWeek, timeSlot = :timeSlot, sort_order = :order WHERE id = :id")
     suspend fun updateDayAndOrder(
         id: Long,
+        dayOfWeek: Int?,
+        timeSlot: String?,
+        order: Int,
+    )
+
+    @Query(
+        "UPDATE workouts SET weekStartDate = :weekStartDate, dayOfWeek = :dayOfWeek, " +
+            "timeSlot = :timeSlot, sort_order = :order WHERE id = :id",
+    )
+    suspend fun updateSchedule(
+        id: Long,
+        weekStartDate: LocalDate,
         dayOfWeek: Int?,
         timeSlot: String?,
         order: Int,

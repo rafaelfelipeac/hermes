@@ -249,11 +249,13 @@
     <string name="settings_import_backup_replace_confirm">Replace</string>
     <string name="settings_import_backup_replace_cancel">Cancel</string>
     <string name="settings_slot_mode_title">Slot mode</string>
+    <string name="settings_week_start_title">Start of week</string>
     <string name="settings_slot_mode_auto">Auto (2+ events/day)</string>
     <string name="settings_slot_mode_always">Always show slots</string>
     <string name="settings_slot_mode_help_title">How slot mode works</string>
     <string name="settings_slot_mode_help_message">When enabled, slots help organize multiple events in the same day.\n\nIn auto mode, slots appear only when a day has two or more events.\n\nIn always mode, slots are always visible.</string>
     <string name="activity_action_change_slot_mode">You changed slot mode.</string>
+    <string name="activity_action_change_week_start">You changed the start of week.</string>
     <string name="activity_action_export_backup">You exported a backup.</string>
     <string name="activity_action_import_backup">You imported a backup.</string>
     <string name="activity_action_set_backup_folder">You set a backup folder.</string>

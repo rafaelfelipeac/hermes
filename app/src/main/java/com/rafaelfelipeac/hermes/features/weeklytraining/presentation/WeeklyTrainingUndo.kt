@@ -23,6 +23,7 @@ enum class UndoMessage {
 
 data class WorkoutPosition(
     val id: Long,
+    val weekStartDate: LocalDate,
     val dayOfWeek: DayOfWeek?,
     val timeSlot: TimeSlot?,
     val order: Int,

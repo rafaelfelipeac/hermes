@@ -27,6 +27,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import io.mockk.coEvery
@@ -64,12 +65,14 @@ class SettingsViewModelTest {
             every { repository.themeMode } returns themeFlow
             every { repository.language } returns languageFlow
             every { repository.slotModePolicy } returns slotModePolicyFlow
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns lastBackupExportedAtFlow
             every { repository.lastBackupImportedAt } returns lastBackupImportedAtFlow
             every { repository.backupFolderUri } returns MutableStateFlow(null)
             every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
             every { repository.initialLanguage() } returns AppLanguage.SYSTEM
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
 
             val viewModel =
                 SettingsViewModel(
@@ -86,6 +89,7 @@ class SettingsViewModelTest {
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                        weekStartDay = WeekStartDay.MONDAY,
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
@@ -99,6 +103,7 @@ class SettingsViewModelTest {
                         themeMode = DARK,
                         language = AppLanguage.SYSTEM,
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                        weekStartDay = WeekStartDay.MONDAY,
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
@@ -112,6 +117,7 @@ class SettingsViewModelTest {
                         themeMode = DARK,
                         language = PORTUGUESE_BRAZIL,
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                        weekStartDay = WeekStartDay.MONDAY,
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
@@ -135,9 +141,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow(null)
@@ -169,9 +177,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow(null)
@@ -192,6 +202,42 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun setWeekStartDay_delegatesToRepository() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = mockk<SettingsRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+
+            every { repository.initialThemeMode() } returns LIGHT
+            every { repository.initialLanguage() } returns ENGLISH
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
+            every { repository.themeMode } returns MutableStateFlow(LIGHT)
+            every { repository.language } returns MutableStateFlow(ENGLISH)
+            every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
+            every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
+            every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                    backupRepository,
+                )
+
+            viewModel.setWeekStartDay(WeekStartDay.WEDNESDAY)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { repository.setWeekStartDay(WeekStartDay.WEDNESDAY) }
+        }
+
+    @Test
     fun setLanguage_triggersCategoryLocalizationSync() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = mockk<SettingsRepository>(relaxed = true)
@@ -204,9 +250,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns PORTUGUESE_BRAZIL
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns languageFlow
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow(null)
@@ -244,9 +292,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow(null)
@@ -308,9 +358,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow(null)
@@ -364,9 +416,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
             every { repository.initialLanguage() } returns AppLanguage.SYSTEM
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(ThemeMode.SYSTEM)
             every { repository.language } returns MutableStateFlow(AppLanguage.SYSTEM)
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow(null)
@@ -396,9 +450,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
             every { repository.initialLanguage() } returns AppLanguage.SYSTEM
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(DARK)
             every { repository.language } returns MutableStateFlow(AppLanguage.SYSTEM)
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow(null)
@@ -428,9 +484,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow(null)
@@ -470,9 +528,11 @@ class SettingsViewModelTest {
             every { repository.initialThemeMode() } returns LIGHT
             every { repository.initialLanguage() } returns ENGLISH
             every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
             every { repository.themeMode } returns MutableStateFlow(LIGHT)
             every { repository.language } returns MutableStateFlow(ENGLISH)
             every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
             every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
             every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
             every { repository.backupFolderUri } returns MutableStateFlow("content://tree/test")

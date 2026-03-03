@@ -8,6 +8,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -47,6 +48,13 @@ class SettingsRepositoryImpl
                 }
                 .distinctUntilChanged()
 
+        override val weekStartDay: Flow<WeekStartDay> =
+            dataStore.data
+                .map { prefs ->
+                    WeekStartDay.fromStoredValue(prefs[WEEK_START_DAY_KEY])
+                }
+                .distinctUntilChanged()
+
         override val lastBackupExportedAt: Flow<String?> =
             dataStore.data
                 .map { prefs -> prefs[LAST_BACKUP_EXPORTED_AT_KEY] }
@@ -68,6 +76,8 @@ class SettingsRepositoryImpl
 
         override fun initialSlotModePolicy(): SlotModePolicy = defaultSlotModePolicy()
 
+        override fun initialWeekStartDay(): WeekStartDay = defaultWeekStartDay()
+
         override suspend fun setThemeMode(mode: ThemeMode) {
             dataStore.edit { prefs ->
                 prefs[THEME_MODE_KEY] = mode.name
@@ -83,6 +93,12 @@ class SettingsRepositoryImpl
         override suspend fun setSlotModePolicy(policy: SlotModePolicy) {
             dataStore.edit { prefs ->
                 prefs[SLOT_MODE_POLICY_KEY] = policy.name
+            }
+        }
+
+        override suspend fun setWeekStartDay(weekStartDay: WeekStartDay) {
+            dataStore.edit { prefs ->
+                prefs[WEEK_START_DAY_KEY] = weekStartDay.name
             }
         }
 
@@ -125,4 +141,8 @@ private fun defaultLanguage(): AppLanguage {
 
 private fun defaultSlotModePolicy(): SlotModePolicy {
     return SlotModePolicy.AUTO_WHEN_MULTIPLE
+}
+
+private fun defaultWeekStartDay(): WeekStartDay {
+    return WeekStartDay.MONDAY
 }

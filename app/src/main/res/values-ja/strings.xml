@@ -248,11 +248,13 @@
     <string name="settings_import_backup_replace_confirm">置き換える</string>
     <string name="settings_import_backup_replace_cancel">キャンセル</string>
     <string name="settings_slot_mode_title">時間帯モード</string>
+    <string name="settings_week_start_title">週の開始日</string>
     <string name="settings_slot_mode_auto">自動（1日に2件以上）</string>
     <string name="settings_slot_mode_always">常に時間帯を表示</string>
     <string name="settings_slot_mode_help_title">時間帯モードの仕組み</string>
     <string name="settings_slot_mode_help_message">有効にすると、同じ日の複数イベントを時間帯で整理できます。\n\n自動モードでは、1日に2件以上のイベントがある場合のみ表示されます。\n\n常時表示モードでは常に表示されます。</string>
     <string name="activity_action_change_slot_mode">時間帯モードを変更しました。</string>
+    <string name="activity_action_change_week_start">週の開始日を変更しました。</string>
     <string name="activity_action_export_backup">バックアップをエクスポートしました。</string>
     <string name="activity_action_import_backup">バックアップをインポートしました。</string>
     <string name="activity_action_set_backup_folder">バックアップフォルダを設定しました。</string>

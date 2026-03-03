@@ -11,7 +11,11 @@ import java.time.LocalDate
 interface WeeklyTrainingRepository {
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>>
 
+    fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>>
+
     suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<Workout>
+
+    suspend fun getWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): List<Workout>
 
     suspend fun addWorkout(request: AddWorkoutRequest): Long
 
@@ -33,6 +37,14 @@ interface WeeklyTrainingRepository {
 
     suspend fun updateWorkoutDayAndOrder(
         workoutId: Long,
+        dayOfWeek: DayOfWeek?,
+        timeSlot: TimeSlot?,
+        order: Int,
+    )
+
+    suspend fun updateWorkoutSchedule(
+        workoutId: Long,
+        weekStartDate: LocalDate,
         dayOfWeek: DayOfWeek?,
         timeSlot: TimeSlot?,
         order: Int,

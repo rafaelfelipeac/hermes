@@ -248,11 +248,13 @@
     <string name="settings_import_backup_replace_confirm">बदलें</string>
     <string name="settings_import_backup_replace_cancel">रद्द करें</string>
     <string name="settings_slot_mode_title">स्लॉट मोड</string>
+    <string name="settings_week_start_title">सप्ताह की शुरुआत</string>
     <string name="settings_slot_mode_auto">स्वचालित (2+ इवेंट/दिन)</string>
     <string name="settings_slot_mode_always">स्लॉट हमेशा दिखाएँ</string>
     <string name="settings_slot_mode_help_title">स्लॉट मोड कैसे काम करता है</string>
     <string name="settings_slot_mode_help_message">सक्षम होने पर, स्लॉट एक ही दिन में कई इवेंट व्यवस्थित करने में मदद करते हैं।\n\nस्वचालित मोड में स्लॉट तभी दिखते हैं जब एक दिन में दो या अधिक इवेंट हों।\n\nहमेशा मोड में स्लॉट हमेशा दिखाई देते हैं।</string>
     <string name="activity_action_change_slot_mode">आपने स्लॉट मोड बदला।</string>
+    <string name="activity_action_change_week_start">आपने सप्ताह की शुरुआत बदली।</string>
     <string name="activity_action_export_backup">आपने एक बैकअप निर्यात किया।</string>
     <string name="activity_action_import_backup">आपने एक बैकअप आयात किया।</string>
     <string name="activity_action_set_backup_folder">आपने एक बैकअप फ़ोल्डर सेट किया।</string>

@@ -13,6 +13,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY
@@ -126,6 +127,9 @@ class ActivityUiFormatter(
             UserActionType.CHANGE_SLOT_MODE ->
                 stringProvider.get(R.string.activity_action_change_slot_mode)
 
+            UserActionType.CHANGE_WEEK_START ->
+                stringProvider.get(R.string.activity_action_change_week_start)
+
             UserActionType.EXPORT_BACKUP ->
                 stringProvider.get(R.string.activity_action_export_backup)
 
@@ -219,6 +223,7 @@ class ActivityUiFormatter(
             UserActionType.CHANGE_LANGUAGE -> languageLabel(raw)
             UserActionType.CHANGE_THEME -> themeLabel(raw)
             UserActionType.CHANGE_SLOT_MODE -> slotModeLabel(raw)
+            UserActionType.CHANGE_WEEK_START -> weekStartDayLabel(raw)
             else -> raw
         }
     }
@@ -354,6 +359,7 @@ class ActivityUiFormatter(
             UserActionType.CHANGE_LANGUAGE,
             UserActionType.CHANGE_THEME,
             UserActionType.CHANGE_SLOT_MODE,
+            UserActionType.CHANGE_WEEK_START,
             UserActionType.UPDATE_CATEGORY_NAME,
             -> buildValueChangeSubtitle(metadata, actionType)
 
@@ -381,7 +387,8 @@ class ActivityUiFormatter(
             actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ||
             actionType == UserActionType.CREATE_WORKOUT ||
             actionType == UserActionType.UPDATE_WORKOUT ||
-            actionType == UserActionType.CHANGE_SLOT_MODE
+            actionType == UserActionType.CHANGE_SLOT_MODE ||
+            actionType == UserActionType.CHANGE_WEEK_START
     }
 
     private fun combineSubtitles(
@@ -475,6 +482,21 @@ class ActivityUiFormatter(
             TimeSlot.AFTERNOON -> stringProvider.get(R.string.weekly_training_slot_afternoon)
             TimeSlot.NIGHT -> stringProvider.get(R.string.weekly_training_slot_night)
             null -> cleaned?.takeUnless { it == UserActionMetadataValues.UNPLANNED }
+        }
+    }
+
+    private fun weekStartDayLabel(raw: String): String {
+        val day = runCatching { WeekStartDay.valueOf(raw.uppercase(Locale.ENGLISH)) }.getOrNull()
+
+        return when (day) {
+            WeekStartDay.MONDAY -> stringProvider.get(R.string.day_monday)
+            WeekStartDay.TUESDAY -> stringProvider.get(R.string.day_tuesday)
+            WeekStartDay.WEDNESDAY -> stringProvider.get(R.string.day_wednesday)
+            WeekStartDay.THURSDAY -> stringProvider.get(R.string.day_thursday)
+            WeekStartDay.FRIDAY -> stringProvider.get(R.string.day_friday)
+            WeekStartDay.SATURDAY -> stringProvider.get(R.string.day_saturday)
+            WeekStartDay.SUNDAY -> stringProvider.get(R.string.day_sunday)
+            null -> raw
         }
     }
 

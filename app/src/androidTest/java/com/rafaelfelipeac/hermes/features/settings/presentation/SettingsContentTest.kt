@@ -6,6 +6,7 @@ import androidx.compose.ui.test.performClick
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -26,6 +27,7 @@ class SettingsContentTest {
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                        weekStartDay = WeekStartDay.MONDAY,
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
@@ -33,6 +35,7 @@ class SettingsContentTest {
                 appVersion = APP_VERSION_TEST,
                 onThemeClick = { invoked = true },
                 onLanguageClick = {},
+                onWeekStartClick = {},
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
@@ -59,6 +62,7 @@ class SettingsContentTest {
                         themeMode = ThemeMode.SYSTEM,
                         language = AppLanguage.SYSTEM,
                         slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                        weekStartDay = WeekStartDay.MONDAY,
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
@@ -66,6 +70,7 @@ class SettingsContentTest {
                 appVersion = APP_VERSION_TEST,
                 onThemeClick = {},
                 onLanguageClick = { invoked = true },
+                onWeekStartClick = {},
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
@@ -76,6 +81,42 @@ class SettingsContentTest {
         }
 
         composeRule.onNodeWithTag(SETTINGS_LANGUAGE_ROW_TAG).performClick()
+
+        composeRule.runOnIdle {
+            assertEquals(true, invoked)
+        }
+    }
+
+    @Test
+    fun selectingWeekStartInvokesCallback() {
+        var invoked = false
+
+        composeRule.setContent {
+            SettingsContent(
+                state =
+                    SettingsState(
+                        themeMode = ThemeMode.SYSTEM,
+                        language = AppLanguage.SYSTEM,
+                        slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+                        weekStartDay = WeekStartDay.MONDAY,
+                        lastBackupExportedAt = null,
+                        lastBackupImportedAt = null,
+                        backupFolderUri = null,
+                    ),
+                appVersion = APP_VERSION_TEST,
+                onThemeClick = {},
+                onLanguageClick = {},
+                onWeekStartClick = { invoked = true },
+                onSlotModeClick = {},
+                onFeedbackClick = { _, _ -> },
+                onRateClick = {},
+                onSeedDemoData = {},
+                onCategoriesClick = {},
+                onBackupClick = {},
+            )
+        }
+
+        composeRule.onNodeWithTag(SETTINGS_WEEK_START_ROW_TAG).performClick()
 
         composeRule.runOnIdle {
             assertEquals(true, invoked)

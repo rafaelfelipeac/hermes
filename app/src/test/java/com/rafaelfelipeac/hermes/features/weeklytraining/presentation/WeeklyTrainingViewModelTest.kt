@@ -14,6 +14,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
@@ -59,7 +60,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -83,7 +84,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -124,7 +125,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -169,7 +170,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -199,16 +200,18 @@ class WeeklyTrainingViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
-                repository.updateWorkoutDayAndOrder(
+                repository.updateWorkoutSchedule(
                     workoutId = mondayWorkout.id,
+                    weekStartDate = weekStart,
                     dayOfWeek = MONDAY,
                     timeSlot = null,
                     order = 0,
                 )
             }
             coVerify(exactly = 1) {
-                repository.updateWorkoutDayAndOrder(
+                repository.updateWorkoutSchedule(
                     workoutId = restDay.id,
+                    weekStartDate = weekStart,
                     dayOfWeek = TUESDAY,
                     timeSlot = null,
                     order = 0,
@@ -225,7 +228,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -269,7 +272,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -310,7 +313,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -374,7 +377,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -406,16 +409,18 @@ class WeeklyTrainingViewModelTest {
             runCurrent()
 
             coVerify(exactly = 1) {
-                repository.updateWorkoutDayAndOrder(
+                repository.updateWorkoutSchedule(
                     workoutId = movedWorkout.id,
+                    weekStartDate = weekStart,
                     dayOfWeek = MONDAY,
                     timeSlot = null,
                     order = 1,
                 )
             }
             coVerify(exactly = 1) {
-                repository.updateWorkoutDayAndOrder(
+                repository.updateWorkoutSchedule(
                     workoutId = mondayWorkout.id,
+                    weekStartDate = weekStart,
                     dayOfWeek = MONDAY,
                     timeSlot = null,
                     order = 0,
@@ -432,7 +437,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -473,7 +478,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -616,7 +621,7 @@ class WeeklyTrainingViewModelTest {
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
 
-            every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
@@ -687,9 +692,10 @@ private fun createWeeklyTrainingHarness(
     val categorySeeder = mockk<CategorySeeder>(relaxed = true)
     val settingsRepository = mockk<SettingsRepository>()
 
-    every { repository.observeWorkoutsForWeek(any()) } returns workoutsFlow
+    every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
     every { categoryRepository.observeCategories() } returns categoriesFlow
     every { settingsRepository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+    every { settingsRepository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
     every { settingsRepository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
 
     val viewModel =
@@ -734,6 +740,7 @@ private fun createViewModel(
 
     every { categoryRepository.observeCategories() } returns categoriesFlow
     every { settingsRepository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+    every { settingsRepository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
     every { settingsRepository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
 
     return WeeklyTrainingViewModel(
