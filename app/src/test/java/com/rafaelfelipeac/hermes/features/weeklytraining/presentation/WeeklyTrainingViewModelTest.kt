@@ -45,6 +45,7 @@ import org.junit.Test
 import java.time.DayOfWeek
 import java.time.DayOfWeek.MONDAY
 import java.time.DayOfWeek.TUESDAY
+import java.time.DayOfWeek.WEDNESDAY
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 
@@ -73,6 +74,71 @@ class WeeklyTrainingViewModelTest {
 
             assertEquals(selectedDate, viewModel.state.value.selectedDate)
             assertEquals(expectedWeekStart, viewModel.state.value.weekStartDate)
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun onWeekChanged_withWednesdayStart_updatesWeekStartUsingConfiguredBoundary() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    userActionLogger = userActionLogger,
+                    weekStartDay = WeekStartDay.WEDNESDAY,
+                )
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 3, 1)
+
+            viewModel.onWeekChanged(selectedDate)
+            advanceUntilIdle()
+
+            val expectedWeekStart = selectedDate.with(TemporalAdjusters.previousOrSame(WEDNESDAY))
+
+            assertEquals(selectedDate, viewModel.state.value.selectedDate)
+            assertEquals(expectedWeekStart, viewModel.state.value.weekStartDate)
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun state_withCrossBoundaryWeek_doesNotMixUnassignedFromOtherStorageWeek() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    userActionLogger = userActionLogger,
+                    weekStartDay = WeekStartDay.WEDNESDAY,
+                )
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 3, 1)
+            val firstStorageWeekStart = LocalDate.of(2026, 2, 23)
+            val secondStorageWeekStart = LocalDate.of(2026, 3, 2)
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 1, weekStart = firstStorageWeekStart, day = null, order = 0),
+                    workout(id = 2, weekStart = secondStorageWeekStart, day = null, order = 0),
+                    workout(id = 3, weekStart = secondStorageWeekStart, day = MONDAY, order = 0),
+                )
+            advanceUntilIdle()
+
+            val workoutIds = viewModel.state.value.workouts.map { it.id }.toSet()
+
+            assertEquals(setOf(1L, 3L), workoutIds)
 
             collectJob.cancel()
         }
@@ -535,24 +601,28 @@ class WeeklyTrainingViewModelTest {
             val collectJob = harness.collectJob
             val fixture = copyLastWeekFixture()
 
-            coEvery { repository.getWorkoutsForWeek(fixture.previousWeekStart) } returns
+            coEvery { repository.getWorkoutsForWeekStarts(listOf(fixture.previousWeekStart)) } returns
                 listOf(
                     fixture.sourceWorkout,
                     fixture.sourceRestDay,
                 )
-            coEvery { repository.getWorkoutsForWeek(fixture.weekStart) } returns emptyList()
+            coEvery { repository.getWorkoutsForWeekStarts(listOf(fixture.weekStart)) } returns emptyList()
 
             viewModel.onWeekChanged(fixture.selectedDate)
             runCurrent()
             viewModel.copyLastWeek()
             runCurrent()
 
-            coVerify(exactly = 1) {
-                repository.replaceWorkoutsForWeek(
-                    weekStartDate = fixture.weekStart,
-                    sourceWorkouts = listOf(fixture.sourceWorkout, fixture.sourceRestDay),
-                )
-            }
+            val inserted = mutableListOf<Workout>()
+            coVerify(exactly = 2) { repository.insertWorkout(capture(inserted)) }
+            coVerify(exactly = 0) { repository.deleteWorkout(any()) }
+            assertEquals(
+                setOf(
+                    fixture.sourceWorkout.copy(id = 0L, weekStartDate = fixture.weekStart, isCompleted = false),
+                    fixture.sourceRestDay.copy(id = 0L, weekStartDate = fixture.weekStart, isCompleted = false),
+                ),
+                inserted.toSet(),
+            )
             coVerify(exactly = 1) {
                 userActionLogger.log(
                     actionType = COPY_LAST_WEEK,
@@ -577,14 +647,19 @@ class WeeklyTrainingViewModelTest {
             val collectJob = harness.collectJob
             val fixture = copyLastWeekUndoFixture()
 
-            coEvery { repository.getWorkoutsForWeek(fixture.previousWeekStart) } returns
+            coEvery { repository.getWorkoutsForWeekStarts(listOf(fixture.previousWeekStart)) } returns
                 listOf(
                     fixture.sourceWorkout,
                 )
-            coEvery { repository.getWorkoutsForWeek(fixture.weekStart) } returns
+            coEvery { repository.getWorkoutsForWeekStarts(listOf(fixture.weekStart)) } returnsMany
                 listOf(
-                    fixture.previousTargetWorkout,
-                    fixture.previousTargetRestDay,
+                    listOf(
+                        fixture.previousTargetWorkout,
+                        fixture.previousTargetRestDay,
+                    ),
+                    listOf(
+                        fixture.sourceWorkout.copy(id = 999, weekStartDate = fixture.weekStart),
+                    ),
                 )
 
             viewModel.onWeekChanged(fixture.selectedDate)
@@ -595,8 +670,8 @@ class WeeklyTrainingViewModelTest {
             runCurrent()
 
             val restoredWorkouts = mutableListOf<Workout>()
-            coVerify(exactly = 1) { repository.deleteWorkoutsForWeek(fixture.weekStart) }
-            coVerify(exactly = 2) { repository.insertWorkout(capture(restoredWorkouts)) }
+            coVerify(exactly = 3) { repository.deleteWorkout(any()) }
+            coVerify(exactly = 3) { repository.insertWorkout(capture(restoredWorkouts)) }
             coVerify(exactly = 1) {
                 userActionLogger.log(
                     actionType = UNDO_COPY_LAST_WEEK,
@@ -608,7 +683,7 @@ class WeeklyTrainingViewModelTest {
             }
             assertEquals(
                 setOf(fixture.previousTargetWorkout, fixture.previousTargetRestDay),
-                restoredWorkouts.toSet(),
+                restoredWorkouts.takeLast(2).toSet(),
             )
 
             collectJob.cancel()
@@ -631,7 +706,7 @@ class WeeklyTrainingViewModelTest {
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
             val previousWeekStart = weekStart.minusWeeks(1)
 
-            coEvery { repository.getWorkoutsForWeek(previousWeekStart) } returns emptyList()
+            coEvery { repository.getWorkoutsForWeekStarts(listOf(previousWeekStart)) } returns emptyList()
 
             viewModel.onWeekChanged(selectedDate)
             runCurrent()
@@ -642,7 +717,7 @@ class WeeklyTrainingViewModelTest {
                 listOf(WeeklyTrainingMessage.NothingToCopyFromLastWeek),
                 messages,
             )
-            coVerify(exactly = 0) { repository.replaceWorkoutsForWeek(any(), any()) }
+            coVerify(exactly = 0) { repository.insertWorkout(any()) }
             assertEquals(null, viewModel.undoUiState.value)
 
             messageJob.cancel()
@@ -684,6 +759,7 @@ private data class WeeklyTrainingHarness(
 private fun createWeeklyTrainingHarness(
     workoutsFlow: MutableStateFlow<List<Workout>>,
     backgroundScope: CoroutineScope,
+    weekStartDay: WeekStartDay = WeekStartDay.MONDAY,
 ): WeeklyTrainingHarness {
     val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
     val userActionLogger = mockk<UserActionLogger>(relaxed = true)
@@ -695,7 +771,7 @@ private fun createWeeklyTrainingHarness(
     every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
     every { categoryRepository.observeCategories() } returns categoriesFlow
     every { settingsRepository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
-    every { settingsRepository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
+    every { settingsRepository.weekStartDay } returns MutableStateFlow(weekStartDay)
     every { settingsRepository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
 
     val viewModel =
@@ -733,6 +809,7 @@ private fun createViewModel(
     repository: WeeklyTrainingRepository,
     userActionLogger: UserActionLogger,
     categoriesFlow: MutableStateFlow<List<Category>> = MutableStateFlow(listOf(defaultCategory())),
+    weekStartDay: WeekStartDay = WeekStartDay.MONDAY,
 ): WeeklyTrainingViewModel {
     val categoryRepository = mockk<CategoryRepository>(relaxed = true)
     val categorySeeder = mockk<CategorySeeder>(relaxed = true)
@@ -740,7 +817,7 @@ private fun createViewModel(
 
     every { categoryRepository.observeCategories() } returns categoriesFlow
     every { settingsRepository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
-    every { settingsRepository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
+    every { settingsRepository.weekStartDay } returns MutableStateFlow(weekStartDay)
     every { settingsRepository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
 
     return WeeklyTrainingViewModel(

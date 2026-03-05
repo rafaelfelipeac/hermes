@@ -39,14 +39,9 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.MONDAY
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.displayDateForDay
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.storageWeekStartsForDisplayWeek
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekDates
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
@@ -55,6 +50,8 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.storageWeekStartsForDisplayWeek
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -108,14 +105,19 @@ class WeeklyTrainingViewModel
             }
 
         private val workoutsForDisplayWeek =
-            combine(weekStartDate, storageWeekStarts) { displayWeekStart, weekStarts ->
-                WeekQuery(displayWeekStart = displayWeekStart, weekStarts = weekStarts)
+            combine(selectedDate, weekStartDate, storageWeekStarts) { selected, displayWeekStart, weekStarts ->
+                WeekQuery(
+                    displayWeekStart = displayWeekStart,
+                    weekStarts = weekStarts,
+                    unassignedStorageWeekStart = canonicalStorageWeekStart(selected),
+                )
             }
                 .flatMapLatest { query ->
                     repository.observeWorkoutsForWeekStarts(query.weekStarts).map { workouts ->
                         workoutsForDisplayWeek(
                             workouts = workouts,
                             displayWeekStart = query.displayWeekStart,
+                            unassignedStorageWeekStart = query.unassignedStorageWeekStart,
                         )
                     }
                 }
@@ -320,40 +322,60 @@ class WeeklyTrainingViewModel
         }
 
         fun copyLastWeek() {
-            val currentWeekStartDate = canonicalStorageWeekStart(state.value.selectedDate)
-            val previousWeekStartDate = currentWeekStartDate.minusWeeks(1)
+            val currentDisplayWeekStartDate = state.value.weekStartDate
+            val previousDisplayWeekStartDate = currentDisplayWeekStartDate.minusWeeks(1)
+            val currentUnassignedStorageWeekStart = canonicalStorageWeekStart(state.value.selectedDate)
+            val previousUnassignedStorageWeekStart = currentUnassignedStorageWeekStart.minusWeeks(1)
+            val currentStorageWeekStarts = storageWeekStartsForDisplayWeek(currentDisplayWeekStartDate)
+            val previousStorageWeekStarts = storageWeekStartsForDisplayWeek(previousDisplayWeekStartDate)
 
             viewModelScope.launch {
-                val sourceWorkouts = repository.getWorkoutsForWeek(previousWeekStartDate)
+                val sourceWorkouts =
+                    workoutsForDisplayWeek(
+                        workouts = repository.getWorkoutsForWeekStarts(previousStorageWeekStarts),
+                        displayWeekStart = previousDisplayWeekStartDate,
+                        unassignedStorageWeekStart = previousUnassignedStorageWeekStart,
+                    )
 
                 if (sourceWorkouts.isEmpty()) {
                     messageEvents.emit(WeeklyTrainingMessage.NothingToCopyFromLastWeek)
                     return@launch
                 }
 
-                val targetWorkouts = repository.getWorkoutsForWeek(currentWeekStartDate)
+                val targetWorkouts =
+                    workoutsForDisplayWeek(
+                        workouts = repository.getWorkoutsForWeekStarts(currentStorageWeekStarts),
+                        displayWeekStart = currentDisplayWeekStartDate,
+                        unassignedStorageWeekStart = currentUnassignedStorageWeekStart,
+                    )
 
-                repository.replaceWorkoutsForWeek(
-                    weekStartDate = currentWeekStartDate,
-                    sourceWorkouts = sourceWorkouts,
-                )
+                targetWorkouts.forEach { workout ->
+                    repository.deleteWorkout(workout.id)
+                }
+
+                sourceWorkouts
+                    .map(::copyWorkoutToNextWeek)
+                    .forEach { copiedWorkout ->
+                        repository.insertWorkout(copiedWorkout)
+                    }
 
                 userActionLogger.log(
                     actionType = COPY_LAST_WEEK,
                     entityType = WEEK,
                     metadata =
                         mapOf(
-                            WEEK_START_DATE to currentWeekStartDate.toString(),
-                            OLD_WEEK_START_DATE to previousWeekStartDate.toString(),
-                            NEW_WEEK_START_DATE to currentWeekStartDate.toString(),
+                            WEEK_START_DATE to currentDisplayWeekStartDate.toString(),
+                            OLD_WEEK_START_DATE to previousDisplayWeekStartDate.toString(),
+                            NEW_WEEK_START_DATE to currentDisplayWeekStartDate.toString(),
                         ),
                 )
 
                 setUndoAction(
                     action =
                         PendingUndoAction.ReplaceWeek(
-                            weekStartDate = currentWeekStartDate,
+                            weekStartDate = currentDisplayWeekStartDate,
                             previousWorkouts = targetWorkouts,
+                            unassignedStorageWeekStart = currentUnassignedStorageWeekStart,
                         ),
                     message = UndoMessage.WeekCopied,
                 )
@@ -379,13 +401,13 @@ class WeeklyTrainingViewModel
             val undoPositions =
                 changes.mapNotNull { workout ->
                     currentWorkouts.firstOrNull { it.id == workout.id }?.let { original ->
-                                WorkoutPosition(
-                                    id = original.id,
-                                    weekStartDate = original.weekStartDate,
-                                    dayOfWeek = original.dayOfWeek,
-                                    timeSlot = original.timeSlot,
-                                    order = original.order,
-                                )
+                        WorkoutPosition(
+                            id = original.id,
+                            weekStartDate = original.weekStartDate,
+                            dayOfWeek = original.dayOfWeek,
+                            timeSlot = original.timeSlot,
+                            order = original.order,
+                        )
                     }
                 }
             val movedEventType = originalWorkout?.eventType ?: WORKOUT_EVENT
@@ -680,23 +702,23 @@ class WeeklyTrainingViewModel
 private data class WeekQuery(
     val displayWeekStart: LocalDate,
     val weekStarts: List<LocalDate>,
+    val unassignedStorageWeekStart: LocalDate,
 )
 
-private fun workoutsForDisplayWeek(
-    workouts: List<Workout>,
-    displayWeekStart: LocalDate,
-): List<Workout> {
-    val displayDates = weekDates(displayWeekStart).toSet()
-
-    return workouts.filter { workout ->
-        val dayOfWeek = workout.dayOfWeek
-
-        if (dayOfWeek == null) {
-            true
+private fun copyWorkoutToNextWeek(workout: Workout): Workout {
+    val nextWeekStart =
+        if (workout.dayOfWeek == null) {
+            workout.weekStartDate.plusWeeks(1)
         } else {
-            workout.weekStartDate.plusDays((dayOfWeek.value - 1).toLong()) in displayDates
+            val workoutDate = workout.weekStartDate.plusDays((workout.dayOfWeek.value - 1).toLong())
+            canonicalStorageWeekStart(workoutDate.plusWeeks(1))
         }
-    }
+
+    return workout.copy(
+        id = 0L,
+        weekStartDate = nextWeekStart,
+        isCompleted = false,
+    )
 }
 
 private fun mapWorkoutsToUi(

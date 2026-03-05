@@ -81,7 +81,11 @@ class SettingsViewModel
                     backupFolderUri = null,
                 )
             }.let { baseSettings ->
-                combine(baseSettings, repository.lastBackupExportedAt, repository.lastBackupImportedAt) { base, lastBackupExportedAt, lastBackupImportedAt ->
+                combine(
+                    baseSettings,
+                    repository.lastBackupExportedAt,
+                    repository.lastBackupImportedAt,
+                ) { base, lastBackupExportedAt, lastBackupImportedAt ->
                     base.copy(
                         lastBackupExportedAt = lastBackupExportedAt,
                         lastBackupImportedAt = lastBackupImportedAt,

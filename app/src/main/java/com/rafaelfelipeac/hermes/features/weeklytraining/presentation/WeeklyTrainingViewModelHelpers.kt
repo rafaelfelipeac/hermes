@@ -24,7 +24,9 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.displayDateForDa
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.storageWeekStartsForDisplayWeek
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.updateWorkoutOrderWithRestDayRules
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekDates
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
@@ -390,7 +392,17 @@ internal suspend fun undoReplaceWeek(
     repository: WeeklyTrainingRepository,
     userActionLogger: UserActionLogger,
 ) {
-    repository.deleteWorkoutsForWeek(action.weekStartDate)
+    val targetStorageWeekStarts = storageWeekStartsForDisplayWeek(action.weekStartDate)
+    val currentDisplayWeekWorkouts =
+        workoutsForDisplayWeek(
+            workouts = repository.getWorkoutsForWeekStarts(targetStorageWeekStarts),
+            displayWeekStart = action.weekStartDate,
+            unassignedStorageWeekStart = action.unassignedStorageWeekStart,
+        )
+
+    currentDisplayWeekWorkouts.forEach { workout ->
+        repository.deleteWorkout(workout.id)
+    }
 
     action.previousWorkouts
         .sortedBy { it.id }
@@ -415,6 +427,24 @@ internal data class WorkoutChangeDependencies(
     val weekStartDate: LocalDate,
     val displayStartDay: WeekStartDay,
 )
+
+internal fun workoutsForDisplayWeek(
+    workouts: List<Workout>,
+    displayWeekStart: LocalDate,
+    unassignedStorageWeekStart: LocalDate = canonicalStorageWeekStart(displayWeekStart),
+): List<Workout> {
+    val displayDates = weekDates(displayWeekStart).toSet()
+
+    return workouts.filter { workout ->
+        val dayOfWeek = workout.dayOfWeek
+
+        if (dayOfWeek == null) {
+            workout.weekStartDate == unassignedStorageWeekStart
+        } else {
+            workout.weekStartDate.plusDays((dayOfWeek.value - 1).toLong()) in displayDates
+        }
+    }
+}
 
 private fun resolveStorageWeekStartDate(
     workout: WorkoutUi,
