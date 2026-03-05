@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 @Dao
+@Suppress("TooManyFunctions")
 interface WorkoutDao {
     @Query("SELECT * FROM workouts")
     suspend fun getAll(): List<WorkoutEntity>
