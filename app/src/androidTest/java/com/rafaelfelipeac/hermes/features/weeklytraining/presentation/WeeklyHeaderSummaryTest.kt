@@ -50,6 +50,8 @@ class WeeklyHeaderSummaryTest {
         val restLabel = context.getString(R.string.weekly_training_summary_item_rest, 2)
         val busyLabel = context.getString(R.string.weekly_training_summary_item_busy, 1)
         val sickLabel = context.getString(R.string.weekly_training_summary_item_sick, 1)
+        val separator = context.getString(R.string.weekly_training_summary_separator)
+        val secondaryLine = listOf(restLabel, sickLabel).joinToString(separator = separator)
 
         composeRule.setContent {
             WeeklyHeaderSummary(
@@ -65,8 +67,7 @@ class WeeklyHeaderSummaryTest {
             )
         }
 
-        composeRule.onNodeWithText(restLabel).assertIsDisplayed()
-        composeRule.onNodeWithText(sickLabel).assertIsDisplayed()
+        composeRule.onNodeWithText(secondaryLine).assertIsDisplayed()
         composeRule.onAllNodesWithText(busyLabel).assertCountEquals(0)
     }
 }
