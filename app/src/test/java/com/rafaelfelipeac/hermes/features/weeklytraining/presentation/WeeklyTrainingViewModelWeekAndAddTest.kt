@@ -91,8 +91,9 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val observedWeekStarts = slot<List<LocalDate>>()
 
-            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+            every { repository.observeWorkoutsForWeekStarts(capture(observedWeekStarts)) } returns workoutsFlow
 
             val viewModel =
                 createViewModel(
@@ -106,6 +107,11 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             val secondStorageWeekStart = LocalDate.of(2026, 3, 2)
 
             viewModel.onWeekChanged(selectedDate)
+            advanceUntilIdle()
+            assertEquals(
+                setOf(firstStorageWeekStart, secondStorageWeekStart),
+                observedWeekStarts.captured.toSet(),
+            )
             workoutsFlow.value =
                 listOf(
                     workout(id = 1, weekStart = firstStorageWeekStart, day = null, order = 0),

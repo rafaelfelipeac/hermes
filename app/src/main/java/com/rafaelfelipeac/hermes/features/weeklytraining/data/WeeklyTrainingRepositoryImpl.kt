@@ -149,7 +149,11 @@ class WeeklyTrainingRepositoryImpl
         ) {
             workoutDao.replaceWorkoutsForWeek(
                 weekStartDate = weekStartDate,
-                workouts = buildReplacementEntities(weekStartDate, sourceWorkouts),
+                workouts =
+                    buildReplacementEntities(
+                        sourceWorkouts = sourceWorkouts,
+                        weekStartDateOverride = weekStartDate,
+                    ),
             )
         }
 
@@ -164,14 +168,14 @@ class WeeklyTrainingRepositoryImpl
                     targetStorageWeekStarts = targetStorageWeekStarts,
                     targetDisplayDates = weekDates(targetDisplayWeekStart),
                     targetUnassignedStorageWeekStart = targetUnassignedStorageWeekStart,
-                    replacementWorkouts = replacementWorkouts.map(Workout::toEntity),
+                    replacementWorkouts = buildReplacementEntities(sourceWorkouts = replacementWorkouts),
                 ).map(WorkoutEntity::toDomain)
             }
     }
 
 private fun buildReplacementEntities(
-    weekStartDate: LocalDate,
     sourceWorkouts: List<Workout>,
+    weekStartDateOverride: LocalDate? = null,
 ): List<WorkoutEntity> {
     return sourceWorkouts
         .sortedWith(
@@ -183,7 +187,7 @@ private fun buildReplacementEntities(
         ).map { workout ->
             val isRestDay = workout.isRestDay
             WorkoutEntity(
-                weekStartDate = weekStartDate,
+                weekStartDate = weekStartDateOverride ?: workout.weekStartDate,
                 dayOfWeek = workout.dayOfWeek?.value,
                 type = if (isRestDay) EMPTY else workout.type,
                 description = if (isRestDay) EMPTY else workout.description,

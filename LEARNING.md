@@ -184,3 +184,4 @@ Recent learnings:
 - For copy/replace flows that touch multiple rows, keep orchestration in repository/DAO and execute delete+insert in one Room transaction; ViewModels should call a single repository operation to avoid partial-state writes.
 - Keeping feature-specific query/DTO models in dedicated files (instead of inside ViewModels) helps enforce Hermes architecture rules and keeps ViewModel files focused on orchestration/state transitions.
 - When `LargeClass` hits a long test suite, splitting by behavior-focused test classes and moving shared fixtures/builders into a dedicated `*TestSupport.kt` file clears detekt without reducing test coverage.
+- In weekly copy/replace repository paths, avoid `Workout::toEntity` for bulk replacement inserts because it can preserve source row identity/state; rebuild normalized `WorkoutEntity` rows (fresh PK, `isCompleted=false`, rest-day field normalization) while preserving the computed target storage week per item.
