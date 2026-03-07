@@ -127,6 +127,7 @@ internal suspend fun persistWorkoutChanges(
                 workout = workout,
                 weekStartDate = dependencies.weekStartDate,
                 displayStartDay = dependencies.displayStartDay,
+                unassignedStorageWeekStart = dependencies.unassignedStorageWeekStart,
             )
 
         dependencies.repository.updateWorkoutSchedule(
@@ -426,6 +427,7 @@ internal data class WorkoutChangeDependencies(
     val userActionLogger: UserActionLogger,
     val weekStartDate: LocalDate,
     val displayStartDay: WeekStartDay,
+    val unassignedStorageWeekStart: LocalDate,
 )
 
 internal fun workoutsForDisplayWeek(
@@ -450,8 +452,9 @@ private fun resolveStorageWeekStartDate(
     workout: WorkoutUi,
     weekStartDate: LocalDate,
     displayStartDay: WeekStartDay,
+    unassignedStorageWeekStart: LocalDate,
 ): LocalDate {
-    val dayOfWeek = workout.dayOfWeek ?: return workout.weekStartDate
+    val dayOfWeek = workout.dayOfWeek ?: return unassignedStorageWeekStart
     val displayDate =
         displayDateForDay(
             displayWeekStart = weekStartDate,

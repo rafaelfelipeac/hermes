@@ -98,6 +98,9 @@ interface WorkoutDao {
     @Query("DELETE FROM workouts WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("DELETE FROM workouts WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
+
     @Query("DELETE FROM workouts WHERE weekStartDate = :weekStartDate")
     suspend fun deleteByWeekStartDate(weekStartDate: LocalDate)
 
@@ -111,6 +114,35 @@ interface WorkoutDao {
         if (workouts.isNotEmpty()) {
             insertAll(workouts)
         }
+    }
+
+    @Transaction
+    suspend fun replaceWorkoutsForDisplayWeek(
+        targetStorageWeekStarts: List<LocalDate>,
+        targetDisplayDates: List<LocalDate>,
+        targetUnassignedStorageWeekStart: LocalDate,
+        replacementWorkouts: List<WorkoutEntity>,
+    ): List<WorkoutEntity> {
+        val targetDateSet = targetDisplayDates.toSet()
+        val existing = getWorkoutsForWeekStarts(targetStorageWeekStarts)
+        val replaced =
+            existing.filter { workout ->
+                if (workout.dayOfWeek == null) {
+                    workout.weekStartDate == targetUnassignedStorageWeekStart
+                } else {
+                    workout.weekStartDate.plusDays((workout.dayOfWeek - 1).toLong()) in targetDateSet
+                }
+            }
+
+        if (replaced.isNotEmpty()) {
+            deleteByIds(replaced.map { it.id })
+        }
+
+        if (replacementWorkouts.isNotEmpty()) {
+            insertAll(replacementWorkouts)
+        }
+
+        return replaced
     }
 
     @Query("DELETE FROM workouts")

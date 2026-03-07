@@ -458,7 +458,7 @@ fun SettingsScreen(
                                     viewModel.logExportBackupResult(
                                         exportResult = jsonResult,
                                         destinationType = EXPORT_DESTINATION_FOLDER,
-                                        destinationConfigured = true,
+                                        destinationConfigured = false,
                                     )
                                 }
                             }

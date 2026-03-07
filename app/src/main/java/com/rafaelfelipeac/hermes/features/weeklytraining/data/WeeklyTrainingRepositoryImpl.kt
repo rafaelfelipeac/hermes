@@ -8,6 +8,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekDates
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
@@ -151,6 +152,21 @@ class WeeklyTrainingRepositoryImpl
                 workouts = buildReplacementEntities(weekStartDate, sourceWorkouts),
             )
         }
+
+        override suspend fun replaceWorkoutsForDisplayWeek(
+            targetStorageWeekStarts: List<LocalDate>,
+            targetDisplayWeekStart: LocalDate,
+            targetUnassignedStorageWeekStart: LocalDate,
+            replacementWorkouts: List<Workout>,
+        ): Result<List<Workout>> =
+            runCatching {
+                workoutDao.replaceWorkoutsForDisplayWeek(
+                    targetStorageWeekStarts = targetStorageWeekStarts,
+                    targetDisplayDates = weekDates(targetDisplayWeekStart),
+                    targetUnassignedStorageWeekStart = targetUnassignedStorageWeekStart,
+                    replacementWorkouts = replacementWorkouts.map(Workout::toEntity),
+                ).map(WorkoutEntity::toDomain)
+            }
     }
 
 private fun buildReplacementEntities(
