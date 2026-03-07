@@ -51,6 +51,12 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">Riposo</string>
+    <string name="weekly_training_summary_line_primary">%1$d pianificati • %2$d completati</string>
+    <string name="weekly_training_summary_separator">&#160;•&#160;</string>
+    <string name="weekly_training_summary_item_rest">%1$d riposo</string>
+    <string name="weekly_training_summary_item_busy">%1$d indisponibilità</string>
+    <string name="weekly_training_summary_item_sick">%1$d malattia</string>
+    <string name="weekly_training_summary_progress_content_description">Progresso settimanale: %1$d di %2$d allenamenti completati</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modalità sviluppatore</string>

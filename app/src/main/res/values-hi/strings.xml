@@ -51,6 +51,12 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">आराम</string>
+    <string name="weekly_training_summary_line_primary">%1$d नियोजित • %2$d पूर्ण</string>
+    <string name="weekly_training_summary_separator">&#160;•&#160;</string>
+    <string name="weekly_training_summary_item_rest">%1$d आराम</string>
+    <string name="weekly_training_summary_item_busy">%1$d व्यस्त</string>
+    <string name="weekly_training_summary_item_sick">%1$d बीमार</string>
+    <string name="weekly_training_summary_progress_content_description">साप्ताहिक प्रगति: %2$d में से %1$d वर्कआउट पूरे हुए</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>

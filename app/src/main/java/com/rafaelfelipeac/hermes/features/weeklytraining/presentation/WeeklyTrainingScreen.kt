@@ -249,6 +249,17 @@ fun WeeklyTrainingScreen(
                 )
 
                 if (state.isWeekLoaded) {
+                    state.weeklyHeaderSummary?.let { summary ->
+                        Spacer(modifier = Modifier.height(SpacingLg))
+
+                        WeeklyHeaderSummary(
+                            summary = summary,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(SpacingLg))
+
                     WeeklyTrainingContent(
                         modifier =
                             Modifier
