@@ -73,13 +73,6 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Work
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
-import java.time.DayOfWeek.FRIDAY
-import java.time.DayOfWeek.MONDAY
-import java.time.DayOfWeek.SATURDAY
-import java.time.DayOfWeek.SUNDAY
-import java.time.DayOfWeek.THURSDAY
-import java.time.DayOfWeek.TUESDAY
-import java.time.DayOfWeek.WEDNESDAY
 import java.time.LocalDate
 
 private const val NO_INDEX = -1
@@ -100,6 +93,7 @@ fun WeeklyTrainingContent(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     workouts: List<WorkoutUi>,
+    dayOrder: List<DayOfWeek> = DayOfWeek.entries,
     slotModePolicy: SlotModePolicy = AUTO_WHEN_MULTIPLE,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
     onWorkoutCompletionChanged: (WorkoutUi, Boolean) -> Unit,
@@ -114,13 +108,9 @@ fun WeeklyTrainingContent(
                     add(ToBeDefined)
                 }
 
-                add(Day(MONDAY))
-                add(Day(TUESDAY))
-                add(Day(WEDNESDAY))
-                add(Day(THURSDAY))
-                add(Day(FRIDAY))
-                add(Day(SATURDAY))
-                add(Day(SUNDAY))
+                dayOrder.forEach { dayOfWeek ->
+                    add(Day(dayOfWeek))
+                }
             }
         }
 

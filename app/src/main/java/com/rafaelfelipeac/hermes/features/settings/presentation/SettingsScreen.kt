@@ -13,37 +13,21 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -68,47 +51,23 @@ import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ARABIC
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.FRENCH
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.GERMAN
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.HINDI
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ITALIAN
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.JAPANESE
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SPANISH
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
-import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
-import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
-import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
-import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
-import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.Instant
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 private const val DEBUG_PACKAGE_SUFFIX = ".dev"
 internal const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
 internal const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
+internal const val SETTINGS_WEEK_START_ROW_TAG = "settings_week_start_row"
 private const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 private const val BACKUP_MIME_TYPE = "application/json"
 private const val BACKUP_EXTENSION = ".json"
@@ -294,6 +253,7 @@ fun SettingsScreen(
                 appVersion = VERSION_NAME,
                 onThemeClick = { route = SettingsRoute.THEME },
                 onLanguageClick = { route = SettingsRoute.LANGUAGE },
+                onWeekStartClick = { route = SettingsRoute.START_OF_WEEK },
                 onSlotModeClick = { route = SettingsRoute.SLOT_MODE },
                 onFeedbackClick = { subject, body ->
                     val normalizedBody = body.replace("\n", "\r\n")
@@ -399,95 +359,26 @@ fun SettingsScreen(
                 modifier = modifier,
             )
         SettingsRoute.THEME ->
-            SettingsDetailScreen(
-                title = stringResource(R.string.settings_theme_title),
+            SettingsThemeScreen(
+                themeMode = state.themeMode,
                 onBack = { route = SettingsRoute.MAIN },
+                onThemeSelected = viewModel::setThemeMode,
                 modifier = modifier,
-            ) {
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_theme_system),
-                    selected = state.themeMode == ThemeMode.SYSTEM,
-                    onClick = { viewModel.setThemeMode(ThemeMode.SYSTEM) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_theme_light),
-                    selected = state.themeMode == LIGHT,
-                    onClick = { viewModel.setThemeMode(LIGHT) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_theme_dark),
-                    selected = state.themeMode == DARK,
-                    onClick = { viewModel.setThemeMode(DARK) },
-                )
-            }
+            )
         SettingsRoute.LANGUAGE ->
-            SettingsDetailScreen(
-                title = stringResource(R.string.settings_language_title),
+            SettingsLanguageScreen(
+                language = state.language,
                 onBack = { route = SettingsRoute.MAIN },
+                onLanguageSelected = viewModel::setLanguage,
                 modifier = modifier,
-            ) {
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_system),
-                    selected = state.language == SYSTEM,
-                    onClick = { viewModel.setLanguage(SYSTEM) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_english),
-                    selected = state.language == ENGLISH,
-                    onClick = { viewModel.setLanguage(ENGLISH) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_portuguese_brazil),
-                    selected = state.language == PORTUGUESE_BRAZIL,
-                    onClick = { viewModel.setLanguage(PORTUGUESE_BRAZIL) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_german),
-                    selected = state.language == GERMAN,
-                    onClick = { viewModel.setLanguage(GERMAN) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_french),
-                    selected = state.language == FRENCH,
-                    onClick = { viewModel.setLanguage(FRENCH) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_spanish),
-                    selected = state.language == SPANISH,
-                    onClick = { viewModel.setLanguage(SPANISH) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_italian),
-                    selected = state.language == ITALIAN,
-                    onClick = { viewModel.setLanguage(ITALIAN) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_arabic),
-                    selected = state.language == ARABIC,
-                    onClick = { viewModel.setLanguage(ARABIC) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_hindi),
-                    selected = state.language == HINDI,
-                    onClick = { viewModel.setLanguage(HINDI) },
-                )
-
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_language_japanese),
-                    selected = state.language == JAPANESE,
-                    onClick = { viewModel.setLanguage(JAPANESE) },
-                )
-            }
+            )
+        SettingsRoute.START_OF_WEEK ->
+            SettingsWeekStartScreen(
+                weekStartDay = state.weekStartDay,
+                onBack = { route = SettingsRoute.MAIN },
+                onWeekStartSelected = viewModel::setWeekStartDay,
+                modifier = modifier,
+            )
         SettingsRoute.CATEGORIES ->
             CategoriesScreen(
                 onBack = {
@@ -497,121 +388,91 @@ fun SettingsScreen(
                 modifier = modifier,
             )
         SettingsRoute.SLOT_MODE ->
-            SettingsDetailScreen(
-                title = stringResource(R.string.settings_slot_mode_title),
+            SettingsSlotModeScreen(
+                slotModePolicy = state.slotModePolicy,
                 onBack = { route = SettingsRoute.MAIN },
                 onHelpClick = { isSlotModeHelpVisible = true },
-                helpContentDescription = stringResource(R.string.settings_slot_mode_help_title),
+                onSlotModeSelected = viewModel::setSlotModePolicy,
                 modifier = modifier,
-            ) {
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_slot_mode_auto),
-                    selected = state.slotModePolicy == AUTO_WHEN_MULTIPLE,
-                    onClick = { viewModel.setSlotModePolicy(AUTO_WHEN_MULTIPLE) },
-                )
-                SettingsOptionRow(
-                    label = stringResource(R.string.settings_slot_mode_always),
-                    selected = state.slotModePolicy == ALWAYS_SHOW,
-                    onClick = { viewModel.setSlotModePolicy(ALWAYS_SHOW) },
-                )
-            }
+            )
         SettingsRoute.BACKUP ->
-            SettingsDetailScreen(
-                title = stringResource(R.string.settings_backup_title),
+            SettingsBackupScreen(
+                state = state,
                 onBack = { route = SettingsRoute.MAIN },
                 onHelpClick = { isBackupHelpVisible = true },
-                helpContentDescription = stringResource(R.string.settings_backup_help_title),
-                contentInsideCard = false,
                 modifier = modifier,
-            ) {
-                SettingsCard {
-                    SettingsBackupActionRow(
-                        label = stringResource(R.string.settings_export_backup_title),
-                        detail = backupExportLabel(state.lastBackupExportedAt),
-                        onClick = {
-                            scope.launch {
-                                val configuredUri = state.backupFolderUri
+                onExportClick = {
+                    scope.launch {
+                        val configuredUri = state.backupFolderUri
 
-                                if (configuredUri == null) {
-                                    pendingSaveAsDestinationConfigured = false
-                                    exportDocumentLauncher.launch(backupFileName())
-                                } else {
-                                    val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
-                                    if (jsonResult.isFailure) {
-                                        Toast.makeText(context, exportFallbackMessage, Toast.LENGTH_SHORT).show()
+                        if (configuredUri == null) {
+                            pendingSaveAsDestinationConfigured = false
+                            exportDocumentLauncher.launch(backupFileName())
+                        } else {
+                            val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
 
-                                        viewModel.logExportBackupResult(
-                                            exportResult = jsonResult,
-                                            destinationType = EXPORT_DESTINATION_FOLDER,
-                                            destinationConfigured = false,
+                            if (jsonResult.isFailure) {
+                                Toast.makeText(
+                                    context,
+                                    exportFallbackMessage,
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+
+                                viewModel.logExportBackupResult(
+                                    exportResult = jsonResult,
+                                    destinationType = EXPORT_DESTINATION_FOLDER,
+                                    destinationConfigured = false,
+                                )
+                            } else {
+                                val writeSucceeded =
+                                    jsonResult.getOrNull()?.let { payload ->
+                                        writeTextToBackupFolder(
+                                            context = context,
+                                            treeUri = configuredUri.toUri(),
+                                            content = payload,
                                         )
-                                    } else {
-                                        val writeSucceeded =
-                                            jsonResult.getOrNull()?.let { payload ->
-                                                writeTextToBackupFolder(
-                                                    context = context,
-                                                    treeUri = configuredUri.toUri(),
-                                                    content = payload,
-                                                )
-                                            } ?: false
+                                    } ?: false
 
-                                        if (writeSucceeded) {
-                                            Toast.makeText(context, exportSuccessMessage, Toast.LENGTH_SHORT).show()
+                                if (writeSucceeded) {
+                                    Toast.makeText(
+                                        context,
+                                        exportSuccessMessage,
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
 
-                                            viewModel.logExportBackupResult(
-                                                exportResult = jsonResult,
-                                                destinationType = EXPORT_DESTINATION_FOLDER,
-                                                destinationConfigured = true,
-                                            )
-                                        } else {
-                                            Toast.makeText(context, exportFallbackMessage, Toast.LENGTH_SHORT).show()
+                                    viewModel.logExportBackupResult(
+                                        exportResult = jsonResult,
+                                        destinationType = EXPORT_DESTINATION_FOLDER,
+                                        destinationConfigured = true,
+                                    )
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        exportFallbackMessage,
+                                        Toast.LENGTH_SHORT,
+                                    ).show()
 
-                                            pendingSaveAsDestinationConfigured = true
-                                            exportDocumentLauncher.launch(backupFileName())
+                                    pendingSaveAsDestinationConfigured = true
+                                    exportDocumentLauncher.launch(backupFileName())
 
-                                            viewModel.logExportBackupResult(
-                                                exportResult = jsonResult,
-                                                destinationType = EXPORT_DESTINATION_FOLDER,
-                                                destinationConfigured = true,
-                                            )
-                                        }
-                                    }
+                                    viewModel.logExportBackupResult(
+                                        exportResult = jsonResult,
+                                        destinationType = EXPORT_DESTINATION_FOLDER,
+                                        destinationConfigured = false,
+                                    )
                                 }
                             }
-                        },
-                    )
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-
-                    SettingsBackupActionRow(
-                        label = stringResource(R.string.settings_import_backup_title),
-                        detail = backupImportLabel(state.lastBackupImportedAt),
-                        onClick = { importDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE)) },
-                    )
-                }
-
-                SettingsCard {
-                    SettingsBackupActionRow(
-                        label = stringResource(R.string.settings_backup_folder_title),
-                        detail = backupFolderLabel(state.backupFolderUri),
-                        onClick = { backupFolderLauncher.launch(null) },
-                    )
-
-                    if (state.backupFolderUri != null) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-
-                        SettingsBackupActionRow(
-                            label = stringResource(R.string.settings_backup_folder_clear),
-                            detail = stringResource(R.string.settings_backup_folder_clear_detail),
-                            onClick = {
-                                scope.launch {
-                                    viewModel.clearBackupFolderUri()
-                                }
-                            },
-                        )
+                        }
                     }
-                }
-            }
+                },
+                onImportClick = { importDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE)) },
+                onSelectFolderClick = { backupFolderLauncher.launch(null) },
+                onClearFolderClick = {
+                    scope.launch {
+                        viewModel.clearBackupFolderUri()
+                    }
+                },
+            )
     }
 
     if (isSlotModeHelpVisible) {
@@ -683,6 +544,7 @@ internal fun SettingsContent(
     appVersion: String,
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
+    onWeekStartClick: () -> Unit,
     onSlotModeClick: () -> Unit,
     onFeedbackClick: (String, String) -> Unit,
     onRateClick: () -> Unit,
@@ -718,6 +580,15 @@ internal fun SettingsContent(
                 SettingsNavigationRow(
                     label = stringResource(R.string.settings_slot_mode_title),
                     onClick = onSlotModeClick,
+                )
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                SettingsNavigationRow(
+                    label = stringResource(R.string.settings_week_start_title),
+                    detail = weekStartLabel(state.weekStartDay),
+                    onClick = onWeekStartClick,
+                    modifier = Modifier.testTag(SETTINGS_WEEK_START_ROW_TAG),
                 )
             }
 
@@ -855,344 +726,4 @@ private suspend fun writeTextToBackupFolder(
         }
 
     return backupFile?.let { file -> writeTextToUri(context, file.uri, content) } ?: false
-}
-
-@Composable
-private fun SettingsSection(
-    title: String,
-    content: @Composable () -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
-        Text(
-            text = title,
-            style = typography.titleMedium,
-        )
-
-        SettingsCard(content = content)
-    }
-}
-
-@Composable
-private fun SettingsDetailScreen(
-    title: String,
-    onBack: () -> Unit,
-    onHelpClick: (() -> Unit)? = null,
-    helpContentDescription: String? = null,
-    contentInsideCard: Boolean = true,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    val scrollState = rememberScrollState()
-    val resolvedHelpContentDescription =
-        if (onHelpClick != null) {
-            requireNotNull(helpContentDescription) {
-                "helpContentDescription is required when onHelpClick is provided."
-            }
-        } else {
-            null
-        }
-
-    Column(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(SpacingLg),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = SpacingSm,
-                        end = SpacingXl,
-                        top = SpacingSm,
-                        bottom = SpacingSm,
-                    ),
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = stringResource(R.string.settings_back),
-                )
-            }
-
-            Text(
-                text = title,
-                style = typography.titleLarge,
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            if (onHelpClick != null) {
-                Surface(
-                    shape = CircleShape,
-                    color = colorScheme.surfaceVariant,
-                    tonalElevation = ElevationSm,
-                    shadowElevation = ElevationSm,
-                    modifier = Modifier.size(HelpIconSize),
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .clickable(onClick = onHelpClick),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.HelpOutline,
-                            contentDescription = resolvedHelpContentDescription,
-                            modifier = Modifier.size(HelpIconGlyphSize),
-                        )
-                    }
-                }
-            }
-        }
-
-        Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
-            if (contentInsideCard) {
-                SettingsCard(content = content)
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(SpacingLg)) {
-                    content()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingsCard(content: @Composable () -> Unit) {
-    Surface(
-        tonalElevation = ElevationSm,
-        shape = shapes.medium,
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(
-            modifier =
-                Modifier.padding(
-                    horizontal = SpacingLg,
-                    vertical = SpacingMd,
-                ),
-        ) {
-            content()
-        }
-    }
-}
-
-@Composable
-private fun SettingsOptionRow(
-    label: String,
-    selected: Boolean,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(vertical = SpacingXxs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RadioButton(
-            selected = selected,
-            onClick = onClick,
-        )
-
-        Spacer(modifier = Modifier.width(SpacingLg))
-
-        Text(
-            text = label,
-            style = typography.bodyLarge,
-        )
-    }
-}
-
-@Composable
-private fun SettingsActionButton(
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier =
-            modifier.padding(vertical = SpacingXxs),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Button(
-            onClick = onClick,
-        ) {
-            Text(
-                text = label,
-                style = typography.bodyLarge,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SettingsNavigationRow(
-    label: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(vertical = SpacingXxs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            style = typography.bodyLarge,
-            modifier = Modifier.weight(1f),
-        )
-
-        Icon(
-            imageVector = Icons.Outlined.ChevronRight,
-            contentDescription = null,
-        )
-    }
-}
-
-@Composable
-private fun SettingsInfoRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    body: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(vertical = SpacingXs),
-        verticalAlignment = Alignment.Top,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.padding(top = SpacingXxs),
-        )
-
-        Spacer(modifier = Modifier.width(SpacingLg))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = typography.bodyLarge,
-            )
-
-            Spacer(modifier = Modifier.height(SpacingXxs))
-
-            Text(
-                text = body,
-                style = typography.bodySmall,
-            )
-        }
-    }
-}
-
-@Composable
-private fun SettingsBackupActionRow(
-    label: String,
-    detail: String,
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(vertical = SpacingXs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(SpacingXxs),
-        ) {
-            Text(
-                text = label,
-                style = typography.bodyLarge,
-            )
-            Text(
-                text = detail,
-                style = typography.bodySmall,
-            )
-        }
-
-        Icon(
-            imageVector = Icons.Outlined.ChevronRight,
-            contentDescription = null,
-        )
-    }
-}
-
-@Composable
-private fun backupExportLabel(rawTimestamp: String?): String {
-    val never = stringResource(R.string.settings_backup_never)
-    val formatted = formatBackupTimestamp(rawTimestamp) ?: never
-    return stringResource(R.string.settings_backup_last_exported, formatted)
-}
-
-@Composable
-private fun backupImportLabel(rawTimestamp: String?): String {
-    val never = stringResource(R.string.settings_backup_never)
-    val formatted = formatBackupTimestamp(rawTimestamp) ?: never
-    return stringResource(R.string.settings_backup_last_imported, formatted)
-}
-
-@Composable
-private fun backupFolderLabel(rawUri: String?): String {
-    return if (rawUri.isNullOrBlank()) {
-        stringResource(R.string.settings_backup_folder_default)
-    } else {
-        stringResource(R.string.settings_backup_folder_selected)
-    }
-}
-
-@Composable
-private fun formatBackupTimestamp(rawTimestamp: String?): String? {
-    if (rawTimestamp.isNullOrBlank()) return null
-    val locale = Locale.getDefault()
-    val zoneId = ZoneId.systemDefault()
-    val formatter =
-        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
-            .withLocale(locale)
-            .withZone(zoneId)
-
-    return runCatching {
-        formatter.format(Instant.parse(rawTimestamp))
-    }.getOrDefault(rawTimestamp)
-}
-
-@Composable
-private fun themeLabel(themeMode: ThemeMode): String {
-    return when (themeMode) {
-        ThemeMode.SYSTEM -> stringResource(R.string.settings_theme_system)
-        LIGHT -> stringResource(R.string.settings_theme_light)
-        DARK -> stringResource(R.string.settings_theme_dark)
-    }
-}
-
-@Composable
-private fun languageLabel(language: AppLanguage): String {
-    return when (language) {
-        SYSTEM -> stringResource(R.string.settings_language_system)
-        ENGLISH -> stringResource(R.string.settings_language_english)
-        PORTUGUESE_BRAZIL ->
-            stringResource(R.string.settings_language_portuguese_brazil)
-        GERMAN -> stringResource(R.string.settings_language_german)
-        FRENCH -> stringResource(R.string.settings_language_french)
-        SPANISH -> stringResource(R.string.settings_language_spanish)
-        ITALIAN -> stringResource(R.string.settings_language_italian)
-        ARABIC -> stringResource(R.string.settings_language_arabic)
-        HINDI -> stringResource(R.string.settings_language_hindi)
-        JAPANESE -> stringResource(R.string.settings_language_japanese)
-    }
 }

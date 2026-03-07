@@ -18,10 +18,15 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WO
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.displayDateForDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.storageWeekStartsForDisplayWeek
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.updateWorkoutOrderWithRestDayRules
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekDates
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
@@ -41,8 +46,9 @@ internal suspend fun normalizeOrdersAfterDelete(
 
     remaining.forEachIndexed { index, workout ->
         if (workout.order != index) {
-            repository.updateWorkoutDayAndOrder(
+            repository.updateWorkoutSchedule(
                 workoutId = workout.id,
+                weekStartDate = workout.weekStartDate,
                 dayOfWeek = dayOfWeek,
                 timeSlot = timeSlot,
                 order = index,
@@ -66,8 +72,9 @@ internal suspend fun normalizeOrdersForDay(
 
     workoutsForDay.forEachIndexed { index, workout ->
         if (workout.id !in skipIds && (forceUpdate || workout.order != index)) {
-            repository.updateWorkoutDayAndOrder(
+            repository.updateWorkoutSchedule(
                 workoutId = workout.id,
+                weekStartDate = workout.weekStartDate,
                 dayOfWeek = dayOfWeek,
                 timeSlot = timeSlot,
                 order = index,
@@ -115,9 +122,17 @@ internal suspend fun persistWorkoutChanges(
 ) {
     changes.forEach { workout ->
         val original = currentWorkouts.firstOrNull { it.id == workout.id } ?: return@forEach
+        val targetStorageWeekStart =
+            resolveStorageWeekStartDate(
+                workout = workout,
+                weekStartDate = dependencies.weekStartDate,
+                displayStartDay = dependencies.displayStartDay,
+                unassignedStorageWeekStart = dependencies.unassignedStorageWeekStart,
+            )
 
-        dependencies.repository.updateWorkoutDayAndOrder(
+        dependencies.repository.updateWorkoutSchedule(
             workoutId = workout.id,
+            weekStartDate = targetStorageWeekStart,
             dayOfWeek = workout.dayOfWeek,
             timeSlot = workout.timeSlot,
             order = workout.order,
@@ -211,7 +226,7 @@ internal suspend fun restoreDeletedWorkout(
         repository.insertWorkout(
             Workout(
                 id = workout.id,
-                weekStartDate = action.weekStartDate,
+                weekStartDate = workout.weekStartDate,
                 dayOfWeek = workout.dayOfWeek,
                 type = workout.type,
                 description = workout.description,
@@ -225,8 +240,9 @@ internal suspend fun restoreDeletedWorkout(
         )
 
     action.previousPositions.forEach { position ->
-        repository.updateWorkoutDayAndOrder(
+        repository.updateWorkoutSchedule(
             workoutId = position.id,
+            weekStartDate = position.weekStartDate,
             dayOfWeek = position.dayOfWeek,
             timeSlot = position.timeSlot,
             order = position.order,
@@ -238,7 +254,7 @@ internal suspend fun restoreDeletedWorkout(
             repository = repository,
             restoredId = restoredId,
             workout = workout,
-            weekStartDate = action.weekStartDate,
+            weekStartDates = action.previousPositions.map { it.weekStartDate }.toSet() + workout.weekStartDate,
         )
 
     val affectedBuckets =
@@ -264,10 +280,10 @@ internal suspend fun buildUpdatedWorkoutsAfterRestore(
     repository: WeeklyTrainingRepository,
     restoredId: Long,
     workout: WorkoutUi,
-    weekStartDate: LocalDate,
+    weekStartDates: Set<LocalDate>,
 ): List<WorkoutUi> {
     val latestWorkouts =
-        repository.getWorkoutsForWeek(weekStartDate).map { it.toUi(null) }
+        repository.getWorkoutsForWeekStarts(weekStartDates.toList()).map { it.toUi(null) }
     val restoredWorkout = workout.copy(id = restoredId)
 
     return if (latestWorkouts.any { it.id == restoredId }) {
@@ -289,8 +305,9 @@ internal suspend fun undoMoveOrReorder(
     val previousPositionsById = action.previousPositions.associateBy { it.id }
 
     action.previousPositions.forEach { position ->
-        repository.updateWorkoutDayAndOrder(
+        repository.updateWorkoutSchedule(
             workoutId = position.id,
+            weekStartDate = position.weekStartDate,
             dayOfWeek = position.dayOfWeek,
             timeSlot = position.timeSlot,
             order = position.order,
@@ -305,6 +322,7 @@ internal suspend fun undoMoveOrReorder(
                 workout
             } else {
                 workout.copy(
+                    weekStartDate = position.weekStartDate,
                     dayOfWeek = position.dayOfWeek,
                     timeSlot = position.timeSlot,
                     order = position.order,
@@ -375,7 +393,17 @@ internal suspend fun undoReplaceWeek(
     repository: WeeklyTrainingRepository,
     userActionLogger: UserActionLogger,
 ) {
-    repository.deleteWorkoutsForWeek(action.weekStartDate)
+    val targetStorageWeekStarts = storageWeekStartsForDisplayWeek(action.weekStartDate)
+    val currentDisplayWeekWorkouts =
+        workoutsForDisplayWeek(
+            workouts = repository.getWorkoutsForWeekStarts(targetStorageWeekStarts),
+            displayWeekStart = action.weekStartDate,
+            unassignedStorageWeekStart = action.unassignedStorageWeekStart,
+        )
+
+    currentDisplayWeekWorkouts.forEach { workout ->
+        repository.deleteWorkout(workout.id)
+    }
 
     action.previousWorkouts
         .sortedBy { it.id }
@@ -398,4 +426,41 @@ internal data class WorkoutChangeDependencies(
     val repository: WeeklyTrainingRepository,
     val userActionLogger: UserActionLogger,
     val weekStartDate: LocalDate,
+    val displayStartDay: WeekStartDay,
+    val unassignedStorageWeekStart: LocalDate,
 )
+
+internal fun workoutsForDisplayWeek(
+    workouts: List<Workout>,
+    displayWeekStart: LocalDate,
+    unassignedStorageWeekStart: LocalDate = canonicalStorageWeekStart(displayWeekStart),
+): List<Workout> {
+    val displayDates = weekDates(displayWeekStart).toSet()
+
+    return workouts.filter { workout ->
+        val dayOfWeek = workout.dayOfWeek
+
+        if (dayOfWeek == null) {
+            workout.weekStartDate == unassignedStorageWeekStart
+        } else {
+            workout.weekStartDate.plusDays((dayOfWeek.value - 1).toLong()) in displayDates
+        }
+    }
+}
+
+private fun resolveStorageWeekStartDate(
+    workout: WorkoutUi,
+    weekStartDate: LocalDate,
+    displayStartDay: WeekStartDay,
+    unassignedStorageWeekStart: LocalDate,
+): LocalDate {
+    val dayOfWeek = workout.dayOfWeek ?: return unassignedStorageWeekStart
+    val displayDate =
+        displayDateForDay(
+            displayWeekStart = weekStartDate,
+            displayStartDay = displayStartDay.dayOfWeek,
+            dayOfWeek = dayOfWeek,
+        )
+
+    return canonicalStorageWeekStart(displayDate)
+}

@@ -23,6 +23,7 @@ enum class UndoMessage {
 
 data class WorkoutPosition(
     val id: Long,
+    val weekStartDate: LocalDate,
     val dayOfWeek: DayOfWeek?,
     val timeSlot: TimeSlot?,
     val order: Int,
@@ -52,5 +53,6 @@ sealed class PendingUndoAction {
     data class ReplaceWeek(
         val weekStartDate: LocalDate,
         val previousWorkouts: List<Workout>,
+        val unassignedStorageWeekStart: LocalDate,
     ) : PendingUndoAction()
 }

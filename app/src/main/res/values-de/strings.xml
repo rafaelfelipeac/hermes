@@ -248,11 +248,13 @@
     <string name="settings_import_backup_replace_confirm">Ersetzen</string>
     <string name="settings_import_backup_replace_cancel">Abbrechen</string>
     <string name="settings_slot_mode_title">Zeitfenster-Modus</string>
+    <string name="settings_week_start_title">Wochenstart</string>
     <string name="settings_slot_mode_auto">Automatisch (2+ Ereignisse/Tag)</string>
     <string name="settings_slot_mode_always">Zeitfenster immer anzeigen</string>
     <string name="settings_slot_mode_help_title">So funktioniert der Zeitfenster-Modus</string>
     <string name="settings_slot_mode_help_message">Wenn aktiviert, helfen Zeitfenster dabei, mehrere Ereignisse am selben Tag zu organisieren.\n\nIm automatischen Modus erscheinen Zeitfenster nur, wenn ein Tag zwei oder mehr Ereignisse hat.\n\nIm Immer-Modus sind Zeitfenster immer sichtbar.</string>
     <string name="activity_action_change_slot_mode">Du hast den Zeitfenster-Modus geändert.</string>
+    <string name="activity_action_change_week_start">Du hast den Wochenstart geändert.</string>
     <string name="activity_action_export_backup">Du hast ein Backup exportiert.</string>
     <string name="activity_action_import_backup">Du hast ein Backup importiert.</string>
     <string name="activity_action_set_backup_folder">Du hast einen Backup-Ordner festgelegt.</string>

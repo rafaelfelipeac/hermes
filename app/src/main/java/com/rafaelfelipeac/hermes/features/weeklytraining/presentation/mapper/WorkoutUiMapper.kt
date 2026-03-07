@@ -7,6 +7,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Work
 fun Workout.toUi(category: CategoryUi?): WorkoutUi {
     return WorkoutUi(
         id = id,
+        weekStartDate = weekStartDate,
         dayOfWeek = dayOfWeek,
         type = type,
         description = description,

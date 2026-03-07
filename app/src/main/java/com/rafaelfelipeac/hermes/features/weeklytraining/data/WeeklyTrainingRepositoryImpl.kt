@@ -8,6 +8,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekDates
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.DayOfWeek
@@ -25,6 +26,12 @@ class WeeklyTrainingRepositoryImpl
 
         override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> {
             return workoutDao.observeWorkoutsForWeek(weekStartDate).map { entities ->
+                entities.map { it.toDomain() }
+            }
+        }
+
+        override fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>> {
+            return workoutDao.observeWorkoutsForWeekStarts(weekStartDates).map { entities ->
                 entities.map { it.toDomain() }
             }
         }
@@ -70,6 +77,10 @@ class WeeklyTrainingRepositoryImpl
             return workoutDao.insert(entity)
         }
 
+        override suspend fun getWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): List<Workout> {
+            return workoutDao.getWorkoutsForWeekStarts(weekStartDates).map { it.toDomain() }
+        }
+
         override suspend fun insertWorkout(workout: Workout): Long {
             return workoutDao.insertOrReplace(workout.toEntity())
         }
@@ -80,6 +91,20 @@ class WeeklyTrainingRepositoryImpl
             timeSlot: TimeSlot?,
             order: Int,
         ) = workoutDao.updateDayAndOrder(workoutId, dayOfWeek?.value, timeSlot?.name, order)
+
+        override suspend fun updateWorkoutSchedule(
+            workoutId: Long,
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            timeSlot: TimeSlot?,
+            order: Int,
+        ) = workoutDao.updateSchedule(
+            id = workoutId,
+            weekStartDate = weekStartDate,
+            dayOfWeek = dayOfWeek?.value,
+            timeSlot = timeSlot?.name,
+            order = order,
+        )
 
         override suspend fun updateWorkoutCompletion(
             workoutId: Long,
@@ -124,14 +149,33 @@ class WeeklyTrainingRepositoryImpl
         ) {
             workoutDao.replaceWorkoutsForWeek(
                 weekStartDate = weekStartDate,
-                workouts = buildReplacementEntities(weekStartDate, sourceWorkouts),
+                workouts =
+                    buildReplacementEntities(
+                        sourceWorkouts = sourceWorkouts,
+                        weekStartDateOverride = weekStartDate,
+                    ),
             )
         }
+
+        override suspend fun replaceWorkoutsForDisplayWeek(
+            targetStorageWeekStarts: List<LocalDate>,
+            targetDisplayWeekStart: LocalDate,
+            targetUnassignedStorageWeekStart: LocalDate,
+            replacementWorkouts: List<Workout>,
+        ): Result<List<Workout>> =
+            runCatching {
+                workoutDao.replaceWorkoutsForDisplayWeek(
+                    targetStorageWeekStarts = targetStorageWeekStarts,
+                    targetDisplayDates = weekDates(targetDisplayWeekStart),
+                    targetUnassignedStorageWeekStart = targetUnassignedStorageWeekStart,
+                    replacementWorkouts = buildReplacementEntities(sourceWorkouts = replacementWorkouts),
+                ).map(WorkoutEntity::toDomain)
+            }
     }
 
 private fun buildReplacementEntities(
-    weekStartDate: LocalDate,
     sourceWorkouts: List<Workout>,
+    weekStartDateOverride: LocalDate? = null,
 ): List<WorkoutEntity> {
     return sourceWorkouts
         .sortedWith(
@@ -143,7 +187,7 @@ private fun buildReplacementEntities(
         ).map { workout ->
             val isRestDay = workout.isRestDay
             WorkoutEntity(
-                weekStartDate = weekStartDate,
+                weekStartDate = weekStartDateOverride ?: workout.weekStartDate,
                 dayOfWeek = workout.dayOfWeek?.value,
                 type = if (isRestDay) EMPTY else workout.type,
                 description = if (isRestDay) EMPTY else workout.description,

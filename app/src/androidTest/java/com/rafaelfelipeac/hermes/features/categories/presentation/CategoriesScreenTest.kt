@@ -251,7 +251,11 @@ class CategoriesScreenTest {
     private class FakeWeeklyTrainingRepository : WeeklyTrainingRepository {
         override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> = emptyFlow()
 
+        override fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>> = emptyFlow()
+
         override suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<Workout> = emptyList()
+
+        override suspend fun getWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): List<Workout> = emptyList()
 
         override suspend fun addWorkout(request: AddWorkoutRequest): Long = 0L
 
@@ -272,6 +276,14 @@ class CategoriesScreenTest {
 
         override suspend fun updateWorkoutDayAndOrder(
             workoutId: Long,
+            dayOfWeek: DayOfWeek?,
+            timeSlot: TimeSlot?,
+            order: Int,
+        ) = Unit
+
+        override suspend fun updateWorkoutSchedule(
+            workoutId: Long,
+            weekStartDate: LocalDate,
             dayOfWeek: DayOfWeek?,
             timeSlot: TimeSlot?,
             order: Int,

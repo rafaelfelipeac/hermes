@@ -256,6 +256,7 @@ fun WeeklyTrainingScreen(
                                 .weight(1f),
                         selectedDate = state.selectedDate,
                         workouts = state.workouts,
+                        dayOrder = state.dayOrder,
                         slotModePolicy = state.slotModePolicy,
                         onWorkoutMoved = viewModel::moveWorkout,
                         onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,

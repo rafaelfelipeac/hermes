@@ -11,7 +11,11 @@ import java.time.LocalDate
 interface WeeklyTrainingRepository {
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>>
 
+    fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>>
+
     suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<Workout>
+
+    suspend fun getWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): List<Workout>
 
     suspend fun addWorkout(request: AddWorkoutRequest): Long
 
@@ -33,6 +37,14 @@ interface WeeklyTrainingRepository {
 
     suspend fun updateWorkoutDayAndOrder(
         workoutId: Long,
+        dayOfWeek: DayOfWeek?,
+        timeSlot: TimeSlot?,
+        order: Int,
+    )
+
+    suspend fun updateWorkoutSchedule(
+        workoutId: Long,
+        weekStartDate: LocalDate,
         dayOfWeek: DayOfWeek?,
         timeSlot: TimeSlot?,
         order: Int,
@@ -81,4 +93,36 @@ interface WeeklyTrainingRepository {
         weekStartDate: LocalDate,
         sourceWorkouts: List<Workout>,
     )
+
+    suspend fun replaceWorkoutsForDisplayWeek(
+        targetStorageWeekStarts: List<LocalDate>,
+        targetDisplayWeekStart: LocalDate,
+        targetUnassignedStorageWeekStart: LocalDate,
+        replacementWorkouts: List<Workout>,
+    ): Result<List<Workout>> =
+        runCatching {
+            val targetDates = (0L until DAYS_IN_WEEK).map { offset -> targetDisplayWeekStart.plusDays(offset) }.toSet()
+            val targetWorkouts =
+                getWorkoutsForWeekStarts(targetStorageWeekStarts).filter { workout ->
+                    val dayOfWeek = workout.dayOfWeek
+
+                    if (dayOfWeek == null) {
+                        workout.weekStartDate == targetUnassignedStorageWeekStart
+                    } else {
+                        workout.weekStartDate.plusDays((dayOfWeek.value - 1).toLong()) in targetDates
+                    }
+                }
+
+            targetWorkouts.forEach { workout ->
+                deleteWorkout(workout.id)
+            }
+
+            replacementWorkouts.forEach { workout ->
+                insertWorkout(workout)
+            }
+
+            targetWorkouts
+        }
 }
+
+private const val DAYS_IN_WEEK = 7L

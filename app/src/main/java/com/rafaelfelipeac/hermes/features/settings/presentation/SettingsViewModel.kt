@@ -22,6 +22,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_SLOT_MODE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_WEEK_START
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
@@ -34,6 +35,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYST
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -67,17 +69,28 @@ class SettingsViewModel
                 repository.themeMode,
                 repository.language,
                 repository.slotModePolicy,
-                repository.lastBackupExportedAt,
-                repository.lastBackupImportedAt,
-            ) { themeMode, language, slotModePolicy, lastBackupExportedAt, lastBackupImportedAt ->
+                repository.weekStartDay,
+            ) { themeMode, language, slotModePolicy, weekStartDay ->
                 SettingsState(
                     themeMode = themeMode,
                     language = language,
                     slotModePolicy = slotModePolicy,
-                    lastBackupExportedAt = lastBackupExportedAt,
-                    lastBackupImportedAt = lastBackupImportedAt,
+                    weekStartDay = weekStartDay,
+                    lastBackupExportedAt = null,
+                    lastBackupImportedAt = null,
                     backupFolderUri = null,
                 )
+            }.let { baseSettings ->
+                combine(
+                    baseSettings,
+                    repository.lastBackupExportedAt,
+                    repository.lastBackupImportedAt,
+                ) { base, lastBackupExportedAt, lastBackupImportedAt ->
+                    base.copy(
+                        lastBackupExportedAt = lastBackupExportedAt,
+                        lastBackupImportedAt = lastBackupImportedAt,
+                    )
+                }
             }.let { baseState ->
                 combine(baseState, repository.backupFolderUri) { base, backupFolderUri ->
                     base.copy(backupFolderUri = backupFolderUri)
@@ -90,6 +103,7 @@ class SettingsViewModel
                         themeMode = repository.initialThemeMode(),
                         language = repository.initialLanguage(),
                         slotModePolicy = repository.initialSlotModePolicy(),
+                        weekStartDay = repository.initialWeekStartDay(),
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
@@ -153,6 +167,25 @@ class SettingsViewModel
                             mapOf(
                                 OLD_VALUE to previous.name,
                                 NEW_VALUE to policy.name,
+                            ),
+                    )
+                }
+            }
+
+        fun setWeekStartDay(weekStartDay: WeekStartDay) =
+            viewModelScope.launch {
+                val previous = state.value.weekStartDay
+
+                repository.setWeekStartDay(weekStartDay)
+
+                if (previous != weekStartDay) {
+                    userActionLogger.log(
+                        actionType = CHANGE_WEEK_START,
+                        entityType = SETTINGS,
+                        metadata =
+                            mapOf(
+                                OLD_VALUE to previous.name,
+                                NEW_VALUE to weekStartDay.name,
                             ),
                     )
                 }
@@ -315,10 +348,12 @@ class SettingsViewModel
             val themeMode = repository.themeMode.first()
             val language = repository.language.first()
             val slotModePolicy = repository.slotModePolicy.first()
+            val weekStartDay = repository.weekStartDay.first()
 
             return themeMode != SYSTEM_THEME ||
                 language != SYSTEM ||
-                slotModePolicy != AUTO_WHEN_MULTIPLE
+                slotModePolicy != AUTO_WHEN_MULTIPLE ||
+                weekStartDay != WeekStartDay.MONDAY
         }
 
         private companion object {

@@ -250,11 +250,13 @@
     <string name="settings_import_backup_replace_confirm">Remplacer</string>
     <string name="settings_import_backup_replace_cancel">Annuler</string>
     <string name="settings_slot_mode_title">Mode des créneaux</string>
+    <string name="settings_week_start_title">Début de semaine</string>
     <string name="settings_slot_mode_auto">Automatique (2+ événements/jour)</string>
     <string name="settings_slot_mode_always">Toujours afficher les créneaux</string>
     <string name="settings_slot_mode_help_title">Comment fonctionne le mode des créneaux</string>
     <string name="settings_slot_mode_help_message">Lorsqu’il est activé, les créneaux aident à organiser plusieurs événements le même jour.\n\nEn mode automatique, les créneaux apparaissent seulement lorsqu’un jour a au moins deux événements.\n\nEn mode toujours, les créneaux sont toujours visibles.</string>
     <string name="activity_action_change_slot_mode">Vous avez changé le mode des créneaux.</string>
+    <string name="activity_action_change_week_start">Vous avez changé le début de la semaine.</string>
     <string name="activity_action_export_backup">Vous avez exporté une sauvegarde.</string>
     <string name="activity_action_import_backup">Vous avez importé une sauvegarde.</string>
     <string name="activity_action_set_backup_folder">Vous avez défini un dossier de sauvegarde.</string>

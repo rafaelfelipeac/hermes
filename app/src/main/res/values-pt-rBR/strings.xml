@@ -247,11 +247,13 @@
     <string name="settings_import_backup_replace_confirm">Substituir</string>
     <string name="settings_import_backup_replace_cancel">Cancelar</string>
     <string name="settings_slot_mode_title">Divisão do dia</string>
+    <string name="settings_week_start_title">Início da semana</string>
     <string name="settings_slot_mode_auto">Automático (2+ eventos/dia)</string>
     <string name="settings_slot_mode_always">Sempre mostrar divisão do dia</string>
     <string name="settings_slot_mode_help_title">Como a divisão do dia funciona</string>
     <string name="settings_slot_mode_help_message">Quando ativada, a divisão do dia ajuda a organizar vários eventos no mesmo dia.\n\nNo modo automático, a divisão do dia aparece apenas quando um dia tem dois ou mais eventos.\n\nNo modo sempre, a divisão do dia fica sempre visível.</string>
     <string name="activity_action_change_slot_mode">Você alterou a divisão do dia.</string>
+    <string name="activity_action_change_week_start">Você alterou o início da semana.</string>
     <string name="activity_action_export_backup">Você exportou um backup.</string>
     <string name="activity_action_import_backup">Você importou um backup.</string>
     <string name="activity_action_set_backup_folder">Você definiu uma pasta de backup.</string>

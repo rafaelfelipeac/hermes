@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 @Dao
+@Suppress("TooManyFunctions")
 interface WorkoutDao {
     @Query("SELECT * FROM workouts")
     suspend fun getAll(): List<WorkoutEntity>
@@ -19,6 +20,12 @@ interface WorkoutDao {
 
     @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<WorkoutEntity>>
+
+    @Query("SELECT * FROM workouts WHERE weekStartDate IN (:weekStartDates)")
+    suspend fun getWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): List<WorkoutEntity>
+
+    @Query("SELECT * FROM workouts WHERE weekStartDate IN (:weekStartDates)")
+    fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<WorkoutEntity>>
 
     @Insert
     suspend fun insert(workout: WorkoutEntity): Long
@@ -44,6 +51,18 @@ interface WorkoutDao {
     @Query("UPDATE workouts SET dayOfWeek = :dayOfWeek, timeSlot = :timeSlot, sort_order = :order WHERE id = :id")
     suspend fun updateDayAndOrder(
         id: Long,
+        dayOfWeek: Int?,
+        timeSlot: String?,
+        order: Int,
+    )
+
+    @Query(
+        "UPDATE workouts SET weekStartDate = :weekStartDate, dayOfWeek = :dayOfWeek, " +
+            "timeSlot = :timeSlot, sort_order = :order WHERE id = :id",
+    )
+    suspend fun updateSchedule(
+        id: Long,
+        weekStartDate: LocalDate,
         dayOfWeek: Int?,
         timeSlot: String?,
         order: Int,
@@ -79,6 +98,9 @@ interface WorkoutDao {
     @Query("DELETE FROM workouts WHERE id = :id")
     suspend fun deleteById(id: Long)
 
+    @Query("DELETE FROM workouts WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Long>)
+
     @Query("DELETE FROM workouts WHERE weekStartDate = :weekStartDate")
     suspend fun deleteByWeekStartDate(weekStartDate: LocalDate)
 
@@ -92,6 +114,35 @@ interface WorkoutDao {
         if (workouts.isNotEmpty()) {
             insertAll(workouts)
         }
+    }
+
+    @Transaction
+    suspend fun replaceWorkoutsForDisplayWeek(
+        targetStorageWeekStarts: List<LocalDate>,
+        targetDisplayDates: List<LocalDate>,
+        targetUnassignedStorageWeekStart: LocalDate,
+        replacementWorkouts: List<WorkoutEntity>,
+    ): List<WorkoutEntity> {
+        val targetDateSet = targetDisplayDates.toSet()
+        val existing = getWorkoutsForWeekStarts(targetStorageWeekStarts)
+        val replaced =
+            existing.filter { workout ->
+                if (workout.dayOfWeek == null) {
+                    workout.weekStartDate == targetUnassignedStorageWeekStart
+                } else {
+                    workout.weekStartDate.plusDays((workout.dayOfWeek - 1).toLong()) in targetDateSet
+                }
+            }
+
+        if (replaced.isNotEmpty()) {
+            deleteByIds(replaced.map { it.id })
+        }
+
+        if (replacementWorkouts.isNotEmpty()) {
+            insertAll(replacementWorkouts)
+        }
+
+        return replaced
     }
 
     @Query("DELETE FROM workouts")
