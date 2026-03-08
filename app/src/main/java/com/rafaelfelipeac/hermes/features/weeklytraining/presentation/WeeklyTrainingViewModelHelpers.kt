@@ -120,23 +120,17 @@ internal fun shouldCelebrateAllWorkoutsCompleted(
     workoutId: Long,
     isCompleted: Boolean,
 ): Boolean {
-    if (!isCompleted) return false
-
     val plannedWorkouts =
         currentWorkouts.filter { workout ->
             workout.eventType == WORKOUT && workout.dayOfWeek != null
         }
 
-    if (plannedWorkouts.isEmpty()) return false
-    if (plannedWorkouts.all { it.isCompleted }) return false
+    val allCompletedAfterToggle =
+        plannedWorkouts.isNotEmpty() &&
+            plannedWorkouts.any { !it.isCompleted } &&
+            plannedWorkouts.all { workout -> workout.id == workoutId || workout.isCompleted }
 
-    return plannedWorkouts.all { workout ->
-        if (workout.id == workoutId) {
-            true
-        } else {
-            workout.isCompleted
-        }
-    }
+    return isCompleted && allCompletedAfterToggle
 }
 
 internal suspend fun persistWorkoutChanges(

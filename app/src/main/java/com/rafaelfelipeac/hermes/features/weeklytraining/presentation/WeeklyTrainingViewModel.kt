@@ -24,6 +24,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValu
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_REST_DAY_TO_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_WORKOUT_TO_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
@@ -483,6 +484,18 @@ class WeeklyTrainingViewModel
                     } else {
                         UndoMessage.MarkedIncomplete
                     }
+
+                if (message == UndoMessage.CompletedWeek) {
+                    userActionLogger.log(
+                        actionType = COMPLETE_WEEK_WORKOUTS,
+                        entityType = WEEK,
+                        entityId = state.value.weekStartDate.toEpochDay(),
+                        metadata =
+                            mapOf(
+                                WEEK_START_DATE to state.value.weekStartDate.toString(),
+                            ),
+                    )
+                }
                 setUndoAction(
                     action =
                         PendingUndoAction.Completion(

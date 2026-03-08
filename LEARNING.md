@@ -185,6 +185,7 @@ Recent learnings:
 - Keeping feature-specific query/DTO models in dedicated files (instead of inside ViewModels) helps enforce Hermes architecture rules and keeps ViewModel files focused on orchestration/state transitions.
 - When `LargeClass` hits a long test suite, splitting by behavior-focused test classes and moving shared fixtures/builders into a dedicated `*TestSupport.kt` file clears detekt without reducing test coverage.
 - For `LongMethod` in tests, extracting verbose fixture lists into focused helper builders keeps assertions readable and resolves detekt limits with minimal behavior risk.
+- For detekt `ReturnCount` on small decision helpers, collapsing guard clauses into a named boolean (`allCompletedAfterToggle`) preserves intent while meeting the return limit cleanly.
 - In weekly copy/replace repository paths, avoid `Workout::toEntity` for bulk replacement inserts because it can preserve source row identity/state; rebuild normalized `WorkoutEntity` rows (fresh PK, `isCompleted=false`, rest-day field normalization) while preserving the computed target storage week per item.
 - For weekly-header progress features, keeping summary metrics as pure derived state from `WeeklyTrainingState.workouts` avoids unnecessary repository/schema changes and keeps week-switch behavior naturally consistent with existing state flows.
 - Read-only UI insights (summary/progress) do not require new Activity actions; explicitly documenting that exclusion prevents accidental logging-scope creep in implementation.
@@ -193,3 +194,4 @@ Recent learnings:
 - For multi-metric weekly summaries, composing secondary labels from per-metric localized tokens (and omitting zero-value tokens) keeps the line concise and avoids low-signal text like "0 sick".
 - Weekly completion celebrations should trigger only on state transition (not-all-complete -> all-complete) using current in-memory week state, otherwise repeated completion toggles can spam celebratory messages.
 - When completion and celebration feedback share one SnackbarHost, route celebration through the same undo message state (for example, `CompletedWeek`) instead of a parallel snackbar event; this preserves app snackbar patterns and avoids message replacement races.
+- Week-level milestones that are derived from multiple item completions (for example, "all workouts completed") should be logged as their own `UserActionType` on `WEEK` entities so Activity timeline distinguishes milestone completion from single-workout completion events.

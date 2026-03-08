@@ -156,6 +156,7 @@
     <string name="activity_action_change_language">Cambiaste el idioma.</string>
     <string name="activity_action_change_theme">Cambiaste el tema.</string>
     <string name="activity_action_open_week">Abriste otra semana.</string>
+    <string name="activity_action_complete_week_workouts">Completaste todos los entrenamientos de la semana.</string>
     <string name="activity_action_copy_last_week">Copiaste la semana pasada en esta semana.</string>
     <string name="activity_action_undo_copy_last_week">Deshiciste la copia de la semana pasada en esta semana.</string>
     <string name="activity_action_fallback">Realizaste una acción en la app.</string>

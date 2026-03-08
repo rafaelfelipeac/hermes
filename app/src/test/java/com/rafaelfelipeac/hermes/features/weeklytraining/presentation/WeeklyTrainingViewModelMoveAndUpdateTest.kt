@@ -1,6 +1,8 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
@@ -323,6 +325,15 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
                 UndoMessage.CompletedWeek,
                 undoStates.lastOrNull()?.message,
             )
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = COMPLETE_WEEK_WORKOUTS,
+                    entityType = WEEK,
+                    entityId = weekStart.toEpochDay(),
+                    metadata = any(),
+                    timestamp = any(),
+                )
+            }
 
             undoJob.cancel()
             collectJob.cancel()
