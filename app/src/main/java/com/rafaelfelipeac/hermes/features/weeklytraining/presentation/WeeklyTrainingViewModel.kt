@@ -70,12 +70,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
+@Suppress("LargeClass")
 class WeeklyTrainingViewModel
     @Inject
     constructor(
@@ -138,6 +141,8 @@ class WeeklyTrainingViewModel
         private val messageEvents = MutableSharedFlow<WeeklyTrainingMessage>(extraBufferCapacity = 1)
         private var undoTimeoutJob: Job? = null
         private var undoCounter = 0L
+        private val completionUpdateMutex = Mutex()
+        private val pendingCompletionById = mutableMapOf<Long, Boolean>()
 
         init {
             viewModelScope.launch {
@@ -436,64 +441,80 @@ class WeeklyTrainingViewModel
             }
         }
 
+        @Suppress("LongMethod")
         fun updateWorkoutCompletion(
             workout: WorkoutUi,
             isCompleted: Boolean,
         ) = viewModelScope.launch {
-            val original = state.value.workouts.firstOrNull { it.id == workout.id }
-            if (workout.eventType != EventType.WORKOUT || original?.eventType != EventType.WORKOUT) {
-                return@launch
-            }
-            repository.updateWorkoutCompletion(workout.id, isCompleted)
-            val actionType =
-                if (isCompleted) COMPLETE_WORKOUT else INCOMPLETE_WORKOUT
-            userActionLogger.log(
-                actionType = actionType,
-                entityType = WORKOUT,
-                entityId = workout.id,
-                metadata =
-                    mapOf(
-                        WEEK_START_DATE to state.value.weekStartDate.toString(),
-                        WAS_COMPLETED to (original?.isCompleted?.toString() ?: "false"),
-                        IS_COMPLETED to isCompleted.toString(),
-                        NEW_TYPE to workout.type,
-                        NEW_DESCRIPTION to workout.description,
-                    ),
-            )
-            if (original.isCompleted != isCompleted) {
-                val message =
-                    if (isCompleted) {
-                        if (
-                            shouldCelebrateAllWorkoutsCompleted(
-                                currentWorkouts = state.value.workouts,
-                                workoutId = workout.id,
-                                isCompleted = isCompleted,
-                            )
-                        ) {
-                            UndoMessage.CompletedWeek
+            completionUpdateMutex.withLock {
+                val currentWorkouts = state.value.workouts
+
+                prunePendingCompletionOverrides(currentWorkouts)
+
+                val original = currentWorkouts.firstOrNull { it.id == workout.id }
+                if (workout.eventType != EventType.WORKOUT || original?.eventType != EventType.WORKOUT) {
+                    return@withLock
+                }
+
+                pendingCompletionById[workout.id] = isCompleted
+                val optimisticWorkouts = applyPendingCompletionOverrides(currentWorkouts)
+
+                repository.updateWorkoutCompletion(workout.id, isCompleted)
+
+                val actionType =
+                    if (isCompleted) COMPLETE_WORKOUT else INCOMPLETE_WORKOUT
+
+                userActionLogger.log(
+                    actionType = actionType,
+                    entityType = WORKOUT,
+                    entityId = workout.id,
+                    metadata =
+                        mapOf(
+                            WEEK_START_DATE to state.value.weekStartDate.toString(),
+                            WAS_COMPLETED to original.isCompleted.toString(),
+                            IS_COMPLETED to isCompleted.toString(),
+                            NEW_TYPE to workout.type,
+                            NEW_DESCRIPTION to workout.description,
+                        ),
+                )
+
+                if (original.isCompleted != isCompleted) {
+                    val message =
+                        if (isCompleted) {
+                            if (
+                                shouldCelebrateAllWorkoutsCompleted(
+                                    currentWorkouts = optimisticWorkouts,
+                                    workoutId = workout.id,
+                                    previousIsCompleted = original.isCompleted,
+                                    newIsCompleted = isCompleted,
+                                )
+                            ) {
+                                UndoMessage.CompletedWeek
+                            } else {
+                                UndoMessage.Completed
+                            }
                         } else {
-                            UndoMessage.Completed
+                            UndoMessage.MarkedIncomplete
                         }
-                    } else {
-                        UndoMessage.MarkedIncomplete
+
+                    if (message == UndoMessage.CompletedWeek) {
+                        logCompleteWeekWorkouts(
+                            userActionLogger = userActionLogger,
+                            weekStartDate = state.value.weekStartDate,
+                        )
                     }
 
-                if (message == UndoMessage.CompletedWeek) {
-                    logCompleteWeekWorkouts(
-                        userActionLogger = userActionLogger,
-                        weekStartDate = state.value.weekStartDate,
+                    setUndoAction(
+                        action =
+                            PendingUndoAction.Completion(
+                                workout = original,
+                                previousCompleted = original.isCompleted,
+                                newCompleted = isCompleted,
+                                weekStartDate = state.value.weekStartDate,
+                            ),
+                        message = message,
                     )
                 }
-                setUndoAction(
-                    action =
-                        PendingUndoAction.Completion(
-                            workout = original,
-                            previousCompleted = original.isCompleted,
-                            newCompleted = isCompleted,
-                            weekStartDate = state.value.weekStartDate,
-                        ),
-                    message = message,
-                )
             }
         }
 
@@ -698,6 +719,31 @@ class WeeklyTrainingViewModel
         private fun clearUndoTimeout() {
             undoTimeoutJob?.cancel()
             undoTimeoutJob = null
+        }
+
+        private fun prunePendingCompletionOverrides(currentWorkouts: List<WorkoutUi>) {
+            if (pendingCompletionById.isEmpty()) return
+
+            val completionById = currentWorkouts.associate { it.id to it.isCompleted }
+
+            pendingCompletionById.entries.removeAll { (workoutId, pendingCompletion) ->
+                val currentCompletion = completionById[workoutId]
+                currentCompletion == null || currentCompletion == pendingCompletion
+            }
+        }
+
+        private fun applyPendingCompletionOverrides(currentWorkouts: List<WorkoutUi>): List<WorkoutUi> {
+            if (pendingCompletionById.isEmpty()) return currentWorkouts
+
+            return currentWorkouts.map { workout ->
+                val pendingCompletion = pendingCompletionById[workout.id] ?: return@map workout
+
+                if (workout.isCompleted == pendingCompletion) {
+                    workout
+                } else {
+                    workout.copy(isCompleted = pendingCompletion)
+                }
+            }
         }
 
         companion object {

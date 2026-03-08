@@ -51,13 +51,28 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">Repos</string>
-    <string name="weekly_training_summary_line_primary">%1$d prévus • %2$d terminés</string>
+    <plurals name="weekly_training_summary_line_primary">
+        <item quantity="one">%1$d prévu • %2$d terminé</item>
+        <item quantity="other">%1$d prévus • %2$d terminés</item>
+    </plurals>
     <string name="weekly_training_summary_separator">&#160;•&#160;</string>
-    <string name="weekly_training_summary_item_rest">%1$d repos</string>
-    <string name="weekly_training_summary_item_busy">%1$d indisponible</string>
-    <string name="weekly_training_summary_item_sick">%1$d maladie</string>
-    <string name="weekly_training_summary_progress_content_description">Progression hebdomadaire : %1$d entraînements terminés sur %2$d</string>
-    <string name="weekly_training_week_completed_celebration">Bravo ! Tu as terminé tous les entraînements de cette semaine.</string>
+    <plurals name="weekly_training_summary_item_rest">
+        <item quantity="one">%1$d repos</item>
+        <item quantity="other">%1$d repos</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_busy">
+        <item quantity="one">%1$d indisponible</item>
+        <item quantity="other">%1$d indisponibles</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_sick">
+        <item quantity="one">%1$d maladie</item>
+        <item quantity="other">%1$d maladies</item>
+    </plurals>
+    <plurals name="weekly_training_summary_progress_content_description">
+        <item quantity="one">Progression hebdomadaire : %1$d entraînement terminé sur %2$d</item>
+        <item quantity="other">Progression hebdomadaire : %1$d entraînements terminés sur %2$d</item>
+    </plurals>
+    <string name="weekly_training_week_completed_celebration">Bravo ! Vous avez terminé tous les entraînements de cette semaine.</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Mode développeur</string>

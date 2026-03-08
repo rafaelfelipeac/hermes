@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -18,11 +19,6 @@ class WeeklyHeaderSummaryTest {
 
     @Test
     fun hidesSecondaryLineWhenRestBusyAndSickAreZero() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val restLabel = context.getString(R.string.weekly_training_summary_item_rest, 1)
-        val busyLabel = context.getString(R.string.weekly_training_summary_item_busy, 1)
-        val sickLabel = context.getString(R.string.weekly_training_summary_item_sick, 1)
-
         composeRule.setContent {
             WeeklyHeaderSummary(
                 summary =
@@ -39,17 +35,15 @@ class WeeklyHeaderSummaryTest {
 
         composeRule.onNodeWithTag(WEEKLY_SUMMARY_BLOCK_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(WEEKLY_SUMMARY_PROGRESS_TAG).assertIsDisplayed()
-        composeRule.onAllNodesWithText(restLabel).assertCountEquals(0)
-        composeRule.onAllNodesWithText(busyLabel).assertCountEquals(0)
-        composeRule.onAllNodesWithText(sickLabel).assertCountEquals(0)
+        composeRule.onAllNodesWithTag(WEEKLY_SUMMARY_SECONDARY_ROW_TAG).assertCountEquals(0)
     }
 
     @Test
     fun showsOnlyNonZeroSecondaryItems() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val restLabel = context.getString(R.string.weekly_training_summary_item_rest, 2)
-        val busyLabel = context.getString(R.string.weekly_training_summary_item_busy, 1)
-        val sickLabel = context.getString(R.string.weekly_training_summary_item_sick, 1)
+        val restLabel = context.resources.getQuantityString(R.plurals.weekly_training_summary_item_rest, 2, 2)
+        val busyLabel = context.resources.getQuantityString(R.plurals.weekly_training_summary_item_busy, 1, 1)
+        val sickLabel = context.resources.getQuantityString(R.plurals.weekly_training_summary_item_sick, 1, 1)
         val separator = context.getString(R.string.weekly_training_summary_separator)
         val secondaryLine = listOf(restLabel, sickLabel).joinToString(separator = separator)
 
@@ -67,6 +61,7 @@ class WeeklyHeaderSummaryTest {
             )
         }
 
+        composeRule.onNodeWithTag(WEEKLY_SUMMARY_SECONDARY_ROW_TAG).assertIsDisplayed()
         composeRule.onNodeWithText(secondaryLine).assertIsDisplayed()
         composeRule.onAllNodesWithText(busyLabel).assertCountEquals(0)
     }

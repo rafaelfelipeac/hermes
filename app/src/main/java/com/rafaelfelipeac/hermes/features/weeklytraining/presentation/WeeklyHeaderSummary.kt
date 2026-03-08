@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -20,6 +21,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Week
 
 internal const val WEEKLY_SUMMARY_BLOCK_TAG = "weekly-summary-block"
 internal const val WEEKLY_SUMMARY_PROGRESS_TAG = "weekly-summary-progress"
+internal const val WEEKLY_SUMMARY_SECONDARY_ROW_TAG = "weekly-summary-secondary-row"
 
 @Composable
 fun WeeklyHeaderSummary(
@@ -27,8 +29,9 @@ fun WeeklyHeaderSummary(
     modifier: Modifier = Modifier,
 ) {
     val primarySummary =
-        stringResource(
-            id = R.string.weekly_training_summary_line_primary,
+        pluralStringResource(
+            id = R.plurals.weekly_training_summary_line_primary,
+            count = summary.plannedWorkouts,
             summary.plannedWorkouts,
             summary.completedWorkouts,
         )
@@ -36,24 +39,27 @@ fun WeeklyHeaderSummary(
         buildList {
             if (summary.plannedRestEvents > 0) {
                 add(
-                    stringResource(
-                        id = R.string.weekly_training_summary_item_rest,
+                    pluralStringResource(
+                        id = R.plurals.weekly_training_summary_item_rest,
+                        count = summary.plannedRestEvents,
                         summary.plannedRestEvents,
                     ),
                 )
             }
             if (summary.plannedBusyEvents > 0) {
                 add(
-                    stringResource(
-                        id = R.string.weekly_training_summary_item_busy,
+                    pluralStringResource(
+                        id = R.plurals.weekly_training_summary_item_busy,
+                        count = summary.plannedBusyEvents,
                         summary.plannedBusyEvents,
                     ),
                 )
             }
             if (summary.plannedSickEvents > 0) {
                 add(
-                    stringResource(
-                        id = R.string.weekly_training_summary_item_sick,
+                    pluralStringResource(
+                        id = R.plurals.weekly_training_summary_item_sick,
+                        count = summary.plannedSickEvents,
                         summary.plannedSickEvents,
                     ),
                 )
@@ -62,8 +68,9 @@ fun WeeklyHeaderSummary(
             separator = stringResource(R.string.weekly_training_summary_separator),
         )
     val progressDescription =
-        stringResource(
-            id = R.string.weekly_training_summary_progress_content_description,
+        pluralStringResource(
+            id = R.plurals.weekly_training_summary_progress_content_description,
+            count = summary.plannedWorkouts,
             summary.completedWorkouts,
             summary.plannedWorkouts,
         )
@@ -81,6 +88,7 @@ fun WeeklyHeaderSummary(
         secondarySummary?.let { summaryText ->
             Text(
                 text = summaryText,
+                modifier = Modifier.testTag(WEEKLY_SUMMARY_SECONDARY_ROW_TAG),
                 style = typography.bodyMedium,
                 color = colorScheme.onSurfaceVariant,
             )

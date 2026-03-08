@@ -119,19 +119,35 @@ internal fun resolveWorkoutChanges(
 internal fun shouldCelebrateAllWorkoutsCompleted(
     currentWorkouts: List<WorkoutUi>,
     workoutId: Long,
-    isCompleted: Boolean,
+    previousIsCompleted: Boolean,
+    newIsCompleted: Boolean,
 ): Boolean {
     val plannedWorkouts =
         currentWorkouts.filter { workout ->
             workout.eventType == WORKOUT && workout.dayOfWeek != null
         }
 
+    val allCompletedBeforeToggle =
+        plannedWorkouts.all { workout ->
+            if (workout.id == workoutId) {
+                previousIsCompleted
+            } else {
+                workout.isCompleted
+            }
+        }
     val allCompletedAfterToggle =
-        plannedWorkouts.isNotEmpty() &&
-            plannedWorkouts.any { !it.isCompleted } &&
-            plannedWorkouts.all { workout -> workout.id == workoutId || workout.isCompleted }
+        plannedWorkouts.all { workout ->
+            if (workout.id == workoutId) {
+                newIsCompleted
+            } else {
+                workout.isCompleted
+            }
+        }
 
-    return isCompleted && allCompletedAfterToggle
+    return newIsCompleted &&
+        plannedWorkouts.isNotEmpty() &&
+        !allCompletedBeforeToggle &&
+        allCompletedAfterToggle
 }
 
 internal suspend fun logCompleteWeekWorkouts(

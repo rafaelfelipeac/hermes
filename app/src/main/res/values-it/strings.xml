@@ -51,12 +51,27 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">Riposo</string>
-    <string name="weekly_training_summary_line_primary">%1$d pianificati • %2$d completati</string>
+    <plurals name="weekly_training_summary_line_primary">
+        <item quantity="one">%1$d pianificato • %2$d completato</item>
+        <item quantity="other">%1$d pianificati • %2$d completati</item>
+    </plurals>
     <string name="weekly_training_summary_separator">&#160;•&#160;</string>
-    <string name="weekly_training_summary_item_rest">%1$d riposo</string>
-    <string name="weekly_training_summary_item_busy">%1$d indisponibilità</string>
-    <string name="weekly_training_summary_item_sick">%1$d malattia</string>
-    <string name="weekly_training_summary_progress_content_description">Progresso settimanale: %1$d di %2$d allenamenti completati</string>
+    <plurals name="weekly_training_summary_item_rest">
+        <item quantity="one">%1$d riposo</item>
+        <item quantity="other">%1$d riposi</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_busy">
+        <item quantity="one">%1$d indisponibilità</item>
+        <item quantity="other">%1$d indisponibilità</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_sick">
+        <item quantity="one">%1$d malattia</item>
+        <item quantity="other">%1$d malattie</item>
+    </plurals>
+    <plurals name="weekly_training_summary_progress_content_description">
+        <item quantity="one">Progresso settimanale: %1$d di %2$d allenamento completato</item>
+        <item quantity="other">Progresso settimanale: %1$d di %2$d allenamenti completati</item>
+    </plurals>
     <string name="weekly_training_week_completed_celebration">Ottimo lavoro! Hai completato tutti gli allenamenti di questa settimana.</string>
 
     <!-- Demo data (debug) -->

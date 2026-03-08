@@ -51,12 +51,27 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">Ruhe</string>
-    <string name="weekly_training_summary_line_primary">%1$d geplant • %2$d erledigt</string>
+    <plurals name="weekly_training_summary_line_primary">
+        <item quantity="one">%1$d geplant • %2$d erledigt</item>
+        <item quantity="other">%1$d geplant • %2$d erledigt</item>
+    </plurals>
     <string name="weekly_training_summary_separator">&#160;•&#160;</string>
-    <string name="weekly_training_summary_item_rest">%1$d Ruhe</string>
-    <string name="weekly_training_summary_item_busy">%1$d belegt</string>
-    <string name="weekly_training_summary_item_sick">%1$d krank</string>
-    <string name="weekly_training_summary_progress_content_description">Wochenfortschritt: %1$d von %2$d Trainings abgeschlossen</string>
+    <plurals name="weekly_training_summary_item_rest">
+        <item quantity="one">%1$d Ruhe</item>
+        <item quantity="other">%1$d Ruhe</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_busy">
+        <item quantity="one">%1$d belegt</item>
+        <item quantity="other">%1$d belegt</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_sick">
+        <item quantity="one">%1$d krank</item>
+        <item quantity="other">%1$d krank</item>
+    </plurals>
+    <plurals name="weekly_training_summary_progress_content_description">
+        <item quantity="one">Wochenfortschritt: %1$d von %2$d Training abgeschlossen</item>
+        <item quantity="other">Wochenfortschritt: %1$d von %2$d Trainings abgeschlossen</item>
+    </plurals>
     <string name="weekly_training_week_completed_celebration">Stark gemacht! Du hast alle Trainings dieser Woche abgeschlossen.</string>
 
     <!-- Demo data (debug) -->

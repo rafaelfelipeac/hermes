@@ -51,12 +51,47 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">راحة</string>
-    <string name="weekly_training_summary_line_primary">%1$d مخطط • %2$d مكتمل</string>
+    <plurals name="weekly_training_summary_line_primary">
+        <item quantity="zero">%1$d مخطط • %2$d مكتمل</item>
+        <item quantity="one">%1$d مخطط • %2$d مكتمل</item>
+        <item quantity="two">%1$d مخطط • %2$d مكتمل</item>
+        <item quantity="few">%1$d مخطط • %2$d مكتمل</item>
+        <item quantity="many">%1$d مخطط • %2$d مكتمل</item>
+        <item quantity="other">%1$d مخطط • %2$d مكتمل</item>
+    </plurals>
     <string name="weekly_training_summary_separator">&#160;•&#160;</string>
-    <string name="weekly_training_summary_item_rest">%1$d راحة</string>
-    <string name="weekly_training_summary_item_busy">%1$d مشغول</string>
-    <string name="weekly_training_summary_item_sick">%1$d مرض</string>
-    <string name="weekly_training_summary_progress_content_description">تقدم الأسبوع: اكتمل %1$d من أصل %2$d تمرين</string>
+    <plurals name="weekly_training_summary_item_rest">
+        <item quantity="zero">%1$d راحة</item>
+        <item quantity="one">%1$d راحة</item>
+        <item quantity="two">%1$d راحة</item>
+        <item quantity="few">%1$d راحة</item>
+        <item quantity="many">%1$d راحة</item>
+        <item quantity="other">%1$d راحة</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_busy">
+        <item quantity="zero">%1$d مشغول</item>
+        <item quantity="one">%1$d مشغول</item>
+        <item quantity="two">%1$d مشغول</item>
+        <item quantity="few">%1$d مشغول</item>
+        <item quantity="many">%1$d مشغول</item>
+        <item quantity="other">%1$d مشغول</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_sick">
+        <item quantity="zero">%1$d مرض</item>
+        <item quantity="one">%1$d مرض</item>
+        <item quantity="two">%1$d مرض</item>
+        <item quantity="few">%1$d مرض</item>
+        <item quantity="many">%1$d مرض</item>
+        <item quantity="other">%1$d مرض</item>
+    </plurals>
+    <plurals name="weekly_training_summary_progress_content_description">
+        <item quantity="zero">تقدم الأسبوع: اكتمل %1$d من أصل %2$d تمرين</item>
+        <item quantity="one">تقدم الأسبوع: اكتمل %1$d من أصل %2$d تمرين</item>
+        <item quantity="two">تقدم الأسبوع: اكتمل %1$d من أصل %2$d تمرين</item>
+        <item quantity="few">تقدم الأسبوع: اكتمل %1$d من أصل %2$d تمرين</item>
+        <item quantity="many">تقدم الأسبوع: اكتمل %1$d من أصل %2$d تمرين</item>
+        <item quantity="other">تقدم الأسبوع: اكتمل %1$d من أصل %2$d تمرين</item>
+    </plurals>
     <string name="weekly_training_week_completed_celebration">عمل رائع! لقد أكملت جميع تمارين هذا الأسبوع.</string>
 
     <!-- Demo data (debug) -->
