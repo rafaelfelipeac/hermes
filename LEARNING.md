@@ -201,3 +201,4 @@ Recent learnings:
 - For localized count-bearing UI copy in Compose, migrate `"%d ..."` strings to `<plurals>` and call `pluralStringResource`; this prevents incorrect grammar in non-English locales and keeps androidTest assertions aligned via `getQuantityString`.
 - In completion toggles with optimistic pending overrides, compute "previous" state from the pending-adjusted snapshot and short-circuit no-op transitions; this avoids duplicate logs/snackbars when UI taps race with flow refresh.
 - For summary lines that display two independent counts in one sentence, avoid pluralizing the whole sentence by a single quantity key; use a neutral `string` template (or separate per-count fragments) instead.
+- Release prep after feature merges is safer when commit-scope changes are reflected in three places together: `appVersionName/appVersionCode`, changelog release section, and README feature bullets, so store-facing docs stay aligned with shipped behavior.

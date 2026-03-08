@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.5.0]
+### Added
+- Configurable start of the week (any day, Monday through Sunday) in Settings
+- Weekly header summary with progress and completion feedback
+- Activity timeline entry for weekly-completion milestone
+
+### Changed
+- Weekly week-guardrails and cross-week handling when display-week boundaries change
+- Weekly summary copy now highlights completion and non-workout context more clearly
+- Weekly training ViewModel tests split into focused suites with shared test support helpers
+
+### Fixed
+- Weekly header summary assertion/test coverage for secondary line rendering
+- Completion transition handling to avoid duplicate milestone feedback in rapid toggles
+
 ## [v1.4.0]
 ### Added
 - JSON backup export/import support with schema-versioned compatibility handling

@@ -36,6 +36,8 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 - A **“To be defined”** area for sessions not assigned yet
 - Drag & drop to **reschedule** sessions between days
 - Backup support: export/import your data, choose a default backup folder in Settings and clear it anytime
+- Choose week start day in Settings (any day, Monday through Sunday)
+- Weekly header summary with progress and week completion feedback
 - Mark days or sessions as:
   - **Training**
   - **Rest day**
