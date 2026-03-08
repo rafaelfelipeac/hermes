@@ -186,6 +186,7 @@ Recent learnings:
 - When `LargeClass` hits a long test suite, splitting by behavior-focused test classes and moving shared fixtures/builders into a dedicated `*TestSupport.kt` file clears detekt without reducing test coverage.
 - For `LongMethod` in tests, extracting verbose fixture lists into focused helper builders keeps assertions readable and resolves detekt limits with minimal behavior risk.
 - For detekt `ReturnCount` on small decision helpers, collapsing guard clauses into a named boolean (`allCompletedAfterToggle`) preserves intent while meeting the return limit cleanly.
+- Import-order checks in this project expect regular imports first and `java/javax` grouped at the end; moving alias usages out of import lists (use explicit `EventType.WORKOUT`) avoids fragile ordering violations.
 - In weekly copy/replace repository paths, avoid `Workout::toEntity` for bulk replacement inserts because it can preserve source row identity/state; rebuild normalized `WorkoutEntity` rows (fresh PK, `isCompleted=false`, rest-day field normalization) while preserving the computed target storage week per item.
 - For weekly-header progress features, keeping summary metrics as pure derived state from `WeeklyTrainingState.workouts` avoids unnecessary repository/schema changes and keeps week-switch behavior naturally consistent with existing state flows.
 - Read-only UI insights (summary/progress) do not require new Activity actions; explicitly documenting that exclusion prevents accidental logging-scope creep in implementation.

@@ -13,6 +13,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
@@ -131,6 +132,21 @@ internal fun shouldCelebrateAllWorkoutsCompleted(
             plannedWorkouts.all { workout -> workout.id == workoutId || workout.isCompleted }
 
     return isCompleted && allCompletedAfterToggle
+}
+
+internal suspend fun logCompleteWeekWorkouts(
+    userActionLogger: UserActionLogger,
+    weekStartDate: LocalDate,
+) {
+    userActionLogger.log(
+        actionType = COMPLETE_WEEK_WORKOUTS,
+        entityType = WEEK,
+        entityId = weekStartDate.toEpochDay(),
+        metadata =
+            mapOf(
+                WEEK_START_DATE to weekStartDate.toString(),
+            ),
+    )
 }
 
 internal suspend fun persistWorkoutChanges(

@@ -24,7 +24,6 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValu
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_REST_DAY_TO_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_WORKOUT_TO_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
@@ -74,7 +73,6 @@ import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT as WORKOUT_EVENT
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -242,7 +240,7 @@ class WeeklyTrainingViewModel
             val nextOrder = nextUnplannedOrder(currentState)
             val normalizedCategoryId =
                 resolveCategoryId(
-                    eventType = WORKOUT_EVENT,
+                    eventType = EventType.WORKOUT,
                     categoryId = categoryId,
                     categories = currentState.categories,
                 )
@@ -406,7 +404,7 @@ class WeeklyTrainingViewModel
                         )
                     }
                 }
-            val movedEventType = originalWorkout?.eventType ?: WORKOUT_EVENT
+            val movedEventType = originalWorkout?.eventType ?: EventType.WORKOUT
 
             viewModelScope.launch {
                 persistWorkoutChanges(
@@ -443,16 +441,12 @@ class WeeklyTrainingViewModel
             isCompleted: Boolean,
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workout.id }
-
-            if (workout.eventType != WORKOUT_EVENT || original?.eventType != WORKOUT_EVENT) {
+            if (workout.eventType != EventType.WORKOUT || original?.eventType != EventType.WORKOUT) {
                 return@launch
             }
-
             repository.updateWorkoutCompletion(workout.id, isCompleted)
-
             val actionType =
                 if (isCompleted) COMPLETE_WORKOUT else INCOMPLETE_WORKOUT
-
             userActionLogger.log(
                 actionType = actionType,
                 entityType = WORKOUT,
@@ -466,7 +460,6 @@ class WeeklyTrainingViewModel
                         NEW_DESCRIPTION to workout.description,
                     ),
             )
-
             if (original.isCompleted != isCompleted) {
                 val message =
                     if (isCompleted) {
@@ -486,14 +479,9 @@ class WeeklyTrainingViewModel
                     }
 
                 if (message == UndoMessage.CompletedWeek) {
-                    userActionLogger.log(
-                        actionType = COMPLETE_WEEK_WORKOUTS,
-                        entityType = WEEK,
-                        entityId = state.value.weekStartDate.toEpochDay(),
-                        metadata =
-                            mapOf(
-                                WEEK_START_DATE to state.value.weekStartDate.toString(),
-                            ),
+                    logCompleteWeekWorkouts(
+                        userActionLogger = userActionLogger,
+                        weekStartDate = state.value.weekStartDate,
                     )
                 }
                 setUndoAction(
@@ -541,19 +529,19 @@ class WeeklyTrainingViewModel
 
             val entityType =
                 when {
-                    eventType != WORKOUT_EVENT -> eventType.toUserActionEntityType()
+                    eventType != EventType.WORKOUT -> eventType.toUserActionEntityType()
                     else -> original?.eventType?.toUserActionEntityType() ?: WORKOUT
                 }
             val actionType =
                 when {
                     original == null -> UPDATE_WORKOUT
                     original.eventType != eventType ->
-                        if (eventType != WORKOUT_EVENT) {
+                        if (eventType != EventType.WORKOUT) {
                             CONVERT_WORKOUT_TO_REST_DAY
                         } else {
                             CONVERT_REST_DAY_TO_WORKOUT
                         }
-                    eventType != WORKOUT_EVENT -> eventType.toUpdateActionType()
+                    eventType != EventType.WORKOUT -> eventType.toUpdateActionType()
                     else -> UPDATE_WORKOUT
                 }
 
@@ -568,7 +556,7 @@ class WeeklyTrainingViewModel
                             original = original,
                             type = type,
                             description = description,
-                            isRestDay = eventType != WORKOUT_EVENT,
+                            isRestDay = eventType != EventType.WORKOUT,
                             oldCategoryName = oldCategoryName,
                             newCategoryName = newCategoryName,
                         ),
@@ -743,7 +731,7 @@ private fun mapWorkoutsToUi(
 
     return workouts.map { workout ->
         val category =
-            if (workout.eventType != WORKOUT_EVENT) {
+            if (workout.eventType != EventType.WORKOUT) {
                 null
             } else {
                 workout.categoryId?.let(categoriesById::get) ?: fallbackCategory
@@ -786,7 +774,7 @@ private fun normalizeCategoryId(
     eventType: EventType,
     categoryId: Long?,
 ): Long? {
-    return if (eventType != WORKOUT_EVENT) {
+    return if (eventType != EventType.WORKOUT) {
         null
     } else {
         categoryId ?: UNCATEGORIZED_ID
@@ -808,9 +796,9 @@ private fun resolveCategoryNames(
     categories: List<CategoryUi>,
     original: WorkoutUi?,
 ): Pair<String?, String?> {
-    val oldCategoryName = original?.takeIf { it.eventType == WORKOUT_EVENT }?.categoryName
+    val oldCategoryName = original?.takeIf { it.eventType == EventType.WORKOUT }?.categoryName
     val newCategoryName =
-        if (eventType != WORKOUT_EVENT || normalizedCategoryId == null) {
+        if (eventType != EventType.WORKOUT || normalizedCategoryId == null) {
             null
         } else {
             categories.firstOrNull { it.id == normalizedCategoryId }?.name
