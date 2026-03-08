@@ -451,8 +451,13 @@ class WeeklyTrainingViewModel
 
                 prunePendingCompletionOverrides(currentWorkouts)
 
-                val original = currentWorkouts.firstOrNull { it.id == workout.id }
-                if (workout.eventType != EventType.WORKOUT || original?.eventType != EventType.WORKOUT) {
+                val optimisticWorkoutsBeforeChange = applyPendingCompletionOverrides(currentWorkouts)
+                val originalEffective = optimisticWorkoutsBeforeChange.firstOrNull { it.id == workout.id }
+                if (workout.eventType != EventType.WORKOUT || originalEffective?.eventType != EventType.WORKOUT) {
+                    return@withLock
+                }
+
+                if (originalEffective.isCompleted == isCompleted) {
                     return@withLock
                 }
 
@@ -471,50 +476,48 @@ class WeeklyTrainingViewModel
                     metadata =
                         mapOf(
                             WEEK_START_DATE to state.value.weekStartDate.toString(),
-                            WAS_COMPLETED to original.isCompleted.toString(),
+                            WAS_COMPLETED to originalEffective.isCompleted.toString(),
                             IS_COMPLETED to isCompleted.toString(),
                             NEW_TYPE to workout.type,
                             NEW_DESCRIPTION to workout.description,
                         ),
                 )
 
-                if (original.isCompleted != isCompleted) {
-                    val message =
-                        if (isCompleted) {
-                            if (
-                                shouldCelebrateAllWorkoutsCompleted(
-                                    currentWorkouts = optimisticWorkouts,
-                                    workoutId = workout.id,
-                                    previousIsCompleted = original.isCompleted,
-                                    newIsCompleted = isCompleted,
-                                )
-                            ) {
-                                UndoMessage.CompletedWeek
-                            } else {
-                                UndoMessage.Completed
-                            }
+                val message =
+                    if (isCompleted) {
+                        if (
+                            shouldCelebrateAllWorkoutsCompleted(
+                                currentWorkouts = optimisticWorkouts,
+                                workoutId = workout.id,
+                                previousIsCompleted = originalEffective.isCompleted,
+                                newIsCompleted = isCompleted,
+                            )
+                        ) {
+                            UndoMessage.CompletedWeek
                         } else {
-                            UndoMessage.MarkedIncomplete
+                            UndoMessage.Completed
                         }
-
-                    if (message == UndoMessage.CompletedWeek) {
-                        logCompleteWeekWorkouts(
-                            userActionLogger = userActionLogger,
-                            weekStartDate = state.value.weekStartDate,
-                        )
+                    } else {
+                        UndoMessage.MarkedIncomplete
                     }
 
-                    setUndoAction(
-                        action =
-                            PendingUndoAction.Completion(
-                                workout = original,
-                                previousCompleted = original.isCompleted,
-                                newCompleted = isCompleted,
-                                weekStartDate = state.value.weekStartDate,
-                            ),
-                        message = message,
+                if (message == UndoMessage.CompletedWeek) {
+                    logCompleteWeekWorkouts(
+                        userActionLogger = userActionLogger,
+                        weekStartDate = state.value.weekStartDate,
                     )
                 }
+
+                setUndoAction(
+                    action =
+                        PendingUndoAction.Completion(
+                            workout = originalEffective,
+                            previousCompleted = originalEffective.isCompleted,
+                            newCompleted = isCompleted,
+                            weekStartDate = state.value.weekStartDate,
+                        ),
+                    message = message,
+                )
             }
         }
 
@@ -670,11 +673,14 @@ class WeeklyTrainingViewModel
                             userActionLogger = userActionLogger,
                         )
                     is PendingUndoAction.Completion ->
-                        undoCompletion(
-                            action = action,
-                            repository = repository,
-                            userActionLogger = userActionLogger,
-                        )
+                        completionUpdateMutex.withLock {
+                            pendingCompletionById[action.workout.id] = action.previousCompleted
+                            undoCompletion(
+                                action = action,
+                                repository = repository,
+                                userActionLogger = userActionLogger,
+                            )
+                        }
                     is PendingUndoAction.ReplaceWeek ->
                         undoReplaceWeek(
                             action = action,

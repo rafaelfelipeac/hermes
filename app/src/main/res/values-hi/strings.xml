@@ -51,10 +51,7 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">आराम</string>
-    <plurals name="weekly_training_summary_line_primary">
-        <item quantity="one">%1$d नियोजित • %2$d पूर्ण</item>
-        <item quantity="other">%1$d नियोजित • %2$d पूर्ण</item>
-    </plurals>
+    <string name="weekly_training_summary_line_primary">नियोजित: %1$d • पूर्ण: %2$d</string>
     <string name="weekly_training_summary_separator">&#160;•&#160;</string>
     <plurals name="weekly_training_summary_item_rest">
         <item quantity="one">%1$d आराम</item>

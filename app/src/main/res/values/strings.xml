@@ -51,22 +51,19 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">Rest</string>
-    <plurals name="weekly_training_summary_line_primary">
-        <item quantity="one">%1$d planned • %2$d completed</item>
-        <item quantity="other">%1$d planned • %2$d completed</item>
-    </plurals>
+    <string name="weekly_training_summary_line_primary">Planned: %1$d • Completed: %2$d</string>
     <string name="weekly_training_summary_separator">&#160;•&#160;</string>
     <plurals name="weekly_training_summary_item_rest">
-        <item quantity="one">%1$d rest</item>
-        <item quantity="other">%1$d rest</item>
+        <item quantity="one">%1$d rest event</item>
+        <item quantity="other">%1$d rest events</item>
     </plurals>
     <plurals name="weekly_training_summary_item_busy">
-        <item quantity="one">%1$d busy</item>
-        <item quantity="other">%1$d busy</item>
+        <item quantity="one">%1$d busy event</item>
+        <item quantity="other">%1$d busy events</item>
     </plurals>
     <plurals name="weekly_training_summary_item_sick">
-        <item quantity="one">%1$d sick</item>
-        <item quantity="other">%1$d sick</item>
+        <item quantity="one">%1$d sick event</item>
+        <item quantity="other">%1$d sick events</item>
     </plurals>
     <plurals name="weekly_training_summary_progress_content_description">
         <item quantity="one">Weekly progress: %1$d of %2$d workout completed</item>

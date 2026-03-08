@@ -29,9 +29,8 @@ fun WeeklyHeaderSummary(
     modifier: Modifier = Modifier,
 ) {
     val primarySummary =
-        pluralStringResource(
-            id = R.plurals.weekly_training_summary_line_primary,
-            count = summary.plannedWorkouts,
+        stringResource(
+            id = R.string.weekly_training_summary_line_primary,
             summary.plannedWorkouts,
             summary.completedWorkouts,
         )
