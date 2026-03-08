@@ -21,6 +21,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_REORD
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.displayDateForDay
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
@@ -110,6 +111,30 @@ internal fun resolveWorkoutChanges(
             workout
         } else {
             null
+        }
+    }
+}
+
+internal fun shouldCelebrateAllWorkoutsCompleted(
+    currentWorkouts: List<WorkoutUi>,
+    workoutId: Long,
+    isCompleted: Boolean,
+): Boolean {
+    if (!isCompleted) return false
+
+    val plannedWorkouts =
+        currentWorkouts.filter { workout ->
+            workout.eventType == WORKOUT && workout.dayOfWeek != null
+        }
+
+    if (plannedWorkouts.isEmpty()) return false
+    if (plannedWorkouts.all { it.isCompleted }) return false
+
+    return plannedWorkouts.all { workout ->
+        if (workout.id == workoutId) {
+            true
+        } else {
+            workout.isCompleted
         }
     }
 }

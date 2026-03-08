@@ -57,6 +57,7 @@
     <string name="weekly_training_summary_item_busy">%1$d belegt</string>
     <string name="weekly_training_summary_item_sick">%1$d krank</string>
     <string name="weekly_training_summary_progress_content_description">Wochenfortschritt: %1$d von %2$d Trainings abgeschlossen</string>
+    <string name="weekly_training_week_completed_celebration">Stark gemacht! Du hast alle Trainings dieser Woche abgeschlossen.</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Entwicklermodus</string>

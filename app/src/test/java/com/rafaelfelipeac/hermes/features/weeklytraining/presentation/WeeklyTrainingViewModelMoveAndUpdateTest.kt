@@ -292,6 +292,43 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
         }
 
     @Test
+    fun updateWorkoutCompletion_whenCompletesAllPlannedWorkouts_emitsCelebrationMessage() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val undoStates = mutableListOf<UndoState?>()
+            val undoJob = backgroundScope.launch { viewModel.undoUiState.collect(undoStates::add) }
+            val selectedDate = LocalDate.of(2026, 4, 7)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 42, weekStart = weekStart, day = MONDAY, order = 0, isCompleted = false),
+                    workout(id = 43, weekStart = weekStart, day = TUESDAY, order = 1, isCompleted = true),
+                )
+            advanceUntilIdle()
+
+            val targetWorkout = viewModel.state.value.workouts.first { it.id == 42L }
+            viewModel.updateWorkoutCompletion(workout = targetWorkout, isCompleted = true)
+            runCurrent()
+
+            assertEquals(
+                UndoMessage.CompletedWeek,
+                undoStates.lastOrNull()?.message,
+            )
+
+            undoJob.cancel()
+            collectJob.cancel()
+        }
+
+    @Test
     fun undoMove_restoresPreviousPosition() =
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())

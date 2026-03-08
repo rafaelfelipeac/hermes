@@ -191,3 +191,5 @@ Recent learnings:
 - For weekly summary readability, expanding metrics (rest + busy + sick) still works when enforced as a single-line summary and paired with a zero-workout guard that hides the entire summary/progress block to avoid low-signal empty-state noise.
 - Weekly status summaries become easier to scan when split by intent across two lines (plan/completion first, non-workout context second) instead of forcing all counters into one dense line.
 - For multi-metric weekly summaries, composing secondary labels from per-metric localized tokens (and omitting zero-value tokens) keeps the line concise and avoids low-signal text like "0 sick".
+- Weekly completion celebrations should trigger only on state transition (not-all-complete -> all-complete) using current in-memory week state, otherwise repeated completion toggles can spam celebratory messages.
+- When completion and celebration feedback share one SnackbarHost, route celebration through the same undo message state (for example, `CompletedWeek`) instead of a parallel snackbar event; this preserves app snackbar patterns and avoids message replacement races.

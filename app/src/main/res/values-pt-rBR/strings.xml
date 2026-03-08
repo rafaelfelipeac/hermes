@@ -57,6 +57,7 @@
     <string name="weekly_training_summary_item_busy">%1$d indisponibilidade</string>
     <string name="weekly_training_summary_item_sick">%1$d doença</string>
     <string name="weekly_training_summary_progress_content_description">Progresso semanal: %1$d de %2$d treinos concluídos</string>
+    <string name="weekly_training_week_completed_celebration">Parabéns! Você concluiu todos os treinos desta semana.</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modo desenvolvedor</string>

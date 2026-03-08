@@ -17,6 +17,7 @@ enum class UndoMessage {
     Moved,
     Deleted,
     Completed,
+    CompletedWeek,
     MarkedIncomplete,
     WeekCopied,
 }

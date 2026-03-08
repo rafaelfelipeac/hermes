@@ -57,6 +57,7 @@
     <string name="weekly_training_summary_item_busy">%1$d件多忙</string>
     <string name="weekly_training_summary_item_sick">%1$d件病気</string>
     <string name="weekly_training_summary_progress_content_description">週間の進捗: 全%2$d件中%1$d件のワークアウトを完了</string>
+    <string name="weekly_training_week_completed_celebration">お見事です！今週のワークアウトをすべて完了しました。</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">開発者モード</string>

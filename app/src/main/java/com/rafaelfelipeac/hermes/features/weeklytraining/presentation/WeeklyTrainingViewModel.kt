@@ -469,7 +469,17 @@ class WeeklyTrainingViewModel
             if (original.isCompleted != isCompleted) {
                 val message =
                     if (isCompleted) {
-                        UndoMessage.Completed
+                        if (
+                            shouldCelebrateAllWorkoutsCompleted(
+                                currentWorkouts = state.value.workouts,
+                                workoutId = workout.id,
+                                isCompleted = isCompleted,
+                            )
+                        ) {
+                            UndoMessage.CompletedWeek
+                        } else {
+                            UndoMessage.Completed
+                        }
                     } else {
                         UndoMessage.MarkedIncomplete
                     }

@@ -57,6 +57,7 @@
     <string name="weekly_training_summary_item_busy">%1$d व्यस्त</string>
     <string name="weekly_training_summary_item_sick">%1$d बीमार</string>
     <string name="weekly_training_summary_progress_content_description">साप्ताहिक प्रगति: %2$d में से %1$d वर्कआउट पूरे हुए</string>
+    <string name="weekly_training_week_completed_celebration">शानदार! आपने इस सप्ताह के सभी वर्कआउट पूरे कर लिए।</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>
