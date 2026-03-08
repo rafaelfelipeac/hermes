@@ -125,6 +125,8 @@ fun WeeklyTrainingScreen(
                     stringResource(undoDeletedMessageRes(eventType))
                 UndoMessage.Completed ->
                     stringResource(R.string.weekly_training_workout_completed)
+                UndoMessage.CompletedWeek ->
+                    stringResource(R.string.weekly_training_week_completed_celebration)
                 UndoMessage.MarkedIncomplete ->
                     stringResource(R.string.weekly_training_workout_marked_incomplete)
             }
@@ -249,6 +251,17 @@ fun WeeklyTrainingScreen(
                 )
 
                 if (state.isWeekLoaded) {
+                    state.weeklyHeaderSummary?.let { summary ->
+                        Spacer(modifier = Modifier.height(SpacingLg))
+
+                        WeeklyHeaderSummary(
+                            summary = summary,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(SpacingLg))
+
                     WeeklyTrainingContent(
                         modifier =
                             Modifier

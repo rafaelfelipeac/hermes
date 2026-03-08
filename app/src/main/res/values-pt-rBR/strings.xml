@@ -51,6 +51,25 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">Descanso</string>
+    <string name="weekly_training_summary_line_primary">Planejados: %1$d • Concluídos: %2$d</string>
+    <string name="weekly_training_summary_separator">&#160;•&#160;</string>
+    <plurals name="weekly_training_summary_item_rest">
+        <item quantity="one">%1$d descanso</item>
+        <item quantity="other">%1$d descansos</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_busy">
+        <item quantity="one">%1$d indisponibilidade</item>
+        <item quantity="other">%1$d indisponibilidades</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_sick">
+        <item quantity="one">%1$d doença</item>
+        <item quantity="other">%1$d doenças</item>
+    </plurals>
+    <plurals name="weekly_training_summary_progress_content_description">
+        <item quantity="one">Progresso semanal: %1$d de %2$d treino concluído</item>
+        <item quantity="other">Progresso semanal: %1$d de %2$d treinos concluídos</item>
+    </plurals>
+    <string name="weekly_training_week_completed_celebration">Parabéns! Você concluiu todos os treinos desta semana.</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modo desenvolvedor</string>
@@ -149,6 +168,7 @@
     <string name="activity_action_change_language">Você mudou o idioma.</string>
     <string name="activity_action_change_theme">Você mudou o tema.</string>
     <string name="activity_action_open_week">Você abriu outra semana.</string>
+    <string name="activity_action_complete_week_workouts">Você concluiu todos os treinos da semana.</string>
     <string name="activity_action_copy_last_week">Você copiou a semana passada para esta semana.</string>
     <string name="activity_action_undo_copy_last_week">Você desfez a cópia da semana passada para esta semana.</string>
     <string name="activity_action_fallback">Você realizou uma ação no app.</string>

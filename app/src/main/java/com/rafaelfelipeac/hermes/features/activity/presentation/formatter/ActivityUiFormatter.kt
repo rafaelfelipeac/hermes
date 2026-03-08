@@ -151,6 +151,9 @@ class ActivityUiFormatter(
             UserActionType.UNDO_COPY_LAST_WEEK ->
                 stringProvider.get(R.string.activity_action_undo_copy_last_week)
 
+            UserActionType.COMPLETE_WEEK_WORKOUTS ->
+                stringProvider.get(R.string.activity_action_complete_week_workouts)
+
             else -> stringProvider.get(R.string.activity_action_fallback)
         }
     }

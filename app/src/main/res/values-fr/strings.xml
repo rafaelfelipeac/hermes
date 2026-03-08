@@ -51,6 +51,25 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">Repos</string>
+    <string name="weekly_training_summary_line_primary">Prévu&#160;: %1$d • Terminé&#160;: %2$d</string>
+    <string name="weekly_training_summary_separator">&#160;•&#160;</string>
+    <plurals name="weekly_training_summary_item_rest">
+        <item quantity="one">%1$d repos</item>
+        <item quantity="other">%1$d repos</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_busy">
+        <item quantity="one">%1$d indisponible</item>
+        <item quantity="other">%1$d indisponibles</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_sick">
+        <item quantity="one">%1$d maladie</item>
+        <item quantity="other">%1$d maladies</item>
+    </plurals>
+    <plurals name="weekly_training_summary_progress_content_description">
+        <item quantity="one">Progression hebdomadaire : %1$d entraînement terminé sur %2$d</item>
+        <item quantity="other">Progression hebdomadaire : %1$d entraînements terminés sur %2$d</item>
+    </plurals>
+    <string name="weekly_training_week_completed_celebration">Bravo ! Vous avez terminé tous les entraînements de cette semaine.</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Mode développeur</string>
@@ -151,6 +170,7 @@
     <string name="activity_action_change_language">Vous avez changé la langue.</string>
     <string name="activity_action_change_theme">Vous avez changé le thème.</string>
     <string name="activity_action_open_week">Vous avez ouvert une autre semaine.</string>
+    <string name="activity_action_complete_week_workouts">Vous avez terminé tous les entraînements de la semaine.</string>
     <string name="activity_action_copy_last_week">Vous avez copié la semaine dernière dans cette semaine.</string>
     <string name="activity_action_undo_copy_last_week">Vous avez annulé la copie de la semaine dernière dans cette semaine.</string>
     <string name="activity_action_fallback">Vous avez effectué une action dans l’app.</string>

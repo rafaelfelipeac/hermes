@@ -70,13 +70,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT as WORKOUT_EVENT
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
+@Suppress("LargeClass")
 class WeeklyTrainingViewModel
     @Inject
     constructor(
@@ -139,6 +141,8 @@ class WeeklyTrainingViewModel
         private val messageEvents = MutableSharedFlow<WeeklyTrainingMessage>(extraBufferCapacity = 1)
         private var undoTimeoutJob: Job? = null
         private var undoCounter = 0L
+        private val completionUpdateMutex = Mutex()
+        private val pendingCompletionById = mutableMapOf<Long, Boolean>()
 
         init {
             viewModelScope.launch {
@@ -241,7 +245,7 @@ class WeeklyTrainingViewModel
             val nextOrder = nextUnplannedOrder(currentState)
             val normalizedCategoryId =
                 resolveCategoryId(
-                    eventType = WORKOUT_EVENT,
+                    eventType = EventType.WORKOUT,
                     categoryId = categoryId,
                     categories = currentState.categories,
                 )
@@ -405,7 +409,7 @@ class WeeklyTrainingViewModel
                         )
                     }
                 }
-            val movedEventType = originalWorkout?.eventType ?: WORKOUT_EVENT
+            val movedEventType = originalWorkout?.eventType ?: EventType.WORKOUT
 
             viewModelScope.launch {
                 persistWorkoutChanges(
@@ -437,47 +441,78 @@ class WeeklyTrainingViewModel
             }
         }
 
+        @Suppress("LongMethod")
         fun updateWorkoutCompletion(
             workout: WorkoutUi,
             isCompleted: Boolean,
         ) = viewModelScope.launch {
-            val original = state.value.workouts.firstOrNull { it.id == workout.id }
+            completionUpdateMutex.withLock {
+                val currentWorkouts = state.value.workouts
 
-            if (workout.eventType != WORKOUT_EVENT || original?.eventType != WORKOUT_EVENT) {
-                return@launch
-            }
+                prunePendingCompletionOverrides(currentWorkouts)
 
-            repository.updateWorkoutCompletion(workout.id, isCompleted)
+                val optimisticWorkoutsBeforeChange = applyPendingCompletionOverrides(currentWorkouts)
+                val originalEffective = optimisticWorkoutsBeforeChange.firstOrNull { it.id == workout.id }
+                if (workout.eventType != EventType.WORKOUT || originalEffective?.eventType != EventType.WORKOUT) {
+                    return@withLock
+                }
 
-            val actionType =
-                if (isCompleted) COMPLETE_WORKOUT else INCOMPLETE_WORKOUT
+                if (originalEffective.isCompleted == isCompleted) {
+                    return@withLock
+                }
 
-            userActionLogger.log(
-                actionType = actionType,
-                entityType = WORKOUT,
-                entityId = workout.id,
-                metadata =
-                    mapOf(
-                        WEEK_START_DATE to state.value.weekStartDate.toString(),
-                        WAS_COMPLETED to (original?.isCompleted?.toString() ?: "false"),
-                        IS_COMPLETED to isCompleted.toString(),
-                        NEW_TYPE to workout.type,
-                        NEW_DESCRIPTION to workout.description,
-                    ),
-            )
+                pendingCompletionById[workout.id] = isCompleted
+                val optimisticWorkouts = applyPendingCompletionOverrides(currentWorkouts)
 
-            if (original.isCompleted != isCompleted) {
+                repository.updateWorkoutCompletion(workout.id, isCompleted)
+
+                val actionType =
+                    if (isCompleted) COMPLETE_WORKOUT else INCOMPLETE_WORKOUT
+
+                userActionLogger.log(
+                    actionType = actionType,
+                    entityType = WORKOUT,
+                    entityId = workout.id,
+                    metadata =
+                        mapOf(
+                            WEEK_START_DATE to state.value.weekStartDate.toString(),
+                            WAS_COMPLETED to originalEffective.isCompleted.toString(),
+                            IS_COMPLETED to isCompleted.toString(),
+                            NEW_TYPE to workout.type,
+                            NEW_DESCRIPTION to workout.description,
+                        ),
+                )
+
                 val message =
                     if (isCompleted) {
-                        UndoMessage.Completed
+                        if (
+                            shouldCelebrateAllWorkoutsCompleted(
+                                currentWorkouts = optimisticWorkouts,
+                                workoutId = workout.id,
+                                previousIsCompleted = originalEffective.isCompleted,
+                                newIsCompleted = isCompleted,
+                            )
+                        ) {
+                            UndoMessage.CompletedWeek
+                        } else {
+                            UndoMessage.Completed
+                        }
                     } else {
                         UndoMessage.MarkedIncomplete
                     }
+
+                if (message == UndoMessage.CompletedWeek) {
+                    logCompleteWeekWorkouts(
+                        userActionLogger = userActionLogger,
+                        weekStartDate = state.value.weekStartDate,
+                    )
+                }
+
                 setUndoAction(
                     action =
                         PendingUndoAction.Completion(
-                            workout = original,
-                            previousCompleted = original.isCompleted,
+                            workout = originalEffective,
+                            previousCompleted = originalEffective.isCompleted,
                             newCompleted = isCompleted,
                             weekStartDate = state.value.weekStartDate,
                         ),
@@ -518,19 +553,19 @@ class WeeklyTrainingViewModel
 
             val entityType =
                 when {
-                    eventType != WORKOUT_EVENT -> eventType.toUserActionEntityType()
+                    eventType != EventType.WORKOUT -> eventType.toUserActionEntityType()
                     else -> original?.eventType?.toUserActionEntityType() ?: WORKOUT
                 }
             val actionType =
                 when {
                     original == null -> UPDATE_WORKOUT
                     original.eventType != eventType ->
-                        if (eventType != WORKOUT_EVENT) {
+                        if (eventType != EventType.WORKOUT) {
                             CONVERT_WORKOUT_TO_REST_DAY
                         } else {
                             CONVERT_REST_DAY_TO_WORKOUT
                         }
-                    eventType != WORKOUT_EVENT -> eventType.toUpdateActionType()
+                    eventType != EventType.WORKOUT -> eventType.toUpdateActionType()
                     else -> UPDATE_WORKOUT
                 }
 
@@ -545,7 +580,7 @@ class WeeklyTrainingViewModel
                             original = original,
                             type = type,
                             description = description,
-                            isRestDay = eventType != WORKOUT_EVENT,
+                            isRestDay = eventType != EventType.WORKOUT,
                             oldCategoryName = oldCategoryName,
                             newCategoryName = newCategoryName,
                         ),
@@ -638,11 +673,14 @@ class WeeklyTrainingViewModel
                             userActionLogger = userActionLogger,
                         )
                     is PendingUndoAction.Completion ->
-                        undoCompletion(
-                            action = action,
-                            repository = repository,
-                            userActionLogger = userActionLogger,
-                        )
+                        completionUpdateMutex.withLock {
+                            pendingCompletionById[action.workout.id] = action.previousCompleted
+                            undoCompletion(
+                                action = action,
+                                repository = repository,
+                                userActionLogger = userActionLogger,
+                            )
+                        }
                     is PendingUndoAction.ReplaceWeek ->
                         undoReplaceWeek(
                             action = action,
@@ -689,6 +727,31 @@ class WeeklyTrainingViewModel
             undoTimeoutJob = null
         }
 
+        private fun prunePendingCompletionOverrides(currentWorkouts: List<WorkoutUi>) {
+            if (pendingCompletionById.isEmpty()) return
+
+            val completionById = currentWorkouts.associate { it.id to it.isCompleted }
+
+            pendingCompletionById.entries.removeAll { (workoutId, pendingCompletion) ->
+                val currentCompletion = completionById[workoutId]
+                currentCompletion == null || currentCompletion == pendingCompletion
+            }
+        }
+
+        private fun applyPendingCompletionOverrides(currentWorkouts: List<WorkoutUi>): List<WorkoutUi> {
+            if (pendingCompletionById.isEmpty()) return currentWorkouts
+
+            return currentWorkouts.map { workout ->
+                val pendingCompletion = pendingCompletionById[workout.id] ?: return@map workout
+
+                if (workout.isCompleted == pendingCompletion) {
+                    workout
+                } else {
+                    workout.copy(isCompleted = pendingCompletion)
+                }
+            }
+        }
+
         companion object {
             const val STATE_SHARING_TIMEOUT_MS = 5_000L
             private const val UNDO_TIMEOUT_MS = 4_000L
@@ -720,7 +783,7 @@ private fun mapWorkoutsToUi(
 
     return workouts.map { workout ->
         val category =
-            if (workout.eventType != WORKOUT_EVENT) {
+            if (workout.eventType != EventType.WORKOUT) {
                 null
             } else {
                 workout.categoryId?.let(categoriesById::get) ?: fallbackCategory
@@ -763,7 +826,7 @@ private fun normalizeCategoryId(
     eventType: EventType,
     categoryId: Long?,
 ): Long? {
-    return if (eventType != WORKOUT_EVENT) {
+    return if (eventType != EventType.WORKOUT) {
         null
     } else {
         categoryId ?: UNCATEGORIZED_ID
@@ -785,9 +848,9 @@ private fun resolveCategoryNames(
     categories: List<CategoryUi>,
     original: WorkoutUi?,
 ): Pair<String?, String?> {
-    val oldCategoryName = original?.takeIf { it.eventType == WORKOUT_EVENT }?.categoryName
+    val oldCategoryName = original?.takeIf { it.eventType == EventType.WORKOUT }?.categoryName
     val newCategoryName =
-        if (eventType != WORKOUT_EVENT || normalizedCategoryId == null) {
+        if (eventType != EventType.WORKOUT || normalizedCategoryId == null) {
             null
         } else {
             categories.firstOrNull { it.id == normalizedCategoryId }?.name

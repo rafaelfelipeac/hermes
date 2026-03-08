@@ -1,12 +1,20 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.NIGHT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
+import java.time.DayOfWeek
 import java.time.DayOfWeek.MONDAY
+import java.time.DayOfWeek.THURSDAY
+import java.time.DayOfWeek.TUESDAY
+import java.time.DayOfWeek.WEDNESDAY
 import java.time.LocalDate
 
 class WeeklyTrainingStateTest {
@@ -222,4 +230,115 @@ class WeeklyTrainingStateTest {
 
         assertEquals(11L, indicatorWorkout?.workout?.id)
     }
+
+    @Test
+    fun weeklyHeaderSummary_countsScheduledEventsAndProgress() {
+        val weekStart = LocalDate.of(2026, 2, 9)
+        val workouts = weeklyHeaderSummaryFixtureWorkouts()
+
+        val state =
+            WeeklyTrainingState(
+                selectedDate = weekStart,
+                weekStartDate = weekStart,
+                workouts = workouts,
+                isWeekLoaded = true,
+                categories = emptyList(),
+            )
+
+        val summary = state.weeklyHeaderSummary
+
+        assertEquals(2, summary?.plannedWorkouts)
+        assertEquals(1, summary?.completedWorkouts)
+        assertEquals(1, summary?.plannedRestEvents)
+        assertEquals(1, summary?.plannedBusyEvents)
+        assertEquals(1, summary?.plannedSickEvents)
+        assertEquals(0.5f, summary?.progress)
+    }
+
+    @Test
+    fun weeklyHeaderSummary_isNullWhenThereAreNoPlannedWorkouts() {
+        val weekStart = LocalDate.of(2026, 2, 9)
+        val workouts =
+            listOf(
+                WorkoutUi(
+                    id = 1L,
+                    dayOfWeek = MONDAY,
+                    type = "",
+                    description = "",
+                    isCompleted = false,
+                    isRestDay = false,
+                    categoryId = null,
+                    categoryColorId = null,
+                    categoryName = null,
+                    order = 0,
+                    eventType = REST,
+                ),
+                WorkoutUi(
+                    id = 2L,
+                    dayOfWeek = TUESDAY,
+                    type = "",
+                    description = "",
+                    isCompleted = false,
+                    isRestDay = false,
+                    categoryId = null,
+                    categoryColorId = null,
+                    categoryName = null,
+                    order = 1,
+                    eventType = BUSY,
+                ),
+            )
+
+        val state =
+            WeeklyTrainingState(
+                selectedDate = weekStart,
+                weekStartDate = weekStart,
+                workouts = workouts,
+                isWeekLoaded = true,
+                categories = emptyList(),
+            )
+
+        assertNull(state.weeklyHeaderSummary)
+    }
+}
+
+private fun weeklyHeaderSummaryFixtureWorkouts(): List<WorkoutUi> {
+    return listOf(
+        workoutUi(id = 1L, dayOfWeek = MONDAY, type = "Run", description = "Easy", isCompleted = true),
+        workoutUi(id = 2L, dayOfWeek = TUESDAY, type = "Gym", description = "Upper"),
+        workoutUi(id = 3L, dayOfWeek = WEDNESDAY, eventType = REST),
+        workoutUi(id = 4L, dayOfWeek = THURSDAY, eventType = BUSY),
+        workoutUi(id = 5L, dayOfWeek = THURSDAY, order = 1, eventType = SICK),
+        workoutUi(
+            id = 6L,
+            dayOfWeek = null,
+            type = "Unplanned",
+            description = "Should not count",
+            isCompleted = true,
+        ),
+    )
+}
+
+private fun workoutUi(
+    id: Long,
+    dayOfWeek: DayOfWeek?,
+    type: String = "",
+    description: String = "",
+    isCompleted: Boolean = false,
+    order: Int = 0,
+    eventType: com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType =
+        com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT,
+): WorkoutUi {
+    return WorkoutUi(
+        id = id,
+        dayOfWeek = dayOfWeek,
+        type = type,
+        description = description,
+        isCompleted = isCompleted,
+        isRestDay = false,
+        categoryId = null,
+        categoryColorId = null,
+        categoryName = null,
+        order = order,
+        eventType = eventType,
+    )
 }

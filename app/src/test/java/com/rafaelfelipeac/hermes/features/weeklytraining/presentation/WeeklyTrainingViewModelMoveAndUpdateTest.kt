@@ -3,6 +3,8 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -288,6 +290,103 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             }
             coVerify(exactly = 1) { repository.deleteWorkout(44) }
 
+            collectJob.cancel()
+        }
+
+    @Test
+    fun updateWorkoutCompletion_whenCompletesAllPlannedWorkouts_emitsCelebrationMessage() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val undoStates = mutableListOf<UndoState?>()
+            val undoJob = backgroundScope.launch { viewModel.undoUiState.collect(undoStates::add) }
+            val selectedDate = LocalDate.of(2026, 4, 7)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 42, weekStart = weekStart, day = MONDAY, order = 0, isCompleted = false),
+                    workout(id = 43, weekStart = weekStart, day = TUESDAY, order = 1, isCompleted = true),
+                )
+            advanceUntilIdle()
+
+            val targetWorkout = viewModel.state.value.workouts.first { it.id == 42L }
+            viewModel.updateWorkoutCompletion(workout = targetWorkout, isCompleted = true)
+            runCurrent()
+
+            assertEquals(
+                UndoMessage.CompletedWeek,
+                undoStates.lastOrNull()?.message,
+            )
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = COMPLETE_WEEK_WORKOUTS,
+                    entityType = WEEK,
+                    entityId = weekStart.toEpochDay(),
+                    metadata = any(),
+                    timestamp = any(),
+                )
+            }
+
+            undoJob.cancel()
+            collectJob.cancel()
+        }
+
+    @Test
+    fun updateWorkoutCompletion_whenCompletingBackToBackWithStaleState_stillEmitsWeekCelebration() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val undoStates = mutableListOf<UndoState?>()
+            val undoJob = backgroundScope.launch { viewModel.undoUiState.collect(undoStates::add) }
+            val selectedDate = LocalDate.of(2026, 4, 7)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 42, weekStart = weekStart, day = MONDAY, order = 0, isCompleted = false),
+                    workout(id = 43, weekStart = weekStart, day = TUESDAY, order = 1, isCompleted = false),
+                )
+            advanceUntilIdle()
+            clearMocks(userActionLogger)
+
+            val firstWorkout = viewModel.state.value.workouts.first { it.id == 42L }
+            val secondWorkout = viewModel.state.value.workouts.first { it.id == 43L }
+
+            viewModel.updateWorkoutCompletion(workout = firstWorkout, isCompleted = true)
+            runCurrent()
+            viewModel.updateWorkoutCompletion(workout = secondWorkout, isCompleted = true)
+            runCurrent()
+
+            assertEquals(
+                UndoMessage.CompletedWeek,
+                undoStates.lastOrNull()?.message,
+            )
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = COMPLETE_WEEK_WORKOUTS,
+                    entityType = WEEK,
+                    entityId = weekStart.toEpochDay(),
+                    metadata = any(),
+                    timestamp = any(),
+                )
+            }
+
+            undoJob.cancel()
             collectJob.cancel()
         }
 

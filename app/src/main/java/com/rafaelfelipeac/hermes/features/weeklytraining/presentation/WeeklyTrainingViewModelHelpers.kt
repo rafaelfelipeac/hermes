@@ -13,6 +13,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
@@ -21,6 +22,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_REORD
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.displayDateForDay
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
@@ -112,6 +114,55 @@ internal fun resolveWorkoutChanges(
             null
         }
     }
+}
+
+internal fun shouldCelebrateAllWorkoutsCompleted(
+    currentWorkouts: List<WorkoutUi>,
+    workoutId: Long,
+    previousIsCompleted: Boolean,
+    newIsCompleted: Boolean,
+): Boolean {
+    val plannedWorkouts =
+        currentWorkouts.filter { workout ->
+            workout.eventType == WORKOUT && workout.dayOfWeek != null
+        }
+
+    val allCompletedBeforeToggle =
+        plannedWorkouts.all { workout ->
+            if (workout.id == workoutId) {
+                previousIsCompleted
+            } else {
+                workout.isCompleted
+            }
+        }
+    val allCompletedAfterToggle =
+        plannedWorkouts.all { workout ->
+            if (workout.id == workoutId) {
+                newIsCompleted
+            } else {
+                workout.isCompleted
+            }
+        }
+
+    return newIsCompleted &&
+        plannedWorkouts.isNotEmpty() &&
+        !allCompletedBeforeToggle &&
+        allCompletedAfterToggle
+}
+
+internal suspend fun logCompleteWeekWorkouts(
+    userActionLogger: UserActionLogger,
+    weekStartDate: LocalDate,
+) {
+    userActionLogger.log(
+        actionType = COMPLETE_WEEK_WORKOUTS,
+        entityType = WEEK,
+        entityId = weekStartDate.toEpochDay(),
+        metadata =
+            mapOf(
+                WEEK_START_DATE to weekStartDate.toString(),
+            ),
+    )
 }
 
 internal suspend fun persistWorkoutChanges(

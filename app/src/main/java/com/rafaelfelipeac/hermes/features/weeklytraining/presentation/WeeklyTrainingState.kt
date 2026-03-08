@@ -5,12 +5,16 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.MONDAY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.NIGHT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.orderedDays
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WeeklyHeaderSummaryUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.DayOfWeek
@@ -46,8 +50,31 @@ data class WeeklyTrainingState(
                 day to WorkoutDayIndicator(workout = lastItem, isDayCompleted = isDayCompleted)
             }
             .toMap()
-
     val dayOrder: List<DayOfWeek> = orderedDays(weekStartDay.dayOfWeek)
+    val weeklyHeaderSummary: WeeklyHeaderSummaryUi? =
+        workouts
+            .filter { it.dayOfWeek != null }
+            .let { scheduledItems ->
+                val plannedWorkouts = scheduledItems.count { it.eventType == WORKOUT }
+
+                if (plannedWorkouts == 0) {
+                    null
+                } else {
+                    val completedWorkouts =
+                        scheduledItems.count {
+                            it.eventType == WORKOUT && it.isCompleted
+                        }
+
+                    WeeklyHeaderSummaryUi(
+                        plannedWorkouts = plannedWorkouts,
+                        completedWorkouts = completedWorkouts,
+                        plannedRestEvents = scheduledItems.count { it.eventType == REST },
+                        plannedBusyEvents = scheduledItems.count { it.eventType == BUSY },
+                        plannedSickEvents = scheduledItems.count { it.eventType == SICK },
+                        progress = (completedWorkouts.toFloat() / plannedWorkouts).coerceIn(0f, 1f),
+                    )
+                }
+            }
 }
 
 private fun slotRank(slot: TimeSlot?): Int {

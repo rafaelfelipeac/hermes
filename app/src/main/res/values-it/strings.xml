@@ -51,6 +51,25 @@
     <string name="weekly_training_week_previous">&lt;</string>
     <string name="weekly_training_week_next">&gt;</string>
     <string name="weekly_training_rest_day_label">Riposo</string>
+    <string name="weekly_training_summary_line_primary">Pianificati: %1$d • Completati: %2$d</string>
+    <string name="weekly_training_summary_separator">&#160;•&#160;</string>
+    <plurals name="weekly_training_summary_item_rest">
+        <item quantity="one">%1$d riposo</item>
+        <item quantity="other">%1$d riposi</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_busy">
+        <item quantity="one">%1$d indisponibilità</item>
+        <item quantity="other">%1$d indisponibilità</item>
+    </plurals>
+    <plurals name="weekly_training_summary_item_sick">
+        <item quantity="one">%1$d malattia</item>
+        <item quantity="other">%1$d malattie</item>
+    </plurals>
+    <plurals name="weekly_training_summary_progress_content_description">
+        <item quantity="one">Progresso settimanale: %1$d di %2$d allenamento completato</item>
+        <item quantity="other">Progresso settimanale: %1$d di %2$d allenamenti completati</item>
+    </plurals>
+    <string name="weekly_training_week_completed_celebration">Ottimo lavoro! Hai completato tutti gli allenamenti di questa settimana.</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modalità sviluppatore</string>
@@ -148,6 +167,7 @@
     <string name="activity_action_change_language">Hai cambiato lingua.</string>
     <string name="activity_action_change_theme">Hai cambiato tema.</string>
     <string name="activity_action_open_week">Hai aperto un’altra settimana.</string>
+    <string name="activity_action_complete_week_workouts">Hai completato tutti gli allenamenti della settimana.</string>
     <string name="activity_action_copy_last_week">Hai copiato la settimana scorsa in questa settimana.</string>
     <string name="activity_action_undo_copy_last_week">Hai annullato la copia della settimana scorsa in questa settimana.</string>
     <string name="activity_action_fallback">Hai eseguito un’azione nell’app.</string>
