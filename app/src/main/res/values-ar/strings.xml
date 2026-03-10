@@ -143,6 +143,8 @@
     <string name="settings_feedback_title">ملاحظات</string>
     <string name="settings_feedback_body">أرسل لنا بريدًا إلكترونيًا بالأسئلة أو الاقتراحات أو للإبلاغ عن مشكلة. ملاحظاتك تساعد في تحسين Hermes!</string>
     <string name="settings_rate_title">قيّم التطبيق</string>
+    <string name="settings_play_store_market_url" translatable="false">market://details?id=%1$s</string>
+    <string name="settings_play_store_web_url" translatable="false">https://play.google.com/store/apps/details?id=%1$s</string>
     <string name="settings_rate_body">هل أعجبك Hermes؟ اترك تقييمًا على متجر Play وساعد الآخرين على اكتشاف التطبيق.</string>
     <string name="settings_rate_unavailable">لا توجد تطبيقات متجر أو متصفح متاحة.</string>
     <string name="settings_feedback_email" translatable="false">rafaelfelipeac.dev@gmail.com</string>

@@ -48,7 +48,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.Day
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SectionKey.ToBeDefined
@@ -74,6 +73,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Work
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero as ZeroDp
 
 private const val NO_INDEX = -1
 private const val FIRST_LIST_INDEX = 0
@@ -577,7 +577,7 @@ private fun SlotSectionCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(bottom = 0.dp),
+                .padding(bottom = ZeroDp),
     ) {
         Column(
             modifier =

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hermes Localization Check"
+  short_description: "Validate Hermes string resource changes across all locales."
+  default_prompt: "Verify this strings change is fully localized and flag placeholders or missing translations."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hermes Test Gap Check"
+  short_description: "Map Hermes code changes to missing or weak test coverage."
+  default_prompt: "Identify test gaps for this Hermes change and propose concrete fake-based unit tests."
