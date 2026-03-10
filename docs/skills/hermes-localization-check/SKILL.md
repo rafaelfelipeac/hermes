@@ -25,16 +25,17 @@ Default to `standard`.
 
 ## Workflow
 
-1. Detect changed keys in base `values/strings.xml`.
+1. Detect changed keys in any `values*/strings.xml`.
 2. Verify key presence in every localized `values-*/strings.xml`.
+   Include locale-only edits and placeholder/regression checks when any locale file changes.
 3. Validate placeholders and translation constraints.
 4. Report misses with exact file references.
 
 ## Checks
 
 - Key propagation across locales.
-- Placeholder parity (`%1$s`, `%d`, etc.).
-- No English placeholders in localized files.
+- Placeholder parity (`%1$s`, `%d`, etc.). Valid placeholders are allowed and should remain structurally consistent across locales.
+- No English fallback text around placeholders in localized files. Flag untranslated English copy surrounding placeholder tokens, not the placeholder tokens themselves.
 - Resource hygiene: stable naming, no accidental duplicate semantics.
 
 ## Output Format
