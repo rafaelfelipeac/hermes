@@ -473,14 +473,6 @@ internal suspend fun undoReplaceWeek(
     )
 }
 
-internal data class WorkoutChangeDependencies(
-    val repository: WeeklyTrainingRepository,
-    val userActionLogger: UserActionLogger,
-    val weekStartDate: LocalDate,
-    val displayStartDay: WeekStartDay,
-    val unassignedStorageWeekStart: LocalDate,
-)
-
 internal fun workoutsForDisplayWeek(
     workouts: List<Workout>,
     displayWeekStart: LocalDate,

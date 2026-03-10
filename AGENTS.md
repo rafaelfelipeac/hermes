@@ -77,3 +77,21 @@ Project-level conventions for Codex and similar agents.
 - Prefer teaching-oriented explanations over reference-style documentation.
 
 - Do not wait for explicit requests to update `LEARNING.md` when meaningful learning occurs.
+
+## Skills
+Hermes-specific skills live in this repo under `docs/skills` so they stay versioned with the project conventions they enforce.
+
+Open `docs/skills/README.md` for a short reminder of what each skill is for before using or updating one.
+
+### Available skills
+- `hermes-activity-logging-check`: Verify Hermes user-action and Activity timeline coverage for new state-changing features. Use when a feature changes persisted or user-visible state and must be represented end to end in action logging, formatter mappings, and localized Activity strings. (file: `docs/skills/hermes-activity-logging-check/SKILL.md`)
+- `hermes-compose-guardrails`: Audit Hermes Compose and UI-layer changes for design-system and code-style guardrails. Use when editing composables, previews, UI tests, theme files, or any Kotlin UI code where spacing, theming, strings, or tags might drift from Hermes conventions. (file: `docs/skills/hermes-compose-guardrails/SKILL.md`)
+- `hermes-localization-check`: Validate Hermes string resource changes across all locales and enforce translation consistency. Use when any `values*/strings.xml` file changes, when adding new UI copy, or when reviewing features that introduce new user-facing text. (file: `docs/skills/hermes-localization-check/SKILL.md`)
+- `hermes-pr-review`: Review Hermes pull requests for behavioral regressions, architecture violations, and policy misses. Use for broad change review when you want severity-ordered findings covering architecture, persistence, localization, DI, and logging rules. (file: `docs/skills/hermes-pr-review/SKILL.md`)
+- `hermes-test-gap-check`: Identify missing or weak automated test coverage for Hermes code changes and propose concrete fake-based tests. Use when reviewing a feature/refactor and you want a behavior-to-coverage map instead of a general review. (file: `docs/skills/hermes-test-gap-check/SKILL.md`)
+
+### How to use skills
+- Discovery: The skills above are the Hermes-owned skills for this repo. Their metadata and bodies live under `docs/skills/<skill-name>`.
+- Trigger rules: If the user names a skill (with `$SkillName` or plain text) OR the task clearly matches a skill description above, use that skill for the turn.
+- Context hygiene: Read `SKILL.md` first and only open extra files in the skill directory if the task needs them.
+- Maintenance: When updating a Hermes skill, keep `SKILL.md` and `agents/openai.yaml` aligned and update `docs/skills/README.md` if the practical explanation changes.
