@@ -473,6 +473,74 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun hasBackupData_returnsFalse_whenRepositoryIsPristine() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = mockk<SettingsRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+
+            every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
+            every { repository.initialLanguage() } returns AppLanguage.SYSTEM
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
+            every { repository.themeMode } returns MutableStateFlow(ThemeMode.SYSTEM)
+            every { repository.language } returns MutableStateFlow(AppLanguage.SYSTEM)
+            every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
+            every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
+            every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
+            coEvery { backupRepository.hasAnyData() } returns false
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                    backupRepository,
+                )
+
+            assertEquals(false, viewModel.hasBackupData())
+        }
+
+    @Test
+    fun hasBackupData_returnsTrue_whenWeekStartDayIsNonDefault() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = mockk<SettingsRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+
+            every { repository.initialThemeMode() } returns ThemeMode.SYSTEM
+            every { repository.initialLanguage() } returns AppLanguage.SYSTEM
+            every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+            every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
+            every { repository.themeMode } returns MutableStateFlow(ThemeMode.SYSTEM)
+            every { repository.language } returns MutableStateFlow(AppLanguage.SYSTEM)
+            every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+            every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.WEDNESDAY)
+            every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
+            every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+            every { repository.backupFolderUri } returns MutableStateFlow(null)
+            coEvery { backupRepository.hasAnyData() } returns false
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                    backupRepository,
+                )
+
+            assertEquals(true, viewModel.hasBackupData())
+        }
+
+    @Test
     fun setBackupFolderUri_logsAction() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = mockk<SettingsRepository>(relaxed = true)

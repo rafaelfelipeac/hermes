@@ -4,4 +4,5 @@ data class BackupSettingsRecord(
     val themeMode: String,
     val languageTag: String,
     val slotModePolicy: String,
+    val weekStartDay: String,
 )

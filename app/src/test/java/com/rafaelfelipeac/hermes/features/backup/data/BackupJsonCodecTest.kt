@@ -17,7 +17,7 @@ class BackupJsonCodecTest {
     fun encodeDecode_roundTrip_preservesCoreFields() {
         val snapshot =
             BackupSnapshot(
-                schemaVersion = 1,
+                schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V2,
                 exportedAt = "2026-02-25T10:00:00Z",
                 appVersion = "1.3.0",
                 workouts =
@@ -62,6 +62,7 @@ class BackupJsonCodecTest {
                         themeMode = "DARK",
                         languageTag = "en",
                         slotModePolicy = "AUTO_WHEN_MULTIPLE",
+                        weekStartDay = "WEDNESDAY",
                     ),
             )
 
@@ -76,6 +77,7 @@ class BackupJsonCodecTest {
         assertEquals(snapshot.categories.single().name, restored.categories.single().name)
         assertEquals(snapshot.userActions.single().actionType, restored.userActions.single().actionType)
         assertEquals(snapshot.settings?.slotModePolicy, restored.settings?.slotModePolicy)
+        assertEquals(snapshot.settings?.weekStartDay, restored.settings?.weekStartDay)
     }
 
     @Test
@@ -100,11 +102,38 @@ class BackupJsonCodecTest {
     }
 
     @Test
-    fun decode_unsupportedSchema_returnsUnsupportedSchema() {
+    fun decode_v1Settings_defaultsWeekStartDayToMonday() {
         val raw =
             """
             {
-              "schemaVersion": 2,
+              "schemaVersion": 1,
+              "exportedAt": "2026-02-25T10:00:00Z",
+              "workouts": [],
+              "categories": [],
+              "userActions": [],
+              "settings": {
+                "themeMode": "SYSTEM",
+                "languageTag": "en",
+                "slotModePolicy": "AUTO_WHEN_MULTIPLE"
+              }
+            }
+            """.trimIndent()
+
+        val result = BackupJsonCodec.decode(raw)
+
+        assertTrue(result is BackupDecodeResult.Success)
+        assertEquals(
+            "MONDAY",
+            (result as BackupDecodeResult.Success).snapshot.settings?.weekStartDay,
+        )
+    }
+
+    @Test
+    fun decode_unknownFutureSchema_returnsUnsupportedSchema() {
+        val raw =
+            """
+            {
+              "schemaVersion": 3,
               "exportedAt": "2026-02-25T10:00:00Z",
               "workouts": [],
               "categories": [],
@@ -126,7 +155,7 @@ class BackupJsonCodecTest {
         val raw =
             """
             {
-              "schemaVersion": 1,
+              "schemaVersion": 2,
               "exportedAt": "2026-02-25T10:00:00Z",
               "workouts": {},
               "categories": [],
@@ -148,7 +177,7 @@ class BackupJsonCodecTest {
         val raw =
             """
             {
-              "schemaVersion": 1,
+              "schemaVersion": 2,
               "exportedAt": "2026-02-25T10:00:00Z",
               "workouts": [],
               "categories": [],

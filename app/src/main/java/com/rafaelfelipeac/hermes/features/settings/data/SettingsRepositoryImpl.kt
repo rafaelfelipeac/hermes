@@ -1,8 +1,6 @@
 package com.rafaelfelipeac.hermes.features.settings.data
 
 import android.content.Context
-import android.content.res.Configuration
-import android.os.Build
 import androidx.datastore.preferences.core.edit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
@@ -28,7 +26,9 @@ class SettingsRepositoryImpl
         override val themeMode: Flow<ThemeMode> =
             dataStore.data
                 .map { prefs ->
-                    prefs[THEME_MODE_KEY]?.let(ThemeMode::valueOf) ?: defaultThemeMode(context)
+                    prefs[THEME_MODE_KEY]
+                        ?.let { raw -> runCatching { ThemeMode.valueOf(raw) }.getOrNull() }
+                        ?: defaultThemeMode()
                 }
                 .distinctUntilChanged()
 
@@ -70,7 +70,7 @@ class SettingsRepositoryImpl
                 .map { prefs -> prefs[BACKUP_FOLDER_URI_KEY] }
                 .distinctUntilChanged()
 
-        override fun initialThemeMode(): ThemeMode = defaultThemeMode(context)
+        override fun initialThemeMode(): ThemeMode = defaultThemeMode()
 
         override fun initialLanguage(): AppLanguage = defaultLanguage()
 
@@ -125,14 +125,8 @@ class SettingsRepositoryImpl
         }
     }
 
-private fun defaultThemeMode(context: Context): ThemeMode {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-        return ThemeMode.LIGHT
-    }
-
-    val nightModeFlags = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-
-    return if (nightModeFlags == Configuration.UI_MODE_NIGHT_YES) ThemeMode.DARK else ThemeMode.LIGHT
+private fun defaultThemeMode(): ThemeMode {
+    return ThemeMode.SYSTEM
 }
 
 private fun defaultLanguage(): AppLanguage {
