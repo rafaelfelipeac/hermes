@@ -38,5 +38,6 @@ object Dimens {
     val CategoryActionIconSize = 36.dp
     val CategoryColorSwatchSize = 36.dp
     val CategoryColorGridHeight = 140.dp
+    val WeeklyTrainingTestViewportHeight = 200.dp
     val CheckboxYOffset = (-2).dp
 }

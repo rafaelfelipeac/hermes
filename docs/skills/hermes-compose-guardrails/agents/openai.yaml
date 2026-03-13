@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hermes Compose Guardrails"
+  short_description: "Check Compose code against Hermes UI/style guardrails."
+  default_prompt: "Check this Compose diff for Hermes guardrail violations and suggest exact fixes."

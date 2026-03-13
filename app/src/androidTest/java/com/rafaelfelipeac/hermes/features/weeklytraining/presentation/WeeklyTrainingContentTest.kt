@@ -8,10 +8,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
-import androidx.compose.ui.unit.dp
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.SECTION_HEADER_TAG_PREFIX
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WEEKLY_TRAINING_CONTENT_TAG
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyTrainingTestViewportHeight
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -35,7 +35,7 @@ class WeeklyTrainingContentTest {
                 onWorkoutCompletionChanged = { _, _ -> },
                 onWorkoutEdit = {},
                 onWorkoutDelete = {},
-                modifier = Modifier.height(200.dp),
+                modifier = Modifier.height(WeeklyTrainingTestViewportHeight),
             )
         }
 

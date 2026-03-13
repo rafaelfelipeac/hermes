@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hermes Activity Logging Check"
+  short_description: "Verify end-to-end Activity log coverage in Hermes."
+  default_prompt: "Audit this feature for complete Hermes activity logging coverage and list missing pieces."

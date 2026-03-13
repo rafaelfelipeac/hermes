@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hermes PR Review"
+  short_description: "Review Hermes changes for regressions and policy violations."
+  default_prompt: "Review this Hermes change and list findings by severity with file/line references."
