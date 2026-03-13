@@ -11,11 +11,14 @@ class WeeklyTrainingDragControllerTest {
         val result =
             computeAutoScrollStep(
                 position = Offset(x = 24f, y = 2f),
-                containerBounds = Rect(left = 0f, top = 0f, right = 100f, bottom = 200f),
-                edge = 40f,
-                safePadding = 16f,
-                canScrollBackward = true,
-                canScrollForward = true,
+                context =
+                    AutoScrollContext(
+                        containerBounds = Rect(left = 0f, top = 0f, right = 100f, bottom = 200f),
+                        edge = 40f,
+                        safePadding = 16f,
+                        canScrollBackward = true,
+                        canScrollForward = true,
+                    ),
             )
 
         assertEquals(Offset(24f, 16f), result.clampedPosition)

@@ -18,11 +18,12 @@ class SettingsRepositoryImplTest {
     private lateinit var repository: SettingsRepositoryImpl
 
     @Before
-    fun setUp() = runTest {
-        context = ApplicationProvider.getApplicationContext()
-        repository = SettingsRepositoryImpl(context)
-        context.settingsDataStore.edit { it.clear() }
-    }
+    fun setUp() =
+        runTest {
+            context = ApplicationProvider.getApplicationContext()
+            repository = SettingsRepositoryImpl(context)
+            context.settingsDataStore.edit { it.clear() }
+        }
 
     @Test
     fun themeMode_defaultsToSystem_whenPreferenceIsMissing() =

@@ -174,11 +174,14 @@ fun WeeklyTrainingContent(
                 val autoScrollStep =
                     computeAutoScrollStep(
                         position = position,
-                        containerBounds = dragController.containerBounds,
-                        edge = autoScrollEdge,
-                        safePadding = autoScrollSafePadding,
-                        canScrollBackward = listState.canScrollBackward,
-                        canScrollForward = listState.canScrollForward,
+                        context =
+                            AutoScrollContext(
+                                containerBounds = dragController.containerBounds,
+                                edge = autoScrollEdge,
+                                safePadding = autoScrollSafePadding,
+                                canScrollBackward = listState.canScrollBackward,
+                                canScrollForward = listState.canScrollForward,
+                            ),
                     )
 
                 if (autoScrollStep.clampedPosition != position) {
@@ -194,8 +197,8 @@ fun WeeklyTrainingContent(
     }
 
     Box(
-            modifier =
-                modifier
+        modifier =
+            modifier
                 .testTag(WEEKLY_TRAINING_CONTENT_TAG)
                 .pointerInput(selectedDate, dragController.draggedWorkoutId) {
                     if (dragController.draggedWorkoutId == null) {

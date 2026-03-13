@@ -28,23 +28,24 @@ class BackupRepositoryImplTest {
     private lateinit var repository: BackupRepositoryImpl
 
     @Before
-    fun setUp() = runTest {
-        context = ApplicationProvider.getApplicationContext()
-        context.settingsDataStore.edit { it.clear() }
-        database =
-            Room.inMemoryDatabaseBuilder(context, HermesDatabase::class.java)
-                .allowMainThreadQueries()
-                .build()
-        settingsRepository = SettingsRepositoryImpl(context)
-        repository =
-            BackupRepositoryImpl(
-                database = database,
-                workoutDao = database.workoutDao(),
-                categoryDao = database.categoryDao(),
-                userActionDao = database.userActionDao(),
-                settingsRepository = settingsRepository,
-            )
-    }
+    fun setUp() =
+        runTest {
+            context = ApplicationProvider.getApplicationContext()
+            context.settingsDataStore.edit { it.clear() }
+            database =
+                Room.inMemoryDatabaseBuilder(context, HermesDatabase::class.java)
+                    .allowMainThreadQueries()
+                    .build()
+            settingsRepository = SettingsRepositoryImpl(context)
+            repository =
+                BackupRepositoryImpl(
+                    database = database,
+                    workoutDao = database.workoutDao(),
+                    categoryDao = database.categoryDao(),
+                    userActionDao = database.userActionDao(),
+                    settingsRepository = settingsRepository,
+                )
+        }
 
     @After
     fun tearDown() {

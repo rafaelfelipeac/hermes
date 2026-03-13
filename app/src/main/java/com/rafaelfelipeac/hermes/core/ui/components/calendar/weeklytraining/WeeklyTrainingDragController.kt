@@ -80,6 +80,14 @@ internal data class AutoScrollStep(
     val scrollDelta: Float,
 )
 
+internal data class AutoScrollContext(
+    val containerBounds: Rect,
+    val edge: Float,
+    val safePadding: Float,
+    val canScrollBackward: Boolean,
+    val canScrollForward: Boolean,
+)
+
 @Composable
 internal fun rememberWeeklyTrainingDragController(): WeeklyTrainingDragController {
     return remember { WeeklyTrainingDragController() }
@@ -87,14 +95,11 @@ internal fun rememberWeeklyTrainingDragController(): WeeklyTrainingDragControlle
 
 internal fun computeAutoScrollStep(
     position: Offset,
-    containerBounds: Rect,
-    edge: Float,
-    safePadding: Float,
-    canScrollBackward: Boolean,
-    canScrollForward: Boolean,
+    context: AutoScrollContext,
 ): AutoScrollStep {
-    val safeTop = containerBounds.top + safePadding
-    val safeBottom = containerBounds.bottom - safePadding
+    val containerBounds = context.containerBounds
+    val safeTop = containerBounds.top + context.safePadding
+    val safeBottom = containerBounds.bottom - context.safePadding
     val clampedPosition =
         Offset(
             position.x,
@@ -105,12 +110,12 @@ internal fun computeAutoScrollStep(
     val distanceToBottom = containerBounds.bottom - clampedPosition.y
     val scrollDelta =
         when {
-            distanceToTop < edge && canScrollBackward -> {
-                -AUTO_SCROLL_MAX_SPEED * (1f - (distanceToTop / edge))
+            distanceToTop < context.edge && context.canScrollBackward -> {
+                -AUTO_SCROLL_MAX_SPEED * (1f - (distanceToTop / context.edge))
             }
 
-            distanceToBottom < edge && canScrollForward -> {
-                AUTO_SCROLL_MAX_SPEED * (1f - (distanceToBottom / edge))
+            distanceToBottom < context.edge && context.canScrollForward -> {
+                AUTO_SCROLL_MAX_SPEED * (1f - (distanceToBottom / context.edge))
             }
 
             else -> 0f
