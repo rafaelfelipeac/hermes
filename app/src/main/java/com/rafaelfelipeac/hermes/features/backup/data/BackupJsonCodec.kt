@@ -21,7 +21,9 @@ import kotlinx.serialization.json.putJsonObject
 
 @Suppress("ReturnCount")
 internal object BackupJsonCodec {
-    internal const val SUPPORTED_SCHEMA_VERSION = 1
+    internal const val SCHEMA_VERSION_V1 = 1
+    internal const val SCHEMA_VERSION_V2 = 2
+    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V2
 
     private val json =
         Json {
@@ -53,6 +55,7 @@ internal object BackupJsonCodec {
                     put(KEY_THEME_MODE, settings.themeMode)
                     put(KEY_LANGUAGE_TAG, settings.languageTag)
                     put(KEY_SLOT_MODE_POLICY, settings.slotModePolicy)
+                    put(KEY_WEEK_START_DAY, settings.weekStartDay)
                 }
             }
         }.toString()
@@ -68,7 +71,8 @@ internal object BackupJsonCodec {
                 ?: return Failure(INVALID_FIELD_VALUE)
 
         return when (schemaVersion) {
-            SUPPORTED_SCHEMA_VERSION -> BackupV1Decoder.decode(root)
+            SCHEMA_VERSION_V1 -> BackupV1Decoder.decode(root)
+            SCHEMA_VERSION_V2 -> BackupV2Decoder.decode(root)
             else -> Failure(UNSUPPORTED_SCHEMA_VERSION)
         }
     }

@@ -182,6 +182,8 @@ Recent learnings:
 - In fallback export flows (folder -> Save As), avoid logging folder success before Save As completion; keep fallback correlation state and log folder attempt as not configured or defer final success to picker callback outcome.
 - In `stateIn` initial values for settings-dependent ViewModels, avoid hardcoded defaults when repository exposes `initial*` helpers; mismatched initial values can cause one-frame UI inconsistency before reactive flows emit.
 - For copy/replace flows that touch multiple rows, keep orchestration in repository/DAO and execute delete+insert in one Room transaction; ViewModels should call a single repository operation to avoid partial-state writes.
+- Treat an unset theme preference as `SYSTEM`, not as a resolved light/dark snapshot; otherwise first-run behavior stops following OS theme changes and clean-state detection becomes inconsistent.
+- Backup schema changes need explicit versioning even for additive settings fields like `weekStartDay`; keeping v1 decode behavior intact avoids breaking older exports while letting overwrite prompts match what backup actually restores.
 - Keeping feature-specific query/DTO models in dedicated files (instead of inside ViewModels) helps enforce Hermes architecture rules and keeps ViewModel files focused on orchestration/state transitions.
 - When `LargeClass` hits a long test suite, splitting by behavior-focused test classes and moving shared fixtures/builders into a dedicated `*TestSupport.kt` file clears detekt without reducing test coverage.
 - For `LongMethod` in tests, extracting verbose fixture lists into focused helper builders keeps assertions readable and resolves detekt limits with minimal behavior risk.
