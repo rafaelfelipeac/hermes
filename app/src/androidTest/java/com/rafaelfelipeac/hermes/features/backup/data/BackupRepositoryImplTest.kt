@@ -72,21 +72,10 @@ class BackupRepositoryImplTest {
     fun importBackupJson_v2RestoresWeekStartDay() =
         runTest {
             val raw =
-                """
-                {
-                  "schemaVersion": 2,
-                  "exportedAt": "2026-02-25T10:00:00Z",
-                  "workouts": [],
-                  "categories": [],
-                  "userActions": [],
-                  "settings": {
-                    "themeMode": "SYSTEM",
-                    "languageTag": "en",
-                    "slotModePolicy": "AUTO_WHEN_MULTIPLE",
-                    "weekStartDay": "FRIDAY"
-                  }
-                }
-                """.trimIndent()
+                buildImportBackupJson(
+                    schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V2,
+                    weekStartDay = WeekStartDay.FRIDAY.name,
+                )
 
             val result = repository.importBackupJson(raw)
 
@@ -99,20 +88,10 @@ class BackupRepositoryImplTest {
         runTest {
             settingsRepository.setWeekStartDay(WeekStartDay.SATURDAY)
             val raw =
-                """
-                {
-                  "schemaVersion": 1,
-                  "exportedAt": "2026-02-25T10:00:00Z",
-                  "workouts": [],
-                  "categories": [],
-                  "userActions": [],
-                  "settings": {
-                    "themeMode": "SYSTEM",
-                    "languageTag": "en",
-                    "slotModePolicy": "AUTO_WHEN_MULTIPLE"
-                  }
-                }
-                """.trimIndent()
+                buildImportBackupJson(
+                    schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V1,
+                    weekStartDay = null,
+                )
 
             val result = repository.importBackupJson(raw)
 
@@ -120,3 +99,36 @@ class BackupRepositoryImplTest {
             assertEquals(WeekStartDay.MONDAY, settingsRepository.weekStartDay.first())
         }
 }
+
+private fun buildImportBackupJson(
+    schemaVersion: Int,
+    weekStartDay: String?,
+): String {
+    val weekStartDayField =
+        weekStartDay?.let { value ->
+            """
+            ,
+                "$KEY_WEEK_START_DAY": "$value"
+            """.trimIndent()
+        }.orEmpty()
+
+    return """
+        {
+          "$KEY_SCHEMA_VERSION": $schemaVersion,
+          "$KEY_EXPORTED_AT": "$EXPORTED_AT",
+          "$KEY_WORKOUTS": [],
+          "$KEY_CATEGORIES": [],
+          "$KEY_USER_ACTIONS": [],
+          "$KEY_SETTINGS": {
+            "$KEY_THEME_MODE": "$THEME_MODE_SYSTEM",
+            "$KEY_LANGUAGE_TAG": "$LANGUAGE_TAG_ENGLISH",
+            "$KEY_SLOT_MODE_POLICY": "$SLOT_MODE_POLICY_AUTO_WHEN_MULTIPLE"$weekStartDayField
+          }
+        }
+        """.trimIndent()
+}
+
+private const val EXPORTED_AT = "2026-02-25T10:00:00Z"
+private const val THEME_MODE_SYSTEM = "SYSTEM"
+private const val LANGUAGE_TAG_ENGLISH = "en"
+private const val SLOT_MODE_POLICY_AUTO_WHEN_MULTIPLE = "AUTO_WHEN_MULTIPLE"

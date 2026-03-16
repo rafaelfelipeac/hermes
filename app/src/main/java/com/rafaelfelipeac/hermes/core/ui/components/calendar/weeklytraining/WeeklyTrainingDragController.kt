@@ -98,8 +98,14 @@ internal fun computeAutoScrollStep(
     context: AutoScrollContext,
 ): AutoScrollStep {
     val containerBounds = context.containerBounds
-    val safeTop = containerBounds.top + context.safePadding
-    val safeBottom = containerBounds.bottom - context.safePadding
+    val effectivePadding =
+        if (containerBounds.height <= 0f) {
+            0f
+        } else {
+            minOf(context.safePadding, containerBounds.height / 2f)
+        }
+    val safeTop = containerBounds.top + effectivePadding
+    val safeBottom = containerBounds.bottom - effectivePadding
     val clampedPosition =
         Offset(
             position.x,

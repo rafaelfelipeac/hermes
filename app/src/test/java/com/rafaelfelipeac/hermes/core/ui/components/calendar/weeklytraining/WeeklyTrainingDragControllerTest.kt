@@ -24,4 +24,23 @@ class WeeklyTrainingDragControllerTest {
         assertEquals(Offset(24f, 16f), result.clampedPosition)
         assertEquals(-10.8f, result.scrollDelta, 0.001f)
     }
+
+    @Test
+    fun computeAutoScrollStep_usesValidClampRange_forTinyContainers() {
+        val result =
+            computeAutoScrollStep(
+                position = Offset(x = 12f, y = -8f),
+                context =
+                    AutoScrollContext(
+                        containerBounds = Rect(left = 0f, top = 0f, right = 100f, bottom = 20f),
+                        edge = 40f,
+                        safePadding = 16f,
+                        canScrollBackward = true,
+                        canScrollForward = true,
+                    ),
+            )
+
+        assertEquals(Offset(12f, 10f), result.clampedPosition)
+        assertEquals(-13.5f, result.scrollDelta, 0.001f)
+    }
 }
