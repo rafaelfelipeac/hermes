@@ -73,7 +73,6 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Work
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero as ZeroDp
 
 private const val NO_INDEX = -1
 private const val FIRST_LIST_INDEX = 0
