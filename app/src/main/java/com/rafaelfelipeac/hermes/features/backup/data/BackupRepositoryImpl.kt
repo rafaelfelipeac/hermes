@@ -24,6 +24,7 @@ import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
@@ -63,6 +64,7 @@ class BackupRepositoryImpl
                                 themeMode = settingsRepository.themeMode.first().name,
                                 languageTag = settingsRepository.language.first().tag,
                                 slotModePolicy = settingsRepository.slotModePolicy.first().name,
+                                weekStartDay = settingsRepository.weekStartDay.first().name,
                             ),
                     )
 
@@ -119,6 +121,7 @@ class BackupRepositoryImpl
                     settingsRepository.setThemeMode(ThemeMode.valueOf(settings.themeMode))
                     settingsRepository.setLanguage(AppLanguage.fromTag(settings.languageTag))
                     settingsRepository.setSlotModePolicy(SlotModePolicy.valueOf(settings.slotModePolicy))
+                    settingsRepository.setWeekStartDay(WeekStartDay.valueOf(settings.weekStartDay))
                 }.onFailure {
                     Log.w(
                         BACKUP_REPOSITORY_LOG_TAG,
@@ -188,6 +191,9 @@ class BackupRepositoryImpl
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
                 if (runCatching { SlotModePolicy.valueOf(settings.slotModePolicy) }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching { WeekStartDay.valueOf(settings.weekStartDay) }.isFailure) {
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
             }

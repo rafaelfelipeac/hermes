@@ -21,6 +21,8 @@ object Dimens {
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp
     val WeeklyCalendarBottomPadding = 96.dp
+    val WeeklyTrainingAutoScrollEdge = 96.dp
+    val WeeklyTrainingAutoScrollSafePadding = 16.dp
     val AddActionPillMinWidth = 180.dp
     val AddActionPillHorizontalPadding = 18.dp
     val HelpIconSize = 36.dp

@@ -11,7 +11,6 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsReco
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -22,7 +21,7 @@ import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.longOrNull
 
 @Suppress("ReturnCount")
-internal object BackupV1Decoder {
+internal object BackupV2Decoder {
     fun decode(root: JsonObject): BackupDecodeResult {
         val exportedAt =
             root.stringOrNull(KEY_EXPORTED_AT)
@@ -64,7 +63,7 @@ internal object BackupV1Decoder {
         return Success(
             snapshot =
                 BackupSnapshot(
-                    schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V1,
+                    schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V2,
                     exportedAt = exportedAt,
                     appVersion = root.stringOrNull(KEY_APP_VERSION),
                     workouts = workouts,
@@ -123,7 +122,7 @@ internal object BackupV1Decoder {
             themeMode = obj.stringOrNull(KEY_THEME_MODE) ?: return null,
             languageTag = obj.stringOrNull(KEY_LANGUAGE_TAG) ?: return null,
             slotModePolicy = obj.stringOrNull(KEY_SLOT_MODE_POLICY) ?: return null,
-            weekStartDay = WeekStartDay.MONDAY.name,
+            weekStartDay = obj.stringOrNull(KEY_WEEK_START_DAY) ?: return null,
         )
     }
 

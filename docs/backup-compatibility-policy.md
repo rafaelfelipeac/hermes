@@ -9,10 +9,15 @@ Keep backup import stable across app releases by versioning the JSON schema expl
 - Unknown future schemas must fail fast with a friendly import error.
 
 ## Current policy
-- Current supported schema(s): `1`
+- Current supported schema(s): `1`, `2`
 - Decoder routing:
   - `schemaVersion = 1` -> `BackupV1Decoder`
+  - `schemaVersion = 2` -> `BackupV2Decoder`
   - Any other value -> unsupported schema error
+
+## Current schema notes
+- `schemaVersion = 2` adds `settings.weekStartDay`.
+- `schemaVersion = 1` backups remain importable and default missing `weekStartDay` to `MONDAY` during decode.
 
 ## Rules for future schema changes
 1. Add a new decoder (`BackupV2Decoder`, etc.) instead of rewriting old decoders.
