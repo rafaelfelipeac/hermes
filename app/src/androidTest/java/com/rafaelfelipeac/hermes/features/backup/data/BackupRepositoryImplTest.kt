@@ -57,7 +57,7 @@ class BackupRepositoryImplTest {
         runTest {
             settingsRepository.setWeekStartDay(WeekStartDay.WEDNESDAY)
 
-            val exportResult = repository.exportBackupJson("1.5.0")
+            val exportResult = repository.exportBackupJson(TEST_APP_VERSION)
 
             assertTrue(exportResult.isSuccess)
             val decoded = BackupJsonCodec.decode(checkNotNull(exportResult.getOrNull()))
@@ -129,6 +129,7 @@ private fun buildImportBackupJson(
 }
 
 private const val EXPORTED_AT = "2026-02-25T10:00:00Z"
+private const val TEST_APP_VERSION = "1.5.0"
 private const val THEME_MODE_SYSTEM = "SYSTEM"
 private const val LANGUAGE_TAG_ENGLISH = "en"
 private const val SLOT_MODE_POLICY_AUTO_WHEN_MULTIPLE = "AUTO_WHEN_MULTIPLE"
