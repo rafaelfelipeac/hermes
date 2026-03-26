@@ -44,9 +44,12 @@ internal fun filterActions(
                 val categoryNames = categoryNamesForAction(action, formatter)
                 val aliases = context.categoryId?.let(context.categoryAliasesById::get).orEmpty()
 
-                (context.categoryId != null && context.categoryId in categoryIds) ||
+                if (categoryIds.isNotEmpty()) {
+                    context.categoryId != null && context.categoryId in categoryIds
+                } else {
                     (selectedCategoryName != null && selectedCategoryName in categoryNames) ||
-                    aliases.any { it in categoryNames }
+                        aliases.any { it in categoryNames }
+                }
             }
             ActivityPrimaryFilter.SETTINGS -> action.isSettingsAction()
             ActivityPrimaryFilter.WEEK ->

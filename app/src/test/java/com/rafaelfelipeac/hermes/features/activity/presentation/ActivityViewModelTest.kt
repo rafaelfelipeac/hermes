@@ -478,6 +478,49 @@ class ActivityViewModelTest {
         }
 
     @Test
+    fun categoryFilter_prefersCategoryIdsOverMatchingNames() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val duplicateName = "Run"
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    categories =
+                        listOf(
+                            category(id = 10L, name = duplicateName, sortOrder = 0),
+                            category(id = 20L, name = duplicateName, sortOrder = 1),
+                        ),
+                )
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 40L,
+                        actionType = COMPLETE_WORKOUT.name,
+                        entityType = WORKOUT.name,
+                        entityId = 100L,
+                        metadata =
+                            metadataJson(
+                                CATEGORY_ID to "20",
+                                CATEGORY_NAME to duplicateName,
+                                NEW_TYPE to "Intervals",
+                            ),
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                ),
+            )
+            viewModel.selectCategoryFilter(10L)
+
+            viewModel.state.test {
+                val state = awaitItem()
+
+                assertTrue(state.sections.isEmpty())
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
     fun weekFilter_keepsOnlySelectedWeek() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
