@@ -85,12 +85,14 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Work
 private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
 private const val WORKOUT_ROW_CONTENT_ALPHA = 1f
 private const val GHOST_ROW_ALPHA = 0.45f
+private const val DEEMPHASIZED_ROW_ALPHA = 0.42f
 private const val TYPE_CHIP_ALPHA = 0.18f
 
 @Composable
 internal fun WorkoutRow(
     workout: WorkoutUi,
     isDragging: Boolean,
+    isDeemphasized: Boolean,
     onToggleCompleted: (Boolean) -> Unit,
     onDragStarted: (Offset, Float) -> Unit,
     onEdit: () -> Unit,
@@ -156,7 +158,7 @@ internal fun WorkoutRow(
                 } else {
                     Modifier
                         .padding(ContentPadding)
-                        .alpha(WORKOUT_ROW_CONTENT_ALPHA)
+                        .alpha(if (isDeemphasized) DEEMPHASIZED_ROW_ALPHA else WORKOUT_ROW_CONTENT_ALPHA)
                 },
             )
 

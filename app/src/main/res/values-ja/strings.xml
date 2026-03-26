@@ -136,6 +136,12 @@
     <!-- Activity -->
     <string name="activity_title">最近のアクティビティ</string>
     <string name="activity_empty">まだアクティビティはありません。</string>
+    <string name="activity_filtered_empty">これらのフィルターに一致するアクティビティはありません。</string>
+    <string name="activity_filter_all">すべて</string>
+    <string name="activity_filter_completions">完了</string>
+    <string name="activity_filter_planning">計画</string>
+    <string name="activity_filter_week">週</string>
+    <string name="filters_clear">フィルターをクリア</string>
     <string name="activity_today">今日</string>
     <string name="activity_yesterday">昨日</string>
     <string name="activity_workout_fallback">名前なし</string>

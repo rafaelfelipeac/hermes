@@ -6,14 +6,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
@@ -278,9 +281,11 @@ class WeeklyTrainingViewModel
                             NEW_TYPE to type,
                             NEW_DESCRIPTION to description,
                         ).apply {
-                            if (!categoryName.isNullOrBlank()) {
-                                put(CATEGORY_NAME, categoryName)
-                            }
+                            putWorkoutCategoryMetadata(
+                                categoryId = normalizedCategoryId,
+                                categoryName = categoryName,
+                                newCategoryId = normalizedCategoryId,
+                            )
                         },
                 )
             }
@@ -474,13 +479,18 @@ class WeeklyTrainingViewModel
                     entityType = WORKOUT,
                     entityId = workout.id,
                     metadata =
-                        mapOf(
+                        mutableMapOf(
                             WEEK_START_DATE to state.value.weekStartDate.toString(),
                             WAS_COMPLETED to originalEffective.isCompleted.toString(),
                             IS_COMPLETED to isCompleted.toString(),
                             NEW_TYPE to workout.type,
                             NEW_DESCRIPTION to workout.description,
-                        ),
+                        ).apply {
+                            putWorkoutCategoryMetadata(
+                                categoryId = workout.categoryId,
+                                categoryName = workout.categoryName,
+                            )
+                        },
                 )
 
                 val message =
@@ -542,6 +552,7 @@ class WeeklyTrainingViewModel
                     categories = state.value.categories,
                     original = original,
                 )
+            val oldCategoryId = original?.takeIf { it.eventType == EventType.WORKOUT }?.categoryId
 
             repository.updateWorkoutDetails(
                 workoutId = workoutId,
@@ -569,21 +580,22 @@ class WeeklyTrainingViewModel
                     else -> UPDATE_WORKOUT
                 }
 
-            userActionLogger.log(
+            logWorkoutDetailsUpdate(
+                userActionLogger = userActionLogger,
                 actionType = actionType,
                 entityType = entityType,
-                entityId = workoutId,
-                metadata =
-                    buildWorkoutUpdateMetadata(
-                        WorkoutUpdateMetadataInput(
-                            weekStartDate = state.value.weekStartDate.toString(),
-                            original = original,
-                            type = type,
-                            description = description,
-                            isRestDay = eventType != EventType.WORKOUT,
-                            oldCategoryName = oldCategoryName,
-                            newCategoryName = newCategoryName,
-                        ),
+                workoutId = workoutId,
+                metadataInput =
+                    WorkoutUpdateMetadataInput(
+                        weekStartDate = state.value.weekStartDate.toString(),
+                        original = original,
+                        type = type,
+                        description = description,
+                        isRestDay = eventType != EventType.WORKOUT,
+                        oldCategoryId = oldCategoryId,
+                        newCategoryId = normalizedCategoryId,
+                        oldCategoryName = oldCategoryName,
+                        newCategoryName = newCategoryName,
                     ),
             )
         }
@@ -593,24 +605,11 @@ class WeeklyTrainingViewModel
                 val currentWorkouts = state.value.workouts
                 val original = currentWorkouts.firstOrNull { it.id == workoutId }
                 val bucketPositions =
-                    original?.let {
-                        currentWorkouts
-                            .asSequence()
-                            .filter { workout -> workout.dayOfWeek == it.dayOfWeek }
-                            .filter { workout -> workout.timeSlot == it.timeSlot }
-                            .sortedBy { workout -> workout.order }
-                            .filter { workout -> workout.id != workoutId }
-                            .map { workout ->
-                                WorkoutPosition(
-                                    id = workout.id,
-                                    weekStartDate = workout.weekStartDate,
-                                    dayOfWeek = workout.dayOfWeek,
-                                    timeSlot = workout.timeSlot,
-                                    order = workout.order,
-                                )
-                            }
-                            .toList()
-                    }.orEmpty()
+                    buildDeleteBucketPositions(
+                        workoutId = workoutId,
+                        original = original,
+                        currentWorkouts = currentWorkouts,
+                    )
 
                 repository.deleteWorkout(workoutId)
 
@@ -634,21 +633,11 @@ class WeeklyTrainingViewModel
                     )
                 }
 
-                val entityType =
-                    original?.eventType?.toUserActionEntityType() ?: WORKOUT
-                val actionType =
-                    original?.eventType?.toDeleteActionType() ?: DELETE_WORKOUT
-
-                userActionLogger.log(
-                    actionType = actionType,
-                    entityType = entityType,
-                    entityId = workoutId,
-                    metadata =
-                        mapOf(
-                            WEEK_START_DATE to state.value.weekStartDate.toString(),
-                            OLD_TYPE to (original?.type ?: EMPTY),
-                            OLD_DESCRIPTION to (original?.description ?: EMPTY),
-                        ),
+                logWorkoutDeletion(
+                    userActionLogger = userActionLogger,
+                    workoutId = workoutId,
+                    weekStartDate = state.value.weekStartDate,
+                    original = original,
                 )
             }
 
@@ -812,13 +801,18 @@ private suspend fun undoCompletion(
         entityType = entityType,
         entityId = action.workout.id,
         metadata =
-            mapOf(
+            mutableMapOf(
                 WEEK_START_DATE to action.weekStartDate.toString(),
                 WAS_COMPLETED to action.newCompleted.toString(),
                 IS_COMPLETED to action.previousCompleted.toString(),
                 NEW_TYPE to action.workout.type,
                 NEW_DESCRIPTION to action.workout.description,
-            ),
+            ).apply {
+                putWorkoutCategoryMetadata(
+                    categoryId = action.workout.categoryId,
+                    categoryName = action.workout.categoryName,
+                )
+            },
     )
 }
 
@@ -868,6 +862,12 @@ private fun buildWorkoutUpdateMetadata(input: WorkoutUpdateMetadataInput): Map<S
         NEW_DESCRIPTION to input.description,
     ).apply {
         if (!input.isRestDay) {
+            input.oldCategoryId?.let { put(OLD_CATEGORY_ID, it.toString()) }
+            input.newCategoryId?.let {
+                put(NEW_CATEGORY_ID, it.toString())
+                put(CATEGORY_ID, it.toString())
+            }
+
             if (!input.oldCategoryName.isNullOrBlank()) {
                 put(OLD_CATEGORY_NAME, input.oldCategoryName)
             }
@@ -877,6 +877,73 @@ private fun buildWorkoutUpdateMetadata(input: WorkoutUpdateMetadataInput): Map<S
             }
         }
     }
+}
+
+private suspend fun logWorkoutDetailsUpdate(
+    userActionLogger: UserActionLogger,
+    actionType: com.rafaelfelipeac.hermes.core.useraction.model.UserActionType,
+    entityType: com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType,
+    workoutId: Long,
+    metadataInput: WorkoutUpdateMetadataInput,
+) {
+    userActionLogger.log(
+        actionType = actionType,
+        entityType = entityType,
+        entityId = workoutId,
+        metadata = buildWorkoutUpdateMetadata(metadataInput),
+    )
+}
+
+private fun buildDeleteBucketPositions(
+    workoutId: Long,
+    original: WorkoutUi?,
+    currentWorkouts: List<WorkoutUi>,
+): List<WorkoutPosition> {
+    return original?.let { workout ->
+        currentWorkouts
+            .asSequence()
+            .filter { it.dayOfWeek == workout.dayOfWeek }
+            .filter { it.timeSlot == workout.timeSlot }
+            .sortedBy { it.order }
+            .filter { it.id != workoutId }
+            .map {
+                WorkoutPosition(
+                    id = it.id,
+                    weekStartDate = it.weekStartDate,
+                    dayOfWeek = it.dayOfWeek,
+                    timeSlot = it.timeSlot,
+                    order = it.order,
+                )
+            }.toList()
+    }.orEmpty()
+}
+
+private suspend fun logWorkoutDeletion(
+    userActionLogger: UserActionLogger,
+    workoutId: Long,
+    weekStartDate: LocalDate,
+    original: WorkoutUi?,
+) {
+    val entityType = original?.eventType?.toUserActionEntityType() ?: WORKOUT
+    val actionType = original?.eventType?.toDeleteActionType() ?: DELETE_WORKOUT
+
+    userActionLogger.log(
+        actionType = actionType,
+        entityType = entityType,
+        entityId = workoutId,
+        metadata =
+            mutableMapOf(
+                WEEK_START_DATE to weekStartDate.toString(),
+                OLD_TYPE to (original?.type ?: EMPTY),
+                OLD_DESCRIPTION to (original?.description ?: EMPTY),
+            ).apply {
+                putWorkoutCategoryMetadata(
+                    categoryId = original?.categoryId,
+                    categoryName = original?.categoryName,
+                    oldCategoryId = original?.categoryId,
+                )
+            },
+    )
 }
 
 private fun nextUnplannedOrder(state: WeeklyTrainingState): Int {

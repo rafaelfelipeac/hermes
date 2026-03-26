@@ -1,12 +1,16 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
@@ -220,7 +224,7 @@ internal suspend fun logWorkoutChange(
         entityType = entityType,
         entityId = workout.id,
         metadata =
-            mapOf(
+            mutableMapOf(
                 WEEK_START_DATE to weekStartDate.toString(),
                 OLD_DAY_OF_WEEK to (original.dayOfWeek?.value?.toString() ?: UNPLANNED),
                 NEW_DAY_OF_WEEK to (workout.dayOfWeek?.value?.toString() ?: UNPLANNED),
@@ -230,7 +234,14 @@ internal suspend fun logWorkoutChange(
                 NEW_ORDER to workout.order.toString(),
                 NEW_TYPE to workout.type,
                 NEW_DESCRIPTION to workout.description,
-            ),
+            ).apply {
+                putWorkoutCategoryMetadata(
+                    categoryId = workout.categoryId,
+                    categoryName = workout.categoryName,
+                    oldCategoryId = original.categoryId,
+                    newCategoryId = workout.categoryId,
+                )
+            },
     )
 }
 
@@ -254,7 +265,7 @@ internal suspend fun logUndoWorkoutChange(
         entityType = entityType,
         entityId = workout.id,
         metadata =
-            mapOf(
+            mutableMapOf(
                 WEEK_START_DATE to weekStartDate.toString(),
                 OLD_DAY_OF_WEEK to (original.dayOfWeek?.value?.toString() ?: UNPLANNED),
                 NEW_DAY_OF_WEEK to (workout.dayOfWeek?.value?.toString() ?: UNPLANNED),
@@ -264,7 +275,14 @@ internal suspend fun logUndoWorkoutChange(
                 NEW_ORDER to workout.order.toString(),
                 NEW_TYPE to workout.type,
                 NEW_DESCRIPTION to workout.description,
-            ),
+            ).apply {
+                putWorkoutCategoryMetadata(
+                    categoryId = workout.categoryId,
+                    categoryName = workout.categoryName,
+                    oldCategoryId = original.categoryId,
+                    newCategoryId = workout.categoryId,
+                )
+            },
     )
 }
 
@@ -428,14 +446,19 @@ internal suspend fun undoDelete(
         entityType = entityType,
         entityId = restoredId,
         metadata =
-            mapOf(
+            mutableMapOf(
                 WEEK_START_DATE to action.weekStartDate.toString(),
                 DAY_OF_WEEK to (workout.dayOfWeek?.value?.toString() ?: UNPLANNED),
                 NEW_TIME_SLOT to (workout.timeSlot?.name ?: UNPLANNED),
                 NEW_ORDER to workout.order.toString(),
                 NEW_TYPE to workout.type,
                 NEW_DESCRIPTION to workout.description,
-            ),
+            ).apply {
+                putWorkoutCategoryMetadata(
+                    categoryId = workout.categoryId,
+                    categoryName = workout.categoryName,
+                )
+            },
     )
 }
 
@@ -471,6 +494,20 @@ internal suspend fun undoReplaceWeek(
                 WEEK_START_DATE to action.weekStartDate.toString(),
             ),
     )
+}
+
+internal fun MutableMap<String, String>.putWorkoutCategoryMetadata(
+    categoryId: Long?,
+    categoryName: String?,
+    oldCategoryId: Long? = null,
+    newCategoryId: Long? = null,
+) {
+    categoryId?.let { put(CATEGORY_ID, it.toString()) }
+    oldCategoryId?.let { put(OLD_CATEGORY_ID, it.toString()) }
+    newCategoryId?.let { put(NEW_CATEGORY_ID, it.toString()) }
+    if (!categoryName.isNullOrBlank()) {
+        put(CATEGORY_NAME, categoryName)
+    }
 }
 
 internal fun workoutsForDisplayWeek(

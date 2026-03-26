@@ -8,6 +8,8 @@ data class WorkoutUpdateMetadataInput(
     val type: String,
     val description: String,
     val isRestDay: Boolean,
+    val oldCategoryId: Long?,
+    val newCategoryId: Long?,
     val oldCategoryName: String?,
     val newCategoryName: String?,
 )
