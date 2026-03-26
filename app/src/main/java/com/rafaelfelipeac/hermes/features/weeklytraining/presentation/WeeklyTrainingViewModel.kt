@@ -6,14 +6,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
@@ -278,9 +281,11 @@ class WeeklyTrainingViewModel
                             NEW_TYPE to type,
                             NEW_DESCRIPTION to description,
                         ).apply {
-                            if (!categoryName.isNullOrBlank()) {
-                                put(CATEGORY_NAME, categoryName)
-                            }
+                            putWorkoutCategoryMetadata(
+                                categoryId = normalizedCategoryId,
+                                categoryName = categoryName,
+                                newCategoryId = normalizedCategoryId,
+                            )
                         },
                 )
             }
@@ -474,13 +479,18 @@ class WeeklyTrainingViewModel
                     entityType = WORKOUT,
                     entityId = workout.id,
                     metadata =
-                        mapOf(
+                        mutableMapOf(
                             WEEK_START_DATE to state.value.weekStartDate.toString(),
                             WAS_COMPLETED to originalEffective.isCompleted.toString(),
                             IS_COMPLETED to isCompleted.toString(),
                             NEW_TYPE to workout.type,
                             NEW_DESCRIPTION to workout.description,
-                        ),
+                        ).apply {
+                            putWorkoutCategoryMetadata(
+                                categoryId = workout.categoryId,
+                                categoryName = workout.categoryName,
+                            )
+                        },
                 )
 
                 val message =
@@ -542,6 +552,7 @@ class WeeklyTrainingViewModel
                     categories = state.value.categories,
                     original = original,
                 )
+            val oldCategoryId = original?.takeIf { it.eventType == EventType.WORKOUT }?.categoryId
 
             repository.updateWorkoutDetails(
                 workoutId = workoutId,
@@ -581,6 +592,8 @@ class WeeklyTrainingViewModel
                             type = type,
                             description = description,
                             isRestDay = eventType != EventType.WORKOUT,
+                            oldCategoryId = oldCategoryId,
+                            newCategoryId = normalizedCategoryId,
                             oldCategoryName = oldCategoryName,
                             newCategoryName = newCategoryName,
                         ),
@@ -644,11 +657,17 @@ class WeeklyTrainingViewModel
                     entityType = entityType,
                     entityId = workoutId,
                     metadata =
-                        mapOf(
+                        mutableMapOf(
                             WEEK_START_DATE to state.value.weekStartDate.toString(),
                             OLD_TYPE to (original?.type ?: EMPTY),
                             OLD_DESCRIPTION to (original?.description ?: EMPTY),
-                        ),
+                        ).apply {
+                            putWorkoutCategoryMetadata(
+                                categoryId = original?.categoryId,
+                                categoryName = original?.categoryName,
+                                oldCategoryId = original?.categoryId,
+                            )
+                        },
                 )
             }
 
@@ -812,13 +831,18 @@ private suspend fun undoCompletion(
         entityType = entityType,
         entityId = action.workout.id,
         metadata =
-            mapOf(
+            mutableMapOf(
                 WEEK_START_DATE to action.weekStartDate.toString(),
                 WAS_COMPLETED to action.newCompleted.toString(),
                 IS_COMPLETED to action.previousCompleted.toString(),
                 NEW_TYPE to action.workout.type,
                 NEW_DESCRIPTION to action.workout.description,
-            ),
+            ).apply {
+                putWorkoutCategoryMetadata(
+                    categoryId = action.workout.categoryId,
+                    categoryName = action.workout.categoryName,
+                )
+            },
     )
 }
 
@@ -868,6 +892,12 @@ private fun buildWorkoutUpdateMetadata(input: WorkoutUpdateMetadataInput): Map<S
         NEW_DESCRIPTION to input.description,
     ).apply {
         if (!input.isRestDay) {
+            input.oldCategoryId?.let { put(OLD_CATEGORY_ID, it.toString()) }
+            input.newCategoryId?.let {
+                put(NEW_CATEGORY_ID, it.toString())
+                put(CATEGORY_ID, it.toString())
+            }
+
             if (!input.oldCategoryName.isNullOrBlank()) {
                 put(OLD_CATEGORY_NAME, input.oldCategoryName)
             }

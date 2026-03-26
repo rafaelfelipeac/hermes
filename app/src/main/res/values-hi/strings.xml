@@ -140,6 +140,12 @@
     <!-- Activity -->
     <string name="activity_title">हाल की गतिविधि</string>
     <string name="activity_empty">अभी कोई गतिविधि नहीं है।</string>
+    <string name="activity_filtered_empty">इन फ़िल्टरों से मेल खाने वाली कोई गतिविधि नहीं है।</string>
+    <string name="activity_filter_all">सभी</string>
+    <string name="activity_filter_completions">पूर्ण</string>
+    <string name="activity_filter_planning">योजना</string>
+    <string name="activity_filter_week">सप्ताह</string>
+    <string name="filters_clear">फ़िल्टर साफ़ करें</string>
     <string name="activity_today">आज</string>
     <string name="activity_yesterday">कल</string>
     <string name="activity_workout_fallback">बिना नाम</string>

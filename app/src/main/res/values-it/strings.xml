@@ -140,6 +140,12 @@
     <!-- Activity -->
     <string name="activity_title">Attività recente</string>
     <string name="activity_empty">Nessuna attività per ora.</string>
+    <string name="activity_filtered_empty">Nessuna attività corrisponde a questi filtri.</string>
+    <string name="activity_filter_all">Tutto</string>
+    <string name="activity_filter_completions">Completamenti</string>
+    <string name="activity_filter_planning">Pianificazione</string>
+    <string name="activity_filter_week">Settimana</string>
+    <string name="filters_clear">Cancella filtri</string>
     <string name="activity_today">Oggi</string>
     <string name="activity_yesterday">Ieri</string>
     <string name="activity_workout_fallback">senza titolo</string>

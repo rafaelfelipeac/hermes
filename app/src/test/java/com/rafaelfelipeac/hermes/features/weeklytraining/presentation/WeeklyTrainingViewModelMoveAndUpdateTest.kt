@@ -1,7 +1,11 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
@@ -184,6 +188,10 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             }
             assertEquals(MORNING.name, metadataSlot.captured[OLD_TIME_SLOT])
             assertEquals(AFTERNOON.name, metadataSlot.captured[NEW_TIME_SLOT])
+            assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[CATEGORY_ID])
+            assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[OLD_CATEGORY_ID])
+            assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[NEW_CATEGORY_ID])
+            assertEquals("Uncategorized", metadataSlot.captured[CATEGORY_NAME])
 
             collectJob.cancel()
         }
@@ -336,6 +344,47 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             }
 
             undoJob.cancel()
+            collectJob.cancel()
+        }
+
+    @Test
+    fun updateWorkoutCompletion_logsCategoryMetadata() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 4, 7)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 42, weekStart = weekStart, day = null, order = 0),
+                )
+            advanceUntilIdle()
+
+            val targetWorkout = viewModel.state.value.workouts.first { it.id == 42L }
+            viewModel.updateWorkoutCompletion(workout = targetWorkout, isCompleted = true)
+            advanceUntilIdle()
+
+            val metadataSlot = slot<Map<String, String>>()
+            coVerify(atLeast = 1) {
+                userActionLogger.log(
+                    actionType = any(),
+                    entityType = any(),
+                    entityId = 42L,
+                    metadata = capture(metadataSlot),
+                    timestamp = any(),
+                )
+            }
+            assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[CATEGORY_ID])
+            assertEquals("Uncategorized", metadataSlot.captured[CATEGORY_NAME])
+
             collectJob.cancel()
         }
 

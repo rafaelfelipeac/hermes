@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,15 +19,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bedtime
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -67,6 +75,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -80,6 +90,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Work
 
 private const val ADD_MENU_SCRIM_ALPHA = 0.30f
 private const val ADD_FAB_TEST_TAG = "add-fab"
+private const val WEEKLY_FILTER_ALL_CHIP_KEY = "weekly-filter-all-chip"
 
 @Composable
 fun WeeklyTrainingScreen(
@@ -100,6 +111,7 @@ fun WeeklyTrainingScreen(
     var draftType by rememberSaveable { mutableStateOf(EMPTY) }
     var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
+    var focusedCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftConsumedLocally by remember { mutableStateOf(false) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
@@ -107,6 +119,11 @@ fun WeeklyTrainingScreen(
     val copiedWeekMessage = stringResource(R.string.weekly_training_week_copied)
     val emptyCopyMessage = stringResource(R.string.weekly_training_copy_last_week_empty)
     val pickerCategories = state.categories.filter { !it.isHidden || it.id == UNCATEGORIZED_ID }
+    val plannerFocusCategories =
+        pickerCategories.sortedWith(
+            compareBy<com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi> { it.id == UNCATEGORIZED_ID }
+                .thenBy { it.sortOrder },
+        )
     val undoMessage =
         undoState?.let { currentUndo ->
             val eventType =
@@ -203,6 +220,12 @@ fun WeeklyTrainingScreen(
         }
     }
 
+    LaunchedEffect(focusedCategoryId, plannerFocusCategories) {
+        if (focusedCategoryId != null && plannerFocusCategories.none { it.id == focusedCategoryId }) {
+            focusedCategoryId = null
+        }
+    }
+
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
@@ -250,6 +273,18 @@ fun WeeklyTrainingScreen(
                     onWeekChanged = viewModel::onWeekChanged,
                 )
 
+                if (plannerFocusCategories.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(SpacingLg))
+
+                    WeeklyPlannerCategoryFilters(
+                        categories = plannerFocusCategories,
+                        focusedCategoryId = focusedCategoryId,
+                        onCategorySelected = { categoryId -> focusedCategoryId = categoryId },
+                        onClearFilters = { focusedCategoryId = null },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+
                 if (state.isWeekLoaded) {
                     state.weeklyHeaderSummary?.let { summary ->
                         Spacer(modifier = Modifier.height(SpacingLg))
@@ -269,6 +304,7 @@ fun WeeklyTrainingScreen(
                                 .weight(1f),
                         selectedDate = state.selectedDate,
                         workouts = state.workouts,
+                        focusedCategoryId = focusedCategoryId,
                         dayOrder = state.dayOrder,
                         slotModePolicy = state.slotModePolicy,
                         onWorkoutMoved = viewModel::moveWorkout,
@@ -555,6 +591,103 @@ fun WeeklyTrainingScreen(
                 }
             },
         )
+    }
+}
+
+@Composable
+private fun WeeklyPlannerCategoryFilters(
+    categories: List<com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi>,
+    focusedCategoryId: Long?,
+    onCategorySelected: (Long?) -> Unit,
+    onClearFilters: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val listState = rememberLazyListState()
+    val clearFiltersLabel = stringResource(R.string.filters_clear)
+    val selectedIndex =
+        if (focusedCategoryId == null) {
+            0
+        } else {
+            categories.indexOfFirst { it.id == focusedCategoryId } + 1
+        }
+
+    LaunchedEffect(selectedIndex, categories, focusedCategoryId) {
+        centerWeeklySelectedChip(listState, selectedIndex)
+    }
+
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        LazyRow(
+            state = listState,
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            item(key = WEEKLY_FILTER_ALL_CHIP_KEY) {
+                FilterChip(
+                    selected = focusedCategoryId == null,
+                    onClick = { onCategorySelected(null) },
+                    label = { Text(text = stringResource(R.string.activity_filter_all)) },
+                    colors =
+                        FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = colorScheme.primaryContainer,
+                            selectedLabelColor = colorScheme.onPrimaryContainer,
+                        ),
+                )
+            }
+
+            itemsIndexed(categories, key = { _, item -> item.id }) { _, category ->
+                FilterChip(
+                    selected = focusedCategoryId == category.id,
+                    onClick = { onCategorySelected(category.id) },
+                    label = { Text(text = category.name) },
+                    colors =
+                        FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = colorScheme.secondaryContainer,
+                            selectedLabelColor = colorScheme.onSecondaryContainer,
+                        ),
+                )
+            }
+        }
+
+        if (focusedCategoryId != null) {
+            FilterChip(
+                selected = false,
+                onClick = onClearFilters,
+                label = {
+                    Icon(
+                        imageVector = Icons.Outlined.Close,
+                        contentDescription = clearFiltersLabel,
+                    )
+                },
+            )
+        }
+    }
+}
+
+private suspend fun centerWeeklySelectedChip(
+    listState: LazyListState,
+    selectedIndex: Int,
+) {
+    if (selectedIndex < 0) return
+
+    var itemInfo = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == selectedIndex }
+
+    if (itemInfo == null) {
+        listState.animateScrollToItem(selectedIndex)
+        itemInfo = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == selectedIndex } ?: return
+    }
+
+    val viewportCenter =
+        (listState.layoutInfo.viewportStartOffset + listState.layoutInfo.viewportEndOffset) / 2
+    val itemCenter = itemInfo.offset + itemInfo.size / 2
+    val delta = (itemCenter - viewportCenter).toFloat()
+
+    if (delta != 0f) {
+        listState.animateScrollBy(delta)
     }
 }
 

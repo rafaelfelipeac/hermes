@@ -89,6 +89,7 @@ fun WeeklyTrainingContent(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     workouts: List<WorkoutUi>,
+    focusedCategoryId: Long? = null,
     dayOrder: List<DayOfWeek> = DayOfWeek.entries,
     slotModePolicy: SlotModePolicy = AUTO_WHEN_MULTIPLE,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
@@ -388,6 +389,7 @@ fun WeeklyTrainingContent(
                                                 WorkoutRow(
                                                     workout = workout,
                                                     isDragging = dragController.draggedWorkoutId == workout.id,
+                                                    isDeemphasized = workout.shouldDeemphasize(focusedCategoryId),
                                                     onToggleCompleted = { checked ->
                                                         onWorkoutCompletionChanged(workout, checked)
                                                     },
@@ -425,6 +427,7 @@ fun WeeklyTrainingContent(
                                     WorkoutRow(
                                         workout = workout,
                                         isDragging = dragController.draggedWorkoutId == workout.id,
+                                        isDeemphasized = workout.shouldDeemphasize(focusedCategoryId),
                                         onToggleCompleted = { checked ->
                                             onWorkoutCompletionChanged(workout, checked)
                                         },
@@ -519,6 +522,13 @@ fun WeeklyTrainingContent(
             },
         )
     }
+}
+
+private fun WorkoutUi.shouldDeemphasize(focusedCategoryId: Long?): Boolean {
+    if (focusedCategoryId == null) return false
+    if (eventType != com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT) return false
+
+    return categoryId != focusedCategoryId
 }
 
 @Composable

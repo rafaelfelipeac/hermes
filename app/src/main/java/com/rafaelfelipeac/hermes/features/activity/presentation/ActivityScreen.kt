@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.activity.presentation
 
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,8 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -32,8 +42,11 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ActivityEmptyPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityFiltersUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
+import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPrimaryFilter
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivitySectionUi
 import java.time.LocalDate
 import java.time.ZoneId
@@ -71,6 +84,19 @@ fun ActivityScreen(
         ActivityContent(
             sections = state.sections,
             currentLocale = currentLocale,
+            filters = state.filters,
+            emptyMessage =
+                stringResource(
+                    if (state.filters.isAnyFilterActive) {
+                        R.string.activity_filtered_empty
+                    } else {
+                        R.string.activity_empty
+                    },
+                ),
+            onPrimaryFilterSelected = viewModel::selectPrimaryFilter,
+            onCategorySelected = viewModel::selectCategoryFilter,
+            onWeekSelected = viewModel::selectWeekFilter,
+            onClearFilters = viewModel::clearFilters,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -80,27 +106,14 @@ fun ActivityScreen(
 internal fun ActivityContent(
     sections: List<ActivitySectionUi>,
     currentLocale: Locale,
+    filters: ActivityFiltersUi = ActivityFiltersUi(),
+    emptyMessage: String = stringResource(R.string.activity_empty),
+    onPrimaryFilterSelected: (ActivityPrimaryFilter) -> Unit = {},
+    onCategorySelected: (Long) -> Unit = {},
+    onWeekSelected: (LocalDate) -> Unit = {},
+    onClearFilters: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    if (sections.isEmpty()) {
-        Column(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .padding(ActivityEmptyPadding),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = stringResource(R.string.activity_empty),
-                style = typography.bodyLarge,
-                color = colorScheme.onSurfaceVariant,
-            )
-        }
-
-        return
-    }
-
     val dayPattern = stringResource(R.string.activity_week_date_pattern)
     val dayFormatter =
         DateTimeFormatterBuilder()
@@ -110,26 +123,212 @@ internal fun ActivityContent(
     val todayLabel = stringResource(R.string.activity_today)
     val yesterdayLabel = stringResource(R.string.activity_yesterday)
 
-    LazyColumn(
+    Column(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(vertical = SpacingMd),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
-        sections.forEach { section ->
-            val header = sectionTitle(section.date, today, dayFormatter, todayLabel, yesterdayLabel)
+        ActivityFilterBar(
+            filters = filters,
+            onPrimaryFilterSelected = onPrimaryFilterSelected,
+            onCategorySelected = onCategorySelected,
+            onWeekSelected = onWeekSelected,
+            onClearFilters = onClearFilters,
+        )
 
-            item(key = HEADER_KEY_PREFIX + section.date) {
+        if (sections.isEmpty()) {
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(ActivityEmptyPadding),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
                 Text(
-                    text = header,
-                    style = typography.titleMedium,
+                    text = emptyMessage,
+                    style = typography.bodyLarge,
                     color = colorScheme.onSurfaceVariant,
                 )
             }
 
-            items(section.items, key = { it.id }) { item ->
-                ActivityRow(item)
+            return
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(vertical = SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingLg),
+        ) {
+            sections.forEach { section ->
+                val header = sectionTitle(section.date, today, dayFormatter, todayLabel, yesterdayLabel)
+
+                item(key = HEADER_KEY_PREFIX + section.date) {
+                    Text(
+                        text = header,
+                        style = typography.titleMedium,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
+
+                items(section.items, key = { it.id }) { item ->
+                    ActivityRow(item)
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun ActivityFilterBar(
+    filters: ActivityFiltersUi,
+    onPrimaryFilterSelected: (ActivityPrimaryFilter) -> Unit,
+    onCategorySelected: (Long) -> Unit,
+    onWeekSelected: (LocalDate) -> Unit,
+    onClearFilters: () -> Unit,
+) {
+    if (filters.primaryFilters.isEmpty()) return
+
+    Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+        PrimaryFilterRow(
+            filters = filters,
+            onPrimaryFilterSelected = onPrimaryFilterSelected,
+            onClearFilters = onClearFilters,
+        )
+
+        when (filters.selectedPrimaryFilter) {
+            ActivityPrimaryFilter.CATEGORY ->
+                SecondaryFilterRow(
+                    labels = filters.categoryFilters.map { SecondaryFilterItem(it.id.toString(), it.name, it.isSelected) },
+                    onSelected = { key -> key.toLongOrNull()?.let(onCategorySelected) },
+                )
+
+            ActivityPrimaryFilter.WEEK ->
+                SecondaryFilterRow(
+                    labels = filters.weekFilters.map { SecondaryFilterItem(it.weekStartDate.toString(), it.label, it.isSelected) },
+                    onSelected = { label ->
+                        filters.weekFilters.firstOrNull { it.weekStartDate.toString() == label }?.weekStartDate?.let(onWeekSelected)
+                    },
+                )
+
+            else -> Unit
+        }
+    }
+}
+
+@Composable
+private fun SecondaryFilterRow(
+    labels: List<SecondaryFilterItem>,
+    onSelected: (String) -> Unit,
+) {
+    if (labels.isEmpty()) return
+
+    val listState = rememberLazyListState()
+    val selectedIndex = labels.indexOfFirst { it.isSelected }
+
+    LaunchedEffect(selectedIndex, labels) {
+        centerSelectedChip(listState, selectedIndex)
+    }
+
+    LazyRow(
+        state = listState,
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+    ) {
+        items(labels, key = { it.key }) { item ->
+            FilterChip(
+                selected = item.isSelected,
+                onClick = { onSelected(item.key) },
+                label = { Text(text = item.label) },
+                colors =
+                    FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = colorScheme.secondaryContainer,
+                        selectedLabelColor = colorScheme.onSecondaryContainer,
+                    ),
+            )
+        }
+    }
+}
+
+private data class SecondaryFilterItem(
+    val key: String,
+    val label: String,
+    val isSelected: Boolean,
+)
+
+@Composable
+private fun PrimaryFilterRow(
+    filters: ActivityFiltersUi,
+    onPrimaryFilterSelected: (ActivityPrimaryFilter) -> Unit,
+    onClearFilters: () -> Unit,
+) {
+    val listState = rememberLazyListState()
+    val selectedIndex = filters.primaryFilters.indexOfFirst { it.filter == filters.selectedPrimaryFilter }
+    val clearFiltersLabel = stringResource(R.string.filters_clear)
+
+    LaunchedEffect(selectedIndex, filters.primaryFilters, filters.isAnyFilterActive) {
+        centerSelectedChip(listState, selectedIndex)
+    }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        LazyRow(
+            state = listState,
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            itemsIndexed(filters.primaryFilters, key = { _, item -> item.filter.name }) { _, filter ->
+                FilterChip(
+                    selected = filters.selectedPrimaryFilter == filter.filter,
+                    onClick = { onPrimaryFilterSelected(filter.filter) },
+                    label = { Text(text = filter.label) },
+                    colors =
+                        FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = colorScheme.primaryContainer,
+                            selectedLabelColor = colorScheme.onPrimaryContainer,
+                        ),
+                )
+            }
+        }
+
+        if (filters.isAnyFilterActive) {
+            FilterChip(
+                selected = false,
+                onClick = onClearFilters,
+                label = {
+                    Icon(
+                        imageVector = Icons.Outlined.Close,
+                        contentDescription = clearFiltersLabel,
+                    )
+                },
+            )
+        }
+    }
+}
+
+private suspend fun centerSelectedChip(
+    listState: LazyListState,
+    selectedIndex: Int,
+) {
+    if (selectedIndex < 0) return
+
+    var itemInfo = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == selectedIndex }
+
+    if (itemInfo == null) {
+        listState.animateScrollToItem(selectedIndex)
+        itemInfo = listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == selectedIndex } ?: return
+    }
+
+    val viewportCenter =
+        (listState.layoutInfo.viewportStartOffset + listState.layoutInfo.viewportEndOffset) / 2
+    val itemCenter = itemInfo.offset + itemInfo.size / 2
+    val delta = (itemCenter - viewportCenter).toFloat()
+
+    if (delta != 0f) {
+        listState.animateScrollBy(delta)
     }
 }
 

@@ -156,6 +156,12 @@
     <!-- Activity -->
     <string name="activity_title">النشاط الأخير</string>
     <string name="activity_empty">لا توجد أنشطة بعد.</string>
+    <string name="activity_filtered_empty">لا يوجد نشاط يطابق هذه الفلاتر.</string>
+    <string name="activity_filter_all">الكل</string>
+    <string name="activity_filter_completions">الإنجازات</string>
+    <string name="activity_filter_planning">التخطيط</string>
+    <string name="activity_filter_week">الأسبوع</string>
+    <string name="filters_clear">مسح الفلاتر</string>
     <string name="activity_today">اليوم</string>
     <string name="activity_yesterday">أمس</string>
     <string name="activity_workout_fallback">بدون اسم</string>

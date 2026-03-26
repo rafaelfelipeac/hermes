@@ -5,17 +5,20 @@ import app.cash.turbine.test
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
@@ -26,10 +29,15 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_W
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
+import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPrimaryFilter
+import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
+import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -46,7 +54,7 @@ class ActivityViewModelTest {
     fun moveWorkout_formatsWeekAndDayNamesWithNewLine() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val weekStart = LocalDate.of(2026, 2, 2)
             val metadata =
                 metadataJson(
@@ -88,7 +96,7 @@ class ActivityViewModelTest {
     fun completeWorkout_usesWorkoutTypeAndQuotes() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val metadata =
                 metadataJson(
                     NEW_TYPE to "Bike",
@@ -120,7 +128,7 @@ class ActivityViewModelTest {
     fun changeLanguage_formatsSystemAndLanguageNames() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val metadata =
                 metadataJson(
                     OLD_VALUE to "system",
@@ -154,7 +162,7 @@ class ActivityViewModelTest {
     fun changeSlotMode_formatsSelectedValueOnSecondLine() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val weekStart = LocalDate.of(2026, 2, 2)
             val metadata =
                 metadataJson(
@@ -192,7 +200,7 @@ class ActivityViewModelTest {
     fun unplannedDay_usesToBeDefinedLabel() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val metadata =
                 metadataJson(
                     OLD_DAY_OF_WEEK to UserActionMetadataValues.UNPLANNED,
@@ -225,7 +233,7 @@ class ActivityViewModelTest {
     fun copyLastWeek_usesWeekActionTitleAndWeekSubtitle() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val weekStart = LocalDate.of(2026, 2, 2)
             val metadata = metadataJson(WEEK_START_DATE to weekStart.toString())
 
@@ -256,7 +264,7 @@ class ActivityViewModelTest {
     fun createWorkout_includesCategorySubtitle() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val weekStart = LocalDate.of(2026, 2, 2)
             val metadata =
                 metadataJson(
@@ -293,7 +301,7 @@ class ActivityViewModelTest {
     fun updateWorkoutCategory_includesCategoryChangeSubtitle() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val metadata =
                 metadataJson(
                     OLD_CATEGORY_NAME to "Strength",
@@ -329,7 +337,7 @@ class ActivityViewModelTest {
     fun updateWorkoutCategory_withWeekSubtitleSplitsLines() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeUserActionRepository()
-            val viewModel = ActivityViewModel(repository, FakeStringProvider())
+            val viewModel = createViewModel(repository)
             val weekStart = LocalDate.of(2026, 2, 2)
             val metadata =
                 metadataJson(
@@ -363,6 +371,154 @@ class ActivityViewModelTest {
             }
         }
 
+    @Test
+    fun categoryFilter_usesCategoryMetadataAcrossKeys() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    categories =
+                        listOf(
+                            category(id = 10L, name = "Strength", sortOrder = 0),
+                            category(id = 20L, name = "Cardio", sortOrder = 1),
+                        ),
+                )
+            val records =
+                listOf(
+                    UserActionRecord(
+                        id = 11L,
+                        actionType = CREATE_WORKOUT.name,
+                        entityType = WORKOUT.name,
+                        entityId = 1L,
+                        metadata = metadataJson(CATEGORY_ID to "10", CATEGORY_NAME to "Strength", NEW_TYPE to "Bike"),
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                    UserActionRecord(
+                        id = 12L,
+                        actionType = UPDATE_WORKOUT.name,
+                        entityType = WORKOUT.name,
+                        entityId = 2L,
+                        metadata =
+                            metadataJson(
+                                OLD_CATEGORY_ID to "10",
+                                OLD_CATEGORY_NAME to "Strength",
+                                CATEGORY_ID to "20",
+                                NEW_CATEGORY_NAME to "Cardio",
+                                NEW_TYPE to "Swim",
+                            ),
+                        timestamp = System.currentTimeMillis() - 1_000L,
+                    ),
+                )
+
+            repository.emit(records)
+            viewModel.selectCategoryFilter(10L)
+
+            viewModel.state.test {
+                val state = awaitNonEmptyState()
+                val items = state.sections.flatMap { it.items }
+
+                assertTrue(items.any { it.title.contains("\"Bike\"") })
+                assertTrue(items.any { it.title.contains("\"Swim\"") })
+                assertTrue(state.filters.selectedPrimaryFilter == ActivityPrimaryFilter.CATEGORY)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun categoryFilter_keepsMatchingRenamedCategoryHistory() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    categories = listOf(category(id = 10L, name = "Cardio", sortOrder = 0)),
+                )
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 30L,
+                        actionType = UPDATE_CATEGORY_NAME.name,
+                        entityType = CATEGORY.name,
+                        entityId = 10L,
+                        metadata =
+                            metadataJson(
+                                CATEGORY_NAME to "Cardio",
+                                OLD_VALUE to "Run",
+                                NEW_VALUE to "Cardio",
+                            ),
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                    UserActionRecord(
+                        id = 31L,
+                        actionType = COMPLETE_WORKOUT.name,
+                        entityType = WORKOUT.name,
+                        entityId = 99L,
+                        metadata =
+                            metadataJson(
+                                CATEGORY_NAME to "Run",
+                                NEW_TYPE to "Intervals",
+                            ),
+                        timestamp = System.currentTimeMillis() - 1_000L,
+                    ),
+                ),
+            )
+            viewModel.selectCategoryFilter(10L)
+
+            viewModel.state.test {
+                val state = awaitNonEmptyState()
+                val items = state.sections.flatMap { it.items }
+
+                assertTrue(items.any { it.title.contains("\"Intervals\"") })
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun weekFilter_keepsOnlySelectedWeek() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel = createViewModel(repository)
+            val firstWeek = LocalDate.of(2026, 2, 2)
+            val secondWeek = LocalDate.of(2026, 2, 9)
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 21L,
+                        actionType = COPY_LAST_WEEK.name,
+                        entityType = WEEK.name,
+                        entityId = null,
+                        metadata = metadataJson(WEEK_START_DATE to firstWeek.toString()),
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                    UserActionRecord(
+                        id = 22L,
+                        actionType = COPY_LAST_WEEK.name,
+                        entityType = WEEK.name,
+                        entityId = null,
+                        metadata = metadataJson(WEEK_START_DATE to secondWeek.toString()),
+                        timestamp = System.currentTimeMillis() - 1_000L,
+                    ),
+                ),
+            )
+            viewModel.selectWeekFilter(secondWeek)
+
+            viewModel.state.test {
+                val state = awaitNonEmptyState()
+                val items = state.sections.flatMap { it.items }
+
+                assertTrue(items.size == 1)
+                assertTrue(items.first().subtitle?.contains("Feb 9, 2026") == true)
+                assertTrue(state.filters.selectedPrimaryFilter == ActivityPrimaryFilter.WEEK)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
     private class FakeUserActionRepository : UserActionRepository {
         private val flow = MutableStateFlow<List<UserActionRecord>>(emptyList())
 
@@ -373,9 +529,55 @@ class ActivityViewModelTest {
         }
     }
 
+    private class FakeCategoryRepository(
+        categories: List<Category>,
+    ) : CategoryRepository {
+        private val flow = MutableStateFlow(categories)
+
+        override fun observeCategories() = flow
+
+        override suspend fun getCategories(): List<Category> = flow.first()
+
+        override suspend fun getCategory(id: Long): Category? = flow.first().firstOrNull { it.id == id }
+
+        override suspend fun getCount(): Int = flow.first().size
+
+        override suspend fun insertCategory(category: Category): Long = error("Not needed in test")
+
+        override suspend fun insertCategories(categories: List<Category>): List<Long> = error("Not needed in test")
+
+        override suspend fun updateCategory(category: Category) = error("Not needed in test")
+
+        override suspend fun updateCategoryName(
+            id: Long,
+            name: String,
+        ) = error("Not needed in test")
+
+        override suspend fun updateCategoryColor(
+            id: Long,
+            colorId: String,
+        ) = error("Not needed in test")
+
+        override suspend fun updateCategoryVisibility(
+            id: Long,
+            isHidden: Boolean,
+        ) = error("Not needed in test")
+
+        override suspend fun updateCategorySortOrder(
+            id: Long,
+            sortOrder: Int,
+        ) = error("Not needed in test")
+
+        override suspend fun deleteCategory(id: Long) = error("Not needed in test")
+    }
+
     private class FakeStringProvider : StringProvider {
         private val values =
             mapOf(
+                R.string.activity_filter_all to "All",
+                R.string.activity_filter_completions to "Completions",
+                R.string.activity_filter_planning to "Planning",
+                R.string.activity_filter_week to "Week",
                 R.string.activity_action_create_workout to "You created the workout %1\$s.",
                 R.string.activity_action_update_workout to "You updated the workout %1\$s.",
                 R.string.activity_action_delete_workout to "You deleted the workout %1\$s.",
@@ -426,6 +628,9 @@ class ActivityViewModelTest {
                 R.string.settings_theme_dark to "Dark",
                 R.string.settings_slot_mode_auto to "Auto (2+ events/day)",
                 R.string.settings_slot_mode_always to "Always show slots",
+                R.string.settings_categories to "Categories",
+                R.string.workout_dialog_add_workout_category to "Category",
+                R.string.settings_nav_label to "Settings",
                 R.string.day_monday to "Monday",
                 R.string.day_tuesday to "Tuesday",
                 R.string.day_wednesday to "Wednesday",
@@ -450,6 +655,32 @@ class ActivityViewModelTest {
         ): String {
             return get(id, *args)
         }
+    }
+
+    private fun createViewModel(
+        repository: FakeUserActionRepository,
+        categories: List<Category> = listOf(category()),
+    ): ActivityViewModel {
+        return ActivityViewModel(
+            repository = repository,
+            categoryRepository = FakeCategoryRepository(categories),
+            stringProvider = FakeStringProvider(),
+        )
+    }
+
+    private fun category(
+        id: Long = 1L,
+        name: String = "Uncategorized",
+        sortOrder: Int = 0,
+    ): Category {
+        return Category(
+            id = id,
+            name = name,
+            colorId = "uncategorized",
+            sortOrder = sortOrder,
+            isHidden = false,
+            isSystem = false,
+        )
     }
 
     private suspend fun ReceiveTurbine<ActivityState>.awaitNonEmptyState(): ActivityState {
