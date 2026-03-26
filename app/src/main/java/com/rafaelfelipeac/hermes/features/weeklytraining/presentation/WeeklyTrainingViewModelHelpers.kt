@@ -509,6 +509,7 @@ internal fun MutableMap<String, String>.putWorkoutCategoryMetadata(
         put(CATEGORY_NAME, categoryName)
     }
 }
+
 internal fun workoutsForDisplayWeek(
     workouts: List<Workout>,
     displayWeekStart: LocalDate,

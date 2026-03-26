@@ -198,15 +198,32 @@ private fun ActivityFilterBar(
         when (filters.selectedPrimaryFilter) {
             ActivityPrimaryFilter.CATEGORY ->
                 SecondaryFilterRow(
-                    labels = filters.categoryFilters.map { SecondaryFilterItem(it.id.toString(), it.name, it.isSelected) },
+                    labels =
+                        filters.categoryFilters.map {
+                            SecondaryFilterItem(
+                                key = it.id.toString(),
+                                label = it.name,
+                                isSelected = it.isSelected,
+                            )
+                        },
                     onSelected = { key -> key.toLongOrNull()?.let(onCategorySelected) },
                 )
 
             ActivityPrimaryFilter.WEEK ->
                 SecondaryFilterRow(
-                    labels = filters.weekFilters.map { SecondaryFilterItem(it.weekStartDate.toString(), it.label, it.isSelected) },
+                    labels =
+                        filters.weekFilters.map {
+                            SecondaryFilterItem(
+                                key = it.weekStartDate.toString(),
+                                label = it.label,
+                                isSelected = it.isSelected,
+                            )
+                        },
                     onSelected = { label ->
-                        filters.weekFilters.firstOrNull { it.weekStartDate.toString() == label }?.weekStartDate?.let(onWeekSelected)
+                        filters.weekFilters
+                            .firstOrNull { it.weekStartDate.toString() == label }
+                            ?.weekStartDate
+                            ?.let(onWeekSelected)
                     },
                 )
 

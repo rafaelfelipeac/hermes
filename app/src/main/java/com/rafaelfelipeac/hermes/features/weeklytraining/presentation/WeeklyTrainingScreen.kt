@@ -121,7 +121,9 @@ fun WeeklyTrainingScreen(
     val pickerCategories = state.categories.filter { !it.isHidden || it.id == UNCATEGORIZED_ID }
     val plannerFocusCategories =
         pickerCategories.sortedWith(
-            compareBy<com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi> { it.id == UNCATEGORIZED_ID }
+            compareBy<com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi> {
+                it.id == UNCATEGORIZED_ID
+            }
                 .thenBy { it.sortOrder },
         )
     val undoMessage =

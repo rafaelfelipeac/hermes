@@ -525,10 +525,10 @@ fun WeeklyTrainingContent(
 }
 
 private fun WorkoutUi.shouldDeemphasize(focusedCategoryId: Long?): Boolean {
-    if (focusedCategoryId == null) return false
-    if (eventType != com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT) return false
+    val isWorkout =
+        eventType == com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 
-    return categoryId != focusedCategoryId
+    return focusedCategoryId != null && isWorkout && categoryId != focusedCategoryId
 }
 
 @Composable

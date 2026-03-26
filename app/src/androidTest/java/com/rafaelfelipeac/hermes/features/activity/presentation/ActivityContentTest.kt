@@ -39,7 +39,7 @@ class ActivityContentTest {
                                     ),
                                 ),
                         ),
-                ),
+                    ),
                 currentLocale = java.util.Locale.ENGLISH,
                 emptyMessage = "No activity yet.",
             )
