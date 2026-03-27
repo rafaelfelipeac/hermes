@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.6.0]
+### Added
+- Activity filters by type, category and week
+- Category-aware Activity filter context for supported workout history
+- Backup schema v2 with `weekStartDay` restore support
+
+### Changed
+- Weekly drag-and-drop now uses measured slot bounds for more accurate slot targeting
+- Backup import/export handling now treats `appVersion` as metadata while routing compatibility by `schemaVersion`
+- Repo-local Hermes skills documentation and review guidance
+
+### Fixed
+- Backup restore now preserves the configured start-of-week setting during import
+- Backup decode paths now fail more gracefully for malformed optional data and forward-compatible user-action payloads
+- Drag preview/drop alignment regressions in slot mode
+
 ## [v1.5.0]
 ### Added
 - Configurable start of the week (any day, Monday through Sunday) in Settings

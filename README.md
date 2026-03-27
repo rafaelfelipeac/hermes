@@ -38,6 +38,7 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 - Backup support: export/import your data, choose a default backup folder in Settings and clear it anytime
 - Choose week start day in Settings (any day, Monday through Sunday)
 - Weekly header summary with progress and week completion feedback
+- Activity history filters by type, category and week
 - Mark days or sessions as:
   - **Training**
   - **Rest day**
