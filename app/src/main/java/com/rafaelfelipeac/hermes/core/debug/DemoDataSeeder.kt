@@ -7,6 +7,8 @@ import com.rafaelfelipeac.hermes.core.AppConstants.UNSUPPORTED_USER_ACTION_ENTIT
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
@@ -21,6 +23,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
@@ -87,20 +90,36 @@ class DemoDataSeeder
             val today = LocalDate.now()
             val currentWeekStart = today.with(TemporalAdjusters.previousOrSame(MONDAY))
             val previousWeekStart = currentWeekStart.minusWeeks(1)
+            val olderWeekStarts =
+                listOf(
+                    previousWeekStart.minusWeeks(3),
+                    previousWeekStart.minusWeeks(2),
+                    previousWeekStart.minusWeeks(1),
+                    previousWeekStart,
+                )
             val nextWeekStart = currentWeekStart.plusWeeks(1)
 
-            val workouts =
-                buildWeekSchedule(previousWeekStart, CompletionProfile.COMPLETED_MOST)
-                    .plus(buildWeekSchedule(currentWeekStart, CompletionProfile.COMPLETED_SOME))
-                    .plus(buildWeekSchedule(nextWeekStart, CompletionProfile.NONE))
+            val workouts = buildDemoWorkouts(olderWeekStarts, currentWeekStart, nextWeekStart)
 
             workouts.forEach { workoutDao.insert(it) }
 
             seedActivityHistory(
                 currentWeekStart = currentWeekStart,
-                previousWeekStart = previousWeekStart,
+                olderWeekStarts = olderWeekStarts,
                 nextWeekStart = nextWeekStart,
             )
+        }
+
+        private fun buildDemoWorkouts(
+            olderWeekStarts: List<LocalDate>,
+            currentWeekStart: LocalDate,
+            nextWeekStart: LocalDate,
+        ): List<WorkoutEntity> {
+            return olderWeekStarts.flatMap { weekStart ->
+                buildWeekSchedule(weekStart, CompletionProfile.COMPLETED_MOST)
+            } +
+                buildWeekSchedule(currentWeekStart, CompletionProfile.COMPLETED_SOME) +
+                buildWeekSchedule(nextWeekStart, CompletionProfile.NONE)
         }
 
         private fun buildWeekSchedule(
@@ -184,36 +203,280 @@ class DemoDataSeeder
 
         private suspend fun seedActivityHistory(
             currentWeekStart: LocalDate,
-            previousWeekStart: LocalDate,
+            olderWeekStarts: List<LocalDate>,
             nextWeekStart: LocalDate,
         ) {
             buildActivityHistoryActions(
                 currentWeekStart = currentWeekStart,
-                previousWeekStart = previousWeekStart,
+                olderWeekStarts = olderWeekStarts,
                 nextWeekStart = nextWeekStart,
             ).forEach { userActionDao.insert(it) }
         }
 
         private fun buildActivityHistoryActions(
             currentWeekStart: LocalDate,
-            previousWeekStart: LocalDate,
+            olderWeekStarts: List<LocalDate>,
             nextWeekStart: LocalDate,
         ): List<UserActionEntity> {
             val zoneId = ZoneId.systemDefault()
             val now = System.currentTimeMillis()
             val dayMillis = 24 * 60 * 60 * 1000L
 
-            return buildCurrentWeekActions(
-                currentWeekStart = currentWeekStart,
-                previousWeekStart = previousWeekStart,
-                nextWeekStart = nextWeekStart,
-                now = now,
-                dayMillis = dayMillis,
+            return buildHistoricTrophyActions(
+                olderWeekStarts = olderWeekStarts,
+                zoneId = zoneId,
             ) +
-                buildPreviousWeekActions(
-                    previousWeekStart = previousWeekStart,
-                    zoneId = zoneId,
+                buildCurrentWeekActions(
+                    currentWeekStart = currentWeekStart,
+                    previousWeekStart = olderWeekStarts.last(),
+                    nextWeekStart = nextWeekStart,
+                    now = now,
+                    dayMillis = dayMillis,
                 )
+        }
+
+        @Suppress("LongMethod")
+        private fun buildHistoricTrophyActions(
+            olderWeekStarts: List<LocalDate>,
+            zoneId: ZoneId,
+        ): List<UserActionEntity> {
+            val weekA = olderWeekStarts[0]
+            val weekB = olderWeekStarts[1]
+            val weekC = olderWeekStarts[2]
+            val weekD = olderWeekStarts[3]
+
+            return listOf(
+                createWorkoutAction(
+                    weekStartDate = weekA,
+                    dayOfWeek = MONDAY,
+                    order = 0,
+                    seed = workoutSeed(2, MORNING),
+                    entityId = DEMO_RUN_WORKOUT_A1_ID,
+                    timestamp = weekTimestamp(weekA, zoneId, dayOffset = 0, hour = 7),
+                ),
+                createWorkoutAction(
+                    weekStartDate = weekA,
+                    dayOfWeek = TUESDAY,
+                    order = 0,
+                    seed = workoutSeed(0, NIGHT),
+                    entityId = DEMO_STRENGTH_WORKOUT_A1_ID,
+                    timestamp = weekTimestamp(weekA, zoneId, dayOffset = 1, hour = 19),
+                ),
+                createWorkoutAction(
+                    weekStartDate = weekA,
+                    dayOfWeek = THURSDAY,
+                    order = 0,
+                    seed = workoutSeed(6, MORNING),
+                    entityId = DEMO_RUN_WORKOUT_A2_ID,
+                    timestamp = weekTimestamp(weekA, zoneId, dayOffset = 3, hour = 8),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekA,
+                    seed = workoutSeed(2, MORNING),
+                    entityId = DEMO_RUN_WORKOUT_A1_ID,
+                    timestamp = weekTimestamp(weekA, zoneId, dayOffset = 0, hour = 18),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekA,
+                    seed = workoutSeed(0, NIGHT),
+                    entityId = DEMO_STRENGTH_WORKOUT_A1_ID,
+                    timestamp = weekTimestamp(weekA, zoneId, dayOffset = 1, hour = 20),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekA,
+                    seed = workoutSeed(6, MORNING),
+                    entityId = DEMO_RUN_WORKOUT_A2_ID,
+                    timestamp = weekTimestamp(weekA, zoneId, dayOffset = 3, hour = 18),
+                ),
+                completeWeekAction(
+                    weekStartDate = weekA,
+                    timestamp = weekTimestamp(weekA, zoneId, dayOffset = 6, hour = 20),
+                ),
+                copyLastWeekAction(
+                    weekStartDate = weekB,
+                    timestamp = weekTimestamp(weekB, zoneId, dayOffset = 0, hour = 6),
+                ),
+                moveWorkoutAction(
+                    weekStartDate = weekB,
+                    dayChange = WorkoutDayChange(oldDay = TUESDAY, newDay = WEDNESDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 0, newOrder = 0),
+                    slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = AFTERNOON),
+                    seed = workoutSeed(2, AFTERNOON),
+                    entityId = DEMO_RUN_WORKOUT_B1_ID,
+                    timestamp = weekTimestamp(weekB, zoneId, dayOffset = 0, hour = 8),
+                ),
+                moveWorkoutAction(
+                    weekStartDate = weekB,
+                    dayChange = WorkoutDayChange(oldDay = THURSDAY, newDay = THURSDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                    slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = MORNING),
+                    seed = workoutSeed(0, MORNING),
+                    entityId = DEMO_STRENGTH_WORKOUT_B1_ID,
+                    timestamp = weekTimestamp(weekB, zoneId, dayOffset = 1, hour = 7),
+                ),
+                moveWorkoutAction(
+                    weekStartDate = weekB,
+                    dayChange = WorkoutDayChange(oldDay = FRIDAY, newDay = SATURDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 0, newOrder = 0),
+                    slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = NIGHT),
+                    seed = workoutSeed(6, NIGHT),
+                    entityId = DEMO_RUN_WORKOUT_B2_ID,
+                    timestamp = weekTimestamp(weekB, zoneId, dayOffset = 2, hour = 18),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekB,
+                    seed = workoutSeed(2, AFTERNOON),
+                    entityId = DEMO_RUN_WORKOUT_B1_ID,
+                    timestamp = weekTimestamp(weekB, zoneId, dayOffset = 2, hour = 20),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekB,
+                    seed = workoutSeed(0, MORNING),
+                    entityId = DEMO_STRENGTH_WORKOUT_B1_ID,
+                    timestamp = weekTimestamp(weekB, zoneId, dayOffset = 3, hour = 19),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekB,
+                    seed = workoutSeed(6, NIGHT),
+                    entityId = DEMO_RUN_WORKOUT_B2_ID,
+                    timestamp = weekTimestamp(weekB, zoneId, dayOffset = 5, hour = 20),
+                ),
+                completeWeekAction(
+                    weekStartDate = weekB,
+                    timestamp = weekTimestamp(weekB, zoneId, dayOffset = 6, hour = 21),
+                ),
+                copyLastWeekAction(
+                    weekStartDate = weekC,
+                    timestamp = weekTimestamp(weekC, zoneId, dayOffset = 0, hour = 6),
+                ),
+                moveWorkoutAction(
+                    weekStartDate = weekC,
+                    dayChange = WorkoutDayChange(oldDay = MONDAY, newDay = TUESDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 0, newOrder = 0),
+                    slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = AFTERNOON),
+                    seed = workoutSeed(2, AFTERNOON),
+                    entityId = DEMO_RUN_WORKOUT_C1_ID,
+                    timestamp = weekTimestamp(weekC, zoneId, dayOffset = 0, hour = 7),
+                ),
+                moveWorkoutAction(
+                    weekStartDate = weekC,
+                    dayChange = WorkoutDayChange(oldDay = WEDNESDAY, newDay = THURSDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 0, newOrder = 0),
+                    slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = NIGHT),
+                    seed = workoutSeed(6, NIGHT),
+                    entityId = DEMO_RUN_WORKOUT_C2_ID,
+                    timestamp = weekTimestamp(weekC, zoneId, dayOffset = 1, hour = 18),
+                ),
+                moveWorkoutAction(
+                    weekStartDate = weekC,
+                    dayChange = WorkoutDayChange(oldDay = THURSDAY, newDay = THURSDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                    slotChange = WorkoutSlotChange(oldTimeSlot = NIGHT, newTimeSlot = NIGHT),
+                    seed = workoutSeed(5, NIGHT),
+                    entityId = DEMO_MOBILITY_WORKOUT_C1_ID,
+                    timestamp = weekTimestamp(weekC, zoneId, dayOffset = 2, hour = 20),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekC,
+                    seed = workoutSeed(2, AFTERNOON),
+                    entityId = DEMO_RUN_WORKOUT_C1_ID,
+                    timestamp = weekTimestamp(weekC, zoneId, dayOffset = 2, hour = 21),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekC,
+                    seed = workoutSeed(6, NIGHT),
+                    entityId = DEMO_RUN_WORKOUT_C2_ID,
+                    timestamp = weekTimestamp(weekC, zoneId, dayOffset = 4, hour = 20),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekC,
+                    seed = workoutSeed(5, NIGHT),
+                    entityId = DEMO_MOBILITY_WORKOUT_C1_ID,
+                    timestamp = weekTimestamp(weekC, zoneId, dayOffset = 5, hour = 20),
+                ),
+                completeWeekAction(
+                    weekStartDate = weekC,
+                    timestamp = weekTimestamp(weekC, zoneId, dayOffset = 6, hour = 20),
+                ),
+                copyLastWeekAction(
+                    weekStartDate = weekD,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 0, hour = 6),
+                ),
+                moveWorkoutAction(
+                    weekStartDate = weekD,
+                    dayChange = WorkoutDayChange(oldDay = MONDAY, newDay = TUESDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 0, newOrder = 0),
+                    slotChange = WorkoutSlotChange(oldTimeSlot = NIGHT, newTimeSlot = MORNING),
+                    seed = workoutSeed(0, MORNING),
+                    entityId = DEMO_STRENGTH_WORKOUT_D1_ID,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 0, hour = 7),
+                ),
+                moveWorkoutAction(
+                    weekStartDate = weekD,
+                    dayChange = WorkoutDayChange(oldDay = THURSDAY, newDay = THURSDAY),
+                    orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
+                    slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = MORNING),
+                    seed = workoutSeed(2, MORNING),
+                    entityId = DEMO_RUN_WORKOUT_D1_ID,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 1, hour = 7),
+                ),
+                createWorkoutAction(
+                    weekStartDate = weekD,
+                    dayOfWeek = SATURDAY,
+                    order = 0,
+                    seed = workoutSeed(6, AFTERNOON),
+                    entityId = DEMO_RUN_WORKOUT_D2_ID,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 2, hour = 17),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekD,
+                    seed = workoutSeed(0, MORNING),
+                    entityId = DEMO_STRENGTH_WORKOUT_D1_ID,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 2, hour = 19),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekD,
+                    seed = workoutSeed(2, MORNING),
+                    entityId = DEMO_RUN_WORKOUT_D1_ID,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 4, hour = 19),
+                ),
+                completeWorkoutAction(
+                    weekStartDate = weekD,
+                    seed = workoutSeed(6, AFTERNOON),
+                    entityId = DEMO_RUN_WORKOUT_D2_ID,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 5, hour = 19),
+                ),
+                completeWeekAction(
+                    weekStartDate = weekD,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 20),
+                ),
+                categoryAction(
+                    type = UserActionType.UPDATE_CATEGORY_COLOR,
+                    categoryId = RUN_ID,
+                    categoryName = categoryNameForId(RUN_ID),
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 21),
+                ),
+                categoryAction(
+                    type = UserActionType.UPDATE_CATEGORY_VISIBILITY,
+                    categoryId = STRENGTH_ID,
+                    categoryName = categoryNameForId(STRENGTH_ID),
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 21, minute = 10),
+                ),
+                categoryAction(
+                    type = UserActionType.REORDER_CATEGORY,
+                    categoryId = MOBILITY_ID,
+                    categoryName = categoryNameForId(MOBILITY_ID),
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 21, minute = 20),
+                ),
+                settingsResultAction(
+                    type = UserActionType.EXPORT_BACKUP,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 21, minute = 30),
+                ),
+                settingsResultAction(
+                    type = UserActionType.IMPORT_BACKUP,
+                    timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 21, minute = 40),
+                ),
+            )
         }
 
         @Suppress("LongMethod")
@@ -236,6 +499,7 @@ class DemoDataSeeder
                         dayOfWeek = TUESDAY,
                         order = 0,
                         seed = workoutSeed(2, AFTERNOON),
+                        entityId = DEMO_RUN_WORKOUT_CURRENT_ID,
                         timestamp = now - dayMillis * 5,
                     ),
                     moveWorkoutAction(
@@ -244,6 +508,7 @@ class DemoDataSeeder
                         orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
                         slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = AFTERNOON),
                         seed = workoutSeed(4, AFTERNOON),
+                        entityId = DEMO_CYCLING_WORKOUT_CURRENT_ID,
                         timestamp = now - dayMillis * 4,
                     ),
                     moveWorkoutAction(
@@ -252,11 +517,13 @@ class DemoDataSeeder
                         orderChange = WorkoutOrderChange(oldOrder = 1, newOrder = 0),
                         slotChange = WorkoutSlotChange(oldTimeSlot = NIGHT, newTimeSlot = MORNING),
                         seed = workoutSeed(1, MORNING),
+                        entityId = DEMO_OTHER_WORKOUT_CURRENT_ID,
                         timestamp = now - dayMillis * 3,
                     ),
                     completeWorkoutAction(
                         weekStartDate = currentWeekStart,
                         seed = workoutSeed(0, MORNING),
+                        entityId = DEMO_STRENGTH_WORKOUT_CURRENT_ID,
                         timestamp = now - dayMillis * 2,
                     ),
                 )
@@ -309,26 +576,6 @@ class DemoDataSeeder
             return trainingActions + plannerActions + navigationActions
         }
 
-        private fun buildPreviousWeekActions(
-            previousWeekStart: LocalDate,
-            zoneId: ZoneId,
-        ): List<UserActionEntity> {
-            return listOf(
-                createWorkoutAction(
-                    weekStartDate = previousWeekStart,
-                    dayOfWeek = null,
-                    order = 0,
-                    seed = workoutSeed(7),
-                    timestamp =
-                        previousWeekStart
-                            .atStartOfDay(zoneId)
-                            .plusHours(10)
-                            .toInstant()
-                            .toEpochMilli(),
-                ),
-            )
-        }
-
         private fun openWeekAction(
             oldWeekStart: LocalDate,
             newWeekStart: LocalDate,
@@ -352,11 +599,14 @@ class DemoDataSeeder
             dayOfWeek: DayOfWeek?,
             order: Int,
             seed: WorkoutSeed,
+            entityId: Long,
             timestamp: Long,
         ): UserActionEntity {
+            val categoryId = categoryIdForSeed(seed)
             return action(
                 type = UserActionType.CREATE_WORKOUT,
                 entityType = UserActionEntityType.WORKOUT,
+                entityId = entityId,
                 metadata =
                     buildMap {
                         put(WEEK_START_DATE, weekStartDate.toString())
@@ -364,6 +614,8 @@ class DemoDataSeeder
                         put(NEW_ORDER, order.toString())
                         put(NEW_TYPE, seed.type)
                         put(NEW_DESCRIPTION, seed.description)
+                        put(CATEGORY_ID, categoryId.toString())
+                        put(CATEGORY_NAME, categoryNameForId(categoryId))
                         seed.timeSlot?.let { put(NEW_TIME_SLOT, it.name) }
                     },
                 timestamp = timestamp,
@@ -376,6 +628,7 @@ class DemoDataSeeder
             orderChange: WorkoutOrderChange,
             slotChange: WorkoutSlotChange? = null,
             seed: WorkoutSeed,
+            entityId: Long,
             timestamp: Long,
         ): UserActionEntity {
             val actionType =
@@ -384,10 +637,12 @@ class DemoDataSeeder
                 } else {
                     UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
                 }
+            val categoryId = categoryIdForSeed(seed)
 
             return action(
                 type = actionType,
                 entityType = UserActionEntityType.WORKOUT,
+                entityId = entityId,
                 metadata =
                     buildMap {
                         put(WEEK_START_DATE, weekStartDate.toString())
@@ -401,6 +656,8 @@ class DemoDataSeeder
                         }
                         put(NEW_TYPE, seed.type)
                         put(NEW_DESCRIPTION, seed.description)
+                        put(CATEGORY_ID, categoryId.toString())
+                        put(CATEGORY_NAME, categoryNameForId(categoryId))
                     },
                 timestamp = timestamp,
             )
@@ -409,11 +666,14 @@ class DemoDataSeeder
         private fun completeWorkoutAction(
             weekStartDate: LocalDate,
             seed: WorkoutSeed,
+            entityId: Long,
             timestamp: Long,
         ): UserActionEntity {
+            val categoryId = categoryIdForSeed(seed)
             return action(
                 type = UserActionType.COMPLETE_WORKOUT,
                 entityType = UserActionEntityType.WORKOUT,
+                entityId = entityId,
                 metadata =
                     buildMap {
                         put(WEEK_START_DATE, weekStartDate.toString())
@@ -421,8 +681,61 @@ class DemoDataSeeder
                         put(IS_COMPLETED, "true")
                         put(NEW_TYPE, seed.type)
                         put(NEW_DESCRIPTION, seed.description)
+                        put(CATEGORY_ID, categoryId.toString())
+                        put(CATEGORY_NAME, categoryNameForId(categoryId))
                         seed.timeSlot?.let { put(NEW_TIME_SLOT, it.name) }
                     },
+                timestamp = timestamp,
+            )
+        }
+
+        private fun completeWeekAction(
+            weekStartDate: LocalDate,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.COMPLETE_WEEK_WORKOUTS,
+                entityType = UserActionEntityType.WEEK,
+                metadata = mapOf(WEEK_START_DATE to weekStartDate.toString()),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun copyLastWeekAction(
+            weekStartDate: LocalDate,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.COPY_LAST_WEEK,
+                entityType = UserActionEntityType.WEEK,
+                metadata = mapOf(WEEK_START_DATE to weekStartDate.toString()),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun categoryAction(
+            type: UserActionType,
+            categoryId: Long,
+            categoryName: String,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = type,
+                entityType = UserActionEntityType.CATEGORY,
+                entityId = categoryId,
+                metadata = mapOf(CATEGORY_NAME to categoryName),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun settingsResultAction(
+            type: UserActionType,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = type,
+                entityType = UserActionEntityType.SETTINGS,
+                metadata = mapOf(RESULT to RESULT_SUCCESS),
                 timestamp = timestamp,
             )
         }
@@ -483,16 +796,44 @@ class DemoDataSeeder
         private fun action(
             type: UserActionType,
             entityType: UserActionEntityType,
+            entityId: Long? = null,
             metadata: Map<String, String>,
             timestamp: Long,
         ): UserActionEntity {
             return UserActionEntity(
                 actionType = type.name,
                 entityType = entityType.name,
-                entityId = null,
+                entityId = entityId,
                 metadata = UserActionMetadataSerializer.toJson(metadata),
                 timestamp = timestamp,
             )
+        }
+
+        private fun categoryNameForId(categoryId: Long): String {
+            return when (categoryId) {
+                RUN_ID -> stringProvider.get(R.string.categories_category_run)
+                CYCLING_ID -> stringProvider.get(R.string.categories_category_cycling)
+                STRENGTH_ID -> stringProvider.get(R.string.categories_category_strength)
+                SWIM_ID -> stringProvider.get(R.string.categories_category_swim)
+                MOBILITY_ID -> stringProvider.get(R.string.categories_category_mobility)
+                else -> stringProvider.get(R.string.category_other)
+            }
+        }
+
+        private fun weekTimestamp(
+            weekStartDate: LocalDate,
+            zoneId: ZoneId,
+            dayOffset: Long,
+            hour: Long,
+            minute: Long = 0,
+        ): Long {
+            return weekStartDate
+                .atStartOfDay(zoneId)
+                .plusDays(dayOffset)
+                .plusHours(hour)
+                .plusMinutes(minute)
+                .toInstant()
+                .toEpochMilli()
         }
 
         private fun workoutSeed(
@@ -606,3 +947,21 @@ private enum class CompletionProfile {
         }
     }
 }
+
+private const val RESULT_SUCCESS = "success"
+private const val DEMO_RUN_WORKOUT_A1_ID = 10_001L
+private const val DEMO_STRENGTH_WORKOUT_A1_ID = 10_002L
+private const val DEMO_RUN_WORKOUT_A2_ID = 10_003L
+private const val DEMO_RUN_WORKOUT_B1_ID = 10_101L
+private const val DEMO_STRENGTH_WORKOUT_B1_ID = 10_102L
+private const val DEMO_RUN_WORKOUT_B2_ID = 10_103L
+private const val DEMO_RUN_WORKOUT_C1_ID = 10_201L
+private const val DEMO_RUN_WORKOUT_C2_ID = 10_202L
+private const val DEMO_MOBILITY_WORKOUT_C1_ID = 10_203L
+private const val DEMO_STRENGTH_WORKOUT_D1_ID = 10_301L
+private const val DEMO_RUN_WORKOUT_D1_ID = 10_302L
+private const val DEMO_RUN_WORKOUT_D2_ID = 10_303L
+private const val DEMO_RUN_WORKOUT_CURRENT_ID = 10_401L
+private const val DEMO_CYCLING_WORKOUT_CURRENT_ID = 10_402L
+private const val DEMO_OTHER_WORKOUT_CURRENT_ID = 10_403L
+private const val DEMO_STRENGTH_WORKOUT_CURRENT_ID = 10_404L

@@ -1,0 +1,426 @@
+package com.rafaelfelipeac.hermes.features.trophies.domain
+
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyDefinition
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
+import java.time.LocalDate
+import java.util.ArrayDeque
+
+class TrophyEngine(
+    private val definitions: List<TrophyDefinition> = TrophyDefinitions.supportedV1,
+    private val categoryTemplates: List<TrophyDefinition> = TrophyDefinitions.categoryTemplates,
+) {
+    fun compute(
+        actions: List<UserActionRecord>,
+        categories: List<TrophyCategoryContext> = emptyList(),
+    ): List<TrophyProgress> {
+        val history = TrophyHistory.from(actions, categories)
+        val baseProgress = definitions.map { definition ->
+            val milestones =
+                when (definition.id) {
+                    TrophyId.FULL_TIME -> history.completedWeekMilestones
+                    TrophyId.MATCH_FITNESS -> history.matchFitnessMilestones
+                    TrophyId.IN_FORM -> history.longestStreakMilestones
+                    TrophyId.COMEBACK_WEEK -> history.comebackWeekMilestones
+                    TrophyId.GAME_PLAN -> history.gamePlanMilestones
+                    TrophyId.BACK_IN_FORMATION -> history.backInFormationMilestones
+                    TrophyId.HOLD_THE_LINE -> history.holdTheLineMilestones
+                    TrophyId.TEAM_SHEET -> history.teamSheetMilestones
+                    TrophyId.KIT_BAG -> history.kitBagMilestones
+                    TrophyId.PODIUM_PLACE,
+                    TrophyId.HOME_GROUND,
+                    TrophyId.TRAINING_BLOCK,
+                    -> emptyList()
+                }
+
+                TrophyProgress(
+                    definition = definition,
+                    currentValue = milestones.size,
+                    unlockedAt = milestones.getOrNull(definition.target - 1),
+            )
+        }
+        val categoryProgress =
+            categories.flatMap { category ->
+                categoryTemplates.map { definition ->
+                    val milestones =
+                        when (definition.id) {
+                            TrophyId.PODIUM_PLACE ->
+                                history.podiumPlaceMilestonesByCategory[category.id].orEmpty()
+                            TrophyId.HOME_GROUND ->
+                                history.homeGroundMilestonesByCategory[category.id].orEmpty()
+                            TrophyId.TRAINING_BLOCK ->
+                                history.trainingBlockMilestonesByCategory[category.id].orEmpty()
+                            else -> emptyList()
+                        }
+
+                    TrophyProgress(
+                        definition = definition,
+                        currentValue = milestones.size,
+                        unlockedAt = milestones.getOrNull(definition.target - 1),
+                        categoryId = category.id,
+                        categoryName = category.name,
+                        categoryColorId = category.colorId,
+                    )
+                }
+            }
+
+        return baseProgress + categoryProgress
+    }
+
+    private data class ParsedAction(
+        val record: UserActionRecord,
+        val actionType: UserActionType?,
+        val metadata: Map<String, String>,
+        val weekStartDate: LocalDate?,
+        val categoryId: Long?,
+        val categoryNames: Set<String>,
+    )
+
+    private data class WeekCompletion(
+        val weekStartDate: LocalDate,
+        val completedAt: Long,
+    )
+
+    private data class WeekEvent(
+        val weekStartDate: LocalDate,
+        val timestamp: Long,
+    )
+
+    private data class TrophyHistory(
+        val completedWeekMilestones: List<Long>,
+        val matchFitnessMilestones: List<Long>,
+        val longestStreakMilestones: List<Long>,
+        val comebackWeekMilestones: List<Long>,
+        val gamePlanMilestones: List<Long>,
+        val backInFormationMilestones: List<Long>,
+        val holdTheLineMilestones: List<Long>,
+        val teamSheetMilestones: List<Long>,
+        val kitBagMilestones: List<Long>,
+        val podiumPlaceMilestonesByCategory: Map<Long, List<Long>>,
+        val homeGroundMilestonesByCategory: Map<Long, List<Long>>,
+        val trainingBlockMilestonesByCategory: Map<Long, List<Long>>,
+    ) {
+        companion object {
+            private const val RESULT_SUCCESS = "success"
+
+            fun from(
+                actions: List<UserActionRecord>,
+                categories: List<TrophyCategoryContext>,
+            ): TrophyHistory {
+                val categoryAliasesById = buildCategoryAliasesById(actions, categories)
+                val parsedActions =
+                    actions
+                        .map { action ->
+                            val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
+                            ParsedAction(
+                                record = action,
+                                actionType = action.actionType.toUserActionTypeOrNull(),
+                                metadata = metadata,
+                                weekStartDate = metadata[WEEK_START_DATE]?.toLocalDateOrNull(),
+                                categoryId = metadata[CATEGORY_ID]?.toLongOrNull(),
+                                categoryNames = setOfNotNull(
+                                    metadata[CATEGORY_NAME]?.takeIf { it.isNotBlank() },
+                                    metadata[OLD_CATEGORY_NAME]?.takeIf { it.isNotBlank() },
+                                    metadata[NEW_CATEGORY_NAME]?.takeIf { it.isNotBlank() },
+                                ),
+                            )
+                        }.sortedWith(compareBy<ParsedAction>({ it.record.timestamp }, { it.record.id }))
+
+                val completedWeeks = linkedMapOf<LocalDate, Long>()
+                val effectiveCompletionTimestamps = mutableListOf<Long>()
+                val effectivePlanningEvents = mutableListOf<WeekEvent>()
+                val effectiveCopyEvents = mutableListOf<WeekEvent>()
+                val categoryActionTimestamps = mutableListOf<Long>()
+                val backupSuccessTimestamps = mutableListOf<Long>()
+                val completionStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<Long>>()
+                val moveStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
+                val reorderStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
+                val copyStacksByWeek = mutableMapOf<LocalDate, ArrayDeque<Long>>()
+                val categoryCompletionMilestones = mutableMapOf<Long, MutableList<Long>>()
+                val categoryCompletionWeeks = mutableMapOf<Long, MutableMap<LocalDate, Long>>()
+                val categoryTrainingBlockMilestones = mutableMapOf<Long, MutableList<Long>>()
+
+                parsedActions.forEach { action ->
+                    val categoryIds = resolveCategoryIds(action, categoryAliasesById)
+                    when (action.actionType) {
+                        UserActionType.COMPLETE_WEEK_WORKOUTS -> {
+                            val weekStartDate = action.weekStartDate ?: return@forEach
+                            completedWeeks.putIfAbsent(weekStartDate, action.record.timestamp)
+                        }
+
+                        UserActionType.COMPLETE_WORKOUT -> {
+                            val workoutId = action.record.entityId ?: return@forEach
+                            completionStacksByWorkoutId
+                                .getOrPut(workoutId, ::ArrayDeque)
+                                .addLast(action.record.timestamp)
+                            categoryIds.forEach { categoryId ->
+                                categoryCompletionMilestones
+                                    .getOrPut(categoryId, ::mutableListOf)
+                                    .add(action.record.timestamp)
+                                action.weekStartDate?.let { weekStartDate ->
+                                    categoryCompletionWeeks
+                                        .getOrPut(categoryId, ::linkedMapOf)
+                                        .putIfAbsent(weekStartDate, action.record.timestamp)
+                                }
+                            }
+                        }
+
+                        UserActionType.UNDO_COMPLETE_WORKOUT -> {
+                            val workoutId = action.record.entityId ?: return@forEach
+                            completionStacksByWorkoutId[workoutId].removeLastIfPresent()
+                            categoryIds.forEach { categoryId ->
+                                categoryCompletionMilestones[categoryId].removeLastIfPresent()
+                            }
+                        }
+
+                        UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> {
+                            val workoutId = action.record.entityId ?: return@forEach
+                            val weekStartDate = action.weekStartDate ?: return@forEach
+                            moveStacksByWorkoutId
+                                .getOrPut(workoutId, ::ArrayDeque)
+                                .addLast(WeekEvent(weekStartDate = weekStartDate, timestamp = action.record.timestamp))
+                            categoryIds.forEach { categoryId ->
+                                categoryTrainingBlockMilestones
+                                    .getOrPut(categoryId, ::mutableListOf)
+                                    .add(action.record.timestamp)
+                            }
+                        }
+
+                        UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> {
+                            val workoutId = action.record.entityId ?: return@forEach
+                            moveStacksByWorkoutId[workoutId].removeLastIfPresent()
+                            categoryIds.forEach { categoryId ->
+                                categoryTrainingBlockMilestones[categoryId].removeLastIfPresent()
+                            }
+                        }
+
+                        UserActionType.REORDER_WORKOUT -> {
+                            val workoutId = action.record.entityId ?: return@forEach
+                            val weekStartDate = action.weekStartDate ?: return@forEach
+                            reorderStacksByWorkoutId
+                                .getOrPut(workoutId, ::ArrayDeque)
+                                .addLast(WeekEvent(weekStartDate = weekStartDate, timestamp = action.record.timestamp))
+                            categoryIds.forEach { categoryId ->
+                                categoryTrainingBlockMilestones
+                                    .getOrPut(categoryId, ::mutableListOf)
+                                    .add(action.record.timestamp)
+                            }
+                        }
+
+                        UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> {
+                            val workoutId = action.record.entityId ?: return@forEach
+                            reorderStacksByWorkoutId[workoutId].removeLastIfPresent()
+                            categoryIds.forEach { categoryId ->
+                                categoryTrainingBlockMilestones[categoryId].removeLastIfPresent()
+                            }
+                        }
+
+                        UserActionType.COPY_LAST_WEEK -> {
+                            val weekStartDate = action.weekStartDate ?: return@forEach
+                            copyStacksByWeek.getOrPut(weekStartDate, ::ArrayDeque).addLast(action.record.timestamp)
+                        }
+
+                        UserActionType.UNDO_COPY_LAST_WEEK -> {
+                            val weekStartDate = action.weekStartDate ?: return@forEach
+                            copyStacksByWeek[weekStartDate].removeLastIfPresent()
+                        }
+
+                        UserActionType.CREATE_CATEGORY,
+                        UserActionType.UPDATE_CATEGORY_NAME,
+                        UserActionType.UPDATE_CATEGORY_COLOR,
+                        UserActionType.UPDATE_CATEGORY_VISIBILITY,
+                        UserActionType.REORDER_CATEGORY,
+                        UserActionType.DELETE_CATEGORY,
+                        UserActionType.RESTORE_DEFAULT_CATEGORIES,
+                        -> categoryActionTimestamps += action.record.timestamp
+
+                        UserActionType.EXPORT_BACKUP,
+                        UserActionType.IMPORT_BACKUP,
+                        -> {
+                            if (action.metadata[RESULT] == RESULT_SUCCESS) {
+                                backupSuccessTimestamps += action.record.timestamp
+                            }
+                        }
+
+                        else -> Unit
+                    }
+
+                    if (action.actionType in categoryTrainingBlockActions) {
+                        categoryIds.forEach { categoryId ->
+                            categoryTrainingBlockMilestones
+                                .getOrPut(categoryId, ::mutableListOf)
+                                .add(action.record.timestamp)
+                        }
+                    }
+                }
+
+                completionStacksByWorkoutId.values.forEach { stack ->
+                    effectiveCompletionTimestamps += stack.toList()
+                }
+                moveStacksByWorkoutId.values.forEach { stack ->
+                    effectivePlanningEvents += stack.toList()
+                }
+                reorderStacksByWorkoutId.values.forEach { stack ->
+                    effectivePlanningEvents += stack.toList()
+                }
+                copyStacksByWeek.forEach { (weekStartDate, stack) ->
+                    stack.forEach { timestamp ->
+                        effectiveCopyEvents += WeekEvent(weekStartDate = weekStartDate, timestamp = timestamp)
+                    }
+                }
+
+                val completedWeekEvents =
+                    completedWeeks.entries
+                        .map { (weekStartDate, completedAt) ->
+                            WeekCompletion(weekStartDate = weekStartDate, completedAt = completedAt)
+                        }.sortedBy { it.completedAt }
+                val effectivePlanningByWeek =
+                    effectivePlanningEvents.groupBy(WeekEvent::weekStartDate)
+                        .mapValues { (_, events) -> events.sortedBy(WeekEvent::timestamp) }
+                val effectiveCopiesByWeek =
+                    effectiveCopyEvents.groupBy(WeekEvent::weekStartDate)
+                        .mapValues { (_, events) -> events.sortedBy(WeekEvent::timestamp) }
+                val comebackWeekMilestones =
+                    completedWeekEvents
+                        .filter { completion ->
+                            effectivePlanningByWeek[completion.weekStartDate]
+                                .orEmpty()
+                                .any { event -> event.timestamp < completion.completedAt }
+                        }.map(WeekCompletion::completedAt)
+                val holdTheLineMilestones =
+                    completedWeekEvents
+                        .filter { completion ->
+                            effectiveCopiesByWeek[completion.weekStartDate]
+                                .orEmpty()
+                                .any { event -> event.timestamp < completion.completedAt }
+                        }.map(WeekCompletion::completedAt)
+                val homeGroundMilestonesByCategory =
+                    categoryCompletionWeeks.mapValues { (_, weeks) ->
+                        completedWeekEvents
+                            .filter { completion -> weeks.containsKey(completion.weekStartDate) }
+                            .map(WeekCompletion::completedAt)
+                    }
+
+                return TrophyHistory(
+                    completedWeekMilestones = completedWeekEvents.map(WeekCompletion::completedAt),
+                    matchFitnessMilestones = effectiveCompletionTimestamps.sorted(),
+                    longestStreakMilestones = buildLongestStreakMilestones(completedWeeks),
+                    comebackWeekMilestones = comebackWeekMilestones,
+                    gamePlanMilestones = effectivePlanningEvents.map(WeekEvent::timestamp).sorted(),
+                    backInFormationMilestones = effectiveCopyEvents.map(WeekEvent::timestamp).sorted(),
+                    holdTheLineMilestones = holdTheLineMilestones,
+                    teamSheetMilestones = categoryActionTimestamps.sorted(),
+                    kitBagMilestones = backupSuccessTimestamps.sorted(),
+                    podiumPlaceMilestonesByCategory =
+                        categoryCompletionMilestones.mapValues { (_, milestones) -> milestones.sorted() },
+                    homeGroundMilestonesByCategory = homeGroundMilestonesByCategory,
+                    trainingBlockMilestonesByCategory =
+                        categoryTrainingBlockMilestones.mapValues { (_, milestones) -> milestones.sorted() },
+                )
+            }
+
+            private fun buildLongestStreakMilestones(completedWeeks: Map<LocalDate, Long>): List<Long> {
+                val sortedWeeks =
+                    completedWeeks.entries
+                        .sortedBy { it.key }
+                        .map { WeekCompletion(weekStartDate = it.key, completedAt = it.value) }
+                val milestoneTimestamps = mutableListOf<Long>()
+                var currentStreak = 0
+                var previousWeekStartDate: LocalDate? = null
+
+                sortedWeeks.forEach { completion ->
+                    currentStreak =
+                        if (previousWeekStartDate?.plusWeeks(1) == completion.weekStartDate) {
+                            currentStreak + 1
+                        } else {
+                            1
+                        }
+
+                    while (milestoneTimestamps.size < currentStreak) {
+                        milestoneTimestamps += completion.completedAt
+                    }
+
+                    previousWeekStartDate = completion.weekStartDate
+                }
+
+                return milestoneTimestamps
+            }
+
+            private fun String.toUserActionTypeOrNull(): UserActionType? {
+                return runCatching { UserActionType.valueOf(this) }.getOrNull()
+            }
+
+            private fun String.toLocalDateOrNull(): LocalDate? {
+                return runCatching { LocalDate.parse(this) }.getOrNull()
+            }
+
+            private fun <T> ArrayDeque<T>?.removeLastIfPresent() {
+                if (this != null && isNotEmpty()) {
+                    removeLast()
+                }
+            }
+
+            private fun <T> MutableList<T>?.removeLastIfPresent() {
+                if (this != null && isNotEmpty()) {
+                    removeAt(lastIndex)
+                }
+            }
+
+            private fun resolveCategoryIds(
+                action: ParsedAction,
+                aliasesById: Map<Long, Set<String>>,
+            ): Set<Long> {
+                val resolvedById = action.categoryId?.let(::setOf).orEmpty()
+                if (resolvedById.isNotEmpty()) return resolvedById
+
+                return aliasesById.entries
+                    .filter { (_, aliases) -> aliases.any { it in action.categoryNames } }
+                    .mapTo(linkedSetOf()) { (id, _) -> id }
+            }
+
+            private fun buildCategoryAliasesById(
+                actions: List<UserActionRecord>,
+                categories: List<TrophyCategoryContext>,
+            ): Map<Long, Set<String>> {
+                val aliases =
+                    categories.associate { category ->
+                        category.id to mutableSetOf(category.name)
+                    }.toMutableMap()
+
+                actions.forEach { action ->
+                    val categoryId = action.entityId ?: return@forEach
+                    val actionType = action.actionType.toUserActionTypeOrNull() ?: return@forEach
+                    if (actionType != UserActionType.UPDATE_CATEGORY_NAME) return@forEach
+
+                    val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
+                    val names = aliases.getOrPut(categoryId) { mutableSetOf() }
+                    metadata[CATEGORY_NAME]?.takeIf { it.isNotBlank() }?.let(names::add)
+                    metadata[OLD_VALUE]?.takeIf { it.isNotBlank() }?.let(names::add)
+                    metadata[NEW_VALUE]?.takeIf { it.isNotBlank() }?.let(names::add)
+                }
+
+                return aliases.mapValues { (_, names) -> names.toSet() }
+            }
+
+            private val categoryTrainingBlockActions =
+                setOf(
+                    UserActionType.CREATE_WORKOUT,
+                    UserActionType.UPDATE_WORKOUT,
+                    UserActionType.UNDO_DELETE_WORKOUT,
+                    UserActionType.CONVERT_REST_DAY_TO_WORKOUT,
+                )
+        }
+    }
+}

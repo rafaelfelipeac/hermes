@@ -38,6 +38,20 @@ object Dimens {
     val CategoryActionIconSize = 36.dp
     val CategoryColorSwatchSize = 36.dp
     val CategoryColorGridHeight = 140.dp
+    val TrophyHeroMinHeight = 180.dp
+    val TrophyCardMinHeight = 120.dp
+    val TrophyAccentBarHeight = 6.dp
+    val TrophyArtworkSize = 44.dp
+    val TrophyShelfArtworkSize = 88.dp
+    val TrophyDetailArtworkSize = 160.dp
+    val TrophyShelfIconSize = 28.dp
+    val TrophyDetailIconSize = 44.dp
+    val TrophyShelfCardMinWidth = 132.dp
+    val TrophyOverviewCardMinHeight = 156.dp
+    val TrophyDetailCardMinHeight = 208.dp
+    val TrophyCardFooterMinHeight = 40.dp
+    val TrophyBackButtonSize = 36.dp
+    val TrophyProgressHeight = 8.dp
     val WeeklyTrainingTestViewportHeight = 200.dp
     val CheckboxYOffset = (-2).dp
 }

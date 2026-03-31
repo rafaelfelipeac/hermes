@@ -12,6 +12,7 @@ internal const val WEEK_START_DAY_KEY_NAME = "week_start_day"
 internal const val LAST_BACKUP_EXPORTED_AT_KEY_NAME = "last_backup_exported_at"
 internal const val LAST_BACKUP_IMPORTED_AT_KEY_NAME = "last_backup_imported_at"
 internal const val BACKUP_FOLDER_URI_KEY_NAME = "backup_folder_uri"
+internal const val LAST_SEEN_TROPHY_CELEBRATION_TOKEN_KEY_NAME = "last_seen_trophy_celebration_token"
 
 internal val Context.settingsDataStore by preferencesDataStore(
     name = SETTINGS_DATA_STORE_NAME,
@@ -24,3 +25,5 @@ internal val WEEK_START_DAY_KEY = stringPreferencesKey(WEEK_START_DAY_KEY_NAME)
 internal val LAST_BACKUP_EXPORTED_AT_KEY = stringPreferencesKey(LAST_BACKUP_EXPORTED_AT_KEY_NAME)
 internal val LAST_BACKUP_IMPORTED_AT_KEY = stringPreferencesKey(LAST_BACKUP_IMPORTED_AT_KEY_NAME)
 internal val BACKUP_FOLDER_URI_KEY = stringPreferencesKey(BACKUP_FOLDER_URI_KEY_NAME)
+internal val LAST_SEEN_TROPHY_CELEBRATION_TOKEN_KEY =
+    stringPreferencesKey(LAST_SEEN_TROPHY_CELEBRATION_TOKEN_KEY_NAME)

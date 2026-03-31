@@ -1,0 +1,84 @@
+package com.rafaelfelipeac.hermes.features.trophies.presentation
+
+import androidx.annotation.StringRes
+import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyFamily
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
+
+internal fun TrophyFamily.toUi(): TrophyFamilyUi {
+    return when (this) {
+        TrophyFamily.FOLLOW_THROUGH -> TrophyFamilyUi.FOLLOW_THROUGH
+        TrophyFamily.CONSISTENCY -> TrophyFamilyUi.CONSISTENCY
+        TrophyFamily.ADAPTABILITY -> TrophyFamilyUi.ADAPTABILITY
+        TrophyFamily.MOMENTUM -> TrophyFamilyUi.MOMENTUM
+        TrophyFamily.BUILDER -> TrophyFamilyUi.BUILDER
+        TrophyFamily.CATEGORIES -> TrophyFamilyUi.CATEGORIES
+    }
+}
+
+@StringRes
+internal fun trophyNameRes(trophyId: TrophyId): Int {
+    return when (trophyId) {
+        TrophyId.FULL_TIME -> R.string.trophies_name_full_time
+        TrophyId.MATCH_FITNESS -> R.string.trophies_name_match_fitness
+        TrophyId.IN_FORM -> R.string.trophies_name_in_form
+        TrophyId.COMEBACK_WEEK -> R.string.trophies_name_comeback_week
+        TrophyId.GAME_PLAN -> R.string.trophies_name_game_plan
+        TrophyId.BACK_IN_FORMATION -> R.string.trophies_name_back_in_formation
+        TrophyId.HOLD_THE_LINE -> R.string.trophies_name_hold_the_line
+        TrophyId.TEAM_SHEET -> R.string.trophies_name_team_sheet
+        TrophyId.KIT_BAG -> R.string.trophies_name_kit_bag
+        TrophyId.PODIUM_PLACE -> R.string.trophies_name_podium_place
+        TrophyId.HOME_GROUND -> R.string.trophies_name_home_ground
+        TrophyId.TRAINING_BLOCK -> R.string.trophies_name_training_block
+    }
+}
+
+@StringRes
+internal fun trophyDescriptionRes(
+    trophyId: TrophyId,
+    isUnlocked: Boolean,
+): Int {
+    return when (trophyId) {
+        TrophyId.FULL_TIME -> if (isUnlocked) R.string.trophies_desc_full_time_unlocked else R.string.trophies_desc_full_time_locked
+        TrophyId.MATCH_FITNESS -> if (isUnlocked) R.string.trophies_desc_match_fitness_unlocked else R.string.trophies_desc_match_fitness_locked
+        TrophyId.IN_FORM -> if (isUnlocked) R.string.trophies_desc_in_form_unlocked else R.string.trophies_desc_in_form_locked
+        TrophyId.COMEBACK_WEEK -> if (isUnlocked) R.string.trophies_desc_comeback_week_unlocked else R.string.trophies_desc_comeback_week_locked
+        TrophyId.GAME_PLAN -> if (isUnlocked) R.string.trophies_desc_game_plan_unlocked else R.string.trophies_desc_game_plan_locked
+        TrophyId.BACK_IN_FORMATION -> if (isUnlocked) R.string.trophies_desc_back_in_formation_unlocked else R.string.trophies_desc_back_in_formation_locked
+        TrophyId.HOLD_THE_LINE -> if (isUnlocked) R.string.trophies_desc_hold_the_line_unlocked else R.string.trophies_desc_hold_the_line_locked
+        TrophyId.TEAM_SHEET -> if (isUnlocked) R.string.trophies_desc_team_sheet_unlocked else R.string.trophies_desc_team_sheet_locked
+        TrophyId.KIT_BAG -> if (isUnlocked) R.string.trophies_desc_kit_bag_unlocked else R.string.trophies_desc_kit_bag_locked
+        TrophyId.PODIUM_PLACE -> if (isUnlocked) R.string.trophies_desc_podium_place_unlocked else R.string.trophies_desc_podium_place_locked
+        TrophyId.HOME_GROUND -> if (isUnlocked) R.string.trophies_desc_home_ground_unlocked else R.string.trophies_desc_home_ground_locked
+        TrophyId.TRAINING_BLOCK -> if (isUnlocked) R.string.trophies_desc_training_block_unlocked else R.string.trophies_desc_training_block_locked
+    }
+}
+
+@StringRes
+internal fun familyTitleRes(family: TrophyFamilyUi): Int {
+    return when (family) {
+        TrophyFamilyUi.FOLLOW_THROUGH -> R.string.trophies_family_follow_through
+        TrophyFamilyUi.CONSISTENCY -> R.string.trophies_family_consistency
+        TrophyFamilyUi.ADAPTABILITY -> R.string.trophies_family_adaptability
+        TrophyFamilyUi.MOMENTUM -> R.string.trophies_family_momentum
+        TrophyFamilyUi.BUILDER -> R.string.trophies_family_builder
+        TrophyFamilyUi.CATEGORIES -> R.string.trophies_family_categories
+    }
+}
+
+@StringRes
+internal fun familyDescriptionRes(family: TrophyFamilyUi): Int {
+    return when (family) {
+        TrophyFamilyUi.FOLLOW_THROUGH -> R.string.trophies_family_follow_through_desc
+        TrophyFamilyUi.CONSISTENCY -> R.string.trophies_family_consistency_desc
+        TrophyFamilyUi.ADAPTABILITY -> R.string.trophies_family_adaptability_desc
+        TrophyFamilyUi.MOMENTUM -> R.string.trophies_family_momentum_desc
+        TrophyFamilyUi.BUILDER -> R.string.trophies_family_builder_desc
+        TrophyFamilyUi.CATEGORIES -> R.string.trophies_family_categories_desc
+    }
+}
+
+internal fun celebrationToken(trophy: TrophyCardUi): String {
+    return "${trophy.stableId}:${trophy.unlockedAt ?: 0L}"
+}
