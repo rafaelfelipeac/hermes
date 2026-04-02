@@ -41,6 +41,8 @@ data class TrophyCardUi(
     val stableId: String,
     val trophyId: com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId,
     val family: TrophyFamilyUi,
+    val sortOrder: Int,
+    val badgeRank: Int,
     val categoryId: Long? = null,
     val categoryName: String? = null,
     val categoryColorId: String? = null,

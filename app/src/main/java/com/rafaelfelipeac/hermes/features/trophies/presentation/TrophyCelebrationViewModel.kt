@@ -88,6 +88,8 @@ class TrophyCelebrationViewModel
                     },
                 trophyId = progress.definition.id,
                 family = progress.definition.family.toUi(),
+                sortOrder = progress.sortOrder,
+                badgeRank = progress.badgeRank,
                 categoryId = progress.categoryId,
                 categoryName = progress.categoryName,
                 categoryColorId = progress.categoryColorId,

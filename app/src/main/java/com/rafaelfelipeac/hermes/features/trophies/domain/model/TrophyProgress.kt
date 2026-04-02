@@ -11,6 +11,12 @@ data class TrophyProgress(
     val target: Int
         get() = definition.target
 
+    val sortOrder: Int
+        get() = definition.sortOrder
+
+    val badgeRank: Int
+        get() = definition.badgeRank
+
     val isUnlocked: Boolean
         get() = unlockedAt != null
 }

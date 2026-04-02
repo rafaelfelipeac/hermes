@@ -50,6 +50,8 @@ class TrophyFeaturedSelectionTest {
             stableId = stableId,
             trophyId = TrophyId.FULL_TIME,
             family = TrophyFamilyUi.FOLLOW_THROUGH,
+            sortOrder = 10,
+            badgeRank = 1,
             currentValue = currentValue,
             target = target,
             isUnlocked = isUnlocked,

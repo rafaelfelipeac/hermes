@@ -56,7 +56,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -72,14 +71,11 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBackButtonSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardFooterMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailCardMinHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyOverviewCardMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyProgressHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfCardMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
@@ -94,6 +90,9 @@ internal const val TROPHIES_VIEW_ALL_TAG_PREFIX = "trophies_view_all_"
 internal const val TROPHIES_FAMILY_DETAIL_TAG_PREFIX = "trophies_family_detail_"
 private const val TROPHIES_PREVIEW_COUNT = 6
 private const val TROPHIES_GRID_COLUMNS = 2
+private const val TROPHIES_SAMPLE_FULL_TIME_TARGET = 3
+private const val TROPHIES_SAMPLE_COMEBACK_TARGET = 2
+private const val TROPHIES_SAMPLE_PODIUM_TARGET = 10
 
 @Composable
 fun TrophiesScreen(
@@ -312,15 +311,15 @@ private fun TrophyEmptyState(
         )
         TrophyPreviewCard(
             title = stringResource(R.string.trophies_name_full_time),
-            description = stringResource(R.string.trophies_desc_full_time_locked),
+            description = stringResource(R.string.trophies_desc_complete_weeks_locked, TROPHIES_SAMPLE_FULL_TIME_TARGET),
         )
         TrophyPreviewCard(
             title = stringResource(R.string.trophies_name_comeback_week),
-            description = stringResource(R.string.trophies_desc_comeback_week_locked),
+            description = stringResource(R.string.trophies_desc_comeback_weeks_locked, TROPHIES_SAMPLE_COMEBACK_TARGET),
         )
         TrophyPreviewCard(
             title = stringResource(R.string.trophies_name_podium_place),
-            description = stringResource(R.string.trophies_desc_podium_place_locked),
+            description = stringResource(R.string.trophies_desc_category_completions_locked, TROPHIES_SAMPLE_PODIUM_TARGET),
         )
     }
 }
@@ -404,7 +403,6 @@ private fun TrophyShelfCard(
         listOfNotNull(
             trophyName(trophy),
             trophy.categoryName,
-            trophyStatusLabel(trophy),
             trophyConditionLabel(trophy),
         ).joinToString(separator = ". ")
 
@@ -434,8 +432,10 @@ private fun TrophyShelfCard(
                 Box(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    TrophyArtwork(
+                    TrophyBadge(
                         trophy = trophy,
+                        icon = trophyIcon(trophy.trophyId),
+                        contentDescription = trophyName(trophy),
                         size = TrophyShelfArtworkSize,
                         modifier = Modifier.align(Alignment.Center),
                     )
@@ -467,56 +467,6 @@ private fun TrophyShelfCard(
 }
 
 @Composable
-private fun TrophyArtwork(
-    trophy: TrophyCardUi,
-    size: androidx.compose.ui.unit.Dp = TrophyArtworkSize,
-    modifier: Modifier = Modifier,
-) {
-    val accent = trophyAccentColor(trophy)
-    val artworkTint =
-        if (trophy.isUnlocked) {
-            accent
-        } else {
-            colorScheme.onSurfaceVariant
-        }
-    val artworkBackground =
-        if (trophy.isUnlocked) {
-            accent.copy(alpha = 0.16f)
-        } else {
-            colorScheme.surfaceContainerHigh
-        }
-    val artworkBorder =
-        if (trophy.isUnlocked) {
-            accent.copy(alpha = 0.28f)
-        } else {
-            colorScheme.outline
-        }
-    val artworkDescription = trophyName(trophy)
-
-    Surface(
-        modifier =
-            modifier
-                .size(size)
-                .semantics { contentDescription = artworkDescription },
-        shape = shapes.large,
-        color = artworkBackground,
-        border = BorderStroke(BorderThin, artworkBorder),
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = trophyArtworkIcon(trophy),
-                contentDescription = null,
-                tint = artworkTint,
-                modifier = Modifier.size(if (size == TrophyDetailArtworkSize) TrophyDetailIconSize else TrophyShelfIconSize),
-            )
-        }
-    }
-}
-
-@Composable
 internal fun TrophyDetailDialog(
     trophy: TrophyCardUi,
     onDismiss: () -> Unit,
@@ -535,8 +485,10 @@ internal fun TrophyDetailDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(SpacingMd),
             ) {
-                TrophyArtwork(
+                TrophyBadge(
                     trophy = trophy,
+                    icon = trophyIcon(trophy.trophyId),
+                    contentDescription = trophyName(trophy),
                     size = TrophyDetailArtworkSize,
                 )
                 Text(text = trophyName(trophy))
@@ -727,21 +679,14 @@ private fun TrophyFamilyHeader(
 private fun trophyName(trophy: TrophyCardUi): String = stringResource(trophyNameRes(trophy.trophyId))
 
 @Composable
-private fun trophyDescription(trophy: TrophyCardUi): String = stringResource(trophyDescriptionRes(trophy.trophyId, trophy.isUnlocked))
+private fun trophyDescription(trophy: TrophyCardUi): String =
+    stringResource(
+        trophyDescriptionRes(trophy.trophyId, trophy.isUnlocked),
+        trophy.target,
+    )
 
 @Composable
 private fun familyTitle(family: TrophyFamilyUi): String = stringResource(familyTitleRes(family))
-
-@Composable
-private fun trophyStatusLabel(trophy: TrophyCardUi): String {
-    return stringResource(
-        if (trophy.isUnlocked) {
-            R.string.trophies_status_unlocked
-        } else {
-            R.string.trophies_status_locked
-        },
-    )
-}
 
 @Composable
 private fun trophyConditionLabel(trophy: TrophyCardUi): String {
@@ -761,7 +706,7 @@ private fun unlockedDateLabel(unlockedAt: Long): String {
     )
 }
 
-private fun trophyAccentColor(trophy: TrophyCardUi): Color {
+internal fun trophyAccentColor(trophy: TrophyCardUi): Color {
     return trophy.categoryColorId?.let(::categoryAccentColor) ?: trophyFamilyAccentColor(trophy.family)
 }
 
@@ -776,25 +721,37 @@ private fun trophyFamilyAccentColor(family: TrophyFamilyUi): Color {
     }
 }
 
-private fun trophyArtworkIcon(trophy: TrophyCardUi): ImageVector {
-    if (!trophy.isUnlocked) return Icons.Outlined.Lock
-
-    return trophyIcon(trophy.trophyId)
-}
-
-private fun trophyIcon(trophyId: TrophyId): ImageVector {
+internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector.ImageVector {
     return when (trophyId) {
-        TrophyId.FULL_TIME -> Icons.Outlined.Flag
-        TrophyId.MATCH_FITNESS -> Icons.Outlined.FitnessCenter
-        TrophyId.IN_FORM -> Icons.Outlined.Repeat
+        TrophyId.FULL_TIME,
+        TrophyId.SEASON_BUILDER,
+        TrophyId.SEASON_ANCHOR,
+        -> Icons.Outlined.Flag
+        TrophyId.MATCH_FITNESS,
+        TrophyId.ENGINE_ROOM,
+        TrophyId.WORKHORSE,
+        -> Icons.Outlined.FitnessCenter
+        TrophyId.IN_FORM,
+        TrophyId.LOCKED_IN,
+        TrophyId.STEADY_RHYTHM,
+        -> Icons.Outlined.Repeat
         TrophyId.COMEBACK_WEEK -> Icons.Outlined.Explore
-        TrophyId.GAME_PLAN -> Icons.Outlined.Build
+        TrophyId.GAME_PLAN,
+        TrophyId.TACTICAL_BOARD,
+        TrophyId.FIELD_MARSHAL,
+        -> Icons.Outlined.Build
         TrophyId.BACK_IN_FORMATION -> Icons.Outlined.ContentCopy
         TrophyId.HOLD_THE_LINE -> Icons.Outlined.CheckCircle
         TrophyId.TEAM_SHEET -> Icons.Outlined.GridView
         TrophyId.KIT_BAG -> Icons.Outlined.Archive
-        TrophyId.PODIUM_PLACE -> Icons.Default.EmojiEvents
-        TrophyId.HOME_GROUND -> Icons.Outlined.Home
+        TrophyId.PODIUM_PLACE,
+        TrophyId.IN_ROTATION,
+        TrophyId.MAINSTAY,
+        -> Icons.Default.EmojiEvents
+        TrophyId.HOME_GROUND,
+        TrophyId.LOCAL_FAVORITE,
+        TrophyId.TERRITORY,
+        -> Icons.Outlined.Home
         TrophyId.TRAINING_BLOCK -> Icons.Outlined.Inventory2
     }
 }

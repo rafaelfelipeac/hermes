@@ -13,7 +13,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyDefinition
-import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyMetric
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import java.time.LocalDate
 import java.util.ArrayDeque
@@ -27,48 +27,19 @@ class TrophyEngine(
         categories: List<TrophyCategoryContext> = emptyList(),
     ): List<TrophyProgress> {
         val history = TrophyHistory.from(actions, categories)
-        val baseProgress = definitions.map { definition ->
-            val milestones =
-                when (definition.id) {
-                    TrophyId.FULL_TIME -> history.completedWeekMilestones
-                    TrophyId.MATCH_FITNESS -> history.matchFitnessMilestones
-                    TrophyId.IN_FORM -> history.longestStreakMilestones
-                    TrophyId.COMEBACK_WEEK -> history.comebackWeekMilestones
-                    TrophyId.GAME_PLAN -> history.gamePlanMilestones
-                    TrophyId.BACK_IN_FORMATION -> history.backInFormationMilestones
-                    TrophyId.HOLD_THE_LINE -> history.holdTheLineMilestones
-                    TrophyId.TEAM_SHEET -> history.teamSheetMilestones
-                    TrophyId.KIT_BAG -> history.kitBagMilestones
-                    TrophyId.PODIUM_PLACE,
-                    TrophyId.HOME_GROUND,
-                    TrophyId.TRAINING_BLOCK,
-                    -> emptyList()
-                }
-
-                TrophyProgress(
+        val baseProgress =
+            definitions.map { definition ->
+                progressForDefinition(
                     definition = definition,
-                    currentValue = milestones.size,
-                    unlockedAt = milestones.getOrNull(definition.target - 1),
-            )
-        }
+                    history = history,
+                )
+            }
         val categoryProgress =
             categories.flatMap { category ->
                 categoryTemplates.map { definition ->
-                    val milestones =
-                        when (definition.id) {
-                            TrophyId.PODIUM_PLACE ->
-                                history.podiumPlaceMilestonesByCategory[category.id].orEmpty()
-                            TrophyId.HOME_GROUND ->
-                                history.homeGroundMilestonesByCategory[category.id].orEmpty()
-                            TrophyId.TRAINING_BLOCK ->
-                                history.trainingBlockMilestonesByCategory[category.id].orEmpty()
-                            else -> emptyList()
-                        }
-
-                    TrophyProgress(
+                    progressForDefinition(
                         definition = definition,
-                        currentValue = milestones.size,
-                        unlockedAt = milestones.getOrNull(definition.target - 1),
+                        history = history,
                         categoryId = category.id,
                         categoryName = category.name,
                         categoryColorId = category.colorId,
@@ -77,6 +48,24 @@ class TrophyEngine(
             }
 
         return baseProgress + categoryProgress
+    }
+
+    private fun progressForDefinition(
+        definition: TrophyDefinition,
+        history: TrophyHistory,
+        categoryId: Long? = null,
+        categoryName: String? = null,
+        categoryColorId: String? = null,
+    ): TrophyProgress {
+        val milestones = history.milestonesFor(definition.metric, categoryId)
+        return TrophyProgress(
+            definition = definition,
+            currentValue = milestones.size,
+            unlockedAt = milestones.getOrNull(definition.target - 1),
+            categoryId = categoryId,
+            categoryName = categoryName,
+            categoryColorId = categoryColorId,
+        )
     }
 
     private data class ParsedAction(
@@ -112,6 +101,26 @@ class TrophyEngine(
         val homeGroundMilestonesByCategory: Map<Long, List<Long>>,
         val trainingBlockMilestonesByCategory: Map<Long, List<Long>>,
     ) {
+        fun milestonesFor(
+            metric: TrophyMetric,
+            categoryId: Long?,
+        ): List<Long> {
+            return when (metric) {
+                TrophyMetric.COMPLETED_WEEKS -> completedWeekMilestones
+                TrophyMetric.WORKOUT_COMPLETIONS -> matchFitnessMilestones
+                TrophyMetric.CONSECUTIVE_COMPLETED_WEEKS -> longestStreakMilestones
+                TrophyMetric.COMEBACK_WEEKS -> comebackWeekMilestones
+                TrophyMetric.PLANNING_ADJUSTMENTS -> gamePlanMilestones
+                TrophyMetric.COPIED_WEEKS -> backInFormationMilestones
+                TrophyMetric.COPIED_AND_COMPLETED_WEEKS -> holdTheLineMilestones
+                TrophyMetric.CATEGORY_ACTIONS -> teamSheetMilestones
+                TrophyMetric.BACKUP_SUCCESSES -> kitBagMilestones
+                TrophyMetric.CATEGORY_COMPLETIONS -> categoryId?.let { podiumPlaceMilestonesByCategory[it] }.orEmpty()
+                TrophyMetric.CATEGORY_PRESENCE_WEEKS -> categoryId?.let { homeGroundMilestonesByCategory[it] }.orEmpty()
+                TrophyMetric.CATEGORY_PLANNING_ACTIONS -> categoryId?.let { trainingBlockMilestonesByCategory[it] }.orEmpty()
+            }
+        }
+
         companion object {
             private const val RESULT_SUCCESS = "success"
 

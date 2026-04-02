@@ -23,7 +23,7 @@ class TrophyViewModelTest {
             buildTrophyPageState(
                 listOf(
                     progress(TrophyId.PODIUM_PLACE, categoryId = 10L, categoryName = "Run", categoryColorId = COLOR_RUN),
-                    progress(TrophyId.HOME_GROUND, categoryId = 10L, categoryName = "Run", categoryColorId = COLOR_RUN),
+                    progress(TrophyId.IN_ROTATION, categoryId = 10L, categoryName = "Run", categoryColorId = COLOR_RUN),
                     progress(TrophyId.TRAINING_BLOCK, categoryId = 20L, categoryName = "Strength", categoryColorId = "strength"),
                 ),
             )
@@ -32,7 +32,7 @@ class TrophyViewModelTest {
 
         assertEquals(listOf("Run", "Strength"), categoriesFamily.sections.mapNotNull { it.title })
         assertEquals(2, categoriesFamily.sections.size)
-        assertEquals(2, categoriesFamily.sections.first().trophies.size)
+        assertEquals(listOf(TrophyId.PODIUM_PLACE, TrophyId.IN_ROTATION), categoriesFamily.sections.first().trophies.map { it.trophyId })
     }
 
     @Test
@@ -72,7 +72,7 @@ class TrophyViewModelTest {
 
         val card = state.families.first().sections.first().trophies.first()
 
-        assertEquals(1, card.target)
+        assertEquals(3, card.target)
         assertTrue(card.isUnlocked)
         assertEquals(10L, card.unlockedAt)
     }
@@ -92,7 +92,7 @@ class TrophyViewModelTest {
         val card = state.families.first().sections.first().trophies.first()
 
         assertFalse(card.isUnlocked)
-        assertEquals(10, card.target)
+        assertEquals(25, card.target)
     }
 
     private fun progress(

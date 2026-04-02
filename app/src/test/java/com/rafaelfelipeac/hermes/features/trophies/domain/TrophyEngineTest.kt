@@ -53,7 +53,9 @@ class TrophyEngineTest {
 
         assertEquals(4, progress.require(TrophyId.FULL_TIME).currentValue)
         assertEquals(3, progress.require(TrophyId.IN_FORM).currentValue)
-        assertEquals(20L, progress.require(TrophyId.IN_FORM).unlockedAt)
+        assertEquals(30L, progress.require(TrophyId.IN_FORM).unlockedAt)
+        assertEquals(30L, progress.require(TrophyId.FULL_TIME).unlockedAt)
+        assertFalse(progress.require(TrophyId.SEASON_BUILDER).isUnlocked)
     }
 
     @Test
@@ -75,7 +77,7 @@ class TrophyEngineTest {
 
         assertEquals(2, progress.require(TrophyId.GAME_PLAN).currentValue)
         assertEquals(2, progress.require(TrophyId.COMEBACK_WEEK).currentValue)
-        assertEquals(40L, progress.require(TrophyId.COMEBACK_WEEK).unlockedAt)
+        assertEquals(60L, progress.require(TrophyId.COMEBACK_WEEK).unlockedAt)
     }
 
     @Test
@@ -96,7 +98,8 @@ class TrophyEngineTest {
 
         assertEquals(1, progress.require(TrophyId.BACK_IN_FORMATION).currentValue)
         assertEquals(1, progress.require(TrophyId.HOLD_THE_LINE).currentValue)
-        assertEquals(50L, progress.require(TrophyId.HOLD_THE_LINE).unlockedAt)
+        assertFalse(progress.require(TrophyId.BACK_IN_FORMATION).isUnlocked)
+        assertFalse(progress.require(TrophyId.HOLD_THE_LINE).isUnlocked)
     }
 
     @Test
@@ -135,9 +138,9 @@ class TrophyEngineTest {
         val kitBag = progress.require(TrophyId.KIT_BAG)
 
         assertEquals(3, teamSheet.currentValue)
-        assertEquals(30L, teamSheet.unlockedAt)
+        assertNull(teamSheet.unlockedAt)
         assertEquals(2, kitBag.currentValue)
-        assertEquals(40L, kitBag.unlockedAt)
+        assertNull(kitBag.unlockedAt)
     }
 
     @Test
@@ -174,16 +177,40 @@ class TrophyEngineTest {
 
         val podiumPlace =
             progress.first { it.definition.id == TrophyId.PODIUM_PLACE && it.categoryId == category.id }
+        val inRotation =
+            progress.first { it.definition.id == TrophyId.IN_ROTATION && it.categoryId == category.id }
         val homeGround =
             progress.first { it.definition.id == TrophyId.HOME_GROUND && it.categoryId == category.id }
         val trainingBlock =
             progress.first { it.definition.id == TrophyId.TRAINING_BLOCK && it.categoryId == category.id }
 
         assertEquals(1, podiumPlace.currentValue)
+        assertEquals(1, inRotation.currentValue)
         assertEquals(1, homeGround.currentValue)
         assertEquals(1, trainingBlock.currentValue)
-        assertTrue(homeGround.isUnlocked)
+        assertFalse(homeGround.isUnlocked)
         assertFalse(podiumPlace.isUnlocked)
+    }
+
+    @Test
+    fun repeatedSeriesUnlockIndependentlyFromSharedMetric() {
+        val weeks = (0..9).map { LocalDate.of(2026, 1, 5).plusWeeks(it.toLong()) }
+        val progress =
+            engine.compute(
+                weeks.mapIndexed { index, week ->
+                    weekAction(
+                        id = index.toLong() + 1,
+                        actionType = COMPLETE_WEEK_WORKOUTS,
+                        weekStartDate = week,
+                        timestamp = (index + 1) * 10L,
+                    )
+                },
+            )
+
+        assertTrue(progress.require(TrophyId.FULL_TIME).isUnlocked)
+        assertTrue(progress.require(TrophyId.SEASON_BUILDER).isUnlocked)
+        assertFalse(progress.require(TrophyId.SEASON_ANCHOR).isUnlocked)
+        assertEquals(100L, progress.require(TrophyId.SEASON_BUILDER).unlockedAt)
     }
 
     private fun List<com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress>.require(

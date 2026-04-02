@@ -83,17 +83,17 @@ internal fun buildTrophyPageState(progress: List<TrophyProgress>): TrophyPageSta
                             .values
                             .sortedBy { it.firstOrNull()?.categoryName.orEmpty() }
                             .mapNotNull { categoryCards ->
-                                categoryCards.firstOrNull()?.categoryName?.let { categoryName ->
-                                    TrophySectionUi(
-                                        stableId = categoryCards.first().stableId.substringAfter('_'),
-                                        title = categoryName,
-                                        accentColorId = categoryCards.first().categoryColorId,
-                                        trophies = categoryCards.sortedBy { it.trophyId.name },
-                                    )
-                                }
-                            }
+                categoryCards.firstOrNull()?.categoryName?.let { categoryName ->
+                    TrophySectionUi(
+                        stableId = categoryCards.first().stableId.substringAfter('_'),
+                        title = categoryName,
+                        accentColorId = categoryCards.first().categoryColorId,
+                        trophies = categoryCards.sortedBy(TrophyCardUi::sortOrder),
+                    )
+                }
+            }
                     } else {
-                        familyCards.takeIf { it.isNotEmpty() }?.let { list ->
+                        familyCards.sortedBy(TrophyCardUi::sortOrder).takeIf { it.isNotEmpty() }?.let { list ->
                             listOf(
                                 TrophySectionUi(
                                     stableId = family.name,
@@ -120,6 +120,8 @@ private fun toCardUi(progress: TrophyProgress): TrophyCardUi {
             },
         trophyId = progress.definition.id,
         family = progress.definition.family.toUi(),
+        sortOrder = progress.sortOrder,
+        badgeRank = progress.badgeRank,
         categoryId = progress.categoryId,
         categoryName = progress.categoryName,
         categoryColorId = progress.categoryColorId,

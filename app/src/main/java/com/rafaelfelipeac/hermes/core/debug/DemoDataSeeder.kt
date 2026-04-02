@@ -558,6 +558,52 @@ class DemoDataSeeder
                         newPolicy = ALWAYS_SHOW.name,
                         timestamp = now - dayMillis * 2 + 5_000,
                     ),
+                    categoryAction(
+                        type = UserActionType.UPDATE_CATEGORY_COLOR,
+                        categoryId = RUN_ID,
+                        categoryName = categoryNameForId(RUN_ID),
+                        timestamp = now - dayMillis * 2 + 6_000,
+                    ),
+                    categoryAction(
+                        type = UserActionType.UPDATE_CATEGORY_VISIBILITY,
+                        categoryId = CYCLING_ID,
+                        categoryName = categoryNameForId(CYCLING_ID),
+                        timestamp = now - dayMillis * 2 + 7_000,
+                    ),
+                    categoryAction(
+                        type = UserActionType.REORDER_CATEGORY,
+                        categoryId = STRENGTH_ID,
+                        categoryName = categoryNameForId(STRENGTH_ID),
+                        timestamp = now - dayMillis * 2 + 8_000,
+                    ),
+                    categoryAction(
+                        type = UserActionType.UPDATE_CATEGORY_COLOR,
+                        categoryId = SWIM_ID,
+                        categoryName = categoryNameForId(SWIM_ID),
+                        timestamp = now - dayMillis * 2 + 9_000,
+                    ),
+                    categoryAction(
+                        type = UserActionType.UPDATE_CATEGORY_VISIBILITY,
+                        categoryId = MOBILITY_ID,
+                        categoryName = categoryNameForId(MOBILITY_ID),
+                        timestamp = now - dayMillis * 2 + 10_000,
+                    ),
+                    categoryAction(
+                        type = UserActionType.REORDER_CATEGORY,
+                        categoryId = OTHER_ID,
+                        categoryName = categoryNameForId(OTHER_ID),
+                        timestamp = now - dayMillis * 2 + 11_000,
+                    ),
+                    categoryAction(
+                        type = UserActionType.UPDATE_CATEGORY_COLOR,
+                        categoryId = RUN_ID,
+                        categoryName = categoryNameForId(RUN_ID),
+                        timestamp = now - dayMillis * 2 + 12_000,
+                    ),
+                    settingsResultAction(
+                        type = UserActionType.EXPORT_BACKUP,
+                        timestamp = now - dayMillis * 2 + 13_000,
+                    ),
                 )
             val navigationActions =
                 listOf(

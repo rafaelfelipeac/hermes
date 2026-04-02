@@ -185,7 +185,7 @@ class TrophiesContentTest {
     fun detailDialogShowsConditionAndUnlockedDate() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val close = context.getString(R.string.trophies_detail_close)
-        val requirement = context.getString(R.string.trophies_unlock_requirement, 1)
+        val requirement = context.getString(R.string.trophies_desc_complete_weeks_unlocked, 1)
 
         composeRule.setContent {
             TrophyDetailDialog(
@@ -257,6 +257,8 @@ class TrophiesContentTest {
             stableId = stableId,
             trophyId = trophyId,
             family = family,
+            sortOrder = 10,
+            badgeRank = 1,
             categoryName = categoryName,
             currentValue = currentValue,
             target = target,
