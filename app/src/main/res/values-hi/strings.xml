@@ -73,8 +73,22 @@
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>
-    <string name="settings_seed_demo_data">डेमो डेटा बनाएं</string>
+    <string name="settings_developer_data_title">डेटा</string>
+    <string name="settings_developer_data_body">लोकल डेटा को डेमो वीक प्लान से बदल देता है।</string>
+    <string name="settings_developer_trophies_title">ट्रॉफियां</string>
+    <string name="settings_developer_trophies_body">ट्रॉफी स्टेट देखने के लिए लोकल हिस्ट्री को बदल देता है।</string>
+    <string name="settings_seed_demo_data">डेमो डेटा से बदलें</string>
     <string name="settings_demo_data_created">डेमो डेटा बन गया</string>
+    <string name="settings_seed_mixed_trophies">मिक्स्ड ट्रॉफी प्रीव्यू से बदलें</string>
+    <string name="settings_mixed_trophies_created">मिक्स्ड ट्रॉफी डेटा बना दिया गया</string>
+    <string name="settings_seed_locked_trophies">लॉक ट्रॉफी प्रीव्यू से बदलें</string>
+    <string name="settings_locked_trophies_created">लॉक ट्रॉफियों वाला डेटा बना दिया गया</string>
+    <string name="settings_seed_unlocked_trophies">अनलॉक ट्रॉफी प्रीव्यू से बदलें</string>
+    <string name="settings_completed_trophies_created">अनलॉक ट्रॉफियों वाला डेटा बना दिया गया</string>
+    <string name="settings_developer_confirm_title">लोकल डेटा बदलें?</string>
+    <string name="settings_developer_confirm_message">यह आपके मौजूदा लोकल डेटा को डेवलपर प्रीव्यू से बदल देगा।</string>
+    <string name="settings_developer_confirm_continue">जारी रखें</string>
+    <string name="settings_developer_confirm_cancel">रद्द करें</string>
     <string name="weekly_training_add_mock_workout">मॉक वर्कआउट जोड़ें</string>
     <string name="mock_workout_type">फुल बॉडी</string>
     <string name="mock_workout_description">3 सेट, 10 रेप्स</string>

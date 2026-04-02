@@ -27,6 +27,10 @@ object Dimens {
     val AddActionPillHorizontalPadding = 18.dp
     val HelpIconSize = 36.dp
     val HelpIconGlyphSize = 22.dp
+    val SettingsDeveloperSectionSpacing = 10.dp
+    val SettingsDeveloperButtonVerticalPadding = 2.dp
+    val SettingsDeveloperButtonContentHorizontalPadding = 12.dp
+    val SettingsDeveloperButtonContentVerticalPadding = 8.dp
 
     val ContentPadding = 14.dp
     val CheckboxBoxSize = 32.dp

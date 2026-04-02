@@ -79,6 +79,32 @@ class DemoDataSeeder
         private val stringProvider: StringProvider,
         private val categorySeeder: CategorySeeder,
     ) {
+        suspend fun seedCompletedTrophies() {
+            if (!BuildConfig.DEBUG) return
+
+            seed()
+
+            val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
+            buildCompletedTrophyActions(currentWeekStart).forEach { userActionDao.insert(it) }
+        }
+
+        suspend fun seedLockedTrophies() {
+            if (!BuildConfig.DEBUG) return
+
+            categorySeeder.ensureSeeded()
+
+            workoutDao.deleteAll()
+            userActionDao.deleteAll()
+
+            val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
+            val nextWeekStart = currentWeekStart.plusWeeks(1)
+            val workouts =
+                buildWeekSchedule(currentWeekStart, CompletionProfile.NONE) +
+                    buildWeekSchedule(nextWeekStart, CompletionProfile.NONE)
+
+            workouts.forEach { workoutDao.insert(it) }
+        }
+
         suspend fun seed() {
             if (!BuildConfig.DEBUG) return
 
@@ -170,6 +196,129 @@ class DemoDataSeeder
                     )
                 }
             }
+        }
+
+        private fun buildCompletedTrophyActions(currentWeekStart: LocalDate): List<UserActionEntity> {
+            val zoneId = ZoneId.systemDefault()
+            val historyStart = currentWeekStart.minusWeeks(COMPLETED_TROPHY_HISTORY_WEEKS.toLong() + 12)
+            val completedWeeks =
+                List(COMPLETED_TROPHY_HISTORY_WEEKS) { index ->
+                    historyStart.plusWeeks(index.toLong())
+                }
+            val actions = mutableListOf<UserActionEntity>()
+            var nextEntityId = COMPLETED_TROPHY_ENTITY_ID_START
+            val categoryIds = completedTrophyCategoryIds()
+
+            completedWeeks.forEachIndexed { weekIndex, weekStartDate ->
+                if (weekIndex < COMPLETED_TROPHY_COPIED_WEEKS) {
+                    actions +=
+                        copyLastWeekAction(
+                            weekStartDate = weekStartDate,
+                            timestamp = weekTimestamp(weekStartDate, zoneId, dayOffset = 0, hour = 6),
+                        )
+                }
+
+                categoryIds.forEachIndexed { categoryIndex, categoryId ->
+                    val seed = workoutSeedForCategory(categoryId)
+
+                    repeat(COMPLETED_TROPHY_WORKOUTS_PER_CATEGORY_PER_WEEK) { completionIndex ->
+                        val dayOfWeek = completedTrophyDayOfWeek(categoryIndex, completionIndex)
+                        val createdAt =
+                            weekTimestamp(
+                                weekStartDate = weekStartDate,
+                                zoneId = zoneId,
+                                dayOffset = (dayOfWeek.value - 1).toLong(),
+                                hour = 7L + categoryIndex,
+                                minute = (completionIndex * 6).toLong(),
+                            )
+                        val workoutId = nextEntityId++
+
+                        actions +=
+                            createWorkoutAction(
+                                weekStartDate = weekStartDate,
+                                dayOfWeek = dayOfWeek,
+                                order = completionIndex,
+                                seed = seed,
+                                entityId = workoutId,
+                                timestamp = createdAt,
+                            )
+                        actions +=
+                            completeWorkoutAction(
+                                weekStartDate = weekStartDate,
+                                seed = seed,
+                                entityId = workoutId,
+                                timestamp = createdAt + 60_000,
+                            )
+                    }
+
+                    repeat(COMPLETED_TROPHY_PLANNING_ACTIONS_PER_CATEGORY_PER_WEEK) { planningIndex ->
+                        val workoutId = nextEntityId++
+                        val oldDay = completedTrophyDayOfWeek(categoryIndex, planningIndex)
+                        val newDay = completedTrophyDayOfWeek(categoryIndex + 1, planningIndex + 1)
+
+                        actions +=
+                            moveWorkoutAction(
+                                weekStartDate = weekStartDate,
+                                dayChange = WorkoutDayChange(oldDay = oldDay, newDay = newDay),
+                                orderChange = WorkoutOrderChange(oldOrder = 0, newOrder = 0),
+                                slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = AFTERNOON),
+                                seed = seed,
+                                entityId = workoutId,
+                                timestamp =
+                                    weekTimestamp(
+                                        weekStartDate = weekStartDate,
+                                        zoneId = zoneId,
+                                        dayOffset = oldDay.value.toLong() - 1,
+                                        hour = 17L + planningIndex,
+                                        minute = categoryIndex.toLong(),
+                                    ),
+                            )
+                    }
+                }
+
+                actions +=
+                    completeWeekAction(
+                        weekStartDate = weekStartDate,
+                        timestamp = weekTimestamp(weekStartDate, zoneId, dayOffset = 6, hour = 21),
+                    )
+            }
+
+            val finalWeek = completedWeeks.last()
+
+            repeat(COMPLETED_TROPHY_CATEGORY_ACTIONS) { index ->
+                val categoryId = categoryIds[index % categoryIds.size]
+                actions +=
+                    categoryAction(
+                        type = COMPLETED_TROPHY_CATEGORY_ACTION_TYPES[index % COMPLETED_TROPHY_CATEGORY_ACTION_TYPES.size],
+                        categoryId = categoryId,
+                        categoryName = categoryNameForId(categoryId),
+                        timestamp =
+                            weekTimestamp(
+                                weekStartDate = finalWeek,
+                                zoneId = zoneId,
+                                dayOffset = 6,
+                                hour = 22,
+                                minute = index.toLong(),
+                            ),
+                    )
+            }
+
+            repeat(COMPLETED_TROPHY_BACKUP_SUCCESSES) { index ->
+                actions +=
+                    settingsResultAction(
+                        type = if (index % 2 == 0) UserActionType.EXPORT_BACKUP else UserActionType.IMPORT_BACKUP,
+                        timestamp =
+                            weekTimestamp(
+                                weekStartDate = finalWeek,
+                                zoneId = zoneId,
+                                dayOffset = 6,
+                                hour = 23,
+                                minute = index.toLong(),
+                            ),
+                    )
+            }
+
+            return actions
         }
 
         private fun categoryIdForSeed(seed: WorkoutSeed): Long {
@@ -919,6 +1068,42 @@ class DemoDataSeeder
             )
         }
 
+        private fun workoutSeedForCategory(categoryId: Long): WorkoutSeed {
+            return when (categoryId) {
+                RUN_ID -> workoutSeed(index = 2, timeSlot = MORNING)
+                CYCLING_ID -> workoutSeed(index = 4, timeSlot = AFTERNOON)
+                STRENGTH_ID -> workoutSeed(index = 0, timeSlot = MORNING)
+                SWIM_ID -> workoutSeed(index = 3, timeSlot = NIGHT)
+                MOBILITY_ID -> workoutSeed(index = 5, timeSlot = NIGHT)
+                else ->
+                    WorkoutSeed(
+                        eventType = WORKOUT,
+                        type = stringProvider.get(R.string.category_other),
+                        description = stringProvider.get(R.string.mock_workout_description_core),
+                        timeSlot = AFTERNOON,
+                    )
+            }
+        }
+
+        private fun completedTrophyDayOfWeek(
+            categoryIndex: Int,
+            offset: Int,
+        ): DayOfWeek {
+            val index = (categoryIndex + offset) % 7
+            return DayOfWeek.of(index + 1)
+        }
+
+        private fun completedTrophyCategoryIds(): List<Long> {
+            return listOf(
+                RUN_ID,
+                CYCLING_ID,
+                STRENGTH_ID,
+                SWIM_ID,
+                MOBILITY_ID,
+                OTHER_ID,
+            )
+        }
+
         private fun restSeed(timeSlot: TimeSlot? = null): WorkoutSeed {
             return WorkoutSeed(
                 eventType = REST,
@@ -1011,3 +1196,16 @@ private const val DEMO_RUN_WORKOUT_CURRENT_ID = 10_401L
 private const val DEMO_CYCLING_WORKOUT_CURRENT_ID = 10_402L
 private const val DEMO_OTHER_WORKOUT_CURRENT_ID = 10_403L
 private const val DEMO_STRENGTH_WORKOUT_CURRENT_ID = 10_404L
+private const val COMPLETED_TROPHY_HISTORY_WEEKS = 25
+private const val COMPLETED_TROPHY_WORKOUTS_PER_CATEGORY_PER_WEEK = 4
+private const val COMPLETED_TROPHY_PLANNING_ACTIONS_PER_CATEGORY_PER_WEEK = 2
+private const val COMPLETED_TROPHY_COPIED_WEEKS = 3
+private const val COMPLETED_TROPHY_CATEGORY_ACTIONS = 10
+private const val COMPLETED_TROPHY_BACKUP_SUCCESSES = 3
+private const val COMPLETED_TROPHY_ENTITY_ID_START = 50_000L
+private val COMPLETED_TROPHY_CATEGORY_ACTION_TYPES =
+    listOf(
+        UserActionType.UPDATE_CATEGORY_COLOR,
+        UserActionType.UPDATE_CATEGORY_VISIBILITY,
+        UserActionType.REORDER_CATEGORY,
+    )

@@ -69,8 +69,22 @@
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">開発者モード</string>
-    <string name="settings_seed_demo_data">デモデータを作成</string>
+    <string name="settings_developer_data_title">データ</string>
+    <string name="settings_developer_data_body">ローカルデータをデモ用の週間プランに置き換えます。</string>
+    <string name="settings_developer_trophies_title">トロフィー</string>
+    <string name="settings_developer_trophies_body">ローカル履歴を置き換えてトロフィー状態を確認します。</string>
+    <string name="settings_seed_demo_data">デモデータに置き換える</string>
     <string name="settings_demo_data_created">デモデータを作成しました</string>
+    <string name="settings_seed_mixed_trophies">混在したトロフィープレビューに置き換える</string>
+    <string name="settings_mixed_trophies_created">混在したトロフィーデータを作成しました</string>
+    <string name="settings_seed_locked_trophies">未達成トロフィープレビューに置き換える</string>
+    <string name="settings_locked_trophies_created">全トロフィー未達成データを作成しました</string>
+    <string name="settings_seed_unlocked_trophies">達成済みトロフィープレビューに置き換える</string>
+    <string name="settings_completed_trophies_created">全トロフィー達成データを作成しました</string>
+    <string name="settings_developer_confirm_title">ローカルデータを置き換えますか？</string>
+    <string name="settings_developer_confirm_message">現在のローカルデータを開発用プレビューに置き換えます。</string>
+    <string name="settings_developer_confirm_continue">続行</string>
+    <string name="settings_developer_confirm_cancel">キャンセル</string>
     <string name="weekly_training_add_mock_workout">サンプルワークアウトを追加</string>
     <string name="mock_workout_type">全身</string>
     <string name="mock_workout_description">10回×3セット</string>

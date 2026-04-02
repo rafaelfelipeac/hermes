@@ -63,6 +63,12 @@ class SettingsViewModel
     ) : ViewModel() {
         private val demoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val demoSeedCompletedEvents: SharedFlow<Unit> = demoSeedEvents.asSharedFlow()
+        private val mixedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val mixedTrophiesSeedCompletedEvents: SharedFlow<Unit> = mixedTrophiesSeedEvents.asSharedFlow()
+        private val lockedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val lockedTrophiesSeedCompletedEvents: SharedFlow<Unit> = lockedTrophiesSeedEvents.asSharedFlow()
+        private val completedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val completedTrophiesSeedCompletedEvents: SharedFlow<Unit> = completedTrophiesSeedEvents.asSharedFlow()
 
         val state: StateFlow<SettingsState> =
             combine(
@@ -195,6 +201,24 @@ class SettingsViewModel
             viewModelScope.launch {
                 demoDataSeeder.seed()
                 demoSeedEvents.emit(Unit)
+            }
+
+        fun seedCompletedTrophies() =
+            viewModelScope.launch {
+                demoDataSeeder.seedCompletedTrophies()
+                completedTrophiesSeedEvents.emit(Unit)
+            }
+
+        fun seedLockedTrophies() =
+            viewModelScope.launch {
+                demoDataSeeder.seedLockedTrophies()
+                lockedTrophiesSeedEvents.emit(Unit)
+            }
+
+        fun seedMixedTrophies() =
+            viewModelScope.launch {
+                demoDataSeeder.seed()
+                mixedTrophiesSeedEvents.emit(Unit)
             }
 
         fun syncLocalizedCategories() =

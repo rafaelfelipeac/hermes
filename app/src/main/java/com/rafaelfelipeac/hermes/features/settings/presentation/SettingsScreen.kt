@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,6 +53,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperSectionSpacing
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
@@ -95,6 +97,9 @@ fun SettingsScreen(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val demoDataCreatedMessage = stringResource(R.string.settings_demo_data_created)
+    val mixedTrophiesCreatedMessage = stringResource(R.string.settings_mixed_trophies_created)
+    val lockedTrophiesCreatedMessage = stringResource(R.string.settings_locked_trophies_created)
+    val completedTrophiesCreatedMessage = stringResource(R.string.settings_completed_trophies_created)
     val feedbackUnavailableMessage = stringResource(R.string.settings_feedback_unavailable)
     val rateUnavailableMessage = stringResource(R.string.settings_rate_unavailable)
     val feedbackEmail = stringResource(R.string.settings_feedback_email)
@@ -105,6 +110,7 @@ fun SettingsScreen(
     var isSlotModeHelpVisible by rememberSaveable { mutableStateOf(false) }
     var isBackupHelpVisible by rememberSaveable { mutableStateOf(false) }
     var isImportReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var pendingDeveloperAction by rememberSaveable { mutableStateOf<DeveloperSeedAction?>(null) }
     var pendingImportPayload by remember { mutableStateOf<String?>(null) }
     var pendingSaveAsDestinationConfigured by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -225,6 +231,36 @@ fun SettingsScreen(
             Toast.makeText(
                 context,
                 demoDataCreatedMessage,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.lockedTrophiesSeedCompletedEvents.collect {
+            Toast.makeText(
+                context,
+                lockedTrophiesCreatedMessage,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.completedTrophiesSeedCompletedEvents.collect {
+            Toast.makeText(
+                context,
+                completedTrophiesCreatedMessage,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.mixedTrophiesSeedCompletedEvents.collect {
+            Toast.makeText(
+                context,
+                mixedTrophiesCreatedMessage,
                 Toast.LENGTH_SHORT,
             ).show()
         }
@@ -352,7 +388,16 @@ fun SettingsScreen(
                     }
                 },
                 onSeedDemoData = {
-                    viewModel.seedDemoData()
+                    pendingDeveloperAction = DeveloperSeedAction.DEMO_DATA
+                },
+                onSeedMixedTrophies = {
+                    pendingDeveloperAction = DeveloperSeedAction.MIXED_TROPHIES
+                },
+                onSeedLockedTrophies = {
+                    pendingDeveloperAction = DeveloperSeedAction.LOCKED_TROPHIES
+                },
+                onSeedCompletedTrophies = {
+                    pendingDeveloperAction = DeveloperSeedAction.UNLOCKED_TROPHIES
                 },
                 onCategoriesClick = { route = SettingsRoute.CATEGORIES },
                 onBackupClick = { route = SettingsRoute.BACKUP },
@@ -535,6 +580,34 @@ fun SettingsScreen(
             },
         )
     }
+
+    pendingDeveloperAction?.let { action ->
+        AlertDialog(
+            onDismissRequest = { pendingDeveloperAction = null },
+            title = { Text(text = stringResource(R.string.settings_developer_confirm_title)) },
+            text = { Text(text = stringResource(R.string.settings_developer_confirm_message)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        when (action) {
+                            DeveloperSeedAction.DEMO_DATA -> viewModel.seedDemoData()
+                            DeveloperSeedAction.MIXED_TROPHIES -> viewModel.seedMixedTrophies()
+                            DeveloperSeedAction.LOCKED_TROPHIES -> viewModel.seedLockedTrophies()
+                            DeveloperSeedAction.UNLOCKED_TROPHIES -> viewModel.seedCompletedTrophies()
+                        }
+                        pendingDeveloperAction = null
+                    },
+                ) {
+                    Text(text = stringResource(R.string.settings_developer_confirm_continue))
+                }
+            },
+            dismissButton = {
+                Button(onClick = { pendingDeveloperAction = null }) {
+                    Text(text = stringResource(R.string.settings_developer_confirm_cancel))
+                }
+            },
+        )
+    }
 }
 
 @Composable
@@ -549,6 +622,9 @@ internal fun SettingsContent(
     onFeedbackClick: (String, String) -> Unit,
     onRateClick: () -> Unit,
     onSeedDemoData: () -> Unit,
+    onSeedMixedTrophies: () -> Unit,
+    onSeedLockedTrophies: () -> Unit,
+    onSeedCompletedTrophies: () -> Unit,
     onCategoriesClick: () -> Unit,
     onBackupClick: () -> Unit,
 ) {
@@ -617,11 +693,49 @@ internal fun SettingsContent(
 
             if (BuildConfig.DEBUG) {
                 SettingsSection(title = stringResource(R.string.settings_developer_title)) {
-                    SettingsActionButton(
-                        label = stringResource(R.string.settings_seed_demo_data),
-                        onClick = onSeedDemoData,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(SettingsDeveloperSectionSpacing)) {
+                        Text(
+                            text = stringResource(R.string.settings_developer_data_title),
+                            style = typography.titleSmall,
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_developer_data_body),
+                            style = typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_seed_demo_data),
+                            onClick = onSeedDemoData,
+                        )
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                        Text(
+                            text = stringResource(R.string.settings_developer_trophies_title),
+                            style = typography.titleSmall,
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_developer_trophies_body),
+                            style = typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_seed_mixed_trophies),
+                            onClick = onSeedMixedTrophies,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_seed_locked_trophies),
+                            onClick = onSeedLockedTrophies,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_seed_unlocked_trophies),
+                            onClick = onSeedCompletedTrophies,
+                        )
+                    }
                 }
             }
 
@@ -674,6 +788,13 @@ internal fun SettingsContent(
             }
         }
     }
+}
+
+private enum class DeveloperSeedAction {
+    DEMO_DATA,
+    MIXED_TROPHIES,
+    LOCKED_TROPHIES,
+    UNLOCKED_TROPHIES,
 }
 
 private fun backupFileName(): String {

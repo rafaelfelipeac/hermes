@@ -73,8 +73,22 @@
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modo desenvolvedor</string>
-    <string name="settings_seed_demo_data">Criar dados de demo</string>
+    <string name="settings_developer_data_title">Dados</string>
+    <string name="settings_developer_data_body">Substitui os dados locais por um plano semanal de demonstração.</string>
+    <string name="settings_developer_trophies_title">Troféus</string>
+    <string name="settings_developer_trophies_body">Substitui o histórico local para visualizar estados dos troféus.</string>
+    <string name="settings_seed_demo_data">Substituir por dados de demo</string>
     <string name="settings_demo_data_created">Dados de demo criados</string>
+    <string name="settings_seed_mixed_trophies">Substituir por preview misto de troféus</string>
+    <string name="settings_mixed_trophies_created">Dados com troféus em estado misto criados</string>
+    <string name="settings_seed_locked_trophies">Substituir por preview de troféus bloqueados</string>
+    <string name="settings_locked_trophies_created">Dados com troféus bloqueados criados</string>
+    <string name="settings_seed_unlocked_trophies">Substituir por preview de troféus desbloqueados</string>
+    <string name="settings_completed_trophies_created">Dados com troféus desbloqueados criados</string>
+    <string name="settings_developer_confirm_title">Substituir dados locais?</string>
+    <string name="settings_developer_confirm_message">Isso vai substituir seus dados locais atuais por um preview de desenvolvedor.</string>
+    <string name="settings_developer_confirm_continue">Continuar</string>
+    <string name="settings_developer_confirm_cancel">Cancelar</string>
     <string name="weekly_training_add_mock_workout">Adicionar treino de exemplo</string>
     <string name="mock_workout_type">Corpo inteiro</string>
     <string name="mock_workout_description">3 séries de 10 repetições</string>

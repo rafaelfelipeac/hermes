@@ -73,8 +73,22 @@
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Entwicklermodus</string>
-    <string name="settings_seed_demo_data">Demo-Daten erstellen</string>
+    <string name="settings_developer_data_title">Daten</string>
+    <string name="settings_developer_data_body">Ersetzt die lokalen Daten durch einen Demo-Wochenplan.</string>
+    <string name="settings_developer_trophies_title">Trophäen</string>
+    <string name="settings_developer_trophies_body">Ersetzt den lokalen Verlauf, um Trophäenzustände vorzuschauen.</string>
+    <string name="settings_seed_demo_data">Durch Demo-Daten ersetzen</string>
     <string name="settings_demo_data_created">Demo-Daten erstellt</string>
+    <string name="settings_seed_mixed_trophies">Durch gemischte Trophäenvorschau ersetzen</string>
+    <string name="settings_mixed_trophies_created">Daten mit gemischten Trophäen erstellt</string>
+    <string name="settings_seed_locked_trophies">Durch Vorschau gesperrter Trophäen ersetzen</string>
+    <string name="settings_locked_trophies_created">Daten mit gesperrten Trophäen erstellt</string>
+    <string name="settings_seed_unlocked_trophies">Durch Vorschau freigeschalteter Trophäen ersetzen</string>
+    <string name="settings_completed_trophies_created">Daten mit freigeschalteten Trophäen erstellt</string>
+    <string name="settings_developer_confirm_title">Lokale Daten ersetzen?</string>
+    <string name="settings_developer_confirm_message">Dadurch werden die aktuellen lokalen Daten durch eine Entwicklervorschau ersetzt.</string>
+    <string name="settings_developer_confirm_continue">Fortfahren</string>
+    <string name="settings_developer_confirm_cancel">Abbrechen</string>
     <string name="weekly_training_add_mock_workout">Beispieltraining hinzufügen</string>
     <string name="mock_workout_type">Ganzkörper</string>
     <string name="mock_workout_description">3 Sätze à 10 Wiederholungen</string>

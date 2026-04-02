@@ -73,8 +73,22 @@
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modalità sviluppatore</string>
-    <string name="settings_seed_demo_data">Genera dati demo</string>
+    <string name="settings_developer_data_title">Dati</string>
+    <string name="settings_developer_data_body">Sostituisce i dati locali con un piano settimanale demo.</string>
+    <string name="settings_developer_trophies_title">Trofei</string>
+    <string name="settings_developer_trophies_body">Sostituisce la cronologia locale per vedere gli stati dei trofei.</string>
+    <string name="settings_seed_demo_data">Sostituisci con dati demo</string>
     <string name="settings_demo_data_created">Dati demo creati</string>
+    <string name="settings_seed_mixed_trophies">Sostituisci con anteprima trofei mista</string>
+    <string name="settings_mixed_trophies_created">Dati con trofei misti creati</string>
+    <string name="settings_seed_locked_trophies">Sostituisci con anteprima trofei bloccati</string>
+    <string name="settings_locked_trophies_created">Dati con trofei bloccati creati</string>
+    <string name="settings_seed_unlocked_trophies">Sostituisci con anteprima trofei sbloccati</string>
+    <string name="settings_completed_trophies_created">Dati con trofei sbloccati creati</string>
+    <string name="settings_developer_confirm_title">Sostituire i dati locali?</string>
+    <string name="settings_developer_confirm_message">Questo sostituirà i dati locali correnti con un’anteprima sviluppatore.</string>
+    <string name="settings_developer_confirm_continue">Continua</string>
+    <string name="settings_developer_confirm_cancel">Annulla</string>
     <string name="weekly_training_add_mock_workout">Aggiungi allenamento fittizio</string>
     <string name="mock_workout_type">Corpo intero</string>
     <string name="mock_workout_description">3 serie da 10 ripetizioni</string>
