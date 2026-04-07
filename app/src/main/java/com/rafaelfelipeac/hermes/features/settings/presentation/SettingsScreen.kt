@@ -691,54 +691,6 @@ internal fun SettingsContent(
                 )
             }
 
-            if (BuildConfig.DEBUG) {
-                SettingsSection(title = stringResource(R.string.settings_developer_title)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(SettingsDeveloperSectionSpacing)) {
-                        Text(
-                            text = stringResource(R.string.settings_developer_data_title),
-                            style = typography.titleSmall,
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_developer_data_body),
-                            style = typography.bodySmall,
-                            color = colorScheme.onSurfaceVariant,
-                        )
-
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_demo_data),
-                            onClick = onSeedDemoData,
-                        )
-
-                        HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-
-                        Text(
-                            text = stringResource(R.string.settings_developer_trophies_title),
-                            style = typography.titleSmall,
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_developer_trophies_body),
-                            style = typography.bodySmall,
-                            color = colorScheme.onSurfaceVariant,
-                        )
-
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_mixed_trophies),
-                            onClick = onSeedMixedTrophies,
-                        )
-
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_locked_trophies),
-                            onClick = onSeedLockedTrophies,
-                        )
-
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_unlocked_trophies),
-                            onClick = onSeedCompletedTrophies,
-                        )
-                    }
-                }
-            }
-
             val feedbackSubject =
                 stringResource(
                     R.string.settings_feedback_subject,
@@ -784,6 +736,54 @@ internal fun SettingsContent(
                                 .fillMaxWidth()
                                 .padding(vertical = SpacingSm),
                     )
+                }
+            }
+
+            if (BuildConfig.DEBUG) {
+                SettingsSection(title = stringResource(R.string.settings_developer_title)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(SettingsDeveloperSectionSpacing)) {
+                        Text(
+                            text = stringResource(R.string.settings_developer_data_title),
+                            style = typography.titleSmall,
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_developer_data_body),
+                            style = typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_seed_demo_data),
+                            onClick = onSeedDemoData,
+                        )
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                        Text(
+                            text = stringResource(R.string.settings_developer_trophies_title),
+                            style = typography.titleSmall,
+                        )
+                        Text(
+                            text = stringResource(R.string.settings_developer_trophies_body),
+                            style = typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_seed_mixed_trophies),
+                            onClick = onSeedMixedTrophies,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_seed_locked_trophies),
+                            onClick = onSeedLockedTrophies,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_seed_unlocked_trophies),
+                            onClick = onSeedCompletedTrophies,
+                        )
+                    }
                 }
             }
         }

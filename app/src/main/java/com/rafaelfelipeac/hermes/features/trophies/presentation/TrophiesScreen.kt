@@ -93,6 +93,11 @@ private const val TROPHIES_GRID_COLUMNS = 2
 private const val TROPHIES_SAMPLE_FULL_TIME_TARGET = 3
 private const val TROPHIES_SAMPLE_COMEBACK_TARGET = 2
 private const val TROPHIES_SAMPLE_PODIUM_TARGET = 10
+private const val TROPHY_PREVIEW_TITLE_ALPHA = 0.72f
+private const val TROPHY_PREVIEW_DESCRIPTION_ALPHA = 0.72f
+private const val TROPHY_UNLOCKED_CARD_BORDER_ALPHA = 0.42f
+private const val TROPHY_UNLOCKED_CARD_FILL_ALPHA = 0.16f
+private const val TROPHY_PROGRESS_FILL_ALPHA = 0.32f
 
 @Composable
 fun TrophiesScreen(
@@ -334,11 +339,15 @@ private fun TrophyPreviewCard(
             modifier = Modifier.padding(SpacingMd),
             verticalArrangement = Arrangement.spacedBy(SpacingXs),
         ) {
-            Text(text = title, style = typography.titleMedium, color = colorScheme.onSurface.copy(alpha = 0.72f))
+            Text(
+                text = title,
+                style = typography.titleMedium,
+                color = colorScheme.onSurface.copy(alpha = TROPHY_PREVIEW_TITLE_ALPHA),
+            )
             Text(
                 text = description,
                 style = typography.bodySmall,
-                color = colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                color = colorScheme.onSurfaceVariant.copy(alpha = TROPHY_PREVIEW_DESCRIPTION_ALPHA),
             )
         }
     }
@@ -389,13 +398,13 @@ private fun TrophyShelfCard(
     val accent = trophyAccentColor(trophy)
     val borderColor =
         if (trophy.isUnlocked) {
-            accent.copy(alpha = 0.28f)
+            accent.copy(alpha = TROPHY_UNLOCKED_CARD_BORDER_ALPHA)
         } else {
             colorScheme.outlineVariant
         }
     val cardColor =
         if (trophy.isUnlocked) {
-            accent.copy(alpha = 0.10f)
+            accent.copy(alpha = TROPHY_UNLOCKED_CARD_FILL_ALPHA)
         } else {
             colorScheme.surfaceContainerLow
         }
@@ -583,7 +592,7 @@ private fun TrophyProgressIndicator(
                         Modifier
                             .width(maxWidth * progress)
                             .fillMaxSize()
-                            .background(trophyAccentColor(trophy).copy(alpha = 0.32f)),
+                            .background(trophyAccentColor(trophy).copy(alpha = TROPHY_PROGRESS_FILL_ALPHA)),
                 )
                 Box(
                     modifier = Modifier.fillMaxSize(),
