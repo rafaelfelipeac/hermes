@@ -92,6 +92,42 @@ internal fun trophyDescriptionRes(
 }
 
 @StringRes
+internal fun trophyShareDescriptionRes(trophyId: TrophyId): Int {
+    return when (trophyId) {
+        TrophyId.FULL_TIME,
+        TrophyId.SEASON_BUILDER,
+        TrophyId.SEASON_ANCHOR,
+        -> R.string.trophies_share_desc_complete_weeks
+        TrophyId.MATCH_FITNESS,
+        TrophyId.ENGINE_ROOM,
+        TrophyId.WORKHORSE,
+        -> R.string.trophies_share_desc_workout_completions
+        TrophyId.IN_FORM,
+        TrophyId.LOCKED_IN,
+        TrophyId.STEADY_RHYTHM,
+        -> R.string.trophies_share_desc_streak_weeks
+        TrophyId.COMEBACK_WEEK -> R.string.trophies_share_desc_comeback_weeks
+        TrophyId.GAME_PLAN,
+        TrophyId.TACTICAL_BOARD,
+        TrophyId.FIELD_MARSHAL,
+        -> R.string.trophies_share_desc_planning_changes
+        TrophyId.BACK_IN_FORMATION -> R.string.trophies_share_desc_copied_weeks
+        TrophyId.HOLD_THE_LINE -> R.string.trophies_share_desc_copied_completed_weeks
+        TrophyId.TEAM_SHEET -> R.string.trophies_share_desc_category_actions
+        TrophyId.KIT_BAG -> R.string.trophies_share_desc_backups
+        TrophyId.PODIUM_PLACE,
+        TrophyId.IN_ROTATION,
+        TrophyId.MAINSTAY,
+        -> R.string.trophies_share_desc_category_completions
+        TrophyId.HOME_GROUND,
+        TrophyId.LOCAL_FAVORITE,
+        TrophyId.TERRITORY,
+        -> R.string.trophies_share_desc_category_presence
+        TrophyId.TRAINING_BLOCK -> R.string.trophies_share_desc_category_planning
+    }
+}
+
+@StringRes
 internal fun familyTitleRes(family: TrophyFamilyUi): Int {
     return when (family) {
         TrophyFamilyUi.FOLLOW_THROUGH -> R.string.trophies_family_follow_through

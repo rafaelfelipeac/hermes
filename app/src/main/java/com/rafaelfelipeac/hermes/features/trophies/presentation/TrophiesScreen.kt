@@ -2,6 +2,8 @@
 
 package com.rafaelfelipeac.hermes.features.trophies.presentation
 
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -37,7 +39,9 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Repeat
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -57,13 +61,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -88,6 +96,8 @@ internal const val TROPHIES_EMPTY_STATE_TAG = "trophies_empty_state"
 internal const val TROPHIES_DETAIL_DIALOG_TAG = "trophies_detail_dialog"
 internal const val TROPHIES_VIEW_ALL_TAG_PREFIX = "trophies_view_all_"
 internal const val TROPHIES_FAMILY_DETAIL_TAG_PREFIX = "trophies_family_detail_"
+private const val TROPHIES_SHARE_INTENT_TYPE = "text/plain"
+private const val TROPHIES_DEBUG_PACKAGE_SUFFIX = ".dev"
 private const val TROPHIES_PREVIEW_COUNT = 6
 private const val TROPHIES_GRID_COLUMNS = 2
 private const val TROPHIES_SAMPLE_FULL_TIME_TARGET = 3
@@ -480,12 +490,46 @@ internal fun TrophyDetailDialog(
     trophy: TrophyCardUi,
     onDismiss: () -> Unit,
 ) {
+    val context = LocalContext.current
+    val shareMessage = trophyShareMessage(trophy)
+    val shareChooserTitle = stringResource(R.string.trophies_share_chooser)
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.testTag(TROPHIES_DETAIL_DIALOG_TAG),
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.trophies_detail_close))
+            if (trophy.isUnlocked) {
+                Button(
+                    onClick = {
+                        val shareIntent =
+                            Intent(Intent.ACTION_SEND).apply {
+                                type = TROPHIES_SHARE_INTENT_TYPE
+                                putExtra(Intent.EXTRA_TEXT, shareMessage)
+                            }
+
+                        try {
+                            context.startActivity(Intent.createChooser(shareIntent, shareChooserTitle))
+                        } catch (_: ActivityNotFoundException) {
+                        }
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Share,
+                        contentDescription = null,
+                    )
+                    Spacer(modifier = Modifier.size(SpacingXs))
+                    Text(text = stringResource(R.string.trophies_detail_share))
+                }
+            } else {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.trophies_detail_close))
+                }
+            }
+        },
+        dismissButton = {
+            if (trophy.isUnlocked) {
+                TextButton(onClick = onDismiss) {
+                    Text(text = stringResource(R.string.trophies_detail_close))
+                }
             }
         },
         title = {
@@ -713,6 +757,33 @@ private fun unlockedDateLabel(unlockedAt: Long): String {
         R.string.trophies_unlocked_on,
         DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale).format(Date(unlockedAt)),
     )
+}
+
+@Composable
+private fun trophyShareMessage(trophy: TrophyCardUi): String {
+    val unlockedDateText =
+        trophy.unlockedAt?.let { unlockedAt ->
+            unlockedDateLabel(unlockedAt)
+        }.orEmpty()
+    val appPackageName =
+        if (BuildConfig.DEBUG && BuildConfig.APPLICATION_ID.endsWith(TROPHIES_DEBUG_PACKAGE_SUFFIX)) {
+            BuildConfig.APPLICATION_ID.removeSuffix(TROPHIES_DEBUG_PACKAGE_SUFFIX)
+        } else {
+            BuildConfig.APPLICATION_ID
+        }
+    val playStoreUrl = stringResource(R.string.settings_play_store_web_url, appPackageName)
+    val categoryLine =
+        trophy.categoryName?.let { categoryName ->
+            stringResource(R.string.trophies_share_category, categoryName)
+        }
+    return listOfNotNull(
+        stringResource(R.string.trophies_share_title, trophyName(trophy)),
+        categoryLine,
+        stringResource(trophyShareDescriptionRes(trophy.trophyId), trophy.target),
+        unlockedDateText,
+        EMPTY,
+        stringResource(R.string.trophies_share_cta, playStoreUrl),
+    ).joinToString(separator = NEW_LINE)
 }
 
 internal fun trophyAccentColor(trophy: TrophyCardUi): Color {
