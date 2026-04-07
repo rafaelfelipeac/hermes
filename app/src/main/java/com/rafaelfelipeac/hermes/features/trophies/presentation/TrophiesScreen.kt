@@ -109,6 +109,7 @@ private const val TROPHY_PREVIEW_DESCRIPTION_ALPHA = 0.72f
 private const val TROPHY_UNLOCKED_CARD_BORDER_ALPHA = 0.42f
 private const val TROPHY_UNLOCKED_CARD_FILL_ALPHA = 0.16f
 private const val TROPHY_PROGRESS_FILL_ALPHA = 0.32f
+private const val TROPHIES_QUOTE = "\""
 
 @Composable
 fun TrophiesScreen(
@@ -790,18 +791,33 @@ private fun trophyShareMessage(trophy: TrophyCardUi): String {
             BuildConfig.APPLICATION_ID
         }
     val playStoreUrl = stringResource(R.string.settings_play_store_web_url, appPackageName)
-    val categoryLine =
-        trophy.categoryName?.let { categoryName ->
-            stringResource(R.string.trophies_share_category, categoryName)
-        }
     return listOfNotNull(
-        stringResource(R.string.trophies_share_title, trophyName(trophy)),
-        categoryLine,
-        stringResource(trophyShareDescriptionRes(trophy.trophyId), trophy.target),
+        stringResource(R.string.trophies_share_title, quotedShareValue(trophyName(trophy))),
+        trophyShareDescription(trophy),
         unlockedDateText,
         EMPTY,
         stringResource(R.string.trophies_share_cta, playStoreUrl),
     ).joinToString(separator = NEW_LINE)
+}
+
+private fun quotedShareValue(value: String): String = TROPHIES_QUOTE + value + TROPHIES_QUOTE
+
+@Composable
+private fun trophyShareDescription(trophy: TrophyCardUi): String {
+    val categoryName = trophy.categoryName?.let(::quotedShareValue).orEmpty()
+    return when (trophy.trophyId) {
+        TrophyId.PODIUM_PLACE,
+        TrophyId.IN_ROTATION,
+        TrophyId.MAINSTAY,
+        -> stringResource(R.string.trophies_share_desc_category_completions, trophy.target, categoryName)
+        TrophyId.HOME_GROUND,
+        TrophyId.LOCAL_FAVORITE,
+        TrophyId.TERRITORY,
+        -> stringResource(R.string.trophies_share_desc_category_presence, trophy.target, categoryName)
+        TrophyId.TRAINING_BLOCK ->
+            stringResource(R.string.trophies_share_desc_category_planning, trophy.target, categoryName)
+        else -> stringResource(trophyShareDescriptionRes(trophy.trophyId), trophy.target)
+    }
 }
 
 internal fun trophyAccentColor(trophy: TrophyCardUi): Color {

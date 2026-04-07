@@ -393,9 +393,9 @@
     <string name="trophies_share_desc_copied_completed_weeks">لقد نسخت أسبوعًا سابقًا ثم أنهيت لاحقًا كل التمارين المخطط لها في ذلك الأسبوع المنسوخ %1$d مرات.</string>
     <string name="trophies_share_desc_category_actions">لقد أنشأت فئات التمارين أو عدّلتها أو نظّمتها %1$d مرات.</string>
     <string name="trophies_share_desc_backups">لقد صدّرت نسخة احتياطية أو حفظتها %1$d مرات.</string>
-    <string name="trophies_share_desc_category_completions">لقد علّمت %1$d تمرينًا من هذه الفئة كمكتمل.</string>
-    <string name="trophies_share_desc_category_presence">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل من هذه الفئة.</string>
-    <string name="trophies_share_desc_category_planning">لقد أضفت تمارين في هذه الفئة أو نقلتها أو نظّمتها %1$d مرات.</string>
+    <string name="trophies_share_desc_category_completions">لقد علّمت %1$d تمرينًا كمكتمل في "%2$s".</string>
+    <string name="trophies_share_desc_category_presence">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل في "%2$s".</string>
+    <string name="trophies_share_desc_category_planning">لقد أضفت تمارين في "%2$s" أو نقلتها أو نظّمتها %1$d مرات.</string>
     <string name="trophies_detail_tiers">المحطات</string>
     <string name="trophies_detail_tier_unlocked">تم فتح %1$d %2$s</string>
     <string name="trophies_detail_tier_locked">لم يتم الوصول إلى %1$d %2$s بعد</string>

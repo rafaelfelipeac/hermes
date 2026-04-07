@@ -357,7 +357,7 @@
     <string name="trophies_detail_share">トロフィーを共有</string>
     <string name="trophies_share_chooser">トロフィーを共有</string>
     <string name="trophies_share_title">Hermesでトロフィー「%1$s」を解除しました。</string>
-    <string name="trophies_share_category">カテゴリ: %1$s.</string>
+    <string name="trophies_share_category">カテゴリ: "%1$s".</string>
     <string name="trophies_share_cta">Hermesでトレーニング週を計画する: %1$s</string>
     <string name="trophies_share_desc_complete_weeks">%1$d 週分で予定したすべてのワークアウトを完了しました。</string>
     <string name="trophies_share_desc_workout_completions">%1$d 件のワークアウトを完了済みにしました。</string>
@@ -368,9 +368,9 @@
     <string name="trophies_share_desc_copied_completed_weeks">以前の週をコピーし、そのコピーした週で予定したすべてのワークアウトを後から %1$d 回完了しました。</string>
     <string name="trophies_share_desc_category_actions">トレーニングカテゴリを %1$d 回作成、編集、整理しました。</string>
     <string name="trophies_share_desc_backups">バックアップを %1$d 回エクスポートまたは保存しました。</string>
-    <string name="trophies_share_desc_category_completions">このカテゴリのワークアウトを %1$d 件完了済みにしました。</string>
-    <string name="trophies_share_desc_category_presence">%1$d 週で、このカテゴリの完了済みワークアウトを少なくとも 1 件含めてやり切りました。</string>
-    <string name="trophies_share_desc_category_planning">このカテゴリでワークアウトを %1$d 回追加、移動、整理しました。</string>
+    <string name="trophies_share_desc_category_completions">"%2$s"でワークアウトを %1$d 件完了済みにしました。</string>
+    <string name="trophies_share_desc_category_presence">%1$d 週で、"%2$s"の完了済みワークアウトを少なくとも 1 件含めてやり切りました。</string>
+    <string name="trophies_share_desc_category_planning">"%2$s"でワークアウトを %1$d 回追加、移動、整理しました。</string>
     <string name="trophies_detail_tiers">マイルストーン</string>
     <string name="trophies_detail_tier_unlocked">%1$d %2$s を解除済み</string>
     <string name="trophies_detail_tier_locked">%1$d %2$s はまだ未到達です</string>

@@ -372,9 +372,9 @@
     <string name="trophies_share_desc_copied_completed_weeks">He copiado una semana anterior y luego terminé todos los entrenamientos planificados en esa semana copiada, %1$d veces.</string>
     <string name="trophies_share_desc_category_actions">He creado, editado u organizado categorías de entrenamiento %1$d veces.</string>
     <string name="trophies_share_desc_backups">He exportado o guardado una copia de seguridad %1$d veces.</string>
-    <string name="trophies_share_desc_category_completions">He marcado %1$d entrenamientos de esta categoría como completados.</string>
-    <string name="trophies_share_desc_category_presence">He terminado %1$d semanas que incluían al menos un entrenamiento completado de esta categoría.</string>
-    <string name="trophies_share_desc_category_planning">He añadido, movido u organizado entrenamientos en esta categoría %1$d veces.</string>
+    <string name="trophies_share_desc_category_completions">He marcado %1$d entrenamientos como completados en "%2$s".</string>
+    <string name="trophies_share_desc_category_presence">He terminado %1$d semanas que incluían al menos un entrenamiento completado en "%2$s".</string>
+    <string name="trophies_share_desc_category_planning">He añadido, movido u organizado entrenamientos en "%2$s" %1$d veces.</string>
     <string name="trophies_detail_tiers">Hitos</string>
     <string name="trophies_detail_tier_unlocked">%1$d %2$s desbloqueado</string>
     <string name="trophies_detail_tier_locked">%1$d %2$s aún no alcanzado</string>

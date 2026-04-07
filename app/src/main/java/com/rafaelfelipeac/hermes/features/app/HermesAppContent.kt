@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.app
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Snackbar
@@ -125,6 +126,7 @@ fun HermesAppContent() {
             }
 
             SnackbarHost(
+                modifier = Modifier.align(Alignment.BottomCenter),
                 hostState = snackbarHostState,
             ) { data ->
                 Snackbar(
