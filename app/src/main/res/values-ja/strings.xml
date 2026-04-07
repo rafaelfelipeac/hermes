@@ -332,6 +332,7 @@
     <string name="trophies_empty_title">あなたの棚はまだ形になっている途中です。</string>
     <string name="trophies_empty_body">トロフィーは、週を計画し、完了し、組み替えていく中で現れます。</string>
     <string name="trophies_view_all">すべて見る</string>
+    <string name="trophies_view_action">見る</string>
     <string name="trophies_back">戻る</string>
     <string name="trophies_unlocked_count">%1$d / %2$d を解除</string>
     <string name="trophies_unlock_banner">新しいトロフィーを解除しました: %1$s。</string>

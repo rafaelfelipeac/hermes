@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
@@ -43,6 +45,8 @@ fun HermesAppContent() {
     var currentDestination by rememberSaveable { mutableStateOf(WEEKLY_TRAINING) }
     var pendingSettingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
     var pendingWorkoutDraft by remember { mutableStateOf<WorkoutDialogDraft?>(null) }
+    var pendingCelebrationTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
+    val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
     val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingWorkoutDraft = draft
         pendingSettingsRoute = CATEGORIES
@@ -57,10 +61,17 @@ fun HermesAppContent() {
     LaunchedEffect(trophyCelebrationViewModel) {
         trophyCelebrationViewModel.events.collect { celebration ->
             trophyCelebrationViewModel.markCelebrationSeen(celebration.token)
-            snackbarHostState.showSnackbar(
+            snackbarHostState.currentSnackbarData?.dismiss()
+            val result =
+                snackbarHostState.showSnackbar(
                 message = celebration.message,
+                actionLabel = trophyViewActionLabel,
                 duration = SnackbarDuration.Short,
             )
+            if (result == SnackbarResult.ActionPerformed) {
+                pendingCelebrationTrophyStableId = celebration.trophyStableId
+                currentDestination = TROPHIES
+            }
         }
     }
 
@@ -97,7 +108,12 @@ fun HermesAppContent() {
                             onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
                         )
                     ACTIVITY -> ActivityScreen(modifier = Modifier.padding(innerPadding))
-                    TROPHIES -> TrophiesScreen(modifier = Modifier.padding(innerPadding))
+                    TROPHIES ->
+                        TrophiesScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            requestedTrophyStableId = pendingCelebrationTrophyStableId,
+                            onRequestedTrophyConsumed = { pendingCelebrationTrophyStableId = null },
+                        )
                     SETTINGS ->
                         SettingsScreen(
                             modifier = Modifier.padding(innerPadding),
@@ -111,7 +127,12 @@ fun HermesAppContent() {
             SnackbarHost(
                 hostState = snackbarHostState,
             ) { data ->
-                Snackbar(snackbarData = data)
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = colorScheme.surfaceVariant,
+                    contentColor = colorScheme.onSurfaceVariant,
+                    actionColor = colorScheme.primary,
+                )
             }
         }
     }

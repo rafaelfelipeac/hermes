@@ -52,6 +52,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -112,6 +113,8 @@ private const val TROPHY_PROGRESS_FILL_ALPHA = 0.32f
 @Composable
 fun TrophiesScreen(
     modifier: Modifier = Modifier,
+    requestedTrophyStableId: String? = null,
+    onRequestedTrophyConsumed: () -> Unit = {},
     viewModel: TrophyViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -123,6 +126,21 @@ fun TrophiesScreen(
             .flatMap { it.sections }
             .flatMap { it.trophies }
             .firstOrNull { it.stableId == selectedTrophyId }
+    val requestedTrophy =
+        requestedTrophyStableId?.let { requestedId ->
+            state.families
+                .flatMap { it.sections }
+                .flatMap { it.trophies }
+                .firstOrNull { it.stableId == requestedId }
+        }
+
+    LaunchedEffect(requestedTrophy?.stableId) {
+        if (requestedTrophy != null) {
+            selectedFamilyName = null
+            selectedTrophyId = requestedTrophy.stableId
+            onRequestedTrophyConsumed()
+        }
+    }
 
     Column(
         modifier =

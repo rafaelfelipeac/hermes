@@ -336,6 +336,7 @@
     <string name="trophies_empty_title">आपकी शेल्फ अभी आकार ले रही है।</string>
     <string name="trophies_empty_body">ट्रॉफियां तब दिखती हैं जब आप अपने हफ्तों की योजना बनाते हैं, उन्हें पूरा करते हैं और फिर से गढ़ते हैं।</string>
     <string name="trophies_view_all">सभी देखें</string>
+    <string name="trophies_view_action">देखें</string>
     <string name="trophies_back">वापस</string>
     <string name="trophies_unlocked_count">%1$d में से %2$d अनलॉक</string>
     <string name="trophies_unlock_banner">नई ट्रॉफी अनलॉक हुई: %1$s।</string>

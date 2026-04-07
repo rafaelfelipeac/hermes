@@ -335,6 +335,7 @@
     <string name="trophies_empty_title">Sua prateleira ainda está tomando forma.</string>
     <string name="trophies_empty_body">Os troféus aparecem conforme você planeja, conclui e reorganiza suas semanas.</string>
     <string name="trophies_view_all">Ver tudo</string>
+    <string name="trophies_view_action">Ver</string>
     <string name="trophies_back">Voltar</string>
     <string name="trophies_unlocked_count">%1$d de %2$d desbloqueados</string>
     <string name="trophies_unlock_banner">Novo troféu desbloqueado: %1$s.</string>

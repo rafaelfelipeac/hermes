@@ -336,6 +336,7 @@
     <string name="trophies_empty_title">Dein Regal nimmt noch Form an.</string>
     <string name="trophies_empty_body">Trophäen erscheinen, wenn du deine Wochen planst, abschließt und neu ordnest.</string>
     <string name="trophies_view_all">Alle anzeigen</string>
+    <string name="trophies_view_action">Ansehen</string>
     <string name="trophies_back">Zurück</string>
     <string name="trophies_unlocked_count">%1$d von %2$d freigeschaltet</string>
     <string name="trophies_unlock_banner">Neue Trophäe freigeschaltet: %1$s.</string>

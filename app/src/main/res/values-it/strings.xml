@@ -336,6 +336,7 @@
     <string name="trophies_empty_title">La tua bacheca sta ancora prendendo forma.</string>
     <string name="trophies_empty_body">I trofei appaiono mentre pianifichi, completi e rimodelli le tue settimane.</string>
     <string name="trophies_view_all">Vedi tutto</string>
+    <string name="trophies_view_action">Vedi</string>
     <string name="trophies_back">Indietro</string>
     <string name="trophies_unlocked_count">%1$d di %2$d sbloccati</string>
     <string name="trophies_unlock_banner">Nuovo trofeo sbloccato: %1$s.</string>

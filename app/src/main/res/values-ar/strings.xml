@@ -352,6 +352,7 @@
     <string name="trophies_empty_title">رفك ما زال يتشكل.</string>
     <string name="trophies_empty_body">تظهر الجوائز مع تخطيطك لأسابيعك، وإكمالها، وإعادة تشكيلها.</string>
     <string name="trophies_view_all">عرض الكل</string>
+    <string name="trophies_view_action">عرض</string>
     <string name="trophies_back">رجوع</string>
     <string name="trophies_unlocked_count">%1$d من أصل %2$d تم فتحها</string>
     <string name="trophies_unlock_banner">تم فتح جائزة جديدة: %1$s.</string>

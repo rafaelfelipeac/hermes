@@ -21,6 +21,7 @@ import javax.inject.Inject
 data class TrophyCelebrationUi(
     val token: String,
     val message: String,
+    val trophyStableId: String,
 )
 
 @HiltViewModel
@@ -63,6 +64,7 @@ class TrophyCelebrationViewModel
                                         com.rafaelfelipeac.hermes.R.string.trophies_unlock_banner,
                                         stringProvider.get(trophyNameRes(trophy.trophyId)),
                                     ),
+                                trophyStableId = trophy.stableId,
                             ),
                         )
                     }

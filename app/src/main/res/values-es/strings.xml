@@ -335,6 +335,7 @@
     <string name="trophies_empty_title">Tu vitrina todavía se está formando.</string>
     <string name="trophies_empty_body">Los trofeos aparecen a medida que planificas, completas y reajustas tus semanas.</string>
     <string name="trophies_view_all">Ver todo</string>
+    <string name="trophies_view_action">Ver</string>
     <string name="trophies_back">Volver</string>
     <string name="trophies_unlocked_count">%1$d de %2$d desbloqueados</string>
     <string name="trophies_unlock_banner">Nuevo trofeo desbloqueado: %1$s.</string>

@@ -336,6 +336,7 @@
     <string name="trophies_empty_title">Votre étagère prend encore forme.</string>
     <string name="trophies_empty_body">Les trophées apparaissent à mesure que vous planifiez, terminez et réorganisez vos semaines.</string>
     <string name="trophies_view_all">Voir tout</string>
+    <string name="trophies_view_action">Voir</string>
     <string name="trophies_back">Retour</string>
     <string name="trophies_unlocked_count">%1$d sur %2$d débloqués</string>
     <string name="trophies_unlock_banner">Nouveau trophée débloqué : %1$s.</string>
