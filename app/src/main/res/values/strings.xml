@@ -331,9 +331,9 @@
     <string name="activity_action_convert_sick_to_workout">You converted a sick event to a workout.</string>
     <string name="trophies_nav_label">Trophies</string>
     <string name="trophies_title">Trophies</string>
-    <string name="trophies_subtitle">A calm shelf of training moments, planning choices, and steady returns.</string>
+    <string name="trophies_subtitle">A calm shelf of training moments, planning choices and steady returns.</string>
     <string name="trophies_empty_title">Your shelf is still taking shape.</string>
-    <string name="trophies_empty_body">Trophies appear as you plan, complete, and reshape your weeks.</string>
+    <string name="trophies_empty_body">Trophies appear as you plan, complete and reshape your weeks.</string>
     <string name="trophies_view_all">View all</string>
     <string name="trophies_view_action">View</string>
     <string name="trophies_back">Back</string>

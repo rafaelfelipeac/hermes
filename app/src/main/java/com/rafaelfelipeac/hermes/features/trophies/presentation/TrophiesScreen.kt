@@ -81,10 +81,16 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBackButtonSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardFooterMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardArtworkTopPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardTitleBlockHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardCategoryBlockHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCompactCardFooterMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyStateLineBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailCardMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyOverviewCardMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyProgressHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyGridArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfCardMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
@@ -462,43 +468,67 @@ private fun TrophyShelfCard(
             Column(
                 modifier =
                     Modifier
-                        .align(Alignment.Center)
+                        .align(Alignment.TopCenter)
                         .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                verticalArrangement = Arrangement.spacedBy(if (showExpandedMeta) SpacingXs else SpacingSm),
             ) {
                 Box(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = TrophyCardArtworkTopPadding),
                 ) {
                     TrophyBadge(
                         trophy = trophy,
                         icon = trophyIcon(trophy.trophyId),
                         contentDescription = trophyName(trophy),
-                        size = TrophyShelfArtworkSize,
+                        size = if (showExpandedMeta) TrophyGridArtworkSize else TrophyShelfArtworkSize,
                         modifier = Modifier.align(Alignment.Center),
                     )
                 }
-                Text(
-                    text = trophyName(trophy),
-                    style = typography.titleSmall,
-                    color = colorScheme.onSurface,
-                    maxLines = 2,
-                    textAlign = TextAlign.Center,
-                )
-                trophy.categoryName?.takeIf { showExpandedMeta }?.let { categoryName ->
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(TrophyCardTitleBlockHeight),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
                     Text(
-                        text = categoryName,
-                        style = typography.labelSmall,
-                        color = accent,
+                        text = trophyName(trophy),
+                        style = typography.titleSmall,
+                        color = colorScheme.onSurface,
+                        maxLines = 2,
                         textAlign = TextAlign.Center,
                     )
                 }
-                if (showExpandedMeta) {
-                    TrophyCardFooter(
-                        trophy = trophy,
-                        modifier = Modifier.padding(horizontal = SpacingXs),
-                    )
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(TrophyCardCategoryBlockHeight),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
+                    trophy.categoryName
+                        ?.takeIf { showExpandedMeta && trophy.family != TrophyFamilyUi.CATEGORIES }
+                        ?.let { categoryName ->
+                            Text(
+                                text = categoryName,
+                                style = typography.labelSmall,
+                                color = accent,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                 }
+            }
+            if (showExpandedMeta) {
+                TrophyStateLine(
+                    trophy = trophy,
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(horizontal = SpacingXs),
+                )
             }
         }
     }
@@ -563,7 +593,11 @@ internal fun TrophyDetailDialog(
                     contentDescription = trophyName(trophy),
                     size = TrophyDetailArtworkSize,
                 )
-                Text(text = trophyName(trophy))
+                Text(
+                    text = trophyName(trophy),
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                )
                 trophy.categoryName?.let {
                     Text(
                         text = it,
@@ -604,13 +638,14 @@ internal fun TrophyDetailDialog(
 @Composable
 private fun TrophyCardFooter(
     trophy: TrophyCardUi,
+    compact: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     Box(
         modifier =
             modifier
                 .fillMaxWidth()
-                .height(TrophyCardFooterMinHeight),
+                .height(if (compact) TrophyCompactCardFooterMinHeight else TrophyCardFooterMinHeight),
         contentAlignment = Alignment.Center,
     ) {
         if (trophy.isUnlocked) {
@@ -618,12 +653,39 @@ private fun TrophyCardFooter(
                 text = trophy.unlockedAt?.let { unlockedAt -> unlockedDateLabel(unlockedAt) }.orEmpty(),
                 style = typography.bodySmall,
                 color = colorScheme.onSurfaceVariant,
-                maxLines = 2,
+                maxLines = 1,
                 textAlign = TextAlign.Center,
             )
         } else {
             TrophyProgressIndicator(trophy = trophy)
         }
+    }
+}
+
+@Composable
+private fun TrophyStateLine(
+    trophy: TrophyCardUi,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(TrophyStateLineBlockHeight),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text =
+                if (trophy.isUnlocked) {
+                    trophy.unlockedAt?.let { unlockedAt -> unlockedDateLabel(unlockedAt) }.orEmpty()
+                } else {
+                    trophyConditionLabel(trophy)
+                },
+            style = typography.bodySmall,
+            color = colorScheme.onSurfaceVariant,
+            maxLines = 1,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 

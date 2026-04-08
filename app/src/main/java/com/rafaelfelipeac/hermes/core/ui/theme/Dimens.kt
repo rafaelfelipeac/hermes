@@ -47,6 +47,7 @@ object Dimens {
     val TrophyAccentBarHeight = 6.dp
     val TrophyArtworkSize = 44.dp
     val TrophyShelfArtworkSize = 88.dp
+    val TrophyGridArtworkSize = 80.dp
     val TrophyDetailArtworkSize = 160.dp
     val TrophyShelfIconSize = 28.dp
     val TrophyDetailIconSize = 44.dp
@@ -60,8 +61,13 @@ object Dimens {
     val TrophyBadgeLockIconSize = 12.dp
     val TrophyShelfCardMinWidth = 132.dp
     val TrophyOverviewCardMinHeight = 156.dp
-    val TrophyDetailCardMinHeight = 208.dp
+    val TrophyDetailCardMinHeight = 176.dp
     val TrophyCardFooterMinHeight = 40.dp
+    val TrophyCompactCardFooterMinHeight = 32.dp
+    val TrophyStateLineBlockHeight = 20.dp
+    val TrophyCardTitleBlockHeight = 42.dp
+    val TrophyCardCategoryBlockHeight = 20.dp
+    val TrophyCardArtworkTopPadding = 6.dp
     val TrophyBackButtonSize = 36.dp
     val TrophyProgressHeight = 8.dp
     val WeeklyTrainingTestViewportHeight = 200.dp

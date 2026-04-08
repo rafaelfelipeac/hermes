@@ -20,7 +20,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBadgeLockBadgeSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBadgeLockIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailArtworkSize
@@ -29,7 +28,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfIconSize
 
 private const val BADGE_PATCH_SCALE = 0.72f
 private const val BADGE_MEDAL_SCALE = 0.82f
-private const val BADGE_CREST_SCALE = 0.98f
+private const val BADGE_CREST_SCALE = 0.94f
 private const val BADGE_PATCH_ICON_SCALE = 0.96f
 private const val BADGE_MEDAL_ICON_SCALE = 1.0f
 private const val BADGE_CREST_ICON_SCALE = 1.08f
@@ -38,14 +37,16 @@ private const val BADGE_BORDER_ALPHA = 0.46f
 private const val BADGE_ICON_ALPHA = 0.92f
 private const val BADGE_LOCKED_ICON_ALPHA = 0.72f
 private const val BADGE_LOCKED_BORDER_ALPHA = 0.78f
-private const val BADGE_LOCKED_OUTER_RING_ALPHA = 0.18f
-private const val BADGE_LOCKED_INNER_RING_ALPHA = 0.24f
+private const val BADGE_LOCKED_MIDDLE_RING_ALPHA = 0.34f
+private const val BADGE_LOCKED_INNER_RING_ALPHA = 0.26f
 private const val BADGE_LOCK_OVERLAY_BORDER_ALPHA = 0.88f
-private const val BADGE_NO_RING_SCALE = 0f
 private const val BADGE_NO_RING_ALPHA = 0f
-private const val BADGE_CREST_MIDDLE_RING_SCALE = 0.865f
-private const val BADGE_CREST_INNER_RING_SCALE = 0.765f
-private const val BADGE_MEDAL_INNER_RING_SCALE = 0.86f
+private const val BADGE_LOCK_SHELF_ANCHOR_X_FRACTION = 0.82f
+private const val BADGE_LOCK_SHELF_ANCHOR_Y_FRACTION = 0.86f
+private const val BADGE_LOCK_DETAIL_ANCHOR_X_FRACTION = 0.82f
+private const val BADGE_LOCK_DETAIL_ANCHOR_Y_FRACTION = 0.82f
+private const val BADGE_MEDAL_RING_STEP = 0.08f
+private const val BADGE_CREST_RING_STEP = 0.08f
 
 @Composable
 internal fun TrophyBadge(
@@ -57,7 +58,10 @@ internal fun TrophyBadge(
 ) {
     val accent = trophyAccentColor(trophy)
     val tierStyle = trophy.badgeRank.toBadgeTierStyle()
-    val baseIconSize = if (size == TrophyDetailArtworkSize) TrophyDetailIconSize else TrophyShelfIconSize
+    val isDetailBadge = size == TrophyDetailArtworkSize
+    val baseIconSize = if (isDetailBadge) TrophyDetailIconSize else TrophyShelfIconSize
+    val lockAnchorXFraction = if (isDetailBadge) BADGE_LOCK_DETAIL_ANCHOR_X_FRACTION else BADGE_LOCK_SHELF_ANCHOR_X_FRACTION
+    val lockAnchorYFraction = if (isDetailBadge) BADGE_LOCK_DETAIL_ANCHOR_Y_FRACTION else BADGE_LOCK_SHELF_ANCHOR_Y_FRACTION
     val iconTint =
         if (trophy.isUnlocked) {
             accent.copy(alpha = tierStyle.iconAlpha)
@@ -76,17 +80,11 @@ internal fun TrophyBadge(
         } else {
             colorScheme.outline.copy(alpha = BADGE_LOCKED_BORDER_ALPHA)
         }
-    val outerRingColor =
-        if (trophy.isUnlocked) {
-            accent.copy(alpha = tierStyle.outerRingAlpha)
-        } else {
-            colorScheme.outline.copy(alpha = BADGE_LOCKED_OUTER_RING_ALPHA)
-        }
     val middleRingColor =
         if (trophy.isUnlocked) {
             accent.copy(alpha = tierStyle.middleRingAlpha)
         } else {
-            colorScheme.outline.copy(alpha = BADGE_LOCKED_OUTER_RING_ALPHA)
+            colorScheme.outline.copy(alpha = BADGE_LOCKED_MIDDLE_RING_ALPHA)
         }
     val innerRingColor =
         if (trophy.isUnlocked) {
@@ -94,6 +92,8 @@ internal fun TrophyBadge(
         } else {
             colorScheme.outline.copy(alpha = BADGE_LOCKED_INNER_RING_ALPHA)
         }
+    val badgeDiameter = size * tierStyle.badgeScale
+    val badgeOffset = (size - badgeDiameter) / 2
     Box(
         modifier =
             modifier
@@ -101,25 +101,8 @@ internal fun TrophyBadge(
                 .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.Center,
     ) {
-        if (tierStyle.outerRingAlpha > 0f) {
-            Surface(
-                modifier = Modifier.size(size * tierStyle.outerRingScale),
-                shape = CircleShape,
-                color = Color.Transparent,
-                border = BorderStroke(BorderThin, outerRingColor),
-            ) {}
-        }
-        if (tierStyle.middleRingAlpha > 0f) {
-            Surface(
-                modifier = Modifier.size(size * tierStyle.middleRingScale),
-                shape = CircleShape,
-                color = Color.Transparent,
-                border = BorderStroke(BorderThin, middleRingColor),
-            ) {}
-        }
-
         Surface(
-            modifier = Modifier.size(size * tierStyle.badgeScale),
+            modifier = Modifier.size(badgeDiameter),
             shape = CircleShape,
             color = badgeColor,
             border = BorderStroke(BorderThin, borderColor),
@@ -128,9 +111,17 @@ internal fun TrophyBadge(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
+                if (tierStyle.middleRingAlpha > 0f) {
+                    Surface(
+                        modifier = Modifier.size(badgeDiameter * tierStyle.middleRingScale),
+                        shape = CircleShape,
+                        color = Color.Transparent,
+                        border = BorderStroke(BorderThin, middleRingColor),
+                    ) {}
+                }
                 if (tierStyle.innerRingAlpha > 0f) {
                     Surface(
-                        modifier = Modifier.size((size * tierStyle.badgeScale) * tierStyle.innerRingScale),
+                        modifier = Modifier.size(badgeDiameter * tierStyle.innerRingScale),
                         shape = CircleShape,
                         color = Color.Transparent,
                         border = BorderStroke(BorderThin, innerRingColor),
@@ -149,8 +140,11 @@ internal fun TrophyBadge(
             LockedOverlayBadge(
                 modifier =
                     Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(SpacingXs),
+                        .align(Alignment.TopStart)
+                        .padding(
+                            start = badgeOffset + (badgeDiameter * lockAnchorXFraction) - (TrophyBadgeLockBadgeSize / 2),
+                            top = badgeOffset + (badgeDiameter * lockAnchorYFraction) - (TrophyBadgeLockBadgeSize / 2),
+                        ),
             )
         }
     }
@@ -181,7 +175,6 @@ private fun LockedOverlayBadge(
 
 private data class TrophyBadgeTierStyle(
     val badgeScale: Float,
-    val outerRingScale: Float,
     val middleRingScale: Float,
     val innerRingScale: Float,
     val fillAlpha: Float,
@@ -189,7 +182,6 @@ private data class TrophyBadgeTierStyle(
     val iconAlpha: Float,
     val middleRingAlpha: Float,
     val innerRingAlpha: Float,
-    val outerRingAlpha: Float,
     val iconScale: Float,
 )
 
@@ -198,45 +190,39 @@ private fun Int.toBadgeTierStyle(): TrophyBadgeTierStyle {
         this >= 3 ->
             TrophyBadgeTierStyle(
                 badgeScale = BADGE_CREST_SCALE,
-                outerRingScale = BADGE_NO_RING_SCALE,
-                middleRingScale = BADGE_CREST_MIDDLE_RING_SCALE,
-                innerRingScale = BADGE_CREST_INNER_RING_SCALE,
+                middleRingScale = 1f - BADGE_CREST_RING_STEP,
+                innerRingScale = 1f - (BADGE_CREST_RING_STEP * 2f),
                 fillAlpha = BADGE_FILL_ALPHA,
                 borderAlpha = BADGE_BORDER_ALPHA,
                 iconAlpha = BADGE_ICON_ALPHA,
                 middleRingAlpha = BADGE_BORDER_ALPHA,
                 innerRingAlpha = BADGE_BORDER_ALPHA,
-                outerRingAlpha = BADGE_NO_RING_ALPHA,
                 iconScale = BADGE_CREST_ICON_SCALE,
             )
 
         this == 2 ->
             TrophyBadgeTierStyle(
                 badgeScale = BADGE_MEDAL_SCALE,
-                outerRingScale = BADGE_NO_RING_SCALE,
-                middleRingScale = BADGE_NO_RING_SCALE,
-                innerRingScale = BADGE_MEDAL_INNER_RING_SCALE,
+                middleRingScale = 1f - BADGE_MEDAL_RING_STEP,
+                innerRingScale = 0f,
                 fillAlpha = BADGE_FILL_ALPHA,
                 borderAlpha = BADGE_BORDER_ALPHA,
                 iconAlpha = BADGE_ICON_ALPHA,
-                middleRingAlpha = BADGE_NO_RING_ALPHA,
-                innerRingAlpha = BADGE_BORDER_ALPHA,
-                outerRingAlpha = BADGE_NO_RING_ALPHA,
+                middleRingAlpha = BADGE_BORDER_ALPHA,
+                innerRingAlpha = BADGE_NO_RING_ALPHA,
                 iconScale = BADGE_MEDAL_ICON_SCALE,
             )
 
         else ->
             TrophyBadgeTierStyle(
                 badgeScale = BADGE_PATCH_SCALE,
-                outerRingScale = BADGE_NO_RING_SCALE,
-                middleRingScale = BADGE_NO_RING_SCALE,
-                innerRingScale = BADGE_NO_RING_SCALE,
+                middleRingScale = 0f,
+                innerRingScale = 0f,
                 fillAlpha = BADGE_FILL_ALPHA,
                 borderAlpha = BADGE_BORDER_ALPHA,
                 iconAlpha = BADGE_ICON_ALPHA,
                 middleRingAlpha = BADGE_NO_RING_ALPHA,
                 innerRingAlpha = BADGE_NO_RING_ALPHA,
-                outerRingAlpha = BADGE_NO_RING_ALPHA,
                 iconScale = BADGE_PATCH_ICON_SCALE,
             )
     }
