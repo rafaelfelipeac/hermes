@@ -8,7 +8,7 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">सप्ताह</string>
     <string name="activity_nav_label">गतिविधि</string>
-    <string name="settings_nav_label">सेटिंग्स</string>
+    <string name="settings_nav_label">सेटिंग</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">जोड़ें</string>

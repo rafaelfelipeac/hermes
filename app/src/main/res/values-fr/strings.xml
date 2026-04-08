@@ -8,7 +8,7 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">Semaine</string>
     <string name="activity_nav_label">Activité</string>
-    <string name="settings_nav_label">Paramètres</string>
+    <string name="settings_nav_label">Réglages</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">Ajouter</string>

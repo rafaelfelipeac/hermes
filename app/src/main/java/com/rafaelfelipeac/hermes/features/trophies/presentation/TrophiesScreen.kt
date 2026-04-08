@@ -74,6 +74,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
@@ -572,6 +573,7 @@ private fun TrophyShelfCard(
                         color = colorScheme.onSurface,
                         maxLines = 2,
                         textAlign = TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 Box(

@@ -34,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
@@ -244,7 +245,9 @@ internal fun SettingsActionButton(
     ) {
         Text(
             text = label,
+            modifier = Modifier.fillMaxWidth(),
             style = typography.bodyMedium,
+            textAlign = TextAlign.Center,
         )
     }
 }
