@@ -40,6 +40,9 @@ class SettingsContentTest {
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
                 onSeedDemoData = {},
+                onSeedMixedTrophies = {},
+                onSeedLockedTrophies = {},
+                onSeedCompletedTrophies = {},
                 onCategoriesClick = {},
                 onBackupClick = {},
             )
@@ -75,6 +78,9 @@ class SettingsContentTest {
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
                 onSeedDemoData = {},
+                onSeedMixedTrophies = {},
+                onSeedLockedTrophies = {},
+                onSeedCompletedTrophies = {},
                 onCategoriesClick = {},
                 onBackupClick = {},
             )
@@ -111,6 +117,9 @@ class SettingsContentTest {
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
                 onSeedDemoData = {},
+                onSeedMixedTrophies = {},
+                onSeedLockedTrophies = {},
+                onSeedCompletedTrophies = {},
                 onCategoriesClick = {},
                 onBackupClick = {},
             )

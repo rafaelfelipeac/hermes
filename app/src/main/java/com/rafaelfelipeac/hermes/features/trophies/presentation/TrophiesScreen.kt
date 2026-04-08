@@ -108,6 +108,8 @@ import java.util.Locale
 
 internal const val TROPHIES_EMPTY_STATE_TAG = "trophies_empty_state"
 internal const val TROPHIES_DETAIL_DIALOG_TAG = "trophies_detail_dialog"
+internal const val TROPHIES_OVERVIEW_LIST_TAG = "trophies_overview_list"
+internal const val TROPHIES_FAMILY_LIST_TAG_PREFIX = "trophies_family_list_"
 internal const val TROPHIES_VIEW_ALL_TAG_PREFIX = "trophies_view_all_"
 internal const val TROPHIES_FAMILY_DETAIL_TAG_PREFIX = "trophies_family_detail_"
 private const val TROPHIES_SHARE_INTENT_TYPE = "text/plain"
@@ -278,7 +280,7 @@ private fun TrophyOverviewContent(
     )
     LazyColumn(
         state = listState,
-        modifier = modifier,
+        modifier = modifier.testTag(TROPHIES_OVERVIEW_LIST_TAG),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         items(families, key = { it.family.name }) { familySection ->
@@ -314,6 +316,10 @@ private fun TrophyFamilyDetailContent(
     ) {
         LazyColumn(
             state = listState,
+            modifier =
+                Modifier.testTag(
+                    TROPHIES_FAMILY_LIST_TAG_PREFIX + familySection.family.name.lowercase(Locale.ROOT),
+                ),
             verticalArrangement = Arrangement.spacedBy(SpacingLg),
         ) {
             items(familySection.sections, key = { it.stableId }) { section ->

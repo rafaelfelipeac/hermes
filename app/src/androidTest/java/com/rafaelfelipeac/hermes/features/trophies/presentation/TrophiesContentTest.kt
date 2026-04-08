@@ -1,6 +1,8 @@
 package com.rafaelfelipeac.hermes.features.trophies.presentation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -11,6 +13,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToIndex
 import androidx.test.platform.app.InstrumentationRegistry
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
@@ -35,6 +38,11 @@ class TrophiesContentTest {
                 onFamilySelected = {},
                 onBackFromFamily = {},
                 onTrophySelected = {},
+                overviewFirstVisibleItemIndex = 0,
+                overviewFirstVisibleItemScrollOffset = 0,
+                onOverviewScrollChanged = { _, _ -> },
+                familyFirstVisibleItemIndex = mutableMapOf(),
+                familyFirstVisibleItemScrollOffset = mutableMapOf(),
             )
         }
 
@@ -69,6 +77,111 @@ class TrophiesContentTest {
 
         composeRule.onNodeWithTag(familyDetailTag(TrophyFamilyUi.FOLLOW_THROUGH)).assertIsDisplayed()
         composeRule.onNodeWithText("Full-Time").assertIsDisplayed()
+    }
+
+    @Test
+    fun overviewScrollPositionIsPreservedWhenReturningFromFamilyDetail() {
+        val state =
+            TrophyPageState(
+                families =
+                    listOf(
+                        familySection(TrophyFamilyUi.FOLLOW_THROUGH, "Follow Through"),
+                        familySection(TrophyFamilyUi.CONSISTENCY, "Consistency"),
+                        familySection(TrophyFamilyUi.ADAPTABILITY, "Adaptability"),
+                        familySection(TrophyFamilyUi.MOMENTUM, "Momentum"),
+                        familySection(TrophyFamilyUi.BUILDER, "Builder"),
+                        familySection(TrophyFamilyUi.CATEGORIES, "Categories"),
+                    ),
+            )
+
+        var selectedFamilyName by mutableStateOf<String?>(null)
+        var overviewFirstVisibleItemIndex by mutableStateOf(0)
+        var overviewFirstVisibleItemScrollOffset by mutableStateOf(0)
+        val familyFirstVisibleItemIndex = mutableStateMapOf<String, Int>()
+        val familyFirstVisibleItemScrollOffset = mutableStateMapOf<String, Int>()
+
+        composeRule.setContent {
+            TrophiesContent(
+                state = state,
+                selectedFamilyName = selectedFamilyName,
+                onFamilySelected = { family -> selectedFamilyName = family.name },
+                onBackFromFamily = { selectedFamilyName = null },
+                onTrophySelected = {},
+                overviewFirstVisibleItemIndex = overviewFirstVisibleItemIndex,
+                overviewFirstVisibleItemScrollOffset = overviewFirstVisibleItemScrollOffset,
+                onOverviewScrollChanged = { index, offset ->
+                    overviewFirstVisibleItemIndex = index
+                    overviewFirstVisibleItemScrollOffset = offset
+                },
+                familyFirstVisibleItemIndex = familyFirstVisibleItemIndex,
+                familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
+            )
+        }
+
+        composeRule.onNodeWithTag(TROPHIES_OVERVIEW_LIST_TAG).performScrollToIndex(5)
+        composeRule.onNodeWithText("Categories").assertIsDisplayed()
+
+        composeRule.onNodeWithTag(viewAllTag(TrophyFamilyUi.CATEGORIES)).performClick()
+        composeRule.onNodeWithTag(familyDetailTag(TrophyFamilyUi.CATEGORIES)).assertIsDisplayed()
+
+        composeRule.runOnIdle { selectedFamilyName = null }
+
+        composeRule.onNodeWithText("Categories").assertIsDisplayed()
+    }
+
+    @Test
+    fun familyDetailScrollPositionIsPreservedWhenReopened() {
+        val state =
+            TrophyPageState(
+                families =
+                    listOf(
+                        TrophyFamilySectionUi(
+                            family = TrophyFamilyUi.CATEGORIES,
+                            unlockedCount = 0,
+                            totalCount = 5,
+                            sections =
+                                listOf(
+                                    categorySection("Run"),
+                                    categorySection("Cycling"),
+                                    categorySection("Strength"),
+                                    categorySection("Swim"),
+                                    categorySection("Mobility"),
+                                ),
+                        ),
+                    ),
+            )
+
+        var selectedFamilyName by mutableStateOf<String?>(TrophyFamilyUi.CATEGORIES.name)
+        var overviewFirstVisibleItemIndex by mutableStateOf(0)
+        var overviewFirstVisibleItemScrollOffset by mutableStateOf(0)
+        val familyFirstVisibleItemIndex = mutableStateMapOf<String, Int>()
+        val familyFirstVisibleItemScrollOffset = mutableStateMapOf<String, Int>()
+
+        composeRule.setContent {
+            TrophiesContent(
+                state = state,
+                selectedFamilyName = selectedFamilyName,
+                onFamilySelected = { family -> selectedFamilyName = family.name },
+                onBackFromFamily = { selectedFamilyName = null },
+                onTrophySelected = {},
+                overviewFirstVisibleItemIndex = overviewFirstVisibleItemIndex,
+                overviewFirstVisibleItemScrollOffset = overviewFirstVisibleItemScrollOffset,
+                onOverviewScrollChanged = { index, offset ->
+                    overviewFirstVisibleItemIndex = index
+                    overviewFirstVisibleItemScrollOffset = offset
+                },
+                familyFirstVisibleItemIndex = familyFirstVisibleItemIndex,
+                familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
+            )
+        }
+
+        composeRule.onNodeWithTag(familyListTag(TrophyFamilyUi.CATEGORIES)).performScrollToIndex(4)
+        composeRule.onNodeWithText("Mobility").assertIsDisplayed()
+
+        composeRule.runOnIdle { selectedFamilyName = null }
+        composeRule.runOnIdle { selectedFamilyName = TrophyFamilyUi.CATEGORIES.name }
+
+        composeRule.onNodeWithText("Mobility").assertIsDisplayed()
     }
 
     @Test
@@ -163,12 +276,17 @@ class TrophiesContentTest {
                                         TrophySectionUi(
                                             stableId = "follow_through",
                                             trophies =
-                                                (1..7).map { index ->
+                                                (1..6).map { index ->
                                                     sampleCard(
                                                         stableId = "full_time_$index",
                                                         currentValue = index,
                                                     )
-                                                },
+                                                } +
+                                                    sampleCard(
+                                                        stableId = "match_fitness_hidden",
+                                                        trophyId = TrophyId.MATCH_FITNESS,
+                                                        currentValue = 7,
+                                                    ),
                                         ),
                                     ),
                             ),
@@ -176,9 +294,9 @@ class TrophiesContentTest {
                 ),
         )
 
-        composeRule.onAllNodesWithText("Full-Time").assertCountEquals(6)
+        composeRule.onAllNodesWithText("Match Fitness").assertCountEquals(0)
         composeRule.onNodeWithTag(viewAllTag(TrophyFamilyUi.FOLLOW_THROUGH)).performClick()
-        composeRule.onAllNodesWithText("Full-Time").assertCountEquals(7)
+        composeRule.onNodeWithText("Match Fitness").assertExists()
     }
 
     @Test
@@ -203,6 +321,41 @@ class TrophiesContentTest {
         composeRule.onNodeWithTag(TROPHIES_DETAIL_DIALOG_TAG).assertIsDisplayed()
         composeRule.onNodeWithText(close).assertIsDisplayed()
         composeRule.onNodeWithText(requirement).assertIsDisplayed()
+    }
+
+    @Test
+    fun detailDialogShowsShareButtonOnlyForUnlockedTrophies() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val share = context.getString(R.string.trophies_detail_share)
+        var trophy by mutableStateOf(
+            sampleCard(
+                currentValue = 1,
+                target = 1,
+                isUnlocked = true,
+                unlockedAt = 1234L,
+            ),
+        )
+
+        composeRule.setContent {
+            TrophyDetailDialog(
+                trophy = trophy,
+                onDismiss = {},
+            )
+        }
+
+        composeRule.onNodeWithText(share).assertIsDisplayed()
+
+        composeRule.runOnIdle {
+            trophy =
+                sampleCard(
+                    currentValue = 0,
+                    target = 1,
+                    isUnlocked = false,
+                    unlockedAt = null,
+                )
+        }
+
+        composeRule.onAllNodesWithText(share).assertCountEquals(0)
     }
 
     @Test
@@ -233,6 +386,11 @@ class TrophiesContentTest {
                 onFamilySelected = {},
                 onBackFromFamily = {},
                 onTrophySelected = { selectedId = it.stableId },
+                overviewFirstVisibleItemIndex = 0,
+                overviewFirstVisibleItemScrollOffset = 0,
+                onOverviewScrollChanged = { _, _ -> },
+                familyFirstVisibleItemIndex = mutableMapOf(),
+                familyFirstVisibleItemScrollOffset = mutableMapOf(),
             )
         }
 
@@ -275,6 +433,10 @@ class TrophiesContentTest {
         return TROPHIES_FAMILY_DETAIL_TAG_PREFIX + family.name.lowercase(Locale.ROOT)
     }
 
+    private fun familyListTag(family: TrophyFamilyUi): String {
+        return TROPHIES_FAMILY_LIST_TAG_PREFIX + family.name.lowercase(Locale.ROOT)
+    }
+
     private fun setContentWithFamilySelection(
         state: TrophyPageState,
         initialSelectedFamilyName: String? = null,
@@ -282,6 +444,10 @@ class TrophiesContentTest {
     ) {
         composeRule.setContent {
             var selectedFamilyName by remember { mutableStateOf(initialSelectedFamilyName) }
+            var overviewFirstVisibleItemIndex by remember { mutableIntStateOf(0) }
+            var overviewFirstVisibleItemScrollOffset by remember { mutableIntStateOf(0) }
+            val familyFirstVisibleItemIndex = remember { mutableStateMapOf<String, Int>() }
+            val familyFirstVisibleItemScrollOffset = remember { mutableStateMapOf<String, Int>() }
 
             TrophiesContent(
                 state = state,
@@ -289,7 +455,57 @@ class TrophiesContentTest {
                 onFamilySelected = { family -> selectedFamilyName = family.name },
                 onBackFromFamily = { selectedFamilyName = null },
                 onTrophySelected = onTrophySelected,
+                overviewFirstVisibleItemIndex = overviewFirstVisibleItemIndex,
+                overviewFirstVisibleItemScrollOffset = overviewFirstVisibleItemScrollOffset,
+                onOverviewScrollChanged = { index, offset ->
+                    overviewFirstVisibleItemIndex = index
+                    overviewFirstVisibleItemScrollOffset = offset
+                },
+                familyFirstVisibleItemIndex = familyFirstVisibleItemIndex,
+                familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
             )
         }
+    }
+
+    private fun familySection(
+        family: TrophyFamilyUi,
+        title: String,
+    ): TrophyFamilySectionUi {
+        return TrophyFamilySectionUi(
+            family = family,
+            unlockedCount = 0,
+            totalCount = 1,
+            sections =
+                listOf(
+                    TrophySectionUi(
+                        stableId = family.name.lowercase(Locale.ROOT),
+                        title = title.takeIf { family == TrophyFamilyUi.CATEGORIES },
+                        trophies =
+                            listOf(
+                                sampleCard(
+                                    stableId = family.name.lowercase(Locale.ROOT),
+                                    trophyId = TrophyId.FULL_TIME,
+                                    family = family,
+                                ),
+                            ),
+                    ),
+                ),
+        )
+    }
+
+    private fun categorySection(title: String): TrophySectionUi {
+        return TrophySectionUi(
+            stableId = title.lowercase(Locale.ROOT),
+            title = title,
+            trophies =
+                listOf(
+                    sampleCard(
+                        stableId = title.lowercase(Locale.ROOT),
+                        trophyId = TrophyId.PODIUM_PLACE,
+                        family = TrophyFamilyUi.CATEGORIES,
+                        categoryName = title,
+                    ),
+                ),
+        )
     }
 }
