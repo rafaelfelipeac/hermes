@@ -22,8 +22,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.EmojiEvents
@@ -55,9 +57,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -127,6 +133,10 @@ fun TrophiesScreen(
     val state by viewModel.state.collectAsState()
     var selectedFamilyName by rememberSaveable { mutableStateOf<String?>(null) }
     var selectedTrophyId by rememberSaveable { mutableStateOf<String?>(null) }
+    var overviewFirstVisibleItemIndex by rememberSaveable { mutableIntStateOf(0) }
+    var overviewFirstVisibleItemScrollOffset by rememberSaveable { mutableIntStateOf(0) }
+    val familyFirstVisibleItemIndex = remember { mutableStateMapOf<String, Int>() }
+    val familyFirstVisibleItemScrollOffset = remember { mutableStateMapOf<String, Int>() }
     val selectedFamily = state.families.firstOrNull { it.family.name == selectedFamilyName }
     val selectedTrophy =
         state.families
@@ -180,6 +190,14 @@ fun TrophiesScreen(
             onFamilySelected = { family -> selectedFamilyName = family.name },
             onBackFromFamily = { selectedFamilyName = null },
             onTrophySelected = { selectedTrophyId = it.stableId },
+            overviewFirstVisibleItemIndex = overviewFirstVisibleItemIndex,
+            overviewFirstVisibleItemScrollOffset = overviewFirstVisibleItemScrollOffset,
+            onOverviewScrollChanged = { index, offset ->
+                overviewFirstVisibleItemIndex = index
+                overviewFirstVisibleItemScrollOffset = offset
+            },
+            familyFirstVisibleItemIndex = familyFirstVisibleItemIndex,
+            familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -199,6 +217,11 @@ internal fun TrophiesContent(
     onFamilySelected: (TrophyFamilyUi) -> Unit,
     onBackFromFamily: () -> Unit,
     onTrophySelected: (TrophyCardUi) -> Unit,
+    overviewFirstVisibleItemIndex: Int,
+    overviewFirstVisibleItemScrollOffset: Int,
+    onOverviewScrollChanged: (Int, Int) -> Unit,
+    familyFirstVisibleItemIndex: MutableMap<String, Int>,
+    familyFirstVisibleItemScrollOffset: MutableMap<String, Int>,
     modifier: Modifier = Modifier,
 ) {
     if (state.families.isEmpty() || state.families.all { it.sections.isEmpty() }) {
@@ -217,12 +240,21 @@ internal fun TrophiesContent(
             families = state.families,
             onOpenFamily = onFamilySelected,
             onTrophySelected = onTrophySelected,
+            firstVisibleItemIndex = overviewFirstVisibleItemIndex,
+            firstVisibleItemScrollOffset = overviewFirstVisibleItemScrollOffset,
+            onScrollChanged = onOverviewScrollChanged,
             modifier = modifier,
         )
     } else {
         TrophyFamilyDetailContent(
             familySection = selectedFamily,
             onTrophySelected = onTrophySelected,
+            firstVisibleItemIndex = familyFirstVisibleItemIndex[selectedFamily.family.name] ?: 0,
+            firstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset[selectedFamily.family.name] ?: 0,
+            onScrollChanged = { index, offset ->
+                familyFirstVisibleItemIndex[selectedFamily.family.name] = index
+                familyFirstVisibleItemScrollOffset[selectedFamily.family.name] = offset
+            },
             modifier = modifier,
         )
     }
@@ -233,9 +265,18 @@ private fun TrophyOverviewContent(
     families: List<TrophyFamilySectionUi>,
     onOpenFamily: (TrophyFamilyUi) -> Unit,
     onTrophySelected: (TrophyCardUi) -> Unit,
+    firstVisibleItemIndex: Int,
+    firstVisibleItemScrollOffset: Int,
+    onScrollChanged: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberPreservedLazyListState(
+        firstVisibleItemIndex = firstVisibleItemIndex,
+        firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
+        onScrollChanged = onScrollChanged,
+    )
     LazyColumn(
+        state = listState,
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
@@ -253,8 +294,16 @@ private fun TrophyOverviewContent(
 private fun TrophyFamilyDetailContent(
     familySection: TrophyFamilySectionUi,
     onTrophySelected: (TrophyCardUi) -> Unit,
+    firstVisibleItemIndex: Int,
+    firstVisibleItemScrollOffset: Int,
+    onScrollChanged: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberPreservedLazyListState(
+        firstVisibleItemIndex = firstVisibleItemIndex,
+        firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
+        onScrollChanged = onScrollChanged,
+    )
     Column(
         modifier =
             modifier.testTag(
@@ -263,6 +312,7 @@ private fun TrophyFamilyDetailContent(
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         LazyColumn(
+            state = listState,
             verticalArrangement = Arrangement.spacedBy(SpacingLg),
         ) {
             items(familySection.sections, key = { it.stableId }) { section ->
@@ -273,6 +323,28 @@ private fun TrophyFamilyDetailContent(
             }
         }
     }
+}
+
+@Composable
+private fun rememberPreservedLazyListState(
+    firstVisibleItemIndex: Int,
+    firstVisibleItemScrollOffset: Int,
+    onScrollChanged: (Int, Int) -> Unit,
+): LazyListState {
+    val listState =
+        rememberLazyListState(
+            initialFirstVisibleItemIndex = firstVisibleItemIndex,
+            initialFirstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
+        )
+
+    LaunchedEffect(listState, onScrollChanged) {
+        snapshotFlow { listState.firstVisibleItemIndex to listState.firstVisibleItemScrollOffset }
+            .collect { (index, offset) ->
+                onScrollChanged(index, offset)
+            }
+    }
+
+    return listState
 }
 
 @Composable
@@ -677,7 +749,7 @@ private fun TrophyStateLine(
         Text(
             text =
                 if (trophy.isUnlocked) {
-                    trophy.unlockedAt?.let { unlockedAt -> unlockedDateLabel(unlockedAt) }.orEmpty()
+                    trophy.unlockedAt?.let { unlockedAt -> unlockedDateCompactLabel(unlockedAt) }.orEmpty()
                 } else {
                     trophyConditionLabel(trophy)
                 },
@@ -838,6 +910,12 @@ private fun unlockedDateLabel(unlockedAt: Long): String {
         R.string.trophies_unlocked_on,
         DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale).format(Date(unlockedAt)),
     )
+}
+
+@Composable
+private fun unlockedDateCompactLabel(unlockedAt: Long): String {
+    val currentLocale = LocalConfiguration.current.locales.get(0) ?: Locale.getDefault()
+    return DateFormat.getDateInstance(DateFormat.SHORT, currentLocale).format(Date(unlockedAt))
 }
 
 @Composable
