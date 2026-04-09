@@ -418,10 +418,10 @@
     <string name="trophies_name_hold_the_line">Tieni la Linea</string>
     <string name="trophies_desc_hold_the_line_locked">Sbloccalo copiando una settimana precedente e poi completando tutti gli allenamenti pianificati in quella settimana copiata, 2 volte.</string>
     <string name="trophies_desc_hold_the_line_unlocked">Hai copiato una settimana precedente e poi completato tutti gli allenamenti pianificati in quella settimana copiata, 2 volte.</string>
-    <string name="trophies_name_team_sheet">Scheda Squadra</string>
+    <string name="trophies_name_team_sheet">Rosa di Allenamento</string>
     <string name="trophies_desc_team_sheet_locked">Sbloccalo creando, modificando o organizzando categorie di allenamento 10 volte.</string>
     <string name="trophies_desc_team_sheet_unlocked">Hai creato, modificato o organizzato categorie di allenamento 10 volte.</string>
-    <string name="trophies_name_kit_bag">"Borsa dell'Attrezzatura"</string>
+    <string name="trophies_name_kit_bag">Panchina di Backup</string>
     <string name="trophies_desc_kit_bag_locked">Sbloccalo esportando o salvando un backup 3 volte.</string>
     <string name="trophies_desc_kit_bag_unlocked">Hai esportato o salvato un backup 3 volte.</string>
     <string name="trophies_name_podium_place">Posto sul Podio</string>
@@ -442,9 +442,9 @@
     <string name="trophies_name_tactical_board">Piano di Gioco: Lavagna Tattica</string>
     <string name="trophies_name_field_marshal">Piano di Gioco: Maresciallo di Campo</string>
     <string name="trophies_name_in_rotation">Posto sul Podio: In Rotazione</string>
-    <string name="trophies_name_mainstay">Posto sul Podio: Pilastro</string>
-    <string name="trophies_name_local_favorite">Terreno di Casa: Favorito di Casa</string>
-    <string name="trophies_name_territory">Terreno di Casa: Territorio</string>
+    <string name="trophies_name_mainstay">Posto sul Podio: Punto Fermo</string>
+    <string name="trophies_name_local_favorite">Terreno di Casa: Percorso Abituale</string>
+    <string name="trophies_name_territory">Terreno di Casa: Roccaforte</string>
     <string name="trophies_desc_complete_weeks_locked">Sbloccala completando tutti gli allenamenti pianificati in %1$d settimane diverse.</string>
     <string name="trophies_desc_complete_weeks_unlocked">Hai completato tutti gli allenamenti pianificati in %1$d settimane diverse.</string>
     <string name="trophies_desc_workout_completions_locked">Sbloccala segnando %1$d allenamenti come completati.</string>

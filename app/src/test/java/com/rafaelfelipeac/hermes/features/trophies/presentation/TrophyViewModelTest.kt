@@ -72,7 +72,7 @@ class TrophyViewModelTest {
 
         val card = state.families.first().sections.first().trophies.first()
 
-        assertEquals(3, card.target)
+        assertEquals(4, card.target)
         assertTrue(card.isUnlocked)
         assertEquals(10L, card.unlockedAt)
     }

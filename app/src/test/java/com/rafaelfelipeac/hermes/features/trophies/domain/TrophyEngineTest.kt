@@ -53,8 +53,9 @@ class TrophyEngineTest {
 
         assertEquals(4, progress.require(TrophyId.FULL_TIME).currentValue)
         assertEquals(3, progress.require(TrophyId.IN_FORM).currentValue)
-        assertEquals(30L, progress.require(TrophyId.IN_FORM).unlockedAt)
-        assertEquals(30L, progress.require(TrophyId.FULL_TIME).unlockedAt)
+        assertNull(progress.require(TrophyId.IN_FORM).unlockedAt)
+        assertFalse(progress.require(TrophyId.IN_FORM).isUnlocked)
+        assertEquals(40L, progress.require(TrophyId.FULL_TIME).unlockedAt)
         assertFalse(progress.require(TrophyId.SEASON_BUILDER).isUnlocked)
     }
 
@@ -77,7 +78,8 @@ class TrophyEngineTest {
 
         assertEquals(2, progress.require(TrophyId.GAME_PLAN).currentValue)
         assertEquals(2, progress.require(TrophyId.COMEBACK_WEEK).currentValue)
-        assertEquals(60L, progress.require(TrophyId.COMEBACK_WEEK).unlockedAt)
+        assertNull(progress.require(TrophyId.COMEBACK_WEEK).unlockedAt)
+        assertFalse(progress.require(TrophyId.COMEBACK_WEEK).isUnlocked)
     }
 
     @Test
@@ -194,7 +196,7 @@ class TrophyEngineTest {
 
     @Test
     fun repeatedSeriesUnlockIndependentlyFromSharedMetric() {
-        val weeks = (0..11).map { LocalDate.of(2026, 1, 5).plusWeeks(it.toLong()) }
+        val weeks = (0..15).map { LocalDate.of(2026, 1, 5).plusWeeks(it.toLong()) }
         val progress =
             engine.compute(
                 weeks.mapIndexed { index, week ->
@@ -210,7 +212,7 @@ class TrophyEngineTest {
         assertTrue(progress.require(TrophyId.FULL_TIME).isUnlocked)
         assertTrue(progress.require(TrophyId.SEASON_BUILDER).isUnlocked)
         assertFalse(progress.require(TrophyId.SEASON_ANCHOR).isUnlocked)
-        assertEquals(120L, progress.require(TrophyId.SEASON_BUILDER).unlockedAt)
+        assertEquals(160L, progress.require(TrophyId.SEASON_BUILDER).unlockedAt)
     }
 
     private fun List<com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress>.require(

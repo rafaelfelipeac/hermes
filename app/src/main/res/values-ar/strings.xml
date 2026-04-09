@@ -438,10 +438,10 @@
     <string name="trophies_name_hold_the_line">حافظ على الخط</string>
     <string name="trophies_desc_hold_the_line_locked">يُفتح عند نسخ أسبوع سابق ثم إنهاء كل التمارين المخطط لها لاحقًا في ذلك الأسبوع المنسوخ مرتين.</string>
     <string name="trophies_desc_hold_the_line_unlocked">لقد نسخت أسبوعًا سابقًا ثم أنهيت لاحقًا كل التمارين المخطط لها في ذلك الأسبوع المنسوخ مرتين.</string>
-    <string name="trophies_name_team_sheet">ورقة الفريق</string>
+    <string name="trophies_name_team_sheet">قائمة التدريب</string>
     <string name="trophies_desc_team_sheet_locked">يُفتح عند إنشاء فئات التمارين أو تعديلها أو تنظيمها 10 مرات.</string>
     <string name="trophies_desc_team_sheet_unlocked">لقد أنشأت فئات التمارين أو عدّلتها أو نظّمتها 10 مرات.</string>
-    <string name="trophies_name_kit_bag">حقيبة العدة</string>
+    <string name="trophies_name_kit_bag">مقعد النسخ الاحتياطي</string>
     <string name="trophies_desc_kit_bag_locked">يُفتح عند تصدير نسخة احتياطية أو حفظها 3 مرات.</string>
     <string name="trophies_desc_kit_bag_unlocked">لقد صدّرت نسخة احتياطية أو حفظتها 3 مرات.</string>
     <string name="trophies_name_podium_place">مكان على المنصة</string>
@@ -462,9 +462,9 @@
     <string name="trophies_name_tactical_board">خطة اللعب: اللوحة التكتيكية</string>
     <string name="trophies_name_field_marshal">خطة اللعب: قائد الميدان</string>
     <string name="trophies_name_in_rotation">مكان على المنصة: ضمن التدوير</string>
-    <string name="trophies_name_mainstay">مكان على المنصة: الركيزة</string>
-    <string name="trophies_name_local_favorite">الأرض المألوفة: مفضل الديار</string>
-    <string name="trophies_name_territory">الأرض المألوفة: المنطقة</string>
+    <string name="trophies_name_mainstay">مكان على المنصة: الخيار الدائم</string>
+    <string name="trophies_name_local_favorite">الأرض المألوفة: المسار المعتاد</string>
+    <string name="trophies_name_territory">الأرض المألوفة: المعقل</string>
     <string name="trophies_desc_complete_weeks_locked">افتحها بإنهاء كل التمارين المخطط لها خلال %1$d أسابيع مختلفة.</string>
     <string name="trophies_desc_complete_weeks_unlocked">لقد أنهيت كل التمارين المخطط لها خلال %1$d أسابيع مختلفة.</string>
     <string name="trophies_desc_workout_completions_locked">افتحها عند تعليم %1$d تمرينًا كمكتمل.</string>

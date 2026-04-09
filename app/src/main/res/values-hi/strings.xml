@@ -418,10 +418,10 @@
     <string name="trophies_name_hold_the_line">लाइन संभालो</string>
     <string name="trophies_desc_hold_the_line_locked">एक पिछला सप्ताह कॉपी करके बाद में उसी कॉपी किए गए सप्ताह में सभी तय किए गए वर्कआउट 2 बार पूरे करने पर यह अनलॉक होता है।</string>
     <string name="trophies_desc_hold_the_line_unlocked">आपने एक पिछला सप्ताह कॉपी किया और बाद में उसी कॉपी किए गए सप्ताह में सभी तय किए गए वर्कआउट 2 बार पूरे किए।</string>
-    <string name="trophies_name_team_sheet">टीम शीट</string>
+    <string name="trophies_name_team_sheet">ट्रेनिंग रोस्टर</string>
     <string name="trophies_desc_team_sheet_locked">प्रशिक्षण श्रेणियां 10 बार बनाने, बदलने या व्यवस्थित करने पर यह अनलॉक होता है।</string>
     <string name="trophies_desc_team_sheet_unlocked">आपने प्रशिक्षण श्रेणियां 10 बार बनाईं, बदलीं या व्यवस्थित कीं।</string>
-    <string name="trophies_name_kit_bag">किट बैग</string>
+    <string name="trophies_name_kit_bag">बैकअप बेंच</string>
     <string name="trophies_desc_kit_bag_locked">बैकअप को 3 बार एक्सपोर्ट या सेव करने पर यह अनलॉक होता है।</string>
     <string name="trophies_desc_kit_bag_unlocked">आपने बैकअप को 3 बार एक्सपोर्ट या सेव किया।</string>
     <string name="trophies_name_podium_place">पोडियम स्थान</string>
@@ -442,9 +442,9 @@
     <string name="trophies_name_tactical_board">गेम प्लान: रणनीतिक बोर्ड</string>
     <string name="trophies_name_field_marshal">गेम प्लान: मैदान का संचालक</string>
     <string name="trophies_name_in_rotation">पोडियम स्थान: रोटेशन में</string>
-    <string name="trophies_name_mainstay">पोडियम स्थान: मजबूत सहारा</string>
-    <string name="trophies_name_local_favorite">अपना मैदान: स्थानीय पसंद</string>
-    <string name="trophies_name_territory">अपना मैदान: इलाका</string>
+    <string name="trophies_name_mainstay">पोडियम स्थान: भरोसेमंद पसंद</string>
+    <string name="trophies_name_local_favorite">अपना मैदान: नियमित रास्ता</string>
+    <string name="trophies_name_territory">अपना मैदान: गढ़</string>
     <string name="trophies_desc_complete_weeks_locked">%1$d अलग-अलग हफ्तों में सभी तय किए गए वर्कआउट पूरे करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_complete_weeks_unlocked">आपने %1$d अलग-अलग हफ्तों में सभी तय किए गए वर्कआउट पूरे किए।</string>
     <string name="trophies_desc_workout_completions_locked">%1$d वर्कआउट को पूरा हुआ के रूप में चिह्नित करने पर अनलॉक होगा।</string>

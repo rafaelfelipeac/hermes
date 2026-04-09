@@ -418,10 +418,10 @@
     <string name="trophies_name_hold_the_line">Tenir la Ligne</string>
     <string name="trophies_desc_hold_the_line_locked">Débloquez-le en copiant une semaine précédente puis en terminant tous les entraînements prévus de cette semaine copiée, 2 fois.</string>
     <string name="trophies_desc_hold_the_line_unlocked">Vous avez copié une semaine précédente puis terminé tous les entraînements prévus de cette semaine copiée, 2 fois.</string>
-    <string name="trophies_name_team_sheet">"Feuille d'Équipe"</string>
+    <string name="trophies_name_team_sheet">Équipe d’Entraînement</string>
     <string name="trophies_desc_team_sheet_locked">Débloquez-le en créant, modifiant ou organisant des catégories d’entraînement 10 fois.</string>
     <string name="trophies_desc_team_sheet_unlocked">Vous avez créé, modifié ou organisé des catégories d’entraînement 10 fois.</string>
-    <string name="trophies_name_kit_bag">"Sac d'Équipement"</string>
+    <string name="trophies_name_kit_bag">Banc de Sauvegarde</string>
     <string name="trophies_desc_kit_bag_locked">Débloquez-le en exportant ou en enregistrant une sauvegarde 3 fois.</string>
     <string name="trophies_desc_kit_bag_unlocked">Vous avez exporté ou enregistré une sauvegarde 3 fois.</string>
     <string name="trophies_name_podium_place">Place sur le Podium</string>
@@ -442,9 +442,9 @@
     <string name="trophies_name_tactical_board">Plan de Jeu\u00a0: Tableau Tactique</string>
     <string name="trophies_name_field_marshal">Plan de Jeu\u00a0: Maître du Terrain</string>
     <string name="trophies_name_in_rotation">Place sur le Podium\u00a0: Dans la Rotation</string>
-    <string name="trophies_name_mainstay">Place sur le Podium\u00a0: Pilier</string>
-    <string name="trophies_name_local_favorite">Terrain de Base\u00a0: Favori du Coin</string>
-    <string name="trophies_name_territory">Terrain de Base\u00a0: Territoire</string>
+    <string name="trophies_name_mainstay">Place sur le Podium\u00a0: Référence</string>
+    <string name="trophies_name_local_favorite">Terrain de Base\u00a0: Parcours Habituel</string>
+    <string name="trophies_name_territory">Terrain de Base\u00a0: Bastion</string>
     <string name="trophies_desc_complete_weeks_locked">Débloquez-le en terminant tous les entraînements prévus sur %1$d semaines différentes.</string>
     <string name="trophies_desc_complete_weeks_unlocked">Vous avez terminé tous les entraînements prévus sur %1$d semaines différentes.</string>
     <string name="trophies_desc_workout_completions_locked">Débloquez-le en marquant %1$d séances comme terminées.</string>

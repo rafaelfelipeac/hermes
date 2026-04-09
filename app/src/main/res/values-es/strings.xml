@@ -417,10 +417,10 @@
     <string name="trophies_name_hold_the_line">Mantén la Línea</string>
     <string name="trophies_desc_hold_the_line_locked">Desbloquéalo al copiar una semana anterior y luego terminar todos los entrenamientos planificados en esa semana copiada, 2 veces.</string>
     <string name="trophies_desc_hold_the_line_unlocked">Copiaste una semana anterior y luego terminaste todos los entrenamientos planificados en esa semana copiada, 2 veces.</string>
-    <string name="trophies_name_team_sheet">Hoja del Equipo</string>
+    <string name="trophies_name_team_sheet">Plantilla de Entrenamiento</string>
     <string name="trophies_desc_team_sheet_locked">Desbloquéalo al crear, editar u organizar categorías de entrenamiento 10 veces.</string>
     <string name="trophies_desc_team_sheet_unlocked">Creaste, editaste u organizaste categorías de entrenamiento 10 veces.</string>
-    <string name="trophies_name_kit_bag">Bolsa de Equipo</string>
+    <string name="trophies_name_kit_bag">Banco de Respaldo</string>
     <string name="trophies_desc_kit_bag_locked">Desbloquéalo al exportar o guardar una copia de seguridad 3 veces.</string>
     <string name="trophies_desc_kit_bag_unlocked">Exportaste o guardaste una copia de seguridad 3 veces.</string>
     <string name="trophies_name_podium_place">Lugar en el Podio</string>
@@ -441,9 +441,9 @@
     <string name="trophies_name_tactical_board">Plan de Juego: Pizarra Táctica</string>
     <string name="trophies_name_field_marshal">Plan de Juego: Mariscal de Campo</string>
     <string name="trophies_name_in_rotation">Lugar en el Podio: En Rotación</string>
-    <string name="trophies_name_mainstay">Lugar en el Podio: Pilar</string>
-    <string name="trophies_name_local_favorite">Terreno Propio: Favorito de Casa</string>
-    <string name="trophies_name_territory">Terreno Propio: Territorio</string>
+    <string name="trophies_name_mainstay">Lugar en el Podio: Recurrente</string>
+    <string name="trophies_name_local_favorite">Terreno Propio: Ruta Habitual</string>
+    <string name="trophies_name_territory">Terreno Propio: Bastión</string>
     <string name="trophies_desc_complete_weeks_locked">Desbloquéalo al terminar todos los entrenamientos planificados en %1$d semanas diferentes.</string>
     <string name="trophies_desc_complete_weeks_unlocked">Terminaste todos los entrenamientos planificados en %1$d semanas diferentes.</string>
     <string name="trophies_desc_workout_completions_locked">Desbloquéalo al marcar %1$d entrenamientos como completados.</string>

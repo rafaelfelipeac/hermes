@@ -417,10 +417,10 @@
     <string name="trophies_name_hold_the_line">Segure a Linha</string>
     <string name="trophies_desc_hold_the_line_locked">Desbloqueie ao copiar uma semana anterior e depois concluir todos os treinos planejados nessa semana copiada, 2 vezes.</string>
     <string name="trophies_desc_hold_the_line_unlocked">Você copiou uma semana anterior e depois concluiu todos os treinos planejados nessa semana copiada, 2 vezes.</string>
-    <string name="trophies_name_team_sheet">Ficha do Time</string>
+    <string name="trophies_name_team_sheet">Escalação de Treino</string>
     <string name="trophies_desc_team_sheet_locked">Desbloqueie ao criar, editar ou organizar categorias de treino 10 vezes.</string>
     <string name="trophies_desc_team_sheet_unlocked">Você criou, editou ou organizou categorias de treino 10 vezes.</string>
-    <string name="trophies_name_kit_bag">Bolsa de Treino</string>
+    <string name="trophies_name_kit_bag">Banco de Backup</string>
     <string name="trophies_desc_kit_bag_locked">Desbloqueie ao exportar ou salvar um backup 3 vezes.</string>
     <string name="trophies_desc_kit_bag_unlocked">Você exportou ou salvou um backup 3 vezes.</string>
     <string name="trophies_name_podium_place">Lugar no Pódio</string>
@@ -441,9 +441,9 @@
     <string name="trophies_name_tactical_board">Plano de Jogo: Quadro Tático</string>
     <string name="trophies_name_field_marshal">Plano de Jogo: Marechal de Campo</string>
     <string name="trophies_name_in_rotation">Lugar no Pódio: Na Rotação</string>
-    <string name="trophies_name_mainstay">Lugar no Pódio: Pilar</string>
-    <string name="trophies_name_local_favorite">Casa: Favorita da Casa</string>
-    <string name="trophies_name_territory">Casa: Território</string>
+    <string name="trophies_name_mainstay">Lugar no Pódio: Escolha Certa</string>
+    <string name="trophies_name_local_favorite">Casa: Rota de Sempre</string>
+    <string name="trophies_name_territory">Casa: Fortaleza</string>
     <string name="trophies_desc_complete_weeks_locked">Desbloqueie ao concluir todos os treinos planejados em %1$d semanas diferentes.</string>
     <string name="trophies_desc_complete_weeks_unlocked">Você concluiu todos os treinos planejados em %1$d semanas diferentes.</string>
     <string name="trophies_desc_workout_completions_locked">Desbloqueie ao marcar %1$d treinos como concluídos.</string>

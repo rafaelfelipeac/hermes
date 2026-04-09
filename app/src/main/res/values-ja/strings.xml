@@ -413,10 +413,10 @@
     <string name="trophies_name_hold_the_line">ラインを保つ</string>
     <string name="trophies_desc_hold_the_line_locked">以前の週をコピーし、そのコピーした週で予定したすべてのワークアウトを後から 2 回完了すると解除されます。</string>
     <string name="trophies_desc_hold_the_line_unlocked">以前の週をコピーし、そのコピーした週で予定したすべてのワークアウトを後から 2 回完了しました。</string>
-    <string name="trophies_name_team_sheet">チームシート</string>
+    <string name="trophies_name_team_sheet">トレーニングロスター</string>
     <string name="trophies_desc_team_sheet_locked">トレーニングカテゴリを 10 回作成、編集、整理すると解除されます。</string>
     <string name="trophies_desc_team_sheet_unlocked">トレーニングカテゴリを 10 回作成、編集、整理しました。</string>
-    <string name="trophies_name_kit_bag">キットバッグ</string>
+    <string name="trophies_name_kit_bag">バックアップベンチ</string>
     <string name="trophies_desc_kit_bag_locked">バックアップを 3 回エクスポートまたは保存すると解除されます。</string>
     <string name="trophies_desc_kit_bag_unlocked">バックアップを 3 回エクスポートまたは保存しました。</string>
     <string name="trophies_name_podium_place">表彰台の場所</string>
@@ -437,9 +437,9 @@
     <string name="trophies_name_tactical_board">ゲームプラン: 戦術ボード</string>
     <string name="trophies_name_field_marshal">ゲームプラン: フィールドマーシャル</string>
     <string name="trophies_name_in_rotation">表彰台の場所: ローテーション入り</string>
-    <string name="trophies_name_mainstay">表彰台の場所: 主力</string>
-    <string name="trophies_name_local_favorite">ホームグラウンド: 地元の定番</string>
-    <string name="trophies_name_territory">ホームグラウンド: テリトリー</string>
+    <string name="trophies_name_mainstay">表彰台の場所: 定番枠</string>
+    <string name="trophies_name_local_favorite">ホームグラウンド: いつものルート</string>
+    <string name="trophies_name_territory">ホームグラウンド: 本拠地</string>
     <string name="trophies_desc_complete_weeks_locked">%1$d 週分で、予定したすべてのワークアウトを完了すると解除されます。</string>
     <string name="trophies_desc_complete_weeks_unlocked">%1$d 週分で、予定したすべてのワークアウトを完了しました。</string>
     <string name="trophies_desc_workout_completions_locked">%1$d 件のワークアウトを完了済みにすると解除されます。</string>

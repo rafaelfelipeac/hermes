@@ -418,10 +418,10 @@
     <string name="trophies_name_hold_the_line">Linie halten</string>
     <string name="trophies_desc_hold_the_line_locked">Schalte es frei, indem du eine frühere Woche kopierst und später in dieser kopierten Woche jedes geplante Workout abschließt, 2-mal.</string>
     <string name="trophies_desc_hold_the_line_unlocked">Du hast eine frühere Woche kopiert und später in dieser kopierten Woche jedes geplante Workout abgeschlossen, 2-mal.</string>
-    <string name="trophies_name_team_sheet">Teamblatt</string>
+    <string name="trophies_name_team_sheet">Trainingskader</string>
     <string name="trophies_desc_team_sheet_locked">Schalte es frei, indem du Trainingskategorien 10-mal erstellst, bearbeitest oder organisierst.</string>
     <string name="trophies_desc_team_sheet_unlocked">Du hast Trainingskategorien 10-mal erstellt, bearbeitet oder organisiert.</string>
-    <string name="trophies_name_kit_bag">Ausrüstungstasche</string>
+    <string name="trophies_name_kit_bag">Backup-Bank</string>
     <string name="trophies_desc_kit_bag_locked">Schalte es frei, indem du 3-mal ein Backup exportierst oder speicherst.</string>
     <string name="trophies_desc_kit_bag_unlocked">Du hast 3-mal ein Backup exportiert oder gespeichert.</string>
     <string name="trophies_name_podium_place">Podiumsplatz</string>
@@ -442,9 +442,9 @@
     <string name="trophies_name_tactical_board">Spielplan: Taktiktafel</string>
     <string name="trophies_name_field_marshal">Spielplan: Feldmarschall</string>
     <string name="trophies_name_in_rotation">Podiumsplatz: In Rotation</string>
-    <string name="trophies_name_mainstay">Podiumsplatz: Stütze</string>
-    <string name="trophies_name_local_favorite">Heimatboden: Lokalmatador</string>
-    <string name="trophies_name_territory">Heimatboden: Revier</string>
+    <string name="trophies_name_mainstay">Podiumsplatz: Stammwahl</string>
+    <string name="trophies_name_local_favorite">Heimatboden: Stammstrecke</string>
+    <string name="trophies_name_territory">Heimatboden: Hochburg</string>
     <string name="trophies_desc_complete_weeks_locked">Schalte es frei, indem du in %1$d verschiedenen Wochen jedes geplante Workout abschließt.</string>
     <string name="trophies_desc_complete_weeks_unlocked">Du hast in %1$d verschiedenen Wochen jedes geplante Workout abgeschlossen.</string>
     <string name="trophies_desc_workout_completions_locked">Schalte es frei, indem du %1$d Workouts als abgeschlossen markierst.</string>
