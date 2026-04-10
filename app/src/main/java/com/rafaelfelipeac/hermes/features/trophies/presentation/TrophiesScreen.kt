@@ -1006,6 +1006,11 @@ internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector
         TrophyId.HOLD_THE_LINE -> Icons.Outlined.CheckCircle
         TrophyId.TEAM_SHEET -> Icons.Outlined.GridView
         TrophyId.KIT_BAG -> Icons.Outlined.Archive
+        TrophyId.KICKOFF,
+        TrophyId.SET_PIECE,
+        TrophyId.PROGRAM_BUILDER,
+        -> Icons.Outlined.Build
+        TrophyId.PROTECTED_TIME -> Icons.Outlined.Home
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,

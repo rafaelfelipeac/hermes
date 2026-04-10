@@ -97,6 +97,8 @@ class TrophyEngine(
         val holdTheLineMilestones: List<Long>,
         val teamSheetMilestones: List<Long>,
         val kitBagMilestones: List<Long>,
+        val kickoffMilestones: List<Long>,
+        val protectedTimeMilestones: List<Long>,
         val podiumPlaceMilestonesByCategory: Map<Long, List<Long>>,
         val homeGroundMilestonesByCategory: Map<Long, List<Long>>,
         val trainingBlockMilestonesByCategory: Map<Long, List<Long>>,
@@ -115,6 +117,8 @@ class TrophyEngine(
                 TrophyMetric.COPIED_AND_COMPLETED_WEEKS -> holdTheLineMilestones
                 TrophyMetric.CATEGORY_ACTIONS -> teamSheetMilestones
                 TrophyMetric.BACKUP_SUCCESSES -> kitBagMilestones
+                TrophyMetric.WORKOUT_CREATIONS -> kickoffMilestones
+                TrophyMetric.PROTECTED_TIME_BLOCKS -> protectedTimeMilestones
                 TrophyMetric.CATEGORY_COMPLETIONS -> categoryId?.let { podiumPlaceMilestonesByCategory[it] }.orEmpty()
                 TrophyMetric.CATEGORY_PRESENCE_WEEKS -> categoryId?.let { homeGroundMilestonesByCategory[it] }.orEmpty()
                 TrophyMetric.CATEGORY_PLANNING_ACTIONS -> categoryId?.let { trainingBlockMilestonesByCategory[it] }.orEmpty()
@@ -153,6 +157,8 @@ class TrophyEngine(
                 val effectiveCopyEvents = mutableListOf<WeekEvent>()
                 val categoryActionTimestamps = mutableListOf<Long>()
                 val backupSuccessTimestamps = mutableListOf<Long>()
+                val workoutCreationTimestamps = mutableListOf<Long>()
+                val protectedTimeTimestamps = mutableListOf<Long>()
                 val completionStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<Long>>()
                 val moveStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
                 val reorderStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
@@ -263,6 +269,12 @@ class TrophyEngine(
                             }
                         }
 
+                        UserActionType.CREATE_WORKOUT -> workoutCreationTimestamps += action.record.timestamp
+
+                        UserActionType.CREATE_REST_DAY,
+                        UserActionType.CREATE_BUSY,
+                        -> protectedTimeTimestamps += action.record.timestamp
+
                         else -> Unit
                     }
 
@@ -332,6 +344,8 @@ class TrophyEngine(
                     holdTheLineMilestones = holdTheLineMilestones,
                     teamSheetMilestones = categoryActionTimestamps.sorted(),
                     kitBagMilestones = backupSuccessTimestamps.sorted(),
+                    kickoffMilestones = workoutCreationTimestamps.sorted(),
+                    protectedTimeMilestones = protectedTimeTimestamps.sorted(),
                     podiumPlaceMilestonesByCategory =
                         categoryCompletionMilestones.mapValues { (_, milestones) -> milestones.sorted() },
                     homeGroundMilestonesByCategory = homeGroundMilestonesByCategory,

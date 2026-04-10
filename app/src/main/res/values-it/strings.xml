@@ -373,6 +373,8 @@
     <string name="trophies_share_desc_copied_completed_weeks">Ho copiato una settimana precedente e poi ho completato tutti gli allenamenti pianificati in quella settimana copiata, %1$d volte.</string>
     <string name="trophies_share_desc_category_actions">Ho creato, modificato o organizzato categorie di allenamento %1$d volte.</string>
     <string name="trophies_share_desc_backups">Ho esportato o salvato un backup %1$d volte.</string>
+    <string name="trophies_share_desc_workout_creations">Ho creato %1$d allenamenti.</string>
+    <string name="trophies_share_desc_protected_time">Ho aggiunto giorni di riposo o blocchi di indisponibilità %1$d volte.</string>
     <string name="trophies_share_desc_category_completions">Ho segnato %1$d allenamenti come completati in "%2$s".</string>
     <string name="trophies_share_desc_category_presence">Ho completato %1$d settimane che includevano almeno un allenamento completato in "%2$s".</string>
     <string name="trophies_share_desc_category_planning">Ho aggiunto, spostato o organizzato allenamenti in "%2$s" %1$d volte.</string>
@@ -422,6 +424,10 @@
     <string name="trophies_desc_team_sheet_locked">Sbloccalo creando, modificando o organizzando categorie di allenamento 10 volte.</string>
     <string name="trophies_desc_team_sheet_unlocked">Hai creato, modificato o organizzato categorie di allenamento 10 volte.</string>
     <string name="trophies_name_kit_bag">Panchina di Backup</string>
+    <string name="trophies_name_kickoff">Calcio d’Inizio</string>
+    <string name="trophies_name_set_piece">Calcio d’Inizio: Schema Preparato</string>
+    <string name="trophies_name_program_builder">Calcio d’Inizio: Costruttore di Programma</string>
+    <string name="trophies_name_protected_time">Tempo Protetto</string>
     <string name="trophies_desc_kit_bag_locked">Sbloccalo esportando o salvando un backup 3 volte.</string>
     <string name="trophies_desc_kit_bag_unlocked">Hai esportato o salvato un backup 3 volte.</string>
     <string name="trophies_name_podium_place">Posto sul Podio</string>
@@ -462,6 +468,10 @@
     <string name="trophies_desc_category_actions_locked">Sbloccala creando, modificando o organizzando categorie di allenamento %1$d volte.</string>
     <string name="trophies_desc_category_actions_unlocked">Hai creato, modificato o organizzato categorie di allenamento %1$d volte.</string>
     <string name="trophies_desc_backups_locked">Sbloccala esportando o salvando un backup %1$d volte.</string>
+    <string name="trophies_desc_workout_creations_locked">Sbloccala creando %1$d allenamenti.</string>
+    <string name="trophies_desc_workout_creations_unlocked">Hai creato %1$d allenamenti.</string>
+    <string name="trophies_desc_protected_time_locked">Sbloccala aggiungendo giorni di riposo o blocchi di indisponibilità %1$d volte.</string>
+    <string name="trophies_desc_protected_time_unlocked">Hai aggiunto giorni di riposo o blocchi di indisponibilità %1$d volte.</string>
     <string name="trophies_desc_backups_unlocked">Hai esportato o salvato un backup %1$d volte.</string>
     <string name="trophies_desc_category_completions_locked">Sbloccala segnando %1$d allenamenti di questa categoria come completati.</string>
     <string name="trophies_desc_category_completions_unlocked">Hai segnato %1$d allenamenti di questa categoria come completati.</string>

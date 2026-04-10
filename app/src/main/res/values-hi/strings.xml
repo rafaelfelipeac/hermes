@@ -373,6 +373,8 @@
     <string name="trophies_share_desc_copied_completed_weeks">मैंने एक पिछला सप्ताह कॉपी किया और बाद में उस कॉपी किए गए सप्ताह में सभी तय किए गए वर्कआउट %1$d बार पूरे किए।</string>
     <string name="trophies_share_desc_category_actions">मैंने प्रशिक्षण श्रेणियां %1$d बार बनाई, बदलीं या व्यवस्थित की हैं।</string>
     <string name="trophies_share_desc_backups">मैंने %1$d बार बैकअप एक्सपोर्ट या सेव किया है।</string>
+    <string name="trophies_share_desc_workout_creations">मैंने %1$d वर्कआउट बनाए हैं।</string>
+    <string name="trophies_share_desc_protected_time">मैंने %1$d बार आराम के दिन या व्यस्तता ब्लॉक जोड़े हैं।</string>
     <string name="trophies_share_desc_category_completions">मैंने "%2$s" में %1$d वर्कआउट को पूरा हुआ के रूप में चिह्नित किया है।</string>
     <string name="trophies_share_desc_category_presence">मैंने %1$d हफ्ते पूरे किए हैं जिनमें "%2$s" का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
     <string name="trophies_share_desc_category_planning">मैंने "%2$s" में %1$d बार वर्कआउट जोड़े, खिसकाए या व्यवस्थित किए हैं।</string>
@@ -422,6 +424,10 @@
     <string name="trophies_desc_team_sheet_locked">प्रशिक्षण श्रेणियां 10 बार बनाने, बदलने या व्यवस्थित करने पर यह अनलॉक होता है।</string>
     <string name="trophies_desc_team_sheet_unlocked">आपने प्रशिक्षण श्रेणियां 10 बार बनाईं, बदलीं या व्यवस्थित कीं।</string>
     <string name="trophies_name_kit_bag">बैकअप बेंच</string>
+    <string name="trophies_name_kickoff">शुरुआत</string>
+    <string name="trophies_name_set_piece">शुरुआत: तय चाल</string>
+    <string name="trophies_name_program_builder">शुरुआत: प्रोग्राम निर्माता</string>
+    <string name="trophies_name_protected_time">सुरक्षित समय</string>
     <string name="trophies_desc_kit_bag_locked">बैकअप को 3 बार एक्सपोर्ट या सेव करने पर यह अनलॉक होता है।</string>
     <string name="trophies_desc_kit_bag_unlocked">आपने बैकअप को 3 बार एक्सपोर्ट या सेव किया।</string>
     <string name="trophies_name_podium_place">पोडियम स्थान</string>
@@ -462,6 +468,10 @@
     <string name="trophies_desc_category_actions_locked">प्रशिक्षण श्रेणियां %1$d बार बनाने, बदलने या व्यवस्थित करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_category_actions_unlocked">आपने प्रशिक्षण श्रेणियां %1$d बार बनाईं, बदलीं या व्यवस्थित कीं।</string>
     <string name="trophies_desc_backups_locked">%1$d बार बैकअप एक्सपोर्ट या सेव करने पर अनलॉक होगा।</string>
+    <string name="trophies_desc_workout_creations_locked">%1$d वर्कआउट बनाने पर अनलॉक होगा।</string>
+    <string name="trophies_desc_workout_creations_unlocked">आपने %1$d वर्कआउट बनाए।</string>
+    <string name="trophies_desc_protected_time_locked">%1$d बार आराम के दिन या व्यस्तता ब्लॉक जोड़ने पर अनलॉक होगा।</string>
+    <string name="trophies_desc_protected_time_unlocked">आपने %1$d बार आराम के दिन या व्यस्तता ब्लॉक जोड़े।</string>
     <string name="trophies_desc_backups_unlocked">आपने %1$d बार बैकअप एक्सपोर्ट या सेव किया।</string>
     <string name="trophies_desc_category_completions_locked">इस श्रेणी के %1$d वर्कआउट को पूरा हुआ के रूप में चिह्नित करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_category_completions_unlocked">आपने इस श्रेणी के %1$d वर्कआउट को पूरा हुआ के रूप में चिह्नित किया।</string>

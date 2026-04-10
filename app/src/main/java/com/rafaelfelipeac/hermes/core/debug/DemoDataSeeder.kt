@@ -318,6 +318,33 @@ class DemoDataSeeder
                     )
             }
 
+            repeat(COMPLETED_TROPHY_PROTECTED_TIME_BLOCKS) { index ->
+                val dayOfWeek = completedTrophyDayOfWeek(index, 0)
+                val entityType =
+                    if (index % 2 == 0) {
+                        UserActionEntityType.REST_DAY
+                    } else {
+                        UserActionEntityType.BUSY
+                    }
+
+                actions +=
+                    createNonWorkoutAction(
+                        weekStartDate = finalWeek,
+                        dayOfWeek = dayOfWeek,
+                        order = index,
+                        entityType = entityType,
+                        timeSlot = if (index % 2 == 0) NIGHT else AFTERNOON,
+                        timestamp =
+                            weekTimestamp(
+                                weekStartDate = finalWeek,
+                                zoneId = zoneId,
+                                dayOffset = (dayOfWeek.value - 1).toLong(),
+                                hour = 15,
+                                minute = index.toLong(),
+                            ),
+                    )
+            }
+
             return actions
         }
 
@@ -1202,6 +1229,7 @@ private const val COMPLETED_TROPHY_PLANNING_ACTIONS_PER_CATEGORY_PER_WEEK = 2
 private const val COMPLETED_TROPHY_COPIED_WEEKS = 3
 private const val COMPLETED_TROPHY_CATEGORY_ACTIONS = 10
 private const val COMPLETED_TROPHY_BACKUP_SUCCESSES = 5
+private const val COMPLETED_TROPHY_PROTECTED_TIME_BLOCKS = 20
 private const val COMPLETED_TROPHY_ENTITY_ID_START = 50_000L
 private val COMPLETED_TROPHY_CATEGORY_ACTION_TYPES =
     listOf(

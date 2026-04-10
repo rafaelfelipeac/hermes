@@ -372,6 +372,8 @@
     <string name="trophies_share_desc_copied_completed_weeks">Copiei uma semana anterior e depois concluí todos os treinos planejados nessa semana copiada, %1$d vezes.</string>
     <string name="trophies_share_desc_category_actions">Criei, editei ou organizei categorias de treino %1$d vezes.</string>
     <string name="trophies_share_desc_backups">Exportei ou salvei um backup %1$d vezes.</string>
+    <string name="trophies_share_desc_workout_creations">Criei %1$d treinos.</string>
+    <string name="trophies_share_desc_protected_time">Adicionei dias de descanso ou blocos de indisponibilidade %1$d vezes.</string>
     <string name="trophies_share_desc_category_completions">Marquei %1$d treinos como concluídos em "%2$s".</string>
     <string name="trophies_share_desc_category_presence">Concluí %1$d semanas que incluíam pelo menos um treino concluído em "%2$s".</string>
     <string name="trophies_share_desc_category_planning">Adicionei, movi ou organizei treinos em "%2$s" %1$d vezes.</string>
@@ -423,6 +425,10 @@
     <string name="trophies_name_kit_bag">Banco de Backup</string>
     <string name="trophies_desc_kit_bag_locked">Desbloqueie ao exportar ou salvar um backup 3 vezes.</string>
     <string name="trophies_desc_kit_bag_unlocked">Você exportou ou salvou um backup 3 vezes.</string>
+    <string name="trophies_name_kickoff">Ponto de Partida</string>
+    <string name="trophies_name_set_piece">Ponto de Partida: Jogada Ensaiada</string>
+    <string name="trophies_name_program_builder">Ponto de Partida: Construtor de Programa</string>
+    <string name="trophies_name_protected_time">Tempo Protegido</string>
     <string name="trophies_name_podium_place">Lugar no Pódio</string>
     <string name="trophies_desc_podium_place_locked">Desbloqueie ao marcar 10 treinos desta categoria como concluídos.</string>
     <string name="trophies_desc_podium_place_unlocked">Você marcou 10 treinos desta categoria como concluídos.</string>
@@ -462,6 +468,10 @@
     <string name="trophies_desc_category_actions_unlocked">Você criou, editou ou organizou categorias de treino %1$d vezes.</string>
     <string name="trophies_desc_backups_locked">Desbloqueie ao exportar ou salvar um backup %1$d vezes.</string>
     <string name="trophies_desc_backups_unlocked">Você exportou ou salvou um backup %1$d vezes.</string>
+    <string name="trophies_desc_workout_creations_locked">Desbloqueie ao criar %1$d treinos.</string>
+    <string name="trophies_desc_workout_creations_unlocked">Você criou %1$d treinos.</string>
+    <string name="trophies_desc_protected_time_locked">Desbloqueie ao adicionar dias de descanso ou blocos de indisponibilidade %1$d vezes.</string>
+    <string name="trophies_desc_protected_time_unlocked">Você adicionou dias de descanso ou blocos de indisponibilidade %1$d vezes.</string>
     <string name="trophies_desc_category_completions_locked">Desbloqueie ao marcar %1$d treinos desta categoria como concluídos.</string>
     <string name="trophies_desc_category_completions_unlocked">Você marcou %1$d treinos desta categoria como concluídos.</string>
     <string name="trophies_desc_category_presence_locked">Desbloqueie ao concluir %1$d semanas que incluam pelo menos um treino concluído desta categoria.</string>

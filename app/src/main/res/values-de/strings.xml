@@ -373,6 +373,8 @@
     <string name="trophies_share_desc_copied_completed_weeks">Ich habe eine frühere Woche kopiert und später in dieser kopierten Woche jedes geplante Workout abgeschlossen, %1$d-mal.</string>
     <string name="trophies_share_desc_category_actions">Ich habe Trainingskategorien %1$d-mal erstellt, bearbeitet oder organisiert.</string>
     <string name="trophies_share_desc_backups">Ich habe %1$d-mal ein Backup exportiert oder gespeichert.</string>
+    <string name="trophies_share_desc_workout_creations">Ich habe %1$d Workouts erstellt.</string>
+    <string name="trophies_share_desc_protected_time">Ich habe %1$d-mal Ruhetage oder Blocker hinzugefügt.</string>
     <string name="trophies_share_desc_category_completions">Ich habe %1$d Workouts in "%2$s" als abgeschlossen markiert.</string>
     <string name="trophies_share_desc_category_presence">Ich habe %1$d Wochen beendet, die mindestens ein abgeschlossenes Workout in "%2$s" enthielten.</string>
     <string name="trophies_share_desc_category_planning">Ich habe Workouts in "%2$s" %1$d-mal hinzugefügt, verschoben oder organisiert.</string>
@@ -422,6 +424,10 @@
     <string name="trophies_desc_team_sheet_locked">Schalte es frei, indem du Trainingskategorien 10-mal erstellst, bearbeitest oder organisierst.</string>
     <string name="trophies_desc_team_sheet_unlocked">Du hast Trainingskategorien 10-mal erstellt, bearbeitet oder organisiert.</string>
     <string name="trophies_name_kit_bag">Backup-Bank</string>
+    <string name="trophies_name_kickoff">Anpfiff</string>
+    <string name="trophies_name_set_piece">Anpfiff: Spielzug</string>
+    <string name="trophies_name_program_builder">Anpfiff: Programmaufbau</string>
+    <string name="trophies_name_protected_time">Geschützte Zeit</string>
     <string name="trophies_desc_kit_bag_locked">Schalte es frei, indem du 3-mal ein Backup exportierst oder speicherst.</string>
     <string name="trophies_desc_kit_bag_unlocked">Du hast 3-mal ein Backup exportiert oder gespeichert.</string>
     <string name="trophies_name_podium_place">Podiumsplatz</string>
@@ -462,6 +468,10 @@
     <string name="trophies_desc_category_actions_locked">Schalte es frei, indem du Trainingskategorien %1$d-mal erstellst, bearbeitest oder organisierst.</string>
     <string name="trophies_desc_category_actions_unlocked">Du hast Trainingskategorien %1$d-mal erstellt, bearbeitet oder organisiert.</string>
     <string name="trophies_desc_backups_locked">Schalte es frei, indem du %1$d-mal ein Backup exportierst oder speicherst.</string>
+    <string name="trophies_desc_workout_creations_locked">Schalte es frei, indem du %1$d Workouts erstellst.</string>
+    <string name="trophies_desc_workout_creations_unlocked">Du hast %1$d Workouts erstellt.</string>
+    <string name="trophies_desc_protected_time_locked">Schalte es frei, indem du %1$d-mal Ruhetage oder Blocker hinzufügst.</string>
+    <string name="trophies_desc_protected_time_unlocked">Du hast %1$d-mal Ruhetage oder Blocker hinzugefügt.</string>
     <string name="trophies_desc_backups_unlocked">Du hast %1$d-mal ein Backup exportiert oder gespeichert.</string>
     <string name="trophies_desc_category_completions_locked">Schalte es frei, indem du %1$d Workouts in dieser Kategorie als abgeschlossen markierst.</string>
     <string name="trophies_desc_category_completions_unlocked">Du hast %1$d Workouts in dieser Kategorie als abgeschlossen markiert.</string>

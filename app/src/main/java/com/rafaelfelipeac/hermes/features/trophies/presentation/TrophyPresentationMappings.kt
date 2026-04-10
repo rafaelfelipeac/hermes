@@ -36,6 +36,10 @@ internal fun trophyNameRes(trophyId: TrophyId): Int {
         TrophyId.HOLD_THE_LINE -> R.string.trophies_name_hold_the_line
         TrophyId.TEAM_SHEET -> R.string.trophies_name_team_sheet
         TrophyId.KIT_BAG -> R.string.trophies_name_kit_bag
+        TrophyId.KICKOFF -> R.string.trophies_name_kickoff
+        TrophyId.SET_PIECE -> R.string.trophies_name_set_piece
+        TrophyId.PROGRAM_BUILDER -> R.string.trophies_name_program_builder
+        TrophyId.PROTECTED_TIME -> R.string.trophies_name_protected_time
         TrophyId.PODIUM_PLACE -> R.string.trophies_name_podium_place
         TrophyId.IN_ROTATION -> R.string.trophies_name_in_rotation
         TrophyId.MAINSTAY -> R.string.trophies_name_mainstay
@@ -78,6 +82,12 @@ internal fun trophyDescriptionRes(
             if (isUnlocked) R.string.trophies_desc_category_actions_unlocked else R.string.trophies_desc_category_actions_locked
         TrophyId.KIT_BAG ->
             if (isUnlocked) R.string.trophies_desc_backups_unlocked else R.string.trophies_desc_backups_locked
+        TrophyId.KICKOFF,
+        TrophyId.SET_PIECE,
+        TrophyId.PROGRAM_BUILDER,
+        -> if (isUnlocked) R.string.trophies_desc_workout_creations_unlocked else R.string.trophies_desc_workout_creations_locked
+        TrophyId.PROTECTED_TIME ->
+            if (isUnlocked) R.string.trophies_desc_protected_time_unlocked else R.string.trophies_desc_protected_time_locked
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
@@ -115,6 +125,11 @@ internal fun trophyShareDescriptionRes(trophyId: TrophyId): Int {
         TrophyId.HOLD_THE_LINE -> R.string.trophies_share_desc_copied_completed_weeks
         TrophyId.TEAM_SHEET -> R.string.trophies_share_desc_category_actions
         TrophyId.KIT_BAG -> R.string.trophies_share_desc_backups
+        TrophyId.KICKOFF,
+        TrophyId.SET_PIECE,
+        TrophyId.PROGRAM_BUILDER,
+        -> R.string.trophies_share_desc_workout_creations
+        TrophyId.PROTECTED_TIME -> R.string.trophies_share_desc_protected_time
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,

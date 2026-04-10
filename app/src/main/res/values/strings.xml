@@ -372,6 +372,8 @@
     <string name="trophies_share_desc_copied_completed_weeks">I\'ve copied a previous week and later finished every planned workout in that copied week, %1$d times.</string>
     <string name="trophies_share_desc_category_actions">I\'ve created, edited, or organized workout categories %1$d times.</string>
     <string name="trophies_share_desc_backups">I\'ve exported or saved a backup %1$d times.</string>
+    <string name="trophies_share_desc_workout_creations">I\'ve created %1$d workouts.</string>
+    <string name="trophies_share_desc_protected_time">I\'ve added rest days or busy blocks %1$d times.</string>
     <string name="trophies_share_desc_category_completions">I\'ve marked %1$d workouts as completed in "%2$s".</string>
     <string name="trophies_share_desc_category_presence">I\'ve finished %1$d weeks that included at least one completed workout in "%2$s".</string>
     <string name="trophies_share_desc_category_planning">I\'ve added, moved, or organized workouts in "%2$s" %1$d times.</string>
@@ -431,6 +433,10 @@
     <string name="trophies_name_kit_bag">Backup Bench</string>
     <string name="trophies_desc_kit_bag_locked">Unlock by exporting or saving a backup 3 times.</string>
     <string name="trophies_desc_kit_bag_unlocked">You exported or saved a backup 3 times.</string>
+    <string name="trophies_name_kickoff">Kickoff</string>
+    <string name="trophies_name_set_piece">Kickoff: Set Piece</string>
+    <string name="trophies_name_program_builder">Kickoff: Program Builder</string>
+    <string name="trophies_name_protected_time">Protected Time</string>
     <string name="trophies_name_podium_place">Podium Place</string>
     <string name="trophies_desc_podium_place_locked">Unlock by marking 10 workouts as completed in this category.</string>
     <string name="trophies_desc_podium_place_unlocked">You marked 10 workouts as completed in this category.</string>
@@ -462,6 +468,10 @@
     <string name="trophies_desc_category_actions_unlocked">You created, edited, or organized workout categories %1$d times.</string>
     <string name="trophies_desc_backups_locked">Unlock by exporting or saving a backup %1$d times.</string>
     <string name="trophies_desc_backups_unlocked">You exported or saved a backup %1$d times.</string>
+    <string name="trophies_desc_workout_creations_locked">Unlock by creating %1$d workouts.</string>
+    <string name="trophies_desc_workout_creations_unlocked">You created %1$d workouts.</string>
+    <string name="trophies_desc_protected_time_locked">Unlock by adding rest days or busy blocks %1$d times.</string>
+    <string name="trophies_desc_protected_time_unlocked">You added rest days or busy blocks %1$d times.</string>
     <string name="trophies_desc_category_completions_locked">Unlock by marking %1$d workouts as completed in this category.</string>
     <string name="trophies_desc_category_completions_unlocked">You marked %1$d workouts as completed in this category.</string>
     <string name="trophies_desc_category_presence_locked">Unlock by finishing %1$d weeks that include at least one completed workout from this category.</string>

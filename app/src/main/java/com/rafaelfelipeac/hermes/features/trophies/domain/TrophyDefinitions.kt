@@ -144,6 +144,38 @@ object TrophyDefinitions {
                 sortOrder = 20,
                 badgeRank = 1,
             ),
+            definition(
+                id = TrophyId.KICKOFF,
+                family = TrophyFamily.BUILDER,
+                metric = TrophyMetric.WORKOUT_CREATIONS,
+                target = 25,
+                sortOrder = 30,
+                badgeRank = 1,
+            ),
+            definition(
+                id = TrophyId.SET_PIECE,
+                family = TrophyFamily.BUILDER,
+                metric = TrophyMetric.WORKOUT_CREATIONS,
+                target = 100,
+                sortOrder = 40,
+                badgeRank = 2,
+            ),
+            definition(
+                id = TrophyId.PROGRAM_BUILDER,
+                family = TrophyFamily.BUILDER,
+                metric = TrophyMetric.WORKOUT_CREATIONS,
+                target = 300,
+                sortOrder = 50,
+                badgeRank = 3,
+            ),
+            definition(
+                id = TrophyId.PROTECTED_TIME,
+                family = TrophyFamily.BUILDER,
+                metric = TrophyMetric.PROTECTED_TIME_BLOCKS,
+                target = 20,
+                sortOrder = 60,
+                badgeRank = 1,
+            ),
         )
 
     val categoryTemplates: List<TrophyDefinition> =

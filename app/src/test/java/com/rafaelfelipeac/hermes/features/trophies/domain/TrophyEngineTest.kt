@@ -3,15 +3,22 @@ package com.rafaelfelipeac.hermes.features.trophies.domain
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.BUSY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CATEGORY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SICK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_BUSY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_CATEGORY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_REST_DAY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_SICK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
@@ -143,6 +150,44 @@ class TrophyEngineTest {
         assertNull(teamSheet.unlockedAt)
         assertEquals(2, kitBag.currentValue)
         assertNull(kitBag.unlockedAt)
+    }
+
+    @Test
+    fun kickoffSeries_countsManualWorkoutCreationButNotCopiedWeeks() {
+        val weekStart = LocalDate.of(2026, 4, 6)
+
+        val progress =
+            engine.compute(
+                listOf(
+                    workoutAction(1L, CREATE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 10L),
+                    workoutAction(2L, CREATE_WORKOUT, workoutId = 11L, weekStartDate = weekStart, timestamp = 20L),
+                    weekAction(3L, COPY_LAST_WEEK, weekStart.plusWeeks(1), timestamp = 30L),
+                ),
+            )
+
+        assertEquals(2, progress.require(TrophyId.KICKOFF).currentValue)
+        assertEquals(2, progress.require(TrophyId.SET_PIECE).currentValue)
+        assertFalse(progress.require(TrophyId.KICKOFF).isUnlocked)
+    }
+
+    @Test
+    fun protectedTime_countsRestAndBusyButNotSick() {
+        val weekStart = LocalDate.of(2026, 4, 6)
+
+        val progress =
+            engine.compute(
+                listOf(
+                    nonWorkoutAction(1L, CREATE_REST_DAY, REST_DAY, weekStart, timestamp = 10L),
+                    nonWorkoutAction(2L, CREATE_BUSY, BUSY, weekStart, timestamp = 20L),
+                    nonWorkoutAction(3L, CREATE_SICK, SICK, weekStart, timestamp = 30L),
+                ),
+            )
+
+        val protectedTime = progress.require(TrophyId.PROTECTED_TIME)
+
+        assertEquals(2, protectedTime.currentValue)
+        assertFalse(protectedTime.isUnlocked)
+        assertNull(protectedTime.unlockedAt)
     }
 
     @Test
@@ -287,6 +332,23 @@ class TrophyEngineTest {
             entityType = SETTINGS.name,
             entityId = null,
             metadata = metadataJson(RESULT to result),
+            timestamp = timestamp,
+        )
+    }
+
+    private fun nonWorkoutAction(
+        id: Long,
+        actionType: com.rafaelfelipeac.hermes.core.useraction.model.UserActionType,
+        entityType: com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType,
+        weekStartDate: LocalDate,
+        timestamp: Long,
+    ): UserActionRecord {
+        return UserActionRecord(
+            id = id,
+            actionType = actionType.name,
+            entityType = entityType.name,
+            entityId = id,
+            metadata = metadataJson(WEEK_START_DATE to weekStartDate.toString()),
             timestamp = timestamp,
         )
     }

@@ -393,6 +393,8 @@
     <string name="trophies_share_desc_copied_completed_weeks">لقد نسخت أسبوعًا سابقًا ثم أنهيت لاحقًا كل التمارين المخطط لها في ذلك الأسبوع المنسوخ %1$d مرات.</string>
     <string name="trophies_share_desc_category_actions">لقد أنشأت فئات التمارين أو عدّلتها أو نظّمتها %1$d مرات.</string>
     <string name="trophies_share_desc_backups">لقد صدّرت نسخة احتياطية أو حفظتها %1$d مرات.</string>
+    <string name="trophies_share_desc_workout_creations">لقد أنشأت %1$d تمرينًا.</string>
+    <string name="trophies_share_desc_protected_time">لقد أضفت أيام راحة أو فترات انشغال %1$d مرات.</string>
     <string name="trophies_share_desc_category_completions">لقد علّمت %1$d تمرينًا كمكتمل في "%2$s".</string>
     <string name="trophies_share_desc_category_presence">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل في "%2$s".</string>
     <string name="trophies_share_desc_category_planning">لقد أضفت تمارين في "%2$s" أو نقلتها أو نظّمتها %1$d مرات.</string>
@@ -442,6 +444,10 @@
     <string name="trophies_desc_team_sheet_locked">يُفتح عند إنشاء فئات التمارين أو تعديلها أو تنظيمها 10 مرات.</string>
     <string name="trophies_desc_team_sheet_unlocked">لقد أنشأت فئات التمارين أو عدّلتها أو نظّمتها 10 مرات.</string>
     <string name="trophies_name_kit_bag">مقعد النسخ الاحتياطي</string>
+    <string name="trophies_name_kickoff">ضربة البداية</string>
+    <string name="trophies_name_set_piece">ضربة البداية: لعبة منظّمة</string>
+    <string name="trophies_name_program_builder">ضربة البداية: باني البرنامج</string>
+    <string name="trophies_name_protected_time">وقت محمي</string>
     <string name="trophies_desc_kit_bag_locked">يُفتح عند تصدير نسخة احتياطية أو حفظها 3 مرات.</string>
     <string name="trophies_desc_kit_bag_unlocked">لقد صدّرت نسخة احتياطية أو حفظتها 3 مرات.</string>
     <string name="trophies_name_podium_place">مكان على المنصة</string>
@@ -482,6 +488,10 @@
     <string name="trophies_desc_category_actions_locked">افتحها عند إنشاء فئات التمارين أو تعديلها أو تنظيمها %1$d مرات.</string>
     <string name="trophies_desc_category_actions_unlocked">لقد أنشأت فئات التمارين أو عدّلتها أو نظّمتها %1$d مرات.</string>
     <string name="trophies_desc_backups_locked">افتحها عند تصدير نسخة احتياطية أو حفظها %1$d مرات.</string>
+    <string name="trophies_desc_workout_creations_locked">افتحها عند إنشاء %1$d تمرينًا.</string>
+    <string name="trophies_desc_workout_creations_unlocked">لقد أنشأت %1$d تمرينًا.</string>
+    <string name="trophies_desc_protected_time_locked">افتحها عند إضافة أيام راحة أو فترات انشغال %1$d مرات.</string>
+    <string name="trophies_desc_protected_time_unlocked">لقد أضفت أيام راحة أو فترات انشغال %1$d مرات.</string>
     <string name="trophies_desc_backups_unlocked">لقد صدّرت نسخة احتياطية أو حفظتها %1$d مرات.</string>
     <string name="trophies_desc_category_completions_locked">افتحها عند تعليم %1$d تمرينًا من هذه الفئة كمكتمل.</string>
     <string name="trophies_desc_category_completions_unlocked">لقد علّمت %1$d تمرينًا من هذه الفئة كمكتمل.</string>
