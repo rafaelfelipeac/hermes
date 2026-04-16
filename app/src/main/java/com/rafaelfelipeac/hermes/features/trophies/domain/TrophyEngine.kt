@@ -164,7 +164,7 @@ class TrophyEngine(
                 val reorderStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
                 val copyStacksByWeek = mutableMapOf<LocalDate, ArrayDeque<Long>>()
                 val categoryCompletionMilestones = mutableMapOf<Long, MutableList<Long>>()
-                val categoryCompletionWeeks = mutableMapOf<Long, MutableMap<LocalDate, Long>>()
+                val categoryCompletionWeekCounts = mutableMapOf<Long, MutableMap<LocalDate, Int>>()
                 val categoryTrainingBlockMilestones = mutableMapOf<Long, MutableList<Long>>()
 
                 parsedActions.forEach { action ->
@@ -185,18 +185,39 @@ class TrophyEngine(
                                     .getOrPut(categoryId, ::mutableListOf)
                                     .add(action.record.timestamp)
                                 action.weekStartDate?.let { weekStartDate ->
-                                    categoryCompletionWeeks
-                                        .getOrPut(categoryId, ::linkedMapOf)
-                                        .putIfAbsent(weekStartDate, action.record.timestamp)
+                                    val weekCounts =
+                                        categoryCompletionWeekCounts.getOrPut(categoryId, ::linkedMapOf)
+                                    weekCounts[weekStartDate] = (weekCounts[weekStartDate] ?: 0) + 1
                                 }
                             }
                         }
 
+                        UserActionType.INCOMPLETE_WORKOUT,
                         UserActionType.UNDO_COMPLETE_WORKOUT -> {
                             val workoutId = action.record.entityId ?: return@forEach
                             completionStacksByWorkoutId[workoutId].removeLastIfPresent()
                             categoryIds.forEach { categoryId ->
                                 categoryCompletionMilestones[categoryId].removeLastIfPresent()
+                                action.weekStartDate?.let { weekStartDate ->
+                                    categoryCompletionWeekCounts[categoryId].decrementWeekCount(weekStartDate)
+                                }
+                            }
+                        }
+
+                        UserActionType.UNDO_INCOMPLETE_WORKOUT -> {
+                            val workoutId = action.record.entityId ?: return@forEach
+                            completionStacksByWorkoutId
+                                .getOrPut(workoutId, ::ArrayDeque)
+                                .addLast(action.record.timestamp)
+                            categoryIds.forEach { categoryId ->
+                                categoryCompletionMilestones
+                                    .getOrPut(categoryId, ::mutableListOf)
+                                    .add(action.record.timestamp)
+                                action.weekStartDate?.let { weekStartDate ->
+                                    val weekCounts =
+                                        categoryCompletionWeekCounts.getOrPut(categoryId, ::linkedMapOf)
+                                    weekCounts[weekStartDate] = (weekCounts[weekStartDate] ?: 0) + 1
+                                }
                             }
                         }
 
@@ -328,9 +349,9 @@ class TrophyEngine(
                                 .any { event -> event.timestamp < completion.completedAt }
                         }.map(WeekCompletion::completedAt)
                 val homeGroundMilestonesByCategory =
-                    categoryCompletionWeeks.mapValues { (_, weeks) ->
+                    categoryCompletionWeekCounts.mapValues { (_, weeks) ->
                         completedWeekEvents
-                            .filter { completion -> weeks.containsKey(completion.weekStartDate) }
+                            .filter { completion -> (weeks[completion.weekStartDate] ?: 0) > 0 }
                             .map(WeekCompletion::completedAt)
                     }
 
@@ -398,6 +419,16 @@ class TrophyEngine(
             private fun <T> MutableList<T>?.removeLastIfPresent() {
                 if (this != null && isNotEmpty()) {
                     removeAt(lastIndex)
+                }
+            }
+
+            private fun MutableMap<LocalDate, Int>?.decrementWeekCount(weekStartDate: LocalDate) {
+                if (this == null) return
+                val nextCount = (this[weekStartDate] ?: 0) - 1
+                if (nextCount > 0) {
+                    this[weekStartDate] = nextCount
+                } else {
+                    remove(weekStartDate)
                 }
             }
 

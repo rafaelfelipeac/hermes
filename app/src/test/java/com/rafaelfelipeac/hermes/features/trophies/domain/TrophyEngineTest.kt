@@ -22,11 +22,13 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
@@ -127,6 +129,35 @@ class TrophyEngineTest {
         assertEquals(1, matchFitness.currentValue)
         assertFalse(matchFitness.isUnlocked)
         assertNull(matchFitness.unlockedAt)
+    }
+
+    @Test
+    fun matchFitness_dropsWhenWorkoutIsMarkedIncomplete() {
+        val progress =
+            engine.compute(
+                listOf(
+                    workoutAction(1L, COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = null, timestamp = 10L),
+                    workoutAction(2L, COMPLETE_WORKOUT, workoutId = 11L, weekStartDate = null, timestamp = 20L),
+                    workoutAction(3L, INCOMPLETE_WORKOUT, workoutId = 11L, weekStartDate = null, timestamp = 30L),
+                ),
+            )
+
+        assertEquals(1, progress.require(TrophyId.MATCH_FITNESS).currentValue)
+    }
+
+    @Test
+    fun matchFitness_restoresWhenIncompleteActionIsUndone() {
+        val progress =
+            engine.compute(
+                listOf(
+                    workoutAction(1L, COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = null, timestamp = 10L),
+                    workoutAction(2L, COMPLETE_WORKOUT, workoutId = 11L, weekStartDate = null, timestamp = 20L),
+                    workoutAction(3L, INCOMPLETE_WORKOUT, workoutId = 11L, weekStartDate = null, timestamp = 30L),
+                    workoutAction(4L, UNDO_INCOMPLETE_WORKOUT, workoutId = 11L, weekStartDate = null, timestamp = 40L),
+                ),
+            )
+
+        assertEquals(2, progress.require(TrophyId.MATCH_FITNESS).currentValue)
     }
 
     @Test
@@ -237,6 +268,47 @@ class TrophyEngineTest {
         assertEquals(1, trainingBlock.currentValue)
         assertFalse(homeGround.isUnlocked)
         assertFalse(podiumPlace.isUnlocked)
+    }
+
+    @Test
+    fun categoryTrophies_dropWhenWorkoutIsMarkedIncomplete() {
+        val category = TrophyCategoryContext(id = 10L, name = "Strength", colorId = "strength")
+        val weekStart = LocalDate.of(2026, 4, 6)
+
+        val progress =
+            engine.compute(
+                actions =
+                    listOf(
+                        workoutAction(
+                            id = 1L,
+                            actionType = COMPLETE_WORKOUT,
+                            workoutId = 300L,
+                            weekStartDate = weekStart,
+                            timestamp = 10L,
+                            categoryId = category.id,
+                            categoryName = category.name,
+                        ),
+                        workoutAction(
+                            id = 2L,
+                            actionType = INCOMPLETE_WORKOUT,
+                            workoutId = 300L,
+                            weekStartDate = weekStart,
+                            timestamp = 20L,
+                            categoryId = category.id,
+                            categoryName = category.name,
+                        ),
+                        weekAction(3L, COMPLETE_WEEK_WORKOUTS, weekStart, timestamp = 30L),
+                    ),
+                categories = listOf(category),
+            )
+
+        val podiumPlace =
+            progress.first { it.definition.id == TrophyId.PODIUM_PLACE && it.categoryId == category.id }
+        val homeGround =
+            progress.first { it.definition.id == TrophyId.HOME_GROUND && it.categoryId == category.id }
+
+        assertEquals(0, podiumPlace.currentValue)
+        assertEquals(0, homeGround.currentValue)
     }
 
     @Test
