@@ -28,11 +28,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.Flag
@@ -1009,8 +1011,8 @@ internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector
         TrophyId.KICKOFF,
         TrophyId.SET_PIECE,
         TrophyId.PROGRAM_BUILDER,
-        -> Icons.Outlined.Build
-        TrophyId.PROTECTED_TIME -> Icons.Outlined.Home
+        -> Icons.Filled.Add
+        TrophyId.PROTECTED_TIME -> Icons.Outlined.EventBusy
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
