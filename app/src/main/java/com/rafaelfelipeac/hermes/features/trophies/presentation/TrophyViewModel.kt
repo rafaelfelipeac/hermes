@@ -111,15 +111,15 @@ internal fun buildTrophyPageState(progress: List<TrophyProgress>): TrophyPageSta
                             .values
                             .sortedBy { it.firstOrNull()?.categoryName.orEmpty() }
                             .mapNotNull { categoryCards ->
-                categoryCards.firstOrNull()?.categoryName?.let { categoryName ->
-                    TrophySectionUi(
-                        stableId = categoryCards.first().stableId.substringAfter('_'),
-                        title = categoryName,
-                        accentColorId = categoryCards.first().categoryColorId,
-                        trophies = categoryCards.sortedBy(TrophyCardUi::sortOrder),
-                    )
-                }
-            }
+                                categoryCards.firstOrNull()?.categoryName?.let { categoryName ->
+                                    TrophySectionUi(
+                                        stableId = categoryCards.first().stableId.substringAfter('_'),
+                                        title = categoryName,
+                                        accentColorId = categoryCards.first().categoryColorId,
+                                        trophies = categoryCards.sortedBy(TrophyCardUi::sortOrder),
+                                    )
+                                }
+                            }
                     } else {
                         familyCards.sortedBy(TrophyCardUi::sortOrder).takeIf { it.isNotEmpty() }?.let { list ->
                             listOf(

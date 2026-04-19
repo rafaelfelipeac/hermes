@@ -60,8 +60,10 @@ internal fun TrophyBadge(
     val tierStyle = trophy.badgeRank.toBadgeTierStyle()
     val isDetailBadge = size == TrophyDetailArtworkSize
     val baseIconSize = if (isDetailBadge) TrophyDetailIconSize else TrophyShelfIconSize
-    val lockAnchorXFraction = if (isDetailBadge) BADGE_LOCK_DETAIL_ANCHOR_X_FRACTION else BADGE_LOCK_SHELF_ANCHOR_X_FRACTION
-    val lockAnchorYFraction = if (isDetailBadge) BADGE_LOCK_DETAIL_ANCHOR_Y_FRACTION else BADGE_LOCK_SHELF_ANCHOR_Y_FRACTION
+    val lockAnchorXFraction =
+        if (isDetailBadge) BADGE_LOCK_DETAIL_ANCHOR_X_FRACTION else BADGE_LOCK_SHELF_ANCHOR_X_FRACTION
+    val lockAnchorYFraction =
+        if (isDetailBadge) BADGE_LOCK_DETAIL_ANCHOR_Y_FRACTION else BADGE_LOCK_SHELF_ANCHOR_Y_FRACTION
     val iconTint =
         if (trophy.isUnlocked) {
             accent.copy(alpha = tierStyle.iconAlpha)
@@ -142,8 +144,14 @@ internal fun TrophyBadge(
                     Modifier
                         .align(Alignment.TopStart)
                         .padding(
-                            start = badgeOffset + (badgeDiameter * lockAnchorXFraction) - (TrophyBadgeLockBadgeSize / 2),
-                            top = badgeOffset + (badgeDiameter * lockAnchorYFraction) - (TrophyBadgeLockBadgeSize / 2),
+                            start =
+                                badgeOffset +
+                                    (badgeDiameter * lockAnchorXFraction) -
+                                    (TrophyBadgeLockBadgeSize / 2),
+                            top =
+                                badgeOffset +
+                                    (badgeDiameter * lockAnchorYFraction) -
+                                    (TrophyBadgeLockBadgeSize / 2),
                         ),
             )
         }
@@ -151,9 +159,7 @@ internal fun TrophyBadge(
 }
 
 @Composable
-private fun LockedOverlayBadge(
-    modifier: Modifier = Modifier,
-) {
+private fun LockedOverlayBadge(modifier: Modifier = Modifier) {
     Surface(
         modifier =
             modifier

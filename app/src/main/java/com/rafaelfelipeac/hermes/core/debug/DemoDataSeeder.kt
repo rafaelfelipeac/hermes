@@ -1,3 +1,5 @@
+@file:Suppress("LargeClass", "LongParameterList", "TooManyFunctions")
+
 package com.rafaelfelipeac.hermes.core.debug
 
 import com.rafaelfelipeac.hermes.BuildConfig
@@ -80,14 +82,15 @@ class DemoDataSeeder
         private val categorySeeder: CategorySeeder,
     ) {
         suspend fun seedCompletedTrophies(): Boolean {
-            if (!BuildConfig.DEBUG) return false
+            var didSeed = false
 
-            if (!seed()) return false
+            if (BuildConfig.DEBUG && seed()) {
+                val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
+                buildCompletedTrophyActions(currentWeekStart).forEach { userActionDao.insert(it) }
+                didSeed = true
+            }
 
-            val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
-            buildCompletedTrophyActions(currentWeekStart).forEach { userActionDao.insert(it) }
-
-            return true
+            return didSeed
         }
 
         suspend fun seedLockedTrophies(): Boolean {
@@ -204,6 +207,7 @@ class DemoDataSeeder
             }
         }
 
+        @Suppress("LongMethod")
         private fun buildCompletedTrophyActions(currentWeekStart: LocalDate): List<UserActionEntity> {
             val zoneId = ZoneId.systemDefault()
             val historyStart = currentWeekStart.minusWeeks(COMPLETED_TROPHY_HISTORY_WEEKS.toLong() + 12)
@@ -293,9 +297,13 @@ class DemoDataSeeder
 
             repeat(COMPLETED_TROPHY_CATEGORY_ACTIONS) { index ->
                 val categoryId = categoryIds[index % categoryIds.size]
+                val actionType =
+                    COMPLETED_TROPHY_CATEGORY_ACTION_TYPES[
+                        index % COMPLETED_TROPHY_CATEGORY_ACTION_TYPES.size,
+                    ]
                 actions +=
                     categoryAction(
-                        type = COMPLETED_TROPHY_CATEGORY_ACTION_TYPES[index % COMPLETED_TROPHY_CATEGORY_ACTION_TYPES.size],
+                        type = actionType,
                         categoryId = categoryId,
                         categoryName = categoryNameForId(categoryId),
                         timestamp =

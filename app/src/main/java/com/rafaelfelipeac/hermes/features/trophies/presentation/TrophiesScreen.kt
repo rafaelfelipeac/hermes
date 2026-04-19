@@ -1,4 +1,4 @@
-@file:Suppress("LongMethod")
+@file:Suppress("CyclomaticComplexMethod", "LongMethod", "TooManyFunctions")
 
 package com.rafaelfelipeac.hermes.features.trophies.presentation
 
@@ -41,7 +41,6 @@ import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Repeat
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.AlertDialog
@@ -62,9 +61,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -90,19 +89,17 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBackButtonSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBackButtonTouchTargetSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardFooterMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardArtworkTopPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardTitleBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardCategoryBlockHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCompactCardFooterMinHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyStateLineBlockHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardTitleBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailCardMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyGridArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyOverviewCardMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyProgressHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyGridArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfCardMinWidth
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyStateLineBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 import java.text.DateFormat
@@ -278,11 +275,12 @@ private fun TrophyOverviewContent(
     onScrollChanged: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val listState = rememberPreservedLazyListState(
-        firstVisibleItemIndex = firstVisibleItemIndex,
-        firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
-        onScrollChanged = onScrollChanged,
-    )
+    val listState =
+        rememberPreservedLazyListState(
+            firstVisibleItemIndex = firstVisibleItemIndex,
+            firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
+            onScrollChanged = onScrollChanged,
+        )
     LazyColumn(
         state = listState,
         modifier = modifier.testTag(TROPHIES_OVERVIEW_LIST_TAG),
@@ -307,11 +305,12 @@ private fun TrophyFamilyDetailContent(
     onScrollChanged: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val listState = rememberPreservedLazyListState(
-        firstVisibleItemIndex = firstVisibleItemIndex,
-        firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
-        onScrollChanged = onScrollChanged,
-    )
+    val listState =
+        rememberPreservedLazyListState(
+            firstVisibleItemIndex = firstVisibleItemIndex,
+            firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
+            onScrollChanged = onScrollChanged,
+        )
     Column(
         modifier =
             modifier.testTag(
@@ -375,11 +374,12 @@ private fun TrophyOverviewSection(
                     color = colorScheme.onSurface,
                 )
                 Text(
-                    text = stringResource(
-                        R.string.trophies_unlocked_count,
-                        familySection.unlockedCount,
-                        familySection.totalCount,
-                    ),
+                    text =
+                        stringResource(
+                            R.string.trophies_unlocked_count,
+                            familySection.unlockedCount,
+                            familySection.totalCount,
+                        ),
                     style = typography.bodySmall,
                     color = colorScheme.onSurfaceVariant,
                 )
@@ -413,9 +413,7 @@ private fun TrophyOverviewSection(
 }
 
 @Composable
-private fun TrophyEmptyState(
-    modifier: Modifier = Modifier,
-) {
+private fun TrophyEmptyState(modifier: Modifier = Modifier) {
     Column(
         modifier =
             modifier
@@ -435,7 +433,11 @@ private fun TrophyEmptyState(
         )
         TrophyPreviewCard(
             title = stringResource(R.string.trophies_name_full_time),
-            description = stringResource(R.string.trophies_desc_complete_weeks_locked, TROPHIES_SAMPLE_FULL_TIME_TARGET),
+            description =
+                stringResource(
+                    R.string.trophies_desc_complete_weeks_locked,
+                    TROPHIES_SAMPLE_FULL_TIME_TARGET,
+                ),
         )
         TrophyPreviewCard(
             title = stringResource(R.string.trophies_name_comeback_week),
@@ -443,7 +445,11 @@ private fun TrophyEmptyState(
         )
         TrophyPreviewCard(
             title = stringResource(R.string.trophies_name_podium_place),
-            description = stringResource(R.string.trophies_desc_category_completions_locked, TROPHIES_SAMPLE_PODIUM_TARGET),
+            description =
+                stringResource(
+                    R.string.trophies_desc_category_completions_locked,
+                    TROPHIES_SAMPLE_PODIUM_TARGET,
+                ),
         )
     }
 }
@@ -723,33 +729,6 @@ internal fun TrophyDetailDialog(
 }
 
 @Composable
-private fun TrophyCardFooter(
-    trophy: TrophyCardUi,
-    compact: Boolean = false,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .height(if (compact) TrophyCompactCardFooterMinHeight else TrophyCardFooterMinHeight),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (trophy.isUnlocked) {
-            Text(
-                text = trophy.unlockedAt?.let { unlockedAt -> unlockedDateLabel(unlockedAt) }.orEmpty(),
-                style = typography.bodySmall,
-                color = colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                textAlign = TextAlign.Center,
-            )
-        } else {
-            TrophyProgressIndicator(trophy = trophy)
-        }
-    }
-}
-
-@Composable
 private fun TrophyStateLine(
     trophy: TrophyCardUi,
     modifier: Modifier = Modifier,
@@ -892,7 +871,12 @@ private fun TrophyFamilyHeader(
                 color = colorScheme.onSurface,
             )
             Text(
-                text = stringResource(R.string.trophies_unlocked_count, familySection.unlockedCount, familySection.totalCount),
+                text =
+                    stringResource(
+                        R.string.trophies_unlocked_count,
+                        familySection.unlockedCount,
+                        familySection.totalCount,
+                    ),
                 style = typography.bodySmall,
                 color = colorScheme.onSurfaceVariant,
             )

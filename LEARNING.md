@@ -318,3 +318,4 @@ Recent learnings:
 - Week-level trophy milestones are derived state, so completion reversals must invalidate the week milestone when no completed workout remains in that week; otherwise comeback/copy-and-complete streaks can survive after the underlying workout completion was undone.
 - One-shot ViewModel events emitted from init need a retained handoff such as a buffered `Channel`; a `MutableSharedFlow` with only extra buffer capacity can drop the unlock event before the UI starts collecting.
 - Comparators backed by explicit UI ordering should treat missing entries as last, not rely on `indexOf` directly; `-1` silently promotes unknown values ahead of the intended order.
+- Detekt cleanup should distinguish accidental style fallout from intentional registry-style code. Exhaustive trophy mappings and debug seed fixtures are clearer with narrow suppressions, while dead composables, long test calls, and import ordering should be fixed directly.

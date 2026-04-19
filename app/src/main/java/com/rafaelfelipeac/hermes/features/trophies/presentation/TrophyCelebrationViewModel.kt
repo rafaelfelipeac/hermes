@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryR
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.trophies.domain.TrophyEngine
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.combine
@@ -77,7 +78,7 @@ class TrophyCelebrationViewModel
             }
         }
 
-        private fun toCardUi(progress: com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress): TrophyCardUi {
+        private fun toCardUi(progress: TrophyProgress): TrophyCardUi {
             return TrophyCardUi(
                 stableId =
                     buildString {

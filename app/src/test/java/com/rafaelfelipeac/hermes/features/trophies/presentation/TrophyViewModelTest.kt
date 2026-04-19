@@ -23,9 +23,24 @@ class TrophyViewModelTest {
         val state =
             buildTrophyPageState(
                 listOf(
-                    progress(TrophyId.PODIUM_PLACE, categoryId = 10L, categoryName = "Run", categoryColorId = COLOR_RUN),
-                    progress(TrophyId.IN_ROTATION, categoryId = 10L, categoryName = "Run", categoryColorId = COLOR_RUN),
-                    progress(TrophyId.TRAINING_BLOCK, categoryId = 20L, categoryName = "Strength", categoryColorId = COLOR_STRENGTH),
+                    progress(
+                        TrophyId.PODIUM_PLACE,
+                        categoryId = 10L,
+                        categoryName = "Run",
+                        categoryColorId = COLOR_RUN,
+                    ),
+                    progress(
+                        TrophyId.IN_ROTATION,
+                        categoryId = 10L,
+                        categoryName = "Run",
+                        categoryColorId = COLOR_RUN,
+                    ),
+                    progress(
+                        TrophyId.TRAINING_BLOCK,
+                        categoryId = 20L,
+                        categoryName = "Strength",
+                        categoryColorId = COLOR_STRENGTH,
+                    ),
                 ),
             )
 
@@ -33,7 +48,10 @@ class TrophyViewModelTest {
 
         assertEquals(listOf("Run", "Strength"), categoriesFamily.sections.mapNotNull { it.title })
         assertEquals(2, categoriesFamily.sections.size)
-        assertEquals(listOf(TrophyId.PODIUM_PLACE, TrophyId.IN_ROTATION), categoriesFamily.sections.first().trophies.map { it.trophyId })
+        assertEquals(
+            listOf(TrophyId.PODIUM_PLACE, TrophyId.IN_ROTATION),
+            categoriesFamily.sections.first().trophies.map { it.trophyId },
+        )
     }
 
     @Test

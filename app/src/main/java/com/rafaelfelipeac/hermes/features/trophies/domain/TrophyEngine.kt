@@ -1,3 +1,5 @@
+@file:Suppress("CyclomaticComplexMethod", "LongMethod", "NestedBlockDepth")
+
 package com.rafaelfelipeac.hermes.features.trophies.domain
 
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
@@ -124,9 +126,12 @@ class TrophyEngine(
                 TrophyMetric.BACKUP_SUCCESSES -> kitBagMilestones
                 TrophyMetric.WORKOUT_CREATIONS -> kickoffMilestones
                 TrophyMetric.PROTECTED_TIME_BLOCKS -> protectedTimeMilestones
-                TrophyMetric.CATEGORY_COMPLETIONS -> categoryId?.let { podiumPlaceMilestonesByCategory[it] }.orEmpty()
-                TrophyMetric.CATEGORY_PRESENCE_WEEKS -> categoryId?.let { homeGroundMilestonesByCategory[it] }.orEmpty()
-                TrophyMetric.CATEGORY_PLANNING_ACTIONS -> categoryId?.let { trainingBlockMilestonesByCategory[it] }.orEmpty()
+                TrophyMetric.CATEGORY_COMPLETIONS ->
+                    categoryId?.let { podiumPlaceMilestonesByCategory[it] }.orEmpty()
+                TrophyMetric.CATEGORY_PRESENCE_WEEKS ->
+                    categoryId?.let { homeGroundMilestonesByCategory[it] }.orEmpty()
+                TrophyMetric.CATEGORY_PLANNING_ACTIONS ->
+                    categoryId?.let { trainingBlockMilestonesByCategory[it] }.orEmpty()
             }
         }
 
@@ -148,11 +153,12 @@ class TrophyEngine(
                                 metadata = metadata,
                                 weekStartDate = metadata[WEEK_START_DATE]?.toLocalDateOrNull(),
                                 categoryId = metadata[CATEGORY_ID]?.toLongOrNull(),
-                                categoryNames = setOfNotNull(
-                                    metadata[CATEGORY_NAME]?.takeIf { it.isNotBlank() },
-                                    metadata[OLD_CATEGORY_NAME]?.takeIf { it.isNotBlank() },
-                                    metadata[NEW_CATEGORY_NAME]?.takeIf { it.isNotBlank() },
-                                ),
+                                categoryNames =
+                                    setOfNotNull(
+                                        metadata[CATEGORY_NAME]?.takeIf { it.isNotBlank() },
+                                        metadata[OLD_CATEGORY_NAME]?.takeIf { it.isNotBlank() },
+                                        metadata[NEW_CATEGORY_NAME]?.takeIf { it.isNotBlank() },
+                                    ),
                             )
                         }.sortedWith(compareBy<ParsedAction>({ it.record.timestamp }, { it.record.id }))
 
@@ -203,7 +209,8 @@ class TrophyEngine(
                         }
 
                         UserActionType.INCOMPLETE_WORKOUT,
-                        UserActionType.UNDO_COMPLETE_WORKOUT -> {
+                        UserActionType.UNDO_COMPLETE_WORKOUT,
+                        -> {
                             val workoutId = action.record.entityId ?: return@forEach
                             val removedCompletion = completionStacksByWorkoutId[workoutId].removeLastIfPresent()
                             val weekStartDate = action.weekStartDate ?: removedCompletion?.weekStartDate

@@ -1,3 +1,5 @@
+@file:Suppress("CyclomaticComplexMethod", "LongMethod")
+
 package com.rafaelfelipeac.hermes.features.trophies.presentation
 
 import androidx.annotation.StringRes
@@ -59,45 +61,108 @@ internal fun trophyDescriptionRes(
         TrophyId.FULL_TIME,
         TrophyId.SEASON_BUILDER,
         TrophyId.SEASON_ANCHOR,
-        -> if (isUnlocked) R.string.trophies_desc_complete_weeks_unlocked else R.string.trophies_desc_complete_weeks_locked
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_complete_weeks_unlocked
+            } else {
+                R.string.trophies_desc_complete_weeks_locked
+            }
         TrophyId.MATCH_FITNESS,
         TrophyId.ENGINE_ROOM,
         TrophyId.WORKHORSE,
-        -> if (isUnlocked) R.string.trophies_desc_workout_completions_unlocked else R.string.trophies_desc_workout_completions_locked
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_workout_completions_unlocked
+            } else {
+                R.string.trophies_desc_workout_completions_locked
+            }
         TrophyId.IN_FORM,
         TrophyId.LOCKED_IN,
         TrophyId.STEADY_RHYTHM,
-        -> if (isUnlocked) R.string.trophies_desc_streak_weeks_unlocked else R.string.trophies_desc_streak_weeks_locked
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_streak_weeks_unlocked
+            } else {
+                R.string.trophies_desc_streak_weeks_locked
+            }
         TrophyId.COMEBACK_WEEK ->
-            if (isUnlocked) R.string.trophies_desc_comeback_weeks_unlocked else R.string.trophies_desc_comeback_weeks_locked
+            if (isUnlocked) {
+                R.string.trophies_desc_comeback_weeks_unlocked
+            } else {
+                R.string.trophies_desc_comeback_weeks_locked
+            }
         TrophyId.GAME_PLAN,
         TrophyId.TACTICAL_BOARD,
         TrophyId.FIELD_MARSHAL,
-        -> if (isUnlocked) R.string.trophies_desc_planning_changes_unlocked else R.string.trophies_desc_planning_changes_locked
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_planning_changes_unlocked
+            } else {
+                R.string.trophies_desc_planning_changes_locked
+            }
         TrophyId.BACK_IN_FORMATION ->
-            if (isUnlocked) R.string.trophies_desc_copied_weeks_unlocked else R.string.trophies_desc_copied_weeks_locked
+            if (isUnlocked) {
+                R.string.trophies_desc_copied_weeks_unlocked
+            } else {
+                R.string.trophies_desc_copied_weeks_locked
+            }
         TrophyId.HOLD_THE_LINE ->
-            if (isUnlocked) R.string.trophies_desc_copied_completed_weeks_unlocked else R.string.trophies_desc_copied_completed_weeks_locked
+            if (isUnlocked) {
+                R.string.trophies_desc_copied_completed_weeks_unlocked
+            } else {
+                R.string.trophies_desc_copied_completed_weeks_locked
+            }
         TrophyId.TEAM_SHEET ->
-            if (isUnlocked) R.string.trophies_desc_category_actions_unlocked else R.string.trophies_desc_category_actions_locked
+            if (isUnlocked) {
+                R.string.trophies_desc_category_actions_unlocked
+            } else {
+                R.string.trophies_desc_category_actions_locked
+            }
         TrophyId.KIT_BAG ->
-            if (isUnlocked) R.string.trophies_desc_backups_unlocked else R.string.trophies_desc_backups_locked
+            if (isUnlocked) {
+                R.string.trophies_desc_backups_unlocked
+            } else {
+                R.string.trophies_desc_backups_locked
+            }
         TrophyId.KICKOFF,
         TrophyId.SET_PIECE,
         TrophyId.PROGRAM_BUILDER,
-        -> if (isUnlocked) R.string.trophies_desc_workout_creations_unlocked else R.string.trophies_desc_workout_creations_locked
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_workout_creations_unlocked
+            } else {
+                R.string.trophies_desc_workout_creations_locked
+            }
         TrophyId.PROTECTED_TIME ->
-            if (isUnlocked) R.string.trophies_desc_protected_time_unlocked else R.string.trophies_desc_protected_time_locked
+            if (isUnlocked) {
+                R.string.trophies_desc_protected_time_unlocked
+            } else {
+                R.string.trophies_desc_protected_time_locked
+            }
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
-        -> if (isUnlocked) R.string.trophies_desc_category_completions_unlocked else R.string.trophies_desc_category_completions_locked
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_category_completions_unlocked
+            } else {
+                R.string.trophies_desc_category_completions_locked
+            }
         TrophyId.HOME_GROUND,
         TrophyId.LOCAL_FAVORITE,
         TrophyId.TERRITORY,
-        -> if (isUnlocked) R.string.trophies_desc_category_presence_unlocked else R.string.trophies_desc_category_presence_locked
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_category_presence_unlocked
+            } else {
+                R.string.trophies_desc_category_presence_locked
+            }
         TrophyId.TRAINING_BLOCK ->
-            if (isUnlocked) R.string.trophies_desc_category_planning_unlocked else R.string.trophies_desc_category_planning_locked
+            if (isUnlocked) {
+                R.string.trophies_desc_category_planning_unlocked
+            } else {
+                R.string.trophies_desc_category_planning_locked
+            }
     }
 }
 

@@ -29,7 +29,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
 
-@Suppress("LargeClass", "TooManyFunctions")
+@Suppress("CyclomaticComplexMethod", "LargeClass", "TooManyFunctions")
 class ActivityUiFormatter(
     private val stringProvider: StringProvider,
 ) {

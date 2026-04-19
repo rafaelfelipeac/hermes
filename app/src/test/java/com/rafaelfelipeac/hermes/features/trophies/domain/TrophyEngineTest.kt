@@ -13,14 +13,14 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SICK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_BUSY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_SICK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
@@ -34,6 +34,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOM
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -78,11 +79,29 @@ class TrophyEngineTest {
         val progress =
             engine.compute(
                 listOf(
-                    workoutAction(1L, MOVE_WORKOUT_BETWEEN_DAYS, workoutId = 100L, weekStartDate = weekA, timestamp = 10L),
-                    workoutAction(2L, UNDO_MOVE_WORKOUT_BETWEEN_DAYS, workoutId = 100L, weekStartDate = weekA, timestamp = 20L),
+                    workoutAction(
+                        1L,
+                        MOVE_WORKOUT_BETWEEN_DAYS,
+                        workoutId = 100L,
+                        weekStartDate = weekA,
+                        timestamp = 10L,
+                    ),
+                    workoutAction(
+                        2L,
+                        UNDO_MOVE_WORKOUT_BETWEEN_DAYS,
+                        workoutId = 100L,
+                        weekStartDate = weekA,
+                        timestamp = 20L,
+                    ),
                     workoutAction(3L, REORDER_WORKOUT, workoutId = 200L, weekStartDate = weekA, timestamp = 30L),
                     weekAction(4L, COMPLETE_WEEK_WORKOUTS, weekA, timestamp = 40L),
-                    workoutAction(5L, MOVE_WORKOUT_BETWEEN_DAYS, workoutId = 300L, weekStartDate = weekB, timestamp = 50L),
+                    workoutAction(
+                        5L,
+                        MOVE_WORKOUT_BETWEEN_DAYS,
+                        workoutId = 300L,
+                        weekStartDate = weekB,
+                        timestamp = 50L,
+                    ),
                     weekAction(6L, COMPLETE_WEEK_WORKOUTS, weekB, timestamp = 60L),
                 ),
             )
@@ -170,7 +189,13 @@ class TrophyEngineTest {
             engine.compute(
                 listOf(
                     weekAction(1L, COPY_LAST_WEEK, weekStart, timestamp = 10L),
-                    workoutAction(2L, MOVE_WORKOUT_BETWEEN_DAYS, workoutId = 10L, weekStartDate = weekStart, timestamp = 20L),
+                    workoutAction(
+                        2L,
+                        MOVE_WORKOUT_BETWEEN_DAYS,
+                        workoutId = 10L,
+                        weekStartDate = weekStart,
+                        timestamp = 20L,
+                    ),
                     workoutAction(3L, COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 30L),
                     weekAction(4L, COMPLETE_WEEK_WORKOUTS, weekStart, timestamp = 40L),
                     workoutAction(5L, INCOMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 50L),
@@ -191,10 +216,28 @@ class TrophyEngineTest {
             engine.compute(
                 listOf(
                     weekAction(1L, COPY_LAST_WEEK, weekStart, timestamp = 10L),
-                    workoutAction(2L, MOVE_WORKOUT_BETWEEN_DAYS, workoutId = 10L, weekStartDate = weekStart, timestamp = 20L),
-                    workoutAction(3L, COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 30L),
+                    workoutAction(
+                        2L,
+                        MOVE_WORKOUT_BETWEEN_DAYS,
+                        workoutId = 10L,
+                        weekStartDate = weekStart,
+                        timestamp = 20L,
+                    ),
+                    workoutAction(
+                        3L,
+                        COMPLETE_WORKOUT,
+                        workoutId = 10L,
+                        weekStartDate = weekStart,
+                        timestamp = 30L,
+                    ),
                     weekAction(4L, COMPLETE_WEEK_WORKOUTS, weekStart, timestamp = 40L),
-                    workoutAction(5L, UNDO_COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 50L),
+                    workoutAction(
+                        5L,
+                        UNDO_COMPLETE_WORKOUT,
+                        workoutId = 10L,
+                        weekStartDate = weekStart,
+                        timestamp = 50L,
+                    ),
                 ),
             )
 
@@ -394,9 +437,8 @@ class TrophyEngineTest {
         assertEquals(160L, progress.require(TrophyId.SEASON_BUILDER).unlockedAt)
     }
 
-    private fun List<com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress>.require(
-        trophyId: TrophyId,
-    ) = first { it.definition.id == trophyId }
+    private fun List<TrophyProgress>.require(trophyId: TrophyId) =
+        first { it.definition.id == trophyId }
 
     private fun weekAction(
         id: Long,

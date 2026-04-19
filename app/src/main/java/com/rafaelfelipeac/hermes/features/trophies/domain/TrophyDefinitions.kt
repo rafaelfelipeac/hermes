@@ -238,6 +238,7 @@ object TrophyDefinitions {
             ),
         )
 
+    @Suppress("LongParameterList")
     private fun definition(
         id: TrophyId,
         family: TrophyFamily,
