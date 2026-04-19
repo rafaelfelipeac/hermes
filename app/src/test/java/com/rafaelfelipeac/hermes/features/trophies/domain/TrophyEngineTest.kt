@@ -1,5 +1,7 @@
 package com.rafaelfelipeac.hermes.features.trophies.domain
 
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
@@ -158,6 +160,66 @@ class TrophyEngineTest {
             )
 
         assertEquals(2, progress.require(TrophyId.MATCH_FITNESS).currentValue)
+    }
+
+    @Test
+    fun completedWeekTrophies_dropWhenLastCompletionIsMarkedIncomplete() {
+        val weekStart = LocalDate.of(2026, 4, 6)
+
+        val progress =
+            engine.compute(
+                listOf(
+                    weekAction(1L, COPY_LAST_WEEK, weekStart, timestamp = 10L),
+                    workoutAction(2L, MOVE_WORKOUT_BETWEEN_DAYS, workoutId = 10L, weekStartDate = weekStart, timestamp = 20L),
+                    workoutAction(3L, COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 30L),
+                    weekAction(4L, COMPLETE_WEEK_WORKOUTS, weekStart, timestamp = 40L),
+                    workoutAction(5L, INCOMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 50L),
+                ),
+            )
+
+        assertEquals(0, progress.require(TrophyId.FULL_TIME).currentValue)
+        assertEquals(0, progress.require(TrophyId.IN_FORM).currentValue)
+        assertEquals(0, progress.require(TrophyId.COMEBACK_WEEK).currentValue)
+        assertEquals(0, progress.require(TrophyId.HOLD_THE_LINE).currentValue)
+    }
+
+    @Test
+    fun completedWeekTrophies_dropWhenLastCompletionIsUndone() {
+        val weekStart = LocalDate.of(2026, 4, 6)
+
+        val progress =
+            engine.compute(
+                listOf(
+                    weekAction(1L, COPY_LAST_WEEK, weekStart, timestamp = 10L),
+                    workoutAction(2L, MOVE_WORKOUT_BETWEEN_DAYS, workoutId = 10L, weekStartDate = weekStart, timestamp = 20L),
+                    workoutAction(3L, COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 30L),
+                    weekAction(4L, COMPLETE_WEEK_WORKOUTS, weekStart, timestamp = 40L),
+                    workoutAction(5L, UNDO_COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 50L),
+                ),
+            )
+
+        assertEquals(0, progress.require(TrophyId.FULL_TIME).currentValue)
+        assertEquals(0, progress.require(TrophyId.IN_FORM).currentValue)
+        assertEquals(0, progress.require(TrophyId.COMEBACK_WEEK).currentValue)
+        assertEquals(0, progress.require(TrophyId.HOLD_THE_LINE).currentValue)
+    }
+
+    @Test
+    fun completedWeekTrophies_remainWhenWeekStillHasCompletedWorkout() {
+        val weekStart = LocalDate.of(2026, 4, 6)
+
+        val progress =
+            engine.compute(
+                listOf(
+                    workoutAction(1L, COMPLETE_WORKOUT, workoutId = 10L, weekStartDate = weekStart, timestamp = 10L),
+                    workoutAction(2L, COMPLETE_WORKOUT, workoutId = 11L, weekStartDate = weekStart, timestamp = 20L),
+                    weekAction(3L, COMPLETE_WEEK_WORKOUTS, weekStart, timestamp = 30L),
+                    workoutAction(4L, INCOMPLETE_WORKOUT, workoutId = 11L, weekStartDate = weekStart, timestamp = 40L),
+                ),
+            )
+
+        assertEquals(1, progress.require(TrophyId.FULL_TIME).currentValue)
+        assertEquals(1, progress.require(TrophyId.IN_FORM).currentValue)
     }
 
     @Test
@@ -363,8 +425,8 @@ class TrophyEngineTest {
     ): UserActionRecord {
         val metadataPairs = linkedMapOf<String, String>()
         weekStartDate?.let { metadataPairs[WEEK_START_DATE] = it.toString() }
-        categoryId?.let { metadataPairs["category_id"] = it.toString() }
-        categoryName?.let { metadataPairs["category_name"] = it }
+        categoryId?.let { metadataPairs[CATEGORY_ID] = it.toString() }
+        categoryName?.let { metadataPairs[CATEGORY_NAME] = it }
         val metadata = metadataPairs.takeIf { it.isNotEmpty() }?.let { metadataJson(*it.toList().toTypedArray()) }
 
         return UserActionRecord(

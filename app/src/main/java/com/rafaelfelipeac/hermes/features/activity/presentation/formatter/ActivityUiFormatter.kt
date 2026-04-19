@@ -72,6 +72,7 @@ class ActivityUiFormatter(
                         quotedWorkoutLabel = quotedWorkoutLabel,
                     )
                 UserActionEntityType.CATEGORY -> buildCategoryTitle(actionType, metadata)
+                UserActionEntityType.TROPHY -> buildTrophyTitle(actionType, metadata)
                 else -> buildWorkoutTitle(actionType, quotedWorkoutLabel)
             }
 
@@ -141,6 +142,9 @@ class ActivityUiFormatter(
 
             UserActionType.CLEAR_BACKUP_FOLDER ->
                 stringProvider.get(R.string.activity_action_clear_backup_folder)
+
+            UserActionType.SEED_DEMO_DATA ->
+                stringProvider.get(R.string.activity_action_seed_demo_data)
 
             UserActionType.OPEN_WEEK ->
                 stringProvider.get(R.string.activity_action_open_week)
@@ -293,6 +297,26 @@ class ActivityUiFormatter(
             ?: stringProvider.get(R.string.activity_category_fallback)
     }
 
+    private fun buildTrophyTitle(
+        actionType: UserActionType?,
+        metadata: Map<String, String>,
+    ): String? {
+        val label =
+            metadata[UserActionMetadataKeys.TROPHY_NAME]
+                ?.takeIf { it.isNotBlank() }
+                ?: stringProvider.get(R.string.activity_value_unknown)
+
+        return when (actionType) {
+            UserActionType.SHARE_TROPHY ->
+                stringProvider.get(
+                    R.string.activity_action_share_trophy,
+                    quoteValue(label) ?: label,
+                )
+
+            else -> null
+        }
+    }
+
     private fun buildCategoryVisibilitySubtitle(metadata: Map<String, String>): String? {
         val oldValue = formatVisibilityValue(metadata[UserActionMetadataKeys.OLD_VALUE])
         val newValue = formatVisibilityValue(metadata[UserActionMetadataKeys.NEW_VALUE])
@@ -374,6 +398,9 @@ class ActivityUiFormatter(
 
             UserActionType.UPDATE_WORKOUT ->
                 buildWorkoutCategoryChangeSubtitle(metadata)
+
+            UserActionType.SHARE_TROPHY ->
+                buildWorkoutCategorySubtitle(metadata)
 
             UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
             UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)

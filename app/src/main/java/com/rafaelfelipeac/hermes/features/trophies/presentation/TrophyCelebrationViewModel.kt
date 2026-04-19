@@ -10,11 +10,10 @@ import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRep
 import com.rafaelfelipeac.hermes.features.trophies.domain.TrophyEngine
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,8 +33,8 @@ class TrophyCelebrationViewModel
         private val stringProvider: StringProvider,
     ) : ViewModel() {
         private val engine = TrophyEngine()
-        private val eventsFlow = MutableSharedFlow<TrophyCelebrationUi>(extraBufferCapacity = 1)
-        val events: SharedFlow<TrophyCelebrationUi> = eventsFlow.asSharedFlow()
+        private val eventsChannel = Channel<TrophyCelebrationUi>(capacity = Channel.BUFFERED)
+        val events = eventsChannel.receiveAsFlow()
 
         init {
             val categoriesFlow =
@@ -56,7 +55,7 @@ class TrophyCelebrationViewModel
                     featured?.takeUnless { celebrationToken(it) == lastSeenToken }
                 }.collect { trophy ->
                     if (trophy != null) {
-                        eventsFlow.emit(
+                        eventsChannel.trySend(
                             TrophyCelebrationUi(
                                 token = celebrationToken(trophy),
                                 message =

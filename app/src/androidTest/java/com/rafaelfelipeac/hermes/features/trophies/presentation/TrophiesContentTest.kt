@@ -52,6 +52,9 @@ class TrophiesContentTest {
 
     @Test
     fun clickingViewAllShowsFamilyDetailContent() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val fullTime = context.getString(R.string.trophies_name_full_time)
+
         setContentWithFamilySelection(
             state =
                 TrophyPageState(
@@ -76,11 +79,13 @@ class TrophiesContentTest {
         composeRule.onNodeWithTag(viewAllTag(TrophyFamilyUi.FOLLOW_THROUGH)).performClick()
 
         composeRule.onNodeWithTag(familyDetailTag(TrophyFamilyUi.FOLLOW_THROUGH)).assertIsDisplayed()
-        composeRule.onNodeWithText("Full-Time").assertIsDisplayed()
+        composeRule.onNodeWithText(fullTime).assertIsDisplayed()
     }
 
     @Test
     fun overviewScrollPositionIsPreservedWhenReturningFromFamilyDetail() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val categories = context.getString(R.string.trophies_family_categories)
         val state =
             TrophyPageState(
                 families =
@@ -119,14 +124,14 @@ class TrophiesContentTest {
         }
 
         composeRule.onNodeWithTag(TROPHIES_OVERVIEW_LIST_TAG).performScrollToIndex(5)
-        composeRule.onNodeWithText("Categories").assertIsDisplayed()
+        composeRule.onNodeWithText(categories).assertIsDisplayed()
 
         composeRule.onNodeWithTag(viewAllTag(TrophyFamilyUi.CATEGORIES)).performClick()
         composeRule.onNodeWithTag(familyDetailTag(TrophyFamilyUi.CATEGORIES)).assertIsDisplayed()
 
         composeRule.runOnIdle { selectedFamilyName = null }
 
-        composeRule.onNodeWithText("Categories").assertIsDisplayed()
+        composeRule.onNodeWithText(categories).assertIsDisplayed()
     }
 
     @Test
@@ -186,6 +191,9 @@ class TrophiesContentTest {
 
     @Test
     fun categoriesFamilyShowsCategorySectionTitlesInDetail() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val podiumPlace = context.getString(R.string.trophies_name_podium_place)
+
         setContentWithFamilySelection(
             state =
                 TrophyPageState(
@@ -219,7 +227,7 @@ class TrophiesContentTest {
         composeRule.onNodeWithTag(viewAllTag(TrophyFamilyUi.CATEGORIES)).performClick()
 
         composeRule.onNodeWithText("Run").assertIsDisplayed()
-        composeRule.onNodeWithText("Podium Place").assertIsDisplayed()
+        composeRule.onNodeWithText(podiumPlace).assertIsDisplayed()
     }
 
     @Test
@@ -262,6 +270,9 @@ class TrophiesContentTest {
 
     @Test
     fun overviewShowsOnlyPreviewItemsUntilViewAll() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val matchFitness = context.getString(R.string.trophies_name_match_fitness)
+
         setContentWithFamilySelection(
             state =
                 TrophyPageState(
@@ -294,9 +305,9 @@ class TrophiesContentTest {
                 ),
         )
 
-        composeRule.onAllNodesWithText("Match Fitness").assertCountEquals(0)
+        composeRule.onAllNodesWithText(matchFitness).assertCountEquals(0)
         composeRule.onNodeWithTag(viewAllTag(TrophyFamilyUi.FOLLOW_THROUGH)).performClick()
-        composeRule.onNodeWithText("Match Fitness").assertExists()
+        composeRule.onNodeWithText(matchFitness).assertExists()
     }
 
     @Test
@@ -314,6 +325,7 @@ class TrophiesContentTest {
                         isUnlocked = true,
                         unlockedAt = 1234L,
                     ),
+                onShare = {},
                 onDismiss = {},
             )
         }
@@ -339,6 +351,7 @@ class TrophiesContentTest {
         composeRule.setContent {
             TrophyDetailDialog(
                 trophy = trophy,
+                onShare = {},
                 onDismiss = {},
             )
         }
@@ -360,6 +373,8 @@ class TrophiesContentTest {
 
     @Test
     fun trophySelectionFromOverviewInvokesCallback() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val fullTime = context.getString(R.string.trophies_name_full_time)
         var selectedId: String? = null
 
         composeRule.setContent {
@@ -394,7 +409,7 @@ class TrophiesContentTest {
             )
         }
 
-        composeRule.onNodeWithText("Full-Time").performClick()
+        composeRule.onNodeWithText(fullTime).performClick()
 
         composeRule.runOnIdle {
             assertEquals("full_time", selectedId)

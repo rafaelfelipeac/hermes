@@ -87,6 +87,11 @@ class TrophyEngine(
         val timestamp: Long,
     )
 
+    private data class WorkoutCompletion(
+        val timestamp: Long,
+        val weekStartDate: LocalDate?,
+    )
+
     private data class TrophyHistory(
         val completedWeekMilestones: List<Long>,
         val matchFitnessMilestones: List<Long>,
@@ -159,7 +164,7 @@ class TrophyEngine(
                 val backupSuccessTimestamps = mutableListOf<Long>()
                 val workoutCreationTimestamps = mutableListOf<Long>()
                 val protectedTimeTimestamps = mutableListOf<Long>()
-                val completionStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<Long>>()
+                val completionStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WorkoutCompletion>>()
                 val moveStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
                 val reorderStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
                 val copyStacksByWeek = mutableMapOf<LocalDate, ArrayDeque<Long>>()
@@ -179,7 +184,12 @@ class TrophyEngine(
                             val workoutId = action.record.entityId ?: return@forEach
                             completionStacksByWorkoutId
                                 .getOrPut(workoutId, ::ArrayDeque)
-                                .addLast(action.record.timestamp)
+                                .addLast(
+                                    WorkoutCompletion(
+                                        timestamp = action.record.timestamp,
+                                        weekStartDate = action.weekStartDate,
+                                    ),
+                                )
                             categoryIds.forEach { categoryId ->
                                 categoryCompletionMilestones
                                     .getOrPut(categoryId, ::mutableListOf)
@@ -195,12 +205,19 @@ class TrophyEngine(
                         UserActionType.INCOMPLETE_WORKOUT,
                         UserActionType.UNDO_COMPLETE_WORKOUT -> {
                             val workoutId = action.record.entityId ?: return@forEach
-                            completionStacksByWorkoutId[workoutId].removeLastIfPresent()
+                            val removedCompletion = completionStacksByWorkoutId[workoutId].removeLastIfPresent()
+                            val weekStartDate = action.weekStartDate ?: removedCompletion?.weekStartDate
                             categoryIds.forEach { categoryId ->
                                 categoryCompletionMilestones[categoryId].removeLastIfPresent()
-                                action.weekStartDate?.let { weekStartDate ->
-                                    categoryCompletionWeekCounts[categoryId].decrementWeekCount(weekStartDate)
+                                weekStartDate?.let { completionWeekStartDate ->
+                                    categoryCompletionWeekCounts[categoryId].decrementWeekCount(completionWeekStartDate)
                                 }
+                            }
+                            if (
+                                weekStartDate != null &&
+                                !completionStacksByWorkoutId.hasCompletionInWeek(weekStartDate)
+                            ) {
+                                completedWeeks.remove(weekStartDate)
                             }
                         }
 
@@ -208,7 +225,12 @@ class TrophyEngine(
                             val workoutId = action.record.entityId ?: return@forEach
                             completionStacksByWorkoutId
                                 .getOrPut(workoutId, ::ArrayDeque)
-                                .addLast(action.record.timestamp)
+                                .addLast(
+                                    WorkoutCompletion(
+                                        timestamp = action.record.timestamp,
+                                        weekStartDate = action.weekStartDate,
+                                    ),
+                                )
                             categoryIds.forEach { categoryId ->
                                 categoryCompletionMilestones
                                     .getOrPut(categoryId, ::mutableListOf)
@@ -309,7 +331,7 @@ class TrophyEngine(
                 }
 
                 completionStacksByWorkoutId.values.forEach { stack ->
-                    effectiveCompletionTimestamps += stack.toList()
+                    effectiveCompletionTimestamps += stack.map(WorkoutCompletion::timestamp)
                 }
                 moveStacksByWorkoutId.values.forEach { stack ->
                     effectivePlanningEvents += stack.toList()
@@ -410,14 +432,16 @@ class TrophyEngine(
                 return runCatching { LocalDate.parse(this) }.getOrNull()
             }
 
-            private fun <T> ArrayDeque<T>?.removeLastIfPresent() {
-                if (this != null && isNotEmpty()) {
+            private fun <T> ArrayDeque<T>?.removeLastIfPresent(): T? {
+                return if (!isNullOrEmpty()) {
                     removeLast()
+                } else {
+                    null
                 }
             }
 
             private fun <T> MutableList<T>?.removeLastIfPresent() {
-                if (this != null && isNotEmpty()) {
+                if (!isNullOrEmpty()) {
                     removeAt(lastIndex)
                 }
             }
@@ -429,6 +453,14 @@ class TrophyEngine(
                     this[weekStartDate] = nextCount
                 } else {
                     remove(weekStartDate)
+                }
+            }
+
+            private fun Map<Long, ArrayDeque<WorkoutCompletion>>.hasCompletionInWeek(
+                weekStartDate: LocalDate,
+            ): Boolean {
+                return values.any { stack ->
+                    stack.any { completion -> completion.weekStartDate == weekStartDate }
                 }
             }
 

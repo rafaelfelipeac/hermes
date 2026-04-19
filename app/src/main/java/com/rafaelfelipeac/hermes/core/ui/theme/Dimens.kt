@@ -69,6 +69,7 @@ object Dimens {
     val TrophyCardCategoryBlockHeight = 20.dp
     val TrophyCardArtworkTopPadding = 6.dp
     val TrophyBackButtonSize = 36.dp
+    val TrophyBackButtonTouchTargetSize = 48.dp
     val TrophyProgressHeight = 8.dp
     val WeeklyTrainingTestViewportHeight = 200.dp
     val CheckboxYOffset = (-2).dp

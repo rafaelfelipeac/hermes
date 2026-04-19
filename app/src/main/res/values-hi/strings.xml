@@ -299,8 +299,10 @@
     <string name="activity_action_change_week_start">आपने सप्ताह की शुरुआत बदली।</string>
     <string name="activity_action_export_backup">आपने एक बैकअप निर्यात किया।</string>
     <string name="activity_action_import_backup">आपने एक बैकअप आयात किया।</string>
+    <string name="activity_action_share_trophy">आपने ट्रॉफी %1$s साझा करना शुरू किया।</string>
     <string name="activity_action_set_backup_folder">आपने एक बैकअप फ़ोल्डर सेट किया।</string>
     <string name="activity_action_clear_backup_folder">आपने बैकअप फ़ोल्डर साफ़ किया।</string>
+    <string name="activity_action_seed_demo_data">आपने डेमो डेटा जोड़ा।</string>
     <string name="weekly_training_slot_morning">सुबह</string>
     <string name="weekly_training_slot_afternoon">दोपहर</string>
     <string name="weekly_training_slot_night">रात</string>

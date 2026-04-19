@@ -25,6 +25,8 @@ object UserActionMetadataKeys {
     const val WAS_COMPLETED = "was_completed"
     const val IS_COMPLETED = "is_completed"
     const val CATEGORY_NAME = "category_name"
+    const val TROPHY_ID = "trophy_id"
+    const val TROPHY_NAME = "trophy_name"
     const val SCHEMA_VERSION = "schema_version"
     const val WORKOUTS_COUNT = "workouts_count"
     const val CATEGORIES_COUNT = "categories_count"

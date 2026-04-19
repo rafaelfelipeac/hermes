@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.trophies.presentation
 
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_RUN
+import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_STRENGTH
 import com.rafaelfelipeac.hermes.features.trophies.domain.TrophyDefinitions
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
@@ -24,7 +25,7 @@ class TrophyViewModelTest {
                 listOf(
                     progress(TrophyId.PODIUM_PLACE, categoryId = 10L, categoryName = "Run", categoryColorId = COLOR_RUN),
                     progress(TrophyId.IN_ROTATION, categoryId = 10L, categoryName = "Run", categoryColorId = COLOR_RUN),
-                    progress(TrophyId.TRAINING_BLOCK, categoryId = 20L, categoryName = "Strength", categoryColorId = "strength"),
+                    progress(TrophyId.TRAINING_BLOCK, categoryId = 20L, categoryName = "Strength", categoryColorId = COLOR_STRENGTH),
                 ),
             )
 

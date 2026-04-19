@@ -299,8 +299,10 @@
     <string name="activity_action_change_week_start">"Hai cambiato l'inizio della settimana."</string>
     <string name="activity_action_export_backup">Hai esportato un backup.</string>
     <string name="activity_action_import_backup">Hai importato un backup.</string>
+    <string name="activity_action_share_trophy">Hai iniziato a condividere il trofeo %1$s.</string>
     <string name="activity_action_set_backup_folder">Hai impostato una cartella di backup.</string>
     <string name="activity_action_clear_backup_folder">Hai cancellato la cartella di backup.</string>
+    <string name="activity_action_seed_demo_data">Hai inserito dati dimostrativi.</string>
     <string name="weekly_training_slot_morning">Mattina</string>
     <string name="weekly_training_slot_afternoon">Pomeriggio</string>
     <string name="weekly_training_slot_night">Sera</string>

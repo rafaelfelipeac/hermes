@@ -89,6 +89,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBackButtonSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBackButtonTouchTargetSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardFooterMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardArtworkTopPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardTitleBlockHeight
@@ -208,8 +209,10 @@ fun TrophiesScreen(
     }
 
     selectedTrophy?.let { trophy ->
+        val selectedTrophyName = trophyName(trophy)
         TrophyDetailDialog(
             trophy = trophy,
+            onShare = { viewModel.logShareTrophy(trophy, selectedTrophyName) },
             onDismiss = { selectedTrophyId = null },
         )
     }
@@ -619,6 +622,7 @@ private fun TrophyShelfCard(
 @Composable
 internal fun TrophyDetailDialog(
     trophy: TrophyCardUi,
+    onShare: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -631,6 +635,7 @@ internal fun TrophyDetailDialog(
             if (trophy.isUnlocked) {
                 Button(
                     onClick = {
+                        onShare()
                         val shareIntent =
                             Intent(Intent.ACTION_SEND).apply {
                                 type = TROPHIES_SHARE_INTENT_TYPE
@@ -857,7 +862,7 @@ private fun TrophyFamilyHeader(
         Surface(
             modifier =
                 Modifier
-                    .size(TrophyBackButtonSize)
+                    .size(TrophyBackButtonTouchTargetSize)
                     .clickable(onClick = onBack),
             color = Color.Transparent,
         ) {
@@ -865,11 +870,16 @@ private fun TrophyFamilyHeader(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = stringResource(R.string.trophies_back),
-                    tint = colorScheme.onSurface,
-                )
+                Box(
+                    modifier = Modifier.size(TrophyBackButtonSize),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = stringResource(R.string.trophies_back),
+                        tint = colorScheme.onSurface,
+                    )
+                }
             }
         }
         Column(
@@ -887,7 +897,7 @@ private fun TrophyFamilyHeader(
                 color = colorScheme.onSurfaceVariant,
             )
         }
-        Spacer(modifier = Modifier.size(TrophyBackButtonSize))
+        Spacer(modifier = Modifier.size(TrophyBackButtonTouchTargetSize))
     }
 }
 
@@ -954,7 +964,7 @@ private fun quotedShareValue(value: String): String = TROPHIES_QUOTE + value + T
 
 @Composable
 private fun trophyShareDescription(trophy: TrophyCardUi): String {
-    val categoryName = trophy.categoryName?.let(::quotedShareValue).orEmpty()
+    val categoryName = trophy.categoryName.orEmpty()
     return when (trophy.trophyId) {
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,

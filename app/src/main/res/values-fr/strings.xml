@@ -299,8 +299,10 @@
     <string name="activity_action_change_week_start">Vous avez changé le début de la semaine.</string>
     <string name="activity_action_export_backup">Vous avez exporté une sauvegarde.</string>
     <string name="activity_action_import_backup">Vous avez importé une sauvegarde.</string>
+    <string name="activity_action_share_trophy">Vous avez commencé à partager le trophée %1$s.</string>
     <string name="activity_action_set_backup_folder">Vous avez défini un dossier de sauvegarde.</string>
     <string name="activity_action_clear_backup_folder">Vous avez effacé le dossier de sauvegarde.</string>
+    <string name="activity_action_seed_demo_data">Vous avez ajouté des données de démonstration.</string>
     <string name="weekly_training_slot_morning">Matin</string>
     <string name="weekly_training_slot_afternoon">Après-midi</string>
     <string name="weekly_training_slot_night">Soir</string>
@@ -332,7 +334,7 @@
     <string name="activity_action_convert_sick_to_workout">Vous avez converti un événement de maladie en entraînement.</string>
     <string name="trophies_nav_label">Trophées</string>
     <string name="trophies_title">Trophées</string>
-    <string name="trophies_subtitle">"Une étagère calme de moments d'entraînement, de choix d'organisation et de retours réguliers."</string>
+    <string name="trophies_subtitle">Une étagère calme de moments d\'entraînement, de choix d\'organisation et de retours réguliers.</string>
     <string name="trophies_empty_title">Votre étagère prend encore forme.</string>
     <string name="trophies_empty_body">Les trophées apparaissent à mesure que vous planifiez, terminez et réorganisez vos semaines.</string>
     <string name="trophies_view_all">Voir tout</string>
@@ -387,7 +389,7 @@
     <string name="trophies_tier_streak">Série</string>
     <string name="trophies_tier_peak">Sommet</string>
     <string name="trophies_tier_legend">Légende</string>
-    <string name="trophies_family_follow_through">"Jusqu'au bout"</string>
+    <string name="trophies_family_follow_through">Jusqu\'au bout</string>
     <string name="trophies_family_follow_through_desc">Pour le travail prévu qui a bien été accompli.</string>
     <string name="trophies_family_consistency">Régularité</string>
     <string name="trophies_family_consistency_desc">Pour les semaines où vous êtes revenu encore et encore.</string>
@@ -436,7 +438,7 @@
     <string name="trophies_name_home_ground">Terrain de Base</string>
     <string name="trophies_desc_home_ground_locked">Débloquez-le en terminant 4 semaines qui incluent au moins une séance terminée de cette catégorie.</string>
     <string name="trophies_desc_home_ground_unlocked">Vous avez terminé 4 semaines qui incluaient au moins une séance terminée de cette catégorie.</string>
-    <string name="trophies_name_training_block">"Bloc d'Entraînement"</string>
+    <string name="trophies_name_training_block">Bloc d\'Entraînement</string>
     <string name="trophies_desc_training_block_locked">Débloquez-le en ajoutant, déplaçant ou organisant des séances dans cette catégorie 15 fois.</string>
     <string name="trophies_desc_training_block_unlocked">Vous avez ajouté, déplacé ou organisé des séances dans cette catégorie 15 fois.</string>
     <string name="trophies_name_season_builder">Temps Plein\u00a0: Bâtisseur de Saison</string>

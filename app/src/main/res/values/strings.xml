@@ -298,8 +298,10 @@
     <string name="activity_action_change_week_start">You changed the start of week.</string>
     <string name="activity_action_export_backup">You exported a backup.</string>
     <string name="activity_action_import_backup">You imported a backup.</string>
+    <string name="activity_action_share_trophy">You started sharing the trophy %1$s.</string>
     <string name="activity_action_set_backup_folder">You set a backup folder.</string>
     <string name="activity_action_clear_backup_folder">You cleared the backup folder.</string>
+    <string name="activity_action_seed_demo_data">You seeded demo data.</string>
     <string name="weekly_training_slot_morning">Morning</string>
     <string name="weekly_training_slot_afternoon">Afternoon</string>
     <string name="weekly_training_slot_night">Evening</string>

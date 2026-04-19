@@ -315,8 +315,10 @@
     <string name="activity_action_change_week_start">لقد غيّرت بداية الأسبوع.</string>
     <string name="activity_action_export_backup">لقد صدّرت نسخة احتياطية.</string>
     <string name="activity_action_import_backup">لقد استوردت نسخة احتياطية.</string>
+    <string name="activity_action_share_trophy">لقد بدأت مشاركة الكأس %1$s.</string>
     <string name="activity_action_set_backup_folder">لقد قمت بتحديد مجلد نسخ احتياطي.</string>
     <string name="activity_action_clear_backup_folder">لقد قمت بمسح مجلد النسخ الاحتياطي.</string>
+    <string name="activity_action_seed_demo_data">لقد أضفت بيانات تجريبية.</string>
     <string name="weekly_training_slot_morning">صباح</string>
     <string name="weekly_training_slot_afternoon">بعد الظهر</string>
     <string name="weekly_training_slot_night">مساء</string>
@@ -346,11 +348,11 @@
     <string name="activity_action_incomplete_sick">لقد وضعت علامة غير مكتمل على حدث مرض.</string>
     <string name="activity_action_convert_workout_to_sick">لقد حوّلت التمرين %1$s إلى حدث مرض.</string>
     <string name="activity_action_convert_sick_to_workout">لقد حوّلت حدث مرض إلى تمرين.</string>
-    <string name="trophies_nav_label">الجوائز</string>
-    <string name="trophies_title">الجوائز</string>
+    <string name="trophies_nav_label">الكؤوس</string>
+    <string name="trophies_title">الكؤوس</string>
     <string name="trophies_subtitle">رف هادئ للحظات التدريب، وقرارات التخطيط، والعودة المستمرة.</string>
     <string name="trophies_empty_title">رفك ما زال يتشكل.</string>
-    <string name="trophies_empty_body">تظهر الجوائز مع تخطيطك لأسابيعك، وإكمالها، وإعادة تشكيلها.</string>
+    <string name="trophies_empty_body">تظهر الكؤوس مع تخطيطك لأسابيعك، وإكمالها، وإعادة تشكيلها.</string>
     <string name="trophies_view_all">عرض الكل</string>
     <string name="trophies_view_action">عرض</string>
     <string name="trophies_back">رجوع</string>

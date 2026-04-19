@@ -19,7 +19,7 @@ internal fun selectFeaturedTrophy(cards: List<TrophyCardUi>): FeaturedTrophyUi? 
             .minWithOrNull(
                 compareBy<TrophyCardUi>(
                     { (it.target - it.currentValue).coerceAtLeast(0) },
-                    { TrophyViewModel.familyOrder.indexOf(it.family) },
+                    { it.family.sortIndex() },
                     { it.stableId },
                 ),
             )
@@ -30,4 +30,9 @@ internal fun selectFeaturedTrophy(cards: List<TrophyCardUi>): FeaturedTrophyUi? 
             mode = FeaturedTrophyMode.NEAREST_PROGRESS,
         )
     }
+}
+
+private fun TrophyFamilyUi.sortIndex(): Int {
+    val index = TrophyViewModel.familyOrder.indexOf(this)
+    return if (index >= 0) index else TrophyViewModel.familyOrder.size
 }

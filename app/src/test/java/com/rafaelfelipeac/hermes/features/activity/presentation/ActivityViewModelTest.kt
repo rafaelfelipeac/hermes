@@ -15,11 +15,13 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.TROPHY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.TROPHY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
@@ -29,6 +31,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_W
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SHARE_TROPHY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPrimaryFilter
@@ -292,6 +295,41 @@ class ActivityViewModelTest {
                 assertTrue(subtitle?.contains("Category") == true)
                 assertTrue(subtitle?.contains("Strength") == true)
                 assertTrue(subtitle?.contains("\n") == true)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun shareTrophy_usesTrophyTitleAndCategorySubtitle() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel = createViewModel(repository)
+            val metadata =
+                metadataJson(
+                    TROPHY_NAME to "Training Block",
+                    CATEGORY_NAME to "Strength",
+                )
+
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 61L,
+                        actionType = SHARE_TROPHY.name,
+                        entityType = TROPHY.name,
+                        entityId = null,
+                        metadata = metadata,
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                ),
+            )
+
+            viewModel.state.test {
+                val item = awaitNonEmptyState().sections.first().items.first()
+
+                assertTrue(item.title.contains("\"Training Block\""))
+                assertTrue(item.subtitle?.contains("Category") == true)
+                assertTrue(item.subtitle?.contains("Strength") == true)
 
                 cancelAndIgnoreRemainingEvents()
             }
@@ -644,6 +682,7 @@ class ActivityViewModelTest {
                 R.string.activity_action_open_week to "You opened another week.",
                 R.string.activity_action_copy_last_week to "You copied last week into this week.",
                 R.string.activity_action_undo_copy_last_week to "You undid copying last week into this week.",
+                R.string.activity_action_share_trophy to "You started sharing the trophy %1\$s.",
                 R.string.activity_action_fallback to "You performed an action in the app.",
                 R.string.activity_subtitle_change_value to "From \"%1\$s\" to \"%2\$s\".",
                 R.string.activity_subtitle_move to "From \"%1\$s\" to \"%2\$s\".",

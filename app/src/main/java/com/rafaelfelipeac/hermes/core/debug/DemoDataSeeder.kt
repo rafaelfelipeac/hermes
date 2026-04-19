@@ -79,17 +79,19 @@ class DemoDataSeeder
         private val stringProvider: StringProvider,
         private val categorySeeder: CategorySeeder,
     ) {
-        suspend fun seedCompletedTrophies() {
-            if (!BuildConfig.DEBUG) return
+        suspend fun seedCompletedTrophies(): Boolean {
+            if (!BuildConfig.DEBUG) return false
 
-            seed()
+            if (!seed()) return false
 
             val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
             buildCompletedTrophyActions(currentWeekStart).forEach { userActionDao.insert(it) }
+
+            return true
         }
 
-        suspend fun seedLockedTrophies() {
-            if (!BuildConfig.DEBUG) return
+        suspend fun seedLockedTrophies(): Boolean {
+            if (!BuildConfig.DEBUG) return false
 
             categorySeeder.ensureSeeded()
 
@@ -103,10 +105,12 @@ class DemoDataSeeder
                     buildWeekSchedule(nextWeekStart, CompletionProfile.NONE)
 
             workouts.forEach { workoutDao.insert(it) }
+
+            return true
         }
 
-        suspend fun seed() {
-            if (!BuildConfig.DEBUG) return
+        suspend fun seed(): Boolean {
+            if (!BuildConfig.DEBUG) return false
 
             categorySeeder.ensureSeeded()
 
@@ -134,6 +138,8 @@ class DemoDataSeeder
                 olderWeekStarts = olderWeekStarts,
                 nextWeekStart = nextWeekStart,
             )
+
+            return true
         }
 
         private fun buildDemoWorkouts(

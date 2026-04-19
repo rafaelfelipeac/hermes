@@ -298,8 +298,10 @@
     <string name="activity_action_change_week_start">Cambiaste el inicio de la semana.</string>
     <string name="activity_action_export_backup">Exportaste una copia de seguridad.</string>
     <string name="activity_action_import_backup">Importaste una copia de seguridad.</string>
+    <string name="activity_action_share_trophy">Empezaste a compartir el trofeo %1$s.</string>
     <string name="activity_action_set_backup_folder">Definiste una carpeta de copia de seguridad.</string>
     <string name="activity_action_clear_backup_folder">Borraste la carpeta de copia de seguridad.</string>
+    <string name="activity_action_seed_demo_data">Cargaste datos de demostración.</string>
     <string name="weekly_training_slot_morning">Mañana</string>
     <string name="weekly_training_slot_afternoon">Tarde</string>
     <string name="weekly_training_slot_night">Noche</string>

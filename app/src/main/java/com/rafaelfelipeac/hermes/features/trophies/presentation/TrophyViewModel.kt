@@ -2,7 +2,14 @@ package com.rafaelfelipeac.hermes.features.trophies.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.TROPHY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.TROPHY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.trophies.domain.TrophyEngine
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
@@ -13,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,6 +29,7 @@ class TrophyViewModel
     constructor(
         userActionRepository: UserActionRepository,
         categoryRepository: CategoryRepository,
+        private val userActionLogger: UserActionLogger,
     ) : ViewModel() {
         private val engine = TrophyEngine()
         private val categoriesFlow =
@@ -51,6 +60,25 @@ class TrophyViewModel
                 started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue = TrophyPageState(),
             )
+
+        fun logShareTrophy(
+            trophy: TrophyCardUi,
+            trophyName: String,
+        ) {
+            viewModelScope.launch {
+                userActionLogger.log(
+                    actionType = UserActionType.SHARE_TROPHY,
+                    entityType = UserActionEntityType.TROPHY,
+                    metadata =
+                        buildMap {
+                            put(TROPHY_ID, trophy.trophyId.name)
+                            put(TROPHY_NAME, trophyName)
+                            trophy.categoryId?.let { put(CATEGORY_ID, it.toString()) }
+                            trophy.categoryName?.let { put(CATEGORY_NAME, it) }
+                        },
+                )
+            }
+        }
 
         companion object {
             private const val STATE_SHARING_TIMEOUT_MS = 5_000L
