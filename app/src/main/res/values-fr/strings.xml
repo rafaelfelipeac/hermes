@@ -377,9 +377,9 @@
     <string name="trophies_share_desc_backups">J’ai exporté ou enregistré une sauvegarde %1$d fois.</string>
     <string name="trophies_share_desc_workout_creations">J’ai créé %1$d entraînements.</string>
     <string name="trophies_share_desc_protected_time">J’ai ajouté des jours de repos ou des blocs d’indisponibilité %1$d fois.</string>
-    <string name="trophies_share_desc_category_completions">J’ai marqué %1$d séances comme terminées dans "%2$s".</string>
-    <string name="trophies_share_desc_category_presence">J’ai terminé %1$d semaines qui incluaient au moins une séance terminée dans "%2$s".</string>
-    <string name="trophies_share_desc_category_planning">J’ai ajouté, déplacé ou organisé des séances dans "%2$s" %1$d fois.</string>
+    <string name="trophies_share_desc_category_completions">J’ai marqué %1$d séances comme terminées dans \"%2$s\".</string>
+    <string name="trophies_share_desc_category_presence">J’ai terminé %1$d semaines qui incluaient au moins une séance terminée dans \"%2$s\".</string>
+    <string name="trophies_share_desc_category_planning">J’ai ajouté, déplacé ou organisé des séances dans \"%2$s\" %1$d fois.</string>
     <string name="trophies_detail_tiers">Paliers</string>
     <string name="trophies_detail_tier_unlocked">%1$d %2$s débloqué</string>
     <string name="trophies_detail_tier_locked">%1$d %2$s pas encore atteint</string>

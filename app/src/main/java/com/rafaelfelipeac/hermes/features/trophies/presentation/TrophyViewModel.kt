@@ -98,8 +98,10 @@ class TrophyViewModel
 internal fun buildTrophyPageState(progress: List<TrophyProgress>): TrophyPageState {
     val cards = progress.map(::toCardUi)
     val families =
-        TrophyViewModel.familyOrder.map { family ->
+        TrophyViewModel.familyOrder.mapNotNull { family ->
             val familyCards = cards.filter { it.family == family }
+            if (familyCards.isEmpty()) return@mapNotNull null
+
             TrophyFamilySectionUi(
                 family = family,
                 unlockedCount = familyCards.count { it.isUnlocked },

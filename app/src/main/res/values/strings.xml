@@ -376,9 +376,9 @@
     <string name="trophies_share_desc_backups">I\'ve exported or saved a backup %1$d times.</string>
     <string name="trophies_share_desc_workout_creations">I\'ve created %1$d workouts.</string>
     <string name="trophies_share_desc_protected_time">I\'ve added rest days or busy blocks %1$d times.</string>
-    <string name="trophies_share_desc_category_completions">I\'ve marked %1$d workouts as completed in "%2$s".</string>
-    <string name="trophies_share_desc_category_presence">I\'ve finished %1$d weeks that included at least one completed workout in "%2$s".</string>
-    <string name="trophies_share_desc_category_planning">I\'ve added, moved or organized workouts in "%2$s" %1$d times.</string>
+    <string name="trophies_share_desc_category_completions">I\'ve marked %1$d workouts as completed in \"%2$s\".</string>
+    <string name="trophies_share_desc_category_presence">I\'ve finished %1$d weeks that included at least one completed workout in \"%2$s\".</string>
+    <string name="trophies_share_desc_category_planning">I\'ve added, moved or organized workouts in \"%2$s\" %1$d times.</string>
     <string name="trophies_detail_tiers">Milestones</string>
     <string name="trophies_detail_tier_unlocked">%1$d %2$s unlocked</string>
     <string name="trophies_detail_tier_locked">%1$d %2$s not reached yet</string>

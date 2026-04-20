@@ -47,6 +47,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWI
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
+import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
@@ -80,6 +81,7 @@ class DemoDataSeeder
         private val userActionDao: UserActionDao,
         private val stringProvider: StringProvider,
         private val categorySeeder: CategorySeeder,
+        private val settingsRepository: SettingsRepository,
     ) {
         suspend fun seedCompletedTrophies(): Boolean {
             var didSeed = false
@@ -100,6 +102,7 @@ class DemoDataSeeder
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
+            settingsRepository.setLastSeenTrophyCelebrationToken(null)
 
             val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
             val nextWeekStart = currentWeekStart.plusWeeks(1)
@@ -271,7 +274,13 @@ class DemoDataSeeder
                                 weekStartDate = weekStartDate,
                                 dayChange = WorkoutDayChange(oldDay = oldDay, newDay = newDay),
                                 orderChange = WorkoutOrderChange(oldOrder = 0, newOrder = 0),
-                                slotChange = WorkoutSlotChange(oldTimeSlot = MORNING, newTimeSlot = AFTERNOON),
+                                slotChange =
+                                    seed.timeSlot?.let { oldTimeSlot ->
+                                        WorkoutSlotChange(
+                                            oldTimeSlot = oldTimeSlot,
+                                            newTimeSlot = alternativeTimeSlot(oldTimeSlot),
+                                        )
+                                    },
                                 seed = seed,
                                 entityId = workoutId,
                                 timestamp =
@@ -1132,6 +1141,10 @@ class DemoDataSeeder
         ): DayOfWeek {
             val index = (categoryIndex + offset) % 7
             return DayOfWeek.of(index + 1)
+        }
+
+        private fun alternativeTimeSlot(timeSlot: TimeSlot): TimeSlot {
+            return if (timeSlot == MORNING) AFTERNOON else MORNING
         }
 
         private fun completedTrophyCategoryIds(): List<Long> {

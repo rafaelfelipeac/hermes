@@ -437,8 +437,7 @@ class TrophyEngineTest {
         assertEquals(160L, progress.require(TrophyId.SEASON_BUILDER).unlockedAt)
     }
 
-    private fun List<TrophyProgress>.require(trophyId: TrophyId) =
-        first { it.definition.id == trophyId }
+    private fun List<TrophyProgress>.require(trophyId: TrophyId) = first { it.definition.id == trophyId }
 
     private fun weekAction(
         id: Long,

@@ -463,9 +463,7 @@ class TrophyEngine(
                 }
             }
 
-            private fun Map<Long, ArrayDeque<WorkoutCompletion>>.hasCompletionInWeek(
-                weekStartDate: LocalDate,
-            ): Boolean {
+            private fun Map<Long, ArrayDeque<WorkoutCompletion>>.hasCompletionInWeek(weekStartDate: LocalDate): Boolean {
                 return values.any { stack ->
                     stack.any { completion -> completion.weekStartDate == weekStartDate }
                 }

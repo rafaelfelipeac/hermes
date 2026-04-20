@@ -377,9 +377,9 @@
     <string name="trophies_share_desc_backups">Ich habe %1$d-mal ein Backup exportiert oder gespeichert.</string>
     <string name="trophies_share_desc_workout_creations">Ich habe %1$d Workouts erstellt.</string>
     <string name="trophies_share_desc_protected_time">Ich habe %1$d-mal Ruhetage oder Blocker hinzugefügt.</string>
-    <string name="trophies_share_desc_category_completions">Ich habe %1$d Workouts in "%2$s" als abgeschlossen markiert.</string>
-    <string name="trophies_share_desc_category_presence">Ich habe %1$d Wochen beendet, die mindestens ein abgeschlossenes Workout in "%2$s" enthielten.</string>
-    <string name="trophies_share_desc_category_planning">Ich habe Workouts in "%2$s" %1$d-mal hinzugefügt, verschoben oder organisiert.</string>
+    <string name="trophies_share_desc_category_completions">Ich habe %1$d Workouts in \"%2$s\" als abgeschlossen markiert.</string>
+    <string name="trophies_share_desc_category_presence">Ich habe %1$d Wochen beendet, die mindestens ein abgeschlossenes Workout in \"%2$s\" enthielten.</string>
+    <string name="trophies_share_desc_category_planning">Ich habe Workouts in \"%2$s\" %1$d-mal hinzugefügt, verschoben oder organisiert.</string>
     <string name="trophies_detail_tiers">Meilensteine</string>
     <string name="trophies_detail_tier_unlocked">%1$d %2$s freigeschaltet</string>
     <string name="trophies_detail_tier_locked">%1$d %2$s noch nicht erreicht</string>

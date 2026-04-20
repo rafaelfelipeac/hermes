@@ -377,9 +377,9 @@
     <string name="trophies_share_desc_backups">मैंने %1$d बार बैकअप एक्सपोर्ट या सेव किया है।</string>
     <string name="trophies_share_desc_workout_creations">मैंने %1$d वर्कआउट बनाए हैं।</string>
     <string name="trophies_share_desc_protected_time">मैंने %1$d बार आराम के दिन या व्यस्तता ब्लॉक जोड़े हैं।</string>
-    <string name="trophies_share_desc_category_completions">मैंने "%2$s" में %1$d वर्कआउट को पूरा हुआ के रूप में चिह्नित किया है।</string>
-    <string name="trophies_share_desc_category_presence">मैंने %1$d हफ्ते पूरे किए हैं जिनमें "%2$s" का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
-    <string name="trophies_share_desc_category_planning">मैंने "%2$s" में %1$d बार वर्कआउट जोड़े, खिसकाए या व्यवस्थित किए हैं।</string>
+    <string name="trophies_share_desc_category_completions">मैंने \"%2$s\" में %1$d वर्कआउट को पूरा हुआ के रूप में चिह्नित किया है।</string>
+    <string name="trophies_share_desc_category_presence">मैंने %1$d हफ्ते पूरे किए हैं जिनमें \"%2$s\" का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
+    <string name="trophies_share_desc_category_planning">मैंने \"%2$s\" में %1$d बार वर्कआउट जोड़े, खिसकाए या व्यवस्थित किए हैं।</string>
     <string name="trophies_detail_tiers">माइलस्टोन</string>
     <string name="trophies_detail_tier_unlocked">%1$d %2$s अनलॉक है</string>
     <string name="trophies_detail_tier_locked">%1$d %2$s अभी बाकी है</string>
