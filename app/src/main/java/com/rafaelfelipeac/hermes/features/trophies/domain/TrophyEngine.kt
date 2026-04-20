@@ -222,7 +222,7 @@ class TrophyEngine(
                             }
                             if (
                                 weekStartDate != null &&
-                                !completionStacksByWorkoutId.hasCompletionInWeek(weekStartDate)
+                                !hasCompletionInWeek(completionStacksByWorkoutId, weekStartDate)
                             ) {
                                 completedWeeks.remove(weekStartDate)
                             }
@@ -463,8 +463,11 @@ class TrophyEngine(
                 }
             }
 
-            private fun Map<Long, ArrayDeque<WorkoutCompletion>>.hasCompletionInWeek(weekStartDate: LocalDate): Boolean {
-                return values.any { stack ->
+            private fun hasCompletionInWeek(
+                stacksByWorkoutId: Map<Long, ArrayDeque<WorkoutCompletion>>,
+                weekStartDate: LocalDate,
+            ): Boolean {
+                return stacksByWorkoutId.values.any { stack ->
                     stack.any { completion -> completion.weekStartDate == weekStartDate }
                 }
             }
