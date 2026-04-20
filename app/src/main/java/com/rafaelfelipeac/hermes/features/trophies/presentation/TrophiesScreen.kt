@@ -635,6 +635,7 @@ internal fun TrophyDetailDialog(
     val context = LocalContext.current
     val shareMessage = trophyShareMessage(trophy)
     val shareChooserTitle = stringResource(R.string.trophies_share_chooser)
+    val shareUnavailableMessage = stringResource(R.string.settings_share_unavailable)
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.testTag(TROPHIES_DETAIL_DIALOG_TAG),
@@ -654,7 +655,7 @@ internal fun TrophyDetailDialog(
                         } catch (_: ActivityNotFoundException) {
                             Toast.makeText(
                                 context,
-                                context.getString(R.string.settings_share_unavailable),
+                                shareUnavailableMessage,
                                 Toast.LENGTH_SHORT,
                             ).show()
                         }
