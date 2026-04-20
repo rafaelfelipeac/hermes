@@ -83,7 +83,7 @@
     <string name="settings_mixed_trophies_created">Dados com troféus em estado misto criados</string>
     <string name="settings_seed_locked_trophies">Substituir por preview de troféus bloqueados</string>
     <string name="settings_locked_trophies_created">Dados com troféus bloqueados criados</string>
-    <string name="settings_seed_unlocked_trophies">Substituir por preview de troféus desbloqueados</string>
+    <string name="settings_seed_completed_trophies">Substituir por preview de troféus desbloqueados</string>
     <string name="settings_completed_trophies_created">Dados com troféus desbloqueados criados</string>
     <string name="settings_developer_confirm_title">Substituir dados locais?</string>
     <string name="settings_developer_confirm_message">Isso vai substituir seus dados locais atuais por um preview de desenvolvedor.</string>

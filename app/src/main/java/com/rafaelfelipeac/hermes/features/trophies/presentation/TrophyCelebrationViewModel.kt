@@ -20,12 +20,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-data class TrophyCelebrationUi(
-    val token: String,
-    val message: String,
-    val trophyStableId: String,
-)
-
 @HiltViewModel
 class TrophyCelebrationViewModel
     @Inject

@@ -83,7 +83,7 @@
     <string name="settings_mixed_trophies_created">Daten mit gemischten Trophäen erstellt</string>
     <string name="settings_seed_locked_trophies">Durch Vorschau gesperrter Trophäen ersetzen</string>
     <string name="settings_locked_trophies_created">Daten mit gesperrten Trophäen erstellt</string>
-    <string name="settings_seed_unlocked_trophies">Durch Vorschau freigeschalteter Trophäen ersetzen</string>
+    <string name="settings_seed_completed_trophies">Durch Vorschau freigeschalteter Trophäen ersetzen</string>
     <string name="settings_completed_trophies_created">Daten mit freigeschalteten Trophäen erstellt</string>
     <string name="settings_developer_confirm_title">Lokale Daten ersetzen?</string>
     <string name="settings_developer_confirm_message">Dadurch werden die aktuellen lokalen Daten durch eine Entwicklervorschau ersetzt.</string>

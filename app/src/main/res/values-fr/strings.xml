@@ -83,7 +83,7 @@
     <string name="settings_mixed_trophies_created">Données avec trophées mixtes créées</string>
     <string name="settings_seed_locked_trophies">Remplacer par un aperçu des trophées verrouillés</string>
     <string name="settings_locked_trophies_created">Données avec trophées verrouillés créées</string>
-    <string name="settings_seed_unlocked_trophies">Remplacer par un aperçu des trophées débloqués</string>
+    <string name="settings_seed_completed_trophies">Remplacer par un aperçu des trophées débloqués</string>
     <string name="settings_completed_trophies_created">Données avec trophées débloqués créées</string>
     <string name="settings_developer_confirm_title">Remplacer les données locales ?</string>
     <string name="settings_developer_confirm_message">Cela remplacera vos données locales actuelles par un aperçu développeur.</string>

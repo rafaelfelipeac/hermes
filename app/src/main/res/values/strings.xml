@@ -83,7 +83,7 @@
     <string name="settings_mixed_trophies_created">Mixed trophy data created</string>
     <string name="settings_seed_locked_trophies">Replace with locked trophy preview</string>
     <string name="settings_locked_trophies_created">Locked trophies data created</string>
-    <string name="settings_seed_unlocked_trophies">Replace with unlocked trophy preview</string>
+    <string name="settings_seed_completed_trophies">Replace with unlocked trophy preview</string>
     <string name="settings_completed_trophies_created">Unlocked trophies data created</string>
     <string name="settings_developer_confirm_title">Replace local data?</string>
     <string name="settings_developer_confirm_message">This will replace your current local data with a developer preview.</string>

@@ -79,7 +79,7 @@
     <string name="settings_mixed_trophies_created">混在したトロフィーデータを作成しました</string>
     <string name="settings_seed_locked_trophies">未達成トロフィープレビューに置き換える</string>
     <string name="settings_locked_trophies_created">全トロフィー未達成データを作成しました</string>
-    <string name="settings_seed_unlocked_trophies">達成済みトロフィープレビューに置き換える</string>
+    <string name="settings_seed_completed_trophies">達成済みトロフィープレビューに置き換える</string>
     <string name="settings_completed_trophies_created">全トロフィー達成データを作成しました</string>
     <string name="settings_developer_confirm_title">ローカルデータを置き換えますか？</string>
     <string name="settings_developer_confirm_message">現在のローカルデータを開発用プレビューに置き換えます。</string>

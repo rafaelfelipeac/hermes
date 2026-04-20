@@ -780,7 +780,7 @@ internal fun SettingsContent(
                         )
 
                         SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_unlocked_trophies),
+                            label = stringResource(R.string.settings_seed_completed_trophies),
                             onClick = onSeedCompletedTrophies,
                         )
                     }

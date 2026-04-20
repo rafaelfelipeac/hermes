@@ -99,7 +99,7 @@
     <string name="settings_mixed_trophies_created">تم إنشاء بيانات بكؤوس مختلطة</string>
     <string name="settings_seed_locked_trophies">استبدال بمعاينة كؤوس مقفلة</string>
     <string name="settings_locked_trophies_created">تم إنشاء بيانات بجميع الكؤوس المقفلة</string>
-    <string name="settings_seed_unlocked_trophies">استبدال بمعاينة كؤوس مفتوحة</string>
+    <string name="settings_seed_completed_trophies">استبدال بمعاينة كؤوس مفتوحة</string>
     <string name="settings_completed_trophies_created">تم إنشاء بيانات بجميع الكؤوس المفتوحة</string>
     <string name="settings_developer_confirm_title">استبدال البيانات المحلية؟</string>
     <string name="settings_developer_confirm_message">سيؤدي هذا إلى استبدال بياناتك المحلية الحالية بمعاينة للمطور.</string>

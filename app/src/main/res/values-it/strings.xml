@@ -83,7 +83,7 @@
     <string name="settings_mixed_trophies_created">Dati con trofei misti creati</string>
     <string name="settings_seed_locked_trophies">Sostituisci con anteprima trofei bloccati</string>
     <string name="settings_locked_trophies_created">Dati con trofei bloccati creati</string>
-    <string name="settings_seed_unlocked_trophies">Sostituisci con anteprima trofei sbloccati</string>
+    <string name="settings_seed_completed_trophies">Sostituisci con anteprima trofei sbloccati</string>
     <string name="settings_completed_trophies_created">Dati con trofei sbloccati creati</string>
     <string name="settings_developer_confirm_title">Sostituire i dati locali?</string>
     <string name="settings_developer_confirm_message">Questo sostituirà i dati locali correnti con un’anteprima sviluppatore.</string>
