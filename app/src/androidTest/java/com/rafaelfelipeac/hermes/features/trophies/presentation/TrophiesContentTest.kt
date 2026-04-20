@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.trophies.presentation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -8,7 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -24,7 +25,7 @@ import java.util.Locale
 
 class TrophiesContentTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun showsEmptyStateWhenNoFamiliesExist() {
@@ -45,6 +46,7 @@ class TrophiesContentTest {
                 familyFirstVisibleItemScrollOffset = mutableMapOf(),
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(TROPHIES_EMPTY_STATE_TAG).assertIsDisplayed()
         composeRule.onNodeWithText(emptyTitle).assertIsDisplayed()
@@ -122,6 +124,7 @@ class TrophiesContentTest {
                 familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(TROPHIES_OVERVIEW_LIST_TAG).performScrollToIndex(5)
         composeRule.onNodeWithText(categories).assertIsDisplayed()
@@ -179,6 +182,7 @@ class TrophiesContentTest {
                 familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(familyListTag(TrophyFamilyUi.CATEGORIES)).performScrollToIndex(4)
         composeRule.onNodeWithText("Mobility").assertIsDisplayed()
@@ -329,6 +333,7 @@ class TrophiesContentTest {
                 onDismiss = {},
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(TROPHIES_DETAIL_DIALOG_TAG).assertIsDisplayed()
         composeRule.onNodeWithText(close).assertIsDisplayed()
@@ -355,6 +360,7 @@ class TrophiesContentTest {
                 onDismiss = {},
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText(share).assertIsDisplayed()
 
@@ -408,6 +414,7 @@ class TrophiesContentTest {
                 familyFirstVisibleItemScrollOffset = mutableMapOf(),
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText(fullTime).performClick()
 
@@ -480,6 +487,7 @@ class TrophiesContentTest {
                 familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
             )
         }
+        composeRule.waitForIdle()
     }
 
     private fun familySection(

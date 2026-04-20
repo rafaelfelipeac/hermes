@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -493,21 +492,25 @@ private fun TrophySection(
             )
         }
 
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            val cardWidth = (maxWidth - (SpacingMd * (TROPHIES_GRID_COLUMNS - 1))) / TROPHIES_GRID_COLUMNS
-
-            FlowRow(
-                maxItemsInEachRow = TROPHIES_GRID_COLUMNS,
-                horizontalArrangement = Arrangement.spacedBy(SpacingMd),
-                verticalArrangement = Arrangement.spacedBy(SpacingMd),
-            ) {
-                section.trophies.forEach { trophy ->
-                    TrophyShelfCard(
-                        trophy = trophy,
-                        showExpandedMeta = true,
-                        onClick = { onTrophySelected(trophy) },
-                        modifier = Modifier.width(cardWidth),
-                    )
+        Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+            section.trophies.chunked(TROPHIES_GRID_COLUMNS).forEach { trophiesInRow ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+                ) {
+                    trophiesInRow.forEach { trophy ->
+                        TrophyShelfCard(
+                            trophy = trophy,
+                            showExpandedMeta = true,
+                            onClick = { onTrophySelected(trophy) },
+                            modifier =
+                                if (trophiesInRow.size == 1) {
+                                    Modifier.fillMaxWidth()
+                                } else {
+                                    Modifier.weight(1f)
+                                },
+                        )
+                    }
                 }
             }
         }
