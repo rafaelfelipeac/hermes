@@ -115,7 +115,7 @@ internal fun buildTrophyPageState(progress: List<TrophyProgress>): TrophyPageSta
                             .mapNotNull { categoryCards ->
                                 categoryCards.firstOrNull()?.categoryName?.let { categoryName ->
                                     TrophySectionUi(
-                                        stableId = categoryCards.first().stableId.substringAfter('_'),
+                                        stableId = categoryCards.first().stableId.substringAfterLast('_'),
                                         title = categoryName,
                                         accentColorId = categoryCards.first().categoryColorId,
                                         trophies = categoryCards.sortedBy(TrophyCardUi::sortOrder),

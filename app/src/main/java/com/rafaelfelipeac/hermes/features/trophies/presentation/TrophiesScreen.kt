@@ -4,6 +4,7 @@ package com.rafaelfelipeac.hermes.features.trophies.presentation
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -651,6 +652,11 @@ internal fun TrophyDetailDialog(
                         try {
                             context.startActivity(Intent.createChooser(shareIntent, shareChooserTitle))
                         } catch (_: ActivityNotFoundException) {
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.settings_share_unavailable),
+                                Toast.LENGTH_SHORT,
+                            ).show()
                         }
                     },
                 ) {

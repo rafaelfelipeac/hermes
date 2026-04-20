@@ -11,11 +11,13 @@ import com.rafaelfelipeac.hermes.features.trophies.domain.TrophyEngine
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 data class TrophyCelebrationUi(
@@ -47,13 +49,15 @@ class TrophyCelebrationViewModel
                     categoriesFlow,
                     settingsRepository.lastSeenTrophyCelebrationToken,
                 ) { actions, categories, lastSeenToken ->
-                    val progress = engine.compute(actions = actions, categories = categories)
-                    val featured =
-                        selectFeaturedTrophy(progress.map(::toCardUi))
-                            ?.takeIf { it.mode == FeaturedTrophyMode.RECENT_UNLOCK }
-                            ?.trophy
+                    withContext(Dispatchers.Default) {
+                        val progress = engine.compute(actions = actions, categories = categories)
+                        val featured =
+                            selectFeaturedTrophy(progress.map(::toCardUi))
+                                ?.takeIf { it.mode == FeaturedTrophyMode.RECENT_UNLOCK }
+                                ?.trophy
 
-                    featured?.takeUnless { celebrationToken(it) == lastSeenToken }
+                        featured?.takeUnless { celebrationToken(it) == lastSeenToken }
+                    }
                 }.collect { trophy ->
                     if (trophy != null) {
                         eventsChannel.trySend(

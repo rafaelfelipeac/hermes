@@ -15,7 +15,7 @@ class TrophyViewModelTest {
     fun buildTrophyPageState_buildsFamiliesInFixedOrder() {
         val state = buildTrophyPageState(emptyList())
 
-        assertEquals(TrophyViewModel.familyOrder, state.families.map { it.family })
+        assertTrue(state.families.isEmpty())
     }
 
     @Test
@@ -67,13 +67,18 @@ class TrophyViewModelTest {
 
         val followThroughFamily = state.families.first { it.family == TrophyFamilyUi.FOLLOW_THROUGH }
         val consistencyFamily = state.families.first { it.family == TrophyFamilyUi.CONSISTENCY }
-        val builderFamily = state.families.first { it.family == TrophyFamilyUi.BUILDER }
 
         assertEquals(1, followThroughFamily.unlockedCount)
         assertEquals(2, followThroughFamily.totalCount)
         assertEquals(0, consistencyFamily.unlockedCount)
         assertEquals(1, consistencyFamily.totalCount)
-        assertEquals(0, builderFamily.totalCount)
+        assertEquals(
+            listOf(
+                TrophyFamilyUi.FOLLOW_THROUGH,
+                TrophyFamilyUi.CONSISTENCY,
+            ),
+            state.families.map { it.family },
+        )
     }
 
     @Test

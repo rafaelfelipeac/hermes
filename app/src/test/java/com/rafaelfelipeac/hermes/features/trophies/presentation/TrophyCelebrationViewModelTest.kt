@@ -16,12 +16,14 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -58,7 +60,10 @@ class TrophyCelebrationViewModelTest {
 
             advanceUntilIdle()
 
-            val event = withTimeout(EVENT_TIMEOUT_MS) { viewModel.events.first() }
+            val event =
+                withContext(Dispatchers.Default.limitedParallelism(1)) {
+                    withTimeout(EVENT_TIMEOUT_MS) { viewModel.events.first() }
+                }
 
             assertTrue(event.token.endsWith(":$FULL_TIME_UNLOCKED_AT"))
             assertTrue(event.trophyStableId.isNotBlank())
