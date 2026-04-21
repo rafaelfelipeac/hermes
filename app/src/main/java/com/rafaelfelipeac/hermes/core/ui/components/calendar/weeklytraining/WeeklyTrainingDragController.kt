@@ -35,13 +35,15 @@ internal class WeeklyTrainingDragController {
         workoutId: WorkoutId,
         position: Offset,
         itemHeight: Float,
-    ) {
-        if (draggedWorkoutId != null) return
+    ): Boolean {
+        if (draggedWorkoutId != null) return false
 
         draggedWorkoutId = workoutId
         dragPosition = position
         draggedItemHeight = itemHeight
         dragPointerId = null
+
+        return true
     }
 
     fun updateContainerBounds(bounds: Rect) {
