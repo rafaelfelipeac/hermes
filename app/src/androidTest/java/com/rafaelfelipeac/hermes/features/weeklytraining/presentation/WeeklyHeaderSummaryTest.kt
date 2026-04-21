@@ -1,8 +1,9 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -15,7 +16,7 @@ import org.junit.Test
 
 class WeeklyHeaderSummaryTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun hidesSecondaryLineWhenRestBusyAndSickAreZero() {
@@ -32,6 +33,7 @@ class WeeklyHeaderSummaryTest {
                     ),
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(WEEKLY_SUMMARY_BLOCK_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(WEEKLY_SUMMARY_PROGRESS_TAG).assertIsDisplayed()
@@ -60,6 +62,7 @@ class WeeklyHeaderSummaryTest {
                     ),
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(WEEKLY_SUMMARY_SECONDARY_ROW_TAG).assertIsDisplayed()
         composeRule.onNodeWithText(secondaryLine).assertIsDisplayed()

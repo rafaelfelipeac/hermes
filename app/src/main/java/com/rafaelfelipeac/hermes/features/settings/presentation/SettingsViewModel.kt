@@ -26,6 +26,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_WEE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SEED_DEMO_DATA
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
@@ -63,6 +64,12 @@ class SettingsViewModel
     ) : ViewModel() {
         private val demoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val demoSeedCompletedEvents: SharedFlow<Unit> = demoSeedEvents.asSharedFlow()
+        private val mixedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val mixedTrophiesSeedCompletedEvents: SharedFlow<Unit> = mixedTrophiesSeedEvents.asSharedFlow()
+        private val lockedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val lockedTrophiesSeedCompletedEvents: SharedFlow<Unit> = lockedTrophiesSeedEvents.asSharedFlow()
+        private val completedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val completedTrophiesSeedCompletedEvents: SharedFlow<Unit> = completedTrophiesSeedEvents.asSharedFlow()
 
         val state: StateFlow<SettingsState> =
             combine(
@@ -193,8 +200,34 @@ class SettingsViewModel
 
         fun seedDemoData() =
             viewModelScope.launch {
-                demoDataSeeder.seed()
-                demoSeedEvents.emit(Unit)
+                if (demoDataSeeder.seed()) {
+                    logDemoSeedMutation()
+                    demoSeedEvents.emit(Unit)
+                }
+            }
+
+        fun seedCompletedTrophies() =
+            viewModelScope.launch {
+                if (demoDataSeeder.seedCompletedTrophies()) {
+                    logDemoSeedMutation()
+                    completedTrophiesSeedEvents.emit(Unit)
+                }
+            }
+
+        fun seedLockedTrophies() =
+            viewModelScope.launch {
+                if (demoDataSeeder.seedLockedTrophies()) {
+                    logDemoSeedMutation()
+                    lockedTrophiesSeedEvents.emit(Unit)
+                }
+            }
+
+        fun seedMixedTrophies() =
+            viewModelScope.launch {
+                if (demoDataSeeder.seed()) {
+                    logDemoSeedMutation()
+                    mixedTrophiesSeedEvents.emit(Unit)
+                }
             }
 
         fun syncLocalizedCategories() =
@@ -354,6 +387,14 @@ class SettingsViewModel
                 language != SYSTEM ||
                 slotModePolicy != AUTO_WHEN_MULTIPLE ||
                 weekStartDay != WeekStartDay.MONDAY
+        }
+
+        private suspend fun logDemoSeedMutation() {
+            userActionLogger.log(
+                actionType = SEED_DEMO_DATA,
+                entityType = APP,
+                metadata = mapOf(RESULT to RESULT_SUCCESS),
+            )
         }
 
         private companion object {

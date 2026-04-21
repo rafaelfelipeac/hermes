@@ -9,5 +9,6 @@ enum class UserActionEntityType {
     WEEK,
     SETTINGS,
     CATEGORY,
+    TROPHY,
     APP,
 }

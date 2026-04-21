@@ -15,6 +15,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SEED_DEMO_DATA
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupDataStats
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
@@ -43,6 +44,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LargeClass")
 class SettingsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -439,6 +441,102 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun seedActions_whenSeederMutates_emitEventsAndLogAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            coEvery { demoDataSeeder.seedCompletedTrophies() } returns true
+            coEvery { demoDataSeeder.seedLockedTrophies() } returns true
+            coEvery { demoDataSeeder.seed() } returns true
+            val viewModel =
+                createViewModel(
+                    userActionLogger = userActionLogger,
+                    demoDataSeeder = demoDataSeeder,
+                )
+
+            viewModel.demoSeedCompletedEvents.test {
+                viewModel.seedDemoData()
+                assertEquals(Unit, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+            viewModel.completedTrophiesSeedCompletedEvents.test {
+                viewModel.seedCompletedTrophies()
+                assertEquals(Unit, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+            viewModel.lockedTrophiesSeedCompletedEvents.test {
+                viewModel.seedLockedTrophies()
+                assertEquals(Unit, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+            viewModel.mixedTrophiesSeedCompletedEvents.test {
+                viewModel.seedMixedTrophies()
+                assertEquals(Unit, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            coVerify(exactly = 4) {
+                userActionLogger.log(
+                    actionType = SEED_DEMO_DATA,
+                    entityType = APP,
+                    entityId = null,
+                    metadata = mapOf(RESULT to "success"),
+                    timestamp = any(),
+                )
+            }
+        }
+
+    @Test
+    fun seedActions_whenSeederNoOps_doNotEmitEventsOrLogAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            coEvery { demoDataSeeder.seedCompletedTrophies() } returns false
+            coEvery { demoDataSeeder.seedLockedTrophies() } returns false
+            coEvery { demoDataSeeder.seed() } returns false
+            val viewModel =
+                createViewModel(
+                    userActionLogger = userActionLogger,
+                    demoDataSeeder = demoDataSeeder,
+                )
+
+            viewModel.demoSeedCompletedEvents.test {
+                viewModel.seedDemoData()
+                advanceUntilIdle()
+                expectNoEvents()
+                cancelAndIgnoreRemainingEvents()
+            }
+            viewModel.completedTrophiesSeedCompletedEvents.test {
+                viewModel.seedCompletedTrophies()
+                advanceUntilIdle()
+                expectNoEvents()
+                cancelAndIgnoreRemainingEvents()
+            }
+            viewModel.lockedTrophiesSeedCompletedEvents.test {
+                viewModel.seedLockedTrophies()
+                advanceUntilIdle()
+                expectNoEvents()
+                cancelAndIgnoreRemainingEvents()
+            }
+            viewModel.mixedTrophiesSeedCompletedEvents.test {
+                viewModel.seedMixedTrophies()
+                advanceUntilIdle()
+                expectNoEvents()
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            coVerify(exactly = 0) {
+                userActionLogger.log(
+                    actionType = SEED_DEMO_DATA,
+                    entityType = any(),
+                    entityId = any(),
+                    metadata = any(),
+                    timestamp = any(),
+                )
+            }
+        }
+
+    @Test
     fun hasBackupData_returnsTrue_whenSettingsAreNonDefault() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = mockk<SettingsRepository>(relaxed = true)
@@ -627,4 +725,33 @@ class SettingsViewModelTest {
                 )
             }
         }
+
+    private fun createViewModel(
+        userActionLogger: UserActionLogger,
+        demoDataSeeder: DemoDataSeeder,
+    ): SettingsViewModel {
+        val repository = mockk<SettingsRepository>(relaxed = true)
+        val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+        val backupRepository = mockk<BackupRepository>(relaxed = true)
+
+        every { repository.initialThemeMode() } returns LIGHT
+        every { repository.initialLanguage() } returns ENGLISH
+        every { repository.initialSlotModePolicy() } returns SlotModePolicy.AUTO_WHEN_MULTIPLE
+        every { repository.initialWeekStartDay() } returns WeekStartDay.MONDAY
+        every { repository.themeMode } returns MutableStateFlow(LIGHT)
+        every { repository.language } returns MutableStateFlow(ENGLISH)
+        every { repository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
+        every { repository.weekStartDay } returns MutableStateFlow(WeekStartDay.MONDAY)
+        every { repository.lastBackupExportedAt } returns MutableStateFlow(null)
+        every { repository.lastBackupImportedAt } returns MutableStateFlow(null)
+        every { repository.backupFolderUri } returns MutableStateFlow(null)
+
+        return SettingsViewModel(
+            repository,
+            categorySeeder,
+            userActionLogger,
+            demoDataSeeder,
+            backupRepository,
+        )
+    }
 }

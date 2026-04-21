@@ -5,12 +5,14 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
@@ -240,6 +242,8 @@ internal suspend fun logWorkoutChange(
                     categoryName = workout.categoryName,
                     oldCategoryId = original.categoryId,
                     newCategoryId = workout.categoryId,
+                    oldCategoryName = original.categoryName,
+                    newCategoryName = workout.categoryName,
                 )
             },
     )
@@ -281,6 +285,8 @@ internal suspend fun logUndoWorkoutChange(
                     categoryName = workout.categoryName,
                     oldCategoryId = original.categoryId,
                     newCategoryId = workout.categoryId,
+                    oldCategoryName = original.categoryName,
+                    newCategoryName = workout.categoryName,
                 )
             },
     )
@@ -457,6 +463,7 @@ internal suspend fun undoDelete(
                 putWorkoutCategoryMetadata(
                     categoryId = workout.categoryId,
                     categoryName = workout.categoryName,
+                    newCategoryName = workout.categoryName,
                 )
             },
     )
@@ -501,10 +508,18 @@ internal fun MutableMap<String, String>.putWorkoutCategoryMetadata(
     categoryName: String?,
     oldCategoryId: Long? = null,
     newCategoryId: Long? = null,
+    oldCategoryName: String? = null,
+    newCategoryName: String? = null,
 ) {
     categoryId?.let { put(CATEGORY_ID, it.toString()) }
     oldCategoryId?.let { put(OLD_CATEGORY_ID, it.toString()) }
     newCategoryId?.let { put(NEW_CATEGORY_ID, it.toString()) }
+    if (!oldCategoryName.isNullOrBlank()) {
+        put(OLD_CATEGORY_NAME, oldCategoryName)
+    }
+    if (!newCategoryName.isNullOrBlank()) {
+        put(NEW_CATEGORY_NAME, newCategoryName)
+    }
     if (!categoryName.isNullOrBlank()) {
         put(CATEGORY_NAME, categoryName)
     }

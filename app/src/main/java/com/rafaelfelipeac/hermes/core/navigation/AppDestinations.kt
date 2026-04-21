@@ -5,6 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rafaelfelipeac.hermes.R
 
@@ -14,5 +15,6 @@ enum class AppDestinations(
 ) {
     WEEKLY_TRAINING(R.string.weekly_training_nav_label, Icons.Default.Home),
     ACTIVITY(R.string.activity_nav_label, Icons.Default.History),
+    TROPHIES(R.string.trophies_nav_label, Icons.Outlined.EmojiEvents),
     SETTINGS(R.string.settings_nav_label, Icons.Default.Settings),
 }

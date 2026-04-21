@@ -285,6 +285,7 @@ class WeeklyTrainingViewModel
                                 categoryId = normalizedCategoryId,
                                 categoryName = categoryName,
                                 newCategoryId = normalizedCategoryId,
+                                newCategoryName = categoryName,
                             )
                         },
                 )
@@ -489,6 +490,7 @@ class WeeklyTrainingViewModel
                             putWorkoutCategoryMetadata(
                                 categoryId = workout.categoryId,
                                 categoryName = workout.categoryName,
+                                newCategoryName = workout.categoryName,
                             )
                         },
                 )
@@ -811,6 +813,7 @@ private suspend fun undoCompletion(
                 putWorkoutCategoryMetadata(
                     categoryId = action.workout.categoryId,
                     categoryName = action.workout.categoryName,
+                    newCategoryName = action.workout.categoryName,
                 )
             },
     )
@@ -941,6 +944,7 @@ private suspend fun logWorkoutDeletion(
                     categoryId = original?.categoryId,
                     categoryName = original?.categoryName,
                     oldCategoryId = original?.categoryId,
+                    oldCategoryName = original?.categoryName,
                 )
             },
     )

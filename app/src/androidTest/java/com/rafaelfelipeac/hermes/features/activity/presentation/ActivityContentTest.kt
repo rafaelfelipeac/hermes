@@ -1,7 +1,8 @@
 package com.rafaelfelipeac.hermes.features.activity.presentation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityFiltersUi
@@ -16,7 +17,7 @@ import java.time.LocalDate
 
 class ActivityContentTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun activityContent_rendersTitleAndSubtitleWithoutEllipsis() {

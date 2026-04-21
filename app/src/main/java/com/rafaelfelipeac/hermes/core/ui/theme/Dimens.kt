@@ -27,6 +27,10 @@ object Dimens {
     val AddActionPillHorizontalPadding = 18.dp
     val HelpIconSize = 36.dp
     val HelpIconGlyphSize = 22.dp
+    val SettingsDeveloperSectionSpacing = 10.dp
+    val SettingsDeveloperButtonVerticalPadding = 2.dp
+    val SettingsDeveloperButtonContentHorizontalPadding = 12.dp
+    val SettingsDeveloperButtonContentVerticalPadding = 8.dp
 
     val ContentPadding = 14.dp
     val CheckboxBoxSize = 32.dp
@@ -38,6 +42,35 @@ object Dimens {
     val CategoryActionIconSize = 36.dp
     val CategoryColorSwatchSize = 36.dp
     val CategoryColorGridHeight = 140.dp
+    val TrophyHeroMinHeight = 180.dp
+    val TrophyCardMinHeight = 120.dp
+    val TrophyAccentBarHeight = 6.dp
+    val TrophyArtworkSize = 44.dp
+    val TrophyShelfArtworkSize = 88.dp
+    val TrophyGridArtworkSize = 80.dp
+    val TrophyDetailArtworkSize = 160.dp
+    val TrophyShelfIconSize = 28.dp
+    val TrophyDetailIconSize = 44.dp
+    val TrophyBadgeInsetLg = 10.dp
+    val TrophyBadgeInnerInset = 14.dp
+    val TrophyBadgeRibbonWidth = 32.dp
+    val TrophyBadgeRibbonHeight = 16.dp
+    val TrophyBadgeCrestWingWidth = 20.dp
+    val TrophyBadgeCrestWingHeight = 40.dp
+    val TrophyBadgeLockBadgeSize = 20.dp
+    val TrophyBadgeLockIconSize = 12.dp
+    val TrophyShelfCardMinWidth = 132.dp
+    val TrophyOverviewCardMinHeight = 156.dp
+    val TrophyDetailCardMinHeight = 176.dp
+    val TrophyCardFooterMinHeight = 40.dp
+    val TrophyCompactCardFooterMinHeight = 32.dp
+    val TrophyStateLineBlockHeight = 20.dp
+    val TrophyCardTitleBlockHeight = 42.dp
+    val TrophyCardCategoryBlockHeight = 20.dp
+    val TrophyCardArtworkTopPadding = 6.dp
+    val TrophyBackButtonSize = 36.dp
+    val TrophyBackButtonTouchTargetSize = 48.dp
+    val TrophyProgressHeight = 8.dp
     val WeeklyTrainingTestViewportHeight = 200.dp
     val CheckboxYOffset = (-2).dp
 }

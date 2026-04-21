@@ -14,6 +14,7 @@ interface SettingsRepository {
     val lastBackupExportedAt: Flow<String?>
     val lastBackupImportedAt: Flow<String?>
     val backupFolderUri: Flow<String?>
+    val lastSeenTrophyCelebrationToken: Flow<String?>
 
     fun initialThemeMode(): ThemeMode
 
@@ -36,4 +37,6 @@ interface SettingsRepository {
     suspend fun setLastBackupImportedAt(value: String)
 
     suspend fun setBackupFolderUri(value: String?)
+
+    suspend fun setLastSeenTrophyCelebrationToken(value: String?)
 }

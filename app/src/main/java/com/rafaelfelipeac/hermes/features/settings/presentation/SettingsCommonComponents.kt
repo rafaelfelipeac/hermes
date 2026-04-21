@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -32,11 +34,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonContentHorizontalPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonContentVerticalPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonVerticalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -224,20 +230,25 @@ internal fun SettingsActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Row(
+    Button(
+        onClick = onClick,
         modifier =
-            modifier.padding(vertical = SpacingXxs),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+            modifier
+                .fillMaxWidth()
+                .padding(vertical = SettingsDeveloperButtonVerticalPadding),
+        contentPadding =
+            PaddingValues(
+                horizontal = SettingsDeveloperButtonContentHorizontalPadding,
+                vertical = SettingsDeveloperButtonContentVerticalPadding,
+            ),
+        elevation = ButtonDefaults.buttonElevation(),
     ) {
-        Button(
-            onClick = onClick,
-        ) {
-            Text(
-                text = label,
-                style = typography.bodyLarge,
-            )
-        }
+        Text(
+            text = label,
+            modifier = Modifier.fillMaxWidth(),
+            style = typography.bodyMedium,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 

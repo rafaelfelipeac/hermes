@@ -1,10 +1,11 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
@@ -23,7 +24,7 @@ import java.time.LocalDate
 
 class WeeklyTrainingContentTest {
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun changingSelectedDateScrollsToSection() {
@@ -41,6 +42,7 @@ class WeeklyTrainingContentTest {
                 modifier = Modifier.height(WeeklyTrainingTestViewportHeight),
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.runOnIdle {
             selectedDateState.value = weekStart.plusDays(6)
@@ -65,6 +67,7 @@ class WeeklyTrainingContentTest {
                 onWeekChanged = { changed = it },
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithTag(WEEKLY_TRAINING_CONTENT_TAG).performTouchInput {
             swipeLeft()
@@ -120,6 +123,7 @@ class WeeklyTrainingContentTest {
                 onWorkoutDelete = {},
             )
         }
+        composeRule.waitForIdle()
 
         composeRule.onNodeWithText("Run").assertIsDisplayed()
         composeRule.onNodeWithText("Bike").assertIsDisplayed()

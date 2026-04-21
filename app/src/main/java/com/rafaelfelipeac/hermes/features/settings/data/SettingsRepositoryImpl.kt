@@ -70,6 +70,11 @@ class SettingsRepositoryImpl
                 .map { prefs -> prefs[BACKUP_FOLDER_URI_KEY] }
                 .distinctUntilChanged()
 
+        override val lastSeenTrophyCelebrationToken: Flow<String?> =
+            dataStore.data
+                .map { prefs -> prefs[LAST_SEEN_TROPHY_CELEBRATION_TOKEN_KEY] }
+                .distinctUntilChanged()
+
         override fun initialThemeMode(): ThemeMode = defaultThemeMode()
 
         override fun initialLanguage(): AppLanguage = defaultLanguage()
@@ -120,6 +125,16 @@ class SettingsRepositoryImpl
                     prefs.remove(BACKUP_FOLDER_URI_KEY)
                 } else {
                     prefs[BACKUP_FOLDER_URI_KEY] = value
+                }
+            }
+        }
+
+        override suspend fun setLastSeenTrophyCelebrationToken(value: String?) {
+            dataStore.edit { prefs ->
+                if (value == null) {
+                    prefs.remove(LAST_SEEN_TROPHY_CELEBRATION_TOKEN_KEY)
+                } else {
+                    prefs[LAST_SEEN_TROPHY_CELEBRATION_TOKEN_KEY] = value
                 }
             }
         }
