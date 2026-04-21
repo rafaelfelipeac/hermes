@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.7.0]
+### Added
+- Trophy families with overview, detail and celebration banners
+- Developer Settings previews for mixed, locked and completed trophy states
+
+### Changed
+- Trophy events now appear in Activity with trophy metadata and naming
+- Settings developer copy now uses completed-trophies terminology
+
+### Fixed
+- Trophy progress, thresholds and grid layout regressions
+- Trophy copy polish across locales and debug previews
+
 ## [v1.6.0]
 ### Added
 - Activity filters by type, category and week

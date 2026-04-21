@@ -39,6 +39,7 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 - Choose week start day in Settings (any day, Monday through Sunday)
 - Weekly header summary with progress and week completion feedback
 - Activity history filters by type, category and week
+- Trophy families, overview/detail screens and celebration banners
 - Mark days or sessions as:
   - **Training**
   - **Rest day**
@@ -99,7 +100,7 @@ Instead, the focus is on:
 - **calm interaction**
 - **rest days as first-class citizens**
 
-This is a tool meant to support training — not judge it. Gentle, optional recognition (like streaks or trophies) may appear later, but only if it stays calm and supportive.
+This is a tool meant to support training — not judge it. Hermes includes gentle, optional recognition and it stays calm and supportive.
 
 ---
 
@@ -125,7 +126,7 @@ Some things on the radar (not guaranteed):
 - Training templates / reusable routines
 - Shareable weekly report (coach-friendly)
 - Subtle animations and micro-interactions
-- Soft streaks, trophies or gentle celebrations
+- Soft streaks or other light-touch recognition
 - Fun yearly comparisons (“you ran X km — that’s like crossing Y”)
 
 ---
