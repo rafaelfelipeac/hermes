@@ -13,11 +13,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -25,10 +28,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +48,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
@@ -52,6 +61,7 @@ import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ReleaseNotesBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperSectionSpacing
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -70,6 +80,8 @@ private const val DEBUG_PACKAGE_SUFFIX = ".dev"
 internal const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
 internal const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
 internal const val SETTINGS_WEEK_START_ROW_TAG = "settings_week_start_row"
+internal const val SETTINGS_APP_VERSION_CARD_TAG = "settings_app_version_card"
+internal const val SETTINGS_RELEASE_NOTES_SHEET_TAG = "settings_release_notes_sheet"
 private const val SETTINGS_SCREEN_TAG = "SettingsScreen"
 private const val BACKUP_MIME_TYPE = "application/json"
 private const val BACKUP_EXTENSION = ".json"
@@ -630,6 +642,14 @@ internal fun SettingsContent(
 ) {
     val scrollState = rememberScrollState()
     val appName = stringResource(R.string.app_name)
+    val releaseNotesDefinition = remember(appVersion) { releaseNotesForVersion(appVersion) }
+    var isReleaseNotesVisible by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(releaseNotesDefinition) {
+        if (releaseNotesDefinition == null) {
+            isReleaseNotesVisible = false
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -726,17 +746,11 @@ internal fun SettingsContent(
                     )
                 }
 
-                SettingsCard {
-                    Text(
-                        text = stringResource(R.string.settings_app_version, appVersion),
-                        style = typography.bodySmall,
-                        textAlign = TextAlign.Center,
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = SpacingSm),
-                    )
-                }
+                SettingsVersionCard(
+                    appVersion = appVersion,
+                    hasReleaseNotes = releaseNotesDefinition != null,
+                    onClick = { isReleaseNotesVisible = true },
+                )
             }
 
             if (BuildConfig.DEBUG) {
@@ -784,6 +798,153 @@ internal fun SettingsContent(
                             onClick = onSeedCompletedTrophies,
                         )
                     }
+                }
+            }
+        }
+
+        if (isReleaseNotesVisible && releaseNotesDefinition != null) {
+            ReleaseNotesBottomSheet(
+                definition = releaseNotesDefinition,
+                onDismiss = { isReleaseNotesVisible = false },
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsVersionCard(
+    appVersion: String,
+    hasReleaseNotes: Boolean,
+    onClick: () -> Unit,
+) {
+    val clickModifier =
+        if (hasReleaseNotes) {
+            Modifier.clickable(onClick = onClick)
+        } else {
+            Modifier
+        }
+
+    SettingsCard(
+        modifier =
+            clickModifier
+                .testTag(SETTINGS_APP_VERSION_CARD_TAG),
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = SpacingSm),
+            verticalArrangement = Arrangement.spacedBy(SpacingXs),
+        ) {
+            Text(
+                text = stringResource(R.string.settings_app_version, appVersion),
+                style = typography.bodySmall,
+                color = if (hasReleaseNotes) colorScheme.primary else colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            if (hasReleaseNotes) {
+                Text(
+                    text = stringResource(R.string.settings_release_notes_available),
+                    style = typography.labelSmall.copy(fontFamily = FontFamily.Monospace),
+                    color = colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ReleaseNotesBottomSheet(
+    definition: ReleaseNotesDefinition,
+    onDismiss: () -> Unit,
+) {
+    val scrollState = rememberScrollState()
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        modifier = Modifier.testTag(SETTINGS_RELEASE_NOTES_SHEET_TAG),
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = SpacingXl)
+                    .navigationBarsPadding()
+                    .padding(bottom = ReleaseNotesBottomPadding),
+            verticalArrangement = Arrangement.spacedBy(SpacingMd),
+        ) {
+            Text(
+                text =
+                    stringResource(
+                        R.string.settings_release_notes_title,
+                        definition.normalizedVersion,
+                    ),
+                style = typography.titleMedium,
+            )
+
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+            ) {
+                definition.sections.forEach { section ->
+                    ReleaseNotesSection(
+                        title = stringResource(section.titleRes),
+                        items = stringArrayResource(section.itemsRes).toList(),
+                    )
+                }
+            }
+
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth(),
+//                horizontalArrangement = Arrangement.End,
+//            ) {
+//                Button(onClick = onDismiss) {
+//                    Text(text = stringResource(R.string.settings_release_notes_close))
+//                }
+//            }
+        }
+    }
+}
+
+@Composable
+private fun ReleaseNotesSection(
+    title: String,
+    items: List<String>,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+        Text(
+            text = title,
+            style =
+                typography.labelMedium.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold,
+                ),
+            color = colorScheme.primary,
+        )
+
+        Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+            items.forEach { item ->
+                Row(horizontalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                    Text(
+                        text = stringResource(R.string.settings_release_notes_bullet),
+                        style = typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                        color = colorScheme.primary,
+                    )
+                    Text(
+                        text = item,
+                        style = typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                        color = colorScheme.onSurfaceVariant,
+                    )
                 }
             }
         }

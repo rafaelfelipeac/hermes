@@ -136,6 +136,25 @@
     <string name="settings_language_hindi">Hindi</string>
     <string name="settings_language_japanese">Giapponese</string>
     <string name="settings_app_version">Hermes - Versione: %1$s</string>
+    <string name="settings_release_notes_available">Note di rilascio</string>
+    <string name="settings_release_notes_title">Novità in %1$s</string>
+    <string name="settings_release_notes_close">Chiudi</string>
+    <string name="settings_release_notes_added">Aggiunto</string>
+    <string name="settings_release_notes_changed">Modificato</string>
+    <string name="settings_release_notes_fixed">Corretto</string>
+    <string name="settings_release_notes_bullet">•</string>
+    <string-array name="settings_release_notes_current_added">
+        <item>Famiglie di trofei con panoramica, dettagli e banner celebrativi</item>
+        <item>Anteprime sviluppatore nelle Impostazioni per stati dei trofei misti, bloccati e completati</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>Gli eventi dei trofei ora appaiono in Attività con metadati e nomi dei trofei</item>
+        <item>I testi sviluppatore nelle Impostazioni ora usano la terminologia dei trofei completati</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Regressioni in avanzamento, soglie e layout a griglia dei trofei</item>
+        <item>Rifinitura dei testi dei trofei tra lingue e anteprime di debug</item>
+    </string-array>
     <string name="settings_back">Indietro</string>
     <string name="settings_feedback_title">Feedback</string>
     <string name="settings_feedback_body">Scrivici un’e-mail con domande, suggerimenti o per segnalare un problema. Il tuo feedback aiuta a migliorare Hermes!</string>

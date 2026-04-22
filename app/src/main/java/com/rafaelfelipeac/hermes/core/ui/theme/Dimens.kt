@@ -31,6 +31,7 @@ object Dimens {
     val SettingsDeveloperButtonVerticalPadding = 2.dp
     val SettingsDeveloperButtonContentHorizontalPadding = 12.dp
     val SettingsDeveloperButtonContentVerticalPadding = 8.dp
+    val ReleaseNotesBottomPadding = 24.dp
 
     val ContentPadding = 14.dp
     val CheckboxBoxSize = 32.dp
