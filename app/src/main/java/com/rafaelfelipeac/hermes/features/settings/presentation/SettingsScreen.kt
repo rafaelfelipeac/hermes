@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -884,7 +883,7 @@ private fun ReleaseNotesBottomSheet(
                     stringResource(
                         R.string.settings_release_notes_title,
                         definition.normalizedVersion,
-                ),
+                    ),
                 style = typography.titleMedium,
             )
 
