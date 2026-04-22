@@ -3,9 +3,35 @@ package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class WeeklyTrainingDragControllerTest {
+    @Test
+    fun startDrag_returnsWhetherDragWasAccepted() {
+        val controller = WeeklyTrainingDragController()
+
+        assertTrue(
+            controller.startDrag(
+                workoutId = 1L,
+                position = Offset(x = 12f, y = 24f),
+                itemHeight = 48f,
+            ),
+        )
+        assertFalse(
+            controller.startDrag(
+                workoutId = 2L,
+                position = Offset(x = 24f, y = 48f),
+                itemHeight = 96f,
+            ),
+        )
+
+        assertEquals(1L, controller.draggedWorkoutId)
+        assertEquals(Offset(x = 12f, y = 24f), controller.dragPosition)
+        assertEquals(48f, controller.draggedItemHeight, 0.001f)
+    }
+
     @Test
     fun computeAutoScrollStep_clampsDragAndScrollsNearTopEdge() {
         val result =

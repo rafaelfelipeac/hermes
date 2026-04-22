@@ -36,10 +36,12 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -115,6 +117,7 @@ fun WeeklyTrainingContent(
     val slotBounds = remember { mutableStateMapOf<SlotSectionKey, Rect>() }
     val itemBounds = remember { mutableStateMapOf<WorkoutId, Rect>() }
     val dragController = rememberWeeklyTrainingDragController()
+    val hapticFeedback = LocalHapticFeedback.current
     val listState = rememberLazyListState()
     val swipeThreshold = with(LocalDensity.current) { SwipeThreshold.toPx() }
     val autoScrollEdge = with(LocalDensity.current) { WeeklyTrainingAutoScrollEdge.toPx() }
@@ -139,6 +142,8 @@ fun WeeklyTrainingContent(
     val draggedWorkout = dragController.draggedWorkoutId?.let { id -> workouts.firstOrNull { it.id == id } }
     var previousUnscheduledIds by remember { mutableStateOf<Set<WorkoutId>>(emptySet()) }
     var isTbdHelpVisible by remember { mutableStateOf(false) }
+    var lastHapticTarget by remember { mutableStateOf<DropTargetHapticKey?>(null) }
+    var hasObservedHapticTarget by remember { mutableStateOf(false) }
 
     LaunchedEffect(selectedDate) {
         if (dragController.draggedWorkoutId == null) {
@@ -168,6 +173,11 @@ fun WeeklyTrainingContent(
     }
 
     LaunchedEffect(dragController.draggedWorkoutId) {
+        if (dragController.draggedWorkoutId == null) {
+            lastHapticTarget = null
+            hasObservedHapticTarget = false
+        }
+
         while (dragController.draggedWorkoutId != null) {
             val position = dragController.dragPosition
 
@@ -194,6 +204,45 @@ fun WeeklyTrainingContent(
                 }
             }
             delay(AUTO_SCROLL_FRAME_DELAY_MS)
+        }
+    }
+
+    LaunchedEffect(
+        dragController.draggedWorkoutId,
+        dragController.liveDropPreview?.targetSection,
+        dragController.liveDropPreview?.targetTimeSlot,
+    ) {
+        if (dragController.draggedWorkoutId == null) {
+            lastHapticTarget = null
+            hasObservedHapticTarget = false
+
+            return@LaunchedEffect
+        }
+
+        val target =
+            dragController.liveDropPreview?.let { preview ->
+                DropTargetHapticKey(
+                    section = preview.targetSection,
+                    timeSlot = preview.targetTimeSlot,
+                )
+            }
+
+        if (target == null) {
+            lastHapticTarget = null
+
+            return@LaunchedEffect
+        }
+
+        if (!hasObservedHapticTarget) {
+            lastHapticTarget = target
+            hasObservedHapticTarget = true
+
+            return@LaunchedEffect
+        }
+
+        if (target != lastHapticTarget) {
+            hapticFeedback.performHapticFeedback(PositiveHapticType)
+            lastHapticTarget = target
         }
     }
 
@@ -391,10 +440,19 @@ fun WeeklyTrainingContent(
                                                     isDragging = dragController.draggedWorkoutId == workout.id,
                                                     isDeemphasized = workout.shouldDeemphasize(focusedCategoryId),
                                                     onToggleCompleted = { checked ->
+                                                        hapticFeedback.performHapticFeedback(
+                                                            completionHapticType(checked),
+                                                        )
                                                         onWorkoutCompletionChanged(workout, checked)
                                                     },
                                                     onDragStarted = { position, height ->
-                                                        dragController.startDrag(workout.id, position, height)
+                                                        if (dragController.startDrag(workout.id, position, height)) {
+                                                            lastHapticTarget = null
+                                                            hasObservedHapticTarget = false
+                                                            hapticFeedback.performHapticFeedback(
+                                                                PositiveHapticType,
+                                                            )
+                                                        }
                                                     },
                                                     onEdit = { onWorkoutEdit(workout) },
                                                     onDelete = { onWorkoutDelete(workout) },
@@ -429,10 +487,17 @@ fun WeeklyTrainingContent(
                                         isDragging = dragController.draggedWorkoutId == workout.id,
                                         isDeemphasized = workout.shouldDeemphasize(focusedCategoryId),
                                         onToggleCompleted = { checked ->
+                                            hapticFeedback.performHapticFeedback(
+                                                completionHapticType(checked),
+                                            )
                                             onWorkoutCompletionChanged(workout, checked)
                                         },
                                         onDragStarted = { position, height ->
-                                            dragController.startDrag(workout.id, position, height)
+                                            if (dragController.startDrag(workout.id, position, height)) {
+                                                lastHapticTarget = null
+                                                hasObservedHapticTarget = false
+                                                hapticFeedback.performHapticFeedback(PositiveHapticType)
+                                            }
                                         },
                                         onEdit = { onWorkoutEdit(workout) },
                                         onDelete = { onWorkoutDelete(workout) },
@@ -521,6 +586,21 @@ fun WeeklyTrainingContent(
                 }
             },
         )
+    }
+}
+
+private data class DropTargetHapticKey(
+    val section: SectionKey,
+    val timeSlot: TimeSlot?,
+)
+
+private val PositiveHapticType = HapticFeedbackType.ToggleOn
+
+private fun completionHapticType(isCompleted: Boolean): HapticFeedbackType {
+    return if (isCompleted) {
+        PositiveHapticType
+    } else {
+        HapticFeedbackType.ToggleOff
     }
 }
 
