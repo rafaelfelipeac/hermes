@@ -61,6 +61,7 @@ import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ReleaseNotesBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperSectionSpacing
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -874,7 +875,7 @@ private fun ReleaseNotesBottomSheet(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingXl)
-                    .padding(bottom = SpacingXl)
+                    .padding(bottom = ReleaseNotesBottomPadding)
                     .navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(SpacingMd),
         ) {
