@@ -155,7 +155,6 @@
     <string name="settings_app_version">Hermes - الإصدار: %1$s</string>
     <string name="settings_release_notes_available">ملاحظات الإصدار</string>
     <string name="settings_release_notes_title">الجديد في %1$s</string>
-    <string name="settings_release_notes_close">إغلاق</string>
     <string name="settings_release_notes_added">تمت الإضافة</string>
     <string name="settings_release_notes_changed">تم التغيير</string>
     <string name="settings_release_notes_fixed">تم الإصلاح</string>

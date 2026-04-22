@@ -139,7 +139,6 @@
     <string name="settings_app_version">Hermes - Versão: %1$s</string>
     <string name="settings_release_notes_available">Notas da versão</string>
     <string name="settings_release_notes_title">Novidades da versão %1$s</string>
-    <string name="settings_release_notes_close">Fechar</string>
     <string name="settings_release_notes_added">Adicionado</string>
     <string name="settings_release_notes_changed">Alterado</string>
     <string name="settings_release_notes_fixed">Corrigido</string>

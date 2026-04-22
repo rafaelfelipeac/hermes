@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -61,7 +62,6 @@ import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ReleaseNotesBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperSectionSpacing
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -875,8 +875,8 @@ private fun ReleaseNotesBottomSheet(
                 Modifier
                     .fillMaxWidth()
                     .padding(horizontal = SpacingXl)
-                    .navigationBarsPadding()
-                    .padding(bottom = ReleaseNotesBottomPadding),
+                    .padding(bottom = SpacingXl)
+                    .navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(SpacingMd),
         ) {
             Text(
@@ -884,7 +884,7 @@ private fun ReleaseNotesBottomSheet(
                     stringResource(
                         R.string.settings_release_notes_title,
                         definition.normalizedVersion,
-                    ),
+                ),
                 style = typography.titleMedium,
             )
 
@@ -902,16 +902,6 @@ private fun ReleaseNotesBottomSheet(
                     )
                 }
             }
-
-//            Row(
-//                modifier = Modifier
-//                    .fillMaxWidth(),
-//                horizontalArrangement = Arrangement.End,
-//            ) {
-//                Button(onClick = onDismiss) {
-//                    Text(text = stringResource(R.string.settings_release_notes_close))
-//                }
-//            }
         }
     }
 }

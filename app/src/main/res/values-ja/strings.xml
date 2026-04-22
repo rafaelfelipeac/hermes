@@ -135,7 +135,6 @@
     <string name="settings_app_version">Hermes - バージョン: %1$s</string>
     <string name="settings_release_notes_available">リリースノート</string>
     <string name="settings_release_notes_title">%1$s の新機能</string>
-    <string name="settings_release_notes_close">閉じる</string>
     <string name="settings_release_notes_added">追加</string>
     <string name="settings_release_notes_changed">変更</string>
     <string name="settings_release_notes_fixed">修正</string>
