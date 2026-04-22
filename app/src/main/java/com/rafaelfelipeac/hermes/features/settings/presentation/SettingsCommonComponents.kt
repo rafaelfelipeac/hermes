@@ -178,11 +178,14 @@ internal fun SettingsDetailScreen(
 }
 
 @Composable
-internal fun SettingsCard(content: @Composable () -> Unit) {
+internal fun SettingsCard(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     Surface(
         tonalElevation = ElevationSm,
         shape = shapes.medium,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Column(
             modifier =

@@ -136,6 +136,24 @@
     <string name="settings_language_hindi">Hindi</string>
     <string name="settings_language_japanese">Japonais</string>
     <string name="settings_app_version">Hermes - Version : %1$s</string>
+    <string name="settings_release_notes_available">Notes de version</string>
+    <string name="settings_release_notes_title">Nouveautés de %1$s</string>
+    <string name="settings_release_notes_added">Ajouté</string>
+    <string name="settings_release_notes_changed">Modifié</string>
+    <string name="settings_release_notes_fixed">Corrigé</string>
+    <string name="settings_release_notes_bullet">•</string>
+    <string-array name="settings_release_notes_current_added">
+        <item>Familles de trophées avec vue d’ensemble, détails et bannières de célébration</item>
+        <item>Aperçus développeur dans les paramètres pour les états de trophées mixtes, verrouillés et terminés</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>Les événements de trophées apparaissent maintenant dans Activité avec les métadonnées et les noms des trophées</item>
+        <item>Les textes développeur des paramètres utilisent maintenant la terminologie des trophées terminés</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Régressions du progrès, des seuils et de la grille des trophées</item>
+        <item>Polissage des textes de trophées dans les langues et les aperçus de débogage</item>
+    </string-array>
     <string name="settings_back">Retour</string>
     <string name="settings_feedback_title">Commentaires</string>
     <string name="settings_feedback_body">Envoyez-nous un e-mail avec vos questions, suggestions ou pour signaler un problème. Vos retours aident à améliorer Hermes !</string>

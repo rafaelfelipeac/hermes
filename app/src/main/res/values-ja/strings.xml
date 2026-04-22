@@ -133,6 +133,24 @@
     <string name="settings_language_hindi">ヒンディー語</string>
     <string name="settings_language_japanese">日本語</string>
     <string name="settings_app_version">Hermes - バージョン: %1$s</string>
+    <string name="settings_release_notes_available">リリースノート</string>
+    <string name="settings_release_notes_title">%1$s の新機能</string>
+    <string name="settings_release_notes_added">追加</string>
+    <string name="settings_release_notes_changed">変更</string>
+    <string name="settings_release_notes_fixed">修正</string>
+    <string name="settings_release_notes_bullet">•</string>
+    <string-array name="settings_release_notes_current_added">
+        <item>概要、詳細、祝福バナーを備えたトロフィーファミリー</item>
+        <item>混在、ロック、完了済みのトロフィー状態に対応した設定内の開発者プレビュー</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>トロフィーイベントがトロフィーのメタデータと名前付きでアクティビティに表示されるようになりました</item>
+        <item>設定の開発者向け文言で完了済みトロフィーの用語を使うようになりました</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>トロフィーの進捗、しきい値、グリッドレイアウトの回帰</item>
+        <item>各言語とデバッグプレビューでのトロフィー文言の調整</item>
+    </string-array>
     <string name="settings_back">戻る</string>
     <string name="settings_feedback_title">フィードバック</string>
     <string name="settings_feedback_body">質問や提案、問題の報告はメールでお知らせください。あなたのフィードバックがHermesの改善に役立ちます。</string>

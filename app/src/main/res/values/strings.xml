@@ -136,6 +136,24 @@
     <string name="settings_language_hindi">हिन्दी</string>
     <string name="settings_language_japanese">日本語</string>
     <string name="settings_app_version">Hermes - Version: %1$s</string>
+    <string name="settings_release_notes_available">Release notes</string>
+    <string name="settings_release_notes_title">What\'s new in %1$s</string>
+    <string name="settings_release_notes_added">Added</string>
+    <string name="settings_release_notes_changed">Changed</string>
+    <string name="settings_release_notes_fixed">Fixed</string>
+    <string name="settings_release_notes_bullet">•</string>
+    <string-array name="settings_release_notes_current_added">
+        <item>Trophy families with overview, detail and celebration banners</item>
+        <item>Developer Settings previews for mixed, locked and completed trophy states</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>Trophy events now appear in Activity with trophy metadata and naming</item>
+        <item>Settings developer copy now uses completed-trophies terminology</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Trophy progress, thresholds and grid layout regressions</item>
+        <item>Trophy copy polish across locales and debug previews</item>
+    </string-array>
     <string name="settings_back">Back</string>
     <string name="settings_feedback_title">Feedback</string>
     <string name="settings_feedback_body">Send us an email with questions, suggestions or to report a problem. Your feedback helps improve Hermes!</string>

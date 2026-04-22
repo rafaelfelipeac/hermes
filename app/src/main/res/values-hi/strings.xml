@@ -137,6 +137,24 @@
     <string name="settings_language_hindi">हिंदी</string>
     <string name="settings_language_japanese">जापानी</string>
     <string name="settings_app_version">Hermes - संस्करण: %1$s</string>
+    <string name="settings_release_notes_available">रिलीज़ नोट्स</string>
+    <string name="settings_release_notes_title">%1$s में नया क्या है</string>
+    <string name="settings_release_notes_added">जोड़ा गया</string>
+    <string name="settings_release_notes_changed">बदला गया</string>
+    <string name="settings_release_notes_fixed">ठीक किया गया</string>
+    <string name="settings_release_notes_bullet">•</string>
+    <string-array name="settings_release_notes_current_added">
+        <item>ओवरव्यू, विवरण और सेलिब्रेशन बैनर के साथ ट्रॉफी परिवार</item>
+        <item>मिश्रित, लॉक और पूरी हो चुकी ट्रॉफी स्थितियों के लिए सेटिंग्स में डेवलपर प्रीव्यू</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>ट्रॉफी इवेंट अब ट्रॉफी मेटाडेटा और नामों के साथ गतिविधि में दिखाई देते हैं</item>
+        <item>सेटिंग्स के डेवलपर टेक्स्ट अब पूरी हो चुकी ट्रॉफी वाली शब्दावली का उपयोग करते हैं</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>ट्रॉफी प्रगति, सीमाओं और ग्रिड लेआउट की गड़बड़ियां</item>
+        <item>भाषाओं और debug प्रीव्यू में ट्रॉफी टेक्स्ट की पॉलिश</item>
+    </string-array>
     <string name="settings_back">वापस</string>
     <string name="settings_feedback_title">प्रतिक्रिया</string>
     <string name="settings_feedback_body">सवालों, सुझावों या समस्या बताने के लिए हमें ईमेल भेजें। आपका फीडबैक Hermes को बेहतर बनाने में मदद करता है!</string>
