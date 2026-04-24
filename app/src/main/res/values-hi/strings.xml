@@ -181,6 +181,8 @@
     <string name="activity_action_complete_rest_day">आपने एक आराम इवेंट पूरा किया।</string>
     <string name="activity_action_incomplete_workout">आपने %1$s वर्कआउट को अपूर्ण चिह्नित किया।</string>
     <string name="activity_action_undo_incomplete_workout">आपने %1$s वर्कआउट को अधूरा चिह्नित करने की कार्रवाई वापस ली।</string>
+    <string name="activity_action_complete_race_event">आपने एक रेस इवेंट पूरा किया।</string>
+    <string name="activity_action_incomplete_race_event">आपने एक रेस इवेंट को अपूर्ण चिह्नित किया।</string>
     <string name="activity_action_incomplete_rest_day">आपने एक आराम इवेंट को अपूर्ण चिह्नित किया।</string>
     <string name="activity_action_reorder_workout">आपने %1$s वर्कआउट पुनः क्रमित किया।</string>
     <string name="activity_action_move_workout">आपने %1$s वर्कआउट स्थानांतरित किया।</string>
@@ -442,4 +444,41 @@
     <string name="trophies_desc_category_presence_unlocked">आपने %1$d हफ्ते पूरे किए जिनमें इस श्रेणी का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
     <string name="trophies_desc_category_planning_locked">इस श्रेणी में %1$d बार वर्कआउट जोड़ने, खिसकाने या व्यवस्थित करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_category_planning_unlocked">आपने इस श्रेणी में %1$d बार वर्कआउट जोड़े, खिसकाए या व्यवस्थित किए।</string>
+    <string name="race_events_nav_label">रेस और इवेंट्स</string>
+    <string name="weekly_training_add_race_event">रेस/इवेंट जोड़ें</string>
+    <string name="weekly_training_delete_race_event">हटाएँ</string>
+    <string name="weekly_training_delete_race_event_title">रेस/इवेंट हटाएँ?</string>
+    <string name="weekly_training_delete_race_event_message">क्या आप वाकई इस रेस/इवेंट को हटाना चाहते हैं?</string>
+    <string name="weekly_training_race_event_moved">रेस/इवेंट स्थानांतरित किया गया।</string>
+    <string name="weekly_training_race_event_deleted">रेस/इवेंट हटाया गया।</string>
+    <string name="race_event_label">रेस</string>
+    <string name="race_events_title">रेस और इवेंट्स</string>
+    <string name="race_events_subtitle">आने वाले इवेंट और काउंटडाउन।</string>
+    <string name="race_events_empty_title">अभी कोई रेस/इवेंट नहीं है।</string>
+    <string name="race_events_empty_body">यहां या साप्ताहिक प्लानर से रेस/इवेंट जोड़ें।</string>
+    <string name="race_events_past_title">पिछले इवेंट</string>
+    <string name="race_events_add">रेस/इवेंट जोड़ें</string>
+    <string name="race_events_today">आज</string>
+    <string name="race_events_tomorrow">कल</string>
+    <plurals name="race_events_days_left">
+        <item quantity="one">%1$d दिन बाकी</item>
+        <item quantity="other">%1$d दिन बाकी</item>
+    </plurals>
+    <plurals name="race_events_days_ago">
+        <item quantity="one">%1$d दिन पहले</item>
+        <item quantity="other">%1$d दिन पहले</item>
+    </plurals>
+    <string name="race_event_dialog_add_race_event">रेस/इवेंट जोड़ें</string>
+    <string name="race_event_dialog_edit_race_event">रेस/इवेंट संपादित करें</string>
+    <string name="race_event_dialog_date">तारीख</string>
+    <string name="race_event_dialog_add_race_event_confirm">जोड़ें</string>
+    <string name="activity_action_create_race_event">आपने रेस/इवेंट %1$s बनाया।</string>
+    <string name="activity_action_update_race_event">आपने रेस/इवेंट %1$s अपडेट किया।</string>
+    <string name="activity_action_delete_race_event">आपने रेस/इवेंट %1$s हटाया।</string>
+    <string name="activity_action_undo_delete_race_event">आपने रेस/इवेंट %1$s बहाल किया।</string>
+    <string name="activity_action_reorder_race_event">आपने रेस/इवेंट %1$s का क्रम बदला।</string>
+    <string name="activity_action_move_race_event">आपने रेस/इवेंट %1$s को स्थानांतरित किया।</string>
+    <string name="activity_action_undo_reorder_race_event">आपने रेस/इवेंट %1$s के क्रम बदलने को वापस किया।</string>
+    <string name="activity_action_undo_move_race_event">आपने रेस/इवेंट %1$s के स्थानांतरण को वापस किया।</string>
+    <string name="trophies_activities_action">गतिविधियाँ</string>
 </resources>

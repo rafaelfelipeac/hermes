@@ -37,7 +37,6 @@ import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.FitnessCenter
-import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
@@ -170,16 +169,24 @@ fun TrophiesScreen(
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         if (selectedFamily == null) {
-            Text(
-                text = stringResource(R.string.trophies_title),
-                style = typography.titleLarge,
-                color = colorScheme.onSurface,
-            )
-            Text(
-                text = stringResource(R.string.trophies_subtitle),
-                style = typography.bodyMedium,
-                color = colorScheme.onSurfaceVariant,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column {
+                    Text(
+                        text = stringResource(R.string.trophies_title),
+                        style = typography.titleLarge,
+                        color = colorScheme.onSurface,
+                    )
+                    Text(
+                        text = stringResource(R.string.trophies_subtitle),
+                        style = typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         } else {
             TrophyFamilyHeader(
                 familySection = selectedFamily,
@@ -994,7 +1001,7 @@ internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector
         TrophyId.FULL_TIME,
         TrophyId.SEASON_BUILDER,
         TrophyId.SEASON_ANCHOR,
-        -> Icons.Outlined.Flag
+        -> Icons.Outlined.FitnessCenter
         TrophyId.MATCH_FITNESS,
         TrophyId.ENGINE_ROOM,
         TrophyId.WORKHORSE,

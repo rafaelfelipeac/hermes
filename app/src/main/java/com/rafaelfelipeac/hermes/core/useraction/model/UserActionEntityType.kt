@@ -6,6 +6,7 @@ enum class UserActionEntityType {
     REST_DAY,
     BUSY,
     SICK,
+    RACE_EVENT,
     WEEK,
     SETTINGS,
     CATEGORY,

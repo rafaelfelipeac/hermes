@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryR
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import io.mockk.every
@@ -32,6 +33,7 @@ fun workout(
     isCompleted: Boolean = false,
     isRestDay: Boolean = false,
     categoryId: Long? = UNCATEGORIZED_ID,
+    eventType: EventType? = null,
 ): Workout {
     return Workout(
         id = id,
@@ -43,6 +45,11 @@ fun workout(
         isRestDay = isRestDay,
         categoryId = if (isRestDay) null else categoryId,
         order = order,
+        eventType = eventType ?: if (isRestDay) {
+            EventType.REST
+        } else {
+            EventType.WORKOUT
+        },
     )
 }
 

@@ -20,11 +20,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.displayDateForDay
@@ -37,6 +33,10 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.updateWorkoutOrd
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekDates
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toMoveActionType
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toReorderActionType
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUndoMoveActionType
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUndoReorderActionType
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -216,9 +216,9 @@ internal suspend fun logWorkoutChange(
         workout.eventType.toUserActionEntityType()
     val actionType =
         if (original.dayOfWeek != workout.dayOfWeek || original.timeSlot != workout.timeSlot) {
-            MOVE_WORKOUT_BETWEEN_DAYS
+            workout.eventType.toMoveActionType()
         } else {
-            REORDER_WORKOUT
+            workout.eventType.toReorderActionType()
         }
 
     userActionLogger.log(
@@ -259,9 +259,9 @@ internal suspend fun logUndoWorkoutChange(
         workout.eventType.toUserActionEntityType()
     val actionType =
         if (original.dayOfWeek != workout.dayOfWeek || original.timeSlot != workout.timeSlot) {
-            UNDO_MOVE_WORKOUT_BETWEEN_DAYS
+            workout.eventType.toUndoMoveActionType()
         } else {
-            UNDO_REORDER_WORKOUT_SAME_DAY
+            workout.eventType.toUndoReorderActionType()
         }
 
     userActionLogger.log(

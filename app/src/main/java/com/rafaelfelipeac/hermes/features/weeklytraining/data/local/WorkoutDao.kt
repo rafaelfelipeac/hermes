@@ -15,6 +15,9 @@ interface WorkoutDao {
     @Query("SELECT * FROM workouts")
     suspend fun getAll(): List<WorkoutEntity>
 
+    @Query("SELECT * FROM workouts")
+    fun observeAll(): Flow<List<WorkoutEntity>>
+
     @Query("SELECT * FROM workouts WHERE weekStartDate = :weekStartDate")
     suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<WorkoutEntity>
 

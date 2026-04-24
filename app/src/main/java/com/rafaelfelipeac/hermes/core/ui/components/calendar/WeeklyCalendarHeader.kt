@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -56,6 +57,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -298,6 +300,7 @@ private fun nonWorkoutEventIcon(eventType: EventType): ImageVector {
         EventType.REST -> Icons.Outlined.Bedtime
         EventType.BUSY -> Icons.Outlined.EventBusy
         EventType.SICK -> Icons.Outlined.MedicalServices
+        RACE_EVENT -> Icons.Outlined.FitnessCenter
         WORKOUT -> Icons.Outlined.Check
     }
 }

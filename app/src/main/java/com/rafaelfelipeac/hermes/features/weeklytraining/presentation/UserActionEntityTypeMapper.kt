@@ -10,6 +10,7 @@ internal fun EventType.toUserActionEntityType(): UserActionEntityType {
         EventType.REST -> UserActionEntityType.REST
         EventType.BUSY -> UserActionEntityType.BUSY
         EventType.SICK -> UserActionEntityType.SICK
+        EventType.RACE_EVENT -> UserActionEntityType.RACE_EVENT
     }
 }
 
@@ -19,6 +20,7 @@ internal fun EventType.toCreateActionType(): UserActionType {
         EventType.REST -> UserActionType.CREATE_REST_DAY
         EventType.BUSY -> UserActionType.CREATE_BUSY
         EventType.SICK -> UserActionType.CREATE_SICK
+        EventType.RACE_EVENT -> UserActionType.CREATE_RACE_EVENT
     }
 }
 
@@ -28,6 +30,7 @@ internal fun EventType.toUpdateActionType(): UserActionType {
         EventType.REST -> UserActionType.UPDATE_REST_DAY
         EventType.BUSY -> UserActionType.UPDATE_BUSY
         EventType.SICK -> UserActionType.UPDATE_SICK
+        EventType.RACE_EVENT -> UserActionType.UPDATE_RACE_EVENT
     }
 }
 
@@ -37,6 +40,7 @@ internal fun EventType.toDeleteActionType(): UserActionType {
         EventType.REST -> UserActionType.DELETE_REST_DAY
         EventType.BUSY -> UserActionType.DELETE_BUSY
         EventType.SICK -> UserActionType.DELETE_SICK
+        EventType.RACE_EVENT -> UserActionType.DELETE_RACE_EVENT
     }
 }
 
@@ -46,5 +50,34 @@ internal fun EventType.toUndoDeleteActionType(): UserActionType {
         EventType.REST -> UserActionType.UNDO_DELETE_REST_DAY
         EventType.BUSY -> UserActionType.UNDO_DELETE_BUSY
         EventType.SICK -> UserActionType.UNDO_DELETE_SICK
+        EventType.RACE_EVENT -> UserActionType.UNDO_DELETE_RACE_EVENT
+    }
+}
+
+internal fun EventType.toReorderActionType(): UserActionType {
+    return when (this) {
+        EventType.RACE_EVENT -> UserActionType.REORDER_RACE_EVENT
+        else -> UserActionType.REORDER_WORKOUT
+    }
+}
+
+internal fun EventType.toMoveActionType(): UserActionType {
+    return when (this) {
+        EventType.RACE_EVENT -> UserActionType.MOVE_RACE_EVENT
+        else -> UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
+    }
+}
+
+internal fun EventType.toUndoReorderActionType(): UserActionType {
+    return when (this) {
+        EventType.RACE_EVENT -> UserActionType.UNDO_REORDER_RACE_EVENT
+        else -> UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY
+    }
+}
+
+internal fun EventType.toUndoMoveActionType(): UserActionType {
+    return when (this) {
+        EventType.RACE_EVENT -> UserActionType.UNDO_MOVE_RACE_EVENT
+        else -> UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
     }
 }

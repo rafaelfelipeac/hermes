@@ -181,6 +181,8 @@
     <string name="activity_action_complete_rest_day">Completaste un evento de descanso.</string>
     <string name="activity_action_incomplete_workout">Marcaste el entrenamiento %1$s como incompleto.</string>
     <string name="activity_action_undo_incomplete_workout">Deshiciste marcar el entrenamiento %1$s como incompleto.</string>
+    <string name="activity_action_complete_race_event">Completaste un evento de carrera.</string>
+    <string name="activity_action_incomplete_race_event">Marcaste un evento de carrera como incompleto.</string>
     <string name="activity_action_incomplete_rest_day">Marcaste un evento de descanso como incompleto.</string>
     <string name="activity_action_reorder_workout">Reordenaste el entrenamiento %1$s.</string>
     <string name="activity_action_move_workout">Moviste el entrenamiento %1$s.</string>
@@ -441,4 +443,41 @@
     <string name="trophies_desc_category_presence_unlocked">Terminaste %1$d semanas que incluían al menos un entrenamiento completado de esta categoría.</string>
     <string name="trophies_desc_category_planning_locked">Desbloquéalo al añadir, mover u organizar entrenamientos en esta categoría %1$d veces.</string>
     <string name="trophies_desc_category_planning_unlocked">Añadiste, moviste u organizaste entrenamientos en esta categoría %1$d veces.</string>
+    <string name="race_events_nav_label">Carreras y eventos</string>
+    <string name="weekly_training_add_race_event">Agregar carrera/evento</string>
+    <string name="weekly_training_delete_race_event">Eliminar</string>
+    <string name="weekly_training_delete_race_event_title">¿Eliminar carrera/evento?</string>
+    <string name="weekly_training_delete_race_event_message">¿Seguro que quieres eliminar esta carrera/evento?</string>
+    <string name="weekly_training_race_event_moved">Carrera/evento movido.</string>
+    <string name="weekly_training_race_event_deleted">Carrera/evento eliminada.</string>
+    <string name="race_event_label">Carrera</string>
+    <string name="race_events_title">Carreras y eventos</string>
+    <string name="race_events_subtitle">Eventos próximos y cuentas regresivas.</string>
+    <string name="race_events_empty_title">Todavía no hay carreras/eventos.</string>
+    <string name="race_events_empty_body">Agrega una carrera/evento aquí o desde el planificador semanal.</string>
+    <string name="race_events_past_title">Eventos pasados</string>
+    <string name="race_events_add">Agregar carrera/evento</string>
+    <string name="race_events_today">Hoy</string>
+    <string name="race_events_tomorrow">Mañana</string>
+    <plurals name="race_events_days_left">
+        <item quantity="one">Falta %1$d día</item>
+        <item quantity="other">Faltan %1$d días</item>
+    </plurals>
+    <plurals name="race_events_days_ago">
+        <item quantity="one">Hace %1$d día</item>
+        <item quantity="other">Hace %1$d días</item>
+    </plurals>
+    <string name="race_event_dialog_add_race_event">Agregar carrera/evento</string>
+    <string name="race_event_dialog_edit_race_event">Editar carrera/evento</string>
+    <string name="race_event_dialog_date">Fecha</string>
+    <string name="race_event_dialog_add_race_event_confirm">Agregar</string>
+    <string name="activity_action_create_race_event">Creaste la carrera/evento %1$s.</string>
+    <string name="activity_action_update_race_event">Actualizaste la carrera/evento %1$s.</string>
+    <string name="activity_action_delete_race_event">Eliminaste la carrera/evento %1$s.</string>
+    <string name="activity_action_undo_delete_race_event">Restauraste la carrera/evento %1$s.</string>
+    <string name="activity_action_reorder_race_event">Reordenaste la carrera/evento %1$s.</string>
+    <string name="activity_action_move_race_event">Moviste la carrera/evento %1$s.</string>
+    <string name="activity_action_undo_reorder_race_event">Deshiciste el reordenamiento de la carrera/evento %1$s.</string>
+    <string name="activity_action_undo_move_race_event">Deshiciste el movimiento de la carrera/evento %1$s.</string>
+    <string name="trophies_activities_action">Actividades</string>
 </resources>

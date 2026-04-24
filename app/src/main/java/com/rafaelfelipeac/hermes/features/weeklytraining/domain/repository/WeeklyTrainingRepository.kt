@@ -11,6 +11,8 @@ import java.time.LocalDate
 interface WeeklyTrainingRepository {
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>>
 
+    fun observeAllWorkouts(): Flow<List<Workout>>
+
     fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>>
 
     suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<Workout>

@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -68,6 +69,7 @@ import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
+import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPadding
@@ -83,10 +85,12 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNC
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
+import java.time.LocalDate
 
 private const val ADD_MENU_SCRIM_ALPHA = 0.30f
 private const val ADD_FAB_TEST_TAG = "add-fab"
@@ -111,6 +115,8 @@ fun WeeklyTrainingScreen(
     var draftType by rememberSaveable { mutableStateOf(EMPTY) }
     var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
+    var draftEventDate by remember { mutableStateOf<LocalDate?>(state.selectedDate) }
+    var isRaceEventDialogVisible by rememberSaveable { mutableStateOf(false) }
     var focusedCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftConsumedLocally by remember { mutableStateOf(false) }
     val fabContainerColor = colorScheme.primaryContainer
@@ -389,6 +395,19 @@ fun WeeklyTrainingScreen(
                     )
 
                     AddActionPill(
+                        icon = Icons.Outlined.FitnessCenter,
+                        label = stringResource(R.string.weekly_training_add_race_event),
+                        onClick = {
+                            isAddMenuVisible = false
+                            draftType = EMPTY
+                            draftDescription = EMPTY
+                            draftCategoryId = UNCATEGORIZED_ID
+                            draftEventDate = state.selectedDate
+                            isRaceEventDialogVisible = true
+                        },
+                    )
+
+                    AddActionPill(
                         icon = Icons.Outlined.Bedtime,
                         label = stringResource(R.string.weekly_training_add_rest_day),
                         onClick = {
@@ -485,41 +504,115 @@ fun WeeklyTrainingScreen(
         )
     }
 
-    editingWorkout?.let { workout ->
-        val editCategories =
-            state.categories
-                .filter { !it.isHidden || it.id == UNCATEGORIZED_ID || it.id == workout.categoryId }
-                .sortedBy { it.sortOrder }
-
-        AddWorkoutDialog(
-            onDismiss = { editingWorkout = null },
-            onSave = { type, description, categoryId ->
-                viewModel.updateWorkoutDetails(
-                    workoutId = workout.id,
-                    type = type,
-                    description = description,
-                    eventType = workout.eventType,
-                    categoryId = categoryId,
-                )
-                editingWorkout = null
+    if (isRaceEventDialogVisible) {
+        AddRaceEventDialog(
+            onDismiss = {
+                isRaceEventDialogVisible = false
+                draftType = EMPTY
+                draftDescription = EMPTY
+                draftCategoryId = UNCATEGORIZED_ID
+                draftEventDate = state.selectedDate
             },
-            onManageCategories = { type, description, categoryId ->
-                editingWorkout = null
+            onSave = { type, description, categoryId, eventDate ->
+                viewModel.addRaceEvent(type, description, categoryId, eventDate)
+                isRaceEventDialogVisible = false
+                draftType = EMPTY
+                draftDescription = EMPTY
+                draftCategoryId = UNCATEGORIZED_ID
+                draftEventDate = state.selectedDate
+            },
+            onManageCategories = { type, description, categoryId, eventDate ->
+                isRaceEventDialogVisible = false
+                draftType = type
+                draftDescription = description
+                draftCategoryId = categoryId
+                draftEventDate = eventDate
                 onManageCategories(
                     WorkoutDialogDraft(
-                        workoutId = workout.id,
+                        workoutId = null,
                         type = type,
                         description = description,
                         categoryId = categoryId,
                     ),
                 )
             },
-            isEdit = true,
-            categories = editCategories,
-            selectedCategoryId = workout.categoryId,
-            initialType = workout.type,
-            initialDescription = workout.description,
+            isEdit = false,
+            categories = pickerCategories,
+            selectedCategoryId = draftCategoryId,
+            selectedDate = draftEventDate,
+            initialTitle = draftType,
+            initialDescription = draftDescription,
         )
+    }
+
+    editingWorkout?.let { workout ->
+        val editCategories =
+            state.categories
+                .filter { !it.isHidden || it.id == UNCATEGORIZED_ID || it.id == workout.categoryId }
+                .sortedBy { it.sortOrder }
+
+        if (workout.eventType == RACE_EVENT) {
+            AddRaceEventDialog(
+                onDismiss = { editingWorkout = null },
+                onSave = { type, description, categoryId, eventDate ->
+                    viewModel.updateRaceEvent(
+                        workoutId = workout.id,
+                        type = type,
+                        description = description,
+                        categoryId = categoryId,
+                        eventDate = eventDate,
+                    )
+                    editingWorkout = null
+                },
+                onManageCategories = { type, description, categoryId, eventDate ->
+                    editingWorkout = null
+                    onManageCategories(
+                        WorkoutDialogDraft(
+                            workoutId = workout.id,
+                            type = type,
+                            description = description,
+                            categoryId = categoryId,
+                        ),
+                    )
+                },
+                isEdit = true,
+                categories = editCategories,
+                selectedCategoryId = workout.categoryId,
+                selectedDate = workout.weekStartDate.plusDays((workout.dayOfWeek?.value?.minus(1) ?: 0).toLong()),
+                initialTitle = workout.type,
+                initialDescription = workout.description,
+            )
+        } else {
+            AddWorkoutDialog(
+                onDismiss = { editingWorkout = null },
+                onSave = { type, description, categoryId ->
+                    viewModel.updateWorkoutDetails(
+                        workoutId = workout.id,
+                        type = type,
+                        description = description,
+                        eventType = workout.eventType,
+                        categoryId = categoryId,
+                    )
+                    editingWorkout = null
+                },
+                onManageCategories = { type, description, categoryId ->
+                    editingWorkout = null
+                    onManageCategories(
+                        WorkoutDialogDraft(
+                            workoutId = workout.id,
+                            type = type,
+                            description = description,
+                            categoryId = categoryId,
+                        ),
+                    )
+                },
+                isEdit = true,
+                categories = editCategories,
+                selectedCategoryId = workout.categoryId,
+                initialType = workout.type,
+                initialDescription = workout.description,
+            )
+        }
     }
 
     deletingWorkout?.let { workout ->
@@ -529,6 +622,7 @@ fun WeeklyTrainingScreen(
                 REST -> stringResource(R.string.weekly_training_delete_rest_day_title)
                 BUSY -> stringResource(R.string.weekly_training_delete_busy_title)
                 SICK -> stringResource(R.string.weekly_training_delete_sick_title)
+                RACE_EVENT -> stringResource(R.string.weekly_training_delete_race_event_title)
             }
         val message =
             when (workout.eventType) {
@@ -536,6 +630,7 @@ fun WeeklyTrainingScreen(
                 REST -> stringResource(R.string.weekly_training_delete_rest_day_message)
                 BUSY -> stringResource(R.string.weekly_training_delete_busy_message)
                 SICK -> stringResource(R.string.weekly_training_delete_sick_message)
+                RACE_EVENT -> stringResource(R.string.weekly_training_delete_race_event_message)
             }
         val confirmLabel =
             when (workout.eventType) {
@@ -543,6 +638,7 @@ fun WeeklyTrainingScreen(
                 REST -> stringResource(R.string.weekly_training_delete_rest_day)
                 BUSY -> stringResource(R.string.weekly_training_delete_busy)
                 SICK -> stringResource(R.string.weekly_training_delete_sick)
+                RACE_EVENT -> stringResource(R.string.weekly_training_delete_race_event)
             }
 
         AlertDialog(
@@ -699,6 +795,7 @@ private fun undoMovedMessageRes(eventType: EventType): Int {
         REST -> R.string.weekly_training_rest_day_moved
         BUSY -> R.string.weekly_training_busy_moved
         SICK -> R.string.weekly_training_sick_moved
+        RACE_EVENT -> R.string.weekly_training_race_event_moved
     }
 }
 
@@ -708,6 +805,7 @@ private fun undoDeletedMessageRes(eventType: EventType): Int {
         REST -> R.string.weekly_training_rest_day_deleted
         BUSY -> R.string.weekly_training_busy_deleted
         SICK -> R.string.weekly_training_sick_deleted
+        RACE_EVENT -> R.string.weekly_training_race_event_deleted
     }
 }
 

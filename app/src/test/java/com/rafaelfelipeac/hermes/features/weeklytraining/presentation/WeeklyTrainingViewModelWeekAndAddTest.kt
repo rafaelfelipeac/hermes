@@ -8,6 +8,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -209,6 +210,64 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             assertEquals(null, daySlot.captured)
             assertEquals(EventType.REST, eventTypeSlot.captured)
             assertEquals(1, orderSlot.captured)
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun addRaceEvent_usesSelectedDateAndSchedulesIntoDerivedWeek() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 2, 18)
+            val eventDate = LocalDate.of(2026, 3, 7)
+            val derivedWeekStart = eventDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(
+                        id = 9,
+                        weekStart = derivedWeekStart,
+                        day = eventDate.dayOfWeek,
+                        order = 0,
+                        eventType = EventType.RACE_EVENT,
+                    ),
+                )
+            coEvery {
+                repository.getWorkoutsForWeek(derivedWeekStart)
+            } returns workoutsFlow.value
+            coEvery {
+                repository.insertWorkout(any())
+            } returns 99L
+            advanceUntilIdle()
+
+            viewModel.addRaceEvent(
+                type = "Half Marathon",
+                description = "Race prep",
+                categoryId = null,
+                eventDate = eventDate,
+            )
+            advanceUntilIdle()
+
+            val workoutSlot = slot<Workout>()
+
+            coVerify(exactly = 1) {
+                repository.insertWorkout(capture(workoutSlot))
+            }
+            assertEquals(derivedWeekStart, workoutSlot.captured.weekStartDate)
+            assertEquals(eventDate.dayOfWeek, workoutSlot.captured.dayOfWeek)
+            assertEquals("Half Marathon", workoutSlot.captured.type)
+            assertEquals("Race prep", workoutSlot.captured.description)
+            assertEquals(EventType.RACE_EVENT, workoutSlot.captured.eventType)
+            assertEquals(UNCATEGORIZED_ID, workoutSlot.captured.categoryId)
+            assertEquals(1, workoutSlot.captured.order)
 
             collectJob.cancel()
         }

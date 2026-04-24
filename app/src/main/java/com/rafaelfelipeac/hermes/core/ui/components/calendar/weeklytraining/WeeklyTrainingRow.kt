@@ -24,6 +24,8 @@ import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -80,6 +82,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
 private const val WORKOUT_ROW_DRAGGING_ALPHA = 0f
@@ -104,7 +107,9 @@ internal fun WorkoutRow(
     val hasDescription = workout.description.isNotBlank()
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
-        workout.categoryColorId?.takeIf { workout.eventType == WORKOUT }?.let { accent ->
+        workout.categoryColorId?.takeIf {
+            workout.eventType == WORKOUT || workout.eventType == RACE_EVENT
+        }?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
@@ -331,7 +336,9 @@ internal fun GhostWorkoutRow(
     val hasDescription = workout.description.isNotBlank()
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
-        workout.categoryColorId?.takeIf { workout.eventType == WORKOUT }?.let { accent ->
+        workout.categoryColorId?.takeIf {
+            workout.eventType == WORKOUT || workout.eventType == RACE_EVENT
+        }?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
@@ -516,6 +523,7 @@ private fun eventTypeLabelRes(eventType: EventType): Int {
         EventType.REST -> R.string.weekly_training_rest_day_label
         EventType.BUSY -> R.string.weekly_training_busy_label
         EventType.SICK -> R.string.weekly_training_sick_label
+        EventType.RACE_EVENT -> R.string.race_event_label
     }
 }
 
@@ -525,5 +533,6 @@ private fun eventTypeIcon(eventType: EventType): ImageVector {
         EventType.REST -> Icons.Outlined.Bedtime
         EventType.BUSY -> Icons.Outlined.EventBusy
         EventType.SICK -> Icons.Outlined.MedicalServices
+        EventType.RACE_EVENT -> Icons.Outlined.Flag
     }
 }

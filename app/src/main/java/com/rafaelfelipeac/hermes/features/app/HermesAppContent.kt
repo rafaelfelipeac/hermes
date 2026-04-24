@@ -26,10 +26,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.ACTIVITY
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.EVENTS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.TROPHIES
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
+import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
+import com.rafaelfelipeac.hermes.features.events.presentation.EventsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.CATEGORIES
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.MAIN
@@ -46,7 +49,9 @@ fun HermesAppContent() {
     var currentDestination by rememberSaveable { mutableStateOf(WEEKLY_TRAINING) }
     var pendingSettingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
     var pendingWorkoutDraft by remember { mutableStateOf<WorkoutDialogDraft?>(null) }
+    var pendingEventDraft by remember { mutableStateOf<EventDialogDraft?>(null) }
     var pendingCelebrationTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
+    val visibleDestinations = listOf(WEEKLY_TRAINING, TROPHIES, EVENTS, SETTINGS)
     val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
     val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingWorkoutDraft = draft
@@ -54,9 +59,15 @@ fun HermesAppContent() {
         currentDestination = SETTINGS
     }
     val handleCategoriesExit = {
-        if (pendingWorkoutDraft != null) {
-            currentDestination = WEEKLY_TRAINING
+        when {
+            pendingWorkoutDraft != null -> currentDestination = WEEKLY_TRAINING
+            pendingEventDraft != null -> currentDestination = EVENTS
         }
+    }
+    val openEventCategories: (EventDialogDraft) -> Unit = { draft ->
+        pendingEventDraft = draft
+        pendingSettingsRoute = CATEGORIES
+        currentDestination = SETTINGS
     }
 
     LaunchedEffect(trophyCelebrationViewModel) {
@@ -78,7 +89,7 @@ fun HermesAppContent() {
 
     NavigationSuiteScaffold(
         navigationSuiteItems = {
-            AppDestinations.entries.forEach {
+            visibleDestinations.forEach {
                 item(
                     icon = {
                         Icon(
@@ -114,6 +125,13 @@ fun HermesAppContent() {
                             modifier = Modifier.padding(innerPadding),
                             requestedTrophyStableId = pendingCelebrationTrophyStableId,
                             onRequestedTrophyConsumed = { pendingCelebrationTrophyStableId = null },
+                        )
+                    EVENTS ->
+                        EventsScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            onManageCategories = openEventCategories,
+                            pendingEventDraft = pendingEventDraft,
+                            onEventDraftConsumed = { pendingEventDraft = null },
                         )
                     SETTINGS ->
                         SettingsScreen(

@@ -181,6 +181,8 @@
     <string name="activity_action_complete_rest_day">Vous avez terminé un événement de repos.</string>
     <string name="activity_action_incomplete_workout">Vous avez marqué l’entraînement %1$s comme incomplet.</string>
     <string name="activity_action_undo_incomplete_workout">Vous avez annulé le marquage incomplet de l’entraînement %1$s.</string>
+    <string name="activity_action_complete_race_event">Vous avez terminé un événement de course.</string>
+    <string name="activity_action_incomplete_race_event">Vous avez marqué un événement de course comme incomplet.</string>
     <string name="activity_action_incomplete_rest_day">Vous avez marqué un événement de repos comme incomplet.</string>
     <string name="activity_action_reorder_workout">Vous avez réordonné l’entraînement %1$s.</string>
     <string name="activity_action_move_workout">Vous avez déplacé l’entraînement %1$s.</string>
@@ -442,4 +444,41 @@
     <string name="trophies_desc_category_presence_unlocked">Vous avez terminé %1$d semaines qui incluaient au moins une séance terminée de cette catégorie.</string>
     <string name="trophies_desc_category_planning_locked">Débloquez-le en ajoutant, déplaçant ou organisant des séances dans cette catégorie %1$d fois.</string>
     <string name="trophies_desc_category_planning_unlocked">Vous avez ajouté, déplacé ou organisé des séances dans cette catégorie %1$d fois.</string>
+    <string name="race_events_nav_label">Courses et événements</string>
+    <string name="weekly_training_add_race_event">Ajouter une course/un événement</string>
+    <string name="weekly_training_delete_race_event">Supprimer</string>
+    <string name="weekly_training_delete_race_event_title">Supprimer la course/l’événement ?</string>
+    <string name="weekly_training_delete_race_event_message">Voulez-vous vraiment supprimer cette course/cet événement ?</string>
+    <string name="weekly_training_race_event_moved">Course/événement déplacé.</string>
+    <string name="weekly_training_race_event_deleted">Course/événement supprimé.</string>
+    <string name="race_event_label">Course</string>
+    <string name="race_events_title">Courses et événements</string>
+    <string name="race_events_subtitle">Événements à venir et comptes à rebours.</string>
+    <string name="race_events_empty_title">Aucune course/événement pour le moment.</string>
+    <string name="race_events_empty_body">Ajoutez une course/un événement ici ou depuis le planning hebdomadaire.</string>
+    <string name="race_events_past_title">Événements passés</string>
+    <string name="race_events_add">Ajouter une course/un événement</string>
+    <string name="race_events_today">Aujourd’hui</string>
+    <string name="race_events_tomorrow">Demain</string>
+    <plurals name="race_events_days_left">
+        <item quantity="one">Plus que %1$d jour</item>
+        <item quantity="other">Plus que %1$d jours</item>
+    </plurals>
+    <plurals name="race_events_days_ago">
+        <item quantity="one">Il y a %1$d jour</item>
+        <item quantity="other">Il y a %1$d jours</item>
+    </plurals>
+    <string name="race_event_dialog_add_race_event">Ajouter une course/un événement</string>
+    <string name="race_event_dialog_edit_race_event">Modifier une course/un événement</string>
+    <string name="race_event_dialog_date">Date</string>
+    <string name="race_event_dialog_add_race_event_confirm">Ajouter</string>
+    <string name="activity_action_create_race_event">Vous avez créé la course/l’événement %1$s.</string>
+    <string name="activity_action_update_race_event">Vous avez mis à jour la course/l’événement %1$s.</string>
+    <string name="activity_action_delete_race_event">Vous avez supprimé la course/l’événement %1$s.</string>
+    <string name="activity_action_undo_delete_race_event">Vous avez restauré la course/l’événement %1$s.</string>
+    <string name="activity_action_reorder_race_event">Vous avez réordonné la course/l’événement %1$s.</string>
+    <string name="activity_action_move_race_event">Vous avez déplacé la course/l’événement %1$s.</string>
+    <string name="activity_action_undo_reorder_race_event">Vous avez annulé le réordonnancement de la course/l’événement %1$s.</string>
+    <string name="activity_action_undo_move_race_event">Vous avez annulé le déplacement de la course/l’événement %1$s.</string>
+    <string name="trophies_activities_action">Activités</string>
 </resources>

@@ -181,6 +181,8 @@
     <string name="activity_action_complete_rest_day">Você concluiu um evento de descanso.</string>
     <string name="activity_action_incomplete_workout">Você marcou o treino %1$s como incompleto.</string>
     <string name="activity_action_undo_incomplete_workout">Você desfez a marcação do treino %1$s como incompleto.</string>
+    <string name="activity_action_complete_race_event">Você concluiu uma prova/evento.</string>
+    <string name="activity_action_incomplete_race_event">Você marcou uma prova/evento como incompleta.</string>
     <string name="activity_action_incomplete_rest_day">Você marcou um evento de descanso como incompleto.</string>
     <string name="activity_action_reorder_workout">Você reorganizou o treino %1$s.</string>
     <string name="activity_action_move_workout">Você moveu o treino %1$s.</string>
@@ -441,4 +443,41 @@
     <string name="trophies_desc_category_presence_unlocked">Você concluiu %1$d semanas que incluíam pelo menos um treino concluído desta categoria.</string>
     <string name="trophies_desc_category_planning_locked">Desbloqueie ao adicionar, mover ou organizar treinos nesta categoria %1$d vezes.</string>
     <string name="trophies_desc_category_planning_unlocked">Você adicionou, moveu ou organizou treinos nesta categoria %1$d vezes.</string>
+    <string name="race_events_nav_label">Provas e eventos</string>
+    <string name="weekly_training_add_race_event">Adicionar prova/evento</string>
+    <string name="weekly_training_delete_race_event">Excluir</string>
+    <string name="weekly_training_delete_race_event_title">Excluir prova/evento?</string>
+    <string name="weekly_training_delete_race_event_message">Tem certeza de que deseja excluir esta prova/evento?</string>
+    <string name="weekly_training_race_event_moved">Prova/evento movido.</string>
+    <string name="weekly_training_race_event_deleted">Prova/evento excluída.</string>
+    <string name="race_event_label">Prova</string>
+    <string name="race_events_title">Provas e eventos</string>
+    <string name="race_events_subtitle">Eventos futuros e contagens regressivas.</string>
+    <string name="race_events_empty_title">Ainda não há provas/eventos.</string>
+    <string name="race_events_empty_body">Adicione uma prova/evento aqui ou pelo planejador semanal.</string>
+    <string name="race_events_past_title">Eventos passados</string>
+    <string name="race_events_add">Adicionar prova/evento</string>
+    <string name="race_events_today">Hoje</string>
+    <string name="race_events_tomorrow">Amanhã</string>
+    <plurals name="race_events_days_left">
+        <item quantity="one">Falta %1$d dia</item>
+        <item quantity="other">Faltam %1$d dias</item>
+    </plurals>
+    <plurals name="race_events_days_ago">
+        <item quantity="one">Há %1$d dia</item>
+        <item quantity="other">Há %1$d dias</item>
+    </plurals>
+    <string name="race_event_dialog_add_race_event">Adicionar prova/evento</string>
+    <string name="race_event_dialog_edit_race_event">Editar prova/evento</string>
+    <string name="race_event_dialog_date">Data</string>
+    <string name="race_event_dialog_add_race_event_confirm">Adicionar</string>
+    <string name="activity_action_create_race_event">Você criou a prova/evento %1$s.</string>
+    <string name="activity_action_update_race_event">Você atualizou a prova/evento %1$s.</string>
+    <string name="activity_action_delete_race_event">Você excluiu a prova/evento %1$s.</string>
+    <string name="activity_action_undo_delete_race_event">Você restaurou a prova/evento %1$s.</string>
+    <string name="activity_action_reorder_race_event">Você reordenou a prova/evento %1$s.</string>
+    <string name="activity_action_move_race_event">Você moveu a prova/evento %1$s.</string>
+    <string name="activity_action_undo_reorder_race_event">Você desfez a reordenação da prova/evento %1$s.</string>
+    <string name="activity_action_undo_move_race_event">Você desfez a movimentação da prova/evento %1$s.</string>
+    <string name="trophies_activities_action">Atividades</string>
 </resources>
