@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.8.0]
+### Added
+- Release notes in Settings so shipped changes are available inside the app
+- Haptic feedback when completing workouts and dragging weekly items
+
 ## [v1.7.0]
 ### Added
 - Trophy families with overview, detail and celebration banners

@@ -136,20 +136,10 @@
     <string name="settings_release_notes_available">リリースノート</string>
     <string name="settings_release_notes_title">%1$s の新機能</string>
     <string name="settings_release_notes_added">追加</string>
-    <string name="settings_release_notes_changed">変更</string>
-    <string name="settings_release_notes_fixed">修正</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>概要、詳細、祝福バナーを備えたトロフィーファミリー</item>
-        <item>混在、ロック、完了済みのトロフィー状態に対応した設定内の開発者プレビュー</item>
-    </string-array>
-    <string-array name="settings_release_notes_current_changed">
-        <item>トロフィーイベントがトロフィーのメタデータと名前付きでアクティビティに表示されるようになりました</item>
-        <item>設定の開発者向け文言で完了済みトロフィーの用語を使うようになりました</item>
-    </string-array>
-    <string-array name="settings_release_notes_current_fixed">
-        <item>トロフィーの進捗、しきい値、グリッドレイアウトの回帰</item>
-        <item>各言語とデバッグプレビューでのトロフィー文言の調整</item>
+        <item>リリース済みの変更をアプリ内で確認できる設定のリリースノート</item>
+        <item>ワークアウト完了時と週次アイテムのドラッグ時の触覚フィードバック</item>
     </string-array>
     <string name="settings_back">戻る</string>
     <string name="settings_feedback_title">フィードバック</string>

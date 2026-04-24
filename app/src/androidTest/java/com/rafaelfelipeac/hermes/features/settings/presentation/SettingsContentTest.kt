@@ -17,7 +17,7 @@ import org.junit.Rule
 import org.junit.Test
 
 private const val APP_VERSION_TEST = "0.0.0-test"
-private const val APP_VERSION_WITH_RELEASE_NOTES = "1.7.0-dev"
+private const val APP_VERSION_WITH_RELEASE_NOTES = "1.8.0-dev"
 
 class SettingsContentTest {
     @get:Rule

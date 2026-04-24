@@ -156,20 +156,10 @@
     <string name="settings_release_notes_available">ملاحظات الإصدار</string>
     <string name="settings_release_notes_title">الجديد في %1$s</string>
     <string name="settings_release_notes_added">تمت الإضافة</string>
-    <string name="settings_release_notes_changed">تم التغيير</string>
-    <string name="settings_release_notes_fixed">تم الإصلاح</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>عائلات جوائز مع نظرة عامة وتفاصيل ولافتات احتفال</item>
-        <item>معاينات مطور في الإعدادات لحالات الجوائز المختلطة والمقفلة والمكتملة</item>
-    </string-array>
-    <string-array name="settings_release_notes_current_changed">
-        <item>تظهر أحداث الجوائز الآن في النشاط مع بيانات الجوائز وأسمائها</item>
-        <item>تستخدم نصوص المطور في الإعدادات الآن مصطلحات الجوائز المكتملة</item>
-    </string-array>
-    <string-array name="settings_release_notes_current_fixed">
-        <item>انحدارات تقدم الجوائز والحدود وتخطيط الشبكة</item>
-        <item>تحسين نصوص الجوائز عبر اللغات ومعاينات التصحيح</item>
+        <item>ملاحظات الإصدار في الإعدادات لعرض التغييرات المنشورة داخل التطبيق</item>
+        <item>اهتزاز لمسي عند إكمال التمارين وسحب عناصر الأسبوع</item>
     </string-array>
     <string name="settings_back">رجوع</string>
     <string name="settings_feedback_title">ملاحظات</string>
