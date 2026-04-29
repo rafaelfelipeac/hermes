@@ -33,10 +33,6 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.updateWorkoutOrd
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekDates
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toMoveActionType
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toReorderActionType
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUndoMoveActionType
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUndoReorderActionType
 import java.time.DayOfWeek
 import java.time.LocalDate
 

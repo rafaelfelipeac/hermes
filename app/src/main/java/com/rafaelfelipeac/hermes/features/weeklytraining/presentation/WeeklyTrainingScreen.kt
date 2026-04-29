@@ -30,7 +30,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.EventBusy
-import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -68,8 +68,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
-import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
+import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPadding
@@ -84,8 +84,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
@@ -395,7 +395,7 @@ fun WeeklyTrainingScreen(
                     )
 
                     AddActionPill(
-                        icon = Icons.Outlined.FitnessCenter,
+                        icon = Icons.Outlined.Flag,
                         label = stringResource(R.string.weekly_training_add_race_event),
                         onClick = {
                             isAddMenuVisible = false

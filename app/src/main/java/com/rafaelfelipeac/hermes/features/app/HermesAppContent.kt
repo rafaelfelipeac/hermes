@@ -24,15 +24,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.ACTIVITY
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.EVENTS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.TROPHIES
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
-import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
 import com.rafaelfelipeac.hermes.features.events.presentation.EventsScreen
+import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.CATEGORIES
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.MAIN

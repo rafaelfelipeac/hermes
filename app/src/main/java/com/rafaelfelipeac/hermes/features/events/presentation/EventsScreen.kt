@@ -16,11 +16,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -56,8 +56,8 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
@@ -66,21 +66,20 @@ import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardMinWidth
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxYOffset
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventFlagIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
 import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
@@ -90,7 +89,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -125,7 +123,11 @@ fun EventsScreen(
     val pastEvents =
         state.events
             .filter { it.eventDate() < today }
-            .sortedWith(compareByDescending<WorkoutUi> { it.eventDate() }.thenByDescending { it.order }.thenByDescending { it.id })
+            .sortedWith(
+                compareByDescending<WorkoutUi> { it.eventDate() }
+                    .thenByDescending { it.order }
+                    .thenByDescending { it.id },
+            )
 
     val editingEvent = editingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
 
@@ -332,9 +334,7 @@ fun EventsScreen(
 }
 
 @Composable
-private fun EventsEmptyState(
-    modifier: Modifier = Modifier,
-) {
+private fun EventsEmptyState(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(SpacingSm),
@@ -389,10 +389,11 @@ private fun EventCard(
         onClick = onClick,
         shape = shapes.medium,
         border = BorderStroke(BorderHairline, categoryAccent ?: colorScheme.outlineVariant),
-        colors = CardDefaults.cardColors(
-            containerColor = colors.background,
-            contentColor = colors.content,
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = colors.background,
+                contentColor = colors.content,
+            ),
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -599,11 +600,12 @@ private fun countdownLabel(eventDate: LocalDate): String {
         in 2L..Long.MAX_VALUE ->
             pluralStringResource(R.plurals.race_events_days_left, days.toInt(), days.toInt())
         -1L -> pluralStringResource(R.plurals.race_events_days_ago, 1, 1)
-        else -> pluralStringResource(
-            R.plurals.race_events_days_ago,
-            kotlin.math.abs(days).toInt(),
-            kotlin.math.abs(days).toInt(),
-        )
+        else ->
+            pluralStringResource(
+                R.plurals.race_events_days_ago,
+                kotlin.math.abs(days).toInt(),
+                kotlin.math.abs(days).toInt(),
+            )
     }
 }
 

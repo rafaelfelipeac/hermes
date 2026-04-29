@@ -2,12 +2,14 @@
 
 package com.rafaelfelipeac.hermes.core.ui.components
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.clickable
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -45,8 +47,8 @@ import com.rafaelfelipeac.hermes.features.categories.presentation.model.Category
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
-import java.time.format.FormatStyle
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 @Composable
@@ -112,16 +114,22 @@ fun AddRaceEventDialog(
 
                 Spacer(modifier = Modifier.height(SpacingLg))
 
-                OutlinedTextField(
-                    value = dateLabel,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text(text = stringResource(R.string.race_event_dialog_date)) },
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .clickable { showDatePicker = true },
-                )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = dateLabel,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(text = stringResource(R.string.race_event_dialog_date)) },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxSize()
+                                .clickable { showDatePicker = true },
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(SpacingLg))
 

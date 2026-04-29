@@ -36,6 +36,12 @@ class WeeklyTrainingRepositoryImpl
             }
         }
 
+        override fun observeWorkoutsByEventType(eventType: EventType): Flow<List<Workout>> {
+            return workoutDao.observeByEventType(eventType.name).map { entities ->
+                entities.map { it.toDomain() }
+            }
+        }
+
         override fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>> {
             return workoutDao.observeWorkoutsForWeekStarts(weekStartDates).map { entities ->
                 entities.map { it.toDomain() }

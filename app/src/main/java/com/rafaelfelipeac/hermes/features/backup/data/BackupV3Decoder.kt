@@ -11,7 +11,6 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsReco
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject

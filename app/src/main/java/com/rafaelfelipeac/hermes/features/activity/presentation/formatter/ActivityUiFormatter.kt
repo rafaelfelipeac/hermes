@@ -624,19 +624,19 @@ class ActivityUiFormatter(
                 UserActionType.INCOMPLETE_WORKOUT -> incompleteNonWorkoutRes(entityType)
                 UserActionType.COMPLETE_RACE_EVENT -> completeNonWorkoutRes(entityType)
                 UserActionType.INCOMPLETE_RACE_EVENT -> incompleteNonWorkoutRes(entityType)
-            UserActionType.REORDER_WORKOUT -> reorderNonWorkoutRes(entityType)
-            UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> moveNonWorkoutRes(entityType)
-            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> undoReorderNonWorkoutRes(entityType)
-            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> undoMoveNonWorkoutRes(entityType)
-            UserActionType.REORDER_RACE_EVENT -> reorderNonWorkoutRes(entityType)
-            UserActionType.MOVE_RACE_EVENT -> moveNonWorkoutRes(entityType)
-            UserActionType.UNDO_REORDER_RACE_EVENT -> undoReorderNonWorkoutRes(entityType)
-            UserActionType.UNDO_MOVE_RACE_EVENT -> undoMoveNonWorkoutRes(entityType)
-            in nonWorkoutCreateActions -> createNonWorkoutRes(entityType)
-            in nonWorkoutUpdateActions -> updateNonWorkoutRes(entityType)
-            in nonWorkoutDeleteActions -> deleteNonWorkoutRes(entityType)
-            in nonWorkoutUndoDeleteActions -> undoDeleteNonWorkoutRes(entityType)
-            else -> null
+                UserActionType.REORDER_WORKOUT -> reorderNonWorkoutRes(entityType)
+                UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> moveNonWorkoutRes(entityType)
+                UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> undoReorderNonWorkoutRes(entityType)
+                UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> undoMoveNonWorkoutRes(entityType)
+                UserActionType.REORDER_RACE_EVENT -> reorderNonWorkoutRes(entityType)
+                UserActionType.MOVE_RACE_EVENT -> moveNonWorkoutRes(entityType)
+                UserActionType.UNDO_REORDER_RACE_EVENT -> undoReorderNonWorkoutRes(entityType)
+                UserActionType.UNDO_MOVE_RACE_EVENT -> undoMoveNonWorkoutRes(entityType)
+                in nonWorkoutCreateActions -> createNonWorkoutRes(entityType)
+                in nonWorkoutUpdateActions -> updateNonWorkoutRes(entityType)
+                in nonWorkoutDeleteActions -> deleteNonWorkoutRes(entityType)
+                in nonWorkoutUndoDeleteActions -> undoDeleteNonWorkoutRes(entityType)
+                else -> null
             }
 
         if (simpleResId != null) return stringProvider.get(simpleResId)
@@ -838,33 +838,33 @@ class ActivityUiFormatter(
 
     private val nonWorkoutCreateActions =
         setOf(
-        UserActionType.CREATE_REST_DAY,
-        UserActionType.CREATE_BUSY,
-        UserActionType.CREATE_SICK,
-        UserActionType.CREATE_RACE_EVENT,
-    )
+            UserActionType.CREATE_REST_DAY,
+            UserActionType.CREATE_BUSY,
+            UserActionType.CREATE_SICK,
+            UserActionType.CREATE_RACE_EVENT,
+        )
 
     private val nonWorkoutUpdateActions =
         setOf(
-        UserActionType.UPDATE_REST_DAY,
-        UserActionType.UPDATE_BUSY,
-        UserActionType.UPDATE_SICK,
-        UserActionType.UPDATE_RACE_EVENT,
-    )
+            UserActionType.UPDATE_REST_DAY,
+            UserActionType.UPDATE_BUSY,
+            UserActionType.UPDATE_SICK,
+            UserActionType.UPDATE_RACE_EVENT,
+        )
 
     private val nonWorkoutDeleteActions =
         setOf(
-        UserActionType.DELETE_REST_DAY,
-        UserActionType.DELETE_BUSY,
-        UserActionType.DELETE_SICK,
-        UserActionType.DELETE_RACE_EVENT,
-    )
+            UserActionType.DELETE_REST_DAY,
+            UserActionType.DELETE_BUSY,
+            UserActionType.DELETE_SICK,
+            UserActionType.DELETE_RACE_EVENT,
+        )
 
     private val nonWorkoutUndoDeleteActions =
         setOf(
-        UserActionType.UNDO_DELETE_REST_DAY,
-        UserActionType.UNDO_DELETE_BUSY,
-        UserActionType.UNDO_DELETE_SICK,
-        UserActionType.UNDO_DELETE_RACE_EVENT,
-    )
+            UserActionType.UNDO_DELETE_REST_DAY,
+            UserActionType.UNDO_DELETE_BUSY,
+            UserActionType.UNDO_DELETE_SICK,
+            UserActionType.UNDO_DELETE_RACE_EVENT,
+        )
 }

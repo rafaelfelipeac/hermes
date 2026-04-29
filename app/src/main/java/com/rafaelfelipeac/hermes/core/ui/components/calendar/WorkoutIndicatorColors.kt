@@ -7,6 +7,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_DARK
 import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_LIGHT
 import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
@@ -16,7 +17,7 @@ fun workoutIndicatorColor(
     surface: Color,
     nonWorkoutColor: Color,
 ): Color {
-    if (workout.eventType != WORKOUT) {
+    if (workout.eventType != WORKOUT && workout.eventType != RACE_EVENT) {
         return nonWorkoutColor
     }
 

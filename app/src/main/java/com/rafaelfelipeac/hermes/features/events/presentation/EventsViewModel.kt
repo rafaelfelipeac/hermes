@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.events.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
@@ -9,8 +10,8 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
@@ -30,7 +31,6 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorage
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi as toWorkoutUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toCreateActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toDeleteActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toMoveActionType
@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi as toWorkoutUi
 
 @HiltViewModel
 class EventsViewModel
@@ -54,14 +55,13 @@ class EventsViewModel
     ) : ViewModel() {
         val state =
             combine(
-                repository.observeAllWorkouts(),
+                repository.observeWorkoutsByEventType(RACE_EVENT),
                 categoryRepository.observeCategories(),
             ) { workouts, categories ->
                 val categoriesById = categories.associateBy { it.id }
                 EventsUiState(
                     events =
                         workouts.asSequence()
-                            .filter { it.eventType == RACE_EVENT }
                             .map { workout ->
                                 val category = workout.categoryId?.let(categoriesById::get)
                                 workout.toWorkoutUi(category?.toUi())
@@ -101,7 +101,7 @@ class EventsViewModel
                             workout.dayOfWeek == dayOfWeek &&
                                 workout.timeSlot == null &&
                                 workout.eventType == RACE_EVENT
-                    }
+                        }
 
                 val workout =
                     Workout(
@@ -116,7 +116,7 @@ class EventsViewModel
                         order = nextOrder,
                         eventType = RACE_EVENT,
                         timeSlot = null,
-                )
+                    )
 
                 val eventId = repository.insertWorkout(workout)
 
@@ -142,6 +142,7 @@ class EventsViewModel
             }
         }
 
+        @Suppress("CyclomaticComplexMethod", "LongMethod")
         fun updateRaceEvent(
             eventId: Long,
             title: String,
@@ -160,7 +161,6 @@ class EventsViewModel
                     UNCATEGORIZED_ID
                 }
             val categoryName = currentCategories.firstOrNull { it.id == normalizedCategoryId }?.name
-            val oldCategoryName = original?.categoryName
 
             viewModelScope.launch {
                 val storageWeekStart = canonicalStorageWeekStart(eventDate)
@@ -211,9 +211,9 @@ class EventsViewModel
                             NEW_DAY_OF_WEEK to dayOfWeek.value.toString(),
                             OLD_ORDER to (original?.order?.toString() ?: nextOrder.toString()),
                             NEW_ORDER to nextOrder.toString(),
-                            OLD_TYPE to (original?.type ?: ""),
+                            OLD_TYPE to (original?.type ?: EMPTY),
                             NEW_TYPE to title,
-                            OLD_DESCRIPTION to (original?.description ?: ""),
+                            OLD_DESCRIPTION to (original?.description ?: EMPTY),
                             NEW_DESCRIPTION to description,
                         ).apply {
                             original?.categoryId?.let { put(OLD_CATEGORY_ID, it.toString()) }
@@ -244,11 +244,12 @@ class EventsViewModel
                 repository.updateWorkoutCompletion(eventId, isCompleted)
 
                 userActionLogger.log(
-                    actionType = if (isCompleted) {
-                        com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
-                    } else {
-                        com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
-                    },
+                    actionType =
+                        if (isCompleted) {
+                            com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
+                        } else {
+                            com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
+                        },
                     entityType = RACE_EVENT.toUserActionEntityType(),
                     entityId = eventId,
                     metadata =
@@ -280,9 +281,9 @@ class EventsViewModel
                     entityId = eventId,
                     metadata =
                         mutableMapOf(
-                            WEEK_START_DATE to (original?.weekStartDate?.toString() ?: ""),
-                            NEW_TYPE to (original?.type ?: ""),
-                            NEW_DESCRIPTION to (original?.description ?: ""),
+                            WEEK_START_DATE to (original?.weekStartDate?.toString() ?: EMPTY),
+                            NEW_TYPE to (original?.type ?: EMPTY),
+                            NEW_DESCRIPTION to (original?.description ?: EMPTY),
                         ).apply {
                             original?.categoryId?.let { put(CATEGORY_ID, it.toString()) }
                             original?.categoryName?.takeIf { it.isNotBlank() }?.let {

@@ -12,30 +12,31 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_REST_DAY_TO_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_WORKOUT_TO_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
@@ -85,7 +86,7 @@ import javax.inject.Inject
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
-@Suppress("LargeClass")
+@Suppress("LargeClass", "TooManyFunctions")
 class WeeklyTrainingViewModel
     @Inject
     constructor(
@@ -530,7 +531,7 @@ class WeeklyTrainingViewModel
 
                 val optimisticWorkoutsBeforeChange = applyPendingCompletionOverrides(currentWorkouts)
                 val originalEffective = optimisticWorkoutsBeforeChange.firstOrNull { it.id == workout.id }
-                if (workout.eventType != EventType.WORKOUT || originalEffective?.eventType != EventType.WORKOUT) {
+                if (!workout.eventType.supportsCompletion() || originalEffective?.eventType != workout.eventType) {
                     return@withLock
                 }
 
@@ -543,12 +544,11 @@ class WeeklyTrainingViewModel
 
                 repository.updateWorkoutCompletion(workout.id, isCompleted)
 
-                val actionType =
-                    if (isCompleted) COMPLETE_WORKOUT else INCOMPLETE_WORKOUT
+                val actionType = workout.eventType.toCompletionActionType(isCompleted)
 
                 userActionLogger.log(
                     actionType = actionType,
-                    entityType = WORKOUT,
+                    entityType = workout.eventType.toUserActionEntityType(),
                     entityId = workout.id,
                     metadata =
                         mutableMapOf(
@@ -569,6 +569,7 @@ class WeeklyTrainingViewModel
                 val message =
                     if (isCompleted) {
                         if (
+                            workout.eventType == EventType.WORKOUT &&
                             shouldCelebrateAllWorkoutsCompleted(
                                 currentWorkouts = optimisticWorkouts,
                                 workoutId = workout.id,
@@ -604,6 +605,7 @@ class WeeklyTrainingViewModel
             }
         }
 
+        @Suppress("LongMethod")
         fun updateWorkoutDetails(
             workoutId: Long,
             type: String,
@@ -672,10 +674,11 @@ class WeeklyTrainingViewModel
                         newCategoryId = normalizedCategoryId,
                         oldCategoryName = oldCategoryName,
                         newCategoryName = newCategoryName,
-                ),
+                    ),
             )
         }
 
+        @Suppress("LongMethod")
         fun updateRaceEvent(
             workoutId: Long,
             type: String,
@@ -942,6 +945,26 @@ private fun mapWorkoutsToUi(
         workout.toUi(category)
     }
 }
+
+private fun EventType.supportsCompletion(): Boolean {
+    return this == EventType.WORKOUT || this == EventType.RACE_EVENT
+}
+
+private fun EventType.toCompletionActionType(isCompleted: Boolean) =
+    when (this) {
+        EventType.RACE_EVENT ->
+            if (isCompleted) {
+                COMPLETE_RACE_EVENT
+            } else {
+                INCOMPLETE_RACE_EVENT
+            }
+        else ->
+            if (isCompleted) {
+                COMPLETE_WORKOUT
+            } else {
+                INCOMPLETE_WORKOUT
+            }
+    }
 
 private suspend fun undoCompletion(
     action: PendingUndoAction.Completion,

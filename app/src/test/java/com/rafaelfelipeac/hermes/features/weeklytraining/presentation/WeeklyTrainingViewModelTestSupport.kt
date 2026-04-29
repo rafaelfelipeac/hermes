@@ -45,11 +45,12 @@ fun workout(
         isRestDay = isRestDay,
         categoryId = if (isRestDay) null else categoryId,
         order = order,
-        eventType = eventType ?: if (isRestDay) {
-            EventType.REST
-        } else {
-            EventType.WORKOUT
-        },
+        eventType =
+            eventType ?: if (isRestDay) {
+                EventType.REST
+            } else {
+                EventType.WORKOUT
+            },
     )
 }
 
