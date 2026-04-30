@@ -130,6 +130,17 @@ fun WeeklyTrainingContent(
                     .sortedBy { it.order }
             }
         }
+    val sectionDates =
+        remember(selectedDate, dayOrder) {
+            val selectedIndex = dayOrder.indexOf(selectedDate.dayOfWeek).coerceAtLeast(0)
+            val weekStartDate = selectedDate.minusDays(selectedIndex.toLong())
+
+            mutableMapOf<SectionKey, LocalDate>().apply {
+                dayOrder.forEachIndexed { index, dayOfWeek ->
+                    put(Day(dayOfWeek), weekStartDate.plusDays(index.toLong()))
+                }
+            }
+        }
     val dayUsesSlots =
         remember(workouts, slotModePolicy) {
             sections
@@ -399,7 +410,7 @@ fun WeeklyTrainingContent(
                                 },
                     ) {
                         SectionHeader(
-                            title = section.title(),
+                            title = section.title(sectionDates[section]),
                             tag = "$SECTION_HEADER_TAG_PREFIX${section.key}",
                             showHelp = section == ToBeDefined,
                             onHelpClick = { isTbdHelpVisible = true },

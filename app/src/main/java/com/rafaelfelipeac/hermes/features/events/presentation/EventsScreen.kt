@@ -21,10 +21,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
@@ -40,6 +40,10 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -107,6 +112,8 @@ fun EventsScreen(
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
     var isDialogVisible by rememberSaveable { mutableStateOf(false) }
     var editingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftTitle by rememberSaveable { mutableStateOf("") }
@@ -130,6 +137,28 @@ fun EventsScreen(
             )
 
     val editingEvent = editingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
+
+    LaunchedEffect(Unit) {
+        viewModel.messages.collect { message ->
+            snackbarHostState.currentSnackbarData?.dismiss()
+            snackbarHostState.showSnackbar(
+                message =
+                    when (message) {
+                        is EventsMessage.Created ->
+                            context.getString(R.string.activity_action_create_race_event, message.title)
+                        is EventsMessage.Updated ->
+                            context.getString(R.string.activity_action_update_race_event, message.title)
+                        is EventsMessage.Deleted ->
+                            context.getString(R.string.activity_action_delete_race_event, message.title)
+                        EventsMessage.Completed ->
+                            context.getString(R.string.activity_action_complete_race_event)
+                        EventsMessage.MarkedIncomplete ->
+                            context.getString(R.string.activity_action_incomplete_race_event)
+                    },
+                duration = SnackbarDuration.Short,
+            )
+        }
+    }
 
     LaunchedEffect(pendingEventDraft, state.events, state.categories) {
         if (pendingEventDraft == null) {
@@ -174,6 +203,16 @@ fun EventsScreen(
     }
 
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = colorScheme.surfaceVariant,
+                    contentColor = colorScheme.onSurfaceVariant,
+                    actionColor = colorScheme.primary,
+                )
+            }
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
@@ -207,14 +246,14 @@ fun EventsScreen(
                     .fillMaxSize()
                     .padding(contentPadding),
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(EventCardMinWidth),
+            LazyVerticalStaggeredGrid(
+                columns = StaggeredGridCells.Adaptive(EventCardMinWidth),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = SpacingXl, top = Zero, end = SpacingXl, bottom = SpacingXl),
                 horizontalArrangement = Arrangement.spacedBy(SpacingMd),
-                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+                verticalItemSpacing = SpacingMd,
             ) {
-                item(span = { GridItemSpan(maxLineSpan) }) {
+                item(span = StaggeredGridItemSpan.FullLine) {
                     Column(
                         modifier = Modifier.padding(top = SpacingXl),
                         verticalArrangement = Arrangement.spacedBy(SpacingSm),
@@ -233,7 +272,7 @@ fun EventsScreen(
                 }
 
                 if (upcomingEvents.isEmpty() && pastEvents.isEmpty()) {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
+                    item(span = StaggeredGridItemSpan.FullLine) {
                         EventsEmptyState(
                             modifier = Modifier.padding(top = SpacingXl),
                         )
@@ -254,7 +293,7 @@ fun EventsScreen(
                     }
 
                     if (pastEvents.isNotEmpty()) {
-                        item(span = { GridItemSpan(maxLineSpan) }) {
+                        item(span = StaggeredGridItemSpan.FullLine) {
                             Text(
                                 text = stringResource(R.string.race_events_past_title),
                                 style = typography.titleMedium,
@@ -476,8 +515,21 @@ private fun EventCard(
                             text = event.type,
                             style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
                             color = colors.content,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.padding(start = SpacingXs),
                         )
+
+                        if (event.description.isNotBlank()) {
+                            Text(
+                                text = event.description,
+                                style = typography.bodySmall,
+                                color = colors.content.copy(alpha = 0.85f),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(start = SpacingXs),
+                            )
+                        }
 
                         Text(
                             text = dateLabel,
@@ -515,17 +567,6 @@ private fun EventCard(
                         text = countdown,
                         style = typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                         color = Color.White,
-                    )
-                }
-
-                if (event.description.isNotBlank()) {
-                    Text(
-                        text = event.description,
-                        style = typography.bodyMedium,
-                        color = colors.content.copy(alpha = 0.85f),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(horizontal = ContentPadding),
                     )
                 }
             }

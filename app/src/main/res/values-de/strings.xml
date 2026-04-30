@@ -452,6 +452,7 @@
     <string name="weekly_training_race_event_moved">Wettkampf/Event verschoben.</string>
     <string name="weekly_training_race_event_deleted">Wettkampf/Event gelöscht.</string>
     <string name="race_event_label">Wettkampf</string>
+    <string name="weekly_training_section_day_with_date">%1$s • %2$s</string>
     <string name="race_events_title">Wettkämpfe &amp; Events</string>
     <string name="race_events_subtitle">Bevorstehende Events und Countdowns.</string>
     <string name="race_events_empty_title">Noch keine Wettkämpfe/Events.</string>

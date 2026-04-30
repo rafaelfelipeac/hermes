@@ -451,6 +451,7 @@
     <string name="weekly_training_race_event_moved">Carrera/evento movido.</string>
     <string name="weekly_training_race_event_deleted">Carrera/evento eliminada.</string>
     <string name="race_event_label">Carrera</string>
+    <string name="weekly_training_section_day_with_date">%1$s • %2$s</string>
     <string name="race_events_title">Carreras y eventos</string>
     <string name="race_events_subtitle">Eventos próximos y cuentas regresivas.</string>
     <string name="race_events_empty_title">Todavía no hay carreras/eventos.</string>

@@ -51,6 +51,7 @@
     <string name="weekly_training_undo_action">Undo</string>
     <string name="weekly_training_no_workouts">Nothing planned yet.</string>
     <string name="weekly_training_section_to_be_defined">To be defined</string>
+    <string name="weekly_training_section_day_with_date">%1$s • %2$s</string>
     <string name="weekly_training_tbd_help_title">How to organize workouts</string>
     <string name="weekly_training_tbd_help_message">Long press a workout to drag it to a weekday. Drop it on a day or between items to set the order.</string>
     <string name="weekly_training_tbd_help_confirm">Got it</string>

@@ -149,11 +149,11 @@ fun WeeklyTrainingScreen(
                 UndoMessage.Deleted ->
                     stringResource(undoDeletedMessageRes(eventType))
                 UndoMessage.Completed ->
-                    stringResource(R.string.weekly_training_workout_completed)
+                    stringResource(completionMessageRes(eventType, true))
                 UndoMessage.CompletedWeek ->
                     stringResource(R.string.weekly_training_week_completed_celebration)
                 UndoMessage.MarkedIncomplete ->
-                    stringResource(R.string.weekly_training_workout_marked_incomplete)
+                    stringResource(completionMessageRes(eventType, false))
             }
         }
 
@@ -806,6 +806,26 @@ private fun undoDeletedMessageRes(eventType: EventType): Int {
         BUSY -> R.string.weekly_training_busy_deleted
         SICK -> R.string.weekly_training_sick_deleted
         RACE_EVENT -> R.string.weekly_training_race_event_deleted
+    }
+}
+
+private fun completionMessageRes(
+    eventType: EventType,
+    isCompleted: Boolean,
+): Int {
+    return when (eventType) {
+        RACE_EVENT ->
+            if (isCompleted) {
+                R.string.activity_action_complete_race_event
+            } else {
+                R.string.activity_action_incomplete_race_event
+            }
+        else ->
+            if (isCompleted) {
+                R.string.weekly_training_workout_completed
+            } else {
+                R.string.weekly_training_workout_marked_incomplete
+            }
     }
 }
 

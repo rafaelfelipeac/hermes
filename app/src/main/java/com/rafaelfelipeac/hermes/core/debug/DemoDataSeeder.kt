@@ -52,6 +52,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
@@ -157,7 +158,8 @@ class DemoDataSeeder
                 buildWeekSchedule(weekStart, CompletionProfile.COMPLETED_MOST)
             } +
                 buildWeekSchedule(currentWeekStart, CompletionProfile.COMPLETED_SOME) +
-                buildWeekSchedule(nextWeekStart, CompletionProfile.NONE)
+                buildWeekSchedule(nextWeekStart, CompletionProfile.NONE) +
+                buildDemoRaceEvents(currentWeekStart, nextWeekStart)
         }
 
         private fun buildWeekSchedule(
@@ -207,6 +209,48 @@ class DemoDataSeeder
                         sortOrder = orderInSlot,
                     )
                 }
+            }
+        }
+
+        private fun buildDemoRaceEvents(
+            currentWeekStart: LocalDate,
+            nextWeekStart: LocalDate,
+        ): List<WorkoutEntity> {
+            val raceEvents =
+                listOf(
+                    RaceEventPlan(
+                        eventDate = currentWeekStart.plusDays(4),
+                        seed = raceEventSeed(0, RUN_ID),
+                    ),
+                    RaceEventPlan(
+                        eventDate = currentWeekStart.plusDays(6),
+                        seed = raceEventSeed(2, CYCLING_ID),
+                    ),
+                    RaceEventPlan(
+                        eventDate = nextWeekStart.plusDays(2),
+                        seed = raceEventSeed(4, SWIM_ID),
+                    ),
+                    RaceEventPlan(
+                        eventDate = nextWeekStart.plusDays(5),
+                        seed = raceEventSeed(6, OTHER_ID),
+                    ),
+                )
+
+            return raceEvents.map { plan ->
+                val weekStartDate = plan.eventDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+                WorkoutEntity(
+                    weekStartDate = weekStartDate,
+                    dayOfWeek = plan.eventDate.dayOfWeek.value,
+                    type = plan.seed.type,
+                    description = plan.seed.description,
+                    isCompleted = false,
+                    isRestDay = false,
+                    eventType = RACE_EVENT.name,
+                    timeSlot = null,
+                    categoryId = plan.seed.categoryId,
+                    sortOrder = 0,
+                )
             }
         }
 
@@ -1118,6 +1162,35 @@ class DemoDataSeeder
             )
         }
 
+        private fun raceEventSeed(
+            index: Int,
+            categoryId: Long? = null,
+        ): WorkoutSeed {
+            val titles =
+                listOf(
+                    stringProvider.get(R.string.mock_workout_type_long_run),
+                    stringProvider.get(R.string.mock_workout_type_cardio),
+                    stringProvider.get(R.string.mock_workout_type_strength),
+                    stringProvider.get(R.string.mock_workout_type_hiits),
+                )
+            val descriptions =
+                listOf(
+                    stringProvider.get(R.string.mock_workout_description_long_run),
+                    stringProvider.get(R.string.mock_workout_description_cardio),
+                    stringProvider.get(R.string.mock_workout_description_strength),
+                    stringProvider.get(R.string.mock_workout_description_hiits),
+                )
+
+            val safeIndex = index % titles.size
+
+            return WorkoutSeed(
+                eventType = RACE_EVENT,
+                type = titles[safeIndex],
+                description = descriptions[safeIndex],
+                categoryId = categoryId,
+            )
+        }
+
         private fun workoutSeedForCategory(categoryId: Long): WorkoutSeed {
             return when (categoryId) {
                 RUN_ID -> workoutSeed(index = 2, timeSlot = MORNING)
@@ -1211,6 +1284,12 @@ private data class WorkoutSeed(
     val type: String,
     val description: String,
     val timeSlot: TimeSlot? = null,
+    val categoryId: Long? = null,
+)
+
+private data class RaceEventPlan(
+    val eventDate: LocalDate,
+    val seed: WorkoutSeed,
 )
 
 private enum class CompletionProfile {

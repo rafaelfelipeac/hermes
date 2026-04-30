@@ -37,7 +37,10 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toMoveActi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUpdateActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUserActionEntityType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -53,6 +56,8 @@ class EventsViewModel
         private val categoryRepository: CategoryRepository,
         private val userActionLogger: UserActionLogger,
     ) : ViewModel() {
+        private val messageEvents = MutableSharedFlow<EventsMessage>(extraBufferCapacity = 1)
+
         val state =
             combine(
                 repository.observeWorkoutsByEventType(RACE_EVENT),
@@ -74,6 +79,8 @@ class EventsViewModel
                 started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue = EventsUiState(),
             )
+
+        val messages: SharedFlow<EventsMessage> = messageEvents.asSharedFlow()
 
         fun addRaceEvent(
             title: String,
@@ -139,6 +146,8 @@ class EventsViewModel
                             }
                         },
                 )
+
+                messageEvents.emit(EventsMessage.Created(title))
             }
         }
 
@@ -230,6 +239,8 @@ class EventsViewModel
                             }
                         },
                 )
+
+                messageEvents.emit(EventsMessage.Updated(title))
             }
         }
 
@@ -267,6 +278,14 @@ class EventsViewModel
                             }
                         },
                 )
+
+                messageEvents.emit(
+                    if (isCompleted) {
+                        EventsMessage.Completed
+                    } else {
+                        EventsMessage.MarkedIncomplete
+                    },
+                )
             }
         }
 
@@ -292,6 +311,8 @@ class EventsViewModel
                             }
                         },
                 )
+
+                messageEvents.emit(EventsMessage.Deleted(original?.type ?: EMPTY))
             }
         }
 
