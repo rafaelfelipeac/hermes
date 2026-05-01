@@ -294,12 +294,18 @@ fun EventsScreen(
 
                     if (pastEvents.isNotEmpty()) {
                         item(span = StaggeredGridItemSpan.FullLine) {
-                            Text(
-                                text = stringResource(R.string.race_events_past_title),
-                                style = typography.titleMedium,
-                                color = colorScheme.onSurface,
+                            Column(
                                 modifier = Modifier.padding(top = SpacingLg),
-                            )
+                                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+                            ) {
+                                HorizontalDivider(color = colorScheme.outlineVariant)
+
+                                Text(
+                                    text = stringResource(R.string.race_events_past_title),
+                                    style = typography.titleMedium,
+                                    color = colorScheme.onSurface,
+                                )
+                            }
                         }
 
                         items(pastEvents, key = { it.id }) { event ->
