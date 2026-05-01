@@ -82,7 +82,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
@@ -122,7 +121,6 @@ fun WeeklyTrainingScreen(
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
     val undoLabel = stringResource(R.string.weekly_training_undo_action)
-    val copiedWeekMessage = stringResource(R.string.weekly_training_week_copied)
     val emptyCopyMessage = stringResource(R.string.weekly_training_copy_last_week_empty)
     val pickerCategories = state.categories.filter { !it.isHidden || it.id == UNCATEGORIZED_ID }
     val plannerFocusCategories =
@@ -142,19 +140,10 @@ fun WeeklyTrainingScreen(
                     is PendingUndoAction.ReplaceWeek -> WORKOUT
                 }
 
-            when (currentUndo.message) {
-                UndoMessage.WeekCopied -> copiedWeekMessage
-                UndoMessage.Moved ->
-                    stringResource(undoMovedMessageRes(eventType))
-                UndoMessage.Deleted ->
-                    stringResource(undoDeletedMessageRes(eventType))
-                UndoMessage.Completed ->
-                    stringResource(completionMessageRes(eventType, true))
-                UndoMessage.CompletedWeek ->
-                    stringResource(R.string.weekly_training_week_completed_celebration)
-                UndoMessage.MarkedIncomplete ->
-                    stringResource(completionMessageRes(eventType, false))
-            }
+            undoSnackbarMessage(
+                message = currentUndo.message,
+                eventType = eventType,
+            )
         }
 
     LaunchedEffect(undoState?.id) {
@@ -242,6 +231,19 @@ fun WeeklyTrainingScreen(
                     containerColor = colorScheme.surfaceVariant,
                     contentColor = colorScheme.onSurfaceVariant,
                     actionColor = colorScheme.primary,
+                )
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { isAddMenuVisible = !isAddMenuVisible },
+                containerColor = fabContainerColor,
+                contentColor = fabContentColor,
+                modifier = Modifier.testTag(ADD_FAB_TEST_TAG),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.weekly_training_add_item),
                 )
             }
         },
@@ -351,25 +353,6 @@ fun WeeklyTrainingScreen(
                                 isAddMenuVisible = false
                             },
                 )
-            }
-
-            Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(SpacingXl),
-            ) {
-                FloatingActionButton(
-                    onClick = { isAddMenuVisible = !isAddMenuVisible },
-                    containerColor = fabContainerColor,
-                    contentColor = fabContentColor,
-                    modifier = Modifier.testTag(ADD_FAB_TEST_TAG),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.weekly_training_add_item),
-                    )
-                }
             }
 
             if (isAddMenuVisible) {
@@ -786,46 +769,6 @@ private suspend fun centerWeeklySelectedChip(
 
     if (delta != 0f) {
         listState.animateScrollBy(delta)
-    }
-}
-
-private fun undoMovedMessageRes(eventType: EventType): Int {
-    return when (eventType) {
-        WORKOUT -> R.string.weekly_training_workout_moved
-        REST -> R.string.weekly_training_rest_day_moved
-        BUSY -> R.string.weekly_training_busy_moved
-        SICK -> R.string.weekly_training_sick_moved
-        RACE_EVENT -> R.string.weekly_training_race_event_moved
-    }
-}
-
-private fun undoDeletedMessageRes(eventType: EventType): Int {
-    return when (eventType) {
-        WORKOUT -> R.string.weekly_training_workout_deleted
-        REST -> R.string.weekly_training_rest_day_deleted
-        BUSY -> R.string.weekly_training_busy_deleted
-        SICK -> R.string.weekly_training_sick_deleted
-        RACE_EVENT -> R.string.weekly_training_race_event_deleted
-    }
-}
-
-private fun completionMessageRes(
-    eventType: EventType,
-    isCompleted: Boolean,
-): Int {
-    return when (eventType) {
-        RACE_EVENT ->
-            if (isCompleted) {
-                R.string.activity_action_complete_race_event
-            } else {
-                R.string.activity_action_incomplete_race_event
-            }
-        else ->
-            if (isCompleted) {
-                R.string.weekly_training_workout_completed
-            } else {
-                R.string.weekly_training_workout_marked_incomplete
-            }
     }
 }
 

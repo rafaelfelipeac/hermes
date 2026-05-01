@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -194,6 +195,76 @@ class EventsViewModelTest {
         }
 
     @Test
+    fun undoRaceEventCompletion_restoresPreviousStateAndLogsUndo() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository =
+                FakeWeeklyTrainingRepository(
+                    initialWorkouts =
+                        listOf(
+                            workout(
+                                id = EVENT_ID,
+                                eventDate = LocalDate.now().plusDays(5),
+                                eventType = RACE_EVENT,
+                                isCompleted = false,
+                            ),
+                        ),
+                )
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository = repository, logger = logger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+
+            advanceUntilIdle()
+            viewModel.updateRaceEventCompletion(eventId = EVENT_ID, isCompleted = true)
+            runCurrent()
+            viewModel.undoLastAction()
+            advanceUntilIdle()
+
+            assertEquals(false, repository.workouts.value.single().isCompleted)
+            assertEquals(
+                listOf(UserActionType.COMPLETE_RACE_EVENT, UserActionType.UNDO_COMPLETE_RACE_EVENT),
+                logger.actions.map { it.actionType },
+            )
+            assertEquals(null, viewModel.undoUiState.value)
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun undoRaceEventIncomplete_restoresPreviousStateAndLogsUndo() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository =
+                FakeWeeklyTrainingRepository(
+                    initialWorkouts =
+                        listOf(
+                            workout(
+                                id = EVENT_ID,
+                                eventDate = LocalDate.now().plusDays(5),
+                                eventType = RACE_EVENT,
+                                isCompleted = true,
+                            ),
+                        ),
+                )
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository = repository, logger = logger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+
+            advanceUntilIdle()
+            viewModel.updateRaceEventCompletion(eventId = EVENT_ID, isCompleted = false)
+            runCurrent()
+            viewModel.undoLastAction()
+            advanceUntilIdle()
+
+            assertEquals(true, repository.workouts.value.single().isCompleted)
+            assertEquals(
+                listOf(UserActionType.INCOMPLETE_RACE_EVENT, UserActionType.UNDO_INCOMPLETE_RACE_EVENT),
+                logger.actions.map { it.actionType },
+            )
+            assertEquals(null, viewModel.undoUiState.value)
+
+            collectJob.cancel()
+        }
+
+    @Test
     fun deleteRaceEvent_removesEventAndLogsDelete() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository =
@@ -213,6 +284,38 @@ class EventsViewModelTest {
 
             assertEquals(emptyList<Workout>(), repository.workouts.value)
             assertEquals(UserActionType.DELETE_RACE_EVENT, logger.actions.single().actionType)
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun undoDeleteRaceEvent_restoresEventAndLogsUndoDelete() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val deletedEvent =
+                workout(
+                    id = EVENT_ID,
+                    eventDate = LocalDate.now().plusDays(5),
+                    eventType = RACE_EVENT,
+                    type = EVENT_TITLE,
+                    description = EVENT_DESCRIPTION,
+                )
+            val repository = FakeWeeklyTrainingRepository(initialWorkouts = listOf(deletedEvent))
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository = repository, logger = logger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+
+            advanceUntilIdle()
+            viewModel.deleteRaceEvent(EVENT_ID)
+            runCurrent()
+            viewModel.undoLastAction()
+            advanceUntilIdle()
+
+            assertEquals(listOf(deletedEvent), repository.workouts.value)
+            assertEquals(
+                listOf(UserActionType.DELETE_RACE_EVENT, UserActionType.UNDO_DELETE_RACE_EVENT),
+                logger.actions.map { it.actionType },
+            )
+            assertEquals(null, viewModel.undoUiState.value)
 
             collectJob.cancel()
         }

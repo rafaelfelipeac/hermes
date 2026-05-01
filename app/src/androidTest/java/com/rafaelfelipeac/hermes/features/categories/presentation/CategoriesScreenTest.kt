@@ -251,6 +251,10 @@ class CategoriesScreenTest {
     private class FakeWeeklyTrainingRepository : WeeklyTrainingRepository {
         override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> = emptyFlow()
 
+        override fun observeAllWorkouts(): Flow<List<Workout>> = emptyFlow()
+
+        override fun observeWorkoutsByEventType(eventType: EventType): Flow<List<Workout>> = emptyFlow()
+
         override fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>> = emptyFlow()
 
         override suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<Workout> = emptyList()

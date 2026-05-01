@@ -24,6 +24,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
@@ -31,15 +32,22 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorage
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.UndoMessage
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toCreateActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toDeleteActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toMoveActionType
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUndoDeleteActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUpdateActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUserActionEntityType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -57,6 +65,9 @@ class EventsViewModel
         private val userActionLogger: UserActionLogger,
     ) : ViewModel() {
         private val messageEvents = MutableSharedFlow<EventsMessage>(extraBufferCapacity = 1)
+        private val undoState = MutableStateFlow<EventUndoState?>(null)
+        private var undoTimeoutJob: Job? = null
+        private var undoCounter = 0L
 
         val state =
             combine(
@@ -81,6 +92,7 @@ class EventsViewModel
             )
 
         val messages: SharedFlow<EventsMessage> = messageEvents.asSharedFlow()
+        val undoUiState: StateFlow<EventUndoState?> = undoState
 
         fun addRaceEvent(
             title: String,
@@ -253,6 +265,20 @@ class EventsViewModel
                 if (original.isCompleted == isCompleted) return@launch
 
                 repository.updateWorkoutCompletion(eventId, isCompleted)
+                setUndoAction(
+                    action =
+                        PendingEventUndoAction.Completion(
+                            event = original,
+                            previousCompleted = original.isCompleted,
+                            newCompleted = isCompleted,
+                        ),
+                    message =
+                        if (isCompleted) {
+                            UndoMessage.Completed
+                        } else {
+                            UndoMessage.MarkedIncomplete
+                        },
+                )
 
                 userActionLogger.log(
                     actionType =
@@ -278,21 +304,17 @@ class EventsViewModel
                             }
                         },
                 )
-
-                messageEvents.emit(
-                    if (isCompleted) {
-                        EventsMessage.Completed
-                    } else {
-                        EventsMessage.MarkedIncomplete
-                    },
-                )
             }
         }
 
         fun deleteRaceEvent(eventId: Long) {
             viewModelScope.launch {
-                val original = state.value.events.firstOrNull { it.id == eventId }
+                val original = state.value.events.firstOrNull { it.id == eventId } ?: return@launch
                 repository.deleteWorkout(eventId)
+                setUndoAction(
+                    action = PendingEventUndoAction.Delete(original),
+                    message = UndoMessage.Deleted,
+                )
 
                 userActionLogger.log(
                     actionType = RACE_EVENT.toDeleteActionType(),
@@ -300,23 +322,133 @@ class EventsViewModel
                     entityId = eventId,
                     metadata =
                         mutableMapOf(
-                            WEEK_START_DATE to (original?.weekStartDate?.toString() ?: EMPTY),
-                            NEW_TYPE to (original?.type ?: EMPTY),
-                            NEW_DESCRIPTION to (original?.description ?: EMPTY),
+                            WEEK_START_DATE to original.weekStartDate.toString(),
+                            NEW_TYPE to original.type,
+                            NEW_DESCRIPTION to original.description,
                         ).apply {
-                            original?.categoryId?.let { put(CATEGORY_ID, it.toString()) }
-                            original?.categoryName?.takeIf { it.isNotBlank() }?.let {
+                            original.categoryId?.let { put(CATEGORY_ID, it.toString()) }
+                            original.categoryName?.takeIf { it.isNotBlank() }?.let {
                                 put(CATEGORY_NAME, it)
                                 put(NEW_CATEGORY_NAME, it)
                             }
                         },
                 )
-
-                messageEvents.emit(EventsMessage.Deleted(original?.type ?: EMPTY))
             }
+        }
+
+        fun undoLastAction() {
+            val currentUndo = undoState.value ?: return
+            clearUndoTimeout()
+
+            viewModelScope.launch {
+                when (val action = currentUndo.action) {
+                    is PendingEventUndoAction.Delete -> undoDelete(action)
+                    is PendingEventUndoAction.Completion -> undoCompletion(action)
+                }
+
+                undoState.value = null
+            }
+        }
+
+        fun clearUndo() {
+            clearUndoTimeout()
+            undoState.value = null
+        }
+
+        private suspend fun undoDelete(action: PendingEventUndoAction.Delete) {
+            val event = action.event
+            repository.insertWorkout(event.toDomain())
+
+            userActionLogger.log(
+                actionType = RACE_EVENT.toUndoDeleteActionType(),
+                entityType = RACE_EVENT.toUserActionEntityType(),
+                entityId = event.id,
+                metadata = event.toActionMetadata(),
+            )
+        }
+
+        private suspend fun undoCompletion(action: PendingEventUndoAction.Completion) {
+            val event = action.event
+            repository.updateWorkoutCompletion(
+                workoutId = event.id,
+                isCompleted = action.previousCompleted,
+            )
+
+            userActionLogger.log(
+                actionType =
+                    if (action.newCompleted) {
+                        UserActionType.UNDO_COMPLETE_RACE_EVENT
+                    } else {
+                        UserActionType.UNDO_INCOMPLETE_RACE_EVENT
+                    },
+                entityType = RACE_EVENT.toUserActionEntityType(),
+                entityId = event.id,
+                metadata =
+                    event.toActionMetadata().apply {
+                        put(WAS_COMPLETED, action.newCompleted.toString())
+                        put(IS_COMPLETED, action.previousCompleted.toString())
+                    },
+            )
+        }
+
+        private fun setUndoAction(
+            action: PendingEventUndoAction,
+            message: UndoMessage,
+        ) {
+            val newId = ++undoCounter
+            undoState.value = EventUndoState(id = newId, message = message, action = action)
+            scheduleUndoTimeout(newId)
+        }
+
+        private fun scheduleUndoTimeout(undoId: Long) {
+            undoTimeoutJob?.cancel()
+            undoTimeoutJob =
+                viewModelScope.launch {
+                    delay(UNDO_TIMEOUT_MS)
+
+                    if (undoState.value?.id == undoId) {
+                        undoState.value = null
+                    }
+                }
+        }
+
+        private fun clearUndoTimeout() {
+            undoTimeoutJob?.cancel()
+            undoTimeoutJob = null
         }
 
         private companion object {
             const val STATE_SHARING_TIMEOUT_MS = 5_000L
+            const val UNDO_TIMEOUT_MS = 4_000L
         }
     }
+
+private fun WorkoutUi.toDomain(): Workout {
+    return Workout(
+        id = id,
+        weekStartDate = weekStartDate,
+        dayOfWeek = dayOfWeek,
+        type = type,
+        description = description,
+        isCompleted = isCompleted,
+        isRestDay = isRestDay,
+        categoryId = categoryId,
+        order = order,
+        eventType = eventType,
+        timeSlot = timeSlot,
+    )
+}
+
+private fun WorkoutUi.toActionMetadata(): MutableMap<String, String> {
+    return mutableMapOf(
+        WEEK_START_DATE to weekStartDate.toString(),
+        NEW_TYPE to type,
+        NEW_DESCRIPTION to description,
+    ).apply {
+        categoryId?.let { put(CATEGORY_ID, it.toString()) }
+        categoryName?.takeIf { it.isNotBlank() }?.let {
+            put(CATEGORY_NAME, it)
+            put(NEW_CATEGORY_NAME, it)
+        }
+    }
+}

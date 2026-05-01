@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -44,7 +45,9 @@ import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -93,7 +96,9 @@ import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.undoSnackbarMessage
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -112,6 +117,7 @@ fun EventsScreen(
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    val undoState by viewModel.undoUiState.collectAsState()
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var isDialogVisible by rememberSaveable { mutableStateOf(false) }
@@ -120,7 +126,9 @@ fun EventsScreen(
     var draftDescription by rememberSaveable { mutableStateOf("") }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
+    var deletingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftConsumedLocally by remember { mutableStateOf(false) }
+    val undoLabel = stringResource(R.string.weekly_training_undo_action)
 
     val today = LocalDate.now()
     val upcomingEvents =
@@ -137,6 +145,39 @@ fun EventsScreen(
             )
 
     val editingEvent = editingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
+    val deletingEvent = deletingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
+    val undoMessage =
+        undoState?.let { currentUndo ->
+            undoSnackbarMessage(
+                message = currentUndo.message,
+                eventType = RACE_EVENT,
+            )
+        }
+
+    LaunchedEffect(undoState?.id) {
+        if (undoMessage != null) {
+            snackbarHostState.currentSnackbarData?.dismiss()
+
+            val result =
+                snackbarHostState.showSnackbar(
+                    message = undoMessage,
+                    actionLabel = undoLabel,
+                    duration = SnackbarDuration.Indefinite,
+                )
+
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.undoLastAction()
+            } else {
+                viewModel.clearUndo()
+            }
+        }
+    }
+
+    LaunchedEffect(undoState) {
+        if (undoState == null) {
+            snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.messages.collect { message ->
@@ -148,12 +189,6 @@ fun EventsScreen(
                             context.getString(R.string.activity_action_create_race_event, message.title)
                         is EventsMessage.Updated ->
                             context.getString(R.string.activity_action_update_race_event, message.title)
-                        is EventsMessage.Deleted ->
-                            context.getString(R.string.activity_action_delete_race_event, message.title)
-                        EventsMessage.Completed ->
-                            context.getString(R.string.activity_action_complete_race_event)
-                        EventsMessage.MarkedIncomplete ->
-                            context.getString(R.string.activity_action_incomplete_race_event)
                     },
                 duration = SnackbarDuration.Short,
             )
@@ -256,7 +291,7 @@ fun EventsScreen(
                 item(span = StaggeredGridItemSpan.FullLine) {
                     Column(
                         modifier = Modifier.padding(top = SpacingXl),
-                        verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                        verticalArrangement = Arrangement.spacedBy(SpacingMd),
                     ) {
                         Text(
                             text = stringResource(R.string.race_events_title),
@@ -278,6 +313,23 @@ fun EventsScreen(
                         )
                     }
                 } else {
+                    if (upcomingEvents.isNotEmpty()) {
+                        item(span = StaggeredGridItemSpan.FullLine) {
+                            Column(
+                                modifier = Modifier.padding(top = SpacingLg),
+                                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+                            ) {
+                                HorizontalDivider(color = colorScheme.outlineVariant)
+
+                                Text(
+                                    text = stringResource(R.string.race_events_upcoming_title),
+                                    style = typography.titleMedium,
+                                    color = colorScheme.onSurface,
+                                )
+                            }
+                        }
+                    }
+
                     items(upcomingEvents, key = { it.id }) { event ->
                         EventCard(
                             event = event,
@@ -288,7 +340,7 @@ fun EventsScreen(
                                     isCompleted = checked,
                                 )
                             },
-                            onDelete = { viewModel.deleteRaceEvent(event.id) },
+                            onDelete = { deletingEventId = event.id },
                         )
                     }
 
@@ -318,7 +370,7 @@ fun EventsScreen(
                                         isCompleted = checked,
                                     )
                                 },
-                                onDelete = { viewModel.deleteRaceEvent(event.id) },
+                                onDelete = { deletingEventId = event.id },
                             )
                         }
                     }
@@ -374,6 +426,29 @@ fun EventsScreen(
             selectedDate = draftDate,
             initialTitle = draftTitle,
             initialDescription = draftDescription,
+        )
+    }
+
+    deletingEvent?.let { event ->
+        AlertDialog(
+            onDismissRequest = { deletingEventId = null },
+            title = { Text(text = stringResource(R.string.weekly_training_delete_race_event_title)) },
+            text = { Text(text = stringResource(R.string.weekly_training_delete_race_event_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteRaceEvent(event.id)
+                        deletingEventId = null
+                    },
+                ) {
+                    Text(text = stringResource(R.string.weekly_training_delete_race_event))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { deletingEventId = null }) {
+                    Text(text = stringResource(R.string.add_workout_cancel))
+                }
+            },
         )
     }
 }

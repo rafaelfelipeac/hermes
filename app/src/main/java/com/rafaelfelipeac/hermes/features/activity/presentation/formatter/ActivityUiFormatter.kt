@@ -624,6 +624,8 @@ class ActivityUiFormatter(
                 UserActionType.INCOMPLETE_WORKOUT -> incompleteNonWorkoutRes(entityType)
                 UserActionType.COMPLETE_RACE_EVENT -> completeNonWorkoutRes(entityType)
                 UserActionType.INCOMPLETE_RACE_EVENT -> incompleteNonWorkoutRes(entityType)
+                UserActionType.UNDO_COMPLETE_RACE_EVENT -> R.string.activity_action_undo_complete_race_event
+                UserActionType.UNDO_INCOMPLETE_RACE_EVENT -> R.string.activity_action_undo_incomplete_race_event
                 UserActionType.REORDER_WORKOUT -> reorderNonWorkoutRes(entityType)
                 UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> moveNonWorkoutRes(entityType)
                 UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> undoReorderNonWorkoutRes(entityType)

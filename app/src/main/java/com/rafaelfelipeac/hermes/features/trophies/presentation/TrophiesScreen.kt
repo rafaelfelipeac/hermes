@@ -174,7 +174,7 @@ fun TrophiesScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column {
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
                     Text(
                         text = stringResource(R.string.trophies_title),
                         style = typography.titleLarge,

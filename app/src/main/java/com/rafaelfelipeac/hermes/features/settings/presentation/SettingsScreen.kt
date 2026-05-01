@@ -112,6 +112,7 @@ fun SettingsScreen(
     val mixedTrophiesCreatedMessage = stringResource(R.string.settings_mixed_trophies_created)
     val lockedTrophiesCreatedMessage = stringResource(R.string.settings_locked_trophies_created)
     val completedTrophiesCreatedMessage = stringResource(R.string.settings_completed_trophies_created)
+    val databaseClearedMessage = stringResource(R.string.settings_database_cleared)
     val feedbackUnavailableMessage = stringResource(R.string.settings_feedback_unavailable)
     val rateUnavailableMessage = stringResource(R.string.settings_rate_unavailable)
     val feedbackEmail = stringResource(R.string.settings_feedback_email)
@@ -278,6 +279,16 @@ fun SettingsScreen(
         }
     }
 
+    LaunchedEffect(viewModel) {
+        viewModel.databaseClearCompletedEvents.collect {
+            Toast.makeText(
+                context,
+                databaseClearedMessage,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+    }
+
     LaunchedEffect(state.backupFolderUri) {
         val rawUri = state.backupFolderUri ?: return@LaunchedEffect
         val folderUri = rawUri.toUri()
@@ -410,6 +421,9 @@ fun SettingsScreen(
                 },
                 onSeedCompletedTrophies = {
                     pendingDeveloperAction = DeveloperSeedAction.UNLOCKED_TROPHIES
+                },
+                onClearDatabase = {
+                    pendingDeveloperAction = DeveloperSeedAction.CLEAR_DATABASE
                 },
                 onCategoriesClick = { route = SettingsRoute.CATEGORIES },
                 onBackupClick = { route = SettingsRoute.BACKUP },
@@ -596,8 +610,30 @@ fun SettingsScreen(
     pendingDeveloperAction?.let { action ->
         AlertDialog(
             onDismissRequest = { pendingDeveloperAction = null },
-            title = { Text(text = stringResource(R.string.settings_developer_confirm_title)) },
-            text = { Text(text = stringResource(R.string.settings_developer_confirm_message)) },
+            title = {
+                Text(
+                    text =
+                        stringResource(
+                            if (action == DeveloperSeedAction.CLEAR_DATABASE) {
+                                R.string.settings_clear_database_confirm_title
+                            } else {
+                                R.string.settings_developer_confirm_title
+                            },
+                        ),
+                )
+            },
+            text = {
+                Text(
+                    text =
+                        stringResource(
+                            if (action == DeveloperSeedAction.CLEAR_DATABASE) {
+                                R.string.settings_clear_database_confirm_message
+                            } else {
+                                R.string.settings_developer_confirm_message
+                            },
+                        ),
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = {
@@ -606,6 +642,7 @@ fun SettingsScreen(
                             DeveloperSeedAction.MIXED_TROPHIES -> viewModel.seedMixedTrophies()
                             DeveloperSeedAction.LOCKED_TROPHIES -> viewModel.seedLockedTrophies()
                             DeveloperSeedAction.UNLOCKED_TROPHIES -> viewModel.seedCompletedTrophies()
+                            DeveloperSeedAction.CLEAR_DATABASE -> viewModel.clearDatabase()
                         }
                         pendingDeveloperAction = null
                     },
@@ -637,6 +674,7 @@ internal fun SettingsContent(
     onSeedMixedTrophies: () -> Unit,
     onSeedLockedTrophies: () -> Unit,
     onSeedCompletedTrophies: () -> Unit,
+    onClearDatabase: () -> Unit = {},
     onCategoriesClick: () -> Unit,
     onBackupClick: () -> Unit,
 ) {
@@ -769,6 +807,11 @@ internal fun SettingsContent(
                         SettingsActionButton(
                             label = stringResource(R.string.settings_seed_demo_data),
                             onClick = onSeedDemoData,
+                        )
+
+                        SettingsActionButton(
+                            label = stringResource(R.string.settings_clear_database),
+                            onClick = onClearDatabase,
                         )
 
                         HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
@@ -946,6 +989,7 @@ private enum class DeveloperSeedAction {
     MIXED_TROPHIES,
     LOCKED_TROPHIES,
     UNLOCKED_TROPHIES,
+    CLEAR_DATABASE,
 }
 
 private fun backupFileName(): String {

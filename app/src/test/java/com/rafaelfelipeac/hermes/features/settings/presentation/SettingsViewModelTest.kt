@@ -537,6 +537,36 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun clearDatabase_whenSeederMutates_emitsEventWithoutLoggingAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            coEvery { demoDataSeeder.clearDatabase() } returns true
+            val viewModel =
+                createViewModel(
+                    userActionLogger = userActionLogger,
+                    demoDataSeeder = demoDataSeeder,
+                )
+
+            viewModel.databaseClearCompletedEvents.test {
+                viewModel.clearDatabase()
+                assertEquals(Unit, awaitItem())
+                cancelAndIgnoreRemainingEvents()
+            }
+
+            coVerify(exactly = 1) { demoDataSeeder.clearDatabase() }
+            coVerify(exactly = 0) {
+                userActionLogger.log(
+                    actionType = any(),
+                    entityType = any(),
+                    entityId = any(),
+                    metadata = any(),
+                    timestamp = any(),
+                )
+            }
+        }
+
+    @Test
     fun hasBackupData_returnsTrue_whenSettingsAreNonDefault() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = mockk<SettingsRepository>(relaxed = true)

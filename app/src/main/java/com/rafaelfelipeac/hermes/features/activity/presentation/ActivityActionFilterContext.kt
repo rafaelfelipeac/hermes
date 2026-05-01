@@ -151,6 +151,8 @@ private val completionActions =
         UserActionType.UNDO_INCOMPLETE_WORKOUT,
         UserActionType.COMPLETE_RACE_EVENT,
         UserActionType.INCOMPLETE_RACE_EVENT,
+        UserActionType.UNDO_COMPLETE_RACE_EVENT,
+        UserActionType.UNDO_INCOMPLETE_RACE_EVENT,
     )
 
 private val planningActions =
