@@ -77,7 +77,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardMinHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventFlagIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
@@ -102,6 +101,7 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 private const val TYPE_CHIP_ALPHA = 0.18f
+private const val EVENT_GRID_COLUMNS = 2
 
 @Composable
 fun EventsScreen(
@@ -247,7 +247,7 @@ fun EventsScreen(
                     .padding(contentPadding),
         ) {
             LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Adaptive(EventCardMinWidth),
+                columns = StaggeredGridCells.Fixed(EVENT_GRID_COLUMNS),
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(start = SpacingXl, top = Zero, end = SpacingXl, bottom = SpacingXl),
                 horizontalArrangement = Arrangement.spacedBy(SpacingMd),
@@ -453,16 +453,19 @@ private fun EventCard(
                 modifier =
                     Modifier
                         .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(SpacingXs),
             ) {
                 Row(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(ContentPadding)
+                            .padding(
+                                start = ContentPadding,
+                                top = ContentPadding,
+                                end = ContentPadding,
+                            )
                             .padding(end = SpacingXl),
-                    horizontalArrangement = Arrangement.Start,
-                    verticalAlignment = Alignment.Top,
+                    horizontalArrangement = Arrangement.spacedBy(SpacingLg),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
                         modifier =
@@ -501,43 +504,49 @@ private fun EventCard(
                         }
                     }
 
-                    Spacer(modifier = Modifier.width(SpacingLg))
+                    TitleChip(
+                        label = categoryLabel,
+                        containerColor = categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
+                        contentColor = categoryChipContent,
+                        modifier = Modifier.wrapContentWidth(),
+                    )
+                }
 
-                    Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
-                        TitleChip(
-                            label = categoryLabel,
-                            containerColor = categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
-                            contentColor = categoryChipContent,
-                            modifier = Modifier.wrapContentWidth(),
-                        )
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = ContentPadding,
+                                top = SpacingXs,
+                                end = ContentPadding,
+                                bottom = ContentPadding,
+                            ),
+                    verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                ) {
+                    Text(
+                        text = event.type,
+                        style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = colors.content,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
 
+                    if (event.description.isNotBlank()) {
                         Text(
-                            text = event.type,
-                            style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                            color = colors.content,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.padding(start = SpacingXs),
-                        )
-
-                        if (event.description.isNotBlank()) {
-                            Text(
-                                text = event.description,
-                                style = typography.bodySmall,
-                                color = colors.content.copy(alpha = 0.85f),
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(start = SpacingXs),
-                            )
-                        }
-
-                        Text(
-                            text = dateLabel,
+                            text = event.description,
                             style = typography.bodySmall,
                             color = colors.content.copy(alpha = 0.85f),
-                            modifier = Modifier.padding(start = SpacingXs),
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
                         )
                     }
+
+                    Text(
+                        text = dateLabel,
+                        style = typography.bodySmall,
+                        color = colors.content.copy(alpha = 0.85f),
+                    )
                 }
 
                 HorizontalDivider(
@@ -552,7 +561,8 @@ private fun EventCard(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = ContentPadding),
+                            .padding(horizontal = ContentPadding)
+                            .padding(bottom = SpacingLg),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(SpacingSm),
                 ) {
