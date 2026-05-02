@@ -15,16 +15,15 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
-import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
-import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
@@ -60,8 +59,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -79,7 +80,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardFooterHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventFlagIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
@@ -106,7 +108,9 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 private const val TYPE_CHIP_ALPHA = 0.18f
+private const val EVENT_CARD_TEXT_LINES = 2
 private const val EVENT_GRID_COLUMNS = 2
+internal const val EVENT_CARD_TAG_PREFIX = "event-card-"
 
 @Composable
 fun EventsScreen(
@@ -129,20 +133,6 @@ fun EventsScreen(
     var deletingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftConsumedLocally by remember { mutableStateOf(false) }
     val undoLabel = stringResource(R.string.weekly_training_undo_action)
-
-    val today = LocalDate.now()
-    val upcomingEvents =
-        state.events
-            .filter { it.eventDate() >= today }
-            .sortedWith(compareBy<WorkoutUi> { it.eventDate() }.thenBy { it.order }.thenBy { it.id })
-    val pastEvents =
-        state.events
-            .filter { it.eventDate() < today }
-            .sortedWith(
-                compareByDescending<WorkoutUi> { it.eventDate() }
-                    .thenByDescending { it.order }
-                    .thenByDescending { it.id },
-            )
 
     val editingEvent = editingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
     val deletingEvent = deletingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
@@ -275,108 +265,19 @@ fun EventsScreen(
                 bottom = paddingValues.calculateBottomPadding(),
             )
 
-        Box(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .padding(contentPadding),
-        ) {
-            LazyVerticalStaggeredGrid(
-                columns = StaggeredGridCells.Fixed(EVENT_GRID_COLUMNS),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(start = SpacingXl, top = Zero, end = SpacingXl, bottom = SpacingXl),
-                horizontalArrangement = Arrangement.spacedBy(SpacingMd),
-                verticalItemSpacing = SpacingMd,
-            ) {
-                item(span = StaggeredGridItemSpan.FullLine) {
-                    Column(
-                        modifier = Modifier.padding(top = SpacingXl),
-                        verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                    ) {
-                        Text(
-                            text = stringResource(R.string.race_events_title),
-                            style = typography.titleLarge,
-                            color = colorScheme.onSurface,
-                        )
-                        Text(
-                            text = stringResource(R.string.race_events_subtitle),
-                            style = typography.bodyMedium,
-                            color = colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-
-                if (upcomingEvents.isEmpty() && pastEvents.isEmpty()) {
-                    item(span = StaggeredGridItemSpan.FullLine) {
-                        EventsEmptyState(
-                            modifier = Modifier.padding(top = SpacingXl),
-                        )
-                    }
-                } else {
-                    if (upcomingEvents.isNotEmpty()) {
-                        item(span = StaggeredGridItemSpan.FullLine) {
-                            Column(
-                                modifier = Modifier.padding(top = SpacingLg),
-                                verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                            ) {
-                                HorizontalDivider(color = colorScheme.outlineVariant)
-
-                                Text(
-                                    text = stringResource(R.string.race_events_upcoming_title),
-                                    style = typography.titleMedium,
-                                    color = colorScheme.onSurface,
-                                )
-                            }
-                        }
-                    }
-
-                    items(upcomingEvents, key = { it.id }) { event ->
-                        EventCard(
-                            event = event,
-                            onClick = { openEditDialog(event) },
-                            onToggleCompleted = { checked ->
-                                viewModel.updateRaceEventCompletion(
-                                    eventId = event.id,
-                                    isCompleted = checked,
-                                )
-                            },
-                            onDelete = { deletingEventId = event.id },
-                        )
-                    }
-
-                    if (pastEvents.isNotEmpty()) {
-                        item(span = StaggeredGridItemSpan.FullLine) {
-                            Column(
-                                modifier = Modifier.padding(top = SpacingLg),
-                                verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                            ) {
-                                HorizontalDivider(color = colorScheme.outlineVariant)
-
-                                Text(
-                                    text = stringResource(R.string.race_events_past_title),
-                                    style = typography.titleMedium,
-                                    color = colorScheme.onSurface,
-                                )
-                            }
-                        }
-
-                        items(pastEvents, key = { it.id }) { event ->
-                            EventCard(
-                                event = event,
-                                onClick = { openEditDialog(event) },
-                                onToggleCompleted = { checked ->
-                                    viewModel.updateRaceEventCompletion(
-                                        eventId = event.id,
-                                        isCompleted = checked,
-                                    )
-                                },
-                                onDelete = { deletingEventId = event.id },
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        EventsContent(
+            state = state,
+            modifier = modifier,
+            contentPadding = contentPadding,
+            onEditEvent = ::openEditDialog,
+            onToggleCompleted = { eventId, checked ->
+                viewModel.updateRaceEventCompletion(
+                    eventId = eventId,
+                    isCompleted = checked,
+                )
+            },
+            onDeleteEvent = { eventId -> deletingEventId = eventId },
+        )
     }
 
     if (isDialogVisible) {
@@ -454,6 +355,145 @@ fun EventsScreen(
 }
 
 @Composable
+internal fun EventsContent(
+    state: EventsUiState,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+    onEditEvent: (WorkoutUi) -> Unit,
+    onToggleCompleted: (eventId: Long, isCompleted: Boolean) -> Unit,
+    onDeleteEvent: (eventId: Long) -> Unit,
+) {
+    val today = LocalDate.now()
+    val upcomingEvents =
+        state.events
+            .filter { it.eventDate() >= today }
+            .sortedWith(compareBy<WorkoutUi> { it.eventDate() }.thenBy { it.order }.thenBy { it.id })
+    val pastEvents =
+        state.events
+            .filter { it.eventDate() < today }
+            .sortedWith(
+                compareByDescending<WorkoutUi> { it.eventDate() }
+                    .thenByDescending { it.order }
+                    .thenByDescending { it.id },
+            )
+
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+    ) {
+        if (upcomingEvents.isEmpty() && pastEvents.isEmpty()) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(start = SpacingXl, end = SpacingXl, bottom = SpacingXl),
+            ) {
+                EventsHeader(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopStart)
+                            .padding(top = SpacingXl),
+                )
+
+                EventsEmptyState(
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(EVENT_GRID_COLUMNS),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = SpacingXl, top = Zero, end = SpacingXl, bottom = SpacingXl),
+                horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+            ) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    EventsHeader(
+                        modifier = Modifier.padding(top = SpacingXl),
+                    )
+                }
+
+                if (upcomingEvents.isNotEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        EventsSectionTitle(
+                            title = stringResource(R.string.race_events_upcoming_title),
+                            modifier = Modifier.padding(top = SpacingLg),
+                        )
+                    }
+                }
+
+                items(upcomingEvents, key = { it.id }) { event ->
+                    EventCard(
+                        event = event,
+                        onClick = { onEditEvent(event) },
+                        onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
+                        onDelete = { onDeleteEvent(event.id) },
+                    )
+                }
+
+                if (pastEvents.isNotEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        EventsSectionTitle(
+                            title = stringResource(R.string.race_events_past_title),
+                            modifier = Modifier.padding(top = SpacingLg),
+                        )
+                    }
+                }
+
+                items(pastEvents, key = { it.id }) { event ->
+                    EventCard(
+                        event = event,
+                        onClick = { onEditEvent(event) },
+                        onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
+                        onDelete = { onDeleteEvent(event.id) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EventsHeader(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingMd),
+    ) {
+        Text(
+            text = stringResource(R.string.race_events_title),
+            style = typography.titleLarge,
+            color = colorScheme.onSurface,
+        )
+        Text(
+            text = stringResource(R.string.race_events_subtitle),
+            style = typography.bodyMedium,
+            color = colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun EventsSectionTitle(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingMd),
+    ) {
+        HorizontalDivider(color = colorScheme.outlineVariant)
+
+        Text(
+            text = title,
+            style = typography.titleMedium,
+            color = colorScheme.onSurface,
+        )
+    }
+}
+
+@Composable
 private fun EventsEmptyState(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -504,11 +544,12 @@ private fun EventCard(
     val countdown = countdownLabel(eventDate)
     val dateLabel = formatDate(eventDate)
     val categoryLabel = event.categoryName ?: stringResource(R.string.category_uncategorized)
+    val frameColor = if (event.isCompleted) colors.background else categoryAccent
 
     Card(
         onClick = onClick,
         shape = shapes.medium,
-        border = BorderStroke(BorderHairline, categoryAccent ?: colorScheme.outlineVariant),
+        border = BorderStroke(BorderHairline, frameColor ?: colorScheme.outlineVariant),
         colors =
             CardDefaults.cardColors(
                 containerColor = colors.background,
@@ -517,23 +558,24 @@ private fun EventCard(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .heightIn(min = EventCardMinHeight),
+                .height(EventCardHeight)
+                .testTag(EVENT_CARD_TAG_PREFIX + event.id),
     ) {
         Box {
-            if (categoryAccent != null) {
+            if (frameColor != null) {
                 Box(
                     modifier =
                         Modifier
                             .fillMaxHeight()
                             .width(SpacingXs)
-                            .background(categoryAccent),
+                            .background(frameColor),
                 )
             }
 
             Column(
                 modifier =
                     Modifier
-                        .fillMaxWidth(),
+                        .fillMaxSize(),
             ) {
                 Row(
                     modifier =
@@ -597,37 +639,52 @@ private fun EventCard(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(
-                                start = ContentPadding,
-                                top = SpacingXs,
-                                end = ContentPadding,
-                                bottom = ContentPadding,
-                            ),
-                    verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                            .weight(1f),
                 ) {
-                    Text(
-                        text = event.type,
-                        style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                        color = colors.content,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = ContentPadding,
+                                    top = SpacingXs,
+                                    end = ContentPadding,
+                                    bottom = SpacingXs,
+                                ),
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                        ) {
+                            Text(
+                                text = event.type,
+                                style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = colors.content,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
 
-                    if (event.description.isNotBlank()) {
+                            if (event.description.isNotBlank()) {
+                                Text(
+                                    text = event.description,
+                                    style = typography.bodySmall,
+                                    color = colors.content.copy(alpha = 0.85f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
                         Text(
-                            text = event.description,
+                            text = dateLabel,
                             style = typography.bodySmall,
                             color = colors.content.copy(alpha = 0.85f),
-                            maxLines = 2,
+                            maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
                     }
-
-                    Text(
-                        text = dateLabel,
-                        style = typography.bodySmall,
-                        color = colors.content.copy(alpha = 0.85f),
-                    )
                 }
 
                 HorizontalDivider(
@@ -636,14 +693,12 @@ private fun EventCard(
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-                Spacer(modifier = Modifier.height(SpacingXs))
-
                 Row(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = ContentPadding)
-                            .padding(bottom = SpacingLg),
+                            .padding(horizontal = ContentPadding, vertical = SpacingSm)
+                            .height(EventCardFooterHeight),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(SpacingSm),
                 ) {
@@ -658,6 +713,8 @@ private fun EventCard(
                         text = countdown,
                         style = typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                         color = Color.White,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -726,12 +783,12 @@ private fun lighterTone(
 @Composable
 private fun countdownLabel(eventDate: LocalDate): String {
     val days = ChronoUnit.DAYS.between(LocalDate.now(), eventDate)
-    return when (days) {
-        0L -> stringResource(R.string.race_events_today)
-        1L -> stringResource(R.string.race_events_tomorrow)
-        in 2L..Long.MAX_VALUE ->
+    return when {
+        days <= 0 -> stringResource(R.string.race_events_today)
+        days == 1L -> stringResource(R.string.race_events_tomorrow)
+        days > 1L ->
             pluralStringResource(R.plurals.race_events_days_left, days.toInt(), days.toInt())
-        -1L -> pluralStringResource(R.plurals.race_events_days_ago, 1, 1)
+        days == -1L -> pluralStringResource(R.plurals.race_events_days_ago, 1, 1)
         else ->
             pluralStringResource(
                 R.plurals.race_events_days_ago,
@@ -743,5 +800,35 @@ private fun countdownLabel(eventDate: LocalDate): String {
 
 private fun formatDate(date: LocalDate): String {
     val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
-    return date.format(formatter)
+    return formatter.format(date)
+}
+
+private fun isDarkBackground(color: Color): Boolean {
+    return color.luminance() < 0.5f
+}
+
+private fun categoryAccentColor(colorId: String): Color? {
+    return when (colorId) {
+        "blue" -> TodoBlue
+        "green" -> Color(0xFF4CAF50)
+        "red" -> Color(0xFFF44336)
+        "yellow" -> Color(0xFFFFC107)
+        else -> null
+    }
+}
+
+private fun baseCategoryColor(color: Color): Color = color
+
+private fun contentColorForBackground(color: Color): Color = if (color.luminance() > 0.5f) Color.Black else Color.White
+
+private fun completedCategoryColor(
+    accent: Color,
+    isDarkTheme: Boolean,
+    surface: Color,
+): Color {
+    return if (isDarkTheme) {
+        lerp(accent, surface, 0.25f)
+    } else {
+        lerp(accent, surface, 0.15f)
+    }
 }

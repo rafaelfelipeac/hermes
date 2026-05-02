@@ -44,7 +44,10 @@ object Dimens {
     val CategoryActionIconSize = 36.dp
     val CategoryColorSwatchSize = 36.dp
     val CategoryColorGridHeight = 140.dp
-    val EventCardMinHeight = 152.dp
+    val EventCardFooterHeight = 44.dp
+    val EventCardHeight = 176.dp
+    val EventsTestViewportWidth = 420.dp
+    val EventsTestViewportHeight = 720.dp
     val RaceEventDialogContentMaxHeight = 420.dp
     val TrophyHeroMinHeight = 180.dp
     val TrophyCardMinHeight = 120.dp
