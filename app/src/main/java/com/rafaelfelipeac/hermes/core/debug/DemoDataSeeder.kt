@@ -32,7 +32,6 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSeri
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
-import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_CYCLING
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_MOBILITY
@@ -81,7 +80,6 @@ class DemoDataSeeder
     constructor(
         private val workoutDao: WorkoutDao,
         private val userActionDao: UserActionDao,
-        private val categoryDao: CategoryDao,
         private val stringProvider: StringProvider,
         private val categorySeeder: CategorySeeder,
         private val settingsRepository: SettingsRepository,
@@ -90,8 +88,8 @@ class DemoDataSeeder
             if (!BuildConfig.DEBUG) return false
 
             workoutDao.deleteAll()
-            categoryDao.deleteAll()
             userActionDao.deleteAll()
+            categorySeeder.ensureSeeded()
             settingsRepository.setLastSeenTrophyCelebrationToken(null)
 
             return true

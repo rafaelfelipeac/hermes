@@ -26,6 +26,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
@@ -62,6 +63,7 @@ class EventsViewModel
     constructor(
         private val repository: WeeklyTrainingRepository,
         private val categoryRepository: CategoryRepository,
+        private val categorySeeder: CategorySeeder,
         private val userActionLogger: UserActionLogger,
     ) : ViewModel() {
         private val messageEvents = MutableSharedFlow<EventsMessage>(extraBufferCapacity = 1)
@@ -93,6 +95,12 @@ class EventsViewModel
 
         val messages: SharedFlow<EventsMessage> = messageEvents.asSharedFlow()
         val undoUiState: StateFlow<EventUndoState?> = undoState
+
+        init {
+            viewModelScope.launch {
+                categorySeeder.ensureSeeded()
+            }
+        }
 
         fun addRaceEvent(
             title: String,

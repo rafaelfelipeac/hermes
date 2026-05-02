@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.events.presentation
 
+import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
@@ -9,6 +10,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
+import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
@@ -38,6 +40,21 @@ import java.time.LocalDate
 class EventsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+
+    @Test
+    fun init_seedsDefaultCategoriesBeforeFirstEventCreation() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val categoryRepository = FakeCategoryRepository(initialCategories = emptyList())
+            val viewModel = createViewModel(categoryRepository = categoryRepository)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+
+            advanceUntilIdle()
+
+            assertEquals(7, viewModel.state.value.categories.size)
+            assertEquals(UNCATEGORIZED_ID, viewModel.state.value.categories.first().id)
+
+            collectJob.cancel()
+        }
 
     @Test
     fun state_observesOnlyRaceEventsWithCategories() =
@@ -322,11 +339,13 @@ class EventsViewModelTest {
 
     private fun createViewModel(
         repository: FakeWeeklyTrainingRepository = FakeWeeklyTrainingRepository(),
+        categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
     ): EventsViewModel {
         return EventsViewModel(
             repository = repository,
-            categoryRepository = FakeCategoryRepository(),
+            categoryRepository = categoryRepository,
+            categorySeeder = CategorySeeder(categoryRepository, FakeStringProvider()),
             userActionLogger = logger,
         )
     }
@@ -462,28 +481,10 @@ class EventsViewModelTest {
         ) = error("Not needed")
     }
 
-    private class FakeCategoryRepository : CategoryRepository {
-        private val categories =
-            MutableStateFlow(
-                listOf(
-                    Category(
-                        id = UNCATEGORIZED_ID,
-                        name = UNCATEGORIZED_NAME,
-                        colorId = UNCATEGORIZED_COLOR_ID,
-                        sortOrder = 0,
-                        isHidden = false,
-                        isSystem = true,
-                    ),
-                    Category(
-                        id = CATEGORY_ID,
-                        name = CATEGORY_NAME,
-                        colorId = CATEGORY_COLOR_ID,
-                        sortOrder = 1,
-                        isHidden = false,
-                        isSystem = false,
-                    ),
-                ),
-            )
+    private class FakeCategoryRepository(
+        initialCategories: List<Category> = defaultCategories(),
+    ) : CategoryRepository {
+        private val categories = MutableStateFlow(initialCategories)
 
         override fun observeCategories(): Flow<List<Category>> = categories
 
@@ -493,9 +494,15 @@ class EventsViewModelTest {
 
         override suspend fun getCount(): Int = categories.value.size
 
-        override suspend fun insertCategory(category: Category): Long = error("Not needed")
+        override suspend fun insertCategory(category: Category): Long {
+            categories.update { items -> items + category }
+            return category.id
+        }
 
-        override suspend fun insertCategories(categories: List<Category>): List<Long> = error("Not needed")
+        override suspend fun insertCategories(categories: List<Category>): List<Long> {
+            this.categories.update { items -> items + categories }
+            return categories.map { it.id }
+        }
 
         override suspend fun updateCategory(category: Category) = error("Not needed")
 
@@ -520,6 +527,42 @@ class EventsViewModelTest {
         ) = error("Not needed")
 
         override suspend fun deleteCategory(id: Long) = error("Not needed")
+
+        companion object {
+            private fun defaultCategories(): List<Category> {
+                return listOf(
+                    Category(
+                        id = UNCATEGORIZED_ID,
+                        name = UNCATEGORIZED_NAME,
+                        colorId = UNCATEGORIZED_COLOR_ID,
+                        sortOrder = 0,
+                        isHidden = false,
+                        isSystem = true,
+                    ),
+                    Category(
+                        id = CATEGORY_ID,
+                        name = CATEGORY_NAME,
+                        colorId = CATEGORY_COLOR_ID,
+                        sortOrder = 1,
+                        isHidden = false,
+                        isSystem = false,
+                    ),
+                )
+            }
+        }
+    }
+
+    private class FakeStringProvider : StringProvider {
+        override fun get(
+            id: Int,
+            vararg args: Any,
+        ): String = id.toString()
+
+        override fun getForLanguage(
+            languageTag: String?,
+            id: Int,
+            vararg args: Any,
+        ): String = id.toString()
     }
 
     private class RecordingUserActionLogger : UserActionLogger {
