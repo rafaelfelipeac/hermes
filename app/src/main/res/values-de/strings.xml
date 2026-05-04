@@ -165,7 +165,7 @@
     <string name="settings_share_unavailable">Keine Apps zum Teilen verfügbar.</string>
 
     <!-- Activity -->
-    <string name="activity_title">Letzte Aktivitäten</string>
+    <string name="activity_title">Aktivitätsprotokoll</string>
     <string name="activity_empty">Noch keine Aktivitäten.</string>
     <string name="activity_filtered_empty">Keine Aktivität entspricht diesen Filtern.</string>
     <string name="activity_filter_all">Alle</string>
@@ -378,6 +378,8 @@
     <string name="trophies_share_desc_category_actions">Ich habe Trainingskategorien %1$d-mal erstellt, bearbeitet oder organisiert.</string>
     <string name="trophies_share_desc_backups">Ich habe %1$d-mal ein Backup exportiert oder gespeichert.</string>
     <string name="trophies_share_desc_workout_creations">Ich habe %1$d Workouts erstellt.</string>
+    <string name="trophies_share_desc_race_event_creations">Ich habe %1$d Rennereignisse erstellt.</string>
+    <string name="trophies_share_desc_race_event_completions">Ich habe %1$d Rennereignisse abgeschlossen.</string>
     <string name="trophies_share_desc_protected_time">Ich habe %1$d-mal Ruhetage oder Blocker hinzugefügt.</string>
     <string name="trophies_share_desc_category_completions">Ich habe %1$d Workouts in \"%2$s\" als abgeschlossen markiert.</string>
     <string name="trophies_share_desc_category_presence">Ich habe %1$d Wochen beendet, die mindestens ein abgeschlossenes Workout in \"%2$s\" enthielten.</string>
@@ -392,6 +394,8 @@
     <string name="trophies_family_momentum_desc">Für Routinen, die du weitergetragen hast.</string>
     <string name="trophies_family_builder">Aufbau</string>
     <string name="trophies_family_builder_desc">Für das System, das du um dein Training aufgebaut hast.</string>
+    <string name="trophies_family_race_events">Rennereignisse</string>
+    <string name="trophies_family_race_events_desc">Für die Rennen und Events, die du geplant und abgeschlossen hast.</string>
     <string name="trophies_family_categories">Kategorien</string>
     <string name="trophies_family_categories_desc">Für die Kategorien, die dein Regal persönlicher machen.</string>
     <string name="trophies_name_full_time">Volle Distanz</string>
@@ -407,6 +411,12 @@
     <string name="trophies_name_set_piece">Anpfiff: Spielzug</string>
     <string name="trophies_name_program_builder">Anpfiff: Programmaufbau</string>
     <string name="trophies_name_protected_time">Geschützte Zeit</string>
+    <string name="trophies_name_event_planner">Eventplaner</string>
+    <string name="trophies_name_event_calendar">Eventkalender</string>
+    <string name="trophies_name_event_season">Eventsaison</string>
+    <string name="trophies_name_race_ready">Bereit fürs Rennen</string>
+    <string name="trophies_name_race_sharp">Rennscharf</string>
+    <string name="trophies_name_race_finish">Rennziel</string>
     <string name="trophies_name_podium_place">Podiumsplatz</string>
     <string name="trophies_name_home_ground">Heimatboden</string>
     <string name="trophies_name_training_block">Trainingsblock</string>
@@ -441,6 +451,10 @@
     <string name="trophies_desc_backups_locked">Schalte es frei, indem du %1$d-mal ein Backup exportierst oder speicherst.</string>
     <string name="trophies_desc_workout_creations_locked">Schalte es frei, indem du %1$d Workouts erstellst.</string>
     <string name="trophies_desc_workout_creations_unlocked">Du hast %1$d Workouts erstellt.</string>
+    <string name="trophies_desc_race_event_creations_locked">Schalte frei, indem du %1$d Rennereignisse erstellst.</string>
+    <string name="trophies_desc_race_event_creations_unlocked">Du hast %1$d Rennereignisse erstellt.</string>
+    <string name="trophies_desc_race_event_completions_locked">Schalte frei, indem du %1$d Rennereignisse abschließt.</string>
+    <string name="trophies_desc_race_event_completions_unlocked">Du hast %1$d Rennereignisse abgeschlossen.</string>
     <string name="trophies_desc_protected_time_locked">Schalte es frei, indem du %1$d-mal Ruhetage oder Blocker hinzufügst.</string>
     <string name="trophies_desc_protected_time_unlocked">Du hast %1$d-mal Ruhetage oder Blocker hinzugefügt.</string>
     <string name="trophies_desc_backups_unlocked">Du hast %1$d-mal ein Backup exportiert oder gespeichert.</string>

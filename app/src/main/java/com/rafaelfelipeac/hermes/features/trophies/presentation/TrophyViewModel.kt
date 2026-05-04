@@ -90,6 +90,7 @@ class TrophyViewModel
                     TrophyFamilyUi.ADAPTABILITY,
                     TrophyFamilyUi.MOMENTUM,
                     TrophyFamilyUi.BUILDER,
+                    TrophyFamilyUi.RACE_EVENTS,
                     TrophyFamilyUi.CATEGORIES,
                 )
         }

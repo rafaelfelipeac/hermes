@@ -197,7 +197,7 @@
     <string name="settings_share_unavailable">No apps available to share.</string>
 
     <!-- Activity -->
-    <string name="activity_title">Recent activity</string>
+    <string name="activity_title">Activity Log</string>
     <string name="activity_empty">No activity yet.</string>
     <string name="activity_filtered_empty">No activity matches these filters.</string>
     <string name="activity_filter_all">All</string>
@@ -418,6 +418,8 @@
     <string name="trophies_share_desc_category_actions">I\'ve created, edited or organized workout categories %1$d times.</string>
     <string name="trophies_share_desc_backups">I\'ve exported or saved a backup %1$d times.</string>
     <string name="trophies_share_desc_workout_creations">I\'ve created %1$d workouts.</string>
+    <string name="trophies_share_desc_race_event_creations">I\'ve created %1$d race events.</string>
+    <string name="trophies_share_desc_race_event_completions">I\'ve completed %1$d race events.</string>
     <string name="trophies_share_desc_protected_time">I\'ve added rest days or busy blocks %1$d times.</string>
     <string name="trophies_share_desc_category_completions">I\'ve marked %1$d workouts as completed in \"%2$s\".</string>
     <string name="trophies_share_desc_category_presence">I\'ve finished %1$d weeks that included at least one completed workout in \"%2$s\".</string>
@@ -432,6 +434,8 @@
     <string name="trophies_family_momentum_desc">For the routines you carried forward.</string>
     <string name="trophies_family_builder">Builder</string>
     <string name="trophies_family_builder_desc">For setting up the system around your training.</string>
+    <string name="trophies_family_race_events">Race Events</string>
+    <string name="trophies_family_race_events_desc">For the races and events you planned and finished.</string>
     <string name="trophies_family_categories">Categories</string>
     <string name="trophies_family_categories_desc">For the categories that make your shelf feel personal.</string>
     <string name="trophies_name_full_time">Full-Time</string>
@@ -455,6 +459,12 @@
     <string name="trophies_name_set_piece">Kickoff: Set Piece</string>
     <string name="trophies_name_program_builder">Kickoff: Program Builder</string>
     <string name="trophies_name_protected_time">Protected Time</string>
+    <string name="trophies_name_event_planner">Event Planner</string>
+    <string name="trophies_name_event_calendar">Event Calendar</string>
+    <string name="trophies_name_event_season">Event Season</string>
+    <string name="trophies_name_race_ready">Race Ready</string>
+    <string name="trophies_name_race_sharp">Race Sharp</string>
+    <string name="trophies_name_race_finish">Race Finish</string>
     <string name="trophies_name_podium_place">Podium Place</string>
     <string name="trophies_name_in_rotation">Podium Place: In Rotation</string>
     <string name="trophies_name_mainstay">Podium Place: Go-To</string>
@@ -482,6 +492,10 @@
     <string name="trophies_desc_backups_unlocked">You exported or saved a backup %1$d times.</string>
     <string name="trophies_desc_workout_creations_locked">Unlock by creating %1$d workouts.</string>
     <string name="trophies_desc_workout_creations_unlocked">You created %1$d workouts.</string>
+    <string name="trophies_desc_race_event_creations_locked">Unlock by creating %1$d race events.</string>
+    <string name="trophies_desc_race_event_creations_unlocked">You created %1$d race events.</string>
+    <string name="trophies_desc_race_event_completions_locked">Unlock by completing %1$d race events.</string>
+    <string name="trophies_desc_race_event_completions_unlocked">You completed %1$d race events.</string>
     <string name="trophies_desc_protected_time_locked">Unlock by adding rest days or busy blocks %1$d times.</string>
     <string name="trophies_desc_protected_time_unlocked">You added rest days or busy blocks %1$d times.</string>
     <string name="trophies_desc_category_completions_locked">Unlock by marking %1$d workouts as completed in this category.</string>

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
@@ -36,8 +37,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.RaceEventDialogContentMaxHeight
@@ -54,6 +57,9 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 
+internal const val RACE_EVENT_DIALOG_TITLE_FIELD_TAG = "race_event_dialog_title_field"
+internal const val RACE_EVENT_DIALOG_DESCRIPTION_FIELD_TAG = "race_event_dialog_description_field"
+
 @Composable
 fun AddRaceEventDialog(
     modifier: Modifier = Modifier,
@@ -67,8 +73,10 @@ fun AddRaceEventDialog(
     initialTitle: String = EMPTY,
     initialDescription: String = EMPTY,
 ) {
-    var title by rememberSaveable(initialTitle) { mutableStateOf(initialTitle) }
-    var description by rememberSaveable(initialDescription) { mutableStateOf(initialDescription) }
+    var title by rememberSaveable(initialTitle) { mutableStateOf(initialTitle.capitalizedFirstCharacter()) }
+    var description by rememberSaveable(initialDescription) {
+        mutableStateOf(initialDescription.capitalizedFirstCharacter())
+    }
     var expanded by rememberSaveable { mutableStateOf(false) }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     var currentCategoryId by rememberSaveable(selectedCategoryId) { mutableStateOf(selectedCategoryId) }
@@ -107,18 +115,26 @@ fun AddRaceEventDialog(
             ) {
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
+                    onValueChange = { title = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_title)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .testTag(RACE_EVENT_DIALOG_TITLE_FIELD_TAG),
                 )
 
                 Spacer(modifier = Modifier.height(SpacingLg))
 
                 OutlinedTextField(
                     value = description,
-                    onValueChange = { description = it },
+                    onValueChange = { description = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_description)) },
-                    modifier = Modifier.fillMaxWidth(),
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .testTag(RACE_EVENT_DIALOG_DESCRIPTION_FIELD_TAG),
                 )
 
                 Spacer(modifier = Modifier.height(SpacingLg))
@@ -292,4 +308,9 @@ private fun LocalDate.toUtcEpochMillis(): Long {
 
 private fun Long.toUtcLocalDate(): LocalDate {
     return Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
+}
+
+private fun String.capitalizedFirstCharacter(): String {
+    if (isEmpty()) return this
+    return first().uppercaseChar() + substring(1)
 }

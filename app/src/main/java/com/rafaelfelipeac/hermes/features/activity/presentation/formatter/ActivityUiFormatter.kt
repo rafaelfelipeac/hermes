@@ -641,7 +641,7 @@ class ActivityUiFormatter(
                 else -> null
             }
 
-        if (simpleResId != null) return stringProvider.get(simpleResId)
+        if (simpleResId != null) return stringProvider.get(simpleResId, quotedWorkoutLabel)
 
         return when (actionType) {
             UserActionType.CONVERT_WORKOUT_TO_REST_DAY ->

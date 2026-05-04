@@ -181,7 +181,7 @@
     <string name="settings_share_unavailable">لا توجد تطبيقات مشاركة متاحة.</string>
 
     <!-- Activity -->
-    <string name="activity_title">النشاط الأخير</string>
+    <string name="activity_title">سجل النشاط</string>
     <string name="activity_empty">لا توجد أنشطة بعد.</string>
     <string name="activity_filtered_empty">لا يوجد نشاط يطابق هذه الفلاتر.</string>
     <string name="activity_filter_all">الكل</string>
@@ -394,6 +394,8 @@
     <string name="trophies_share_desc_category_actions">لقد أنشأت فئات التمارين أو عدّلتها أو نظّمتها %1$d مرات.</string>
     <string name="trophies_share_desc_backups">لقد صدّرت نسخة احتياطية أو حفظتها %1$d مرات.</string>
     <string name="trophies_share_desc_workout_creations">لقد أنشأت %1$d تمرينًا.</string>
+    <string name="trophies_share_desc_race_event_creations">لقد أنشأت %1$d من فعاليات السباق.</string>
+    <string name="trophies_share_desc_race_event_completions">لقد أنهيت %1$d من فعاليات السباق.</string>
     <string name="trophies_share_desc_protected_time">لقد أضفت أيام راحة أو فترات انشغال %1$d مرات.</string>
     <string name="trophies_share_desc_category_completions">لقد علّمت %1$d تمرينًا كمكتمل في \"%2$s\".</string>
     <string name="trophies_share_desc_category_presence">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل في \"%2$s\".</string>
@@ -408,6 +410,8 @@
     <string name="trophies_family_momentum_desc">للروتين الذي واصلت البناء عليه.</string>
     <string name="trophies_family_builder">البناء</string>
     <string name="trophies_family_builder_desc">لبناء النظام حول تدريبك.</string>
+    <string name="trophies_family_race_events">فعاليات السباق</string>
+    <string name="trophies_family_race_events_desc">للسابقات والفعاليات التي خططت لها وأكملتها.</string>
     <string name="trophies_family_categories">الفئات</string>
     <string name="trophies_family_categories_desc">للفئات التي تجعل هذا الرف أكثر شخصية.</string>
     <string name="trophies_name_full_time">دوام كامل</string>
@@ -423,6 +427,12 @@
     <string name="trophies_name_set_piece">ضربة البداية: لعبة منظّمة</string>
     <string name="trophies_name_program_builder">ضربة البداية: باني البرنامج</string>
     <string name="trophies_name_protected_time">وقت محمي</string>
+    <string name="trophies_name_event_planner">مخطط الفعاليات</string>
+    <string name="trophies_name_event_calendar">تقويم الفعاليات</string>
+    <string name="trophies_name_event_season">موسم الفعاليات</string>
+    <string name="trophies_name_race_ready">جاهز للسباق</string>
+    <string name="trophies_name_race_sharp">سباق حاد</string>
+    <string name="trophies_name_race_finish">نهاية السباق</string>
     <string name="trophies_name_podium_place">مكان على المنصة</string>
     <string name="trophies_name_home_ground">الأرض المألوفة</string>
     <string name="trophies_name_training_block">كتلة تدريب</string>
@@ -457,6 +467,10 @@
     <string name="trophies_desc_backups_locked">افتحها عند تصدير نسخة احتياطية أو حفظها %1$d مرات.</string>
     <string name="trophies_desc_workout_creations_locked">افتحها عند إنشاء %1$d تمرينًا.</string>
     <string name="trophies_desc_workout_creations_unlocked">لقد أنشأت %1$d تمرينًا.</string>
+    <string name="trophies_desc_race_event_creations_locked">افتحه عند إنشاء %1$d من فعاليات السباق.</string>
+    <string name="trophies_desc_race_event_creations_unlocked">لقد أنشأت %1$d من فعاليات السباق.</string>
+    <string name="trophies_desc_race_event_completions_locked">افتحه عند إكمال %1$d من فعاليات السباق.</string>
+    <string name="trophies_desc_race_event_completions_unlocked">لقد أنهيت %1$d من فعاليات السباق.</string>
     <string name="trophies_desc_protected_time_locked">افتحها عند إضافة أيام راحة أو فترات انشغال %1$d مرات.</string>
     <string name="trophies_desc_protected_time_unlocked">لقد أضفت أيام راحة أو فترات انشغال %1$d مرات.</string>
     <string name="trophies_desc_backups_unlocked">لقد صدّرت نسخة احتياطية أو حفظتها %1$d مرات.</string>

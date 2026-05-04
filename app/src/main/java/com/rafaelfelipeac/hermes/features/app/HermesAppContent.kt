@@ -118,12 +118,17 @@ fun HermesAppContent() {
                             pendingWorkoutDraft = pendingWorkoutDraft,
                             onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
                         )
-                    ACTIVITY -> ActivityScreen(modifier = Modifier.padding(innerPadding))
+                    ACTIVITY ->
+                        ActivityScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            onBack = { currentDestination = TROPHIES },
+                        )
                     TROPHIES ->
                         TrophiesScreen(
                             modifier = Modifier.padding(innerPadding),
                             requestedTrophyStableId = pendingCelebrationTrophyStableId,
                             onRequestedTrophyConsumed = { pendingCelebrationTrophyStableId = null },
+                            onOpenActivities = { currentDestination = ACTIVITY },
                         )
                     EVENTS ->
                         EventsScreen(

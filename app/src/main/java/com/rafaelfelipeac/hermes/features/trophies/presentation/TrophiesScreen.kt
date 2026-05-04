@@ -37,6 +37,7 @@ import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
@@ -44,6 +45,7 @@ import androidx.compose.material.icons.outlined.Repeat
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -130,6 +132,7 @@ fun TrophiesScreen(
     modifier: Modifier = Modifier,
     requestedTrophyStableId: String? = null,
     onRequestedTrophyConsumed: () -> Unit = {},
+    onOpenActivities: () -> Unit = {},
     viewModel: TrophyViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -168,31 +171,11 @@ fun TrophiesScreen(
                 .padding(SpacingXl),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
-        if (selectedFamily == null) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
-                    Text(
-                        text = stringResource(R.string.trophies_title),
-                        style = typography.titleLarge,
-                        color = colorScheme.onSurface,
-                    )
-                    Text(
-                        text = stringResource(R.string.trophies_subtitle),
-                        style = typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-        } else {
-            TrophyFamilyHeader(
-                familySection = selectedFamily,
-                onBack = { selectedFamilyName = null },
-            )
-        }
+        TrophiesHeader(
+            familySection = selectedFamily,
+            onBack = { selectedFamilyName = null },
+            onOpenActivities = onOpenActivities,
+        )
 
         TrophiesContent(
             state = state,
@@ -269,6 +252,86 @@ internal fun TrophiesContent(
             },
             modifier = modifier,
         )
+    }
+}
+
+@Composable
+internal fun TrophiesHeader(
+    familySection: TrophyFamilySectionUi?,
+    onBack: () -> Unit,
+    onOpenActivities: () -> Unit,
+) {
+    if (familySection == null) {
+        Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = stringResource(R.string.trophies_title),
+                    style = typography.titleLarge,
+                    color = colorScheme.onSurface,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                ActivitiesButton(onClick = onOpenActivities)
+            }
+            Text(
+                text = stringResource(R.string.trophies_subtitle),
+                style = typography.bodyMedium,
+                color = colorScheme.onSurfaceVariant,
+            )
+        }
+    } else {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                modifier =
+                    Modifier
+                        .size(TrophyBackButtonTouchTargetSize)
+                        .clickable(onClick = onBack),
+                color = Color.Transparent,
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(
+                        modifier = Modifier.size(TrophyBackButtonSize),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = stringResource(R.string.trophies_back),
+                            tint = colorScheme.onSurface,
+                        )
+                    }
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(SpacingXs),
+            ) {
+                Text(
+                    text = familyTitle(familySection.family),
+                    style = typography.titleLarge,
+                    color = colorScheme.onSurface,
+                )
+                Text(
+                    text =
+                        stringResource(
+                            R.string.trophies_unlocked_count,
+                            familySection.unlockedCount,
+                            familySection.totalCount,
+                        ),
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            ActivitiesButton(onClick = onOpenActivities)
+        }
     }
 }
 
@@ -846,59 +909,12 @@ private fun TrophyDetailMeta(
 }
 
 @Composable
-private fun TrophyFamilyHeader(
-    familySection: TrophyFamilySectionUi,
-    onBack: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+private fun ActivitiesButton(onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick,
+        colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
     ) {
-        Surface(
-            modifier =
-                Modifier
-                    .size(TrophyBackButtonTouchTargetSize)
-                    .clickable(onClick = onBack),
-            color = Color.Transparent,
-        ) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                Box(
-                    modifier = Modifier.size(TrophyBackButtonSize),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = stringResource(R.string.trophies_back),
-                        tint = colorScheme.onSurface,
-                    )
-                }
-            }
-        }
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(SpacingXs),
-        ) {
-            Text(
-                text = familyTitle(familySection.family),
-                style = typography.titleLarge,
-                color = colorScheme.onSurface,
-            )
-            Text(
-                text =
-                    stringResource(
-                        R.string.trophies_unlocked_count,
-                        familySection.unlockedCount,
-                        familySection.totalCount,
-                    ),
-                style = typography.bodySmall,
-                color = colorScheme.onSurfaceVariant,
-            )
-        }
-        Spacer(modifier = Modifier.size(TrophyBackButtonTouchTargetSize))
+        Text(text = stringResource(R.string.trophies_activities_action))
     }
 }
 
@@ -992,6 +1008,7 @@ private fun trophyFamilyAccentColor(family: TrophyFamilyUi): Color {
         TrophyFamilyUi.ADAPTABILITY -> Color(0xFFB97B38)
         TrophyFamilyUi.MOMENTUM -> Color(0xFF7B63C8)
         TrophyFamilyUi.BUILDER -> Color(0xFF6F7E4A)
+        TrophyFamilyUi.RACE_EVENTS -> Color(0xFFB44F3E)
         TrophyFamilyUi.CATEGORIES -> Color(0xFF8A5E3A)
     }
 }
@@ -1024,6 +1041,14 @@ internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector
         TrophyId.PROGRAM_BUILDER,
         -> Icons.Filled.Add
         TrophyId.PROTECTED_TIME -> Icons.Outlined.EventBusy
+        TrophyId.EVENT_PLANNER,
+        TrophyId.EVENT_CALENDAR,
+        TrophyId.EVENT_SEASON,
+        -> Icons.Outlined.Flag
+        TrophyId.RACE_READY,
+        TrophyId.RACE_SHARP,
+        TrophyId.RACE_FINISH,
+        -> Icons.Outlined.CheckCircle
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,

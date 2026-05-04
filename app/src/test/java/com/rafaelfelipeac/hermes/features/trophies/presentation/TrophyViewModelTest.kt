@@ -62,20 +62,25 @@ class TrophyViewModelTest {
                     progress(TrophyId.FULL_TIME, currentValue = 1, unlockedAt = 10L),
                     progress(TrophyId.MATCH_FITNESS, currentValue = 9),
                     progress(TrophyId.IN_FORM, currentValue = 1),
+                    progress(TrophyId.EVENT_PLANNER, currentValue = 10, unlockedAt = 40L),
                 ),
             )
 
         val followThroughFamily = state.families.first { it.family == TrophyFamilyUi.FOLLOW_THROUGH }
         val consistencyFamily = state.families.first { it.family == TrophyFamilyUi.CONSISTENCY }
+        val raceEventsFamily = state.families.first { it.family == TrophyFamilyUi.RACE_EVENTS }
 
         assertEquals(1, followThroughFamily.unlockedCount)
         assertEquals(2, followThroughFamily.totalCount)
         assertEquals(0, consistencyFamily.unlockedCount)
         assertEquals(1, consistencyFamily.totalCount)
+        assertEquals(1, raceEventsFamily.unlockedCount)
+        assertEquals(1, raceEventsFamily.totalCount)
         assertEquals(
             listOf(
                 TrophyFamilyUi.FOLLOW_THROUGH,
                 TrophyFamilyUi.CONSISTENCY,
+                TrophyFamilyUi.RACE_EVENTS,
             ),
             state.families.map { it.family },
         )

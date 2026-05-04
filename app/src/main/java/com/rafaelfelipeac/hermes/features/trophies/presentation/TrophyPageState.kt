@@ -34,6 +34,7 @@ enum class TrophyFamilyUi {
     ADAPTABILITY,
     MOMENTUM,
     BUILDER,
+    RACE_EVENTS,
     CATEGORIES,
 }
 

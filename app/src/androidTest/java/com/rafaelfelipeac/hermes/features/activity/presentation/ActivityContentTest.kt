@@ -3,8 +3,11 @@ package com.rafaelfelipeac.hermes.features.activity.presentation
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
+import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityFiltersUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPrimaryFilter
@@ -79,6 +82,25 @@ class ActivityContentTest {
 
         composeRule.runOnIdle {
             assertEquals(ActivityPrimaryFilter.COMPLETIONS, selectedFilter)
+        }
+    }
+
+    @Test
+    fun activityHeader_showsTitleAndBackButton() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val title = context.getString(R.string.activity_title)
+        val back = context.getString(R.string.trophies_back)
+        var clicked = false
+
+        composeRule.setContent {
+            ActivityHeader(onBack = { clicked = true })
+        }
+
+        composeRule.onNodeWithText(title).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(back).performClick()
+
+        composeRule.runOnIdle {
+            assert(clicked)
         }
     }
 }

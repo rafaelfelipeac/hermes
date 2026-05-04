@@ -165,7 +165,7 @@
     <string name="settings_share_unavailable">No hay aplicaciones para compartir.</string>
 
     <!-- Activity -->
-    <string name="activity_title">Actividad reciente</string>
+    <string name="activity_title">Registro de actividades</string>
     <string name="activity_empty">Aún no hay actividad.</string>
     <string name="activity_filtered_empty">Ninguna actividad coincide con estos filtros.</string>
     <string name="activity_filter_all">Todo</string>
@@ -377,6 +377,8 @@
     <string name="trophies_share_desc_category_actions">He creado, editado u organizado categorías de entrenamiento %1$d veces.</string>
     <string name="trophies_share_desc_backups">He exportado o guardado una copia de seguridad %1$d veces.</string>
     <string name="trophies_share_desc_workout_creations">He creado %1$d entrenamientos.</string>
+    <string name="trophies_share_desc_race_event_creations">He creado %1$d eventos de carrera.</string>
+    <string name="trophies_share_desc_race_event_completions">He completado %1$d eventos de carrera.</string>
     <string name="trophies_share_desc_protected_time">He añadido días de descanso o bloques de ocupación %1$d veces.</string>
     <string name="trophies_share_desc_category_completions">He marcado %1$d entrenamientos como completados en \"%2$s\".</string>
     <string name="trophies_share_desc_category_presence">He terminado %1$d semanas que incluían al menos un entrenamiento completado en \"%2$s\".</string>
@@ -391,6 +393,8 @@
     <string name="trophies_family_momentum_desc">Para las rutinas que llevaste hacia adelante.</string>
     <string name="trophies_family_builder">Constructor</string>
     <string name="trophies_family_builder_desc">Para montar el sistema alrededor de tu entrenamiento.</string>
+    <string name="trophies_family_race_events">Eventos de carrera</string>
+    <string name="trophies_family_race_events_desc">Para las carreras y eventos que planeaste y terminaste.</string>
     <string name="trophies_family_categories">Categorías</string>
     <string name="trophies_family_categories_desc">Para las categorías que hacen que tu vitrina se sienta personal.</string>
     <string name="trophies_name_full_time">Tiempo Completo</string>
@@ -406,6 +410,12 @@
     <string name="trophies_name_set_piece">Saque Inicial: Jugada Preparada</string>
     <string name="trophies_name_program_builder">Saque Inicial: Constructor de Programa</string>
     <string name="trophies_name_protected_time">Tiempo Protegido</string>
+    <string name="trophies_name_event_planner">Planificador de eventos</string>
+    <string name="trophies_name_event_calendar">Calendario de eventos</string>
+    <string name="trophies_name_event_season">Temporada de eventos</string>
+    <string name="trophies_name_race_ready">Listo para la carrera</string>
+    <string name="trophies_name_race_sharp">Afinado para la carrera</string>
+    <string name="trophies_name_race_finish">Meta de carrera</string>
     <string name="trophies_name_podium_place">Lugar en el Podio</string>
     <string name="trophies_name_home_ground">Terreno Propio</string>
     <string name="trophies_name_training_block">Bloque de Entrenamiento</string>
@@ -441,6 +451,10 @@
     <string name="trophies_desc_backups_unlocked">Exportaste o guardaste una copia de seguridad %1$d veces.</string>
     <string name="trophies_desc_workout_creations_locked">Desbloquéalo al crear %1$d entrenamientos.</string>
     <string name="trophies_desc_workout_creations_unlocked">Creaste %1$d entrenamientos.</string>
+    <string name="trophies_desc_race_event_creations_locked">Desbloquea al crear %1$d eventos de carrera.</string>
+    <string name="trophies_desc_race_event_creations_unlocked">Creaste %1$d eventos de carrera.</string>
+    <string name="trophies_desc_race_event_completions_locked">Desbloquea al completar %1$d eventos de carrera.</string>
+    <string name="trophies_desc_race_event_completions_unlocked">Completaste %1$d eventos de carrera.</string>
     <string name="trophies_desc_protected_time_locked">Desbloquéalo al añadir días de descanso o bloques de ocupación %1$d veces.</string>
     <string name="trophies_desc_protected_time_unlocked">Añadiste días de descanso o bloques de ocupación %1$d veces.</string>
     <string name="trophies_desc_category_completions_locked">Desbloquéalo al marcar %1$d entrenamientos de esta categoría como completados.</string>
