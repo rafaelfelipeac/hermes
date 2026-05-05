@@ -78,7 +78,7 @@ fun ActivityScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(SpacingXl),
+                .padding(bottom = SpacingXl),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         ActivityHeader(onBack = onBack)
@@ -99,7 +99,10 @@ fun ActivityScreen(
             onCategorySelected = viewModel::selectCategoryFilter,
             onWeekSelected = viewModel::selectWeekFilter,
             onClearFilters = viewModel::clearFilters,
-            modifier = Modifier.fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = SpacingXl),
         )
     }
 }
@@ -107,7 +110,15 @@ fun ActivityScreen(
 @Composable
 internal fun ActivityHeader(onBack: () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = SpacingSm,
+                    end = SpacingXl,
+                    top = SpacingSm,
+                    bottom = SpacingSm,
+                ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onClick = onBack) {

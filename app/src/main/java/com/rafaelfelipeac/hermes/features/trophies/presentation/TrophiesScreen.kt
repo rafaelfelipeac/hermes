@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -263,17 +264,20 @@ internal fun TrophiesHeader(
 ) {
     if (familySection == null) {
         Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     text = stringResource(R.string.trophies_title),
                     style = typography.titleLarge,
                     color = colorScheme.onSurface,
+                    modifier = Modifier.align(Alignment.TopStart),
                 )
-                Spacer(modifier = Modifier.weight(1f))
-                ActivitiesButton(onClick = onOpenActivities)
+                ActivitiesButton(
+                    onClick = onOpenActivities,
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .offset(y = -(SpacingSm + SpacingXs)),
+                )
             }
             Text(
                 text = stringResource(R.string.trophies_subtitle),
@@ -329,8 +333,6 @@ internal fun TrophiesHeader(
                     color = colorScheme.onSurfaceVariant,
                 )
             }
-            Spacer(modifier = Modifier.weight(1f))
-            ActivitiesButton(onClick = onOpenActivities)
         }
     }
 }
@@ -909,10 +911,14 @@ private fun TrophyDetailMeta(
 }
 
 @Composable
-private fun ActivitiesButton(onClick: () -> Unit) {
+private fun ActivitiesButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     TextButton(
         onClick = onClick,
         colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
+        modifier = modifier,
     ) {
         Text(text = stringResource(R.string.trophies_activities_action))
     }
