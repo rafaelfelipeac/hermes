@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi as toWorkoutUi
@@ -94,7 +95,12 @@ class EventsViewModel
             )
 
         val messages: SharedFlow<EventsMessage> = messageEvents.asSharedFlow()
-        val undoUiState: StateFlow<EventUndoState?> = undoState
+        val undoUiState: StateFlow<EventUndoState?> =
+            undoState.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
+                initialValue = null,
+            )
 
         init {
             viewModelScope.launch {
@@ -126,8 +132,7 @@ class EventsViewModel
                     repository.getWorkoutsForWeek(storageWeekStart)
                         .count { workout ->
                             workout.dayOfWeek == dayOfWeek &&
-                                workout.timeSlot == null &&
-                                workout.eventType == RACE_EVENT
+                                workout.timeSlot == null
                         }
 
                 val workout =
@@ -179,8 +184,6 @@ class EventsViewModel
             categoryId: Long?,
             eventDate: LocalDate,
         ) {
-            if (eventDate.isBefore(LocalDate.now())) return
-
             val original = state.value.events.firstOrNull { it.id == eventId }
             val currentCategories = state.value.categories
             val normalizedCategoryId =
@@ -190,26 +193,42 @@ class EventsViewModel
                     UNCATEGORIZED_ID
                 }
             val categoryName = currentCategories.firstOrNull { it.id == normalizedCategoryId }?.name
+            val storageWeekStart = canonicalStorageWeekStart(eventDate)
+            val dayOfWeek = eventDate.dayOfWeek
+            val dateChanged =
+                original?.weekStartDate != storageWeekStart || original?.dayOfWeek != dayOfWeek
+
+            if (dateChanged && eventDate.isBefore(LocalDate.now())) return
 
             viewModelScope.launch {
-                val storageWeekStart = canonicalStorageWeekStart(eventDate)
-                val dayOfWeek = eventDate.dayOfWeek
                 val nextOrder =
-                    repository.getWorkoutsForWeek(storageWeekStart)
-                        .count { workout ->
-                            workout.id != eventId &&
-                                workout.dayOfWeek == dayOfWeek &&
-                                workout.timeSlot == null &&
-                                workout.eventType == RACE_EVENT
-                        }
+                    if (dateChanged) {
+                        repository.getWorkoutsForWeek(storageWeekStart)
+                            .count { workout ->
+                                workout.id != eventId &&
+                                    workout.dayOfWeek == dayOfWeek &&
+                                    workout.timeSlot == null
+                            }
+                    } else {
+                        original?.order ?: 0
+                    }
 
-                repository.updateWorkoutSchedule(
-                    workoutId = eventId,
-                    weekStartDate = storageWeekStart,
-                    dayOfWeek = dayOfWeek,
-                    timeSlot = null,
-                    order = nextOrder,
-                )
+                if (dateChanged) {
+                    repository.updateWorkoutSchedule(
+                        workoutId = eventId,
+                        weekStartDate = storageWeekStart,
+                        dayOfWeek = dayOfWeek,
+                        timeSlot = null,
+                        order = nextOrder,
+                    )
+                    original?.let { previous ->
+                        normalizeRaceEventSourceBucket(
+                            movedEventId = eventId,
+                            weekStartDate = previous.weekStartDate,
+                            dayOfWeek = previous.dayOfWeek,
+                        )
+                    }
+                }
                 repository.updateWorkoutDetails(
                     workoutId = eventId,
                     type = title,
@@ -217,9 +236,6 @@ class EventsViewModel
                     eventType = RACE_EVENT,
                     categoryId = normalizedCategoryId,
                 )
-
-                val dateChanged =
-                    original?.weekStartDate != storageWeekStart || original?.dayOfWeek != dayOfWeek
                 val actionType =
                     if (dateChanged) {
                         RACE_EVENT.toMoveActionType()
@@ -331,13 +347,16 @@ class EventsViewModel
                     metadata =
                         mutableMapOf(
                             WEEK_START_DATE to original.weekStartDate.toString(),
-                            NEW_TYPE to original.type,
-                            NEW_DESCRIPTION to original.description,
+                            OLD_TYPE to original.type,
+                            OLD_DESCRIPTION to original.description,
                         ).apply {
-                            original.categoryId?.let { put(CATEGORY_ID, it.toString()) }
+                            original.categoryId?.let {
+                                put(CATEGORY_ID, it.toString())
+                                put(OLD_CATEGORY_ID, it.toString())
+                            }
                             original.categoryName?.takeIf { it.isNotBlank() }?.let {
                                 put(CATEGORY_NAME, it)
-                                put(NEW_CATEGORY_NAME, it)
+                                put(OLD_CATEGORY_NAME, it)
                             }
                         },
                 )
@@ -365,14 +384,39 @@ class EventsViewModel
 
         private suspend fun undoDelete(action: PendingEventUndoAction.Delete) {
             val event = action.event
-            repository.insertWorkout(event.toDomain())
+            val restoredId = repository.insertWorkout(event.toDomain())
 
             userActionLogger.log(
                 actionType = RACE_EVENT.toUndoDeleteActionType(),
                 entityType = RACE_EVENT.toUserActionEntityType(),
-                entityId = event.id,
+                entityId = restoredId,
                 metadata = event.toActionMetadata(),
             )
+        }
+
+        private suspend fun normalizeRaceEventSourceBucket(
+            movedEventId: Long,
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+        ) {
+            repository.getWorkoutsForWeek(weekStartDate)
+                .filter { workout ->
+                    workout.id != movedEventId &&
+                        workout.dayOfWeek == dayOfWeek &&
+                        workout.timeSlot == null
+                }
+                .sortedBy { it.order }
+                .forEachIndexed { index, workout ->
+                    if (workout.order != index) {
+                        repository.updateWorkoutSchedule(
+                            workoutId = workout.id,
+                            weekStartDate = workout.weekStartDate,
+                            dayOfWeek = workout.dayOfWeek,
+                            timeSlot = workout.timeSlot,
+                            order = index,
+                        )
+                    }
+                }
         }
 
         private suspend fun undoCompletion(action: PendingEventUndoAction.Completion) {

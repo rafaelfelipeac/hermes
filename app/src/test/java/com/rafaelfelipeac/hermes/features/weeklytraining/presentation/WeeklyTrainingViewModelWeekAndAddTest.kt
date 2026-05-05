@@ -237,7 +237,7 @@ class WeeklyTrainingViewModelWeekAndAddTest {
                         weekStart = derivedWeekStart,
                         day = eventDate.dayOfWeek,
                         order = 0,
-                        eventType = EventType.RACE_EVENT,
+                        eventType = EventType.WORKOUT,
                     ),
                 )
             coEvery {

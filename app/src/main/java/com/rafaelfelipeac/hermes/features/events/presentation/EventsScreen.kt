@@ -58,7 +58,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -107,7 +106,6 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 private const val TYPE_CHIP_ALPHA = 0.18f
-private const val EVENT_CARD_TEXT_LINES = 2
 private const val EVENT_GRID_COLUMNS = 2
 internal const val EVENT_CARD_TAG_PREFIX = "event-card-"
 
@@ -785,7 +783,7 @@ private fun lighterTone(
 private fun countdownLabel(eventDate: LocalDate): String {
     val days = ChronoUnit.DAYS.between(LocalDate.now(), eventDate)
     return when {
-        days <= 0 -> stringResource(R.string.race_events_today)
+        days == 0L -> stringResource(R.string.race_events_today)
         days == 1L -> stringResource(R.string.race_events_tomorrow)
         days > 1L ->
             pluralStringResource(R.plurals.race_events_days_left, days.toInt(), days.toInt())
@@ -802,34 +800,4 @@ private fun countdownLabel(eventDate: LocalDate): String {
 private fun formatDate(date: LocalDate): String {
     val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
     return formatter.format(date)
-}
-
-private fun isDarkBackground(color: Color): Boolean {
-    return color.luminance() < 0.5f
-}
-
-private fun categoryAccentColor(colorId: String): Color? {
-    return when (colorId) {
-        "blue" -> TodoBlue
-        "green" -> Color(0xFF4CAF50)
-        "red" -> Color(0xFFF44336)
-        "yellow" -> Color(0xFFFFC107)
-        else -> null
-    }
-}
-
-private fun baseCategoryColor(color: Color): Color = color
-
-private fun contentColorForBackground(color: Color): Color = if (color.luminance() > 0.5f) Color.Black else Color.White
-
-private fun completedCategoryColor(
-    accent: Color,
-    isDarkTheme: Boolean,
-    surface: Color,
-): Color {
-    return if (isDarkTheme) {
-        lerp(accent, surface, 0.25f)
-    } else {
-        lerp(accent, surface, 0.15f)
-    }
 }

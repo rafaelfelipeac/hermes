@@ -195,7 +195,12 @@ fun WeeklyTrainingScreen(
             draftType = pendingWorkoutDraft.type
             draftDescription = pendingWorkoutDraft.description
             draftCategoryId = pendingWorkoutDraft.categoryId ?: UNCATEGORIZED_ID
-            isAddDialogVisible = true
+            if (pendingWorkoutDraft.isRaceEvent) {
+                draftEventDate = pendingWorkoutDraft.eventDate
+                isRaceEventDialogVisible = true
+            } else {
+                isAddDialogVisible = true
+            }
             draftConsumedLocally = true
             onWorkoutDraftConsumed()
         } else {
@@ -211,6 +216,7 @@ fun WeeklyTrainingScreen(
                         categoryName = category?.name,
                         categoryColorId = category?.colorId,
                     )
+                draftEventDate = pendingWorkoutDraft.eventDate
                 draftConsumedLocally = true
                 onWorkoutDraftConsumed()
             }
@@ -319,7 +325,10 @@ fun WeeklyTrainingScreen(
                         slotModePolicy = state.slotModePolicy,
                         onWorkoutMoved = viewModel::moveWorkout,
                         onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
-                        onWorkoutEdit = { workout -> editingWorkout = workout },
+                        onWorkoutEdit = { workout ->
+                            draftEventDate = null
+                            editingWorkout = workout
+                        },
                         onWorkoutDelete = { workout -> deletingWorkout = workout },
                         onWeekChanged = viewModel::onWeekChanged,
                     )
@@ -516,6 +525,8 @@ fun WeeklyTrainingScreen(
                         type = type,
                         description = description,
                         categoryId = categoryId,
+                        eventDate = eventDate,
+                        isRaceEvent = true,
                     ),
                 )
             },
@@ -536,7 +547,10 @@ fun WeeklyTrainingScreen(
 
         if (workout.eventType == RACE_EVENT) {
             AddRaceEventDialog(
-                onDismiss = { editingWorkout = null },
+                onDismiss = {
+                    editingWorkout = null
+                    draftEventDate = null
+                },
                 onSave = { type, description, categoryId, eventDate ->
                     viewModel.updateRaceEvent(
                         workoutId = workout.id,
@@ -546,6 +560,7 @@ fun WeeklyTrainingScreen(
                         eventDate = eventDate,
                     )
                     editingWorkout = null
+                    draftEventDate = null
                 },
                 onManageCategories = { type, description, categoryId, eventDate ->
                     editingWorkout = null
@@ -555,13 +570,17 @@ fun WeeklyTrainingScreen(
                             type = type,
                             description = description,
                             categoryId = categoryId,
+                            eventDate = eventDate,
+                            isRaceEvent = true,
                         ),
                     )
                 },
                 isEdit = true,
                 categories = editCategories,
                 selectedCategoryId = workout.categoryId,
-                selectedDate = workout.weekStartDate.plusDays((workout.dayOfWeek?.value?.minus(1) ?: 0).toLong()),
+                selectedDate =
+                    draftEventDate
+                        ?: workout.weekStartDate.plusDays((workout.dayOfWeek?.value?.minus(1) ?: 0).toLong()),
                 initialTitle = workout.type,
                 initialDescription = workout.description,
             )

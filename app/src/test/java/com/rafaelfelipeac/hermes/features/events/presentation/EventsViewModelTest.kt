@@ -7,6 +7,8 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -104,7 +106,7 @@ class EventsViewModelTest {
                             workout(
                                 id = 1L,
                                 eventDate = eventDate,
-                                eventType = RACE_EVENT,
+                                eventType = EventType.WORKOUT,
                                 order = 0,
                             ),
                         ),
@@ -178,6 +180,67 @@ class EventsViewModelTest {
             assertEquals(UserActionType.MOVE_RACE_EVENT, action.actionType)
             assertEquals(expectedWeekStart.toString(), action.metadata?.get(NEW_WEEK_START_DATE))
             assertEquals(newDate.dayOfWeek.value.toString(), action.metadata?.get(NEW_DAY_OF_WEEK))
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun updateRaceEvent_allowsPastEventDetailsWhenDateUnchanged() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val pastDate = LocalDate.now().minusDays(5)
+            val repository =
+                FakeWeeklyTrainingRepository(
+                    initialWorkouts =
+                        listOf(
+                            workout(id = EVENT_ID, eventDate = pastDate, eventType = RACE_EVENT),
+                        ),
+                )
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository = repository, logger = logger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+
+            advanceUntilIdle()
+            viewModel.updateRaceEvent(
+                eventId = EVENT_ID,
+                title = UPDATED_TITLE,
+                description = UPDATED_DESCRIPTION,
+                categoryId = CATEGORY_ID,
+                eventDate = pastDate,
+            )
+            advanceUntilIdle()
+
+            val updated = repository.workouts.value.single()
+            assertEquals(UPDATED_TITLE, updated.type)
+            assertEquals(UPDATED_DESCRIPTION, updated.description)
+            assertEquals(pastDate.dayOfWeek, updated.dayOfWeek)
+            assertEquals(UserActionType.UPDATE_RACE_EVENT, logger.actions.single().actionType)
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun updateRaceEvent_rejectsMoveIntoPast() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val futureDate = LocalDate.now().plusDays(5)
+            val pastDate = LocalDate.now().minusDays(5)
+            val original = workout(id = EVENT_ID, eventDate = futureDate, eventType = RACE_EVENT)
+            val repository = FakeWeeklyTrainingRepository(initialWorkouts = listOf(original))
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository = repository, logger = logger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+
+            advanceUntilIdle()
+            viewModel.updateRaceEvent(
+                eventId = EVENT_ID,
+                title = UPDATED_TITLE,
+                description = UPDATED_DESCRIPTION,
+                categoryId = CATEGORY_ID,
+                eventDate = pastDate,
+            )
+            advanceUntilIdle()
+
+            assertEquals(original, repository.workouts.value.single())
+            assertEquals(emptyList<UserAction>(), logger.actions)
 
             collectJob.cancel()
         }
@@ -300,7 +363,10 @@ class EventsViewModelTest {
             advanceUntilIdle()
 
             assertEquals(emptyList<Workout>(), repository.workouts.value)
-            assertEquals(UserActionType.DELETE_RACE_EVENT, logger.actions.single().actionType)
+            val action = logger.actions.single()
+            assertEquals(UserActionType.DELETE_RACE_EVENT, action.actionType)
+            assertEquals("Race", action.metadata?.get(OLD_TYPE))
+            assertEquals("", action.metadata?.get(OLD_DESCRIPTION))
 
             collectJob.cancel()
         }
@@ -316,7 +382,11 @@ class EventsViewModelTest {
                     type = EVENT_TITLE,
                     description = EVENT_DESCRIPTION,
                 )
-            val repository = FakeWeeklyTrainingRepository(initialWorkouts = listOf(deletedEvent))
+            val repository =
+                FakeWeeklyTrainingRepository(
+                    initialWorkouts = listOf(deletedEvent),
+                    reassignInsertedIds = true,
+                )
             val logger = RecordingUserActionLogger()
             val viewModel = createViewModel(repository = repository, logger = logger)
             val collectJob = backgroundScope.launch { viewModel.state.collect {} }
@@ -327,11 +397,12 @@ class EventsViewModelTest {
             viewModel.undoLastAction()
             advanceUntilIdle()
 
-            assertEquals(listOf(deletedEvent), repository.workouts.value)
+            assertEquals(listOf(deletedEvent.copy(id = INSERTED_ID)), repository.workouts.value)
             assertEquals(
                 listOf(UserActionType.DELETE_RACE_EVENT, UserActionType.UNDO_DELETE_RACE_EVENT),
                 logger.actions.map { it.actionType },
             )
+            assertEquals(INSERTED_ID, logger.actions.last().entityId)
             assertEquals(null, viewModel.undoUiState.value)
 
             collectJob.cancel()
@@ -352,6 +423,7 @@ class EventsViewModelTest {
 
     private class FakeWeeklyTrainingRepository(
         initialWorkouts: List<Workout> = emptyList(),
+        private val reassignInsertedIds: Boolean = false,
     ) : WeeklyTrainingRepository {
         val workouts = MutableStateFlow(initialWorkouts)
         private var nextId = INSERTED_ID
@@ -388,7 +460,7 @@ class EventsViewModelTest {
         ): Long = error("Not needed")
 
         override suspend fun insertWorkout(workout: Workout): Long {
-            val id = if (workout.id == 0L) nextId++ else workout.id
+            val id = if (workout.id == 0L || reassignInsertedIds) nextId++ else workout.id
             workouts.update { items -> items + workout.copy(id = id) }
             return id
         }

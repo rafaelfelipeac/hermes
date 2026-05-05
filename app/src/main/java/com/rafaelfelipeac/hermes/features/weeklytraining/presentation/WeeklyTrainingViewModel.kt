@@ -39,7 +39,9 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WOR
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -332,8 +334,7 @@ class WeeklyTrainingViewModel
                     repository.getWorkoutsForWeek(storageWeekStart)
                         .count { workout ->
                             workout.dayOfWeek == dayOfWeek &&
-                                workout.timeSlot == null &&
-                                workout.eventType == EventType.RACE_EVENT
+                                workout.timeSlot == null
                         }
 
                 val eventId =
@@ -678,7 +679,7 @@ class WeeklyTrainingViewModel
             )
         }
 
-        @Suppress("LongMethod")
+        @Suppress("CyclomaticComplexMethod", "LongMethod")
         fun updateRaceEvent(
             workoutId: Long,
             type: String,
@@ -702,22 +703,37 @@ class WeeklyTrainingViewModel
                 )
             val storageWeekStart = canonicalStorageWeekStart(eventDate)
             val dayOfWeek = eventDate.dayOfWeek
+            val dateChanged =
+                original?.weekStartDate != storageWeekStart || original?.dayOfWeek != dayOfWeek
             val nextOrder =
-                repository.getWorkoutsForWeek(storageWeekStart)
-                    .count { workout ->
-                        workout.id != workoutId &&
-                            workout.dayOfWeek == dayOfWeek &&
-                            workout.timeSlot == null &&
-                            workout.eventType == EventType.RACE_EVENT
-                    }
+                if (dateChanged) {
+                    repository.getWorkoutsForWeek(storageWeekStart)
+                        .count { workout ->
+                            workout.id != workoutId &&
+                                workout.dayOfWeek == dayOfWeek &&
+                                workout.timeSlot == null
+                        }
+                } else {
+                    original?.order ?: 0
+                }
 
-            repository.updateWorkoutSchedule(
-                workoutId = workoutId,
-                weekStartDate = storageWeekStart,
-                dayOfWeek = dayOfWeek,
-                timeSlot = null,
-                order = nextOrder,
-            )
+            if (dateChanged) {
+                repository.updateWorkoutSchedule(
+                    workoutId = workoutId,
+                    weekStartDate = storageWeekStart,
+                    dayOfWeek = dayOfWeek,
+                    timeSlot = null,
+                    order = nextOrder,
+                )
+                original?.let { previous ->
+                    normalizeRaceEventSourceBucket(
+                        repository = repository,
+                        movedEventId = workoutId,
+                        weekStartDate = previous.weekStartDate,
+                        dayOfWeek = previous.dayOfWeek,
+                    )
+                }
+            }
             repository.updateWorkoutDetails(
                 workoutId = workoutId,
                 type = type,
@@ -725,9 +741,6 @@ class WeeklyTrainingViewModel
                 eventType = EventType.RACE_EVENT,
                 categoryId = normalizedCategoryId,
             )
-
-            val dateChanged =
-                original?.weekStartDate != storageWeekStart || original?.dayOfWeek != dayOfWeek
             val actionType =
                 if (dateChanged) {
                     EventType.RACE_EVENT.toMoveActionType()
@@ -978,8 +991,7 @@ private suspend fun undoCompletion(
 
     val entityType =
         action.workout.eventType.toUserActionEntityType()
-    val actionType =
-        if (action.newCompleted) UNDO_COMPLETE_WORKOUT else UNDO_INCOMPLETE_WORKOUT
+    val actionType = action.workout.eventType.toUndoCompletionActionType(action.newCompleted)
 
     userActionLogger.log(
         actionType = actionType,
@@ -1011,6 +1023,48 @@ private fun normalizeCategoryId(
     } else {
         categoryId ?: UNCATEGORIZED_ID
     }
+}
+
+private fun EventType.toUndoCompletionActionType(newCompleted: Boolean) =
+    when (this) {
+        EventType.RACE_EVENT ->
+            if (newCompleted) {
+                UNDO_COMPLETE_RACE_EVENT
+            } else {
+                UNDO_INCOMPLETE_RACE_EVENT
+            }
+        else ->
+            if (newCompleted) {
+                UNDO_COMPLETE_WORKOUT
+            } else {
+                UNDO_INCOMPLETE_WORKOUT
+            }
+    }
+
+private suspend fun normalizeRaceEventSourceBucket(
+    repository: WeeklyTrainingRepository,
+    movedEventId: Long,
+    weekStartDate: LocalDate,
+    dayOfWeek: DayOfWeek?,
+) {
+    repository.getWorkoutsForWeek(weekStartDate)
+        .filter { workout ->
+            workout.id != movedEventId &&
+                workout.dayOfWeek == dayOfWeek &&
+                workout.timeSlot == null
+        }
+        .sortedBy { it.order }
+        .forEachIndexed { index, workout ->
+            if (workout.order != index) {
+                repository.updateWorkoutSchedule(
+                    workoutId = workout.id,
+                    weekStartDate = workout.weekStartDate,
+                    dayOfWeek = workout.dayOfWeek,
+                    timeSlot = workout.timeSlot,
+                    order = index,
+                )
+            }
+        }
 }
 
 private fun resolveCategoryId(

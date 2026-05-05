@@ -336,6 +336,7 @@ class TrophyEngineTest {
     }
 
     @Test
+    @Suppress("LongMethod")
     fun raceEventTrophies_unlockAndRevertThroughDeleteAndUndoDelete() {
         val progress =
             engine.compute(

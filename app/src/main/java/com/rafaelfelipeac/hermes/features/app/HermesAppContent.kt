@@ -53,17 +53,25 @@ fun HermesAppContent() {
     val visibleDestinations = listOf(WEEKLY_TRAINING, EVENTS, TROPHIES, SETTINGS)
     val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
     val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
+        pendingEventDraft = null
         pendingWorkoutDraft = draft
         pendingSettingsRoute = CATEGORIES
         currentDestination = SETTINGS
     }
     val handleCategoriesExit = {
         when {
-            pendingWorkoutDraft != null -> currentDestination = WEEKLY_TRAINING
-            pendingEventDraft != null -> currentDestination = EVENTS
+            pendingWorkoutDraft != null -> {
+                pendingEventDraft = null
+                currentDestination = WEEKLY_TRAINING
+            }
+            pendingEventDraft != null -> {
+                pendingWorkoutDraft = null
+                currentDestination = EVENTS
+            }
         }
     }
     val openEventCategories: (EventDialogDraft) -> Unit = { draft ->
+        pendingWorkoutDraft = null
         pendingEventDraft = draft
         pendingSettingsRoute = CATEGORIES
         currentDestination = SETTINGS

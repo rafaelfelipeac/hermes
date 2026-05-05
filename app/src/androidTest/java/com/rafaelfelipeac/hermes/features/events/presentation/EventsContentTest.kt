@@ -52,10 +52,10 @@ class EventsContentTest {
             )
         }
 
-        composeRule.onNodeWithText("10 km").assertExists()
-        composeRule.onNodeWithText("15 km").assertExists()
-        composeRule.onNodeWithText("21,1 km").assertExists()
-        composeRule.onNodeWithText("100 km").assertExists()
+        composeRule.onNodeWithText("10 km").assertIsDisplayed()
+        composeRule.onNodeWithText("15 km").assertIsDisplayed()
+        composeRule.onNodeWithText("21,1 km").assertIsDisplayed()
+        composeRule.onNodeWithText("100 km").assertIsDisplayed()
 
         val first = composeRule.onNodeWithTag(eventCardTag(1L)).getBoundsInRoot()
         val second = composeRule.onNodeWithTag(eventCardTag(2L)).getBoundsInRoot()

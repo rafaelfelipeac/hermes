@@ -390,7 +390,10 @@ class TrophyEngine(
 
                         UNDO_DELETE_RACE_EVENT -> {
                             val eventId = action.record.entityId ?: return@forEach
-                            val deletedState = deletedRaceEventStacksByEventId[eventId].removeLastIfPresent() ?: return@forEach
+                            val deletedState =
+                                deletedRaceEventStacksByEventId[eventId]
+                                    .removeLastIfPresent()
+                                    ?: return@forEach
                             deletedState.creationTimestamp?.let {
                                 raceEventCreationStacksByEventId
                                     .getOrPut(eventId, ::ArrayDeque)
