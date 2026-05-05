@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 
@@ -17,6 +18,8 @@ fun TitleChip(
     containerColor: Color,
     contentColor: Color,
     modifier: Modifier = Modifier,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: TextOverflow = TextOverflow.Clip,
 ) {
     Surface(
         color = containerColor,
@@ -27,6 +30,8 @@ fun TitleChip(
         Text(
             text = label,
             style = typography.labelSmall,
+            maxLines = maxLines,
+            overflow = overflow,
             modifier =
                 Modifier.padding(
                     horizontal = SpacingMd,

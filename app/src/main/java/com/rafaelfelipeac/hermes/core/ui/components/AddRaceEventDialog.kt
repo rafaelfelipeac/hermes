@@ -41,6 +41,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.RaceEventDialogContentMaxHeight
@@ -179,6 +180,8 @@ fun AddRaceEventDialog(
                                     } else {
                                         contentColorForBackground(currentCategoryAccent)
                                     },
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
                             )
                         },
                         trailingIcon = {
@@ -202,6 +205,8 @@ fun AddRaceEventDialog(
                                         label = category.name,
                                         containerColor = accent,
                                         contentColor = contentColorForBackground(accent),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
                                     )
                                 },
                                 onClick = {

@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -631,7 +630,9 @@ private fun EventCard(
                         label = categoryLabel,
                         containerColor = categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
                         contentColor = categoryChipContent,
-                        modifier = Modifier.wrapContentWidth(),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
                     )
                 }
 
