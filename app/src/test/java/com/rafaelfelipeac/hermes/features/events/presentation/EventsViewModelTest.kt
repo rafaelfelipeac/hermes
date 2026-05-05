@@ -37,6 +37,7 @@ import org.junit.Rule
 import org.junit.Test
 import java.time.DayOfWeek
 import java.time.LocalDate
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID as CATEGORY_ID_KEY
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class EventsViewModelTest {
@@ -109,6 +110,12 @@ class EventsViewModelTest {
                                 eventType = EventType.WORKOUT,
                                 order = 0,
                             ),
+                            workout(
+                                id = 2L,
+                                eventDate = eventDate,
+                                eventType = EventType.WORKOUT,
+                                order = 2,
+                            ),
                         ),
                 )
             val logger = RecordingUserActionLogger()
@@ -129,7 +136,7 @@ class EventsViewModelTest {
             assertEquals(expectedWeekStart, inserted.weekStartDate)
             assertEquals(eventDate.dayOfWeek, inserted.dayOfWeek)
             assertEquals(RACE_EVENT, inserted.eventType)
-            assertEquals(1, inserted.order)
+            assertEquals(3, inserted.order)
             assertEquals(CATEGORY_ID, inserted.categoryId)
 
             val action = logger.actions.single()
@@ -137,7 +144,43 @@ class EventsViewModelTest {
             assertEquals(UserActionEntityType.RACE_EVENT, action.entityType)
             assertEquals(INSERTED_ID, action.entityId)
             assertEquals(EVENT_TITLE, action.metadata?.get(NEW_TYPE))
-            assertEquals("1", action.metadata?.get(NEW_ORDER))
+            assertEquals("3", action.metadata?.get(NEW_ORDER))
+            assertEquals(CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID_KEY))
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun addRaceEvent_logsNormalizedCategoryWhenInputIsUnknown() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val eventDate = LocalDate.now().plusDays(30)
+            val repository =
+                FakeWeeklyTrainingRepository(
+                    initialWorkouts =
+                        listOf(
+                            workout(
+                                id = 1L,
+                                eventDate = eventDate,
+                                eventType = EventType.WORKOUT,
+                            ),
+                        ),
+                )
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository = repository, logger = logger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+
+            advanceUntilIdle()
+            viewModel.addRaceEvent(
+                title = EVENT_TITLE,
+                description = EVENT_DESCRIPTION,
+                categoryId = 999L,
+                eventDate = eventDate,
+            )
+            advanceUntilIdle()
+
+            val inserted = repository.workouts.value.single { it.id == INSERTED_ID }
+            assertEquals(UNCATEGORIZED_ID, inserted.categoryId)
+            assertEquals(UNCATEGORIZED_ID.toString(), logger.actions.single().metadata?.get(CATEGORY_ID_KEY))
 
             collectJob.cancel()
         }
@@ -152,6 +195,12 @@ class EventsViewModelTest {
                     initialWorkouts =
                         listOf(
                             workout(id = EVENT_ID, eventDate = originalDate, eventType = RACE_EVENT),
+                            workout(
+                                id = 2L,
+                                eventDate = newDate,
+                                eventType = EventType.WORKOUT,
+                                order = 2,
+                            ),
                         ),
                 )
             val logger = RecordingUserActionLogger()
@@ -175,6 +224,7 @@ class EventsViewModelTest {
             assertEquals(UPDATED_TITLE, updated.type)
             assertEquals(UPDATED_DESCRIPTION, updated.description)
             assertEquals(UNCATEGORIZED_ID, updated.categoryId)
+            assertEquals(3, updated.order)
 
             val action = logger.actions.single()
             assertEquals(UserActionType.MOVE_RACE_EVENT, action.actionType)
@@ -404,6 +454,65 @@ class EventsViewModelTest {
             )
             assertEquals(INSERTED_ID, logger.actions.last().entityId)
             assertEquals(null, viewModel.undoUiState.value)
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun undoDeleteRaceEvent_appendsAfterBucketMaxOrderWhenChanged() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val eventDate = LocalDate.now().plusDays(5)
+            val deletedEvent =
+                workout(
+                    id = EVENT_ID,
+                    eventDate = eventDate,
+                    eventType = RACE_EVENT,
+                    order = 0,
+                    type = EVENT_TITLE,
+                    description = EVENT_DESCRIPTION,
+                )
+            val repository =
+                FakeWeeklyTrainingRepository(
+                    initialWorkouts =
+                        listOf(
+                            deletedEvent,
+                            workout(
+                                id = 2L,
+                                eventDate = eventDate,
+                                eventType = EventType.WORKOUT,
+                                order = 1,
+                                type = WORKOUT_TITLE,
+                            ),
+                        ),
+                    reassignInsertedIds = true,
+                )
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository = repository, logger = logger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+
+            advanceUntilIdle()
+            viewModel.deleteRaceEvent(EVENT_ID)
+            repository.workouts.update { items ->
+                items +
+                    workout(
+                        id = 3L,
+                        eventDate = eventDate,
+                        eventType = EventType.WORKOUT,
+                        order = 4,
+                        type = "Later",
+                    )
+            }
+            runCurrent()
+            viewModel.undoLastAction()
+            advanceUntilIdle()
+
+            val restored = repository.workouts.value.single { it.id == INSERTED_ID }
+            assertEquals(5, restored.order)
+            assertEquals(
+                listOf(UserActionType.DELETE_RACE_EVENT, UserActionType.UNDO_DELETE_RACE_EVENT),
+                logger.actions.map { it.actionType },
+            )
+            assertEquals(INSERTED_ID, logger.actions.last().entityId)
 
             collectJob.cancel()
         }

@@ -128,12 +128,7 @@ class EventsViewModel
             viewModelScope.launch {
                 val storageWeekStart = canonicalStorageWeekStart(eventDate)
                 val dayOfWeek = eventDate.dayOfWeek
-                val nextOrder =
-                    repository.getWorkoutsForWeek(storageWeekStart)
-                        .count { workout ->
-                            workout.dayOfWeek == dayOfWeek &&
-                                workout.timeSlot == null
-                        }
+                val nextOrder = nextRaceEventOrder(storageWeekStart, dayOfWeek)
 
                 val workout =
                     Workout(
@@ -164,7 +159,7 @@ class EventsViewModel
                             NEW_TYPE to title,
                             NEW_DESCRIPTION to description,
                         ).apply {
-                            categoryId?.let { put(CATEGORY_ID, it.toString()) }
+                            normalizedCategoryId?.let { put(CATEGORY_ID, it.toString()) }
                             if (!categoryName.isNullOrBlank()) {
                                 put(CATEGORY_NAME, categoryName)
                                 put(NEW_CATEGORY_NAME, categoryName)
@@ -203,12 +198,7 @@ class EventsViewModel
             viewModelScope.launch {
                 val nextOrder =
                     if (dateChanged) {
-                        repository.getWorkoutsForWeek(storageWeekStart)
-                            .count { workout ->
-                                workout.id != eventId &&
-                                    workout.dayOfWeek == dayOfWeek &&
-                                    workout.timeSlot == null
-                            }
+                        nextRaceEventOrder(storageWeekStart, dayOfWeek, eventId)
                     } else {
                         original?.order ?: 0
                     }
@@ -384,7 +374,8 @@ class EventsViewModel
 
         private suspend fun undoDelete(action: PendingEventUndoAction.Delete) {
             val event = action.event
-            val restoredId = repository.insertWorkout(event.toDomain())
+            val restoredOrder = nextRaceEventOrder(event.weekStartDate, event.dayOfWeek)
+            val restoredId = repository.insertWorkout(event.toDomain().copy(order = restoredOrder))
 
             userActionLogger.log(
                 actionType = RACE_EVENT.toUndoDeleteActionType(),
@@ -392,6 +383,23 @@ class EventsViewModel
                 entityId = restoredId,
                 metadata = event.toActionMetadata(),
             )
+        }
+
+        private suspend fun nextRaceEventOrder(
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            excludeWorkoutId: Long? = null,
+        ): Int {
+            return repository.getWorkoutsForWeek(weekStartDate)
+                .asSequence()
+                .filter { workout ->
+                    workout.id != excludeWorkoutId &&
+                        workout.dayOfWeek == dayOfWeek &&
+                        workout.timeSlot == null
+                }
+                .maxOfOrNull { it.order }
+                ?.plus(1)
+                ?: 0
         }
 
         private suspend fun normalizeRaceEventSourceBucket(

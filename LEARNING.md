@@ -370,3 +370,5 @@ Recent learnings:
 - Race-event date validation belongs at the transition boundary, not every save. Existing past events still need editable details, while creating or moving an event into the past should remain blocked.
 - Race-event ordering shares the same day/slot bucket as workouts and non-workout events. Counting only race events makes duplicate orders possible, so event-specific entry points must still use the shared bucket rules and normalize the source bucket after moves.
 - One-shot Compose effects should still receive resource-derived text from composition. Precomputing localized templates with `stringResource` keeps snackbar collectors lint-clean while preserving dynamic event titles.
+- Cross-screen drafts that survive a categories hop need saveable state at the app shell, not just local dialog state. `rememberSaveable` with a custom saver is the simplest way to keep the pending workout/event payload intact across rotation.
+- Shared bucket order should append from the current maximum order, not from a count. `count()` silently reuses holes, while `max(order) + 1` keeps race-event inserts and undo restores from colliding with existing rows.

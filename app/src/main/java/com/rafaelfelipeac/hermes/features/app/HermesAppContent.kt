@@ -47,8 +47,12 @@ fun HermesAppContent() {
     val snackbarHostState = remember { SnackbarHostState() }
     var currentDestination by rememberSaveable { mutableStateOf(WEEKLY_TRAINING) }
     var pendingSettingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
-    var pendingWorkoutDraft by remember { mutableStateOf<WorkoutDialogDraft?>(null) }
-    var pendingEventDraft by remember { mutableStateOf<EventDialogDraft?>(null) }
+    var pendingWorkoutDraft by rememberSaveable(stateSaver = WorkoutDialogDraft.Saver) {
+        mutableStateOf<WorkoutDialogDraft?>(null)
+    }
+    var pendingEventDraft by rememberSaveable(stateSaver = EventDialogDraft.Saver) {
+        mutableStateOf<EventDialogDraft?>(null)
+    }
     var pendingCelebrationTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
     val visibleDestinations = listOf(WEEKLY_TRAINING, EVENTS, TROPHIES, SETTINGS)
     val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
@@ -107,7 +111,15 @@ fun HermesAppContent() {
                     label = { Text(stringResource(it.labelRes)) },
                     selected = it == currentDestination,
                     onClick = {
-                        if (it == SETTINGS) {
+                        if (
+                            currentDestination == SETTINGS &&
+                            pendingSettingsRoute == CATEGORIES &&
+                            it != SETTINGS
+                        ) {
+                            pendingWorkoutDraft = null
+                            pendingEventDraft = null
+                            pendingSettingsRoute = null
+                        } else if (it == SETTINGS) {
                             pendingSettingsRoute = MAIN
                         }
                         currentDestination = it

@@ -24,7 +24,6 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.AlertDialog
@@ -142,6 +141,18 @@ fun EventsScreen(
 
     val editingEvent = editingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
     val deletingEvent = deletingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
+    val categoriesForPicker =
+        if (editingEvent == null) {
+            state.categories.filterNot { it.isHidden }
+        } else {
+            val selectedCategoryId = draftCategoryId ?: editingEvent.categoryId
+            val hiddenSelectedCategory =
+                selectedCategoryId?.let { categoryId ->
+                    state.categories.firstOrNull { it.id == categoryId && it.isHidden }
+                }
+
+            state.categories.filterNot { it.isHidden } + listOfNotNull(hiddenSelectedCategory)
+        }
     val undoMessage =
         undoState?.let { currentUndo ->
             undoSnackbarMessage(
@@ -334,7 +345,7 @@ fun EventsScreen(
                 )
             },
             isEdit = editingEvent != null,
-            categories = state.categories,
+            categories = categoriesForPicker,
             selectedCategoryId = draftCategoryId,
             selectedDate = draftDate,
             initialTitle = draftTitle,
@@ -609,34 +620,17 @@ private fun EventCard(
                                 .offset(y = Zero),
                         contentAlignment = Alignment.Center,
                     ) {
-                        if (event.isCompleted) {
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .size(CheckboxSize + SpacingSm)
-                                        .clickable { onToggleCompleted(false) },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Check,
-                                    contentDescription = stringResource(R.string.weekly_training_workout_completed),
-                                    tint = colors.content,
-                                    modifier = Modifier.size(CheckboxSize - SpacingXs),
-                                )
-                            }
-                        } else {
-                            Checkbox(
-                                checked = false,
-                                onCheckedChange = onToggleCompleted,
-                                modifier = Modifier.size(CheckboxSize + SpacingSm),
-                                colors =
-                                    CheckboxDefaults.colors(
-                                        checkedColor = colors.content,
-                                        uncheckedColor = colors.content,
-                                        checkmarkColor = colors.background,
-                                    ),
-                            )
-                        }
+                        Checkbox(
+                            checked = event.isCompleted,
+                            onCheckedChange = onToggleCompleted,
+                            modifier = Modifier.size(CheckboxSize + SpacingSm),
+                            colors =
+                                CheckboxDefaults.colors(
+                                    checkedColor = colors.content,
+                                    uncheckedColor = colors.content,
+                                    checkmarkColor = colors.background,
+                                ),
+                        )
                     }
 
                     TitleChip(
@@ -702,7 +696,7 @@ private fun EventCard(
                 }
 
                 HorizontalDivider(
-                    color = Color.White.copy(alpha = 0.35f),
+                    color = colors.content.copy(alpha = 0.35f),
                     thickness = BorderThin,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -719,14 +713,14 @@ private fun EventCard(
                     Icon(
                         imageVector = Icons.Outlined.Flag,
                         contentDescription = stringResource(R.string.race_event_label),
-                        tint = Color.White,
+                        tint = colors.content,
                         modifier = Modifier.size(EventFlagIconSize),
                     )
 
                     Text(
                         text = countdown,
                         style = typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                        color = Color.White,
+                        color = colors.content,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
