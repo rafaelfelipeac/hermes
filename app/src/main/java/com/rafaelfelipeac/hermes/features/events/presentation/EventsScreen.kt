@@ -58,7 +58,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -107,6 +106,7 @@ import java.util.Locale
 
 private const val TYPE_CHIP_ALPHA = 0.18f
 private const val EVENT_GRID_COLUMNS = 2
+private const val SNACKBAR_EVENT_TITLE_PLACEHOLDER = "__EVENT_TITLE__"
 internal const val EVENT_CARD_TAG_PREFIX = "event-card-"
 
 @Composable
@@ -119,7 +119,6 @@ fun EventsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val undoState by viewModel.undoUiState.collectAsState()
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     var isDialogVisible by rememberSaveable { mutableStateOf(false) }
     var editingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -130,6 +129,16 @@ fun EventsScreen(
     var deletingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftConsumedLocally by remember { mutableStateOf(false) }
     val undoLabel = stringResource(R.string.weekly_training_undo_action)
+    val createdMessage =
+        stringResource(
+            R.string.activity_action_create_race_event,
+            SNACKBAR_EVENT_TITLE_PLACEHOLDER,
+        )
+    val updatedMessage =
+        stringResource(
+            R.string.activity_action_update_race_event,
+            SNACKBAR_EVENT_TITLE_PLACEHOLDER,
+        )
 
     val editingEvent = editingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
     val deletingEvent = deletingEventId?.let { id -> state.events.firstOrNull { it.id == id } }
@@ -173,9 +182,15 @@ fun EventsScreen(
                 message =
                     when (message) {
                         is EventsMessage.Created ->
-                            context.getString(R.string.activity_action_create_race_event, message.title)
+                            createdMessage.replace(
+                                SNACKBAR_EVENT_TITLE_PLACEHOLDER,
+                                message.title,
+                            )
                         is EventsMessage.Updated ->
-                            context.getString(R.string.activity_action_update_race_event, message.title)
+                            updatedMessage.replace(
+                                SNACKBAR_EVENT_TITLE_PLACEHOLDER,
+                                message.title,
+                            )
                     },
                 duration = SnackbarDuration.Short,
             )
