@@ -8,7 +8,30 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">週</string>
     <string name="activity_nav_label">アクティビティ</string>
+    <string name="progress_nav_label">進捗</string>
     <string name="settings_nav_label">設定</string>
+
+    <!-- Progress -->
+    <string name="progress_title">進捗</string>
+    <string name="progress_empty">いくつかのワークアウトを計画すると、ここに進捗が表示されます。</string>
+    <string name="progress_section_at_a_glance">ひと目でわかる概要</string>
+    <string name="progress_section_this_week">今週</string>
+    <string name="progress_section_weekly_trend">週ごとの完了状況</string>
+    <string name="progress_section_categories">カテゴリー内訳</string>
+    <string name="progress_section_trophy">トロフィーの注目</string>
+    <string name="progress_section_recent_activity">最近のアクティビティ</string>
+    <string name="progress_section_upcoming">次の予定</string>
+    <string name="progress_view_all_activity">すべて表示</string>
+    <string name="progress_card_this_week">今週</string>
+    <string name="progress_card_consistency">完了した週</string>
+    <string name="progress_card_top_category">主要カテゴリー</string>
+    <string name="progress_card_upcoming_days">日</string>
+    <string name="progress_last_8_weeks">直近8週間</string>
+    <string name="progress_completed_of_planned">%1$d / %2$d 完了</string>
+    <string name="progress_no_trophy_highlight">トレーニングを記録し続けると、トロフィーの注目が表示されます。</string>
+    <string name="progress_trophy_recent_unlock">最近アンロック</string>
+    <string name="progress_trophy_nearest">次に近いトロフィー</string>
+    <string name="progress_days_until">あと%1$d日</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">追加</string>
@@ -142,8 +165,9 @@
     <string name="settings_release_notes_added">追加</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>リリース済みの変更をアプリ内で確認できる設定のリリースノート</item>
-        <item>ワークアウト完了時と週次アイテムのドラッグ時の触覚フィードバック</item>
+        <item>今後のレースやワークアウト以外の予定をワークアウトと分けて計画できるイベント画面</item>
+        <item>イベントの作成、編集、完了、削除、元に戻す操作に対応</item>
+        <item>イベントに対応したアクティビティ履歴、トロフィー進捗、バックアップ</item>
     </string-array>
     <string name="settings_back">戻る</string>
     <string name="settings_feedback_title">フィードバック</string>

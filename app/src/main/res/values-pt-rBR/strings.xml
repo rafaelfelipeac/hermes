@@ -8,7 +8,30 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">Semana</string>
     <string name="activity_nav_label">Atividade</string>
+    <string name="progress_nav_label">Progresso</string>
     <string name="settings_nav_label">Config.</string>
+
+    <!-- Progress -->
+    <string name="progress_title">Progresso</string>
+    <string name="progress_empty">Planeje alguns treinos para ver seu progresso aqui.</string>
+    <string name="progress_section_at_a_glance">De relance</string>
+    <string name="progress_section_this_week">Esta semana</string>
+    <string name="progress_section_weekly_trend">Conclusão semanal</string>
+    <string name="progress_section_categories">Mistura de categorias</string>
+    <string name="progress_section_trophy">Destaque de troféu</string>
+    <string name="progress_section_recent_activity">Atividade recente</string>
+    <string name="progress_section_upcoming">Próximo</string>
+    <string name="progress_view_all_activity">Ver tudo</string>
+    <string name="progress_card_this_week">Esta semana</string>
+    <string name="progress_card_consistency">Semanas concluídas</string>
+    <string name="progress_card_top_category">Categoria principal</string>
+    <string name="progress_card_upcoming_days">Dias</string>
+    <string name="progress_last_8_weeks">Últimas 8 semanas</string>
+    <string name="progress_completed_of_planned">%1$d de %2$d concluídos</string>
+    <string name="progress_no_trophy_highlight">Continue registrando treinos para revelar um destaque de troféu.</string>
+    <string name="progress_trophy_recent_unlock">Desbloqueado recentemente</string>
+    <string name="progress_trophy_nearest">Troféu mais próximo</string>
+    <string name="progress_days_until">faltam %1$d dias</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">Adicionar</string>
@@ -146,8 +169,9 @@
     <string name="settings_release_notes_added">Adicionado</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Notas da versão nas Configurações para mostrar as mudanças lançadas dentro do app</item>
-        <item>Feedback háptico ao concluir treinos e arrastar itens semanais</item>
+        <item>Tela de Eventos para planejar próximas corridas e outros eventos que não são treinos separadamente dos treinos</item>
+        <item>Criação, edição, conclusão, exclusão e desfazer para eventos</item>
+        <item>Histórico de Atividade, progresso de troféus e backup com suporte a eventos</item>
     </string-array>
     <string name="settings_back">Voltar</string>
     <string name="settings_feedback_title">Feedback</string>

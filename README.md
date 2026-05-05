@@ -40,6 +40,7 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 - Weekly header summary with progress and week completion feedback
 - Activity history filters by type, category and week
 - Trophy families, overview/detail screens and celebration banners
+- Events screen for upcoming races and other non-workout planning moments
 - Mark days or sessions as:
   - **Training**
   - **Rest day**

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.9.0]
+### Added
+- Events screen for planning upcoming races and other non-workout events separately from workouts
+- Event creation, editing, completion, deletion and undo support using the shared weekly planner data model
+- Event Activity history, trophy progress and backup schema v3 support
+
 ## [v1.8.0]
 ### Added
 - Release notes in Settings so shipped changes are available inside the app
