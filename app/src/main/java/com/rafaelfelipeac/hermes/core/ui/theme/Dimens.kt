@@ -32,6 +32,11 @@ object Dimens {
     val SettingsDeveloperButtonContentHorizontalPadding = 12.dp
     val SettingsDeveloperButtonContentVerticalPadding = 8.dp
     val ReleaseNotesBottomPadding = 24.dp
+    val ProgressSummaryCardMinHeight = 92.dp
+    val ProgressTrendBarHeight = 96.dp
+    val ProgressTrendBarMinWidth = 28.dp
+    val ProgressCategoryColorDotSize = 10.dp
+    val ProgressScreenBottomPadding = 96.dp
 
     val ContentPadding = 14.dp
     val CheckboxBoxSize = 32.dp

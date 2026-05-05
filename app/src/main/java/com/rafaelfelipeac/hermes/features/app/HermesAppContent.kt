@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.ACTIVITY
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.EVENTS
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.PROGRESS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.TROPHIES
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
@@ -36,6 +37,7 @@ import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.CATEGORIES
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.MAIN
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
+import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressScreen
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophiesScreen
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyCelebrationViewModel
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
@@ -54,7 +56,7 @@ fun HermesAppContent() {
         mutableStateOf<EventDialogDraft?>(null)
     }
     var pendingCelebrationTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
-    val visibleDestinations = listOf(WEEKLY_TRAINING, EVENTS, TROPHIES, SETTINGS)
+    val visibleDestinations = listOf(WEEKLY_TRAINING, PROGRESS, EVENTS, TROPHIES, SETTINGS)
     val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
     val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingEventDraft = null
@@ -138,10 +140,15 @@ fun HermesAppContent() {
                             pendingWorkoutDraft = pendingWorkoutDraft,
                             onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
                         )
+                    PROGRESS ->
+                        ProgressScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            onOpenActivity = { currentDestination = ACTIVITY },
+                        )
                     ACTIVITY ->
                         ActivityScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onBack = { currentDestination = TROPHIES },
+                            onBack = { currentDestination = PROGRESS },
                         )
                     TROPHIES ->
                         TrophiesScreen(
