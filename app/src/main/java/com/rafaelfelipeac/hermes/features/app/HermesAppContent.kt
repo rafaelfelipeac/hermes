@@ -50,7 +50,7 @@ fun HermesAppContent() {
     var pendingWorkoutDraft by remember { mutableStateOf<WorkoutDialogDraft?>(null) }
     var pendingEventDraft by remember { mutableStateOf<EventDialogDraft?>(null) }
     var pendingCelebrationTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
-    val visibleDestinations = listOf(WEEKLY_TRAINING, TROPHIES, EVENTS, SETTINGS)
+    val visibleDestinations = listOf(WEEKLY_TRAINING, EVENTS, TROPHIES, SETTINGS)
     val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
     val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingWorkoutDraft = draft
