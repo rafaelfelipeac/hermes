@@ -8,7 +8,30 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">सप्ताह</string>
     <string name="activity_nav_label">गतिविधि</string>
+    <string name="progress_nav_label">प्रगति</string>
     <string name="settings_nav_label">सेटिंग</string>
+
+    <!-- Progress -->
+    <string name="progress_title">प्रगति</string>
+    <string name="progress_empty">अपनी प्रगति यहाँ देखने के लिए कुछ वर्कआउट प्लान करें।</string>
+    <string name="progress_section_at_a_glance">एक नज़र में</string>
+    <string name="progress_section_this_week">इस सप्ताह</string>
+    <string name="progress_section_weekly_trend">साप्ताहिक प्रगति</string>
+    <string name="progress_section_categories">श्रेणी मिश्रण</string>
+    <string name="progress_section_trophy">ट्रॉफी हाइलाइट</string>
+    <string name="progress_section_recent_activity">हाल की गतिविधि</string>
+    <string name="progress_section_upcoming">आने वाला</string>
+    <string name="progress_view_all_activity">सभी देखें</string>
+    <string name="progress_card_this_week">इस सप्ताह</string>
+    <string name="progress_card_consistency">पूरी हुई सप्ताहें</string>
+    <string name="progress_card_top_category">शीर्ष श्रेणी</string>
+    <string name="progress_card_upcoming_days">दिन</string>
+    <string name="progress_last_8_weeks">पिछले 8 सप्ताह</string>
+    <string name="progress_completed_of_planned">%1$d में से %2$d पूरे हुए</string>
+    <string name="progress_no_trophy_highlight">ट्रॉफी हाइलाइट दिखाने के लिए प्रशिक्षण लॉग करते रहें।</string>
+    <string name="progress_trophy_recent_unlock">हाल में अनलॉक</string>
+    <string name="progress_trophy_nearest">सबसे नज़दीकी ट्रॉफी</string>
+    <string name="progress_days_until">%1$d दिन बाकी</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">जोड़ें</string>
@@ -146,8 +169,9 @@
     <string name="settings_release_notes_added">जोड़ा गया</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>ऐप के अंदर जारी बदलाव दिखाने के लिए सेटिंग्स में रिलीज़ नोट्स</item>
-        <item>वर्कआउट पूरा करने और साप्ताहिक आइटम खींचने पर हैप्टिक फ़ीडबैक</item>
+        <item>आने वाली रेस और अन्य गैर-वर्कआउट इवेंट को वर्कआउट से अलग प्लान करने के लिए इवेंट स्क्रीन</item>
+        <item>इवेंट बनाने, संपादित करने, पूरा करने, हटाने और पूर्ववत करने का समर्थन</item>
+        <item>इवेंट समर्थन के साथ गतिविधि इतिहास, ट्रॉफी प्रगति और बैकअप</item>
     </string-array>
     <string name="settings_back">वापस</string>
     <string name="settings_feedback_title">प्रतिक्रिया</string>

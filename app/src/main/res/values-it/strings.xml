@@ -8,7 +8,30 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">Settimana</string>
     <string name="activity_nav_label">Attività</string>
+    <string name="progress_nav_label">Progresso</string>
     <string name="settings_nav_label">Opzioni</string>
+
+    <!-- Progress -->
+    <string name="progress_title">Progresso</string>
+    <string name="progress_empty">Pianifica qualche allenamento per vedere qui il tuo progresso.</string>
+    <string name="progress_section_at_a_glance">A colpo d’occhio</string>
+    <string name="progress_section_this_week">Questa settimana</string>
+    <string name="progress_section_weekly_trend">Andamento settimanale</string>
+    <string name="progress_section_categories">Distribuzione per categoria</string>
+    <string name="progress_section_trophy">Trofeo in evidenza</string>
+    <string name="progress_section_recent_activity">Attività recenti</string>
+    <string name="progress_section_upcoming">In arrivo</string>
+    <string name="progress_view_all_activity">Vedi tutto</string>
+    <string name="progress_card_this_week">Questa settimana</string>
+    <string name="progress_card_consistency">Settimane complete</string>
+    <string name="progress_card_top_category">Categoria principale</string>
+    <string name="progress_card_upcoming_days">Giorni</string>
+    <string name="progress_last_8_weeks">Ultime 8 settimane</string>
+    <string name="progress_completed_of_planned">%1$d su %2$d completati</string>
+    <string name="progress_no_trophy_highlight">Continua a registrare allenamenti per mostrare un trofeo in evidenza.</string>
+    <string name="progress_trophy_recent_unlock">Sbloccato di recente</string>
+    <string name="progress_trophy_nearest">Trofeo più vicino</string>
+    <string name="progress_days_until">tra %1$d giorni</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">Aggiungi</string>
@@ -145,8 +168,9 @@
     <string name="settings_release_notes_added">Aggiunto</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Note di rilascio nelle Impostazioni per mostrare le modifiche pubblicate dentro l’app</item>
-        <item>Feedback aptico quando completi allenamenti e trascini elementi settimanali</item>
+        <item>Schermata Eventi per pianificare prossime gare e altri eventi non di allenamento separatamente dagli allenamenti</item>
+        <item>Creazione, modifica, completamento, eliminazione e annullamento per gli eventi</item>
+        <item>Cronologia Attività, progresso dei trofei e backup con supporto agli eventi</item>
     </string-array>
     <string name="settings_back">Indietro</string>
     <string name="settings_feedback_title">Feedback</string>

@@ -8,8 +8,31 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">Week</string>
     <string name="activity_nav_label">Activity</string>
+    <string name="progress_nav_label">Progress</string>
     <string name="race_events_nav_label">Events</string>
     <string name="settings_nav_label">Settings</string>
+
+    <!-- Progress -->
+    <string name="progress_title">Progress</string>
+    <string name="progress_empty">Plan a few workouts to see your progress here.</string>
+    <string name="progress_section_at_a_glance">At a glance</string>
+    <string name="progress_section_this_week">This week</string>
+    <string name="progress_section_weekly_trend">Weekly completion</string>
+    <string name="progress_section_categories">Category mix</string>
+    <string name="progress_section_trophy">Trophy highlight</string>
+    <string name="progress_section_recent_activity">Recent activity</string>
+    <string name="progress_section_upcoming">Upcoming</string>
+    <string name="progress_view_all_activity">View all</string>
+    <string name="progress_card_this_week">This week</string>
+    <string name="progress_card_consistency">Complete weeks</string>
+    <string name="progress_card_top_category">Top category</string>
+    <string name="progress_card_upcoming_days">Days</string>
+    <string name="progress_last_8_weeks">Last 8 weeks</string>
+    <string name="progress_completed_of_planned">%1$d of %2$d completed</string>
+    <string name="progress_no_trophy_highlight">Keep logging training to reveal a trophy highlight.</string>
+    <string name="progress_trophy_recent_unlock">Recently unlocked</string>
+    <string name="progress_trophy_nearest">Closest next trophy</string>
+    <string name="progress_days_until">%1$d days away</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">Add</string>
@@ -177,8 +200,9 @@
     <string name="settings_release_notes_added">Added</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Release notes in Settings so shipped changes are available inside the app</item>
-        <item>Haptic feedback when completing workouts and dragging weekly items</item>
+        <item>Events screen for planning upcoming races and other non-workout events separately from workouts</item>
+        <item>Event creation, editing, completion, deletion and undo support</item>
+        <item>Event Activity history, trophy progress and backup support</item>
     </string-array>
     <string name="settings_back">Back</string>
     <string name="settings_feedback_title">Feedback</string>

@@ -8,7 +8,30 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">الأسبوع</string>
     <string name="activity_nav_label">النشاط</string>
+    <string name="progress_nav_label">التقدم</string>
     <string name="settings_nav_label">الإعدادات</string>
+
+    <!-- Progress -->
+    <string name="progress_title">التقدم</string>
+    <string name="progress_empty">خطط لبعض التمارين لتظهر لك حالتك هنا.</string>
+    <string name="progress_section_at_a_glance">نظرة سريعة</string>
+    <string name="progress_section_this_week">هذا الأسبوع</string>
+    <string name="progress_section_weekly_trend">الإنجاز الأسبوعي</string>
+    <string name="progress_section_categories">توزيع الفئات</string>
+    <string name="progress_section_trophy">أبرز الكؤوس</string>
+    <string name="progress_section_recent_activity">النشاط الأخير</string>
+    <string name="progress_section_upcoming">القادم</string>
+    <string name="progress_view_all_activity">عرض الكل</string>
+    <string name="progress_card_this_week">هذا الأسبوع</string>
+    <string name="progress_card_consistency">أسابيع مكتملة</string>
+    <string name="progress_card_top_category">الفئة الأبرز</string>
+    <string name="progress_card_upcoming_days">الأيام</string>
+    <string name="progress_last_8_weeks">آخر 8 أسابيع</string>
+    <string name="progress_completed_of_planned">%1$d من %2$d مكتمل</string>
+    <string name="progress_no_trophy_highlight">استمر في تسجيل التمارين لعرض أبرز الكؤوس.</string>
+    <string name="progress_trophy_recent_unlock">مفتوح حديثًا</string>
+    <string name="progress_trophy_nearest">أقرب كأس</string>
+    <string name="progress_days_until">بعد %1$d أيام</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">إضافة</string>
@@ -162,8 +185,9 @@
     <string name="settings_release_notes_added">تمت الإضافة</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>ملاحظات الإصدار في الإعدادات لعرض التغييرات المنشورة داخل التطبيق</item>
-        <item>اهتزاز لمسي عند إكمال التمارين وسحب عناصر الأسبوع</item>
+        <item>شاشة الأحداث لتخطيط السباقات القادمة وغيرها من الأحداث غير التدريبية بشكل منفصل عن التمارين</item>
+        <item>إنشاء الأحداث وتعديلها وإكمالها وحذفها والتراجع عنها</item>
+        <item>سجل النشاط وتقدم الجوائز والنسخ الاحتياطي مع دعم الأحداث</item>
     </string-array>
     <string name="settings_back">رجوع</string>
     <string name="settings_feedback_title">ملاحظات</string>

@@ -3,7 +3,7 @@
 This document exists to capture the reasoning behind the project as it evolves.
 It focuses on intent, trade-offs, and lessons learned rather than code details.
 
---- 
+---
 
 Hermes is a weekly training planner for people who want a simple way to sketch a week, move things around, and keep going without feeling judged by an app. The core problem it solves is the gap between "I need a plan" and "life keeps changing." It gives you a light, editable week view so the plan can bend without breaking.
 
@@ -372,3 +372,6 @@ Recent learnings:
 - One-shot Compose effects should still receive resource-derived text from composition. Precomputing localized templates with `stringResource` keeps snackbar collectors lint-clean while preserving dynamic event titles.
 - Cross-screen drafts that survive a categories hop need saveable state at the app shell, not just local dialog state. `rememberSaveable` with a custom saver is the simplest way to keep the pending workout/event payload intact across rotation.
 - Shared bucket order should append from the current maximum order, not from a count. `count()` silently reuses holes, while `max(order) + 1` keeps race-event inserts and undo restores from colliding with existing rows.
+- Starting the next release from `main` after the prior release tag keeps release notes honest: summarize only commits after the latest tag, then update app version, changelog, in-app release notes and README feature copy together before QA.
+- Roadmap cleanup works best when shipped work is archived instead of deleted. Keeping Events as a release-boundary reference while moving the active plan to Progress prevents stale specs from pulling completed scope back into future planning.
+- Progress is small enough to plan as a read-only aggregation feature before the larger Browse navigation redesign. Treating Activity as a supporting detail route lets the app ship a real summary destination now without coupling the first Progress release to a broader shell restructure.
