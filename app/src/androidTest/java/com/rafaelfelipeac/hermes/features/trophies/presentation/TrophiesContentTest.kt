@@ -53,6 +53,25 @@ class TrophiesContentTest {
     }
 
     @Test
+    fun headerShowsActivitiesActionInOverviewMode() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val activities = context.getString(R.string.trophies_activities_action)
+        var clicked = false
+
+        composeRule.setContent {
+            TrophiesHeader(
+                familySection = null,
+                onBack = {},
+                onOpenActivities = { clicked = true },
+            )
+        }
+
+        composeRule.onNodeWithText(activities).assertIsDisplayed()
+        composeRule.onNodeWithText(activities).performClick()
+        composeRule.runOnIdle { assert(clicked) }
+    }
+
+    @Test
     fun clickingViewAllShowsFamilyDetailContent() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val fullTime = context.getString(R.string.trophies_name_full_time)

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -65,6 +66,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxYOffset
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CloseIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventFlagIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -79,6 +81,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 
@@ -102,9 +105,17 @@ internal fun WorkoutRow(
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
     val colors = workoutRowColors(workout, isDragging = isDragging)
     val hasDescription = workout.description.isNotBlank()
+    val usesCategoryStyling = workout.usesCategoryStyling()
+    val usesCompletionControl = workout.usesCompletionControl()
+    val completionControlHeight =
+        if (workout.eventType == RACE_EVENT) {
+            CheckboxBoxSize + EventFlagIconSize + SpacingXs
+        } else {
+            CheckboxBoxSize + SpacingSm
+        }
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
-        workout.categoryColorId?.takeIf { workout.eventType == WORKOUT }?.let { accent ->
+        workout.categoryColorId?.takeIf { usesCategoryStyling }?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
@@ -140,7 +151,7 @@ internal fun WorkoutRow(
                 if (workout.eventType != WORKOUT) {
                     Modifier.border(
                         width = BorderHairline,
-                        color = colorScheme.outlineVariant,
+                        color = categoryAccent ?: colorScheme.outlineVariant,
                         shape = shapes.medium,
                     )
                 } else {
@@ -163,7 +174,7 @@ internal fun WorkoutRow(
             )
 
     Box(modifier = rowModifier) {
-        if (workout.eventType == WORKOUT && categoryAccent != null) {
+        if (usesCategoryStyling && categoryAccent != null) {
             Box(
                 modifier =
                     Modifier
@@ -194,48 +205,62 @@ internal fun WorkoutRow(
             Box(
                 modifier =
                     Modifier
-                        .size(CheckboxBoxSize + SpacingSm)
+                        .width(CheckboxBoxSize + SpacingSm)
+                        .height(completionControlHeight)
                         .offset(y = if (workout.eventType == WORKOUT) CheckboxYOffset else Zero),
                 contentAlignment = Alignment.Center,
             ) {
-                if (workout.eventType == WORKOUT) {
-                    if (workout.isCompleted) {
-                        val completedButtonColor =
-                            categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA)
-                        val completedButtonContent = Color.White
-                        val completedIconSize = CheckboxSize - SpacingXs
+                if (usesCompletionControl) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                    ) {
+                        if (workout.isCompleted) {
+                            val completedButtonColor =
+                                categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA)
+                            val completedButtonContent = Color.White
+                            val completedIconSize = CheckboxSize - SpacingXs
 
-                        Box(
-                            modifier =
-                                Modifier
-                                    .size(CheckboxSize + SpacingSm)
-                                    .clip(CircleShape)
-                                    .background(completedButtonColor)
-                                    .clickable { onToggleCompleted(false) },
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Check,
-                                contentDescription = stringResource(R.string.weekly_training_workout_completed),
-                                tint = completedButtonContent,
-                                modifier = Modifier.size(completedIconSize),
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .size(CheckboxSize + SpacingSm)
+                                        .clip(CircleShape)
+                                        .background(completedButtonColor)
+                                        .clickable { onToggleCompleted(false) },
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Check,
+                                    contentDescription = stringResource(R.string.weekly_training_workout_completed),
+                                    tint = completedButtonContent,
+                                    modifier = Modifier.size(completedIconSize),
+                                )
+                            }
+                        } else {
+                            Checkbox(
+                                checked = false,
+                                onCheckedChange = onToggleCompleted,
+                                modifier = Modifier.size(CheckboxSize + SpacingSm),
+                                colors =
+                                    CheckboxDefaults.colors(
+                                        checkedColor = colors.content,
+                                        uncheckedColor = colors.content,
+                                        checkmarkColor = colors.background,
+                                    ),
                             )
                         }
-                    } else {
-                        Checkbox(
-                            checked = false,
-                            onCheckedChange = onToggleCompleted,
-                            modifier = Modifier.size(CheckboxSize + SpacingSm),
-                            colors =
-                                CheckboxDefaults.colors(
-                                    checkedColor = colors.content,
-                                    uncheckedColor = colors.content,
-                                    checkmarkColor = colors.background,
-                                ),
-                        )
+
+                        if (workout.eventType == RACE_EVENT) {
+                            Icon(
+                                imageVector = Icons.Outlined.Flag,
+                                contentDescription = stringResource(R.string.race_event_label),
+                                tint = colors.content,
+                                modifier = Modifier.size(EventFlagIconSize),
+                            )
+                        }
                     }
-                }
-                if (workout.eventType != WORKOUT) {
+                } else {
                     Box(
                         modifier =
                             Modifier
@@ -261,10 +286,10 @@ internal fun WorkoutRow(
                 modifier =
                     Modifier
                         .weight(1f)
-                        .clickable(enabled = workout.eventType == WORKOUT) { onEdit() },
+                        .clickable(enabled = usesCategoryStyling) { onEdit() },
             ) {
                 Column {
-                    if (workout.eventType != WORKOUT) {
+                    if (!usesCategoryStyling) {
                         TitleChip(
                             label = stringResource(eventTypeLabelRes(workout.eventType)),
                             containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
@@ -329,9 +354,10 @@ internal fun GhostWorkoutRow(
 ) {
     val colors = workoutRowColors(workout, isDragging = false)
     val hasDescription = workout.description.isNotBlank()
+    val usesCategoryStyling = workout.usesCategoryStyling()
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val categoryAccent =
-        workout.categoryColorId?.takeIf { workout.eventType == WORKOUT }?.let { accent ->
+        workout.categoryColorId?.takeIf { usesCategoryStyling }?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
         }
     val categoryChipBase =
@@ -358,7 +384,7 @@ internal fun GhostWorkoutRow(
         shape = shapes.medium,
         border =
             if (workout.eventType != WORKOUT) {
-                BorderStroke(width = BorderHairline, color = colorScheme.outlineVariant)
+                BorderStroke(width = BorderHairline, color = categoryAccent ?: colorScheme.outlineVariant)
             } else {
                 null
             },
@@ -369,7 +395,7 @@ internal fun GhostWorkoutRow(
                 .alpha(GHOST_ROW_ALPHA),
     ) {
         Box {
-            if (workout.eventType == WORKOUT && categoryAccent != null) {
+            if (usesCategoryStyling && categoryAccent != null) {
                 Box(
                     modifier =
                         Modifier
@@ -389,7 +415,7 @@ internal fun GhostWorkoutRow(
                     modifier = Modifier.weight(1f),
                 ) {
                     Column {
-                        if (workout.eventType != WORKOUT) {
+                        if (!usesCategoryStyling) {
                             TitleChip(
                                 label = stringResource(eventTypeLabelRes(workout.eventType)),
                                 containerColor = colors.content.copy(alpha = TYPE_CHIP_ALPHA),
@@ -476,7 +502,7 @@ private fun workoutRowColors(
     val background =
         when {
             isDragging -> themeColorScheme.surfaceVariant
-            workout.eventType != WORKOUT -> restDayBackground
+            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> restDayBackground
             workout.isCompleted && categoryAccent == null -> completedColor
             workout.isCompleted && categoryCompletedBackground != null -> categoryCompletedBackground
             categoryAccent != null -> categoryAccent
@@ -484,7 +510,7 @@ private fun workoutRowColors(
         }
     val content =
         when {
-            workout.eventType != WORKOUT -> restDayContent
+            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> restDayContent
             workout.isCompleted && categoryContent == null -> completedContent
             workout.isCompleted && categoryCompletedContent != null -> categoryCompletedContent
             categoryContent != null -> categoryContent
@@ -502,6 +528,14 @@ private fun readableContentOn(background: Color): Color {
     return contentColorForBackground(background)
 }
 
+private fun WorkoutUi.usesCategoryStyling(): Boolean {
+    return eventType == WORKOUT || eventType == RACE_EVENT
+}
+
+private fun WorkoutUi.usesCompletionControl(): Boolean {
+    return eventType == WORKOUT || eventType == RACE_EVENT
+}
+
 private fun lighterTone(
     color: Color,
     isDarkTheme: Boolean,
@@ -516,6 +550,7 @@ private fun eventTypeLabelRes(eventType: EventType): Int {
         EventType.REST -> R.string.weekly_training_rest_day_label
         EventType.BUSY -> R.string.weekly_training_busy_label
         EventType.SICK -> R.string.weekly_training_sick_label
+        EventType.RACE_EVENT -> R.string.race_event_label
     }
 }
 
@@ -525,5 +560,6 @@ private fun eventTypeIcon(eventType: EventType): ImageVector {
         EventType.REST -> Icons.Outlined.Bedtime
         EventType.BUSY -> Icons.Outlined.EventBusy
         EventType.SICK -> Icons.Outlined.MedicalServices
+        EventType.RACE_EVENT -> Icons.Outlined.Flag
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
@@ -67,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
 import com.rafaelfelipeac.hermes.core.ui.components.AddWorkoutDialog
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.WeeklyCalendarHeader
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining.WeeklyTrainingContent
@@ -80,13 +82,14 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
+import java.time.LocalDate
 
 private const val ADD_MENU_SCRIM_ALPHA = 0.30f
 private const val ADD_FAB_TEST_TAG = "add-fab"
@@ -111,12 +114,13 @@ fun WeeklyTrainingScreen(
     var draftType by rememberSaveable { mutableStateOf(EMPTY) }
     var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
+    var draftEventDate by remember { mutableStateOf<LocalDate?>(state.selectedDate) }
+    var isRaceEventDialogVisible by rememberSaveable { mutableStateOf(false) }
     var focusedCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftConsumedLocally by remember { mutableStateOf(false) }
     val fabContainerColor = colorScheme.primaryContainer
     val fabContentColor = colorScheme.onPrimaryContainer
     val undoLabel = stringResource(R.string.weekly_training_undo_action)
-    val copiedWeekMessage = stringResource(R.string.weekly_training_week_copied)
     val emptyCopyMessage = stringResource(R.string.weekly_training_copy_last_week_empty)
     val pickerCategories = state.categories.filter { !it.isHidden || it.id == UNCATEGORIZED_ID }
     val plannerFocusCategories =
@@ -136,19 +140,10 @@ fun WeeklyTrainingScreen(
                     is PendingUndoAction.ReplaceWeek -> WORKOUT
                 }
 
-            when (currentUndo.message) {
-                UndoMessage.WeekCopied -> copiedWeekMessage
-                UndoMessage.Moved ->
-                    stringResource(undoMovedMessageRes(eventType))
-                UndoMessage.Deleted ->
-                    stringResource(undoDeletedMessageRes(eventType))
-                UndoMessage.Completed ->
-                    stringResource(R.string.weekly_training_workout_completed)
-                UndoMessage.CompletedWeek ->
-                    stringResource(R.string.weekly_training_week_completed_celebration)
-                UndoMessage.MarkedIncomplete ->
-                    stringResource(R.string.weekly_training_workout_marked_incomplete)
-            }
+            undoSnackbarMessage(
+                message = currentUndo.message,
+                eventType = eventType,
+            )
         }
 
     LaunchedEffect(undoState?.id) {
@@ -200,7 +195,12 @@ fun WeeklyTrainingScreen(
             draftType = pendingWorkoutDraft.type
             draftDescription = pendingWorkoutDraft.description
             draftCategoryId = pendingWorkoutDraft.categoryId ?: UNCATEGORIZED_ID
-            isAddDialogVisible = true
+            if (pendingWorkoutDraft.isRaceEvent) {
+                draftEventDate = pendingWorkoutDraft.eventDate
+                isRaceEventDialogVisible = true
+            } else {
+                isAddDialogVisible = true
+            }
             draftConsumedLocally = true
             onWorkoutDraftConsumed()
         } else {
@@ -216,6 +216,7 @@ fun WeeklyTrainingScreen(
                         categoryName = category?.name,
                         categoryColorId = category?.colorId,
                     )
+                draftEventDate = pendingWorkoutDraft.eventDate
                 draftConsumedLocally = true
                 onWorkoutDraftConsumed()
             }
@@ -236,6 +237,19 @@ fun WeeklyTrainingScreen(
                     containerColor = colorScheme.surfaceVariant,
                     contentColor = colorScheme.onSurfaceVariant,
                     actionColor = colorScheme.primary,
+                )
+            }
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { isAddMenuVisible = !isAddMenuVisible },
+                containerColor = fabContainerColor,
+                contentColor = fabContentColor,
+                modifier = Modifier.testTag(ADD_FAB_TEST_TAG),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.weekly_training_add_item),
                 )
             }
         },
@@ -311,7 +325,10 @@ fun WeeklyTrainingScreen(
                         slotModePolicy = state.slotModePolicy,
                         onWorkoutMoved = viewModel::moveWorkout,
                         onWorkoutCompletionChanged = viewModel::updateWorkoutCompletion,
-                        onWorkoutEdit = { workout -> editingWorkout = workout },
+                        onWorkoutEdit = { workout ->
+                            draftEventDate = null
+                            editingWorkout = workout
+                        },
                         onWorkoutDelete = { workout -> deletingWorkout = workout },
                         onWeekChanged = viewModel::onWeekChanged,
                     )
@@ -347,25 +364,6 @@ fun WeeklyTrainingScreen(
                 )
             }
 
-            Box(
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(SpacingXl),
-            ) {
-                FloatingActionButton(
-                    onClick = { isAddMenuVisible = !isAddMenuVisible },
-                    containerColor = fabContainerColor,
-                    contentColor = fabContentColor,
-                    modifier = Modifier.testTag(ADD_FAB_TEST_TAG),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = stringResource(R.string.weekly_training_add_item),
-                    )
-                }
-            }
-
             if (isAddMenuVisible) {
                 Column(
                     modifier =
@@ -385,6 +383,19 @@ fun WeeklyTrainingScreen(
                             draftDescription = EMPTY
                             draftCategoryId = UNCATEGORIZED_ID
                             isAddDialogVisible = true
+                        },
+                    )
+
+                    AddActionPill(
+                        icon = Icons.Outlined.Flag,
+                        label = stringResource(R.string.weekly_training_add_race_event),
+                        onClick = {
+                            isAddMenuVisible = false
+                            draftType = EMPTY
+                            draftDescription = EMPTY
+                            draftCategoryId = UNCATEGORIZED_ID
+                            draftEventDate = state.selectedDate
+                            isRaceEventDialogVisible = true
                         },
                     )
 
@@ -485,41 +496,125 @@ fun WeeklyTrainingScreen(
         )
     }
 
+    if (isRaceEventDialogVisible) {
+        AddRaceEventDialog(
+            onDismiss = {
+                isRaceEventDialogVisible = false
+                draftType = EMPTY
+                draftDescription = EMPTY
+                draftCategoryId = UNCATEGORIZED_ID
+                draftEventDate = state.selectedDate
+            },
+            onSave = { type, description, categoryId, eventDate ->
+                viewModel.addRaceEvent(type, description, categoryId, eventDate)
+                isRaceEventDialogVisible = false
+                draftType = EMPTY
+                draftDescription = EMPTY
+                draftCategoryId = UNCATEGORIZED_ID
+                draftEventDate = state.selectedDate
+            },
+            onManageCategories = { type, description, categoryId, eventDate ->
+                isRaceEventDialogVisible = false
+                draftType = type
+                draftDescription = description
+                draftCategoryId = categoryId
+                draftEventDate = eventDate
+                onManageCategories(
+                    WorkoutDialogDraft(
+                        workoutId = null,
+                        type = type,
+                        description = description,
+                        categoryId = categoryId,
+                        eventDate = eventDate,
+                        isRaceEvent = true,
+                    ),
+                )
+            },
+            isEdit = false,
+            categories = pickerCategories,
+            selectedCategoryId = draftCategoryId,
+            selectedDate = draftEventDate,
+            initialTitle = draftType,
+            initialDescription = draftDescription,
+        )
+    }
+
     editingWorkout?.let { workout ->
         val editCategories =
             state.categories
                 .filter { !it.isHidden || it.id == UNCATEGORIZED_ID || it.id == workout.categoryId }
                 .sortedBy { it.sortOrder }
 
-        AddWorkoutDialog(
-            onDismiss = { editingWorkout = null },
-            onSave = { type, description, categoryId ->
-                viewModel.updateWorkoutDetails(
-                    workoutId = workout.id,
-                    type = type,
-                    description = description,
-                    eventType = workout.eventType,
-                    categoryId = categoryId,
-                )
-                editingWorkout = null
-            },
-            onManageCategories = { type, description, categoryId ->
-                editingWorkout = null
-                onManageCategories(
-                    WorkoutDialogDraft(
+        if (workout.eventType == RACE_EVENT) {
+            AddRaceEventDialog(
+                onDismiss = {
+                    editingWorkout = null
+                    draftEventDate = null
+                },
+                onSave = { type, description, categoryId, eventDate ->
+                    viewModel.updateRaceEvent(
                         workoutId = workout.id,
                         type = type,
                         description = description,
                         categoryId = categoryId,
-                    ),
-                )
-            },
-            isEdit = true,
-            categories = editCategories,
-            selectedCategoryId = workout.categoryId,
-            initialType = workout.type,
-            initialDescription = workout.description,
-        )
+                        eventDate = eventDate,
+                    )
+                    editingWorkout = null
+                    draftEventDate = null
+                },
+                onManageCategories = { type, description, categoryId, eventDate ->
+                    editingWorkout = null
+                    onManageCategories(
+                        WorkoutDialogDraft(
+                            workoutId = workout.id,
+                            type = type,
+                            description = description,
+                            categoryId = categoryId,
+                            eventDate = eventDate,
+                            isRaceEvent = true,
+                        ),
+                    )
+                },
+                isEdit = true,
+                categories = editCategories,
+                selectedCategoryId = workout.categoryId,
+                selectedDate =
+                    draftEventDate
+                        ?: workout.weekStartDate.plusDays((workout.dayOfWeek?.value?.minus(1) ?: 0).toLong()),
+                initialTitle = workout.type,
+                initialDescription = workout.description,
+            )
+        } else {
+            AddWorkoutDialog(
+                onDismiss = { editingWorkout = null },
+                onSave = { type, description, categoryId ->
+                    viewModel.updateWorkoutDetails(
+                        workoutId = workout.id,
+                        type = type,
+                        description = description,
+                        eventType = workout.eventType,
+                        categoryId = categoryId,
+                    )
+                    editingWorkout = null
+                },
+                onManageCategories = { type, description, categoryId ->
+                    editingWorkout = null
+                    onManageCategories(
+                        WorkoutDialogDraft(
+                            workoutId = workout.id,
+                            type = type,
+                            description = description,
+                            categoryId = categoryId,
+                        ),
+                    )
+                },
+                isEdit = true,
+                categories = editCategories,
+                selectedCategoryId = workout.categoryId,
+                initialType = workout.type,
+                initialDescription = workout.description,
+            )
+        }
     }
 
     deletingWorkout?.let { workout ->
@@ -529,6 +624,7 @@ fun WeeklyTrainingScreen(
                 REST -> stringResource(R.string.weekly_training_delete_rest_day_title)
                 BUSY -> stringResource(R.string.weekly_training_delete_busy_title)
                 SICK -> stringResource(R.string.weekly_training_delete_sick_title)
+                RACE_EVENT -> stringResource(R.string.weekly_training_delete_race_event_title)
             }
         val message =
             when (workout.eventType) {
@@ -536,6 +632,7 @@ fun WeeklyTrainingScreen(
                 REST -> stringResource(R.string.weekly_training_delete_rest_day_message)
                 BUSY -> stringResource(R.string.weekly_training_delete_busy_message)
                 SICK -> stringResource(R.string.weekly_training_delete_sick_message)
+                RACE_EVENT -> stringResource(R.string.weekly_training_delete_race_event_message)
             }
         val confirmLabel =
             when (workout.eventType) {
@@ -543,6 +640,7 @@ fun WeeklyTrainingScreen(
                 REST -> stringResource(R.string.weekly_training_delete_rest_day)
                 BUSY -> stringResource(R.string.weekly_training_delete_busy)
                 SICK -> stringResource(R.string.weekly_training_delete_sick)
+                RACE_EVENT -> stringResource(R.string.weekly_training_delete_race_event)
             }
 
         AlertDialog(
@@ -690,24 +788,6 @@ private suspend fun centerWeeklySelectedChip(
 
     if (delta != 0f) {
         listState.animateScrollBy(delta)
-    }
-}
-
-private fun undoMovedMessageRes(eventType: EventType): Int {
-    return when (eventType) {
-        WORKOUT -> R.string.weekly_training_workout_moved
-        REST -> R.string.weekly_training_rest_day_moved
-        BUSY -> R.string.weekly_training_busy_moved
-        SICK -> R.string.weekly_training_sick_moved
-    }
-}
-
-private fun undoDeletedMessageRes(eventType: EventType): Int {
-    return when (eventType) {
-        WORKOUT -> R.string.weekly_training_workout_deleted
-        REST -> R.string.weekly_training_rest_day_deleted
-        BUSY -> R.string.weekly_training_busy_deleted
-        SICK -> R.string.weekly_training_sick_deleted
     }
 }
 

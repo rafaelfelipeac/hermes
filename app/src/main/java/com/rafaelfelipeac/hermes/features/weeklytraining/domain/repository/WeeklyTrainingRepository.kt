@@ -8,8 +8,13 @@ import kotlinx.coroutines.flow.Flow
 import java.time.DayOfWeek
 import java.time.LocalDate
 
+@Suppress("TooManyFunctions")
 interface WeeklyTrainingRepository {
     fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>>
+
+    fun observeAllWorkouts(): Flow<List<Workout>>
+
+    fun observeWorkoutsByEventType(eventType: EventType): Flow<List<Workout>>
 
     fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>>
 

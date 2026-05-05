@@ -79,6 +79,10 @@
     <string name="settings_developer_trophies_body">ट्रॉफी स्टेट देखने के लिए लोकल हिस्ट्री को बदल देता है।</string>
     <string name="settings_seed_demo_data">डेमो डेटा से बदलें</string>
     <string name="settings_demo_data_created">डेमो डेटा बन गया</string>
+    <string name="settings_clear_database_confirm_message">यह लोकल डेटाबेस से वर्कआउट, इवेंट, कैटेगरी और गतिविधि इतिहास हटाता है।</string>
+    <string name="settings_clear_database_confirm_title">डेटाबेस साफ करें?</string>
+    <string name="settings_database_cleared">डेटाबेस साफ हो गया</string>
+    <string name="settings_clear_database">डेटाबेस साफ करें</string>
     <string name="settings_seed_mixed_trophies">मिक्स्ड ट्रॉफी प्रीव्यू से बदलें</string>
     <string name="settings_mixed_trophies_created">मिक्स्ड ट्रॉफी डेटा बना दिया गया</string>
     <string name="settings_seed_locked_trophies">लॉक ट्रॉफी प्रीव्यू से बदलें</string>
@@ -161,7 +165,7 @@
     <string name="settings_share_unavailable">साझा करने के लिए कोई ऐप उपलब्ध नहीं है।</string>
 
     <!-- Activity -->
-    <string name="activity_title">हाल की गतिविधि</string>
+    <string name="activity_title">गतिविधि लॉग</string>
     <string name="activity_empty">अभी कोई गतिविधि नहीं है।</string>
     <string name="activity_filtered_empty">इन फ़िल्टरों से मेल खाने वाली कोई गतिविधि नहीं है।</string>
     <string name="activity_filter_all">सभी</string>
@@ -181,6 +185,10 @@
     <string name="activity_action_complete_rest_day">आपने एक आराम इवेंट पूरा किया।</string>
     <string name="activity_action_incomplete_workout">आपने %1$s वर्कआउट को अपूर्ण चिह्नित किया।</string>
     <string name="activity_action_undo_incomplete_workout">आपने %1$s वर्कआउट को अधूरा चिह्नित करने की कार्रवाई वापस ली।</string>
+    <string name="activity_action_complete_race_event">आपने एक इवेंट पूरा किया।</string>
+    <string name="activity_action_incomplete_race_event">आपने एक इवेंट को अपूर्ण चिह्नित किया।</string>
+    <string name="activity_action_undo_complete_race_event">आपने एक इवेंट पूरा करने की कार्रवाई वापस ली।</string>
+    <string name="activity_action_undo_incomplete_race_event">आपने एक इवेंट को अपूर्ण चिह्नित करने की कार्रवाई वापस ली।</string>
     <string name="activity_action_incomplete_rest_day">आपने एक आराम इवेंट को अपूर्ण चिह्नित किया।</string>
     <string name="activity_action_reorder_workout">आपने %1$s वर्कआउट पुनः क्रमित किया।</string>
     <string name="activity_action_move_workout">आपने %1$s वर्कआउट स्थानांतरित किया।</string>
@@ -370,6 +378,8 @@
     <string name="trophies_share_desc_category_actions">मैंने प्रशिक्षण श्रेणियां %1$d बार बनाई, बदलीं या व्यवस्थित की हैं।</string>
     <string name="trophies_share_desc_backups">मैंने %1$d बार बैकअप एक्सपोर्ट या सेव किया है।</string>
     <string name="trophies_share_desc_workout_creations">मैंने %1$d वर्कआउट बनाए हैं।</string>
+    <string name="trophies_share_desc_race_event_creations">मैंने %1$d रेस इवेंट बनाए हैं।</string>
+    <string name="trophies_share_desc_race_event_completions">मैंने %1$d रेस इवेंट पूरे किए हैं।</string>
     <string name="trophies_share_desc_protected_time">मैंने %1$d बार आराम के दिन या व्यस्तता ब्लॉक जोड़े हैं।</string>
     <string name="trophies_share_desc_category_completions">मैंने \"%2$s\" में %1$d वर्कआउट को पूरा हुआ के रूप में चिह्नित किया है।</string>
     <string name="trophies_share_desc_category_presence">मैंने %1$d हफ्ते पूरे किए हैं जिनमें \"%2$s\" का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
@@ -384,6 +394,8 @@
     <string name="trophies_family_momentum_desc">उन रूटीन के लिए जिन्हें आपने आगे बढ़ाया।</string>
     <string name="trophies_family_builder">निर्माण</string>
     <string name="trophies_family_builder_desc">आपकी ट्रेनिंग के आसपास सिस्टम बनाने के लिए।</string>
+    <string name="trophies_family_race_events">रेस इवेंट</string>
+    <string name="trophies_family_race_events_desc">उन रेस और इवेंट के लिए जिन्हें आपने प्लान किया और पूरा किया।</string>
     <string name="trophies_family_categories">श्रेणियां</string>
     <string name="trophies_family_categories_desc">उन श्रेणियों के लिए जो इस शेल्फ को व्यक्तिगत बनाती हैं।</string>
     <string name="trophies_name_full_time">फुल-टाइम</string>
@@ -399,6 +411,12 @@
     <string name="trophies_name_set_piece">शुरुआत: तय चाल</string>
     <string name="trophies_name_program_builder">शुरुआत: प्रोग्राम निर्माता</string>
     <string name="trophies_name_protected_time">सुरक्षित समय</string>
+    <string name="trophies_name_event_planner">इवेंट प्लानर</string>
+    <string name="trophies_name_event_calendar">इवेंट कैलेंडर</string>
+    <string name="trophies_name_event_season">इवेंट सीज़न</string>
+    <string name="trophies_name_race_ready">रेस के लिए तैयार</string>
+    <string name="trophies_name_race_sharp">रेस के लिए धारदार</string>
+    <string name="trophies_name_race_finish">रेस फ़िनिश</string>
     <string name="trophies_name_podium_place">पोडियम स्थान</string>
     <string name="trophies_name_home_ground">अपना मैदान</string>
     <string name="trophies_name_training_block">ट्रेनिंग ब्लॉक</string>
@@ -433,6 +451,10 @@
     <string name="trophies_desc_backups_locked">%1$d बार बैकअप एक्सपोर्ट या सेव करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_workout_creations_locked">%1$d वर्कआउट बनाने पर अनलॉक होगा।</string>
     <string name="trophies_desc_workout_creations_unlocked">आपने %1$d वर्कआउट बनाए।</string>
+    <string name="trophies_desc_race_event_creations_locked">%1$d रेस इवेंट बनाने पर अनलॉक करें।</string>
+    <string name="trophies_desc_race_event_creations_unlocked">आपने %1$d रेस इवेंट बनाए हैं।</string>
+    <string name="trophies_desc_race_event_completions_locked">%1$d रेस इवेंट पूरे करने पर अनलॉक करें।</string>
+    <string name="trophies_desc_race_event_completions_unlocked">आपने %1$d रेस इवेंट पूरे किए हैं।</string>
     <string name="trophies_desc_protected_time_locked">%1$d बार आराम के दिन या व्यस्तता ब्लॉक जोड़ने पर अनलॉक होगा।</string>
     <string name="trophies_desc_protected_time_unlocked">आपने %1$d बार आराम के दिन या व्यस्तता ब्लॉक जोड़े।</string>
     <string name="trophies_desc_backups_unlocked">आपने %1$d बार बैकअप एक्सपोर्ट या सेव किया।</string>
@@ -442,4 +464,43 @@
     <string name="trophies_desc_category_presence_unlocked">आपने %1$d हफ्ते पूरे किए जिनमें इस श्रेणी का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
     <string name="trophies_desc_category_planning_locked">इस श्रेणी में %1$d बार वर्कआउट जोड़ने, खिसकाने या व्यवस्थित करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_category_planning_unlocked">आपने इस श्रेणी में %1$d बार वर्कआउट जोड़े, खिसकाए या व्यवस्थित किए।</string>
+    <string name="race_events_nav_label">इवेंट्स</string>
+    <string name="weekly_training_add_race_event">इवेंट जोड़ें</string>
+    <string name="weekly_training_delete_race_event">हटाएँ</string>
+    <string name="weekly_training_delete_race_event_title">इवेंट हटाएँ?</string>
+    <string name="weekly_training_delete_race_event_message">क्या आप वाकई इस इवेंट को हटाना चाहते हैं?</string>
+    <string name="weekly_training_race_event_moved">इवेंट स्थानांतरित किया गया।</string>
+    <string name="weekly_training_race_event_deleted">इवेंट हटाया गया।</string>
+    <string name="race_event_label">इवेंट</string>
+    <string name="weekly_training_section_day_with_date">%1$s • %2$s</string>
+    <string name="race_events_title">इवेंट्स</string>
+    <string name="race_events_subtitle">आने वाली रेस और अन्य इवेंट्स को वर्कआउट से अलग प्रबंधित करें।</string>
+    <string name="race_events_upcoming_title">आने वाले इवेंट</string>
+    <string name="race_events_empty_title">अभी कोई इवेंट नहीं है।</string>
+    <string name="race_events_empty_body">यहां या साप्ताहिक प्लानर से इवेंट जोड़ें।</string>
+    <string name="race_events_past_title">पिछले इवेंट</string>
+    <string name="race_events_add">इवेंट जोड़ें</string>
+    <string name="race_events_today">आज</string>
+    <string name="race_events_tomorrow">कल</string>
+    <plurals name="race_events_days_left">
+        <item quantity="one">%1$d दिन बाकी</item>
+        <item quantity="other">%1$d दिन बाकी</item>
+    </plurals>
+    <plurals name="race_events_days_ago">
+        <item quantity="one">%1$d दिन पहले</item>
+        <item quantity="other">%1$d दिन पहले</item>
+    </plurals>
+    <string name="race_event_dialog_add_race_event">इवेंट जोड़ें</string>
+    <string name="race_event_dialog_edit_race_event">इवेंट संपादित करें</string>
+    <string name="race_event_dialog_date">तारीख</string>
+    <string name="race_event_dialog_add_race_event_confirm">जोड़ें</string>
+    <string name="activity_action_create_race_event">आपने इवेंट %1$s बनाया।</string>
+    <string name="activity_action_update_race_event">आपने इवेंट %1$s अपडेट किया।</string>
+    <string name="activity_action_delete_race_event">आपने इवेंट %1$s हटाया।</string>
+    <string name="activity_action_undo_delete_race_event">आपने इवेंट %1$s बहाल किया।</string>
+    <string name="activity_action_reorder_race_event">आपने इवेंट %1$s का क्रम बदला।</string>
+    <string name="activity_action_move_race_event">आपने इवेंट %1$s को स्थानांतरित किया।</string>
+    <string name="activity_action_undo_reorder_race_event">आपने इवेंट %1$s के क्रम बदलने को वापस किया।</string>
+    <string name="activity_action_undo_move_race_event">आपने इवेंट %1$s के स्थानांतरण को वापस किया।</string>
+    <string name="trophies_activities_action">गतिविधियाँ</string>
 </resources>

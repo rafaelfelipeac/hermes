@@ -79,6 +79,10 @@
     <string name="settings_developer_trophies_body">Reemplaza el historial local para previsualizar estados de trofeos.</string>
     <string name="settings_seed_demo_data">Reemplazar con datos de demo</string>
     <string name="settings_demo_data_created">Datos de demo creados</string>
+    <string name="settings_clear_database_confirm_message">Esto elimina entrenamientos, eventos, categorías y el historial de Actividad de la base de datos local.</string>
+    <string name="settings_clear_database_confirm_title">¿Borrar base de datos?</string>
+    <string name="settings_database_cleared">Base de datos borrada</string>
+    <string name="settings_clear_database">Borrar base de datos</string>
     <string name="settings_seed_mixed_trophies">Reemplazar con vista previa mixta de trofeos</string>
     <string name="settings_mixed_trophies_created">Datos con trofeos mixtos creados</string>
     <string name="settings_seed_locked_trophies">Reemplazar con vista previa de trofeos bloqueados</string>
@@ -161,7 +165,7 @@
     <string name="settings_share_unavailable">No hay aplicaciones para compartir.</string>
 
     <!-- Activity -->
-    <string name="activity_title">Actividad reciente</string>
+    <string name="activity_title">Registro de actividades</string>
     <string name="activity_empty">Aún no hay actividad.</string>
     <string name="activity_filtered_empty">Ninguna actividad coincide con estos filtros.</string>
     <string name="activity_filter_all">Todo</string>
@@ -181,6 +185,10 @@
     <string name="activity_action_complete_rest_day">Completaste un evento de descanso.</string>
     <string name="activity_action_incomplete_workout">Marcaste el entrenamiento %1$s como incompleto.</string>
     <string name="activity_action_undo_incomplete_workout">Deshiciste marcar el entrenamiento %1$s como incompleto.</string>
+    <string name="activity_action_complete_race_event">Completaste un evento.</string>
+    <string name="activity_action_incomplete_race_event">Marcaste un evento como incompleto.</string>
+    <string name="activity_action_undo_complete_race_event">Deshiciste completar un evento.</string>
+    <string name="activity_action_undo_incomplete_race_event">Deshiciste marcar un evento como incompleto.</string>
     <string name="activity_action_incomplete_rest_day">Marcaste un evento de descanso como incompleto.</string>
     <string name="activity_action_reorder_workout">Reordenaste el entrenamiento %1$s.</string>
     <string name="activity_action_move_workout">Moviste el entrenamiento %1$s.</string>
@@ -369,6 +377,8 @@
     <string name="trophies_share_desc_category_actions">He creado, editado u organizado categorías de entrenamiento %1$d veces.</string>
     <string name="trophies_share_desc_backups">He exportado o guardado una copia de seguridad %1$d veces.</string>
     <string name="trophies_share_desc_workout_creations">He creado %1$d entrenamientos.</string>
+    <string name="trophies_share_desc_race_event_creations">He creado %1$d eventos de carrera.</string>
+    <string name="trophies_share_desc_race_event_completions">He completado %1$d eventos de carrera.</string>
     <string name="trophies_share_desc_protected_time">He añadido días de descanso o bloques de ocupación %1$d veces.</string>
     <string name="trophies_share_desc_category_completions">He marcado %1$d entrenamientos como completados en \"%2$s\".</string>
     <string name="trophies_share_desc_category_presence">He terminado %1$d semanas que incluían al menos un entrenamiento completado en \"%2$s\".</string>
@@ -383,6 +393,8 @@
     <string name="trophies_family_momentum_desc">Para las rutinas que llevaste hacia adelante.</string>
     <string name="trophies_family_builder">Constructor</string>
     <string name="trophies_family_builder_desc">Para montar el sistema alrededor de tu entrenamiento.</string>
+    <string name="trophies_family_race_events">Eventos de carrera</string>
+    <string name="trophies_family_race_events_desc">Para las carreras y eventos que planeaste y terminaste.</string>
     <string name="trophies_family_categories">Categorías</string>
     <string name="trophies_family_categories_desc">Para las categorías que hacen que tu vitrina se sienta personal.</string>
     <string name="trophies_name_full_time">Tiempo Completo</string>
@@ -398,6 +410,12 @@
     <string name="trophies_name_set_piece">Saque Inicial: Jugada Preparada</string>
     <string name="trophies_name_program_builder">Saque Inicial: Constructor de Programa</string>
     <string name="trophies_name_protected_time">Tiempo Protegido</string>
+    <string name="trophies_name_event_planner">Planificador de eventos</string>
+    <string name="trophies_name_event_calendar">Calendario de eventos</string>
+    <string name="trophies_name_event_season">Temporada de eventos</string>
+    <string name="trophies_name_race_ready">Listo para la carrera</string>
+    <string name="trophies_name_race_sharp">Afinado para la carrera</string>
+    <string name="trophies_name_race_finish">Meta de carrera</string>
     <string name="trophies_name_podium_place">Lugar en el Podio</string>
     <string name="trophies_name_home_ground">Terreno Propio</string>
     <string name="trophies_name_training_block">Bloque de Entrenamiento</string>
@@ -433,6 +451,10 @@
     <string name="trophies_desc_backups_unlocked">Exportaste o guardaste una copia de seguridad %1$d veces.</string>
     <string name="trophies_desc_workout_creations_locked">Desbloquéalo al crear %1$d entrenamientos.</string>
     <string name="trophies_desc_workout_creations_unlocked">Creaste %1$d entrenamientos.</string>
+    <string name="trophies_desc_race_event_creations_locked">Desbloquea al crear %1$d eventos de carrera.</string>
+    <string name="trophies_desc_race_event_creations_unlocked">Creaste %1$d eventos de carrera.</string>
+    <string name="trophies_desc_race_event_completions_locked">Desbloquea al completar %1$d eventos de carrera.</string>
+    <string name="trophies_desc_race_event_completions_unlocked">Completaste %1$d eventos de carrera.</string>
     <string name="trophies_desc_protected_time_locked">Desbloquéalo al añadir días de descanso o bloques de ocupación %1$d veces.</string>
     <string name="trophies_desc_protected_time_unlocked">Añadiste días de descanso o bloques de ocupación %1$d veces.</string>
     <string name="trophies_desc_category_completions_locked">Desbloquéalo al marcar %1$d entrenamientos de esta categoría como completados.</string>
@@ -441,4 +463,43 @@
     <string name="trophies_desc_category_presence_unlocked">Terminaste %1$d semanas que incluían al menos un entrenamiento completado de esta categoría.</string>
     <string name="trophies_desc_category_planning_locked">Desbloquéalo al añadir, mover u organizar entrenamientos en esta categoría %1$d veces.</string>
     <string name="trophies_desc_category_planning_unlocked">Añadiste, moviste u organizaste entrenamientos en esta categoría %1$d veces.</string>
+    <string name="race_events_nav_label">Eventos</string>
+    <string name="weekly_training_add_race_event">Agregar evento</string>
+    <string name="weekly_training_delete_race_event">Eliminar</string>
+    <string name="weekly_training_delete_race_event_title">¿Eliminar evento?</string>
+    <string name="weekly_training_delete_race_event_message">¿Seguro que quieres eliminar este evento?</string>
+    <string name="weekly_training_race_event_moved">Evento movido.</string>
+    <string name="weekly_training_race_event_deleted">Evento eliminado.</string>
+    <string name="race_event_label">Evento</string>
+    <string name="weekly_training_section_day_with_date">%1$s • %2$s</string>
+    <string name="race_events_title">Eventos</string>
+    <string name="race_events_subtitle">Gestiona próximas carreras y otros eventos separados de los entrenamientos.</string>
+    <string name="race_events_upcoming_title">Próximos eventos</string>
+    <string name="race_events_empty_title">Todavía no hay eventos.</string>
+    <string name="race_events_empty_body">Agrega un evento aquí o desde el planificador semanal.</string>
+    <string name="race_events_past_title">Eventos pasados</string>
+    <string name="race_events_add">Agregar evento</string>
+    <string name="race_events_today">Hoy</string>
+    <string name="race_events_tomorrow">Mañana</string>
+    <plurals name="race_events_days_left">
+        <item quantity="one">Falta %1$d día</item>
+        <item quantity="other">Faltan %1$d días</item>
+    </plurals>
+    <plurals name="race_events_days_ago">
+        <item quantity="one">Hace %1$d día</item>
+        <item quantity="other">Hace %1$d días</item>
+    </plurals>
+    <string name="race_event_dialog_add_race_event">Agregar evento</string>
+    <string name="race_event_dialog_edit_race_event">Editar evento</string>
+    <string name="race_event_dialog_date">Fecha</string>
+    <string name="race_event_dialog_add_race_event_confirm">Agregar</string>
+    <string name="activity_action_create_race_event">Creaste el evento %1$s.</string>
+    <string name="activity_action_update_race_event">Actualizaste el evento %1$s.</string>
+    <string name="activity_action_delete_race_event">Eliminaste el evento %1$s.</string>
+    <string name="activity_action_undo_delete_race_event">Restauraste el evento %1$s.</string>
+    <string name="activity_action_reorder_race_event">Reordenaste el evento %1$s.</string>
+    <string name="activity_action_move_race_event">Moviste el evento %1$s.</string>
+    <string name="activity_action_undo_reorder_race_event">Deshiciste el reordenamiento del evento %1$s.</string>
+    <string name="activity_action_undo_move_race_event">Deshiciste el movimiento del evento %1$s.</string>
+    <string name="trophies_activities_action">Actividades</string>
 </resources>

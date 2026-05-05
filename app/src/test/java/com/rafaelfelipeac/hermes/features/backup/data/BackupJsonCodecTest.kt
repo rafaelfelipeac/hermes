@@ -17,7 +17,7 @@ class BackupJsonCodecTest {
     fun encodeDecode_roundTrip_preservesCoreFields() {
         val snapshot =
             BackupSnapshot(
-                schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V2,
+                schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V3,
                 exportedAt = "2026-02-25T10:00:00Z",
                 appVersion = "1.3.0",
                 workouts =
@@ -31,6 +31,18 @@ class BackupJsonCodecTest {
                             eventType = "WORKOUT",
                             type = "Run",
                             description = "Easy run",
+                            isCompleted = false,
+                            categoryId = 1L,
+                        ),
+                        BackupWorkoutRecord(
+                            id = 11L,
+                            weekStartDate = "2026-03-02",
+                            dayOfWeek = 6,
+                            timeSlot = null,
+                            sortOrder = 0,
+                            eventType = "RACE_EVENT",
+                            type = "Race day",
+                            description = "Half marathon",
                             isCompleted = false,
                             categoryId = 1L,
                         ),
@@ -73,11 +85,44 @@ class BackupJsonCodecTest {
         val restored = (decoded as BackupDecodeResult.Success).snapshot
         assertEquals(snapshot.schemaVersion, restored.schemaVersion)
         assertEquals(snapshot.exportedAt, restored.exportedAt)
-        assertEquals(snapshot.workouts.single().eventType, restored.workouts.single().eventType)
+        assertEquals("WORKOUT", restored.workouts.first().eventType)
+        assertEquals("RACE_EVENT", restored.workouts.last().eventType)
         assertEquals(snapshot.categories.single().name, restored.categories.single().name)
         assertEquals(snapshot.userActions.single().actionType, restored.userActions.single().actionType)
         assertEquals(snapshot.settings?.slotModePolicy, restored.settings?.slotModePolicy)
         assertEquals(snapshot.settings?.weekStartDay, restored.settings?.weekStartDay)
+    }
+
+    @Test
+    fun decode_v2Backup_withRaceEventCompatibleData_stillWorks() {
+        val raw =
+            """
+            {
+              "schemaVersion": 2,
+              "exportedAt": "2026-02-25T10:00:00Z",
+              "workouts": [
+                {
+                  "id": 10,
+                  "weekStartDate": "2026-02-23",
+                  "dayOfWeek": 1,
+                  "timeSlot": "MORNING",
+                  "sortOrder": 0,
+                  "eventType": "RACE_EVENT",
+                  "type": "Race day",
+                  "description": "Half marathon",
+                  "isCompleted": false,
+                  "categoryId": 1
+                }
+              ],
+              "categories": [],
+              "userActions": []
+            }
+            """.trimIndent()
+
+        val result = BackupJsonCodec.decode(raw)
+
+        assertTrue(result is BackupDecodeResult.Success)
+        assertEquals("RACE_EVENT", (result as BackupDecodeResult.Success).snapshot.workouts.single().eventType)
     }
 
     @Test
@@ -133,7 +178,7 @@ class BackupJsonCodecTest {
         val raw =
             """
             {
-              "schemaVersion": 3,
+              "schemaVersion": 4,
               "exportedAt": "2026-02-25T10:00:00Z",
               "workouts": [],
               "categories": [],

@@ -6,5 +6,6 @@ enum class TrophyFamily {
     ADAPTABILITY,
     MOMENTUM,
     BUILDER,
+    RACE_EVENTS,
     CATEGORIES,
 }

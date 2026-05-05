@@ -5,4 +5,5 @@ enum class EventType {
     REST,
     BUSY,
     SICK,
+    RACE_EVENT,
 }

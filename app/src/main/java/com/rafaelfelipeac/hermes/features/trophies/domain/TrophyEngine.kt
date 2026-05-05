@@ -13,6 +13,13 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyDefinition
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyMetric
@@ -94,6 +101,11 @@ class TrophyEngine(
         val weekStartDate: LocalDate?,
     )
 
+    private data class DeletedRaceEventState(
+        val creationTimestamp: Long?,
+        val completionTimestamp: Long?,
+    )
+
     private data class TrophyHistory(
         val completedWeekMilestones: List<Long>,
         val matchFitnessMilestones: List<Long>,
@@ -106,6 +118,8 @@ class TrophyEngine(
         val kitBagMilestones: List<Long>,
         val kickoffMilestones: List<Long>,
         val protectedTimeMilestones: List<Long>,
+        val raceEventCreationMilestones: List<Long>,
+        val raceEventCompletionMilestones: List<Long>,
         val podiumPlaceMilestonesByCategory: Map<Long, List<Long>>,
         val homeGroundMilestonesByCategory: Map<Long, List<Long>>,
         val trainingBlockMilestonesByCategory: Map<Long, List<Long>>,
@@ -126,6 +140,8 @@ class TrophyEngine(
                 TrophyMetric.BACKUP_SUCCESSES -> kitBagMilestones
                 TrophyMetric.WORKOUT_CREATIONS -> kickoffMilestones
                 TrophyMetric.PROTECTED_TIME_BLOCKS -> protectedTimeMilestones
+                TrophyMetric.RACE_EVENT_CREATIONS -> raceEventCreationMilestones
+                TrophyMetric.RACE_EVENT_COMPLETIONS -> raceEventCompletionMilestones
                 TrophyMetric.CATEGORY_COMPLETIONS ->
                     categoryId?.let { podiumPlaceMilestonesByCategory[it] }.orEmpty()
                 TrophyMetric.CATEGORY_PRESENCE_WEEKS ->
@@ -170,6 +186,9 @@ class TrophyEngine(
                 val backupSuccessTimestamps = mutableListOf<Long>()
                 val workoutCreationTimestamps = mutableListOf<Long>()
                 val protectedTimeTimestamps = mutableListOf<Long>()
+                val raceEventCreationStacksByEventId = mutableMapOf<Long, ArrayDeque<Long>>()
+                val raceEventCompletionStacksByEventId = mutableMapOf<Long, ArrayDeque<Long>>()
+                val deletedRaceEventStacksByEventId = mutableMapOf<Long, ArrayDeque<DeletedRaceEventState>>()
                 val completionStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WorkoutCompletion>>()
                 val moveStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
                 val reorderStacksByWorkoutId = mutableMapOf<Long, ArrayDeque<WeekEvent>>()
@@ -325,6 +344,68 @@ class TrophyEngine(
                         UserActionType.CREATE_BUSY,
                         -> protectedTimeTimestamps += action.record.timestamp
 
+                        CREATE_RACE_EVENT -> {
+                            val eventId = action.record.entityId ?: return@forEach
+                            raceEventCreationStacksByEventId
+                                .getOrPut(eventId, ::ArrayDeque)
+                                .addLast(action.record.timestamp)
+                        }
+
+                        COMPLETE_RACE_EVENT -> {
+                            val eventId = action.record.entityId ?: return@forEach
+                            raceEventCompletionStacksByEventId
+                                .getOrPut(eventId, ::ArrayDeque)
+                                .addLast(action.record.timestamp)
+                        }
+
+                        INCOMPLETE_RACE_EVENT,
+                        UNDO_COMPLETE_RACE_EVENT,
+                        -> {
+                            val eventId = action.record.entityId ?: return@forEach
+                            raceEventCompletionStacksByEventId[eventId].removeLastIfPresent()
+                        }
+
+                        UNDO_INCOMPLETE_RACE_EVENT -> {
+                            val eventId = action.record.entityId ?: return@forEach
+                            raceEventCompletionStacksByEventId
+                                .getOrPut(eventId, ::ArrayDeque)
+                                .addLast(action.record.timestamp)
+                        }
+
+                        DELETE_RACE_EVENT -> {
+                            val eventId = action.record.entityId ?: return@forEach
+                            val creationTimestamp = raceEventCreationStacksByEventId[eventId].removeLastIfPresent()
+                            val completionTimestamp = raceEventCompletionStacksByEventId[eventId].removeLastIfPresent()
+                            if (creationTimestamp != null || completionTimestamp != null) {
+                                deletedRaceEventStacksByEventId
+                                    .getOrPut(eventId, ::ArrayDeque)
+                                    .addLast(
+                                        DeletedRaceEventState(
+                                            creationTimestamp = creationTimestamp,
+                                            completionTimestamp = completionTimestamp,
+                                        ),
+                                    )
+                            }
+                        }
+
+                        UNDO_DELETE_RACE_EVENT -> {
+                            val eventId = action.record.entityId ?: return@forEach
+                            val deletedState =
+                                deletedRaceEventStacksByEventId[eventId]
+                                    .removeLastIfPresent()
+                                    ?: return@forEach
+                            deletedState.creationTimestamp?.let {
+                                raceEventCreationStacksByEventId
+                                    .getOrPut(eventId, ::ArrayDeque)
+                                    .addLast(it)
+                            }
+                            deletedState.completionTimestamp?.let {
+                                raceEventCompletionStacksByEventId
+                                    .getOrPut(eventId, ::ArrayDeque)
+                                    .addLast(it)
+                            }
+                        }
+
                         else -> Unit
                     }
 
@@ -340,6 +421,10 @@ class TrophyEngine(
                 completionStacksByWorkoutId.values.forEach { stack ->
                     effectiveCompletionTimestamps += stack.map(WorkoutCompletion::timestamp)
                 }
+                val effectiveRaceEventCreationTimestamps =
+                    raceEventCreationStacksByEventId.values.flatMap { stack -> stack.toList() }
+                val effectiveRaceEventCompletionTimestamps =
+                    raceEventCompletionStacksByEventId.values.flatMap { stack -> stack.toList() }
                 moveStacksByWorkoutId.values.forEach { stack ->
                     effectivePlanningEvents += stack.toList()
                 }
@@ -396,6 +481,8 @@ class TrophyEngine(
                     kitBagMilestones = backupSuccessTimestamps.sorted(),
                     kickoffMilestones = workoutCreationTimestamps.sorted(),
                     protectedTimeMilestones = protectedTimeTimestamps.sorted(),
+                    raceEventCreationMilestones = effectiveRaceEventCreationTimestamps.sorted(),
+                    raceEventCompletionMilestones = effectiveRaceEventCompletionTimestamps.sorted(),
                     podiumPlaceMilestonesByCategory =
                         categoryCompletionMilestones.mapValues { (_, milestones) -> milestones.sorted() },
                     homeGroundMilestonesByCategory = homeGroundMilestonesByCategory,

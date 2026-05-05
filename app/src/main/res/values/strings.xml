@@ -8,11 +8,13 @@
     <!-- Navigation -->
     <string name="weekly_training_nav_label">Week</string>
     <string name="activity_nav_label">Activity</string>
+    <string name="race_events_nav_label">Events</string>
     <string name="settings_nav_label">Settings</string>
 
     <!-- Training week: actions -->
     <string name="weekly_training_add_item">Add</string>
     <string name="add_workout">Add workout</string>
+    <string name="weekly_training_add_race_event">Add event</string>
     <string name="weekly_training_copy_last_week">Copy last week</string>
     <string name="weekly_training_copy_last_week_replace_title">Replace this week?</string>
     <string name="weekly_training_copy_last_week_replace_message">This will replace the current week plan with the previous week plan.</string>
@@ -31,6 +33,9 @@
     <string name="weekly_training_delete_rest_day">Delete</string>
     <string name="weekly_training_delete_rest_day_title">Delete rest event?</string>
     <string name="weekly_training_delete_rest_day_message">Are you sure you want to delete this rest event?</string>
+    <string name="weekly_training_delete_race_event">Delete</string>
+    <string name="weekly_training_delete_race_event_title">Delete event?</string>
+    <string name="weekly_training_delete_race_event_message">Are you sure you want to delete this event?</string>
     <string name="weekly_training_workout_moved">Workout moved.</string>
     <string name="weekly_training_workout_deleted">Workout deleted.</string>
     <string name="weekly_training_workout_completed">Workout completed.</string>
@@ -41,9 +46,12 @@
     <string name="weekly_training_busy_deleted">Busy event deleted.</string>
     <string name="weekly_training_sick_moved">Sick event moved.</string>
     <string name="weekly_training_sick_deleted">Sick event deleted.</string>
+    <string name="weekly_training_race_event_moved">Event moved.</string>
+    <string name="weekly_training_race_event_deleted">Event deleted.</string>
     <string name="weekly_training_undo_action">Undo</string>
     <string name="weekly_training_no_workouts">Nothing planned yet.</string>
     <string name="weekly_training_section_to_be_defined">To be defined</string>
+    <string name="weekly_training_section_day_with_date">%1$s • %2$s</string>
     <string name="weekly_training_tbd_help_title">How to organize workouts</string>
     <string name="weekly_training_tbd_help_message">Long press a workout to drag it to a weekday. Drop it on a day or between items to set the order.</string>
     <string name="weekly_training_tbd_help_confirm">Got it</string>
@@ -71,6 +79,30 @@
     </plurals>
     <string name="weekly_training_week_completed_celebration">Great job! You completed all workouts this week.</string>
 
+    <!-- Events -->
+    <string name="race_event_label">Event</string>
+    <string name="race_events_title">Events</string>
+    <string name="race_events_subtitle">Manage upcoming races and other events separately from workouts.</string>
+    <string name="race_events_upcoming_title">Upcoming events</string>
+    <string name="race_events_empty_title">No events yet.</string>
+    <string name="race_events_empty_body">Add an event from here or from the weekly planner.</string>
+    <string name="race_events_past_title">Past events</string>
+    <string name="race_events_add">Add event</string>
+    <string name="race_events_today">Today</string>
+    <string name="race_events_tomorrow">Tomorrow</string>
+    <plurals name="race_events_days_left">
+        <item quantity="one">%1$d day left</item>
+        <item quantity="other">%1$d days left</item>
+    </plurals>
+    <plurals name="race_events_days_ago">
+        <item quantity="one">%1$d day ago</item>
+        <item quantity="other">%1$d days ago</item>
+    </plurals>
+    <string name="race_event_dialog_add_race_event">Add event</string>
+    <string name="race_event_dialog_edit_race_event">Edit event</string>
+    <string name="race_event_dialog_date">Date</string>
+    <string name="race_event_dialog_add_race_event_confirm">Add</string>
+
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Developer mode</string>
     <string name="settings_developer_data_title">Data</string>
@@ -79,6 +111,10 @@
     <string name="settings_developer_trophies_body">Replaces local history to preview trophy states.</string>
     <string name="settings_seed_demo_data">Replace with demo data</string>
     <string name="settings_demo_data_created">Demo data created</string>
+    <string name="settings_clear_database_confirm_message">This deletes workouts, events, categories, and Activity history from the local database.</string>
+    <string name="settings_clear_database_confirm_title">Clear database?</string>
+    <string name="settings_database_cleared">Database cleared</string>
+    <string name="settings_clear_database">Clear database</string>
     <string name="settings_seed_mixed_trophies">Replace with mixed trophy preview</string>
     <string name="settings_mixed_trophies_created">Mixed trophy data created</string>
     <string name="settings_seed_locked_trophies">Replace with locked trophy preview</string>
@@ -161,7 +197,7 @@
     <string name="settings_share_unavailable">No apps available to share.</string>
 
     <!-- Activity -->
-    <string name="activity_title">Recent activity</string>
+    <string name="activity_title">Activity Log</string>
     <string name="activity_empty">No activity yet.</string>
     <string name="activity_filtered_empty">No activity matches these filters.</string>
     <string name="activity_filter_all">All</string>
@@ -181,6 +217,10 @@
     <string name="activity_action_complete_rest_day">You completed a rest event.</string>
     <string name="activity_action_incomplete_workout">You marked the workout %1$s as incomplete.</string>
     <string name="activity_action_undo_incomplete_workout">You undid marking the workout %1$s as incomplete.</string>
+    <string name="activity_action_complete_race_event">You completed an event.</string>
+    <string name="activity_action_incomplete_race_event">You marked an event as incomplete.</string>
+    <string name="activity_action_undo_complete_race_event">You undid completing an event.</string>
+    <string name="activity_action_undo_incomplete_race_event">You undid marking an event as incomplete.</string>
     <string name="activity_action_incomplete_rest_day">You marked a rest event as incomplete.</string>
     <string name="activity_action_reorder_workout">You reordered the workout %1$s.</string>
     <string name="activity_action_move_workout">You moved the workout %1$s.</string>
@@ -340,6 +380,14 @@
     <string name="activity_action_incomplete_sick">You marked a sick event as incomplete.</string>
     <string name="activity_action_convert_workout_to_sick">You converted the workout %1$s to a sick event.</string>
     <string name="activity_action_convert_sick_to_workout">You converted a sick event to a workout.</string>
+    <string name="activity_action_create_race_event">You created the event %1$s.</string>
+    <string name="activity_action_update_race_event">You updated the event %1$s.</string>
+    <string name="activity_action_delete_race_event">You deleted the event %1$s.</string>
+    <string name="activity_action_undo_delete_race_event">You restored the event %1$s.</string>
+    <string name="activity_action_reorder_race_event">You reordered the event %1$s.</string>
+    <string name="activity_action_move_race_event">You moved the event %1$s.</string>
+    <string name="activity_action_undo_reorder_race_event">You undid reordering the event %1$s.</string>
+    <string name="activity_action_undo_move_race_event">You undid moving the event %1$s.</string>
     <string name="trophies_nav_label">Trophies</string>
     <string name="trophies_title">Trophies</string>
     <string name="trophies_subtitle">A calm shelf of training moments, planning choices and steady returns.</string>
@@ -347,6 +395,7 @@
     <string name="trophies_empty_body">Trophies appear as you plan, complete and reshape your weeks.</string>
     <string name="trophies_view_all">View all</string>
     <string name="trophies_view_action">View</string>
+    <string name="trophies_activities_action">Activities</string>
     <string name="trophies_back">Back</string>
     <string name="trophies_unlocked_count">%1$d of %2$d unlocked</string>
     <string name="trophies_unlock_banner">New trophy unlocked: %1$s.</string>
@@ -369,6 +418,8 @@
     <string name="trophies_share_desc_category_actions">I\'ve created, edited or organized workout categories %1$d times.</string>
     <string name="trophies_share_desc_backups">I\'ve exported or saved a backup %1$d times.</string>
     <string name="trophies_share_desc_workout_creations">I\'ve created %1$d workouts.</string>
+    <string name="trophies_share_desc_race_event_creations">I\'ve created %1$d race events.</string>
+    <string name="trophies_share_desc_race_event_completions">I\'ve completed %1$d race events.</string>
     <string name="trophies_share_desc_protected_time">I\'ve added rest days or busy blocks %1$d times.</string>
     <string name="trophies_share_desc_category_completions">I\'ve marked %1$d workouts as completed in \"%2$s\".</string>
     <string name="trophies_share_desc_category_presence">I\'ve finished %1$d weeks that included at least one completed workout in \"%2$s\".</string>
@@ -383,6 +434,8 @@
     <string name="trophies_family_momentum_desc">For the routines you carried forward.</string>
     <string name="trophies_family_builder">Builder</string>
     <string name="trophies_family_builder_desc">For setting up the system around your training.</string>
+    <string name="trophies_family_race_events">Race Events</string>
+    <string name="trophies_family_race_events_desc">For the races and events you planned and finished.</string>
     <string name="trophies_family_categories">Categories</string>
     <string name="trophies_family_categories_desc">For the categories that make your shelf feel personal.</string>
     <string name="trophies_name_full_time">Full-Time</string>
@@ -406,6 +459,12 @@
     <string name="trophies_name_set_piece">Kickoff: Set Piece</string>
     <string name="trophies_name_program_builder">Kickoff: Program Builder</string>
     <string name="trophies_name_protected_time">Protected Time</string>
+    <string name="trophies_name_event_planner">Event Planner</string>
+    <string name="trophies_name_event_calendar">Event Calendar</string>
+    <string name="trophies_name_event_season">Event Season</string>
+    <string name="trophies_name_race_ready">Race Ready</string>
+    <string name="trophies_name_race_sharp">Race Sharp</string>
+    <string name="trophies_name_race_finish">Race Finish</string>
     <string name="trophies_name_podium_place">Podium Place</string>
     <string name="trophies_name_in_rotation">Podium Place: In Rotation</string>
     <string name="trophies_name_mainstay">Podium Place: Go-To</string>
@@ -433,6 +492,10 @@
     <string name="trophies_desc_backups_unlocked">You exported or saved a backup %1$d times.</string>
     <string name="trophies_desc_workout_creations_locked">Unlock by creating %1$d workouts.</string>
     <string name="trophies_desc_workout_creations_unlocked">You created %1$d workouts.</string>
+    <string name="trophies_desc_race_event_creations_locked">Unlock by creating %1$d race events.</string>
+    <string name="trophies_desc_race_event_creations_unlocked">You created %1$d race events.</string>
+    <string name="trophies_desc_race_event_completions_locked">Unlock by completing %1$d race events.</string>
+    <string name="trophies_desc_race_event_completions_unlocked">You completed %1$d race events.</string>
     <string name="trophies_desc_protected_time_locked">Unlock by adding rest days or busy blocks %1$d times.</string>
     <string name="trophies_desc_protected_time_unlocked">You added rest days or busy blocks %1$d times.</string>
     <string name="trophies_desc_category_completions_locked">Unlock by marking %1$d workouts as completed in this category.</string>

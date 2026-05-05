@@ -23,7 +23,8 @@ import kotlinx.serialization.json.putJsonObject
 internal object BackupJsonCodec {
     internal const val SCHEMA_VERSION_V1 = 1
     internal const val SCHEMA_VERSION_V2 = 2
-    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V2
+    internal const val SCHEMA_VERSION_V3 = 3
+    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V3
 
     private val json =
         Json {
@@ -73,6 +74,7 @@ internal object BackupJsonCodec {
         return when (schemaVersion) {
             SCHEMA_VERSION_V1 -> BackupV1Decoder.decode(root)
             SCHEMA_VERSION_V2 -> BackupV2Decoder.decode(root)
+            SCHEMA_VERSION_V3 -> BackupV3Decoder.decode(root)
             else -> Failure(UNSUPPORTED_SCHEMA_VERSION)
         }
     }

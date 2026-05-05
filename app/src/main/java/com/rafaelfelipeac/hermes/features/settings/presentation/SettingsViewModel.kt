@@ -70,6 +70,8 @@ class SettingsViewModel
         val lockedTrophiesSeedCompletedEvents: SharedFlow<Unit> = lockedTrophiesSeedEvents.asSharedFlow()
         private val completedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val completedTrophiesSeedCompletedEvents: SharedFlow<Unit> = completedTrophiesSeedEvents.asSharedFlow()
+        private val databaseClearEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val databaseClearCompletedEvents: SharedFlow<Unit> = databaseClearEvents.asSharedFlow()
 
         val state: StateFlow<SettingsState> =
             combine(
@@ -227,6 +229,13 @@ class SettingsViewModel
                 if (demoDataSeeder.seed()) {
                     logDemoSeedMutation()
                     mixedTrophiesSeedEvents.emit(Unit)
+                }
+            }
+
+        fun clearDatabase() =
+            viewModelScope.launch {
+                if (demoDataSeeder.clearDatabase()) {
+                    databaseClearEvents.emit(Unit)
                 }
             }
 

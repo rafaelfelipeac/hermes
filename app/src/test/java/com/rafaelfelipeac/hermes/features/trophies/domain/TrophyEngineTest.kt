@@ -7,29 +7,38 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.BUSY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CATEGORY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SICK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_BUSY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_CATEGORY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_SICK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CATEGORY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
@@ -327,6 +336,118 @@ class TrophyEngineTest {
     }
 
     @Test
+    @Suppress("LongMethod")
+    fun raceEventTrophies_unlockAndRevertThroughDeleteAndUndoDelete() {
+        val progress =
+            engine.compute(
+                raceEventHistory(
+                    raceAction(1L, CREATE_RACE_EVENT, eventId = 1L, timestamp = 10L),
+                    raceAction(2L, CREATE_RACE_EVENT, eventId = 2L, timestamp = 20L),
+                    raceAction(3L, CREATE_RACE_EVENT, eventId = 3L, timestamp = 30L),
+                    raceAction(4L, CREATE_RACE_EVENT, eventId = 4L, timestamp = 40L),
+                    raceAction(5L, CREATE_RACE_EVENT, eventId = 5L, timestamp = 50L),
+                    raceAction(6L, CREATE_RACE_EVENT, eventId = 6L, timestamp = 60L),
+                    raceAction(7L, CREATE_RACE_EVENT, eventId = 7L, timestamp = 70L),
+                    raceAction(8L, CREATE_RACE_EVENT, eventId = 8L, timestamp = 80L),
+                    raceAction(9L, CREATE_RACE_EVENT, eventId = 9L, timestamp = 90L),
+                    raceAction(10L, CREATE_RACE_EVENT, eventId = 10L, timestamp = 100L),
+                    raceAction(11L, COMPLETE_RACE_EVENT, eventId = 1L, timestamp = 110L),
+                    raceAction(12L, COMPLETE_RACE_EVENT, eventId = 2L, timestamp = 120L),
+                    raceAction(13L, COMPLETE_RACE_EVENT, eventId = 3L, timestamp = 130L),
+                    raceAction(14L, COMPLETE_RACE_EVENT, eventId = 4L, timestamp = 140L),
+                    raceAction(15L, COMPLETE_RACE_EVENT, eventId = 5L, timestamp = 150L),
+                ),
+            )
+
+        val eventPlanner = progress.require(TrophyId.EVENT_PLANNER)
+        val raceReady = progress.require(TrophyId.RACE_READY)
+
+        assertEquals(10, eventPlanner.currentValue)
+        assertTrue(eventPlanner.isUnlocked)
+        assertEquals(5, raceReady.currentValue)
+        assertTrue(raceReady.isUnlocked)
+
+        val afterDelete =
+            engine.compute(
+                raceEventHistory(
+                    raceAction(1L, CREATE_RACE_EVENT, eventId = 1L, timestamp = 10L),
+                    raceAction(2L, CREATE_RACE_EVENT, eventId = 2L, timestamp = 20L),
+                    raceAction(3L, CREATE_RACE_EVENT, eventId = 3L, timestamp = 30L),
+                    raceAction(4L, CREATE_RACE_EVENT, eventId = 4L, timestamp = 40L),
+                    raceAction(5L, CREATE_RACE_EVENT, eventId = 5L, timestamp = 50L),
+                    raceAction(6L, CREATE_RACE_EVENT, eventId = 6L, timestamp = 60L),
+                    raceAction(7L, CREATE_RACE_EVENT, eventId = 7L, timestamp = 70L),
+                    raceAction(8L, CREATE_RACE_EVENT, eventId = 8L, timestamp = 80L),
+                    raceAction(9L, CREATE_RACE_EVENT, eventId = 9L, timestamp = 90L),
+                    raceAction(10L, CREATE_RACE_EVENT, eventId = 10L, timestamp = 100L),
+                    raceAction(11L, COMPLETE_RACE_EVENT, eventId = 1L, timestamp = 110L),
+                    raceAction(12L, COMPLETE_RACE_EVENT, eventId = 2L, timestamp = 120L),
+                    raceAction(13L, COMPLETE_RACE_EVENT, eventId = 3L, timestamp = 130L),
+                    raceAction(14L, COMPLETE_RACE_EVENT, eventId = 4L, timestamp = 140L),
+                    raceAction(15L, COMPLETE_RACE_EVENT, eventId = 5L, timestamp = 150L),
+                    raceAction(16L, DELETE_RACE_EVENT, eventId = 5L, timestamp = 160L),
+                ),
+            )
+
+        assertEquals(9, afterDelete.require(TrophyId.EVENT_PLANNER).currentValue)
+        assertFalse(afterDelete.require(TrophyId.EVENT_PLANNER).isUnlocked)
+        assertEquals(4, afterDelete.require(TrophyId.RACE_READY).currentValue)
+        assertFalse(afterDelete.require(TrophyId.RACE_READY).isUnlocked)
+
+        val afterUndoDelete =
+            engine.compute(
+                raceEventHistory(
+                    raceAction(1L, CREATE_RACE_EVENT, eventId = 1L, timestamp = 10L),
+                    raceAction(2L, CREATE_RACE_EVENT, eventId = 2L, timestamp = 20L),
+                    raceAction(3L, CREATE_RACE_EVENT, eventId = 3L, timestamp = 30L),
+                    raceAction(4L, CREATE_RACE_EVENT, eventId = 4L, timestamp = 40L),
+                    raceAction(5L, CREATE_RACE_EVENT, eventId = 5L, timestamp = 50L),
+                    raceAction(6L, CREATE_RACE_EVENT, eventId = 6L, timestamp = 60L),
+                    raceAction(7L, CREATE_RACE_EVENT, eventId = 7L, timestamp = 70L),
+                    raceAction(8L, CREATE_RACE_EVENT, eventId = 8L, timestamp = 80L),
+                    raceAction(9L, CREATE_RACE_EVENT, eventId = 9L, timestamp = 90L),
+                    raceAction(10L, CREATE_RACE_EVENT, eventId = 10L, timestamp = 100L),
+                    raceAction(11L, COMPLETE_RACE_EVENT, eventId = 1L, timestamp = 110L),
+                    raceAction(12L, COMPLETE_RACE_EVENT, eventId = 2L, timestamp = 120L),
+                    raceAction(13L, COMPLETE_RACE_EVENT, eventId = 3L, timestamp = 130L),
+                    raceAction(14L, COMPLETE_RACE_EVENT, eventId = 4L, timestamp = 140L),
+                    raceAction(15L, COMPLETE_RACE_EVENT, eventId = 5L, timestamp = 150L),
+                    raceAction(16L, DELETE_RACE_EVENT, eventId = 5L, timestamp = 160L),
+                    raceAction(17L, UNDO_DELETE_RACE_EVENT, eventId = 5L, timestamp = 170L),
+                ),
+            )
+
+        assertEquals(10, afterUndoDelete.require(TrophyId.EVENT_PLANNER).currentValue)
+        assertTrue(afterUndoDelete.require(TrophyId.EVENT_PLANNER).isUnlocked)
+        assertEquals(5, afterUndoDelete.require(TrophyId.RACE_READY).currentValue)
+        assertTrue(afterUndoDelete.require(TrophyId.RACE_READY).isUnlocked)
+    }
+
+    @Test
+    fun raceEventCompletionTrophies_handleUndoCompleteAndUndoIncomplete() {
+        val progress =
+            engine.compute(
+                listOf(
+                    raceAction(1L, CREATE_RACE_EVENT, eventId = 1L, timestamp = 10L),
+                    raceAction(2L, COMPLETE_RACE_EVENT, eventId = 1L, timestamp = 20L),
+                    raceAction(3L, UNDO_COMPLETE_RACE_EVENT, eventId = 1L, timestamp = 30L),
+                    raceAction(4L, UNDO_INCOMPLETE_RACE_EVENT, eventId = 1L, timestamp = 40L),
+                    raceAction(5L, COMPLETE_RACE_EVENT, eventId = 2L, timestamp = 50L),
+                    raceAction(6L, INCOMPLETE_RACE_EVENT, eventId = 2L, timestamp = 60L),
+                    raceAction(7L, UNDO_INCOMPLETE_RACE_EVENT, eventId = 2L, timestamp = 70L),
+                    raceAction(8L, COMPLETE_RACE_EVENT, eventId = 3L, timestamp = 80L),
+                    raceAction(9L, COMPLETE_RACE_EVENT, eventId = 4L, timestamp = 90L),
+                    raceAction(10L, COMPLETE_RACE_EVENT, eventId = 5L, timestamp = 100L),
+                ),
+            )
+
+        val raceReady = progress.require(TrophyId.RACE_READY)
+
+        assertEquals(5, raceReady.currentValue)
+        assertTrue(raceReady.isUnlocked)
+    }
+
+    @Test
     fun categoryTrophies_areBuiltFromVisibleCategoryHistory() {
         val category = TrophyCategoryContext(id = 10L, name = "Strength", colorId = "strength")
         val weekStart = LocalDate.of(2026, 4, 6)
@@ -530,5 +651,25 @@ class TrophyEngineTest {
 
     private fun metadataJson(vararg pairs: Pair<String, String>): String {
         return UserActionMetadataSerializer.toJson(pairs.toMap())
+    }
+
+    private fun raceEventHistory(vararg actions: UserActionRecord): List<UserActionRecord> {
+        return actions.toList()
+    }
+
+    private fun raceAction(
+        id: Long,
+        actionType: UserActionType,
+        eventId: Long,
+        timestamp: Long,
+    ): UserActionRecord {
+        return UserActionRecord(
+            id = id,
+            actionType = actionType.name,
+            entityType = RACE_EVENT.name,
+            entityId = eventId,
+            metadata = null,
+            timestamp = timestamp,
+        )
     }
 }

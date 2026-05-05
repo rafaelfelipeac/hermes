@@ -65,6 +65,7 @@ class ActivityUiFormatter(
                 UserActionEntityType.REST_DAY,
                 UserActionEntityType.BUSY,
                 UserActionEntityType.SICK,
+                UserActionEntityType.RACE_EVENT,
                 ->
                     buildNonWorkoutTitle(
                         entityType = entityType,
@@ -402,10 +403,26 @@ class ActivityUiFormatter(
             UserActionType.SHARE_TROPHY ->
                 buildWorkoutCategorySubtitle(metadata)
 
-            UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
-            UserActionType.REORDER_WORKOUT -> buildReorderSubtitle(metadata)
-            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> buildMoveSubtitle(metadata)
-            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> buildReorderSubtitle(metadata)
+            UserActionType.MOVE_WORKOUT_BETWEEN_DAYS,
+            UserActionType.MOVE_REST,
+            UserActionType.MOVE_BUSY,
+            UserActionType.MOVE_SICK,
+            -> buildMoveSubtitle(metadata)
+            UserActionType.REORDER_WORKOUT,
+            UserActionType.REORDER_REST,
+            UserActionType.REORDER_BUSY,
+            UserActionType.REORDER_SICK,
+            -> buildReorderSubtitle(metadata)
+            UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS,
+            UserActionType.UNDO_MOVE_REST,
+            UserActionType.UNDO_MOVE_BUSY,
+            UserActionType.UNDO_MOVE_SICK,
+            -> buildMoveSubtitle(metadata)
+            UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY,
+            UserActionType.UNDO_REORDER_REST,
+            UserActionType.UNDO_REORDER_BUSY,
+            UserActionType.UNDO_REORDER_SICK,
+            -> buildReorderSubtitle(metadata)
             else -> null
         }
     }
@@ -415,6 +432,18 @@ class ActivityUiFormatter(
             actionType == UserActionType.REORDER_WORKOUT ||
             actionType == UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS ||
             actionType == UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY ||
+            actionType == UserActionType.MOVE_REST ||
+            actionType == UserActionType.REORDER_REST ||
+            actionType == UserActionType.UNDO_MOVE_REST ||
+            actionType == UserActionType.UNDO_REORDER_REST ||
+            actionType == UserActionType.MOVE_BUSY ||
+            actionType == UserActionType.REORDER_BUSY ||
+            actionType == UserActionType.UNDO_MOVE_BUSY ||
+            actionType == UserActionType.UNDO_REORDER_BUSY ||
+            actionType == UserActionType.MOVE_SICK ||
+            actionType == UserActionType.REORDER_SICK ||
+            actionType == UserActionType.UNDO_MOVE_SICK ||
+            actionType == UserActionType.UNDO_REORDER_SICK ||
             actionType == UserActionType.CREATE_WORKOUT ||
             actionType == UserActionType.UPDATE_WORKOUT ||
             actionType == UserActionType.CHANGE_SLOT_MODE ||
@@ -621,10 +650,34 @@ class ActivityUiFormatter(
             when (actionType) {
                 UserActionType.COMPLETE_WORKOUT -> completeNonWorkoutRes(entityType)
                 UserActionType.INCOMPLETE_WORKOUT -> incompleteNonWorkoutRes(entityType)
+                UserActionType.COMPLETE_RACE_EVENT -> completeNonWorkoutRes(entityType)
+                UserActionType.INCOMPLETE_RACE_EVENT -> incompleteNonWorkoutRes(entityType)
+                UserActionType.UNDO_COMPLETE_RACE_EVENT -> R.string.activity_action_undo_complete_race_event
+                UserActionType.UNDO_INCOMPLETE_RACE_EVENT -> R.string.activity_action_undo_incomplete_race_event
                 UserActionType.REORDER_WORKOUT -> reorderNonWorkoutRes(entityType)
                 UserActionType.MOVE_WORKOUT_BETWEEN_DAYS -> moveNonWorkoutRes(entityType)
                 UserActionType.UNDO_REORDER_WORKOUT_SAME_DAY -> undoReorderNonWorkoutRes(entityType)
                 UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS -> undoMoveNonWorkoutRes(entityType)
+                UserActionType.REORDER_REST,
+                UserActionType.REORDER_BUSY,
+                UserActionType.REORDER_SICK,
+                -> reorderNonWorkoutRes(entityType)
+                UserActionType.MOVE_REST,
+                UserActionType.MOVE_BUSY,
+                UserActionType.MOVE_SICK,
+                -> moveNonWorkoutRes(entityType)
+                UserActionType.UNDO_REORDER_REST,
+                UserActionType.UNDO_REORDER_BUSY,
+                UserActionType.UNDO_REORDER_SICK,
+                -> undoReorderNonWorkoutRes(entityType)
+                UserActionType.UNDO_MOVE_REST,
+                UserActionType.UNDO_MOVE_BUSY,
+                UserActionType.UNDO_MOVE_SICK,
+                -> undoMoveNonWorkoutRes(entityType)
+                UserActionType.REORDER_RACE_EVENT -> reorderNonWorkoutRes(entityType)
+                UserActionType.MOVE_RACE_EVENT -> moveNonWorkoutRes(entityType)
+                UserActionType.UNDO_REORDER_RACE_EVENT -> undoReorderNonWorkoutRes(entityType)
+                UserActionType.UNDO_MOVE_RACE_EVENT -> undoMoveNonWorkoutRes(entityType)
                 in nonWorkoutCreateActions -> createNonWorkoutRes(entityType)
                 in nonWorkoutUpdateActions -> updateNonWorkoutRes(entityType)
                 in nonWorkoutDeleteActions -> deleteNonWorkoutRes(entityType)
@@ -632,7 +685,7 @@ class ActivityUiFormatter(
                 else -> null
             }
 
-        if (simpleResId != null) return stringProvider.get(simpleResId)
+        if (simpleResId != null) return stringProvider.get(simpleResId, quotedWorkoutLabel)
 
         return when (actionType) {
             UserActionType.CONVERT_WORKOUT_TO_REST_DAY ->
@@ -650,6 +703,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_create_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_create_busy
             UserActionEntityType.SICK -> R.string.activity_action_create_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_create_race_event
             else -> R.string.activity_action_create_rest_day
         }
     }
@@ -661,6 +715,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_update_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_update_busy
             UserActionEntityType.SICK -> R.string.activity_action_update_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_update_race_event
             else -> R.string.activity_action_update_rest_day
         }
     }
@@ -672,6 +727,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_delete_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_delete_busy
             UserActionEntityType.SICK -> R.string.activity_action_delete_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_delete_race_event
             else -> R.string.activity_action_delete_rest_day
         }
     }
@@ -683,6 +739,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_undo_delete_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_undo_delete_busy
             UserActionEntityType.SICK -> R.string.activity_action_undo_delete_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_undo_delete_race_event
             else -> R.string.activity_action_undo_delete_rest_day
         }
     }
@@ -694,6 +751,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_reorder_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_reorder_busy
             UserActionEntityType.SICK -> R.string.activity_action_reorder_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_reorder_race_event
             else -> R.string.activity_action_reorder_rest_day
         }
     }
@@ -705,6 +763,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_move_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_move_busy
             UserActionEntityType.SICK -> R.string.activity_action_move_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_move_race_event
             else -> R.string.activity_action_move_rest_day
         }
     }
@@ -716,6 +775,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_undo_reorder_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_undo_reorder_busy
             UserActionEntityType.SICK -> R.string.activity_action_undo_reorder_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_undo_reorder_race_event
             else -> R.string.activity_action_undo_reorder_rest_day
         }
     }
@@ -727,6 +787,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_undo_move_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_undo_move_busy
             UserActionEntityType.SICK -> R.string.activity_action_undo_move_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_undo_move_race_event
             else -> R.string.activity_action_undo_move_rest_day
         }
     }
@@ -738,6 +799,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_complete_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_complete_busy
             UserActionEntityType.SICK -> R.string.activity_action_complete_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_complete_race_event
             else -> R.string.activity_action_complete_rest_day
         }
     }
@@ -749,6 +811,7 @@ class ActivityUiFormatter(
             -> R.string.activity_action_incomplete_rest_day
             UserActionEntityType.BUSY -> R.string.activity_action_incomplete_busy
             UserActionEntityType.SICK -> R.string.activity_action_incomplete_sick
+            UserActionEntityType.RACE_EVENT -> R.string.activity_action_incomplete_race_event
             else -> R.string.activity_action_incomplete_rest_day
         }
     }
@@ -824,6 +887,7 @@ class ActivityUiFormatter(
             UserActionType.CREATE_REST_DAY,
             UserActionType.CREATE_BUSY,
             UserActionType.CREATE_SICK,
+            UserActionType.CREATE_RACE_EVENT,
         )
 
     private val nonWorkoutUpdateActions =
@@ -831,6 +895,7 @@ class ActivityUiFormatter(
             UserActionType.UPDATE_REST_DAY,
             UserActionType.UPDATE_BUSY,
             UserActionType.UPDATE_SICK,
+            UserActionType.UPDATE_RACE_EVENT,
         )
 
     private val nonWorkoutDeleteActions =
@@ -838,6 +903,7 @@ class ActivityUiFormatter(
             UserActionType.DELETE_REST_DAY,
             UserActionType.DELETE_BUSY,
             UserActionType.DELETE_SICK,
+            UserActionType.DELETE_RACE_EVENT,
         )
 
     private val nonWorkoutUndoDeleteActions =
@@ -845,5 +911,6 @@ class ActivityUiFormatter(
             UserActionType.UNDO_DELETE_REST_DAY,
             UserActionType.UNDO_DELETE_BUSY,
             UserActionType.UNDO_DELETE_SICK,
+            UserActionType.UNDO_DELETE_RACE_EVENT,
         )
 }

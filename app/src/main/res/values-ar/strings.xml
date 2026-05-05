@@ -95,6 +95,10 @@
     <string name="settings_developer_trophies_body">يستبدل السجل المحلي لمعاينة حالات الكؤوس.</string>
     <string name="settings_seed_demo_data">استبدال ببيانات تجريبية</string>
     <string name="settings_demo_data_created">تم إنشاء البيانات التجريبية</string>
+    <string name="settings_clear_database_confirm_message">سيحذف هذا التمارين والفعاليات والفئات وسجل النشاط من قاعدة البيانات المحلية.</string>
+    <string name="settings_clear_database_confirm_title">مسح قاعدة البيانات؟</string>
+    <string name="settings_database_cleared">تم مسح قاعدة البيانات</string>
+    <string name="settings_clear_database">مسح قاعدة البيانات</string>
     <string name="settings_seed_mixed_trophies">استبدال بمعاينة كؤوس مختلطة</string>
     <string name="settings_mixed_trophies_created">تم إنشاء بيانات بكؤوس مختلطة</string>
     <string name="settings_seed_locked_trophies">استبدال بمعاينة كؤوس مقفلة</string>
@@ -177,7 +181,7 @@
     <string name="settings_share_unavailable">لا توجد تطبيقات مشاركة متاحة.</string>
 
     <!-- Activity -->
-    <string name="activity_title">النشاط الأخير</string>
+    <string name="activity_title">سجل النشاط</string>
     <string name="activity_empty">لا توجد أنشطة بعد.</string>
     <string name="activity_filtered_empty">لا يوجد نشاط يطابق هذه الفلاتر.</string>
     <string name="activity_filter_all">الكل</string>
@@ -197,6 +201,10 @@
     <string name="activity_action_complete_rest_day">لقد أنهيت حدث راحة.</string>
     <string name="activity_action_incomplete_workout">لقد وضعت علامة غير مكتمل على التمرين %1$s.</string>
     <string name="activity_action_undo_incomplete_workout">لقد تراجعت عن وضع التمرين %1$s كغير مكتمل.</string>
+    <string name="activity_action_complete_race_event">لقد أنهيت فعالية.</string>
+    <string name="activity_action_incomplete_race_event">لقد وضعت علامة غير مكتمل على فعالية.</string>
+    <string name="activity_action_undo_complete_race_event">لقد تراجعت عن إكمال فعالية.</string>
+    <string name="activity_action_undo_incomplete_race_event">لقد تراجعت عن وضع علامة غير مكتمل على فعالية.</string>
     <string name="activity_action_incomplete_rest_day">لقد وضعت علامة غير مكتمل على حدث راحة.</string>
     <string name="activity_action_reorder_workout">لقد أعدت ترتيب التمرين %1$s.</string>
     <string name="activity_action_move_workout">لقد نقلت التمرين %1$s.</string>
@@ -386,6 +394,8 @@
     <string name="trophies_share_desc_category_actions">لقد أنشأت فئات التمارين أو عدّلتها أو نظّمتها %1$d مرات.</string>
     <string name="trophies_share_desc_backups">لقد صدّرت نسخة احتياطية أو حفظتها %1$d مرات.</string>
     <string name="trophies_share_desc_workout_creations">لقد أنشأت %1$d تمرينًا.</string>
+    <string name="trophies_share_desc_race_event_creations">لقد أنشأت %1$d من فعاليات السباق.</string>
+    <string name="trophies_share_desc_race_event_completions">لقد أنهيت %1$d من فعاليات السباق.</string>
     <string name="trophies_share_desc_protected_time">لقد أضفت أيام راحة أو فترات انشغال %1$d مرات.</string>
     <string name="trophies_share_desc_category_completions">لقد علّمت %1$d تمرينًا كمكتمل في \"%2$s\".</string>
     <string name="trophies_share_desc_category_presence">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل في \"%2$s\".</string>
@@ -400,6 +410,8 @@
     <string name="trophies_family_momentum_desc">للروتين الذي واصلت البناء عليه.</string>
     <string name="trophies_family_builder">البناء</string>
     <string name="trophies_family_builder_desc">لبناء النظام حول تدريبك.</string>
+    <string name="trophies_family_race_events">فعاليات السباق</string>
+    <string name="trophies_family_race_events_desc">للسابقات والفعاليات التي خططت لها وأكملتها.</string>
     <string name="trophies_family_categories">الفئات</string>
     <string name="trophies_family_categories_desc">للفئات التي تجعل هذا الرف أكثر شخصية.</string>
     <string name="trophies_name_full_time">دوام كامل</string>
@@ -415,6 +427,12 @@
     <string name="trophies_name_set_piece">ضربة البداية: لعبة منظّمة</string>
     <string name="trophies_name_program_builder">ضربة البداية: باني البرنامج</string>
     <string name="trophies_name_protected_time">وقت محمي</string>
+    <string name="trophies_name_event_planner">مخطط الفعاليات</string>
+    <string name="trophies_name_event_calendar">تقويم الفعاليات</string>
+    <string name="trophies_name_event_season">موسم الفعاليات</string>
+    <string name="trophies_name_race_ready">جاهز للسباق</string>
+    <string name="trophies_name_race_sharp">سباق حاد</string>
+    <string name="trophies_name_race_finish">نهاية السباق</string>
     <string name="trophies_name_podium_place">مكان على المنصة</string>
     <string name="trophies_name_home_ground">الأرض المألوفة</string>
     <string name="trophies_name_training_block">كتلة تدريب</string>
@@ -449,6 +467,10 @@
     <string name="trophies_desc_backups_locked">افتحها عند تصدير نسخة احتياطية أو حفظها %1$d مرات.</string>
     <string name="trophies_desc_workout_creations_locked">افتحها عند إنشاء %1$d تمرينًا.</string>
     <string name="trophies_desc_workout_creations_unlocked">لقد أنشأت %1$d تمرينًا.</string>
+    <string name="trophies_desc_race_event_creations_locked">افتحه عند إنشاء %1$d من فعاليات السباق.</string>
+    <string name="trophies_desc_race_event_creations_unlocked">لقد أنشأت %1$d من فعاليات السباق.</string>
+    <string name="trophies_desc_race_event_completions_locked">افتحه عند إكمال %1$d من فعاليات السباق.</string>
+    <string name="trophies_desc_race_event_completions_unlocked">لقد أنهيت %1$d من فعاليات السباق.</string>
     <string name="trophies_desc_protected_time_locked">افتحها عند إضافة أيام راحة أو فترات انشغال %1$d مرات.</string>
     <string name="trophies_desc_protected_time_unlocked">لقد أضفت أيام راحة أو فترات انشغال %1$d مرات.</string>
     <string name="trophies_desc_backups_unlocked">لقد صدّرت نسخة احتياطية أو حفظتها %1$d مرات.</string>
@@ -458,4 +480,51 @@
     <string name="trophies_desc_category_presence_unlocked">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل من هذه الفئة.</string>
     <string name="trophies_desc_category_planning_locked">افتحها عند إضافة تمارين في هذه الفئة أو نقلها أو تنظيمها %1$d مرات.</string>
     <string name="trophies_desc_category_planning_unlocked">لقد أضفت تمارين في هذه الفئة أو نقلتها أو نظّمتها %1$d مرات.</string>
+    <string name="race_events_nav_label">الفعاليات</string>
+    <string name="weekly_training_add_race_event">إضافة فعالية</string>
+    <string name="weekly_training_delete_race_event">حذف</string>
+    <string name="weekly_training_delete_race_event_title">حذف الفعالية؟</string>
+    <string name="weekly_training_delete_race_event_message">هل تريد بالتأكيد حذف هذه الفعالية؟</string>
+    <string name="weekly_training_race_event_moved">تم نقل الفعالية.</string>
+    <string name="weekly_training_race_event_deleted">تم حذف الفعالية.</string>
+    <string name="race_event_label">فعالية</string>
+    <string name="weekly_training_section_day_with_date">%1$s • %2$s</string>
+    <string name="race_events_title">الفعاليات</string>
+    <string name="race_events_subtitle">أدِر السباقات القادمة والفعاليات الأخرى بشكل منفصل عن التمارين.</string>
+    <string name="race_events_upcoming_title">الفعاليات القادمة</string>
+    <string name="race_events_empty_title">لا توجد فعاليات بعد.</string>
+    <string name="race_events_empty_body">أضف فعالية هنا أو من المخطط الأسبوعي.</string>
+    <string name="race_events_past_title">الفعاليات السابقة</string>
+    <string name="race_events_add">إضافة فعالية</string>
+    <string name="race_events_today">اليوم</string>
+    <string name="race_events_tomorrow">غدًا</string>
+    <plurals name="race_events_days_left">
+        <item quantity="zero">تبقّى %1$d يوم</item>
+        <item quantity="one">تبقّى %1$d يوم</item>
+        <item quantity="two">تبقّى %1$d يومان</item>
+        <item quantity="few">تبقّى %1$d أيام</item>
+        <item quantity="many">تبقّى %1$d يومًا</item>
+        <item quantity="other">تبقّى %1$d أيام</item>
+    </plurals>
+    <plurals name="race_events_days_ago">
+        <item quantity="zero">قبل %1$d يوم</item>
+        <item quantity="one">قبل %1$d يوم</item>
+        <item quantity="two">قبل %1$d يومين</item>
+        <item quantity="few">قبل %1$d أيام</item>
+        <item quantity="many">قبل %1$d يومًا</item>
+        <item quantity="other">قبل %1$d أيام</item>
+    </plurals>
+    <string name="race_event_dialog_add_race_event">إضافة فعالية</string>
+    <string name="race_event_dialog_edit_race_event">تعديل فعالية</string>
+    <string name="race_event_dialog_date">التاريخ</string>
+    <string name="race_event_dialog_add_race_event_confirm">إضافة</string>
+    <string name="activity_action_create_race_event">لقد أنشأت الفعالية %1$s.</string>
+    <string name="activity_action_update_race_event">لقد حدّثت الفعالية %1$s.</string>
+    <string name="activity_action_delete_race_event">لقد حذفت الفعالية %1$s.</string>
+    <string name="activity_action_undo_delete_race_event">لقد استعدت الفعالية %1$s.</string>
+    <string name="activity_action_reorder_race_event">لقد أعدت ترتيب الفعالية %1$s.</string>
+    <string name="activity_action_move_race_event">لقد نقلت الفعالية %1$s.</string>
+    <string name="activity_action_undo_reorder_race_event">لقد ألغيت إعادة ترتيب الفعالية %1$s.</string>
+    <string name="activity_action_undo_move_race_event">لقد ألغيت نقل الفعالية %1$s.</string>
+    <string name="trophies_activities_action">الأنشطة</string>
 </resources>

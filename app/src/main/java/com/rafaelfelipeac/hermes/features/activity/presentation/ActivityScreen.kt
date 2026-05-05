@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.activity.presentation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,11 +18,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -57,10 +60,13 @@ import java.util.Locale
 @Composable
 fun ActivityScreen(
     modifier: Modifier = Modifier,
+    onBack: () -> Unit,
     viewModel: ActivityViewModel = hiltViewModel(),
 ) {
     val configuration = LocalConfiguration.current
     val currentLocale = configuration.locales.get(0) ?: Locale.getDefault()
+
+    BackHandler(onBack = onBack)
 
     LaunchedEffect(currentLocale) {
         viewModel.updateLocale(currentLocale)
@@ -72,14 +78,10 @@ fun ActivityScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(SpacingXl),
+                .padding(bottom = SpacingXl),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
-        Text(
-            text = stringResource(R.string.activity_title),
-            style = typography.titleLarge,
-            color = colorScheme.onSurface,
-        )
+        ActivityHeader(onBack = onBack)
 
         ActivityContent(
             sections = state.sections,
@@ -97,7 +99,42 @@ fun ActivityScreen(
             onCategorySelected = viewModel::selectCategoryFilter,
             onWeekSelected = viewModel::selectWeekFilter,
             onClearFilters = viewModel::clearFilters,
-            modifier = Modifier.fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = SpacingXl),
+        )
+    }
+}
+
+@Composable
+internal fun ActivityHeader(onBack: () -> Unit) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = SpacingSm,
+                    end = SpacingXl,
+                    top = SpacingSm,
+                    bottom = SpacingSm,
+                ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onBack) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                contentDescription = stringResource(R.string.trophies_back),
+            )
+        }
+
+        Text(
+            text = stringResource(R.string.activity_title),
+            style = typography.titleLarge,
+            color = colorScheme.onSurface,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f),
         )
     }
 }

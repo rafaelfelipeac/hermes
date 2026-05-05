@@ -14,6 +14,7 @@ internal fun TrophyFamily.toUi(): TrophyFamilyUi {
         TrophyFamily.ADAPTABILITY -> TrophyFamilyUi.ADAPTABILITY
         TrophyFamily.MOMENTUM -> TrophyFamilyUi.MOMENTUM
         TrophyFamily.BUILDER -> TrophyFamilyUi.BUILDER
+        TrophyFamily.RACE_EVENTS -> TrophyFamilyUi.RACE_EVENTS
         TrophyFamily.CATEGORIES -> TrophyFamilyUi.CATEGORIES
     }
 }
@@ -42,6 +43,12 @@ internal fun trophyNameRes(trophyId: TrophyId): Int {
         TrophyId.SET_PIECE -> R.string.trophies_name_set_piece
         TrophyId.PROGRAM_BUILDER -> R.string.trophies_name_program_builder
         TrophyId.PROTECTED_TIME -> R.string.trophies_name_protected_time
+        TrophyId.EVENT_PLANNER -> R.string.trophies_name_event_planner
+        TrophyId.EVENT_CALENDAR -> R.string.trophies_name_event_calendar
+        TrophyId.EVENT_SEASON -> R.string.trophies_name_event_season
+        TrophyId.RACE_READY -> R.string.trophies_name_race_ready
+        TrophyId.RACE_SHARP -> R.string.trophies_name_race_sharp
+        TrophyId.RACE_FINISH -> R.string.trophies_name_race_finish
         TrophyId.PODIUM_PLACE -> R.string.trophies_name_podium_place
         TrophyId.IN_ROTATION -> R.string.trophies_name_in_rotation
         TrophyId.MAINSTAY -> R.string.trophies_name_mainstay
@@ -139,6 +146,24 @@ internal fun trophyDescriptionRes(
             } else {
                 R.string.trophies_desc_protected_time_locked
             }
+        TrophyId.EVENT_PLANNER,
+        TrophyId.EVENT_CALENDAR,
+        TrophyId.EVENT_SEASON,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_race_event_creations_unlocked
+            } else {
+                R.string.trophies_desc_race_event_creations_locked
+            }
+        TrophyId.RACE_READY,
+        TrophyId.RACE_SHARP,
+        TrophyId.RACE_FINISH,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_race_event_completions_unlocked
+            } else {
+                R.string.trophies_desc_race_event_completions_locked
+            }
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
@@ -195,6 +220,14 @@ internal fun trophyShareDescriptionRes(trophyId: TrophyId): Int {
         TrophyId.PROGRAM_BUILDER,
         -> R.string.trophies_share_desc_workout_creations
         TrophyId.PROTECTED_TIME -> R.string.trophies_share_desc_protected_time
+        TrophyId.EVENT_PLANNER,
+        TrophyId.EVENT_CALENDAR,
+        TrophyId.EVENT_SEASON,
+        -> R.string.trophies_share_desc_race_event_creations
+        TrophyId.RACE_READY,
+        TrophyId.RACE_SHARP,
+        TrophyId.RACE_FINISH,
+        -> R.string.trophies_share_desc_race_event_completions
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
@@ -215,6 +248,7 @@ internal fun familyTitleRes(family: TrophyFamilyUi): Int {
         TrophyFamilyUi.ADAPTABILITY -> R.string.trophies_family_adaptability
         TrophyFamilyUi.MOMENTUM -> R.string.trophies_family_momentum
         TrophyFamilyUi.BUILDER -> R.string.trophies_family_builder
+        TrophyFamilyUi.RACE_EVENTS -> R.string.trophies_family_race_events
         TrophyFamilyUi.CATEGORIES -> R.string.trophies_family_categories
     }
 }
@@ -227,6 +261,7 @@ internal fun familyDescriptionRes(family: TrophyFamilyUi): Int {
         TrophyFamilyUi.ADAPTABILITY -> R.string.trophies_family_adaptability_desc
         TrophyFamilyUi.MOMENTUM -> R.string.trophies_family_momentum_desc
         TrophyFamilyUi.BUILDER -> R.string.trophies_family_builder_desc
+        TrophyFamilyUi.RACE_EVENTS -> R.string.trophies_family_race_events_desc
         TrophyFamilyUi.CATEGORIES -> R.string.trophies_family_categories_desc
     }
 }

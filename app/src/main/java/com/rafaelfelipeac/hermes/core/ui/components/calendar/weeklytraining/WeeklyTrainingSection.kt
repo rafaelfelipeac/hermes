@@ -37,6 +37,10 @@ import java.time.DayOfWeek.SUNDAY
 import java.time.DayOfWeek.THURSDAY
 import java.time.DayOfWeek.TUESDAY
 import java.time.DayOfWeek.WEDNESDAY
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Locale
 
 private const val SECTION_KEY_TBD = "tbd"
 
@@ -112,10 +116,19 @@ sealed class SectionKey(val key: String) {
 }
 
 @Composable
-internal fun SectionKey.title(): String {
+internal fun SectionKey.title(date: LocalDate? = null): String {
     return when (this) {
         SectionKey.ToBeDefined -> stringResource(R.string.weekly_training_section_to_be_defined)
-        is SectionKey.Day -> stringResource(dayOfWeek.labelRes())
+        is SectionKey.Day ->
+            if (date != null) {
+                stringResource(
+                    R.string.weekly_training_section_day_with_date,
+                    stringResource(dayOfWeek.labelRes()),
+                    formatSectionDate(date),
+                )
+            } else {
+                stringResource(dayOfWeek.labelRes())
+            }
     }
 }
 
@@ -136,4 +149,9 @@ private fun DayOfWeek.labelRes(): Int {
         SATURDAY -> R.string.day_saturday
         SUNDAY -> R.string.day_sunday
     }
+}
+
+private fun formatSectionDate(date: LocalDate): String {
+    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
+    return date.format(formatter)
 }

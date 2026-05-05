@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.ChevronLeft
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -55,6 +56,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SwipeThreshold
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDayIndicator
 import java.time.DayOfWeek
@@ -190,7 +192,8 @@ private fun DayIndicator(
     val contentColor =
         when {
             indicator == null -> colorScheme.onSurface
-            indicator.workout.eventType != WORKOUT -> colorScheme.onSurfaceVariant
+            indicator.workout.eventType != WORKOUT &&
+                indicator.workout.eventType != RACE_EVENT -> colorScheme.onSurfaceVariant
             indicatorColor != null -> readableContentOn(indicatorColor)
             else -> colorScheme.onSurface
         }
@@ -298,6 +301,7 @@ private fun nonWorkoutEventIcon(eventType: EventType): ImageVector {
         EventType.REST -> Icons.Outlined.Bedtime
         EventType.BUSY -> Icons.Outlined.EventBusy
         EventType.SICK -> Icons.Outlined.MedicalServices
+        RACE_EVENT -> Icons.Outlined.Flag
         WORKOUT -> Icons.Outlined.Check
     }
 }

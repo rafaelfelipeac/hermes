@@ -7,7 +7,9 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
@@ -384,6 +386,51 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             }
             assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[CATEGORY_ID])
             assertEquals("Uncategorized", metadataSlot.captured[CATEGORY_NAME])
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun updateWorkoutCompletion_whenRaceEvent_updatesCompletionAndLogsRaceEvent() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 4, 7)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(
+                        id = 45,
+                        weekStart = weekStart,
+                        day = WEDNESDAY,
+                        order = 0,
+                        eventType = EventType.RACE_EVENT,
+                    ),
+                )
+            advanceUntilIdle()
+
+            val targetEvent = viewModel.state.value.workouts.first { it.id == 45L }
+            viewModel.updateWorkoutCompletion(workout = targetEvent, isCompleted = true)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) { repository.updateWorkoutCompletion(45, true) }
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = COMPLETE_RACE_EVENT,
+                    entityType = RACE_EVENT,
+                    entityId = 45L,
+                    metadata = any(),
+                    timestamp = any(),
+                )
+            }
 
             collectJob.cancel()
         }
