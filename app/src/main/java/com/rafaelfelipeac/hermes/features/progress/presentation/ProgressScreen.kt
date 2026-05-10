@@ -34,6 +34,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityDotSize
@@ -300,19 +301,24 @@ private fun ProgressWeeklyTrend(
         ) {
             Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
             weeks.forEach { week ->
-                Text(
-                    text = stringResource(
-                        R.string.progress_weekly_chart_count,
-                        week.completedWorkouts,
-                        week.plannedWorkouts,
-                    ),
-                    style = typography.labelSmall,
-                    color = colorScheme.onSurfaceVariant,
+                Box(
                     modifier =
                         Modifier
                             .weight(1f)
                             .defaultMinSize(minHeight = ProgressTrendCountMinHeight),
-                )
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.progress_weekly_chart_count,
+                            week.completedWorkouts,
+                            week.plannedWorkouts
+                        ),
+                        style = typography.labelSmall,
+                        color = colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
 
@@ -391,12 +397,18 @@ private fun ProgressWeeklyTrend(
         ) {
             Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
             weeks.forEachIndexed { index, week ->
-                Text(
-                    text = week.chartLabel(index = index, currentWeekIndex = currentWeekIndex, formatter = formatter),
-                    style = typography.labelSmall,
-                    color = if (week.isCurrentWeek) colorScheme.onSurface else colorScheme.onSurfaceVariant,
+                Box(
                     modifier = Modifier.weight(1f),
-                )
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = week.chartLabel(index = index, currentWeekIndex = currentWeekIndex, formatter = formatter),
+                        style = typography.labelSmall,
+                        color = if (week.isCurrentWeek) colorScheme.onSurface else colorScheme.onSurfaceVariant,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
 
