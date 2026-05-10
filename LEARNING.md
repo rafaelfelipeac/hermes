@@ -30,6 +30,7 @@ Assumptions made from the current code and README:
 If future work adds light recognition (soft streaks, small trophies, gentle celebrations), it should stay opt-in and non-judgmental so it reinforces the calm, offline-first intent instead of undermining it.
 
 Recent learnings:
+- When a progress bar uses nested fill layers, the outer planned workload can be correct while the inner completion layer still renders from the top by default; explicitly bottom-aligning the inner layer preserves the intended "completion rises from the base" reading.
 - Weekly completion charts are easier to read when the bar height encodes planned workload and the fill encodes completion; percent-only bars hide the fact that a 1/1 week and a 9/10 week are not the same kind of load.
 - Weekly progress percentages are easy to misread when the planned workload changes week to week; showing the completed/planned count on every bar makes the percentage honest instead of implying equal effort across all weeks.
 - Progress charts read much better when the debug seed spans more weeks and varies completion density across them; a long run of identical weeks makes the chart look decorative instead of informative.

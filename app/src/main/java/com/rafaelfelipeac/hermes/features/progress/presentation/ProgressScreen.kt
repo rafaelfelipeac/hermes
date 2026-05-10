@@ -365,6 +365,7 @@ private fun ProgressWeeklyTrend(
                                 .background(
                                     colorScheme.surfaceVariant,
                                 ),
+                        contentAlignment = Alignment.BottomCenter,
                     ) {
                         Box(
                             modifier =
