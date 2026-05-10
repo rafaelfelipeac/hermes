@@ -174,11 +174,103 @@ class ProgressSummaryBuilderTest {
         assertEquals(1L, state.recentActivities.first().id)
     }
 
+    @Test
+    fun buildProgressState_buildsWeeklyReadoutWithNextIncompleteWorkout() {
+        val workouts =
+            listOf(
+                workout(1L, currentWeek, DayOfWeek.MONDAY, EventType.WORKOUT, isCompleted = true, categoryId = 2L),
+                workout(2L, currentWeek, DayOfWeek.WEDNESDAY, EventType.WORKOUT, isCompleted = false, categoryId = 3L),
+                workout(3L, currentWeek, DayOfWeek.FRIDAY, EventType.WORKOUT, isCompleted = false, categoryId = 2L),
+            )
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = categories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertEquals(3, state.weeklyReadout.plannedWorkouts)
+        assertEquals(1, state.weeklyReadout.completedWorkouts)
+        assertEquals(33, state.weeklyReadout.completionPercent)
+        assertEquals(2L, state.weeklyReadout.nextFocus?.id)
+        assertEquals("Workout 2", state.weeklyReadout.nextFocus?.title)
+        assertEquals(1, state.weeklyReadout.nextFocus?.daysUntil)
+    }
+
+    @Test
+    fun buildProgressState_hidesNextFocusWhenCurrentWeekHasNoIncompleteWorkout() {
+        val workouts =
+            listOf(
+                workout(1L, currentWeek, DayOfWeek.MONDAY, EventType.WORKOUT, isCompleted = true, categoryId = 2L),
+                workout(2L, currentWeek.plusWeeks(1), DayOfWeek.WEDNESDAY, EventType.WORKOUT, isCompleted = false, categoryId = 3L),
+            )
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = categories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertNull(state.weeklyReadout.nextFocus)
+    }
+
+    @Test
+    fun buildProgressState_keepsUpcomingEventSeparateFromNextFocus() {
+        val workouts =
+            listOf(
+                workout(1L, currentWeek, DayOfWeek.WEDNESDAY, EventType.WORKOUT, isCompleted = false, categoryId = 2L),
+                workout(2L, currentWeek.plusWeeks(1), DayOfWeek.SATURDAY, RACE_EVENT, isCompleted = false, categoryId = 3L),
+            )
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = categories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertEquals(1L, state.weeklyReadout.nextFocus?.id)
+        assertEquals(2L, state.upcomingEvent?.id)
+        assertEquals(11, state.upcomingEvent?.daysUntil)
+    }
+
+    @Test
+    fun buildProgressState_buildsTrendAndTrainingMixInsights() {
+        val workouts =
+            week(currentWeek.minusWeeks(2), completed = 3, pending = 0, categoryId = 2L) +
+                week(currentWeek.minusWeeks(1), completed = 3, pending = 0, categoryId = 3L) +
+                week(currentWeek, completed = 3, pending = 1, categoryId = null)
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = categories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertEquals(ProgressWeeklyTrendInsightKind.CURRENT_WEEK_HEAVIEST, state.weeklyTrendInsight?.kind)
+        assertEquals(ProgressTrainingMixInsightKind.BALANCED, state.trainingMixInsight?.kind)
+    }
+
     private fun week(
         weekStart: LocalDate,
         completed: Int,
         pending: Int,
-        categoryId: Long,
+        categoryId: Long?,
     ): List<Workout> {
         val completedItems =
             (0 until completed).map { index ->
