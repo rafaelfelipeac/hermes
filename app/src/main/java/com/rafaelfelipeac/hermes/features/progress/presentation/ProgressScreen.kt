@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -109,58 +110,57 @@ internal fun ProgressContent(
             return@LazyColumn
         }
 
-        item {
-            ProgressWeeklyReadout(readout = state.weeklyReadout)
-        }
-
-        item {
-            ProgressSection(
-                title = stringResource(R.string.progress_section_weekly_trend),
-            ) {
-                ProgressWeeklyTrend(
-                    weeks = state.weeklyTrend,
-                    insight = state.weeklyTrendInsight,
-                    locale = locale,
-                )
-            }
-        }
-
-        if (state.categoryDistribution.isNotEmpty()) {
-            item {
-                ProgressSection(
-                    title = stringResource(R.string.progress_section_training_mix),
-                ) {
-                    ProgressCategoryDistribution(
-                        items = state.categoryDistribution,
-                        insight = state.trainingMixInsight,
-                    )
+        items(
+            items = state.sections,
+            key = { it.key },
+        ) { section ->
+            when (section) {
+                is ProgressSectionUi.WeeklyReadout -> {
+                    ProgressWeeklyReadout(readout = section.readout)
                 }
-            }
-        }
-
-        item {
-            ProgressSection(
-                title = stringResource(R.string.progress_section_supporting_progress),
-            ) {
-                ProgressSupportingProgress(
-                    nextFocus = state.weeklyReadout.nextFocus,
-                    upcomingEvent = state.upcomingEvent,
-                    trophyHighlight = state.trophyHighlight,
-                )
-            }
-        }
-
-        if (state.recentActivities.isNotEmpty()) {
-            item {
-                ProgressSection(
-                    title = stringResource(R.string.progress_section_recent_activity),
-                    trailingContent = {
-                        TextButton(onClick = onOpenActivity) {
-                            Text(stringResource(R.string.progress_view_all_activity))
-                        }
-                    },
-                ) {
-                    ProgressRecentActivity(items = state.recentActivities)
+                is ProgressSectionUi.WeeklyTrend -> {
+                    ProgressSection(
+                        title = stringResource(R.string.progress_section_weekly_trend),
+                    ) {
+                        ProgressWeeklyTrend(
+                            weeks = section.weeks,
+                            insight = section.insight,
+                            locale = locale,
+                        )
+                    }
+                }
+                is ProgressSectionUi.TrainingMix -> {
+                    ProgressSection(
+                        title = stringResource(R.string.progress_section_training_mix),
+                    ) {
+                        ProgressCategoryDistribution(
+                            items = section.items,
+                            insight = section.insight,
+                        )
+                    }
+                }
+                is ProgressSectionUi.SupportingProgress -> {
+                    ProgressSection(
+                        title = stringResource(R.string.progress_section_supporting_progress),
+                    ) {
+                        ProgressSupportingProgress(
+                            nextFocus = section.nextFocus,
+                            upcomingEvent = section.upcomingEvent,
+                            trophyHighlight = section.trophyHighlight,
+                        )
+                    }
+                }
+                is ProgressSectionUi.RecentActivity -> {
+                    ProgressSection(
+                        title = stringResource(R.string.progress_section_recent_activity),
+                        trailingContent = {
+                            TextButton(onClick = onOpenActivity) {
+                                Text(stringResource(R.string.progress_view_all_activity))
+                            }
+                        },
+                    ) {
+                        ProgressRecentActivity(items = section.items)
+                    }
                 }
             }
         }
@@ -178,7 +178,7 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
             Text(
                 text = stringResource(R.string.progress_readout_on_track),
                 style = typography.labelLarge,
-                color = colorScheme.primary,
+                color = colorScheme.onSurfaceVariant,
             )
             Text(
                 text =
@@ -201,9 +201,9 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
                 Box(
                     modifier =
                         Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(readout.completionPercent.percentFraction())
-                            .background(colorScheme.primary),
+                                .fillMaxHeight()
+                                .fillMaxWidth(readout.completionPercent.percentFraction())
+                                .background(colorScheme.onSurfaceVariant),
                 )
             }
             if (remainingWorkouts > 0) {
@@ -222,7 +222,7 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
                 Text(
                     text = stringResource(R.string.progress_support_next_focus),
                     style = typography.labelMedium,
-                    color = colorScheme.primary,
+                    color = colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = nextFocus.title,
@@ -507,15 +507,6 @@ private fun ProgressSupportingProgress(
             }
         }
 
-    if (supportCards.isEmpty()) {
-        Text(
-            text = stringResource(R.string.progress_no_support_cards),
-            style = typography.bodyMedium,
-            color = colorScheme.onSurfaceVariant,
-        )
-        return
-    }
-
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
         supportCards.chunked(SUPPORT_CARDS_PER_ROW).forEach { rowCards ->
             Row(horizontalArrangement = Arrangement.spacedBy(SpacingMd)) {
@@ -552,7 +543,7 @@ private fun ProgressSupportCard(
             Text(
                 text = stringResource(content.labelRes),
                 style = typography.labelMedium,
-                color = colorScheme.primary,
+                color = colorScheme.onSurfaceVariant,
             )
             Text(
                 text = content.title,

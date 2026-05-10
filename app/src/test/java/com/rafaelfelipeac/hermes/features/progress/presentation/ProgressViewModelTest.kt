@@ -71,15 +71,11 @@ class ProgressViewModelTest {
                 awaitItem()
                 val state = awaitItem()
 
-                assertEquals(2, state.thisWeek.plannedWorkouts)
-                assertEquals(1, state.thisWeek.completedWorkouts)
                 assertEquals(2, state.weeklyReadout.plannedWorkouts)
                 assertEquals(1, state.weeklyReadout.completedWorkouts)
                 assertEquals(3L, state.weeklyReadout.nextFocus?.id)
                 assertEquals(2, state.recentActivities.size)
                 assertEquals(2L, state.recentActivities.first().id)
-                assertTrue(state.summaryCards.any { it.kind == ProgressSummaryCardKind.THIS_WEEK })
-                assertTrue(state.summaryCards.any { it.kind == ProgressSummaryCardKind.CONSISTENCY })
                 assertNull(state.emptyReason)
 
                 cancelAndIgnoreRemainingEvents()
@@ -127,7 +123,6 @@ class ProgressViewModelTest {
                 val state = awaitItem()
 
                 assertEquals(ProgressEmptyReason.NO_WEEKLY_HISTORY, state.emptyReason)
-                assertTrue(state.summaryCards.size >= 2)
                 assertTrue(state.recentActivities.isEmpty())
 
                 cancelAndIgnoreRemainingEvents()

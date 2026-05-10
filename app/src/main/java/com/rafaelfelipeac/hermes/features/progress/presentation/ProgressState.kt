@@ -5,39 +5,24 @@ import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
 import java.time.LocalDate
 
 data class ProgressState(
-    val summaryCards: List<ProgressSummaryCardUi> = emptyList(),
-    val thisWeek: ProgressWeekSnapshotUi = ProgressWeekSnapshotUi(),
+    @Deprecated("Use sections")
     val weeklyReadout: ProgressWeeklyReadoutUi = ProgressWeeklyReadoutUi(),
+    @Deprecated("Use sections")
     val weeklyTrend: List<ProgressWeekBarUi> = emptyList(),
+    @Deprecated("Use sections")
     val weeklyTrendInsight: ProgressWeeklyTrendInsightUi? = null,
+    @Deprecated("Use sections")
     val categoryDistribution: List<ProgressCategoryShareUi> = emptyList(),
+    @Deprecated("Use sections")
     val trainingMixInsight: ProgressTrainingMixInsightUi? = null,
+    @Deprecated("Use sections")
     val trophyHighlight: FeaturedTrophyUi? = null,
+    @Deprecated("Use sections")
     val recentActivities: List<ActivityItemUi> = emptyList(),
+    @Deprecated("Use sections")
     val upcomingEvent: ProgressUpcomingEventUi? = null,
+    val sections: List<ProgressSectionUi> = emptyList(),
     val emptyReason: ProgressEmptyReason? = ProgressEmptyReason.NO_WEEKLY_HISTORY,
-)
-
-data class ProgressSummaryCardUi(
-    val kind: ProgressSummaryCardKind,
-    val value: String,
-    val supportingText: String? = null,
-)
-
-enum class ProgressSummaryCardKind {
-    THIS_WEEK,
-    CONSISTENCY,
-    TOP_CATEGORY,
-    UPCOMING,
-}
-
-data class ProgressWeekSnapshotUi(
-    val plannedWorkouts: Int = 0,
-    val completedWorkouts: Int = 0,
-    val completionPercent: Int = 0,
-    val plannedRestEvents: Int = 0,
-    val plannedBusyEvents: Int = 0,
-    val plannedSickEvents: Int = 0,
 )
 
 data class ProgressWeeklyReadoutUi(
@@ -46,6 +31,44 @@ data class ProgressWeeklyReadoutUi(
     val completionPercent: Int = 0,
     val nextFocus: ProgressNextFocusUi? = null,
 )
+
+sealed interface ProgressSectionUi {
+    val key: String
+
+    data class WeeklyReadout(
+        val readout: ProgressWeeklyReadoutUi,
+    ) : ProgressSectionUi {
+        override val key: String = KEY_WEEKLY_READOUT
+    }
+
+    data class WeeklyTrend(
+        val weeks: List<ProgressWeekBarUi>,
+        val insight: ProgressWeeklyTrendInsightUi?,
+    ) : ProgressSectionUi {
+        override val key: String = KEY_WEEKLY_TREND
+    }
+
+    data class TrainingMix(
+        val items: List<ProgressCategoryShareUi>,
+        val insight: ProgressTrainingMixInsightUi?,
+    ) : ProgressSectionUi {
+        override val key: String = KEY_TRAINING_MIX
+    }
+
+    data class SupportingProgress(
+        val nextFocus: ProgressNextFocusUi?,
+        val upcomingEvent: ProgressUpcomingEventUi?,
+        val trophyHighlight: FeaturedTrophyUi?,
+    ) : ProgressSectionUi {
+        override val key: String = KEY_SUPPORTING_PROGRESS
+    }
+
+    data class RecentActivity(
+        val items: List<ActivityItemUi>,
+    ) : ProgressSectionUi {
+        override val key: String = KEY_RECENT_ACTIVITY
+    }
+}
 
 data class ProgressNextFocusUi(
     val id: Long,
@@ -98,3 +121,9 @@ data class ProgressUpcomingEventUi(
 enum class ProgressEmptyReason {
     NO_WEEKLY_HISTORY,
 }
+
+private const val KEY_WEEKLY_READOUT = "weekly_readout"
+private const val KEY_WEEKLY_TREND = "weekly_trend"
+private const val KEY_TRAINING_MIX = "training_mix"
+private const val KEY_SUPPORTING_PROGRESS = "supporting_progress"
+private const val KEY_RECENT_ACTIVITY = "recent_activity"

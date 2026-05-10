@@ -49,15 +49,13 @@ class ProgressSummaryBuilderTest {
                 currentWeekStart = currentWeek,
             )
 
-        assertEquals(7, state.thisWeek.plannedWorkouts)
-        assertEquals(5, state.thisWeek.completedWorkouts)
-        assertEquals(71, state.thisWeek.completionPercent)
         assertEquals(8, state.weeklyTrend.size)
         assertEquals(currentWeek, state.weeklyTrend.last().weekStartDate)
         assertEquals(5, state.weeklyTrend.last().completedWorkouts)
         assertEquals(7, state.weeklyTrend.last().plannedWorkouts)
-        assertTrue(state.summaryCards.any { it.kind == ProgressSummaryCardKind.THIS_WEEK })
-        assertTrue(state.summaryCards.any { it.kind == ProgressSummaryCardKind.CONSISTENCY })
+        assertEquals(71, state.weeklyReadout.completionPercent)
+        assertEquals(5, state.weeklyReadout.completedWorkouts)
+        assertEquals(7, state.weeklyReadout.plannedWorkouts)
     }
 
     @Test
@@ -100,7 +98,8 @@ class ProgressSummaryBuilderTest {
         assertNull(state.trophyHighlight)
         assertNull(state.upcomingEvent)
         assertTrue(state.recentActivities.isEmpty())
-        assertEquals(2, state.summaryCards.size)
+        assertEquals(0, state.weeklyReadout.plannedWorkouts)
+        assertEquals(0, state.weeklyReadout.completedWorkouts)
     }
 
     @Test
@@ -123,7 +122,6 @@ class ProgressSummaryBuilderTest {
 
         assertEquals(2L, state.upcomingEvent?.id)
         assertEquals(11, state.upcomingEvent?.daysUntil)
-        assertTrue(state.summaryCards.any { it.kind == ProgressSummaryCardKind.UPCOMING })
     }
 
     @Test

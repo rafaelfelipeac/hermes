@@ -25,49 +25,38 @@ internal fun buildProgressState(
     currentWeekStart: LocalDate,
 ): ProgressState {
     val visibleCategories = categories.filter { !it.isHidden }
-    val thisWeekWorkouts = workouts.filter { it.weekStartDate == currentWeekStart }
-    val thisWeek = buildWeekSnapshot(thisWeekWorkouts)
     val weeklyTrend = buildWeeklyTrend(workouts, currentWeekStart)
     val fullCategoryDistribution = buildCategoryDistribution(workouts, visibleCategories, currentWeekStart)
     val categoryDistribution = fullCategoryDistribution.take(CATEGORY_LIMIT)
     val upcomingEvent = buildUpcomingEvent(workouts, today)
     val trophyHighlight = selectFeaturedTrophy(trophyCards)
-    val summaryCards =
-        buildSummaryCards(
-            thisWeek = thisWeek,
+    val hasHistory = workouts.any { it.dayOfWeek != null }
+    val weeklyReadout = buildWeeklyReadout(workouts, today, currentWeekStart)
+    val weeklyTrendInsight = buildWeeklyTrendInsight(weeklyTrend)
+    val trainingMixInsight = buildTrainingMixInsight(fullCategoryDistribution)
+    val sections =
+        buildSections(
+            weeklyReadout = weeklyReadout,
             weeklyTrend = weeklyTrend,
+            weeklyTrendInsight = weeklyTrendInsight,
             categoryDistribution = categoryDistribution,
+            trainingMixInsight = trainingMixInsight,
+            trophyHighlight = trophyHighlight,
+            recentActivities = recentActivities.take(RECENT_ACTIVITY_PREVIEW_LIMIT),
             upcomingEvent = upcomingEvent,
         )
-    val hasHistory = workouts.any { it.dayOfWeek != null }
 
     return ProgressState(
-        summaryCards = summaryCards,
-        thisWeek = thisWeek,
-        weeklyReadout = buildWeeklyReadout(workouts, today, currentWeekStart),
+        weeklyReadout = weeklyReadout,
         weeklyTrend = weeklyTrend,
-        weeklyTrendInsight = buildWeeklyTrendInsight(weeklyTrend),
+        weeklyTrendInsight = weeklyTrendInsight,
         categoryDistribution = categoryDistribution,
-        trainingMixInsight = buildTrainingMixInsight(fullCategoryDistribution),
+        trainingMixInsight = trainingMixInsight,
         trophyHighlight = trophyHighlight,
         recentActivities = recentActivities.take(RECENT_ACTIVITY_PREVIEW_LIMIT),
         upcomingEvent = upcomingEvent,
+        sections = sections,
         emptyReason = if (hasHistory) null else ProgressEmptyReason.NO_WEEKLY_HISTORY,
-    )
-}
-
-private fun buildWeekSnapshot(workouts: List<Workout>): ProgressWeekSnapshotUi {
-    val scheduledItems = workouts.filter { it.dayOfWeek != null }
-    val plannedWorkouts = scheduledItems.count { it.eventType == WORKOUT }
-    val completedWorkouts = scheduledItems.count { it.eventType == WORKOUT && it.isCompleted }
-
-    return ProgressWeekSnapshotUi(
-        plannedWorkouts = plannedWorkouts,
-        completedWorkouts = completedWorkouts,
-        completionPercent = percent(completedWorkouts, plannedWorkouts),
-        plannedRestEvents = scheduledItems.count { it.eventType == REST },
-        plannedBusyEvents = scheduledItems.count { it.eventType == BUSY },
-        plannedSickEvents = scheduledItems.count { it.eventType == SICK },
     )
 }
 
@@ -173,6 +162,37 @@ private fun buildWeeklyTrendInsight(weeklyTrend: List<ProgressWeekBarUi>): Progr
     }
 }
 
+private fun buildSections(
+    weeklyReadout: ProgressWeeklyReadoutUi,
+    weeklyTrend: List<ProgressWeekBarUi>,
+    weeklyTrendInsight: ProgressWeeklyTrendInsightUi?,
+    categoryDistribution: List<ProgressCategoryShareUi>,
+    trainingMixInsight: ProgressTrainingMixInsightUi?,
+    trophyHighlight: FeaturedTrophyUi?,
+    recentActivities: List<com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi>,
+    upcomingEvent: ProgressUpcomingEventUi?,
+): List<ProgressSectionUi> {
+    return buildList {
+        add(ProgressSectionUi.WeeklyReadout(weeklyReadout))
+        add(ProgressSectionUi.WeeklyTrend(weeklyTrend, weeklyTrendInsight))
+        if (categoryDistribution.isNotEmpty()) {
+            add(ProgressSectionUi.TrainingMix(categoryDistribution, trainingMixInsight))
+        }
+        if (trophyHighlight != null || upcomingEvent != null || weeklyReadout.nextFocus != null) {
+            add(
+                ProgressSectionUi.SupportingProgress(
+                    nextFocus = weeklyReadout.nextFocus,
+                    upcomingEvent = upcomingEvent,
+                    trophyHighlight = trophyHighlight,
+                ),
+            )
+        }
+        if (recentActivities.isNotEmpty()) {
+            add(ProgressSectionUi.RecentActivity(recentActivities))
+        }
+    }
+}
+
 private fun buildCategoryDistribution(
     workouts: List<Workout>,
     categories: List<CategoryUi>,
@@ -250,49 +270,6 @@ private fun buildUpcomingEvent(
                 daysUntil = ChronoUnit.DAYS.between(today, eventDate).toInt(),
             )
         }
-}
-
-private fun buildSummaryCards(
-    thisWeek: ProgressWeekSnapshotUi,
-    weeklyTrend: List<ProgressWeekBarUi>,
-    categoryDistribution: List<ProgressCategoryShareUi>,
-    upcomingEvent: ProgressUpcomingEventUi?,
-): List<ProgressSummaryCardUi> {
-    val completedWeeks = weeklyTrend.count { it.plannedWorkouts > 0 && it.completedWorkouts == it.plannedWorkouts }
-    return buildList {
-        add(
-            ProgressSummaryCardUi(
-                kind = ProgressSummaryCardKind.THIS_WEEK,
-                value = "${thisWeek.completionPercent}%",
-                supportingText = "${thisWeek.completedWorkouts}/${thisWeek.plannedWorkouts}",
-            ),
-        )
-        add(
-            ProgressSummaryCardUi(
-                kind = ProgressSummaryCardKind.CONSISTENCY,
-                value = completedWeeks.toString(),
-                supportingText = weeklyTrend.size.toString(),
-            ),
-        )
-        categoryDistribution.firstOrNull()?.let { topCategory ->
-            add(
-                ProgressSummaryCardUi(
-                    kind = ProgressSummaryCardKind.TOP_CATEGORY,
-                    value = topCategory.name,
-                    supportingText = "${topCategory.count} completed",
-                ),
-            )
-        }
-        upcomingEvent?.let { event ->
-            add(
-                ProgressSummaryCardUi(
-                    kind = ProgressSummaryCardKind.UPCOMING,
-                    value = event.daysUntil.toString(),
-                    supportingText = event.title,
-                ),
-            )
-        }
-    }
 }
 
 private fun selectFeaturedTrophy(cards: List<TrophyCardUi>): FeaturedTrophyUi? {

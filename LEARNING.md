@@ -30,6 +30,7 @@ Assumptions made from the current code and README:
 If future work adds light recognition (soft streaks, small trophies, gentle celebrations), it should stay opt-in and non-judgmental so it reinforces the calm, offline-first intent instead of undermining it.
 
 Recent learnings:
+- When a Compose screen starts rendering from a derived section list, give each section a stable key and make the older parallel state explicit as legacy. Anonymous lazy items can reuse the wrong slot when sections appear or disappear, and keeping both contracts alive without deprecation makes the migration look accidental instead of intentional.
 - Single-step undo fits best as a ViewModel-scoped command snapshot, with a timeout job to clear stale actions so Snackbars do not linger across navigation.
 - Restoring deleted workouts needs a repository-level insert that can accept full workout data (including completion/rest-day flags), keeping the UI layer free of Room-specific concerns.
 - For undo snackbars, using an indefinite duration lets the ViewModel own dismissal timing so the UI does not cancel the prompt before the undo timeout expires.
