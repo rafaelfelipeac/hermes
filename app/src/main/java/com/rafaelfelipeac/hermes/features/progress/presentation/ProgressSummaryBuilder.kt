@@ -28,7 +28,8 @@ internal fun buildProgressState(
     val thisWeekWorkouts = workouts.filter { it.weekStartDate == currentWeekStart }
     val thisWeek = buildWeekSnapshot(thisWeekWorkouts)
     val weeklyTrend = buildWeeklyTrend(workouts, currentWeekStart)
-    val categoryDistribution = buildCategoryDistribution(workouts, visibleCategories, currentWeekStart)
+    val fullCategoryDistribution = buildCategoryDistribution(workouts, visibleCategories, currentWeekStart)
+    val categoryDistribution = fullCategoryDistribution.take(CATEGORY_LIMIT)
     val upcomingEvent = buildUpcomingEvent(workouts, today)
     val trophyHighlight = selectFeaturedTrophy(trophyCards)
     val summaryCards =
@@ -43,10 +44,13 @@ internal fun buildProgressState(
     return ProgressState(
         summaryCards = summaryCards,
         thisWeek = thisWeek,
+        weeklyReadout = buildWeeklyReadout(workouts, today, currentWeekStart),
         weeklyTrend = weeklyTrend,
+        weeklyTrendInsight = buildWeeklyTrendInsight(weeklyTrend),
         categoryDistribution = categoryDistribution,
+        trainingMixInsight = buildTrainingMixInsight(fullCategoryDistribution),
         trophyHighlight = trophyHighlight,
-        recentActivities = recentActivities.take(RECENT_ACTIVITY_LIMIT),
+        recentActivities = recentActivities.take(RECENT_ACTIVITY_PREVIEW_LIMIT),
         upcomingEvent = upcomingEvent,
         emptyReason = if (hasHistory) null else ProgressEmptyReason.NO_WEEKLY_HISTORY,
     )
@@ -67,6 +71,77 @@ private fun buildWeekSnapshot(workouts: List<Workout>): ProgressWeekSnapshotUi {
     )
 }
 
+private fun buildWeeklyReadout(
+    workouts: List<Workout>,
+    today: LocalDate,
+    currentWeekStart: LocalDate,
+): ProgressWeeklyReadoutUi {
+    val displayWeekWorkouts = workoutsInDisplayWeek(workouts, currentWeekStart)
+    val plannedWorkouts = displayWeekWorkouts.size
+    val completedWorkouts = displayWeekWorkouts.count { it.isCompleted }
+
+    return ProgressWeeklyReadoutUi(
+        plannedWorkouts = plannedWorkouts,
+        completedWorkouts = completedWorkouts,
+        completionPercent = percent(completedWorkouts, plannedWorkouts),
+        nextFocus = buildNextFocus(workouts, today, currentWeekStart),
+    )
+}
+
+private fun workoutsInDisplayWeek(
+    workouts: List<Workout>,
+    currentWeekStart: LocalDate,
+): List<Workout> {
+    val currentWeekEnd = currentWeekStart.plusDays(WEEK_END_OFFSET_DAYS)
+
+    return workouts.filter { workout ->
+        if (workout.dayOfWeek == null || workout.eventType != WORKOUT) return@filter false
+        val date = workoutDate(workout)
+        !date.isBefore(currentWeekStart) && !date.isAfter(currentWeekEnd)
+    }
+}
+
+private fun buildNextFocus(
+    workouts: List<Workout>,
+    today: LocalDate,
+    currentWeekStart: LocalDate,
+): ProgressNextFocusUi? {
+    val currentWeekEnd = currentWeekStart.plusDays(WEEK_END_OFFSET_DAYS)
+
+    return workouts
+        .asSequence()
+        .filter {
+            it.dayOfWeek != null &&
+                it.eventType == WORKOUT &&
+                !it.isCompleted
+        }
+        .map { workout ->
+            val date = workoutDate(workout)
+            workout to date
+        }
+        .filter { (_, date) ->
+            !date.isBefore(currentWeekStart) &&
+                !date.isAfter(currentWeekEnd) &&
+                !date.isBefore(today)
+        }
+        .minWithOrNull(
+            compareBy<Pair<Workout, LocalDate>> { (_, date) -> date }
+                .thenBy { (workout, _) -> workout.order },
+        )
+        ?.let { (workout, date) ->
+            ProgressNextFocusUi(
+                id = workout.id,
+                title = workout.type.ifBlank { workout.description }.ifBlank { EMPTY },
+                date = date,
+                daysUntil = ChronoUnit.DAYS.between(today, date).toInt(),
+            )
+        }
+}
+
+private fun workoutDate(workout: Workout): LocalDate {
+    return workout.weekStartDate.plusDays((requireNotNull(workout.dayOfWeek).value - 1).toLong())
+}
+
 private fun buildWeeklyTrend(
     workouts: List<Workout>,
     currentWeekStart: LocalDate,
@@ -84,6 +159,17 @@ private fun buildWeeklyTrend(
             completionPercent = percent(completedWorkouts, plannedWorkouts),
             isCurrentWeek = weekStart == currentWeekStart,
         )
+    }
+}
+
+private fun buildWeeklyTrendInsight(weeklyTrend: List<ProgressWeekBarUi>): ProgressWeeklyTrendInsightUi? {
+    val currentWeek = weeklyTrend.firstOrNull { it.isCurrentWeek } ?: return null
+    val maxPlannedWorkouts = weeklyTrend.maxOfOrNull { it.plannedWorkouts } ?: return null
+
+    return if (currentWeek.plannedWorkouts > 0 && currentWeek.plannedWorkouts == maxPlannedWorkouts) {
+        ProgressWeeklyTrendInsightUi(ProgressWeeklyTrendInsightKind.CURRENT_WEEK_HEAVIEST)
+    } else {
+        null
     }
 }
 
@@ -120,7 +206,27 @@ private fun buildCategoryDistribution(
         compareBy<ProgressCategoryShareUi> { it.id == UNCATEGORIZED_ID }
             .thenByDescending { it.count }
             .thenBy { it.name },
-    ).take(CATEGORY_LIMIT)
+    )
+}
+
+private fun buildTrainingMixInsight(items: List<ProgressCategoryShareUi>): ProgressTrainingMixInsightUi? {
+    val topCategory =
+        items.maxWithOrNull(
+            compareBy<ProgressCategoryShareUi> { it.sharePercent }
+                .thenBy { it.count },
+        ) ?: return null
+
+    return when {
+        topCategory.sharePercent >= DOMINANT_CATEGORY_PERCENT ->
+            ProgressTrainingMixInsightUi(
+                kind = ProgressTrainingMixInsightKind.DOMINANT_CATEGORY,
+                categoryName = topCategory.name,
+            )
+        items.size >= BALANCED_CATEGORY_MIN_COUNT &&
+            topCategory.sharePercent <= BALANCED_CATEGORY_MAX_TOP_PERCENT ->
+            ProgressTrainingMixInsightUi(ProgressTrainingMixInsightKind.BALANCED)
+        else -> null
+    }
 }
 
 private fun buildUpcomingEvent(
@@ -232,5 +338,9 @@ private fun percent(
 private const val TREND_WEEK_COUNT = 8
 private const val CATEGORY_WINDOW_WEEK_COUNT = 8
 private const val CATEGORY_LIMIT = 4
-private const val RECENT_ACTIVITY_LIMIT = 5
+private const val WEEK_END_OFFSET_DAYS = 6L
+private const val RECENT_ACTIVITY_PREVIEW_LIMIT = 3
+private const val BALANCED_CATEGORY_MIN_COUNT = 3
+private const val BALANCED_CATEGORY_MAX_TOP_PERCENT = 35
+private const val DOMINANT_CATEGORY_PERCENT = 50
 private const val PERCENT_FULL = 100

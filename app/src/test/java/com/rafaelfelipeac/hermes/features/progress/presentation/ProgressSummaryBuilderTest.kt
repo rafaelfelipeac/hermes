@@ -170,7 +170,7 @@ class ProgressSummaryBuilderTest {
                 currentWeekStart = currentWeek,
             )
 
-        assertEquals(5, state.recentActivities.size)
+        assertEquals(3, state.recentActivities.size)
         assertEquals(1L, state.recentActivities.first().id)
     }
 
@@ -198,6 +198,47 @@ class ProgressSummaryBuilderTest {
         assertEquals(33, state.weeklyReadout.completionPercent)
         assertEquals(2L, state.weeklyReadout.nextFocus?.id)
         assertEquals("Workout 2", state.weeklyReadout.nextFocus?.title)
+        assertEquals(1, state.weeklyReadout.nextFocus?.daysUntil)
+    }
+
+    @Test
+    fun buildProgressState_selectsNextFocusByDisplayWeekDateWindow() {
+        val displayWeekStart = LocalDate.of(2026, 5, 3)
+        val storedWeekStart = LocalDate.of(2026, 5, 4)
+
+        val state =
+            buildProgressState(
+                workouts =
+                    listOf(
+                        workout(
+                            id = 8L,
+                            weekStart = displayWeekStart,
+                            dayOfWeek = DayOfWeek.SUNDAY,
+                            eventType = EventType.WORKOUT,
+                            isCompleted = true,
+                            categoryId = 2L,
+                        ),
+                        workout(
+                            id = 9L,
+                            weekStart = storedWeekStart,
+                            dayOfWeek = DayOfWeek.MONDAY,
+                            eventType = EventType.WORKOUT,
+                            isCompleted = false,
+                            categoryId = 2L,
+                        ),
+                    ),
+                categories = categories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = displayWeekStart,
+                currentWeekStart = displayWeekStart,
+            )
+
+        assertEquals(2, state.weeklyReadout.plannedWorkouts)
+        assertEquals(1, state.weeklyReadout.completedWorkouts)
+        assertEquals(50, state.weeklyReadout.completionPercent)
+        assertEquals(9L, state.weeklyReadout.nextFocus?.id)
+        assertEquals(LocalDate.of(2026, 5, 4), state.weeklyReadout.nextFocus?.date)
         assertEquals(1, state.weeklyReadout.nextFocus?.daysUntil)
     }
 
@@ -264,6 +305,36 @@ class ProgressSummaryBuilderTest {
 
         assertEquals(ProgressWeeklyTrendInsightKind.CURRENT_WEEK_HEAVIEST, state.weeklyTrendInsight?.kind)
         assertEquals(ProgressTrainingMixInsightKind.BALANCED, state.trainingMixInsight?.kind)
+    }
+
+    @Test
+    fun buildProgressState_buildsDominantTrainingMixInsightFromFullDistribution() {
+        val extraCategories =
+            listOf(
+                CategoryUi(4L, "Mobility", COLOR_RUN, 2, isHidden = false, isSystem = false),
+                CategoryUi(5L, "Strength", COLOR_CYCLING, 3, isHidden = false, isSystem = false),
+            )
+        val workouts =
+            week(currentWeek, completed = 1, pending = 0, categoryId = 2L) +
+                week(currentWeek.minusWeeks(1), completed = 1, pending = 0, categoryId = 3L) +
+                week(currentWeek.minusWeeks(2), completed = 1, pending = 0, categoryId = 4L) +
+                week(currentWeek.minusWeeks(3), completed = 1, pending = 0, categoryId = 5L) +
+                week(currentWeek.minusWeeks(4), completed = 5, pending = 0, categoryId = null)
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = categories + extraCategories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertEquals(4, state.categoryDistribution.size)
+        assertFalse(state.categoryDistribution.any { it.id == UNCATEGORIZED_ID })
+        assertEquals(ProgressTrainingMixInsightKind.DOMINANT_CATEGORY, state.trainingMixInsight?.kind)
+        assertEquals("Uncategorized", state.trainingMixInsight?.categoryName)
     }
 
     private fun week(

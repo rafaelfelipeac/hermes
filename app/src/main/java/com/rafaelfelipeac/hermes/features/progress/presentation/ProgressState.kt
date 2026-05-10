@@ -7,8 +7,11 @@ import java.time.LocalDate
 data class ProgressState(
     val summaryCards: List<ProgressSummaryCardUi> = emptyList(),
     val thisWeek: ProgressWeekSnapshotUi = ProgressWeekSnapshotUi(),
+    val weeklyReadout: ProgressWeeklyReadoutUi = ProgressWeeklyReadoutUi(),
     val weeklyTrend: List<ProgressWeekBarUi> = emptyList(),
+    val weeklyTrendInsight: ProgressWeeklyTrendInsightUi? = null,
     val categoryDistribution: List<ProgressCategoryShareUi> = emptyList(),
+    val trainingMixInsight: ProgressTrainingMixInsightUi? = null,
     val trophyHighlight: FeaturedTrophyUi? = null,
     val recentActivities: List<ActivityItemUi> = emptyList(),
     val upcomingEvent: ProgressUpcomingEventUi? = null,
@@ -37,6 +40,20 @@ data class ProgressWeekSnapshotUi(
     val plannedSickEvents: Int = 0,
 )
 
+data class ProgressWeeklyReadoutUi(
+    val plannedWorkouts: Int = 0,
+    val completedWorkouts: Int = 0,
+    val completionPercent: Int = 0,
+    val nextFocus: ProgressNextFocusUi? = null,
+)
+
+data class ProgressNextFocusUi(
+    val id: Long,
+    val title: String,
+    val date: LocalDate,
+    val daysUntil: Int,
+)
+
 data class ProgressWeekBarUi(
     val weekStartDate: LocalDate,
     val plannedWorkouts: Int,
@@ -45,6 +62,14 @@ data class ProgressWeekBarUi(
     val isCurrentWeek: Boolean,
 )
 
+data class ProgressWeeklyTrendInsightUi(
+    val kind: ProgressWeeklyTrendInsightKind,
+)
+
+enum class ProgressWeeklyTrendInsightKind {
+    CURRENT_WEEK_HEAVIEST,
+}
+
 data class ProgressCategoryShareUi(
     val id: Long,
     val name: String,
@@ -52,6 +77,16 @@ data class ProgressCategoryShareUi(
     val count: Int,
     val sharePercent: Int,
 )
+
+data class ProgressTrainingMixInsightUi(
+    val kind: ProgressTrainingMixInsightKind,
+    val categoryName: String? = null,
+)
+
+enum class ProgressTrainingMixInsightKind {
+    BALANCED,
+    DOMINANT_CATEGORY,
+}
 
 data class ProgressUpcomingEventUi(
     val id: Long,
