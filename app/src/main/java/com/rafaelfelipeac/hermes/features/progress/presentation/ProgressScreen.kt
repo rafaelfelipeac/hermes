@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.progress.presentation
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,17 +8,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
@@ -31,20 +30,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityDotSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressCategoryColorDotSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressReadoutBarHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressScreenBottomPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressSummaryCardMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressSupportCardMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrainingMixBarHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendAxisWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendBarHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendBarMinWidth
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendCountMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMode
 import com.rafaelfelipeac.hermes.features.trophies.presentation.trophyNameRes
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -105,52 +110,43 @@ internal fun ProgressContent(
         }
 
         item {
-            ProgressSummaryCards(cards = state.summaryCards)
-        }
-
-        item {
-            ProgressSection(
-                title = stringResource(R.string.progress_section_this_week),
-            ) {
-                ProgressThisWeek(snapshot = state.thisWeek)
-            }
+            ProgressWeeklyReadout(readout = state.weeklyReadout)
         }
 
         item {
             ProgressSection(
                 title = stringResource(R.string.progress_section_weekly_trend),
             ) {
-                ProgressWeeklyTrend(weeks = state.weeklyTrend, locale = locale)
+                ProgressWeeklyTrend(
+                    weeks = state.weeklyTrend,
+                    insight = state.weeklyTrendInsight,
+                    locale = locale,
+                )
             }
         }
 
         if (state.categoryDistribution.isNotEmpty()) {
             item {
                 ProgressSection(
-                    title = stringResource(R.string.progress_section_categories),
+                    title = stringResource(R.string.progress_section_training_mix),
                 ) {
-                    ProgressCategoryDistribution(items = state.categoryDistribution)
+                    ProgressCategoryDistribution(
+                        items = state.categoryDistribution,
+                        insight = state.trainingMixInsight,
+                    )
                 }
             }
         }
 
-        state.trophyHighlight?.let { highlight ->
-            item {
-                ProgressSection(
-                    title = stringResource(R.string.progress_section_trophy),
-                ) {
-                    ProgressTrophyHighlight(highlight = highlight)
-                }
-            }
-        }
-
-        state.upcomingEvent?.let { event ->
-            item {
-                ProgressSection(
-                    title = stringResource(R.string.progress_section_upcoming),
-                ) {
-                    ProgressUpcomingEvent(event = event)
-                }
+        item {
+            ProgressSection(
+                title = stringResource(R.string.progress_section_supporting_progress),
+            ) {
+                ProgressSupportingProgress(
+                    nextFocus = state.weeklyReadout.nextFocus,
+                    upcomingEvent = state.upcomingEvent,
+                    trophyHighlight = state.trophyHighlight,
+                )
             }
         }
 
@@ -172,53 +168,67 @@ internal fun ProgressContent(
 }
 
 @Composable
-private fun ProgressSummaryCards(cards: List<ProgressSummaryCardUi>) {
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
-        Text(
-            text = stringResource(R.string.progress_section_at_a_glance),
-            style = typography.titleMedium,
-            color = colorScheme.onSurface,
-        )
+private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
+    val remainingWorkouts = (readout.plannedWorkouts - readout.completedWorkouts).coerceAtLeast(0)
 
-        cards.chunked(2).forEach { rowCards ->
-            Row(horizontalArrangement = Arrangement.spacedBy(SpacingMd)) {
-                rowCards.forEach { card ->
-                    Card(
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .height(ProgressSummaryCardMinHeight),
-                        shape = shapes.medium,
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(SpacingLg),
-                            verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                        ) {
-                            Text(
-                                text = stringResource(cardTitleRes(card.kind)),
-                                style = typography.labelLarge,
-                                color = colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                text = card.value,
-                                style = typography.headlineSmall,
-                                color = colorScheme.onSurface,
-                            )
-                            val supportingText = summaryCardSupportingText(card)
-                            if (supportingText != null) {
-                                Text(
-                                    text = supportingText,
-                                    style = typography.bodySmall,
-                                    color = colorScheme.primary,
-                                )
-                            }
-                        }
-                    }
-                }
-
-                if (rowCards.size == 1) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
+    ProgressSection(
+        title = stringResource(R.string.progress_section_weekly_readout),
+    ) {
+        Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+            Text(
+                text = stringResource(R.string.progress_readout_on_track),
+                style = typography.labelLarge,
+                color = colorScheme.primary,
+            )
+            Text(
+                text =
+                    stringResource(
+                        R.string.progress_readout_completed,
+                        readout.completedWorkouts,
+                        readout.plannedWorkouts,
+                    ),
+                style = typography.titleMedium,
+                color = colorScheme.onSurface,
+            )
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(ProgressReadoutBarHeight)
+                        .clip(shapes.small)
+                        .background(colorScheme.surfaceVariant),
+            ) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(readout.completionPercent.percentFraction())
+                            .background(colorScheme.primary),
+                )
+            }
+            if (remainingWorkouts > 0) {
+                Text(
+                    text =
+                        pluralStringResource(
+                            R.plurals.progress_readout_workouts_left,
+                            remainingWorkouts,
+                            remainingWorkouts,
+                        ),
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
+            readout.nextFocus?.let { nextFocus ->
+                Text(
+                    text = stringResource(R.string.progress_support_next_focus),
+                    style = typography.labelMedium,
+                    color = colorScheme.primary,
+                )
+                Text(
+                    text = nextFocus.title,
+                    style = typography.bodyMedium,
+                    color = colorScheme.onSurface,
+                )
             }
         }
     }
@@ -255,102 +265,161 @@ private fun ProgressSection(
 }
 
 @Composable
-private fun ProgressThisWeek(snapshot: ProgressWeekSnapshotUi) {
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
-        Text(
-            text = stringResource(
-                R.string.progress_completed_of_planned,
-                snapshot.completedWorkouts,
-                snapshot.plannedWorkouts,
-            ),
-            style = typography.bodyLarge,
-            color = colorScheme.onSurface,
-        )
-        Text(
-            text = snapshot.completionPercent.toString() + "%",
-            style = typography.headlineSmall,
-            color = colorScheme.primary,
-        )
-        Text(
-            text =
-                listOfNotNull(
-                    snapshot.plannedRestEvents.takeIf { it > 0 }?.let {
-                        pluralStringResource(R.plurals.weekly_training_summary_item_rest, it, it)
-                    },
-                    snapshot.plannedBusyEvents.takeIf { it > 0 }?.let {
-                        pluralStringResource(R.plurals.weekly_training_summary_item_busy, it, it)
-                    },
-                    snapshot.plannedSickEvents.takeIf { it > 0 }?.let {
-                        pluralStringResource(R.plurals.weekly_training_summary_item_sick, it, it)
-                    },
-                ).joinToString(stringResource(R.string.weekly_training_summary_separator)),
-            style = typography.bodySmall,
-            color = colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
 private fun ProgressWeeklyTrend(
     weeks: List<ProgressWeekBarUi>,
+    insight: ProgressWeeklyTrendInsightUi?,
     locale: Locale,
 ) {
-    val formatter = DateTimeFormatter.ofPattern("EEE", locale)
+    val formatter = DateTimeFormatter.ofPattern(WEEKDAY_FORMAT_PATTERN, locale)
+    val currentWeekIndex = weeks.indexOfFirst { it.isCurrentWeek }
+
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(SpacingSm),
             verticalAlignment = Alignment.Bottom,
         ) {
+            Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
+            weeks.forEachIndexed { index, week ->
+                Text(
+                    text =
+                        if (week.shouldShowChartCount(index, currentWeekIndex)) {
+                            stringResource(
+                                R.string.progress_weekly_chart_count,
+                                week.completedWorkouts,
+                                week.plannedWorkouts,
+                            )
+                        } else {
+                            EMPTY
+                        },
+                    style = typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant,
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .defaultMinSize(minHeight = ProgressTrendCountMinHeight),
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Column(
+                modifier =
+                    Modifier
+                        .width(ProgressTrendAxisWidth)
+                        .height(ProgressTrendBarHeight),
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.End,
+            ) {
+                Text(
+                    text = AXIS_LABEL_FULL,
+                    style = typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = AXIS_LABEL_HALF,
+                    style = typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = AXIS_LABEL_EMPTY,
+                    style = typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
+
             weeks.forEach { week ->
-                val fill = if (week.plannedWorkouts == 0) 0.1f else (week.completionPercent / 100f).coerceIn(0.1f, 1f)
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                Box(
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .height(ProgressTrendBarHeight)
+                            .clip(shapes.small)
+                            .background(colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.BottomCenter,
                 ) {
                     Box(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .height(ProgressTrendBarHeight)
-                                .clip(RoundedCornerShape(SpacingSm))
-                                .background(colorScheme.surfaceVariant),
-                        contentAlignment = Alignment.BottomCenter,
-                    ) {
-                        Box(
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .fillMaxHeight(fill)
-                                    .background(
-                                        if (week.isCurrentWeek) {
-                                            colorScheme.primary
-                                        } else {
-                                            colorScheme.secondary
-                                        },
-                                    ),
-                        )
-                    }
-                    Text(
-                        text = week.weekStartDate.format(formatter),
-                        style = typography.labelSmall,
-                        color = if (week.isCurrentWeek) colorScheme.primary else colorScheme.onSurfaceVariant,
+                                .fillMaxHeight(week.completionPercent.percentFraction())
+                                .background(
+                                    if (week.isCurrentWeek) {
+                                        colorScheme.primary
+                                    } else {
+                                        colorScheme.secondary
+                                    },
+                                ),
                     )
                 }
             }
         }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+        ) {
+            Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
+            weeks.forEachIndexed { index, week ->
+                Text(
+                    text = week.chartLabel(index = index, currentWeekIndex = currentWeekIndex, formatter = formatter),
+                    style = typography.labelSmall,
+                    color = if (week.isCurrentWeek) colorScheme.primary else colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+
         Text(
-            text = stringResource(R.string.progress_last_8_weeks),
+            text = stringResource(R.string.progress_weekly_chart_caption),
             style = typography.bodySmall,
             color = colorScheme.onSurfaceVariant,
         )
+
+        if (insight?.kind == ProgressWeeklyTrendInsightKind.CURRENT_WEEK_HEAVIEST) {
+            Text(
+                text = stringResource(R.string.progress_weekly_insight_heaviest),
+                style = typography.bodySmall,
+                color = colorScheme.primary,
+            )
+        }
     }
 }
 
 @Composable
-private fun ProgressCategoryDistribution(items: List<ProgressCategoryShareUi>) {
+private fun ProgressCategoryDistribution(
+    items: List<ProgressCategoryShareUi>,
+    insight: ProgressTrainingMixInsightUi?,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+        Text(
+            text = stringResource(R.string.progress_training_mix_caption),
+            style = typography.bodySmall,
+            color = colorScheme.onSurfaceVariant,
+        )
+
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(ProgressTrainingMixBarHeight)
+                    .clip(shapes.small),
+        ) {
+            items.forEach { item ->
+                Box(
+                    modifier =
+                        Modifier
+                            .weight(item.count.toFloat())
+                            .fillMaxHeight()
+                            .background(categoryAccentColor(item.colorId)),
+                )
+            }
+        }
+
         items.forEach { item ->
             val accent = categoryAccentColor(item.colorId)
             Row(
@@ -372,8 +441,135 @@ private fun ProgressCategoryDistribution(items: List<ProgressCategoryShareUi>) {
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    text = "${item.count} • ${item.sharePercent}%",
+                    text = item.countShareText(),
                     style = typography.labelMedium,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        insight?.let { trainingMixInsight ->
+            Text(
+                text = trainingMixInsight.trainingMixInsightText(),
+                style = typography.bodySmall,
+                color = colorScheme.primary,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ProgressSupportingProgress(
+    nextFocus: ProgressNextFocusUi?,
+    upcomingEvent: ProgressUpcomingEventUi?,
+    trophyHighlight: com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi?,
+) {
+    val supportCards =
+        buildList {
+            nextFocus?.let { focus ->
+                add(
+                    ProgressSupportCardContent(
+                        labelRes = R.string.progress_support_next_focus,
+                        title = focus.title,
+                        subtitle = stringResource(R.string.progress_days_until, focus.daysUntil),
+                    ),
+                )
+            }
+            upcomingEvent?.let { event ->
+                add(
+                    ProgressSupportCardContent(
+                        labelRes = R.string.progress_support_upcoming_event,
+                        title = event.title,
+                        subtitle = stringResource(R.string.progress_days_until, event.daysUntil),
+                    ),
+                )
+            }
+            trophyHighlight?.let { highlight ->
+                val trophy = highlight.trophy
+                add(
+                    ProgressSupportCardContent(
+                        labelRes = R.string.progress_support_trophy,
+                        title = stringResource(trophyNameRes(trophy.trophyId)),
+                        subtitle =
+                            if (highlight.mode == FeaturedTrophyMode.RECENT_UNLOCK) {
+                                stringResource(R.string.progress_trophy_recent_unlock)
+                            } else {
+                                stringResource(R.string.progress_trophy_nearest)
+                            },
+                        detail =
+                            stringResource(
+                                R.string.progress_weekly_chart_count,
+                                trophy.currentValue,
+                                trophy.target,
+                            ),
+                    ),
+                )
+            }
+        }
+
+    if (supportCards.isEmpty()) {
+        Text(
+            text = stringResource(R.string.progress_no_support_cards),
+            style = typography.bodyMedium,
+            color = colorScheme.onSurfaceVariant,
+        )
+        return
+    }
+
+    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+        supportCards.chunked(SUPPORT_CARDS_PER_ROW).forEach { rowCards ->
+            Row(horizontalArrangement = Arrangement.spacedBy(SpacingMd)) {
+                rowCards.forEach { card ->
+                    ProgressSupportCard(
+                        content = card,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                if (rowCards.size == SUPPORT_CARD_SINGLE_ROW_COUNT) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProgressSupportCard(
+    content: ProgressSupportCardContent,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier =
+            modifier.defaultMinSize(
+                minHeight = ProgressSupportCardMinHeight,
+            ),
+        shape = shapes.small,
+    ) {
+        Column(
+            modifier = Modifier.padding(SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingSm),
+        ) {
+            Text(
+                text = stringResource(content.labelRes),
+                style = typography.labelMedium,
+                color = colorScheme.primary,
+            )
+            Text(
+                text = content.title,
+                style = typography.bodyMedium,
+                color = colorScheme.onSurface,
+            )
+            content.subtitle?.let { subtitle ->
+                Text(
+                    text = subtitle,
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
+            content.detail?.let { detail ->
+                Text(
+                    text = detail,
+                    style = typography.labelSmall,
                     color = colorScheme.onSurfaceVariant,
                 )
             }
@@ -382,76 +578,48 @@ private fun ProgressCategoryDistribution(items: List<ProgressCategoryShareUi>) {
 }
 
 @Composable
-private fun ProgressTrophyHighlight(highlight: com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi) {
-    val trophy = highlight.trophy
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
-        Text(
-            text =
-                if (highlight.mode == com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMode.RECENT_UNLOCK) {
-                    stringResource(R.string.progress_trophy_recent_unlock)
-                } else {
-                    stringResource(R.string.progress_trophy_nearest)
-                },
-            style = typography.labelLarge,
-            color = colorScheme.primary,
-        )
-        Text(
-            text = stringResource(trophyNameRes(trophy.trophyId)),
-            style = typography.titleMedium,
-            color = colorScheme.onSurface,
-        )
-        Text(
-            text = "${trophy.currentValue}/${trophy.target}",
-            style = typography.bodyMedium,
-            color = colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
-private fun ProgressUpcomingEvent(event: ProgressUpcomingEventUi) {
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
-        Text(
-            text = event.title,
-            style = typography.titleMedium,
-            color = colorScheme.onSurface,
-        )
-        Text(
-            text = stringResource(R.string.progress_days_until, event.daysUntil),
-            style = typography.bodyMedium,
-            color = colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
 private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi>) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
-        items.forEach { item ->
-            Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top,
+        Text(
+            text = stringResource(R.string.progress_recent_activity_caption),
+            style = typography.bodySmall,
+            color = colorScheme.onSurfaceVariant,
+        )
+
+        items.take(RECENT_ACTIVITY_TIMELINE_LIMIT).forEach { item ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Text(
+                    text = item.time,
+                    style = typography.labelSmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+                Box(
+                    modifier =
+                        Modifier
+                            .size(ProgressActivityDotSize)
+                            .clip(CircleShape)
+                            .background(colorScheme.primary),
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
                 ) {
                     Text(
                         text = item.title,
-                        style = typography.bodyLarge,
+                        style = typography.bodyMedium,
                         color = colorScheme.onSurface,
-                        modifier = Modifier.weight(1f),
                     )
-                    Text(
-                        text = item.time,
-                        style = typography.labelSmall,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                }
-                item.subtitle?.takeIf { it.isNotBlank() }?.let { subtitle ->
-                    Text(
-                        text = subtitle,
-                        style = typography.bodySmall,
-                        color = colorScheme.onSurfaceVariant,
-                    )
+                    item.subtitle?.takeIf { it.isNotBlank() }?.let { subtitle ->
+                        Text(
+                            text = subtitle,
+                            style = typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
@@ -459,20 +627,64 @@ private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.feature
 }
 
 @Composable
-private fun summaryCardSupportingText(card: ProgressSummaryCardUi): String? {
-    return when (card.kind) {
-        ProgressSummaryCardKind.THIS_WEEK -> card.supportingText
-        ProgressSummaryCardKind.CONSISTENCY -> stringResource(R.string.progress_last_8_weeks)
-        ProgressSummaryCardKind.TOP_CATEGORY -> card.supportingText
-        ProgressSummaryCardKind.UPCOMING -> card.supportingText
+private fun ProgressTrainingMixInsightUi.trainingMixInsightText(): String {
+    return when (kind) {
+        ProgressTrainingMixInsightKind.BALANCED -> stringResource(R.string.progress_training_mix_balanced)
+        ProgressTrainingMixInsightKind.DOMINANT_CATEGORY ->
+            stringResource(R.string.progress_training_mix_dominant, categoryName.orEmpty())
     }
 }
 
-private fun cardTitleRes(kind: ProgressSummaryCardKind): Int {
-    return when (kind) {
-        ProgressSummaryCardKind.THIS_WEEK -> R.string.progress_card_this_week
-        ProgressSummaryCardKind.CONSISTENCY -> R.string.progress_card_consistency
-        ProgressSummaryCardKind.TOP_CATEGORY -> R.string.progress_card_top_category
-        ProgressSummaryCardKind.UPCOMING -> R.string.progress_card_upcoming_days
+@Composable
+private fun ProgressWeekBarUi.chartLabel(
+    index: Int,
+    currentWeekIndex: Int,
+    formatter: DateTimeFormatter,
+): String {
+    return when (index) {
+        currentWeekIndex -> stringResource(R.string.progress_weekly_chart_current_label)
+        currentWeekIndex - PREVIOUS_WEEK_OFFSET -> stringResource(R.string.progress_weekly_chart_previous_label)
+        else -> weekStartDate.format(formatter)
     }
 }
+
+private fun ProgressWeekBarUi.shouldShowChartCount(
+    index: Int,
+    currentWeekIndex: Int,
+): Boolean {
+    return index == currentWeekIndex || index == currentWeekIndex - PREVIOUS_WEEK_OFFSET
+}
+
+private fun ProgressCategoryShareUi.countShareText(): String {
+    return buildString {
+        append(count)
+        append(COUNT_SHARE_SEPARATOR)
+        append(sharePercent)
+        append(PERCENT_SUFFIX)
+    }
+}
+
+private fun Int.percentFraction(): Float {
+    return (this / PERCENT_MAX.toFloat()).coerceIn(PERCENT_MIN_FRACTION, PERCENT_MAX_FRACTION)
+}
+
+private data class ProgressSupportCardContent(
+    @StringRes val labelRes: Int,
+    val title: String,
+    val subtitle: String? = null,
+    val detail: String? = null,
+)
+
+private const val WEEKDAY_FORMAT_PATTERN = "EEE"
+private const val AXIS_LABEL_FULL = "100%"
+private const val AXIS_LABEL_HALF = "50%"
+private const val AXIS_LABEL_EMPTY = "0%"
+private const val COUNT_SHARE_SEPARATOR = " / "
+private const val PERCENT_SUFFIX = "%"
+private const val PERCENT_MAX = 100
+private const val PERCENT_MIN_FRACTION = 0f
+private const val PERCENT_MAX_FRACTION = 1f
+private const val PREVIOUS_WEEK_OFFSET = 1
+private const val SUPPORT_CARDS_PER_ROW = 2
+private const val SUPPORT_CARD_SINGLE_ROW_COUNT = 1
+private const val RECENT_ACTIVITY_TIMELINE_LIMIT = 3
