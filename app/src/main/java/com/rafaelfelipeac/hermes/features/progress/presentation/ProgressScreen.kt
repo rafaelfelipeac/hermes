@@ -290,6 +290,7 @@ private fun ProgressWeeklyTrend(
 ) {
     val formatter = DateTimeFormatter.ofPattern(WEEK_LABEL_FORMAT_PATTERN, locale)
     val currentWeekIndex = weeks.indexOfFirst { it.isCurrentWeek }
+    val maxPlannedWorkouts = weeks.maxOfOrNull { it.plannedWorkouts } ?: 0
 
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
         Row(
@@ -329,12 +330,12 @@ private fun ProgressWeeklyTrend(
                 horizontalAlignment = Alignment.End,
             ) {
                 Text(
-                    text = AXIS_LABEL_FULL,
+                    text = maxPlannedWorkouts.toString(),
                     style = typography.labelSmall,
                     color = colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = AXIS_LABEL_HALF,
+                    text = (maxPlannedWorkouts / 2).toString(),
                     style = typography.labelSmall,
                     color = colorScheme.onSurfaceVariant,
                 )
@@ -346,6 +347,7 @@ private fun ProgressWeeklyTrend(
             }
 
             weeks.forEach { week ->
+                val plannedFraction = week.plannedFraction(maxPlannedWorkouts)
                 Box(
                     modifier =
                         Modifier
@@ -359,15 +361,25 @@ private fun ProgressWeeklyTrend(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
-                                .fillMaxHeight(week.completionPercent.percentFraction())
+                                .fillMaxHeight(plannedFraction)
                                 .background(
-                                    if (week.isCurrentWeek) {
-                                        colorScheme.primary
-                                    } else {
-                                        colorScheme.secondary
-                                    },
+                                    colorScheme.surfaceVariant,
                                 ),
-                    )
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .fillMaxHeight(week.completedFraction().coerceAtMost(1f))
+                                    .background(
+                                        if (week.isCurrentWeek) {
+                                            colorScheme.primary
+                                        } else {
+                                            colorScheme.secondary
+                                        },
+                                    ),
+                        )
+                    }
                 }
             }
         }
@@ -674,6 +686,16 @@ private fun Int.percentFraction(): Float {
     return (this / PERCENT_MAX.toFloat()).coerceIn(PERCENT_MIN_FRACTION, PERCENT_MAX_FRACTION)
 }
 
+internal fun ProgressWeekBarUi.plannedFraction(maxPlannedWorkouts: Int): Float {
+    if (maxPlannedWorkouts <= 0) return 0f
+    return (plannedWorkouts / maxPlannedWorkouts.toFloat()).coerceIn(PERCENT_MIN_FRACTION, PERCENT_MAX_FRACTION)
+}
+
+internal fun ProgressWeekBarUi.completedFraction(): Float {
+    if (plannedWorkouts <= 0) return 0f
+    return (completedWorkouts / plannedWorkouts.toFloat()).coerceIn(PERCENT_MIN_FRACTION, PERCENT_MAX_FRACTION)
+}
+
 private data class ProgressSupportCardContent(
     @StringRes val labelRes: Int,
     val title: String,
@@ -682,8 +704,6 @@ private data class ProgressSupportCardContent(
 )
 
 private const val WEEK_LABEL_FORMAT_PATTERN = "MMM d"
-private const val AXIS_LABEL_FULL = "100%"
-private const val AXIS_LABEL_HALF = "50%"
 private const val AXIS_LABEL_EMPTY = "0%"
 private const val COUNT_SHARE_SEPARATOR = " / "
 private const val PERCENT_SUFFIX = "%"

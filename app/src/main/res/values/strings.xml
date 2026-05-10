@@ -37,7 +37,7 @@
         <item quantity="other">%1$d planned workouts left</item>
     </plurals>
     <string name="progress_section_training_mix">Training mix</string>
-    <string name="progress_weekly_chart_caption">100% means every planned workout in that week was completed.</string>
+    <string name="progress_weekly_chart_caption">Each bar shows planned workouts. The filled part shows completed workouts.</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
     <string name="progress_weekly_chart_current_label">Now</string>
     <string name="progress_weekly_chart_previous_label">Last</string>

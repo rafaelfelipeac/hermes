@@ -36,7 +36,7 @@
         <item quantity="other">%1$d geplante Workouts übrig</item>
     </plurals>
     <string name="progress_section_training_mix">Trainingsmix</string>
-    <string name="progress_weekly_chart_caption">100% bedeutet, dass jedes geplante Workout in dieser Woche abgeschlossen wurde.</string>
+    <string name="progress_weekly_chart_caption">Jeder Balken zeigt die geplanten Workouts. Der gefüllte Teil zeigt die abgeschlossenen Workouts.</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
     <string name="progress_weekly_chart_current_label">Jetzt</string>
     <string name="progress_weekly_chart_previous_label">Letzte</string>

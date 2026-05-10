@@ -36,7 +36,7 @@
         <item quantity="other">%1$d नियोजित वर्कआउट बाकी</item>
     </plurals>
     <string name="progress_section_training_mix">प्रशिक्षण मिश्रण</string>
-    <string name="progress_weekly_chart_caption">100% का मतलब है कि उस सप्ताह का हर नियोजित वर्कआउट पूरा हुआ।</string>
+    <string name="progress_weekly_chart_caption">हर बार नियोजित वर्कआउट दिखाता है। भरा हुआ हिस्सा पूरे हुए वर्कआउट दिखाता है।</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
     <string name="progress_weekly_chart_current_label">अभी</string>
     <string name="progress_weekly_chart_previous_label">पिछला</string>

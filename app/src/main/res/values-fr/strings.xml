@@ -36,7 +36,7 @@
         <item quantity="other">Il reste %1$d séances planifiées</item>
     </plurals>
     <string name="progress_section_training_mix">Répartition de l’entraînement</string>
-    <string name="progress_weekly_chart_caption">100% signifie que chaque séance planifiée de cette semaine a été terminée.</string>
+    <string name="progress_weekly_chart_caption">Chaque barre montre les entraînements prévus. La partie remplie montre ceux terminés.</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
     <string name="progress_weekly_chart_current_label">Maintenant</string>
     <string name="progress_weekly_chart_previous_label">Dernière</string>

@@ -36,7 +36,7 @@
         <item quantity="other">تبقى %1$d تمارين مخططة</item>
     </plurals>
     <string name="progress_section_training_mix">مزيج التدريب</string>
-    <string name="progress_weekly_chart_caption">يعني 100% أن كل تمرين مخطط في ذلك الأسبوع قد اكتمل.</string>
+    <string name="progress_weekly_chart_caption">يمثل كل شريط التمارين المخططة. ويُظهر الجزء المعبأ التمارين المكتملة.</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
     <string name="progress_weekly_chart_current_label">الآن</string>
     <string name="progress_weekly_chart_previous_label">السابق</string>

@@ -36,7 +36,7 @@
         <item quantity="other">Quedan %1$d entrenamientos planificados</item>
     </plurals>
     <string name="progress_section_training_mix">Mezcla de entrenamiento</string>
-    <string name="progress_weekly_chart_caption">100% significa que se completó cada entrenamiento planificado de esa semana.</string>
+    <string name="progress_weekly_chart_caption">Cada barra muestra los entrenamientos planificados. La parte rellena muestra los completados.</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
     <string name="progress_weekly_chart_current_label">Ahora</string>
     <string name="progress_weekly_chart_previous_label">Anterior</string>
