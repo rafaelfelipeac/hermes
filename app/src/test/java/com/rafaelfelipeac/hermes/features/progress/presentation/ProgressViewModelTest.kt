@@ -48,7 +48,7 @@ class ProgressViewModelTest {
                 listOf(
                     workout(1L, currentWeek.minusWeeks(1), DayOfWeek.MONDAY, isCompleted = true, categoryId = 2L),
                     workout(2L, currentWeek, DayOfWeek.TUESDAY, isCompleted = true, categoryId = 2L),
-                    workout(3L, currentWeek, DayOfWeek.WEDNESDAY, isCompleted = false, categoryId = 2L),
+                    workout(3L, currentWeek, DayOfWeek.SUNDAY, isCompleted = false, categoryId = 2L),
                 )
             val actions =
                 listOf(
@@ -73,11 +73,45 @@ class ProgressViewModelTest {
 
                 assertEquals(2, state.thisWeek.plannedWorkouts)
                 assertEquals(1, state.thisWeek.completedWorkouts)
+                assertEquals(2, state.weeklyReadout.plannedWorkouts)
+                assertEquals(1, state.weeklyReadout.completedWorkouts)
+                assertEquals(3L, state.weeklyReadout.nextFocus?.id)
                 assertEquals(2, state.recentActivities.size)
                 assertEquals(2L, state.recentActivities.first().id)
                 assertTrue(state.summaryCards.any { it.kind == ProgressSummaryCardKind.THIS_WEEK })
                 assertTrue(state.summaryCards.any { it.kind == ProgressSummaryCardKind.CONSISTENCY })
                 assertNull(state.emptyReason)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun state_limitsRecentActivityPreviewToThreeItems() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val currentWeek = LocalDate.now().with(previousOrSame(DayOfWeek.MONDAY))
+            val actions =
+                (1L..5L).map { id ->
+                    action(
+                        id = id,
+                        actionType = UserActionType.UPDATE_WORKOUT,
+                        entityType = UserActionEntityType.WORKOUT,
+                        timestamp = id * 1_000L,
+                    )
+                }
+            val viewModel =
+                createViewModel(
+                    workouts = listOf(workout(1L, currentWeek, DayOfWeek.MONDAY, isCompleted = true, categoryId = 2L)),
+                    actions = actions,
+                )
+
+            viewModel.state.test {
+                awaitItem()
+                val state = awaitItem()
+
+                assertEquals(3, state.recentActivities.size)
+                assertEquals(5L, state.recentActivities.first().id)
+                assertEquals(3L, state.recentActivities.last().id)
 
                 cancelAndIgnoreRemainingEvents()
             }
