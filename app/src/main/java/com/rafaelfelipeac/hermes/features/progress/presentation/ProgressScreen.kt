@@ -242,7 +242,7 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
                             color = colorScheme.onSurface,
                         )
                         Text(
-                            text = stringResource(R.string.progress_days_until, nextFocus.daysUntil),
+                            text = daysUntilText(nextFocus.daysUntil),
                             style = typography.bodySmall,
                             color = colorScheme.onSurfaceVariant,
                         )
@@ -289,7 +289,7 @@ private fun ProgressWeeklyTrend(
     insight: ProgressWeeklyTrendInsightUi?,
     locale: Locale,
 ) {
-    val formatter = DateTimeFormatter.ofPattern(WEEKDAY_FORMAT_PATTERN, locale)
+    val formatter = DateTimeFormatter.ofPattern(WEEK_LABEL_FORMAT_PATTERN, locale)
     val currentWeekIndex = weeks.indexOfFirst { it.isCurrentWeek }
 
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
@@ -490,7 +490,7 @@ private fun ProgressSupportingProgress(
                     ProgressSupportCardContent(
                         labelRes = R.string.progress_support_next_focus,
                         title = focus.title,
-                        subtitle = stringResource(R.string.progress_days_until, focus.daysUntil),
+                        subtitle = daysUntilText(focus.daysUntil),
                     ),
                 )
             }
@@ -499,7 +499,7 @@ private fun ProgressSupportingProgress(
                     ProgressSupportCardContent(
                         labelRes = R.string.progress_support_upcoming_event,
                         title = event.title,
-                        subtitle = stringResource(R.string.progress_days_until, event.daysUntil),
+                        subtitle = daysUntilText(event.daysUntil),
                     ),
                 )
             }
@@ -658,6 +658,15 @@ private fun ProgressWeekBarUi.chartLabel(
     }
 }
 
+@Composable
+private fun daysUntilText(daysUntil: Int): String {
+    return if (daysUntil == 0) {
+        stringResource(R.string.activity_today)
+    } else {
+        stringResource(R.string.progress_days_until, daysUntil)
+    }
+}
+
 private fun ProgressWeekBarUi.shouldShowChartCount(
     index: Int,
     currentWeekIndex: Int,
@@ -685,7 +694,7 @@ private data class ProgressSupportCardContent(
     val detail: String? = null,
 )
 
-private const val WEEKDAY_FORMAT_PATTERN = "EEE"
+private const val WEEK_LABEL_FORMAT_PATTERN = "MMM d"
 private const val AXIS_LABEL_FULL = "100%"
 private const val AXIS_LABEL_HALF = "50%"
 private const val AXIS_LABEL_EMPTY = "0%"

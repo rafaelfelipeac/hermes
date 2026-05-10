@@ -25,6 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -114,6 +115,44 @@ class ProgressViewModelTest {
         }
 
     @Test
+    fun state_updatesTrainingMixWhenCategoriesChange() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val currentWeek = LocalDate.now().with(previousOrSame(DayOfWeek.MONDAY))
+            val workouts =
+                listOf(
+                    workout(1L, currentWeek, DayOfWeek.MONDAY, isCompleted = true, categoryId = 2L),
+                )
+            val categoryRepository = FakeCategoryRepository()
+            val viewModel =
+                createViewModel(
+                    workouts = workouts,
+                    actions = emptyList(),
+                    categoryRepository = categoryRepository,
+                )
+
+            viewModel.state.test {
+                awaitItem()
+                val initial = awaitItem()
+
+                assertEquals("Run", initial.categoryDistribution.first().name)
+
+                categoryRepository.categories.value =
+                    listOf(
+                        Category(UNCATEGORIZED_ID, "Uncategorized", "uncategorized", 0, isHidden = false, isSystem = true),
+                        Category(2L, "Tempo", COLOR_RUN, 1, isHidden = false, isSystem = true),
+                    )
+                advanceUntilIdle()
+
+                val updated = awaitItem()
+
+                assertEquals("Tempo", updated.categoryDistribution.first().name)
+                assertEquals(COLOR_RUN, updated.categoryDistribution.first().colorId)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
     fun state_exposesEmptyReasonWhenNoWorkoutHistoryExists() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = createViewModel(workouts = emptyList(), actions = emptyList())
@@ -132,10 +171,11 @@ class ProgressViewModelTest {
     private fun createViewModel(
         workouts: List<Workout>,
         actions: List<UserActionRecord>,
+        categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
     ): ProgressViewModel {
         return ProgressViewModel(
             weeklyTrainingRepository = FakeWeeklyTrainingRepository(workouts),
-            categoryRepository = FakeCategoryRepository(),
+            categoryRepository = categoryRepository,
             userActionRepository = FakeUserActionRepository(actions),
             settingsRepository = FakeSettingsRepository(),
             stringProvider = FakeStringProvider(),
@@ -207,14 +247,16 @@ class ProgressViewModelTest {
         override suspend fun replaceWorkoutsForWeek(weekStartDate: LocalDate, sourceWorkouts: List<Workout>) = Unit
     }
 
-    private class FakeCategoryRepository : CategoryRepository {
-        override fun observeCategories(): Flow<List<Category>> =
-            flowOf(
-                listOf(
-                    Category(UNCATEGORIZED_ID, "Uncategorized", "uncategorized", 0, isHidden = false, isSystem = true),
-                    Category(2L, "Run", COLOR_RUN, 1, isHidden = false, isSystem = true),
-                ),
-            )
+    private class FakeCategoryRepository(
+        initialCategories: List<Category> =
+            listOf(
+                Category(UNCATEGORIZED_ID, "Uncategorized", "uncategorized", 0, isHidden = false, isSystem = true),
+                Category(2L, "Run", COLOR_RUN, 1, isHidden = false, isSystem = true),
+            ),
+    ) : CategoryRepository {
+        val categories = MutableStateFlow(initialCategories)
+
+        override fun observeCategories(): Flow<List<Category>> = categories
         override suspend fun getCategories(): List<Category> = emptyList()
         override suspend fun getCategory(id: Long): Category? = null
         override suspend fun getCount(): Int = 0
