@@ -36,7 +36,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityDotSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressCategoryColorDotSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressReadoutBarHeight
@@ -299,18 +298,13 @@ private fun ProgressWeeklyTrend(
             verticalAlignment = Alignment.Bottom,
         ) {
             Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
-            weeks.forEachIndexed { index, week ->
+            weeks.forEach { week ->
                 Text(
-                    text =
-                        if (week.shouldShowChartCount(index, currentWeekIndex)) {
-                            stringResource(
-                                R.string.progress_weekly_chart_count,
-                                week.completedWorkouts,
-                                week.plannedWorkouts,
-                            )
-                        } else {
-                            EMPTY
-                        },
+                    text = stringResource(
+                        R.string.progress_weekly_chart_count,
+                        week.completedWorkouts,
+                        week.plannedWorkouts,
+                    ),
                     style = typography.labelSmall,
                     color = colorScheme.onSurfaceVariant,
                     modifier =
@@ -653,7 +647,7 @@ private fun ProgressWeekBarUi.chartLabel(
 ): String {
     return when (index) {
         currentWeekIndex -> stringResource(R.string.progress_weekly_chart_current_label)
-        currentWeekIndex - PREVIOUS_WEEK_OFFSET -> stringResource(R.string.progress_weekly_chart_previous_label)
+        currentWeekIndex - 1 -> stringResource(R.string.progress_weekly_chart_previous_label)
         else -> weekStartDate.format(formatter)
     }
 }
@@ -665,13 +659,6 @@ private fun daysUntilText(daysUntil: Int): String {
     } else {
         stringResource(R.string.progress_days_until, daysUntil)
     }
-}
-
-private fun ProgressWeekBarUi.shouldShowChartCount(
-    index: Int,
-    currentWeekIndex: Int,
-): Boolean {
-    return index == currentWeekIndex || index == currentWeekIndex - PREVIOUS_WEEK_OFFSET
 }
 
 private fun ProgressCategoryShareUi.countShareText(): String {
@@ -703,7 +690,6 @@ private const val PERCENT_SUFFIX = "%"
 private const val PERCENT_MAX = 100
 private const val PERCENT_MIN_FRACTION = 0f
 private const val PERCENT_MAX_FRACTION = 1f
-private const val PREVIOUS_WEEK_OFFSET = 1
 private const val SUPPORT_CARDS_PER_ROW = 2
 private const val SUPPORT_CARD_SINGLE_ROW_COUNT = 1
 private const val RECENT_ACTIVITY_TIMELINE_LIMIT = 3
