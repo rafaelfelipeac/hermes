@@ -12,6 +12,7 @@ The screen should answer:
 - What does the recent trend mean?
 - Is my training mix balanced?
 - What should I pay attention to next?
+- Is there an upcoming race/event I should keep in view?
 - What changed recently?
 
 The first implementation remains read-only. It should use existing workout, category, trophy, event and activity data.
@@ -84,18 +85,21 @@ The section should show:
 
 Race events should not count as completed workouts in this chart.
 
-### 4. Next Focus And Trophy
+### 4. Next Focus, Upcoming Event And Trophy
 
-Keep upcoming event/workout focus and trophy highlight as compact supporting cards.
+Keep next workout focus, upcoming event and trophy highlight as compact supporting cards.
 
 They should not compete with the coaching readout or charts.
 
 Recommended presentation:
 
 - `Next focus`: title and timing, for example `Strength · 1 day away`.
+- `Upcoming event`: nearest race/event, for example `São Paulo 10K · 12 days away`.
 - `Trophy`: latest unlocked trophy or nearest trophy progress.
 
-`Next focus` should prefer the next scheduled incomplete workout in the current week. If the current week has no remaining workout, it should fall back to the nearest upcoming race/event. If neither exists, hide the card.
+`Next focus` should prefer the next scheduled incomplete workout in the current week. If the current week has no remaining workout, hide the card.
+
+`Upcoming event` should show only when there is a future `RACE_EVENT`. It should not replace `Next focus`; the two cards answer different questions. If there is no upcoming event, hide the card.
 
 Only add coaching text if there is a real connection to the progress story.
 
@@ -171,7 +175,8 @@ The redesigned screen can reuse the existing Progress data sources:
 - Weekly workouts for completion and trend.
 - Categories for training mix.
 - Trophy progress for trophy highlight.
-- Race/event rows for upcoming or next focus where available.
+- Workout rows for next focus.
+- Race/event rows for upcoming event context where available.
 - Activity presentation items for recent activity preview.
 
 New presentation state is likely needed for:
@@ -179,6 +184,7 @@ New presentation state is likely needed for:
 - Top coaching readout.
 - Weekly chart labels and optional insight.
 - Training mix stacked-bar data and optional insight.
+- Next focus and upcoming-event support cards.
 - Compact recent activity preview rows.
 
 Progress remains read-only. No new Activity logging is required unless the redesign introduces state-changing controls, which is out of scope for this design.
@@ -192,6 +198,8 @@ Recommended coverage:
 - Weekly chart handles `0 planned`, partial weeks and perfect weeks with different planned counts.
 - Training mix excludes race events and counts only completed workouts in the selected window.
 - Training mix handles hidden categories and uncategorized rows consistently with current rules.
+- Next focus prefers the next incomplete current-week workout and hides when none remains.
+- Upcoming event shows the nearest future race/event and hides when none exists.
 - Recent activity preview limits items to 2 or 3 and preserves navigation to the full Activity screen.
 - Optional insights appear only when their conditions are true.
 
