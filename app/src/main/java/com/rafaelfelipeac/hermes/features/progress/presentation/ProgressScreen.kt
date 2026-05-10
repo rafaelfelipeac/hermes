@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -48,6 +49,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendCountMinHeigh
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMode
@@ -219,16 +221,33 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
                 )
             }
             readout.nextFocus?.let { nextFocus ->
-                Text(
-                    text = stringResource(R.string.progress_support_next_focus),
-                    style = typography.labelMedium,
-                    color = colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = nextFocus.title,
-                    style = typography.bodyMedium,
-                    color = colorScheme.onSurface,
-                )
+                HorizontalDivider(color = colorScheme.outlineVariant)
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(shapes.small)
+                            .background(colorScheme.surfaceVariant)
+                            .padding(SpacingMd),
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+                        Text(
+                            text = stringResource(R.string.progress_support_next_focus),
+                            style = typography.labelMedium,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = nextFocus.title,
+                            style = typography.bodyMedium,
+                            color = colorScheme.onSurface,
+                        )
+                        Text(
+                            text = stringResource(R.string.progress_days_until, nextFocus.daysUntil),
+                            style = typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         }
     }
@@ -368,7 +387,7 @@ private fun ProgressWeeklyTrend(
                 Text(
                     text = week.chartLabel(index = index, currentWeekIndex = currentWeekIndex, formatter = formatter),
                     style = typography.labelSmall,
-                    color = if (week.isCurrentWeek) colorScheme.primary else colorScheme.onSurfaceVariant,
+                    color = if (week.isCurrentWeek) colorScheme.onSurface else colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
                 )
             }
@@ -384,7 +403,7 @@ private fun ProgressWeeklyTrend(
             Text(
                 text = stringResource(R.string.progress_weekly_insight_heaviest),
                 style = typography.bodySmall,
-                color = colorScheme.primary,
+                color = colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -452,7 +471,7 @@ private fun ProgressCategoryDistribution(
             Text(
                 text = trainingMixInsight.trainingMixInsightText(),
                 style = typography.bodySmall,
-                color = colorScheme.primary,
+                color = colorScheme.onSurfaceVariant,
             )
         }
     }

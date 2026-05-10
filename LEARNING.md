@@ -30,6 +30,7 @@ Assumptions made from the current code and README:
 If future work adds light recognition (soft streaks, small trophies, gentle celebrations), it should stay opt-in and non-judgmental so it reinforces the calm, offline-first intent instead of undermining it.
 
 Recent learnings:
+- Progress charts read much better when the debug seed spans more weeks and varies completion density across them; a long run of identical weeks makes the chart look decorative instead of informative.
 - When a Compose screen starts rendering from a derived section list, give each section a stable key and make the older parallel state explicit as legacy. Anonymous lazy items can reuse the wrong slot when sections appear or disappear, and keeping both contracts alive without deprecation makes the migration look accidental instead of intentional.
 - Single-step undo fits best as a ViewModel-scoped command snapshot, with a timeout job to clear stale actions so Snackbars do not linger across navigation.
 - Restoring deleted workouts needs a repository-level insert that can accept full workout data (including completion/rest-day flags), keeping the UI layer free of Room-specific concerns.

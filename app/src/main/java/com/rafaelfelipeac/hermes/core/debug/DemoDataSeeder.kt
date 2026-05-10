@@ -138,22 +138,31 @@ class DemoDataSeeder
             val today = LocalDate.now()
             val currentWeekStart = today.with(TemporalAdjusters.previousOrSame(MONDAY))
             val previousWeekStart = currentWeekStart.minusWeeks(1)
-            val olderWeekStarts =
+            val activityHistoryWeekStarts =
                 listOf(
                     previousWeekStart.minusWeeks(3),
                     previousWeekStart.minusWeeks(2),
                     previousWeekStart.minusWeeks(1),
                     previousWeekStart,
                 )
+            val progressHistoryWeekStarts =
+                (1..7)
+                    .map { weekOffset -> currentWeekStart.minusWeeks(weekOffset.toLong()) }
+                    .reversed()
             val nextWeekStart = currentWeekStart.plusWeeks(1)
 
-            val workouts = buildDemoWorkouts(olderWeekStarts, currentWeekStart, nextWeekStart)
+            val workouts =
+                buildDemoWorkouts(
+                    historyWeekStarts = progressHistoryWeekStarts,
+                    currentWeekStart = currentWeekStart,
+                    nextWeekStart = nextWeekStart,
+                )
 
             workouts.forEach { workoutDao.insert(it) }
 
             seedActivityHistory(
                 currentWeekStart = currentWeekStart,
-                olderWeekStarts = olderWeekStarts,
+                olderWeekStarts = activityHistoryWeekStarts,
                 nextWeekStart = nextWeekStart,
             )
 
@@ -161,14 +170,14 @@ class DemoDataSeeder
         }
 
         private fun buildDemoWorkouts(
-            olderWeekStarts: List<LocalDate>,
+            historyWeekStarts: List<LocalDate>,
             currentWeekStart: LocalDate,
             nextWeekStart: LocalDate,
         ): List<WorkoutEntity> {
-            return olderWeekStarts.flatMap { weekStart ->
-                buildWeekSchedule(weekStart, CompletionProfile.COMPLETED_MOST)
-            } +
-                buildWeekSchedule(currentWeekStart, CompletionProfile.COMPLETED_SOME) +
+            return historyWeekStarts.mapIndexed { index, weekStart ->
+                buildWeekSchedule(weekStart, completionProfileForHistoryWeek(index))
+            }.flatten() +
+                buildWeekSchedule(currentWeekStart, CompletionProfile.SOME) +
                 buildWeekSchedule(nextWeekStart, CompletionProfile.NONE) +
                 buildDemoRaceEvents(currentWeekStart, nextWeekStart)
         }
@@ -1304,22 +1313,53 @@ private data class RaceEventPlan(
 )
 
 private enum class CompletionProfile {
+    LIGHT,
+    SOME,
+    BALANCED,
+    HEAVY,
     COMPLETED_MOST,
-    COMPLETED_SOME,
     NONE,
     ;
 
     fun completedDays(): Set<DayOfWeek> {
         return when (this) {
-            COMPLETED_MOST -> DayOfWeek.entries.toSet()
-            COMPLETED_SOME ->
+            LIGHT ->
+                setOf(
+                    MONDAY,
+                )
+            SOME ->
                 setOf(
                     MONDAY,
                     TUESDAY,
-                    WEDNESDAY,
                 )
+            BALANCED ->
+                setOf(
+                    MONDAY,
+                    TUESDAY,
+                    THURSDAY,
+                )
+            HEAVY ->
+                setOf(
+                    MONDAY,
+                    TUESDAY,
+                    THURSDAY,
+                    FRIDAY,
+                )
+            COMPLETED_MOST -> DayOfWeek.entries.toSet()
             NONE -> emptySet()
         }
+    }
+}
+
+private fun completionProfileForHistoryWeek(index: Int): CompletionProfile {
+    return when (index) {
+        0 -> CompletionProfile.NONE
+        1 -> CompletionProfile.LIGHT
+        2 -> CompletionProfile.SOME
+        3 -> CompletionProfile.BALANCED
+        4 -> CompletionProfile.HEAVY
+        5 -> CompletionProfile.COMPLETED_MOST
+        else -> CompletionProfile.BALANCED
     }
 }
 
