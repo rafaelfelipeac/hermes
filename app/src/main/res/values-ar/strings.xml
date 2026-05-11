@@ -13,6 +13,7 @@
 
     <!-- Progress -->
     <string name="progress_title">التقدم</string>
+    <string name="progress_empty_title">لا يوجد تقدم بعد.</string>
     <string name="progress_empty">خطط لبعض التمارين لتظهر لك حالتك هنا.</string>
     <string name="progress_section_at_a_glance">نظرة سريعة</string>
     <string name="progress_section_this_week">هذا الأسبوع</string>
@@ -237,6 +238,7 @@
     <string name="filters_clear">مسح الفلاتر</string>
     <string name="activity_today">اليوم</string>
     <string name="activity_yesterday">أمس</string>
+    <string name="activity_tomorrow">غدًا</string>
     <string name="activity_workout_fallback">بدون اسم</string>
     <string name="activity_action_create_workout">لقد أنشأت التمرين %1$s.</string>
     <string name="activity_action_update_workout">لقد حدّثت التمرين %1$s.</string>

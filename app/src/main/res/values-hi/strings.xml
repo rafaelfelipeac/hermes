@@ -13,6 +13,7 @@
 
     <!-- Progress -->
     <string name="progress_title">प्रगति</string>
+    <string name="progress_empty_title">अभी कोई प्रगति नहीं है।</string>
     <string name="progress_empty">अपनी प्रगति यहाँ देखने के लिए कुछ वर्कआउट प्लान करें।</string>
     <string name="progress_section_at_a_glance">एक नज़र में</string>
     <string name="progress_section_this_week">इस सप्ताह</string>
@@ -221,6 +222,7 @@
     <string name="filters_clear">फ़िल्टर साफ़ करें</string>
     <string name="activity_today">आज</string>
     <string name="activity_yesterday">कल</string>
+    <string name="activity_tomorrow">आने वाला कल</string>
     <string name="activity_workout_fallback">बिना नाम</string>
     <string name="activity_action_create_workout">आपने %1$s वर्कआउट बनाया।</string>
     <string name="activity_action_update_workout">आपने %1$s वर्कआउट अपडेट किया।</string>

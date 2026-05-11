@@ -47,6 +47,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.strings.relativeDateText
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityFiltersUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPrimaryFilter
@@ -158,6 +159,7 @@ internal fun ActivityContent(
             .toFormatter(currentLocale)
     val today = LocalDate.now(ZoneId.systemDefault())
     val todayLabel = stringResource(R.string.activity_today)
+    val tomorrowLabel = stringResource(R.string.activity_tomorrow)
     val yesterdayLabel = stringResource(R.string.activity_yesterday)
 
     Column(
@@ -197,7 +199,15 @@ internal fun ActivityContent(
             verticalArrangement = Arrangement.spacedBy(SpacingLg),
         ) {
             sections.forEach { section ->
-                val header = sectionTitle(section.date, today, dayFormatter, todayLabel, yesterdayLabel)
+                val header =
+                    relativeDateText(
+                        date = section.date,
+                        today = today,
+                        todayLabel = todayLabel,
+                        tomorrowLabel = tomorrowLabel,
+                        yesterdayLabel = yesterdayLabel,
+                        formatter = dayFormatter,
+                    )
 
                 item(key = HEADER_KEY_PREFIX + section.date) {
                     Text(
@@ -430,20 +440,6 @@ private fun ActivityRow(item: ActivityItemUi) {
                 )
             }
         }
-    }
-}
-
-private fun sectionTitle(
-    date: LocalDate,
-    today: LocalDate,
-    formatter: DateTimeFormatter,
-    todayLabel: String,
-    yesterdayLabel: String,
-): String {
-    return when (date) {
-        today -> todayLabel
-        today.minusDays(1) -> yesterdayLabel
-        else -> date.format(formatter)
     }
 }
 

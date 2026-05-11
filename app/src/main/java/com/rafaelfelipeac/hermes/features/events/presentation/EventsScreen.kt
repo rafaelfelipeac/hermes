@@ -65,6 +65,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
@@ -420,7 +421,10 @@ internal fun EventsContent(
                             .padding(top = SpacingXl),
                 )
 
-                EventsEmptyState(
+                EmptyStateCard(
+                    icon = Icons.Outlined.Flag,
+                    title = stringResource(R.string.race_events_empty_title),
+                    body = stringResource(R.string.race_events_empty_body),
                     modifier = Modifier.align(Alignment.Center),
                 )
             }
@@ -512,26 +516,6 @@ private fun EventsSectionTitle(
             text = title,
             style = typography.titleMedium,
             color = colorScheme.onSurface,
-        )
-    }
-}
-
-@Composable
-private fun EventsEmptyState(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(SpacingSm),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = stringResource(R.string.race_events_empty_title),
-            style = typography.titleMedium,
-            color = colorScheme.onSurface,
-        )
-        Text(
-            text = stringResource(R.string.race_events_empty_body),
-            style = typography.bodyMedium,
-            color = colorScheme.onSurfaceVariant,
         )
     }
 }

@@ -13,6 +13,7 @@
 
     <!-- Progress -->
     <string name="progress_title">Progreso</string>
+    <string name="progress_empty_title">Todavía no hay progreso.</string>
     <string name="progress_empty">Planifica unos cuantos entrenamientos para ver tu progreso aquí.</string>
     <string name="progress_section_at_a_glance">De un vistazo</string>
     <string name="progress_section_this_week">Esta semana</string>
@@ -221,6 +222,7 @@
     <string name="filters_clear">Limpiar filtros</string>
     <string name="activity_today">Hoy</string>
     <string name="activity_yesterday">Ayer</string>
+    <string name="activity_tomorrow">Mañana</string>
     <string name="activity_workout_fallback">sin título</string>
     <string name="activity_action_create_workout">Creaste el entrenamiento %1$s.</string>
     <string name="activity_action_update_workout">Actualizaste el entrenamiento %1$s.</string>

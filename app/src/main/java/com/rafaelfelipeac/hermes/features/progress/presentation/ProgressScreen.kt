@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +29,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityDotSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressCategoryColorDotSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressReadoutBarHeight
@@ -52,6 +56,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.core.strings.relativeDaysUntilText
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMode
 import com.rafaelfelipeac.hermes.features.trophies.presentation.trophyNameRes
 import java.time.format.DateTimeFormatter
@@ -82,6 +87,40 @@ internal fun ProgressContent(
     onOpenActivity: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (state.emptyReason != null) {
+        Column(
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .padding(
+                        start = SpacingXl,
+                        top = SpacingXl,
+                        end = SpacingXl,
+                        bottom = ProgressScreenBottomPadding,
+                    ),
+            verticalArrangement = Arrangement.spacedBy(SpacingXl),
+        ) {
+            Text(
+                text = stringResource(R.string.progress_title),
+                style = typography.headlineSmall,
+                color = colorScheme.onSurface,
+            )
+
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                EmptyStateCard(
+                    icon = Icons.Outlined.QueryStats,
+                    title = stringResource(R.string.progress_empty_title),
+                    body = stringResource(R.string.progress_empty),
+                )
+            }
+        }
+
+        return
+    }
+
     LazyColumn(
         modifier = modifier,
         contentPadding =
@@ -99,17 +138,6 @@ internal fun ProgressContent(
                 style = typography.headlineSmall,
                 color = colorScheme.onSurface,
             )
-        }
-
-        if (state.emptyReason != null) {
-            item {
-                Text(
-                    text = stringResource(R.string.progress_empty),
-                    style = typography.bodyLarge,
-                    color = colorScheme.onSurfaceVariant,
-                )
-            }
-            return@LazyColumn
         }
 
         items(
@@ -222,32 +250,14 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
             }
             readout.nextFocus?.let { nextFocus ->
                 HorizontalDivider(color = colorScheme.outlineVariant)
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .clip(shapes.small)
-                            .background(colorScheme.surfaceVariant)
-                            .padding(SpacingMd),
-                ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
-                        Text(
-                            text = stringResource(R.string.progress_support_next_focus),
-                            style = typography.labelMedium,
-                            color = colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = nextFocus.title,
-                            style = typography.bodyMedium,
-                            color = colorScheme.onSurface,
-                        )
-                        Text(
-                            text = daysUntilText(nextFocus.daysUntil),
-                            style = typography.bodySmall,
-                            color = colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
+                ProgressSupportBlock(
+                    content =
+                        ProgressSupportCardContent(
+                            labelRes = R.string.progress_support_next_focus,
+                            title = nextFocus.title,
+                            subtitle = daysUntilText(nextFocus.daysUntil),
+                        ),
+                )
             }
         }
     }
@@ -502,29 +512,64 @@ private fun ProgressSupportingProgress(
     upcomingEvent: ProgressUpcomingEventUi?,
     trophyHighlight: com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi?,
 ) {
-    val supportCards =
-        buildList {
-            nextFocus?.let { focus ->
-                add(
-                    ProgressSupportCardContent(
-                        labelRes = R.string.progress_support_next_focus,
-                        title = focus.title,
-                        subtitle = daysUntilText(focus.daysUntil),
-                    ),
+    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+        val hasTopRow = nextFocus != null || upcomingEvent != null
+
+        when {
+            nextFocus != null && upcomingEvent != null -> {
+                Row(horizontalArrangement = Arrangement.spacedBy(SpacingMd)) {
+                    ProgressSupportBlock(
+                        content =
+                            ProgressSupportCardContent(
+                                labelRes = R.string.progress_support_next_focus,
+                                title = nextFocus.title,
+                                subtitle = daysUntilText(nextFocus.daysUntil),
+                            ),
+                        modifier = Modifier.weight(1f),
+                    )
+                    ProgressSupportBlock(
+                        content =
+                            ProgressSupportCardContent(
+                                labelRes = R.string.progress_support_upcoming_event,
+                                title = upcomingEvent.title,
+                                subtitle = daysUntilText(upcomingEvent.daysUntil),
+                            ),
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+
+            nextFocus != null -> {
+                ProgressSupportBlock(
+                    content =
+                        ProgressSupportCardContent(
+                            labelRes = R.string.progress_support_next_focus,
+                            title = nextFocus.title,
+                            subtitle = daysUntilText(nextFocus.daysUntil),
+                        ),
                 )
             }
-            upcomingEvent?.let { event ->
-                add(
-                    ProgressSupportCardContent(
-                        labelRes = R.string.progress_support_upcoming_event,
-                        title = event.title,
-                        subtitle = daysUntilText(event.daysUntil),
-                    ),
+
+            upcomingEvent != null -> {
+                ProgressSupportBlock(
+                    content =
+                        ProgressSupportCardContent(
+                            labelRes = R.string.progress_support_upcoming_event,
+                            title = upcomingEvent.title,
+                            subtitle = daysUntilText(upcomingEvent.daysUntil),
+                        ),
                 )
             }
-            trophyHighlight?.let { highlight ->
-                val trophy = highlight.trophy
-                add(
+        }
+
+        trophyHighlight?.let { highlight ->
+            if (hasTopRow) {
+                HorizontalDivider(color = colorScheme.outlineVariant)
+            }
+
+            val trophy = highlight.trophy
+            ProgressSupportBlock(
+                content =
                     ProgressSupportCardContent(
                         labelRes = R.string.progress_support_trophy,
                         title = stringResource(trophyNameRes(trophy.trophyId)),
@@ -541,41 +586,25 @@ private fun ProgressSupportingProgress(
                                 trophy.target,
                             ),
                     ),
-                )
-            }
-        }
-
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
-        supportCards.chunked(SUPPORT_CARDS_PER_ROW).forEach { rowCards ->
-            Row(horizontalArrangement = Arrangement.spacedBy(SpacingMd)) {
-                rowCards.forEach { card ->
-                    ProgressSupportCard(
-                        content = card,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-                if (rowCards.size == SUPPORT_CARD_SINGLE_ROW_COUNT) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
+            )
         }
     }
 }
 
 @Composable
-private fun ProgressSupportCard(
+private fun ProgressSupportBlock(
     content: ProgressSupportCardContent,
     modifier: Modifier = Modifier,
 ) {
-    Card(
+    Box(
         modifier =
-            modifier.defaultMinSize(
-                minHeight = ProgressSupportCardMinHeight,
-            ),
-        shape = shapes.small,
+            modifier
+                .defaultMinSize(minHeight = ProgressSupportCardMinHeight)
+                .clip(shapes.small)
+                .background(colorScheme.surfaceVariant)
+                .padding(SpacingMd),
     ) {
         Column(
-            modifier = Modifier.padding(SpacingMd),
             verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
             Text(
@@ -615,7 +644,10 @@ private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.feature
             color = colorScheme.onSurfaceVariant,
         )
 
-        items.take(RECENT_ACTIVITY_TIMELINE_LIMIT).forEach { item ->
+        items.take(RECENT_ACTIVITY_TIMELINE_LIMIT).forEachIndexed { index, item ->
+            if (index > 0) {
+                HorizontalDivider(color = colorScheme.outlineVariant)
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(SpacingMd),
@@ -679,11 +711,13 @@ private fun ProgressWeekBarUi.chartLabel(
 
 @Composable
 private fun daysUntilText(daysUntil: Int): String {
-    return if (daysUntil == 0) {
-        stringResource(R.string.activity_today)
-    } else {
-        stringResource(R.string.progress_days_until, daysUntil)
-    }
+    return relativeDaysUntilText(
+        daysUntil = daysUntil,
+        todayLabel = stringResource(R.string.activity_today),
+        tomorrowLabel = stringResource(R.string.activity_tomorrow),
+        yesterdayLabel = stringResource(R.string.activity_yesterday),
+        fallbackText = stringResource(R.string.progress_days_until, daysUntil),
+    )
 }
 
 private fun ProgressCategoryShareUi.countShareText(): String {
@@ -723,6 +757,4 @@ private const val PERCENT_SUFFIX = "%"
 private const val PERCENT_MAX = 100
 private const val PERCENT_MIN_FRACTION = 0f
 private const val PERCENT_MAX_FRACTION = 1f
-private const val SUPPORT_CARDS_PER_ROW = 2
-private const val SUPPORT_CARD_SINGLE_ROW_COUNT = 1
 private const val RECENT_ACTIVITY_TIMELINE_LIMIT = 3

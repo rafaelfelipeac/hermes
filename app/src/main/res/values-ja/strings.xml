@@ -13,6 +13,7 @@
 
     <!-- Progress -->
     <string name="progress_title">進捗</string>
+    <string name="progress_empty_title">まだ進捗はありません。</string>
     <string name="progress_empty">いくつかのワークアウトを計画すると、ここに進捗が表示されます。</string>
     <string name="progress_section_at_a_glance">ひと目でわかる概要</string>
     <string name="progress_section_this_week">今週</string>
@@ -217,6 +218,7 @@
     <string name="filters_clear">フィルターをクリア</string>
     <string name="activity_today">今日</string>
     <string name="activity_yesterday">昨日</string>
+    <string name="activity_tomorrow">明日</string>
     <string name="activity_workout_fallback">名前なし</string>
     <string name="activity_action_create_workout">%1$s のワークアウトを作成しました。</string>
     <string name="activity_action_update_workout">%1$s のワークアウトを更新しました。</string>

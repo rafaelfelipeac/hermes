@@ -17,6 +17,10 @@ object Dimens {
     val SpacingXl = 16.dp
     val SpacingXxl = 20.dp
     val ActivityEmptyPadding = 24.dp
+    val EmptyStateCardMaxWidth = 320.dp
+    val EmptyStateCardPadding = 24.dp
+    val EmptyStateIconContainerSize = 52.dp
+    val EmptyStateIconSize = 24.dp
 
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp
