@@ -213,8 +213,10 @@
 
     <!-- Activity -->
     <string name="activity_title">गतिविधि लॉग</string>
-    <string name="activity_empty">अभी कोई गतिविधि नहीं है।</string>
-    <string name="activity_filtered_empty">इन फ़िल्टरों से मेल खाने वाली कोई गतिविधि नहीं है।</string>
+    <string name="activity_empty_title">अभी कोई गतिविधि नहीं है।</string>
+    <string name="activity_filtered_empty_title">कोई मेल खाती गतिविधि नहीं है।</string>
+    <string name="activity_empty">पूरे हुए वर्कआउट, इवेंट अपडेट और अन्य बदलाव यहाँ दिखेंगे।</string>
+    <string name="activity_filtered_empty">पूरा लॉग देखने के लिए फ़िल्टर हटाएँ।</string>
     <string name="activity_filter_all">सभी</string>
     <string name="activity_filter_completions">पूर्ण</string>
     <string name="activity_filter_planning">योजना</string>

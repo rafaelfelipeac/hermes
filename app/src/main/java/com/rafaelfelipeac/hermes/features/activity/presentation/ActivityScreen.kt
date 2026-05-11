@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.activity.presentation
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -41,12 +43,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ActivityEmptyPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.strings.relativeDateText
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityFiltersUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
@@ -88,6 +90,14 @@ fun ActivityScreen(
             sections = state.sections,
             currentLocale = currentLocale,
             filters = state.filters,
+            emptyTitle =
+                stringResource(
+                    if (state.filters.isAnyFilterActive) {
+                        R.string.activity_filtered_empty_title
+                    } else {
+                        R.string.activity_empty_title
+                    },
+                ),
             emptyMessage =
                 stringResource(
                     if (state.filters.isAnyFilterActive) {
@@ -145,6 +155,7 @@ internal fun ActivityContent(
     sections: List<ActivitySectionUi>,
     currentLocale: Locale,
     filters: ActivityFiltersUi = ActivityFiltersUi(),
+    emptyTitle: String = stringResource(R.string.activity_empty_title),
     emptyMessage: String = stringResource(R.string.activity_empty),
     onPrimaryFilterSelected: (ActivityPrimaryFilter) -> Unit = {},
     onCategorySelected: (Long) -> Unit = {},
@@ -175,18 +186,14 @@ internal fun ActivityContent(
         )
 
         if (sections.isEmpty()) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(ActivityEmptyPadding),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = emptyMessage,
-                    style = typography.bodyLarge,
-                    color = colorScheme.onSurfaceVariant,
+                EmptyStateCard(
+                    icon = Icons.Outlined.History,
+                    title = emptyTitle,
+                    body = emptyMessage,
                 )
             }
 

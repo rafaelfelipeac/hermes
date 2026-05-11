@@ -229,8 +229,10 @@
 
     <!-- Activity -->
     <string name="activity_title">سجل النشاط</string>
-    <string name="activity_empty">لا توجد أنشطة بعد.</string>
-    <string name="activity_filtered_empty">لا يوجد نشاط يطابق هذه الفلاتر.</string>
+    <string name="activity_empty_title">لا توجد أنشطة بعد.</string>
+    <string name="activity_filtered_empty_title">لا يوجد نشاط مطابق.</string>
+    <string name="activity_empty">ستظهر هنا التمارين المكتملة وتحديثات الفعاليات والتغييرات الأخرى.</string>
+    <string name="activity_filtered_empty">أزل الفلاتر لرؤية السجل الكامل.</string>
     <string name="activity_filter_all">الكل</string>
     <string name="activity_filter_completions">الإنجازات</string>
     <string name="activity_filter_planning">التخطيط</string>

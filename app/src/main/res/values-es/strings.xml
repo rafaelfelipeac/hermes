@@ -213,8 +213,10 @@
 
     <!-- Activity -->
     <string name="activity_title">Registro de actividades</string>
-    <string name="activity_empty">Aún no hay actividad.</string>
-    <string name="activity_filtered_empty">Ninguna actividad coincide con estos filtros.</string>
+    <string name="activity_empty_title">Aún no hay actividad.</string>
+    <string name="activity_filtered_empty_title">No hay actividad que coincida.</string>
+    <string name="activity_empty">Aquí aparecerán los entrenamientos completados, las actualizaciones de eventos y otros cambios.</string>
+    <string name="activity_filtered_empty">Borra los filtros para ver el registro completo.</string>
     <string name="activity_filter_all">Todo</string>
     <string name="activity_filter_completions">Completadas</string>
     <string name="activity_filter_planning">Planificación</string>

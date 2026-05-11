@@ -213,8 +213,10 @@
 
     <!-- Activity -->
     <string name="activity_title">Journal des activités</string>
-    <string name="activity_empty">Aucune activité pour l’instant.</string>
-    <string name="activity_filtered_empty">Aucune activité ne correspond à ces filtres.</string>
+    <string name="activity_empty_title">Aucune activité pour l’instant.</string>
+    <string name="activity_filtered_empty_title">Aucune activité correspondante.</string>
+    <string name="activity_empty">Les séances terminées, les mises à jour d’événements et les autres changements apparaîtront ici.</string>
+    <string name="activity_filtered_empty">Effacez les filtres pour voir le journal complet.</string>
     <string name="activity_filter_all">Tout</string>
     <string name="activity_filter_completions">Réalisations</string>
     <string name="activity_filter_planning">Planification</string>
