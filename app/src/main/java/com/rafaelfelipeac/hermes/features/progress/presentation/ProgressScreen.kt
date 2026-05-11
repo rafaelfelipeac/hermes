@@ -767,4 +767,4 @@ private const val PERCENT_SUFFIX = "%"
 private const val PERCENT_MAX = 100
 private const val PERCENT_MIN_FRACTION = 0f
 private const val PERCENT_MAX_FRACTION = 1f
-private const val RECENT_ACTIVITY_TIMELINE_LIMIT = 2
+private const val RECENT_ACTIVITY_TIMELINE_LIMIT = 5
