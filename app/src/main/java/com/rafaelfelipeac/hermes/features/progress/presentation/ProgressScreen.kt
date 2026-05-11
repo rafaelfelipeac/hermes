@@ -647,7 +647,7 @@ private fun ProgressSupportBlock(
 
 @Composable
 private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi>) {
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+    Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
         Text(
             text = stringResource(R.string.progress_recent_activity_caption),
             style = typography.bodySmall,
@@ -660,7 +660,7 @@ private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.feature
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+                horizontalArrangement = Arrangement.spacedBy(SpacingSm),
                 verticalAlignment = Alignment.Top,
             ) {
                 Text(
@@ -677,7 +677,7 @@ private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.feature
                 )
                 Column(
                     modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                    verticalArrangement = Arrangement.spacedBy(SpacingXs),
                 ) {
                     Text(
                         text = item.title,
@@ -767,4 +767,4 @@ private const val PERCENT_SUFFIX = "%"
 private const val PERCENT_MAX = 100
 private const val PERCENT_MIN_FRACTION = 0f
 private const val PERCENT_MAX_FRACTION = 1f
-private const val RECENT_ACTIVITY_TIMELINE_LIMIT = 3
+private const val RECENT_ACTIVITY_TIMELINE_LIMIT = 2
