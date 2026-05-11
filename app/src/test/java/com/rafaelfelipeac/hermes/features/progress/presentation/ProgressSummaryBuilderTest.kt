@@ -168,7 +168,7 @@ class ProgressSummaryBuilderTest {
                 currentWeekStart = currentWeek,
             )
 
-        assertEquals(3, state.recentActivities.size)
+        assertEquals(5, state.recentActivities.size)
         assertEquals(1L, state.recentActivities.first().id)
     }
 

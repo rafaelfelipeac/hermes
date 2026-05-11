@@ -46,7 +46,7 @@ object Dimens {
     val ProgressCategoryColorDotSize = 10.dp
     val ProgressActivityDotSize = 10.dp
     val ProgressSupportCardMinHeight = 88.dp
-    val ProgressScreenBottomPadding = 96.dp
+    val ProgressScreenBottomPadding = 32.dp
 
     val ContentPadding = 14.dp
     val CheckboxBoxSize = 32.dp

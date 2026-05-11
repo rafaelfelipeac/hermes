@@ -84,7 +84,7 @@ class ProgressViewModelTest {
         }
 
     @Test
-    fun state_limitsRecentActivityPreviewToThreeItems() =
+    fun state_limitsRecentActivityPreviewToFiveItems() =
         runTest(mainDispatcherRule.testDispatcher) {
             val currentWeek = LocalDate.now().with(previousOrSame(DayOfWeek.MONDAY))
             val actions =
@@ -106,9 +106,9 @@ class ProgressViewModelTest {
                 awaitItem()
                 val state = awaitItem()
 
-                assertEquals(3, state.recentActivities.size)
+                assertEquals(5, state.recentActivities.size)
                 assertEquals(5L, state.recentActivities.first().id)
-                assertEquals(3L, state.recentActivities.last().id)
+                assertEquals(1L, state.recentActivities.last().id)
 
                 cancelAndIgnoreRemainingEvents()
             }
