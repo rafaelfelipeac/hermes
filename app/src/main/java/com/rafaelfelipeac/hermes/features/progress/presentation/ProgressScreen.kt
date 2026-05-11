@@ -250,14 +250,23 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
             }
             readout.nextFocus?.let { nextFocus ->
                 HorizontalDivider(color = colorScheme.outlineVariant)
-                ProgressSupportBlock(
-                    content =
-                        ProgressSupportCardContent(
-                            labelRes = R.string.progress_support_next_focus,
-                            title = nextFocus.title,
-                            subtitle = daysUntilText(nextFocus.daysUntil),
-                        ),
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+                    Text(
+                        text = stringResource(R.string.progress_support_next_focus),
+                        style = typography.labelMedium,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = nextFocus.title,
+                        style = typography.bodyMedium,
+                        color = colorScheme.onSurface,
+                    )
+                    Text(
+                        text = daysUntilText(nextFocus.daysUntil),
+                        style = typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }
@@ -599,6 +608,7 @@ private fun ProgressSupportBlock(
     Box(
         modifier =
             modifier
+                .fillMaxWidth()
                 .defaultMinSize(minHeight = ProgressSupportCardMinHeight)
                 .clip(shapes.small)
                 .background(colorScheme.surfaceVariant)
