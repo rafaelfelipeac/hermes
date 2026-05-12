@@ -222,6 +222,18 @@ These specs describe larger future directions that should wait until the core pl
 - `docs/specs/race-countdown-home-card-spec.md` - nearest event context on Week.
 - `docs/specs/plan-confidence-spec.md` - manual realism marker for a week.
 - `docs/specs/recovery-week-marker-spec.md` - mark intentional recovery/deload weeks.
+- `docs/specs/onboarding-first-week-setup-spec.md` - help new users create a useful first week.
+- `docs/specs/calendar-import-sync-spec.md` - opt-in calendar import/sync exploration.
+- `docs/specs/workout-references-spec.md` - add lightweight route/program/race links.
+- `docs/specs/global-search-spec.md` - search across the local training memory.
+- `docs/specs/archive-hide-old-data-spec.md` - hide old data without deleting history.
+- `docs/specs/privacy-controls-spec.md` - control what appears in shared/exported surfaces.
+- `docs/specs/today-home-view-spec.md` - quick daily orientation without replacing Week.
+- `docs/specs/period-comparison-spec.md` - descriptive comparison between periods.
+- `docs/specs/event-types-expansion-spec.md` - richer event subtypes beyond race.
+- `docs/specs/custom-units-spec.md` - user unit preferences for distance/pace/weight.
+- `docs/specs/data-export-formats-spec.md` - CSV/user-facing exports beyond backup JSON.
+- `docs/specs/app-privacy-lock-spec.md` - optional device-auth app lock.
 
 ## Continuous Quality Tracks
 

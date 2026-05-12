@@ -99,6 +99,18 @@ Active specs:
 - [Race countdown home card](race-countdown-home-card-spec.md)
 - [Plan confidence](plan-confidence-spec.md)
 - [Recovery week marker](recovery-week-marker-spec.md)
+- [Onboarding and first week setup](onboarding-first-week-setup-spec.md)
+- [Calendar import and sync](calendar-import-sync-spec.md)
+- [Workout references](workout-references-spec.md)
+- [Global search](global-search-spec.md)
+- [Archive and hide old data](archive-hide-old-data-spec.md)
+- [Privacy controls](privacy-controls-spec.md)
+- [Today home view](today-home-view-spec.md)
+- [Period comparison](period-comparison-spec.md)
+- [Event types expansion](event-types-expansion-spec.md)
+- [Custom units](custom-units-spec.md)
+- [Data export formats](data-export-formats-spec.md)
+- [App privacy lock](app-privacy-lock-spec.md)
 
 Reference/archive specs:
 
