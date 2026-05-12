@@ -210,6 +210,7 @@ Only build these when tied to a specific UX problem:
 
 These specs describe larger future directions that should wait until the core planning/reporting/context model is stable:
 
+- `docs/specs/architecture-diagram-workflow-spec.md` - keep a living Excalidraw system-design map current at release boundaries.
 - `docs/specs/season-training-blocks-spec.md` - group weeks into user-authored training blocks.
 - `docs/specs/week-archetypes-spec.md` - save and apply reusable week shapes.
 - `docs/specs/race-retrospective-spec.md` - capture race results and lessons learned.

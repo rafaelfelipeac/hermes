@@ -42,6 +42,7 @@ The next non-product work can happen in parallel or as small chores: accessibili
 | 1 | Progress v1 | Next product feature | High user value, uses existing data, low schema risk. |
 | 2 | Accessibility audit | Continuous quality work | Important before broader UI growth, but not a feature release by itself. |
 | 3 | Build tooling/release checklist | Continuous quality work | Reduces release risk, especially after schema/activity-heavy Events work. |
+| 3a | Architecture diagram workflow | Continuous quality work | Keeps the system-design map current as navigation, persistence and platform boundaries evolve. |
 | 4 | Weekly report | After Progress | Strong fit, but benefits from Progress summary language and reusable aggregation. |
 | 5 | Navigation redesign/Browse | After Progress has value | Public navigation change; should not happen until Progress earns the tab. |
 | 6 | Notes/perceived effort | Later | Valuable, but likely needs persisted schema and backup policy changes. |
@@ -84,6 +85,7 @@ Active specs:
 - [Reminders and notifications](reminders-notifications-spec.md)
 - [Accessibility audit](accessibility-audit-spec.md)
 - [Build tooling](build-tooling-spec.md)
+- [Architecture diagram workflow](architecture-diagram-workflow-spec.md)
 - [Analytics and Crashlytics](analytics-crashlytics-spec.md)
 - [Micro-interactions](micro-interactions-spec.md)
 - [Personal records and pace calculator](personal-records-pace-calculator-spec.md)
