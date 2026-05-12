@@ -1,5 +1,7 @@
 # Future Roadmap Plan
 
+Status: superseded by `docs/specs/roadmap-convergence-audit-2026-05-12.md`. Keep this file as historical context only; do not use it as the current ordering.
+
 Purpose: keep future Hermes ideas in one planning map after the Events release prep. This is not a commitment to build everything; it is a prioritization tool for deciding what deserves a dedicated implementation task.
 
 ## Product Direction

@@ -1,5 +1,7 @@
 # Next Features Plan
 
+Status: superseded by `docs/specs/roadmap-convergence-audit-2026-05-12.md`. Keep this file as historical context only; do not use it as the current ordering.
+
 Target baseline: `v1.9.0` release prep (`appVersionCode = 14`).
 
 This plan is the active planning index after the Events work. Older specs may still contain useful implementation detail, but this file owns the current order and release posture.
