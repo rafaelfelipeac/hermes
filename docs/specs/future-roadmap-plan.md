@@ -106,22 +106,43 @@ Why after Progress: replacing or moving Activity only works if Progress is a use
 
 Navigation is public app behavior, so implementation needs explicit review before coding.
 
-### Phase 4: Notes And Perceived Effort
+### Phase 4: Training Context, Notes And Perceived Effort
 
-Spec: `docs/specs/notes-effort-spec.md`.
+Specs:
+
+- `docs/specs/notes-effort-spec.md`
+- `docs/specs/training-context-tags-spec.md`
 
 Priority: medium-high after reporting direction is clearer.
 
-Goal: capture post-session reflection without turning Hermes into a heavy training diary.
+Goal: capture post-session reflection and lightweight training context without turning Hermes into a heavy training diary or medical tool.
 
 Likely schema impact:
 
 - Nullable fields on the weekly item, or
 - Separate feedback table.
+- Dedicated context/tag tables if weekly or race-event context is included.
 
 Because this is persisted user data, implementation must stop for schema, migration and backup review before coding.
 
-### Phase 5: Reminders And Notifications
+### Phase 5: Race Prep Checklist
+
+Spec: `docs/specs/race-prep-checklist-spec.md`.
+
+Priority: medium after Race Events, Browse, and the training-context direction are stable.
+
+Goal: give users a lightweight checklist tied to a race/event.
+
+Recommended first scope:
+
+- Checklist section on race/event detail.
+- Add/edit/delete/complete/reorder checklist items.
+- Starter checklist for common race-day prep.
+- Checklist progress on the event surface.
+
+Because checklist items are persisted and tied to race events, implementation must stop for schema, migration and backup review before coding.
+
+### Phase 6: Reminders And Notifications
 
 Spec: `docs/specs/reminders-notifications-spec.md`.
 
@@ -135,7 +156,7 @@ Start narrow if this becomes a priority:
 
 Defer per-workout or race-event reminders until the app has a clearer scheduling model and notification permission UX.
 
-### Phase 6: Templates And Reusable Routines
+### Phase 7: Templates And Reusable Routines
 
 Spec needed if this moves forward.
 
@@ -151,7 +172,27 @@ Possible first scope:
 
 Likely persisted model and backup schema work, so this should not be bundled with Progress.
 
-### Phase 7: Micro-Interactions
+### Phase 8: Personal Records And Pace Calculator
+
+Spec: `docs/specs/personal-records-pace-calculator-spec.md`.
+
+Priority: medium-later, after Browse exists.
+
+Goal: let users manually track meaningful personal records and use a practical running pace calculator.
+
+Recommended first scope:
+
+- Personal Records as a Browse destination.
+- Running records with distance, time and calculated pace.
+- Cycling and strength records with simple manual fields.
+- Running pace calculator:
+  - distance + time -> pace
+  - distance + pace -> finish time
+  - time + pace -> distance
+
+Because Personal Records are persisted user data, implementation must stop for schema, migration and backup review before coding.
+
+### Phase 9: Micro-Interactions
 
 Spec: `docs/specs/micro-interactions-spec.md`.
 
@@ -164,6 +205,23 @@ Only build these when tied to a specific UX problem:
 - Trophy celebration refinement.
 - Empty-state transitions.
 - Report/share confirmation.
+
+## Longer Horizon Product Ideas
+
+These specs describe larger future directions that should wait until the core planning/reporting/context model is stable:
+
+- `docs/specs/season-training-blocks-spec.md` - group weeks into user-authored training blocks.
+- `docs/specs/week-archetypes-spec.md` - save and apply reusable week shapes.
+- `docs/specs/race-retrospective-spec.md` - capture race results and lessons learned.
+- `docs/specs/training-library-spec.md` - save favorite workout definitions.
+- `docs/specs/coach-pack-export-spec.md` - export a user-controlled coach-friendly bundle.
+- `docs/specs/gear-equipment-log-spec.md` - track gear usage lightly.
+- `docs/specs/soft-planning-assistant-spec.md` - optional local suggestions based on user history.
+- `docs/specs/week-change-summary-spec.md` - summarize how a week changed.
+- `docs/specs/year-in-review-spec.md` - offline annual reflection.
+- `docs/specs/race-countdown-home-card-spec.md` - nearest event context on Week.
+- `docs/specs/plan-confidence-spec.md` - manual realism marker for a week.
+- `docs/specs/recovery-week-marker-spec.md` - mark intentional recovery/deload weeks.
 
 ## Continuous Quality Tracks
 

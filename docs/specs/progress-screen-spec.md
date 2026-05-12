@@ -2,6 +2,8 @@
 
 Target release: after the base Race & Events work or alongside the navigation redesign.
 
+Branch hygiene note: the exploratory future specs and architecture research docs created on `feat/progress` are working notes only. Remove them from the Progress PR before publishing unless they are explicitly approved for public review.
+
 ## Goal
 
 Create a real `Progress` destination that summarizes the user's training history instead of only listing raw activity logs.
