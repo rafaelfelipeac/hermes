@@ -68,7 +68,7 @@ object Dimens {
     val EventCardHeight = 176.dp
     val EventsTestViewportWidth = 420.dp
     val EventsTestViewportHeight = 720.dp
-    val RaceEventDialogContentMaxHeight = 420.dp
+    val PlannedItemDialogContentMaxHeight = 420.dp
     val TrophyHeroMinHeight = 180.dp
     val TrophyCardMinHeight = 120.dp
     val TrophyAccentBarHeight = 6.dp

@@ -42,7 +42,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.RaceEventDialogContentMaxHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
@@ -109,7 +109,7 @@ fun AddRaceEventDialog(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .heightIn(max = RaceEventDialogContentMaxHeight)
+                        .heightIn(max = PlannedItemDialogContentMaxHeight)
                         .verticalScroll(rememberScrollState()),
             ) {
                 OutlinedTextField(
