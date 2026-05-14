@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
@@ -319,7 +320,13 @@ private fun ProgressSection(
             trailingContent?.invoke()
         }
 
-        Card(shape = shapes.medium) {
+        Card(
+            shape = shapes.medium,
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = colorScheme.surfaceContainerLow,
+                ),
+        ) {
             Column(
                 modifier = Modifier.padding(SpacingLg),
                 verticalArrangement = Arrangement.spacedBy(SpacingMd),
@@ -418,7 +425,7 @@ private fun ProgressWeeklyTrend(
                                     .defaultMinSize(minWidth = ProgressTrendBarMinWidth)
                                     .height(ProgressTrendBarHeight)
                                     .clip(shapes.small)
-                                    .background(colorScheme.surfaceVariant),
+                                    .background(colorScheme.surfaceContainerHighest),
                             contentAlignment = Alignment.BottomCenter,
                         ) {
                             Box(
@@ -426,7 +433,7 @@ private fun ProgressWeeklyTrend(
                                     Modifier
                                         .fillMaxWidth()
                                         .fillMaxHeight(plannedFraction)
-                                        .background(colorScheme.surfaceVariant),
+                                        .background(colorScheme.surfaceContainerHigh),
                                 contentAlignment = Alignment.BottomCenter,
                             ) {
                                 Box(
@@ -675,7 +682,7 @@ private fun ProgressSupportBlock(
                         Modifier
                     },
                 )
-                .background(colorScheme.surfaceVariant)
+                .background(colorScheme.surfaceContainerHigh)
                 .padding(SpacingMd),
     ) {
         Column(
