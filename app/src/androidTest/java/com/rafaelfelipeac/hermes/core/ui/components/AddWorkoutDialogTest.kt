@@ -6,15 +6,49 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class AddWorkoutDialogTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Test
+    fun typeAndDescriptionAreCapitalizedBeforeSave() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val savedValues = mutableListOf<String>()
+
+        composeRule.setContent {
+            AddWorkoutDialog(
+                onDismiss = {},
+                onSave = { type, description, _ ->
+                    savedValues += type
+                    savedValues += description
+                },
+                onManageCategories = { _, _, _ -> },
+                isEdit = false,
+                categories = emptyList(),
+                selectedCategoryId = null,
+            )
+        }
+
+        composeRule
+            .onNodeWithText(context.getString(R.string.workout_dialog_add_workout_title))
+            .performTextInput("tempo run")
+        composeRule
+            .onNodeWithText(context.getString(R.string.workout_dialog_add_workout_description))
+            .performTextInput("controlled effort")
+        composeRule
+            .onNodeWithText(context.getString(R.string.workout_dialog_add_workout_confirm))
+            .performClick()
+
+        assertEquals(listOf("Tempo run", "Controlled effort"), savedValues)
+    }
 
     @Test
     fun categoryPicker_showsCategoriesAndManageAction() {

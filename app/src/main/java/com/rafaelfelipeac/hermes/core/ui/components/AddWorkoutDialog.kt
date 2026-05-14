@@ -53,8 +53,10 @@ fun AddWorkoutDialog(
     initialType: String = EMPTY,
     initialDescription: String = EMPTY,
 ) {
-    var type by rememberSaveable(initialType) { mutableStateOf(initialType) }
-    var description by rememberSaveable(initialDescription) { mutableStateOf(initialDescription) }
+    var type by rememberSaveable(initialType) { mutableStateOf(initialType.capitalizedFirstCharacter()) }
+    var description by rememberSaveable(initialDescription) {
+        mutableStateOf(initialDescription.capitalizedFirstCharacter())
+    }
     var expanded by rememberSaveable { mutableStateOf(false) }
     var currentCategoryId by rememberSaveable(selectedCategoryId) { mutableStateOf(selectedCategoryId) }
     val currentCategory = categories.firstOrNull { it.id == currentCategoryId }
@@ -84,8 +86,9 @@ fun AddWorkoutDialog(
             Column(modifier = modifier) {
                 OutlinedTextField(
                     value = type,
-                    onValueChange = { type = it },
+                    onValueChange = { type = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_title)) },
+                    keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier = Modifier.fillMaxWidth(),
                 )
 
@@ -93,8 +96,9 @@ fun AddWorkoutDialog(
 
                 OutlinedTextField(
                     value = description,
-                    onValueChange = { description = it },
+                    onValueChange = { description = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_description)) },
+                    keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier = Modifier.fillMaxWidth(),
                 )
 

@@ -59,7 +59,7 @@ class ProgressSummaryBuilderTest {
     }
 
     @Test
-    fun buildProgressState_excludesRaceEventsFromWorkoutCategoryDistribution() {
+    fun buildProgressState_includesRaceEventsInCategoryDistribution() {
         val workouts =
             listOf(
                 workout(1L, currentWeek, DayOfWeek.MONDAY, EventType.WORKOUT, isCompleted = true, categoryId = 2L),
@@ -77,9 +77,63 @@ class ProgressSummaryBuilderTest {
                 currentWeekStart = currentWeek,
             )
 
-        assertEquals(1, state.categoryDistribution.size)
-        assertEquals("Run", state.categoryDistribution.first().name)
+        assertEquals(2, state.categoryDistribution.size)
+        assertEquals("Cycling", state.categoryDistribution.first().name)
         assertEquals(1, state.categoryDistribution.first().count)
+        assertEquals("Run", state.categoryDistribution.last().name)
+        assertEquals(1, state.categoryDistribution.last().count)
+    }
+
+    @Test
+    fun buildProgressState_countsWorkoutsAndEventsInWeeklySummaryAndTrend() {
+        val workouts =
+            listOf(
+                workout(1L, currentWeek, DayOfWeek.MONDAY, EventType.WORKOUT, isCompleted = true, categoryId = 2L),
+                workout(2L, currentWeek, DayOfWeek.TUESDAY, RACE_EVENT, isCompleted = true, categoryId = 3L),
+                workout(3L, currentWeek, DayOfWeek.WEDNESDAY, EventType.REST, isCompleted = false, categoryId = null),
+                workout(4L, currentWeek, DayOfWeek.THURSDAY, EventType.BUSY, isCompleted = false, categoryId = null),
+                workout(5L, currentWeek, DayOfWeek.FRIDAY, EventType.SICK, isCompleted = false, categoryId = null),
+            )
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = categories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertEquals(2, state.weeklyReadout.plannedWorkouts)
+        assertEquals(2, state.weeklyReadout.completedWorkouts)
+        assertEquals(100, state.weeklyReadout.completionPercent)
+        assertEquals(2, state.weeklyTrend.last().plannedWorkouts)
+        assertEquals(2, state.weeklyTrend.last().completedWorkouts)
+    }
+
+    @Test
+    fun buildProgressState_selectsRaceEventAsNextFocusWhenItIsNearestPendingItem() {
+        val workouts =
+            listOf(
+                workout(1L, currentWeek, DayOfWeek.MONDAY, EventType.WORKOUT, isCompleted = true, categoryId = 2L),
+                workout(2L, currentWeek, DayOfWeek.TUESDAY, RACE_EVENT, isCompleted = false, categoryId = 3L),
+                workout(3L, currentWeek, DayOfWeek.WEDNESDAY, EventType.WORKOUT, isCompleted = false, categoryId = 2L),
+            )
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = categories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertEquals(2L, state.weeklyReadout.nextFocus?.id)
+        assertEquals("Workout 2", state.weeklyReadout.nextFocus?.title)
+        assertEquals(0, state.weeklyReadout.nextFocus?.daysUntil)
     }
 
     @Test

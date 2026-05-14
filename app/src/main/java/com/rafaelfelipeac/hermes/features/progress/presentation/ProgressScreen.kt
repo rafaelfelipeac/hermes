@@ -199,7 +199,7 @@ internal fun ProgressContent(
 
 @Composable
 private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
-    val remainingWorkouts = (readout.plannedWorkouts - readout.completedWorkouts).coerceAtLeast(0)
+    val remainingItems = (readout.plannedWorkouts - readout.completedWorkouts).coerceAtLeast(0)
 
     ProgressSection(
         title = stringResource(R.string.progress_section_weekly_readout),
@@ -236,13 +236,13 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
                                 .background(colorScheme.onSurfaceVariant),
                 )
             }
-            if (remainingWorkouts > 0) {
+            if (remainingItems > 0) {
                 Text(
                     text =
                         pluralStringResource(
-                            R.plurals.progress_readout_workouts_left,
-                            remainingWorkouts,
-                            remainingWorkouts,
+                            R.plurals.progress_readout_items_left,
+                            remainingItems,
+                            remainingItems,
                         ),
                     style = typography.bodySmall,
                     color = colorScheme.onSurfaceVariant,

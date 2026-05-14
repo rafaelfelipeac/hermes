@@ -6,11 +6,7 @@ import com.rafaelfelipeac.hermes.features.categories.presentation.model.Category
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMode
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyCardUi
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import java.time.LocalDate
@@ -84,7 +80,7 @@ private fun workoutsInDisplayWeek(
     val currentWeekEnd = currentWeekStart.plusDays(WEEK_END_OFFSET_DAYS)
 
     return workouts.filter { workout ->
-        if (workout.dayOfWeek == null || workout.eventType != WORKOUT) return@filter false
+        if (workout.dayOfWeek == null || !workout.countsTowardProgressSummary()) return@filter false
         val date = workoutDate(workout)
         !date.isBefore(currentWeekStart) && !date.isAfter(currentWeekEnd)
     }
@@ -101,7 +97,7 @@ private fun buildNextFocus(
         .asSequence()
         .filter {
             it.dayOfWeek != null &&
-                it.eventType == WORKOUT &&
+                it.countsTowardProgressSummary() &&
                 !it.isCompleted
         }
         .map { workout ->
@@ -131,6 +127,10 @@ private fun workoutDate(workout: Workout): LocalDate {
     return workout.weekStartDate.plusDays((requireNotNull(workout.dayOfWeek).value - 1).toLong())
 }
 
+private fun Workout.countsTowardProgressSummary(): Boolean {
+    return eventType == WORKOUT || eventType == RACE_EVENT
+}
+
 private fun buildWeeklyTrend(
     workouts: List<Workout>,
     currentWeekStart: LocalDate,
@@ -138,8 +138,8 @@ private fun buildWeeklyTrend(
     return (TREND_WEEK_COUNT - 1 downTo 0).map { offset ->
         val weekStart = currentWeekStart.minusWeeks(offset.toLong())
         val weekWorkouts = workouts.filter { it.weekStartDate == weekStart && it.dayOfWeek != null }
-        val plannedWorkouts = weekWorkouts.count { it.eventType == WORKOUT }
-        val completedWorkouts = weekWorkouts.count { it.eventType == WORKOUT && it.isCompleted }
+        val plannedWorkouts = weekWorkouts.count { it.countsTowardProgressSummary() }
+        val completedWorkouts = weekWorkouts.count { it.countsTowardProgressSummary() && it.isCompleted }
 
         ProgressWeekBarUi(
             weekStartDate = weekStart,
@@ -201,7 +201,7 @@ private fun buildCategoryDistribution(
     val windowStart = currentWeekStart.minusWeeks((CATEGORY_WINDOW_WEEK_COUNT - 1).toLong())
     val workoutsInWindow =
         workouts.filter {
-            it.eventType == WORKOUT &&
+            it.countsTowardProgressSummary() &&
                 it.isCompleted &&
                 !it.weekStartDate.isBefore(windowStart) &&
                 !it.weekStartDate.isAfter(currentWeekStart)

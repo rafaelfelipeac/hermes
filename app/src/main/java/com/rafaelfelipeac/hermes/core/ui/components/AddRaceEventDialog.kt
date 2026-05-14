@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
@@ -40,7 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
@@ -118,7 +116,7 @@ fun AddRaceEventDialog(
                     value = title,
                     onValueChange = { title = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_title)) },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -131,7 +129,7 @@ fun AddRaceEventDialog(
                     value = description,
                     onValueChange = { description = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_description)) },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -313,9 +311,4 @@ private fun LocalDate.toUtcEpochMillis(): Long {
 
 private fun Long.toUtcLocalDate(): LocalDate {
     return Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
-}
-
-private fun String.capitalizedFirstCharacter(): String {
-    if (isEmpty()) return this
-    return first().uppercaseChar() + substring(1)
 }
