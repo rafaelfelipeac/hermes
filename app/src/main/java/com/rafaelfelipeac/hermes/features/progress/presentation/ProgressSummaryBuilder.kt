@@ -237,7 +237,7 @@ private fun buildTrainingMixInsight(items: List<ProgressCategoryShareUi>): Progr
         ) ?: return null
 
     return when {
-        topCategory.sharePercent >= DOMINANT_CATEGORY_PERCENT ->
+        topCategory.sharePercent > DOMINANT_CATEGORY_PERCENT ->
             ProgressTrainingMixInsightUi(
                 kind = ProgressTrainingMixInsightKind.DOMINANT_CATEGORY,
                 categoryName = topCategory.name,

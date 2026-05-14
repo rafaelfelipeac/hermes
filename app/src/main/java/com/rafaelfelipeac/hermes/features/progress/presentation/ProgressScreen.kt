@@ -41,15 +41,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityDotSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressCategoryColorDotSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressReadoutBarHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityContentGap
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressRecentActivityTopPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressScreenBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressSupportCardMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrainingMixBarHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendAxisWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendBarHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendBarMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendCountMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendChartRowSpacing
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendChartVerticalPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendSectionSpacing
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -309,124 +314,145 @@ private fun ProgressWeeklyTrend(
     locale: Locale,
 ) {
     val formatter = DateTimeFormatter.ofPattern(WEEK_LABEL_FORMAT_PATTERN, locale)
-    val currentWeekIndex = weeks.indexOfFirst { it.isCurrentWeek }
     val maxPlannedWorkouts = weeks.maxOfOrNull { it.plannedWorkouts } ?: 0
 
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
-        Row(
+    Column(verticalArrangement = Arrangement.spacedBy(ProgressTrendSectionSpacing)) {
+        Box(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
-            weeks.forEach { week ->
-                Box(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .defaultMinSize(minHeight = ProgressTrendCountMinHeight),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.progress_weekly_chart_count,
-                            week.completedWorkouts,
-                            week.plannedWorkouts
-                        ),
-                        style = typography.labelSmall,
-                        color = colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-            verticalAlignment = Alignment.Bottom,
+            contentAlignment = Alignment.Center,
         ) {
             Column(
-                modifier =
-                    Modifier
-                        .width(ProgressTrendAxisWidth)
-                        .height(ProgressTrendBarHeight),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.End,
+                modifier = Modifier.padding(vertical = ProgressTrendChartVerticalPadding),
+                verticalArrangement = Arrangement.spacedBy(ProgressTrendChartRowSpacing),
             ) {
-                Text(
-                    text = maxPlannedWorkouts.toString(),
-                    style = typography.labelSmall,
-                    color = colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = (maxPlannedWorkouts / 2).toString(),
-                    style = typography.labelSmall,
-                    color = colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = AXIS_LABEL_EMPTY,
-                    style = typography.labelSmall,
-                    color = colorScheme.onSurfaceVariant,
-                )
-            }
-
-            weeks.forEach { week ->
-                val plannedFraction = week.plannedFraction(maxPlannedWorkouts)
-                Box(
-                    modifier =
-                        Modifier
-                            .weight(1f)
-                            .height(ProgressTrendBarHeight)
-                            .clip(shapes.small)
-                            .background(colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.BottomCenter,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                    verticalAlignment = Alignment.Bottom,
                 ) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(plannedFraction)
-                                .background(
-                                    colorScheme.surfaceVariant,
-                                ),
-                        contentAlignment = Alignment.BottomCenter,
-                    ) {
+                    Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
+                    weeks.forEach { week ->
                         Box(
                             modifier =
                                 Modifier
-                                    .fillMaxWidth()
-                                    .fillMaxHeight(week.completedFraction().coerceAtMost(1f))
-                                    .background(
-                                        if (week.isCurrentWeek) {
-                                            colorScheme.primary
-                                        } else {
-                                            colorScheme.secondary
-                                        },
+                                    .weight(1f)
+                                    .defaultMinSize(
+                                        minWidth = ProgressTrendBarMinWidth,
+                                        minHeight = ProgressTrendCountMinHeight,
                                     ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = stringResource(
+                                    R.string.progress_weekly_chart_count,
+                                    week.completedWorkouts,
+                                    week.plannedWorkouts,
+                                ),
+                                style = typography.labelSmall,
+                                color = colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .width(ProgressTrendAxisWidth)
+                                .height(ProgressTrendBarHeight),
+                        verticalArrangement = Arrangement.SpaceBetween,
+                        horizontalAlignment = Alignment.End,
+                    ) {
+                        Text(
+                            text = maxPlannedWorkouts.toString(),
+                            style = typography.labelSmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = (maxPlannedWorkouts / 2).toString(),
+                            style = typography.labelSmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = AXIS_LABEL_EMPTY,
+                            style = typography.labelSmall,
+                            color = colorScheme.onSurfaceVariant,
                         )
                     }
-                }
-            }
-        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-        ) {
-            Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
-            weeks.forEachIndexed { index, week ->
-                Box(
-                    modifier = Modifier.weight(1f),
-                    contentAlignment = Alignment.Center
+                    weeks.forEach { week ->
+                        val plannedFraction = week.plannedFraction(maxPlannedWorkouts)
+                        Box(
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .defaultMinSize(minWidth = ProgressTrendBarMinWidth)
+                                    .height(ProgressTrendBarHeight)
+                                    .clip(shapes.small)
+                                    .background(colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.BottomCenter,
+                        ) {
+                            Box(
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .fillMaxHeight(plannedFraction)
+                                        .background(colorScheme.surfaceVariant),
+                                contentAlignment = Alignment.BottomCenter,
+                            ) {
+                                Box(
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .fillMaxHeight(week.completedFraction().coerceAtMost(1f))
+                                            .background(
+                                                if (week.isCurrentWeek) {
+                                                    colorScheme.primary
+                                                } else {
+                                                    colorScheme.secondary
+                                                },
+                                            ),
+                                )
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
                 ) {
-                    Text(
-                        text = week.chartLabel(index = index, currentWeekIndex = currentWeekIndex, formatter = formatter),
-                        style = typography.labelSmall,
-                        color = if (week.isCurrentWeek) colorScheme.onSurface else colorScheme.onSurfaceVariant,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
+                    Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
+                    weeks.forEach { week ->
+                        Box(
+                            modifier =
+                                Modifier
+                                    .weight(1f)
+                                    .defaultMinSize(
+                                        minWidth = ProgressTrendBarMinWidth,
+                                        minHeight = ProgressTrendCountMinHeight,
+                                    ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = week.chartLabel(formatter = formatter),
+                                style = typography.labelSmall,
+                                color = if (week.isCurrentWeek) colorScheme.onSurface else colorScheme.onSurfaceVariant,
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                maxLines = 2,
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
                 }
             }
         }
@@ -654,13 +680,15 @@ private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.feature
             color = colorScheme.onSurfaceVariant,
         )
 
+        Spacer(modifier = Modifier.height(ProgressRecentActivityTopPadding))
+
         items.take(RECENT_ACTIVITY_TIMELINE_LIMIT).forEachIndexed { index, item ->
             if (index > 0) {
                 HorizontalDivider(color = colorScheme.outlineVariant)
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                horizontalArrangement = Arrangement.spacedBy(ProgressActivityContentGap),
                 verticalAlignment = Alignment.Top,
             ) {
                 Text(
@@ -668,16 +696,10 @@ private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.feature
                     style = typography.labelSmall,
                     color = colorScheme.onSurfaceVariant,
                 )
-                Box(
-                    modifier =
-                        Modifier
-                            .size(ProgressActivityDotSize)
-                            .clip(CircleShape)
-                            .background(colorScheme.primary),
-                )
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                    horizontalAlignment = Alignment.Start,
                 ) {
                     Text(
                         text = item.title,
@@ -706,17 +728,10 @@ private fun ProgressTrainingMixInsightUi.trainingMixInsightText(): String {
     }
 }
 
-@Composable
-private fun ProgressWeekBarUi.chartLabel(
-    index: Int,
-    currentWeekIndex: Int,
+internal fun ProgressWeekBarUi.chartLabel(
     formatter: DateTimeFormatter,
 ): String {
-    return when (index) {
-        currentWeekIndex -> stringResource(R.string.progress_weekly_chart_current_label)
-        currentWeekIndex - 1 -> stringResource(R.string.progress_weekly_chart_previous_label)
-        else -> weekStartDate.format(formatter)
-    }
+    return weekStartDate.format(formatter)
 }
 
 @Composable

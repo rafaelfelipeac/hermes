@@ -39,8 +39,6 @@
     <string name="progress_section_training_mix">Mix per categoria</string>
     <string name="progress_weekly_chart_caption">Ogni barra mostra gli elementi pianificati. La parte riempita mostra quelli completati.</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
-    <string name="progress_weekly_chart_current_label">Ora</string>
-    <string name="progress_weekly_chart_previous_label">Scorsa</string>
     <string name="progress_weekly_insight_heaviest">Settimana più intensa delle ultime 8 settimane.</string>
     <string name="progress_training_mix_caption">Elementi completati nelle ultime 8 settimane. Il colore mostra la categoria; la larghezza mostra la quota.</string>
     <string name="progress_training_mix_balanced">Il tuo mix è bilanciato tra le categorie recenti.</string>

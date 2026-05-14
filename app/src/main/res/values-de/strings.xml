@@ -39,8 +39,6 @@
     <string name="progress_section_training_mix">Kategoriemix</string>
     <string name="progress_weekly_chart_caption">Jeder Balken zeigt die geplanten Einträge. Der gefüllte Teil zeigt die abgeschlossenen Einträge.</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
-    <string name="progress_weekly_chart_current_label">Jetzt</string>
-    <string name="progress_weekly_chart_previous_label">Letzte</string>
     <string name="progress_weekly_insight_heaviest">Umfangreichste Woche der letzten 8 Wochen.</string>
     <string name="progress_training_mix_caption">Abgeschlossene Einträge in den letzten 8 Wochen. Die Farbe zeigt die Kategorie, die Breite den Anteil.</string>
     <string name="progress_training_mix_balanced">Dein Mix ist über die letzten Kategorien hinweg ausgewogen.</string>

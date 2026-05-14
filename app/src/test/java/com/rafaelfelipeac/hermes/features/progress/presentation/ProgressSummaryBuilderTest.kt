@@ -389,6 +389,28 @@ class ProgressSummaryBuilderTest {
         assertEquals("Uncategorized", state.trainingMixInsight?.categoryName)
     }
 
+    @Test
+    fun buildProgressState_doesNotMarkA50_50TieAsDominant() {
+        val workouts =
+            listOf(
+                workout(1L, currentWeek, DayOfWeek.MONDAY, EventType.WORKOUT, isCompleted = true, categoryId = 2L),
+                workout(2L, currentWeek, DayOfWeek.TUESDAY, EventType.WORKOUT, isCompleted = true, categoryId = 3L),
+            )
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = categories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertEquals(2, state.categoryDistribution.size)
+        assertNull(state.trainingMixInsight)
+    }
+
     private fun week(
         weekStart: LocalDate,
         completed: Int,

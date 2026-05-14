@@ -42,6 +42,11 @@ object Dimens {
     val ProgressTrendBarMinWidth = 28.dp
     val ProgressTrendAxisWidth = 34.dp
     val ProgressTrendCountMinHeight = 14.dp
+    val ProgressTrendChartVerticalPadding = 8.dp
+    val ProgressTrendChartRowSpacing = 8.dp
+    val ProgressTrendSectionSpacing = 12.dp
+    val ProgressActivityContentGap = 24.dp
+    val ProgressRecentActivityTopPadding = 12.dp
     val ProgressTrainingMixBarHeight = 18.dp
     val ProgressCategoryColorDotSize = 10.dp
     val ProgressActivityDotSize = 10.dp

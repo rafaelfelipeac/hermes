@@ -40,8 +40,6 @@
     <string name="progress_section_training_mix">Category mix</string>
     <string name="progress_weekly_chart_caption">Each bar shows planned items. The filled part shows completed items.</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
-    <string name="progress_weekly_chart_current_label">Now</string>
-    <string name="progress_weekly_chart_previous_label">Last</string>
     <string name="progress_weekly_insight_heaviest">Heaviest week in the last 8 weeks.</string>
     <string name="progress_training_mix_caption">Completed items over the last 8 weeks. Color shows category; width shows share.</string>
     <string name="progress_training_mix_balanced">Your mix is balanced across recent categories.</string>

@@ -39,8 +39,6 @@
     <string name="progress_section_training_mix">カテゴリ内訳</string>
     <string name="progress_weekly_chart_caption">各バーは計画済み項目を示します。塗りつぶされた部分は完了数を示します。</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
-    <string name="progress_weekly_chart_current_label">現在</string>
-    <string name="progress_weekly_chart_previous_label">前回</string>
     <string name="progress_weekly_insight_heaviest">直近8週間で最も計画量の多い週。</string>
     <string name="progress_training_mix_caption">直近8週間で完了した項目です。色はカテゴリー、幅は割合を示します。</string>
     <string name="progress_training_mix_balanced">最近のカテゴリー間でバランスの取れた内訳です。</string>

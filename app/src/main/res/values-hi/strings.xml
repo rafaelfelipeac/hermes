@@ -39,8 +39,6 @@
     <string name="progress_section_training_mix">श्रेणी मिश्रण</string>
     <string name="progress_weekly_chart_caption">हर बार नियोजित आइटम दिखाता है। भरा हुआ हिस्सा पूरे हुए आइटम दिखाता है।</string>
     <string name="progress_weekly_chart_count">%1$d/%2$d</string>
-    <string name="progress_weekly_chart_current_label">अभी</string>
-    <string name="progress_weekly_chart_previous_label">पिछला</string>
     <string name="progress_weekly_insight_heaviest">पिछले 8 सप्ताहों का सबसे भारी सप्ताह।</string>
     <string name="progress_training_mix_caption">पिछले 8 सप्ताहों में पूरे हुए आइटम। रंग श्रेणी दिखाता है; चौड़ाई हिस्सा दिखाती है।</string>
     <string name="progress_training_mix_balanced">आपका मिश्रण हाल की श्रेणियों में संतुलित है।</string>
