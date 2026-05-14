@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
@@ -36,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -64,6 +67,8 @@ import java.util.Locale
 fun ActivityScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
+    requestedActivityId: Long? = null,
+    onRequestedActivityConsumed: () -> Unit = {},
     viewModel: ActivityViewModel = hiltViewModel(),
 ) {
     val configuration = LocalConfiguration.current
@@ -77,6 +82,12 @@ fun ActivityScreen(
 
     val state by viewModel.state.collectAsState()
 
+    LaunchedEffect(requestedActivityId) {
+        if (requestedActivityId != null) {
+            onRequestedActivityConsumed()
+        }
+    }
+
     Column(
         modifier =
             modifier
@@ -89,6 +100,8 @@ fun ActivityScreen(
         ActivityContent(
             sections = state.sections,
             currentLocale = currentLocale,
+            requestedActivityId = requestedActivityId,
+            onRequestedActivityConsumed = onRequestedActivityConsumed,
             filters = state.filters,
             emptyTitle =
                 stringResource(
@@ -154,6 +167,8 @@ internal fun ActivityHeader(onBack: () -> Unit) {
 internal fun ActivityContent(
     sections: List<ActivitySectionUi>,
     currentLocale: Locale,
+    requestedActivityId: Long? = null,
+    onRequestedActivityConsumed: () -> Unit = {},
     filters: ActivityFiltersUi = ActivityFiltersUi(),
     emptyTitle: String = stringResource(R.string.activity_empty_title),
     emptyMessage: String = stringResource(R.string.activity_empty),
@@ -225,7 +240,10 @@ internal fun ActivityContent(
                 }
 
                 items(section.items, key = { it.id }) { item ->
-                    ActivityRow(item)
+                    ActivityRow(
+                        item = item,
+                        focusRequested = item.id == requestedActivityId,
+                    )
                 }
             }
         }
@@ -404,11 +422,31 @@ private suspend fun centerSelectedChip(
 }
 
 @Composable
-private fun ActivityRow(item: ActivityItemUi) {
+private fun ActivityRow(
+    item: ActivityItemUi,
+    focusRequested: Boolean,
+) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(focusRequested) {
+        if (focusRequested) {
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
+
     Surface(
         tonalElevation = ElevationSm,
         shape = shapes.medium,
-        modifier = Modifier.fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .then(
+                    if (focusRequested) {
+                        Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         Column(
             modifier =

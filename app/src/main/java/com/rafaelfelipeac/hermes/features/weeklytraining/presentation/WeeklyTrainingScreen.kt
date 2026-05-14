@@ -101,6 +101,11 @@ fun WeeklyTrainingScreen(
     onManageCategories: (WorkoutDialogDraft) -> Unit = {},
     pendingWorkoutDraft: WorkoutDialogDraft? = null,
     onWorkoutDraftConsumed: () -> Unit = {},
+    requestedWorkoutId: Long? = null,
+    requestedWorkoutDate: LocalDate? = null,
+    requestedWorkoutRequestKey: Long = 0L,
+    onRequestedWorkoutDateConsumed: () -> Unit = {},
+    onRequestedWorkoutConsumed: () -> Unit = {},
     viewModel: WeeklyTrainingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -115,6 +120,9 @@ fun WeeklyTrainingScreen(
     var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
     var draftEventDate by remember { mutableStateOf<LocalDate?>(state.selectedDate) }
+    var requestedWorkoutRequestToken by remember { mutableStateOf<Long?>(null) }
+    var requestedWorkoutIdToOpen by remember { mutableStateOf<Long?>(null) }
+    var requestedWorkoutDateToOpen by remember { mutableStateOf<LocalDate?>(null) }
     var isRaceEventDialogVisible by rememberSaveable { mutableStateOf(false) }
     var focusedCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftConsumedLocally by remember { mutableStateOf(false) }
@@ -168,6 +176,46 @@ fun WeeklyTrainingScreen(
     LaunchedEffect(undoState) {
         if (undoState == null) {
             snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
+
+    LaunchedEffect(requestedWorkoutRequestKey) {
+        requestedWorkoutRequestToken = requestedWorkoutRequestKey
+        requestedWorkoutIdToOpen = requestedWorkoutId
+        requestedWorkoutDateToOpen = requestedWorkoutDate
+        if (requestedWorkoutDate != null) {
+            viewModel.onDateSelected(requestedWorkoutDate)
+            onRequestedWorkoutDateConsumed()
+        }
+    }
+
+    LaunchedEffect(
+        requestedWorkoutRequestToken,
+        requestedWorkoutIdToOpen,
+        requestedWorkoutDateToOpen,
+        state.selectedDate,
+        state.workouts,
+    ) {
+        val targetWorkoutId = requestedWorkoutIdToOpen ?: return@LaunchedEffect
+
+        if (requestedWorkoutDateToOpen != null && state.selectedDate != requestedWorkoutDateToOpen) {
+            return@LaunchedEffect
+        }
+
+        val targetWorkout = state.workouts.firstOrNull { it.id == targetWorkoutId } ?: return@LaunchedEffect
+
+        if (editingWorkout?.id != targetWorkout.id) {
+            editingWorkout = targetWorkout
+        }
+    }
+
+    LaunchedEffect(editingWorkout?.id, requestedWorkoutRequestToken) {
+        val openedWorkoutId = editingWorkout?.id
+        if (openedWorkoutId != null && openedWorkoutId == requestedWorkoutIdToOpen) {
+            requestedWorkoutRequestToken = null
+            requestedWorkoutIdToOpen = null
+            requestedWorkoutDateToOpen = null
+            onRequestedWorkoutConsumed()
         }
     }
 
@@ -321,6 +369,7 @@ fun WeeklyTrainingScreen(
                         selectedDate = state.selectedDate,
                         workouts = state.workouts,
                         focusedCategoryId = focusedCategoryId,
+                        requestedWorkoutId = requestedWorkoutIdToOpen,
                         dayOrder = state.dayOrder,
                         slotModePolicy = state.slotModePolicy,
                         onWorkoutMoved = viewModel::moveWorkout,

@@ -31,6 +31,7 @@ import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.TROPHIES
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
+import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.events.presentation.EventsScreen
 import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
@@ -38,8 +39,11 @@ import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.CA
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.MAIN
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressScreen
+import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressNextFocusUi
+import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressUpcomingEventUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophiesScreen
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyCelebrationViewModel
+import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
 
@@ -55,12 +59,60 @@ fun HermesAppContent() {
     var pendingEventDraft by rememberSaveable(stateSaver = EventDialogDraft.Saver) {
         mutableStateOf<EventDialogDraft?>(null)
     }
+    var pendingRequestedWorkoutId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var pendingRequestedWorkoutDate by rememberSaveable { mutableStateOf<java.time.LocalDate?>(null) }
+    var pendingRequestedWorkoutRequestKey by rememberSaveable { mutableStateOf(0L) }
+    var pendingRequestedEventId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var pendingRequestedActivityId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var pendingRequestedTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingCelebrationTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
     val visibleDestinations = listOf(WEEKLY_TRAINING, PROGRESS, EVENTS, TROPHIES, SETTINGS)
     val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
+    val openProgressEvent: (ProgressUpcomingEventUi) -> Unit = { event ->
+        pendingWorkoutDraft = null
+        pendingRequestedWorkoutId = null
+        pendingRequestedWorkoutDate = null
+        pendingRequestedTrophyStableId = null
+        pendingEventDraft = null
+        pendingRequestedEventId = event.id
+        pendingRequestedActivityId = null
+        currentDestination = EVENTS
+    }
+    val openProgressWorkout: (ProgressNextFocusUi) -> Unit = { workout ->
+        pendingWorkoutDraft = null
+        pendingRequestedWorkoutId = workout.id
+        pendingRequestedWorkoutDate = workout.date
+        pendingRequestedWorkoutRequestKey += 1L
+        pendingRequestedTrophyStableId = null
+        pendingRequestedEventId = null
+        pendingRequestedActivityId = null
+        currentDestination = WEEKLY_TRAINING
+    }
+    val openProgressTrophy: (FeaturedTrophyUi) -> Unit = { trophy ->
+        pendingRequestedWorkoutId = null
+        pendingRequestedWorkoutDate = null
+        pendingCelebrationTrophyStableId = null
+        pendingRequestedTrophyStableId = trophy.trophy.stableId
+        pendingRequestedEventId = null
+        pendingRequestedActivityId = null
+        currentDestination = TROPHIES
+    }
+    val openProgressActivityItem: (ActivityItemUi) -> Unit = { item ->
+        pendingRequestedWorkoutId = null
+        pendingRequestedWorkoutDate = null
+        pendingRequestedActivityId = item.id
+        pendingRequestedEventId = null
+        pendingRequestedTrophyStableId = null
+        currentDestination = ACTIVITY
+    }
     val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingEventDraft = null
         pendingWorkoutDraft = draft
+        pendingRequestedWorkoutId = null
+        pendingRequestedWorkoutDate = null
+        pendingRequestedTrophyStableId = null
+        pendingRequestedEventId = null
+        pendingRequestedActivityId = null
         pendingSettingsRoute = CATEGORIES
         currentDestination = SETTINGS
     }
@@ -121,6 +173,8 @@ fun HermesAppContent() {
                             pendingWorkoutDraft = null
                             pendingEventDraft = null
                             pendingSettingsRoute = null
+                            pendingRequestedWorkoutId = null
+                            pendingRequestedWorkoutDate = null
                         } else if (it == SETTINGS) {
                             pendingSettingsRoute = MAIN
                         }
@@ -132,34 +186,50 @@ fun HermesAppContent() {
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                when (currentDestination) {
-                    WEEKLY_TRAINING ->
-                        WeeklyTrainingScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            onManageCategories = openCategoriesSettings,
-                            pendingWorkoutDraft = pendingWorkoutDraft,
-                            onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
-                        )
+                    when (currentDestination) {
+                        WEEKLY_TRAINING ->
+                            WeeklyTrainingScreen(
+                                modifier = Modifier.padding(innerPadding),
+                                onManageCategories = openCategoriesSettings,
+                                pendingWorkoutDraft = pendingWorkoutDraft,
+                                onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
+                                requestedWorkoutId = pendingRequestedWorkoutId,
+                                requestedWorkoutDate = pendingRequestedWorkoutDate,
+                                requestedWorkoutRequestKey = pendingRequestedWorkoutRequestKey,
+                                onRequestedWorkoutDateConsumed = { pendingRequestedWorkoutDate = null },
+                                onRequestedWorkoutConsumed = { pendingRequestedWorkoutId = null },
+                            )
                     PROGRESS ->
                         ProgressScreen(
                             modifier = Modifier.padding(innerPadding),
                             onOpenActivity = { currentDestination = ACTIVITY },
+                            onOpenActivityItem = openProgressActivityItem,
+                            onOpenWorkout = openProgressWorkout,
+                            onOpenEvent = openProgressEvent,
+                            onOpenTrophy = openProgressTrophy,
                         )
                     ACTIVITY ->
                         ActivityScreen(
                             modifier = Modifier.padding(innerPadding),
+                            requestedActivityId = pendingRequestedActivityId,
+                            onRequestedActivityConsumed = { pendingRequestedActivityId = null },
                             onBack = { currentDestination = PROGRESS },
                         )
                     TROPHIES ->
                         TrophiesScreen(
                             modifier = Modifier.padding(innerPadding),
-                            requestedTrophyStableId = pendingCelebrationTrophyStableId,
-                            onRequestedTrophyConsumed = { pendingCelebrationTrophyStableId = null },
+                            requestedTrophyStableId = pendingRequestedTrophyStableId ?: pendingCelebrationTrophyStableId,
+                            onRequestedTrophyConsumed = {
+                                pendingRequestedTrophyStableId = null
+                                pendingCelebrationTrophyStableId = null
+                            },
                             onOpenActivities = { currentDestination = ACTIVITY },
                         )
                     EVENTS ->
                         EventsScreen(
                             modifier = Modifier.padding(innerPadding),
+                            requestedEventId = pendingRequestedEventId,
+                            onRequestedEventConsumed = { pendingRequestedEventId = null },
                             onManageCategories = openEventCategories,
                             pendingEventDraft = pendingEventDraft,
                             onEventDraftConsumed = { pendingEventDraft = null },

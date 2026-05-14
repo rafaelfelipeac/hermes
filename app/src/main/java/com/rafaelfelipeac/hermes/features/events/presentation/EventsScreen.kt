@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Flag
@@ -115,6 +117,8 @@ fun EventsScreen(
     onManageCategories: (EventDialogDraft) -> Unit = {},
     pendingEventDraft: EventDialogDraft? = null,
     onEventDraftConsumed: () -> Unit = {},
+    requestedEventId: Long? = null,
+    onRequestedEventConsumed: () -> Unit = {},
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -184,6 +188,12 @@ fun EventsScreen(
     LaunchedEffect(undoState) {
         if (undoState == null) {
             snackbarHostState.currentSnackbarData?.dismiss()
+        }
+    }
+
+    LaunchedEffect(editingEventId, requestedEventId) {
+        if (editingEventId != null && editingEventId == requestedEventId) {
+            onRequestedEventConsumed()
         }
     }
 
@@ -293,6 +303,8 @@ fun EventsScreen(
             state = state,
             modifier = modifier,
             contentPadding = contentPadding,
+            requestedEventId = requestedEventId,
+            onRequestedEventConsumed = onRequestedEventConsumed,
             onEditEvent = ::openEditDialog,
             onToggleCompleted = { eventId, checked ->
                 viewModel.updateRaceEventCompletion(
@@ -383,6 +395,8 @@ internal fun EventsContent(
     state: EventsUiState,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
+    requestedEventId: Long? = null,
+    onRequestedEventConsumed: () -> Unit = {},
     onEditEvent: (WorkoutUi) -> Unit,
     onToggleCompleted: (eventId: Long, isCompleted: Boolean) -> Unit,
     onDeleteEvent: (eventId: Long) -> Unit,
@@ -455,8 +469,10 @@ internal fun EventsContent(
                     EventCard(
                         event = event,
                         onClick = { onEditEvent(event) },
+                        onFocusRequested = { onEditEvent(event) },
                         onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
                         onDelete = { onDeleteEvent(event.id) },
+                        focusRequested = event.id == requestedEventId,
                     )
                 }
 
@@ -473,8 +489,10 @@ internal fun EventsContent(
                     EventCard(
                         event = event,
                         onClick = { onEditEvent(event) },
+                        onFocusRequested = { onEditEvent(event) },
                         onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
                         onDelete = { onDeleteEvent(event.id) },
+                        focusRequested = event.id == requestedEventId,
                     )
                 }
             }
@@ -524,8 +542,10 @@ private fun EventsSectionTitle(
 private fun EventCard(
     event: WorkoutUi,
     onClick: () -> Unit,
+    onFocusRequested: () -> Unit = {},
     onToggleCompleted: (Boolean) -> Unit,
     onDelete: () -> Unit,
+    focusRequested: Boolean,
 ) {
     val eventDate = event.eventDate()
     val categoryAccent = event.categoryColorId?.let(::categoryAccentColor)?.let(::baseCategoryColor)
@@ -552,6 +572,14 @@ private fun EventCard(
     val dateLabel = formatDate(eventDate)
     val categoryLabel = event.categoryName ?: stringResource(R.string.category_uncategorized)
     val frameColor = if (event.isCompleted) colors.background else categoryAccent
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(focusRequested) {
+        if (focusRequested) {
+            bringIntoViewRequester.bringIntoView()
+            onFocusRequested()
+        }
+    }
 
     Card(
         onClick = onClick,
@@ -566,6 +594,13 @@ private fun EventCard(
             Modifier
                 .fillMaxWidth()
                 .height(EventCardHeight)
+                .then(
+                    if (focusRequested) {
+                        Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                    } else {
+                        Modifier
+                    },
+                )
                 .testTag(EVENT_CARD_TAG_PREFIX + event.id),
     ) {
         Box {

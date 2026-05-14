@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.progress.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,7 +63,9 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.strings.relativeDaysUntilText
+import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMode
+import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.trophyNameRes
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -71,6 +74,10 @@ import java.util.Locale
 fun ProgressScreen(
     modifier: Modifier = Modifier,
     onOpenActivity: () -> Unit,
+    onOpenActivityItem: (ActivityItemUi) -> Unit,
+    onOpenWorkout: (ProgressNextFocusUi) -> Unit,
+    onOpenEvent: (ProgressUpcomingEventUi) -> Unit,
+    onOpenTrophy: (FeaturedTrophyUi) -> Unit,
     viewModel: ProgressViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -81,6 +88,10 @@ fun ProgressScreen(
         state = state,
         locale = locale,
         onOpenActivity = onOpenActivity,
+        onOpenActivityItem = onOpenActivityItem,
+        onOpenWorkout = onOpenWorkout,
+        onOpenEvent = onOpenEvent,
+        onOpenTrophy = onOpenTrophy,
         modifier = modifier,
     )
 }
@@ -90,6 +101,10 @@ internal fun ProgressContent(
     state: ProgressState,
     locale: Locale,
     onOpenActivity: () -> Unit,
+    onOpenActivityItem: (ActivityItemUi) -> Unit,
+    onOpenWorkout: (ProgressNextFocusUi) -> Unit,
+    onOpenEvent: (ProgressUpcomingEventUi) -> Unit,
+    onOpenTrophy: (FeaturedTrophyUi) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     if (state.emptyReason != null) {
@@ -182,6 +197,9 @@ internal fun ProgressContent(
                             nextFocus = section.nextFocus,
                             upcomingEvent = section.upcomingEvent,
                             trophyHighlight = section.trophyHighlight,
+                            onOpenWorkout = onOpenWorkout,
+                            onOpenEvent = onOpenEvent,
+                            onOpenTrophy = onOpenTrophy,
                         )
                     }
                 }
@@ -194,7 +212,11 @@ internal fun ProgressContent(
                             }
                         },
                     ) {
-                        ProgressRecentActivity(items = section.items)
+                        ProgressRecentActivity(
+                            items = section.items,
+                            onOpenActivity = onOpenActivity,
+                            onOpenActivityItem = onOpenActivityItem,
+                        )
                     }
                 }
             }
@@ -545,7 +567,10 @@ private fun ProgressCategoryDistribution(
 private fun ProgressSupportingProgress(
     nextFocus: ProgressNextFocusUi?,
     upcomingEvent: ProgressUpcomingEventUi?,
-    trophyHighlight: com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi?,
+    trophyHighlight: FeaturedTrophyUi?,
+    onOpenWorkout: (ProgressNextFocusUi) -> Unit,
+    onOpenEvent: (ProgressUpcomingEventUi) -> Unit,
+    onOpenTrophy: (FeaturedTrophyUi) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
         val hasTopRow = nextFocus != null || upcomingEvent != null
@@ -561,6 +586,7 @@ private fun ProgressSupportingProgress(
                                 subtitle = daysUntilText(nextFocus.daysUntil),
                             ),
                         modifier = Modifier.weight(1f),
+                        onClick = { onOpenWorkout(nextFocus) },
                     )
                     ProgressSupportBlock(
                         content =
@@ -570,6 +596,7 @@ private fun ProgressSupportingProgress(
                                 subtitle = daysUntilText(upcomingEvent.daysUntil),
                             ),
                         modifier = Modifier.weight(1f),
+                        onClick = { onOpenEvent(upcomingEvent) },
                     )
                 }
             }
@@ -582,6 +609,7 @@ private fun ProgressSupportingProgress(
                             title = nextFocus.title,
                             subtitle = daysUntilText(nextFocus.daysUntil),
                         ),
+                    onClick = { onOpenWorkout(nextFocus) },
                 )
             }
 
@@ -593,6 +621,7 @@ private fun ProgressSupportingProgress(
                             title = upcomingEvent.title,
                             subtitle = daysUntilText(upcomingEvent.daysUntil),
                         ),
+                    onClick = { onOpenEvent(upcomingEvent) },
                 )
             }
         }
@@ -621,6 +650,7 @@ private fun ProgressSupportingProgress(
                                 trophy.target,
                             ),
                     ),
+                onClick = { onOpenTrophy(highlight) },
             )
         }
     }
@@ -629,6 +659,7 @@ private fun ProgressSupportingProgress(
 @Composable
 private fun ProgressSupportBlock(
     content: ProgressSupportCardContent,
+    onClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -637,6 +668,13 @@ private fun ProgressSupportBlock(
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = ProgressSupportCardMinHeight)
                 .clip(shapes.small)
+                .then(
+                    if (onClick != null) {
+                        Modifier.clickable(onClick = onClick)
+                    } else {
+                        Modifier
+                    },
+                )
                 .background(colorScheme.surfaceVariant)
                 .padding(SpacingMd),
     ) {
@@ -672,7 +710,11 @@ private fun ProgressSupportBlock(
 }
 
 @Composable
-private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi>) {
+private fun ProgressRecentActivity(
+    items: List<com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi>,
+    onOpenActivity: () -> Unit,
+    onOpenActivityItem: (ActivityItemUi) -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
         Text(
             text = stringResource(R.string.progress_recent_activity_caption),
@@ -687,7 +729,10 @@ private fun ProgressRecentActivity(items: List<com.rafaelfelipeac.hermes.feature
                 HorizontalDivider(color = colorScheme.outlineVariant)
             }
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = { onOpenActivityItem(item) }),
                 horizontalArrangement = Arrangement.spacedBy(ProgressActivityContentGap),
                 verticalAlignment = Alignment.Top,
             ) {

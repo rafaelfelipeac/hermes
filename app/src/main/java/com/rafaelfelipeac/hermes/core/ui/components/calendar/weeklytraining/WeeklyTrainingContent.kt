@@ -92,6 +92,7 @@ fun WeeklyTrainingContent(
     selectedDate: LocalDate,
     workouts: List<WorkoutUi>,
     focusedCategoryId: Long? = null,
+    requestedWorkoutId: WorkoutId? = null,
     dayOrder: List<DayOfWeek> = DayOfWeek.entries,
     slotModePolicy: SlotModePolicy = AUTO_WHEN_MULTIPLE,
     onWorkoutMoved: (WorkoutId, DayOfWeek?, TimeSlot?, Int) -> Unit,
@@ -446,10 +447,11 @@ fun WeeklyTrainingContent(
                                             }
 
                                             key(workout.id) {
-                                                WorkoutRow(
+                                        WorkoutRow(
                                                     workout = workout,
                                                     isDragging = dragController.draggedWorkoutId == workout.id,
                                                     isDeemphasized = workout.shouldDeemphasize(focusedCategoryId),
+                                                    focusRequested = workout.id == requestedWorkoutId,
                                                     onToggleCompleted = { checked ->
                                                         hapticFeedback.performHapticFeedback(
                                                             completionHapticType(checked),
@@ -497,6 +499,7 @@ fun WeeklyTrainingContent(
                                         workout = workout,
                                         isDragging = dragController.draggedWorkoutId == workout.id,
                                         isDeemphasized = workout.shouldDeemphasize(focusedCategoryId),
+                                        focusRequested = workout.id == requestedWorkoutId,
                                         onToggleCompleted = { checked ->
                                             hapticFeedback.performHapticFeedback(
                                                 completionHapticType(checked),

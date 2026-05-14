@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Bedtime
 import androidx.compose.material.icons.outlined.Check
@@ -35,6 +37,7 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -96,6 +99,7 @@ internal fun WorkoutRow(
     workout: WorkoutUi,
     isDragging: Boolean,
     isDeemphasized: Boolean,
+    focusRequested: Boolean = false,
     onToggleCompleted: (Boolean) -> Unit,
     onDragStarted: (Offset, Float) -> Unit,
     onEdit: () -> Unit,
@@ -103,6 +107,7 @@ internal fun WorkoutRow(
     onItemPositioned: (Rect) -> Unit,
 ) {
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val colors = workoutRowColors(workout, isDragging = isDragging)
     val hasDescription = workout.description.isNotBlank()
     val usesCategoryStyling = workout.usesCategoryStyling()
@@ -172,6 +177,19 @@ internal fun WorkoutRow(
                         .alpha(if (isDeemphasized) DEEMPHASIZED_ROW_ALPHA else WORKOUT_ROW_CONTENT_ALPHA)
                 },
             )
+            .then(
+                if (focusRequested) {
+                    Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                } else {
+                    Modifier
+                },
+            )
+
+    LaunchedEffect(focusRequested) {
+        if (focusRequested) {
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
 
     Box(modifier = rowModifier) {
         if (usesCategoryStyling && categoryAccent != null) {

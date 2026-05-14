@@ -36,6 +36,7 @@ class TrophiesContentTest {
             TrophiesContent(
                 state = TrophyPageState(),
                 selectedFamilyName = null,
+                selectedTrophyId = null,
                 onFamilySelected = {},
                 onBackFromFamily = {},
                 onTrophySelected = {},
@@ -130,6 +131,7 @@ class TrophiesContentTest {
             TrophiesContent(
                 state = state,
                 selectedFamilyName = selectedFamilyName,
+                selectedTrophyId = null,
                 onFamilySelected = { family -> selectedFamilyName = family.name },
                 onBackFromFamily = { selectedFamilyName = null },
                 onTrophySelected = {},
@@ -188,6 +190,7 @@ class TrophiesContentTest {
             TrophiesContent(
                 state = state,
                 selectedFamilyName = selectedFamilyName,
+                selectedTrophyId = null,
                 onFamilySelected = { family -> selectedFamilyName = family.name },
                 onBackFromFamily = { selectedFamilyName = null },
                 onTrophySelected = {},
@@ -423,6 +426,7 @@ class TrophiesContentTest {
                             ),
                     ),
                 selectedFamilyName = null,
+                selectedTrophyId = null,
                 onFamilySelected = {},
                 onBackFromFamily = {},
                 onTrophySelected = { selectedId = it.stableId },
@@ -493,6 +497,7 @@ class TrophiesContentTest {
             TrophiesContent(
                 state = state,
                 selectedFamilyName = selectedFamilyName,
+                selectedTrophyId = null,
                 onFamilySelected = { family -> selectedFamilyName = family.name },
                 onBackFromFamily = { selectedFamilyName = null },
                 onTrophySelected = onTrophySelected,

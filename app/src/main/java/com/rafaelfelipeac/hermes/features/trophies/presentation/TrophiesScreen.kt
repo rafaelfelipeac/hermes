@@ -27,6 +27,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -159,7 +161,7 @@ fun TrophiesScreen(
 
     LaunchedEffect(requestedTrophy?.stableId) {
         if (requestedTrophy != null) {
-            selectedFamilyName = null
+            selectedFamilyName = requestedTrophy.family.name
             selectedTrophyId = requestedTrophy.stableId
             onRequestedTrophyConsumed()
         }
@@ -181,6 +183,7 @@ fun TrophiesScreen(
         TrophiesContent(
             state = state,
             selectedFamilyName = selectedFamilyName,
+            selectedTrophyId = selectedTrophyId,
             onFamilySelected = { family -> selectedFamilyName = family.name },
             onBackFromFamily = { selectedFamilyName = null },
             onTrophySelected = { selectedTrophyId = it.stableId },
@@ -210,6 +213,7 @@ fun TrophiesScreen(
 internal fun TrophiesContent(
     state: TrophyPageState,
     selectedFamilyName: String?,
+    selectedTrophyId: String?,
     onFamilySelected: (TrophyFamilyUi) -> Unit,
     onBackFromFamily: () -> Unit,
     onTrophySelected: (TrophyCardUi) -> Unit,
@@ -245,6 +249,7 @@ internal fun TrophiesContent(
         TrophyFamilyDetailContent(
             familySection = selectedFamily,
             onTrophySelected = onTrophySelected,
+            requestedTrophyStableId = selectedTrophyId,
             firstVisibleItemIndex = familyFirstVisibleItemIndex[selectedFamily.family.name] ?: 0,
             firstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset[selectedFamily.family.name] ?: 0,
             onScrollChanged = { index, offset ->
@@ -372,6 +377,7 @@ private fun TrophyOverviewContent(
 private fun TrophyFamilyDetailContent(
     familySection: TrophyFamilySectionUi,
     onTrophySelected: (TrophyCardUi) -> Unit,
+    requestedTrophyStableId: String?,
     firstVisibleItemIndex: Int,
     firstVisibleItemScrollOffset: Int,
     onScrollChanged: (Int, Int) -> Unit,
@@ -402,6 +408,7 @@ private fun TrophyFamilyDetailContent(
                 TrophySection(
                     section = section,
                     onTrophySelected = onTrophySelected,
+                    requestedTrophyStableId = requestedTrophyStableId,
                 )
             }
         }
@@ -477,6 +484,7 @@ private fun TrophyOverviewSection(
                     trophy = trophy,
                     showExpandedMeta = false,
                     onClick = { onTrophySelected(trophy) },
+                    focusRequested = false,
                     modifier = Modifier.width(TrophyShelfCardMinWidth),
                 )
             }
@@ -554,6 +562,7 @@ private fun TrophyPreviewCard(
 private fun TrophySection(
     section: TrophySectionUi,
     onTrophySelected: (TrophyCardUi) -> Unit,
+    requestedTrophyStableId: String?,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
         section.title?.let { title ->
@@ -575,6 +584,7 @@ private fun TrophySection(
                             trophy = trophy,
                             showExpandedMeta = true,
                             onClick = { onTrophySelected(trophy) },
+                            focusRequested = trophy.stableId == requestedTrophyStableId,
                             modifier =
                                 if (trophiesInRow.size == 1) {
                                     Modifier.fillMaxWidth()
@@ -594,6 +604,7 @@ private fun TrophyShelfCard(
     trophy: TrophyCardUi,
     showExpandedMeta: Boolean,
     onClick: () -> Unit,
+    focusRequested: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val accent = trophyAccentColor(trophy)
@@ -615,11 +626,19 @@ private fun TrophyShelfCard(
             trophy.categoryName,
             trophyConditionLabel(trophy),
         ).joinToString(separator = ". ")
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
 
     Card(
         modifier =
             modifier
                 .height(if (showExpandedMeta) TrophyDetailCardMinHeight else TrophyOverviewCardMinHeight)
+                .then(
+                    if (focusRequested) {
+                        Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                    } else {
+                        Modifier
+                    },
+                )
                 .semantics { contentDescription = semanticsLabel }
                 .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = cardColor),
@@ -697,6 +716,12 @@ private fun TrophyShelfCard(
                             .padding(horizontal = SpacingXs),
                 )
             }
+        }
+    }
+
+    if (focusRequested) {
+        LaunchedEffect(bringIntoViewRequester) {
+            bringIntoViewRequester.bringIntoView()
         }
     }
 }
