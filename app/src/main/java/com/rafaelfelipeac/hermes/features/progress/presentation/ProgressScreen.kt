@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.progress.presentation
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendCountMinHeigh
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendChartRowSpacing
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendChartVerticalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendSectionSpacing
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -167,7 +169,10 @@ internal fun ProgressContent(
         ) { section ->
             when (section) {
                 is ProgressSectionUi.WeeklyReadout -> {
-                    ProgressWeeklyReadout(readout = section.readout)
+                    ProgressWeeklyReadout(
+                        readout = section.readout,
+                        onOpenWorkout = onOpenWorkout,
+                    )
                 }
                 is ProgressSectionUi.WeeklyTrend -> {
                     ProgressSection(
@@ -226,7 +231,10 @@ internal fun ProgressContent(
 }
 
 @Composable
-private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
+private fun ProgressWeeklyReadout(
+    readout: ProgressWeeklyReadoutUi,
+    onOpenWorkout: (ProgressNextFocusUi) -> Unit,
+) {
     val remainingItems = (readout.plannedWorkouts - readout.completedWorkouts).coerceAtLeast(0)
 
     ProgressSection(
@@ -259,9 +267,9 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
                 Box(
                     modifier =
                         Modifier
-                                .fillMaxHeight()
-                                .fillMaxWidth(readout.completionPercent.percentFraction())
-                                .background(colorScheme.onSurfaceVariant),
+                            .fillMaxHeight()
+                            .fillMaxWidth(readout.completionPercent.percentFraction())
+                            .background(colorScheme.onSurfaceVariant),
                 )
             }
             if (remainingItems > 0) {
@@ -278,22 +286,32 @@ private fun ProgressWeeklyReadout(readout: ProgressWeeklyReadoutUi) {
             }
             readout.nextFocus?.let { nextFocus ->
                 HorizontalDivider(color = colorScheme.outlineVariant)
-                Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
-                    Text(
-                        text = stringResource(R.string.progress_support_next_focus),
-                        style = typography.labelMedium,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = nextFocus.title,
-                        style = typography.bodyMedium,
-                        color = colorScheme.onSurface,
-                    )
-                    Text(
-                        text = daysUntilText(nextFocus.daysUntil),
-                        style = typography.bodySmall,
-                        color = colorScheme.onSurfaceVariant,
-                    )
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .clip(shapes.small)
+                            .background(colorScheme.surfaceVariant)
+                            .clickable(onClick = { onOpenWorkout(nextFocus) })
+                            .padding(SpacingMd),
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+                        Text(
+                            text = stringResource(R.string.progress_support_next_focus),
+                            style = typography.labelMedium,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = nextFocus.title,
+                            style = typography.bodyMedium,
+                            color = colorScheme.onSurface,
+                        )
+                        Text(
+                            text = daysUntilText(nextFocus.daysUntil),
+                            style = typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
@@ -417,7 +435,7 @@ private fun ProgressWeeklyTrend(
                     }
 
                     weeks.forEach { week ->
-                        val plannedFraction = week.plannedFraction(maxPlannedWorkouts)
+                        val isCurrentWeek = week.isCurrentWeek
                         Box(
                             modifier =
                                 Modifier
@@ -425,31 +443,32 @@ private fun ProgressWeeklyTrend(
                                     .defaultMinSize(minWidth = ProgressTrendBarMinWidth)
                                     .height(ProgressTrendBarHeight)
                                     .clip(shapes.small)
-                                    .background(colorScheme.surfaceContainerHighest),
+                                    .background(colorScheme.surfaceVariant)
+                                    .border(
+                                        width = BorderHairline,
+                                        color =
+                                            if (isCurrentWeek) {
+                                                colorScheme.primary.copy(alpha = 0.24f)
+                                            } else {
+                                                colorScheme.outlineVariant
+                                            },
+                                        shape = shapes.small,
+                                    ),
                             contentAlignment = Alignment.BottomCenter,
                         ) {
                             Box(
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
-                                        .fillMaxHeight(plannedFraction)
-                                        .background(colorScheme.surfaceContainerHigh),
-                                contentAlignment = Alignment.BottomCenter,
-                            ) {
-                                Box(
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .fillMaxHeight(week.completedFraction().coerceAtMost(1f))
-                                            .background(
-                                                if (week.isCurrentWeek) {
-                                                    colorScheme.primary
-                                                } else {
-                                                    colorScheme.secondary
-                                                },
-                                            ),
-                                )
-                            }
+                                        .fillMaxHeight(week.completedFraction().coerceAtMost(1f))
+                                        .background(
+                                            if (week.isCurrentWeek) {
+                                                colorScheme.primary
+                                            } else {
+                                                colorScheme.secondary
+                                            },
+                                        ),
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
@@ -682,7 +701,7 @@ private fun ProgressSupportBlock(
                         Modifier
                     },
                 )
-                .background(colorScheme.surfaceContainerHigh)
+                .background(colorScheme.surfaceVariant)
                 .padding(SpacingMd),
     ) {
         Column(
