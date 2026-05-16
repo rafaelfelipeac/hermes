@@ -361,6 +361,7 @@ private fun ProgressWeeklyTrend(
     locale: Locale,
 ) {
     val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+    val maxPlannedWorkouts = weeks.maxOfOrNull { it.plannedWorkouts } ?: 0
 
     Column(verticalArrangement = Arrangement.spacedBy(ProgressTrendSectionSpacing)) {
         Box(
@@ -418,12 +419,12 @@ private fun ProgressWeeklyTrend(
                         horizontalAlignment = Alignment.End,
                     ) {
                         Text(
-                            text = PERCENT_MAX.percentLabel(),
+                            text = maxPlannedWorkouts.toString(),
                             style = typography.labelSmall,
                             color = colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            text = (PERCENT_MAX / 2).percentLabel(),
+                            text = (maxPlannedWorkouts / 2).toString(),
                             style = typography.labelSmall,
                             color = colorScheme.onSurfaceVariant,
                         )
@@ -441,7 +442,14 @@ private fun ProgressWeeklyTrend(
                                 Modifier
                                     .weight(1f)
                                     .defaultMinSize(minWidth = ProgressTrendBarMinWidth)
-                                    .height(ProgressTrendBarHeight)
+                                    .height(
+                                        if (maxPlannedWorkouts > 0) {
+                                            (ProgressTrendBarHeight * week.plannedFraction(maxPlannedWorkouts))
+                                                .coerceAtLeast(ProgressTrendCountMinHeight)
+                                        } else {
+                                            ProgressTrendCountMinHeight
+                                        },
+                                    )
                                     .clip(shapes.small)
                                     .background(colorScheme.surfaceVariant)
                                     .border(
@@ -850,7 +858,7 @@ private data class ProgressSupportCardContent(
     val detail: String? = null,
 )
 
-private const val AXIS_LABEL_EMPTY = "0%"
+private const val AXIS_LABEL_EMPTY = "0"
 private const val COUNT_SHARE_SEPARATOR = " / "
 private const val PERCENT_SUFFIX = "%"
 private const val PERCENT_MAX = 100
