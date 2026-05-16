@@ -6,9 +6,12 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">الأسبوع</string>
+    <string name="weekly_training_nav_label">الرئيسية</string>
     <string name="activity_nav_label">النشاط</string>
     <string name="progress_nav_label">التقدم</string>
+    <string name="browse_nav_label">تصفح</string>
+    <string name="browse_title">تصفح</string>
+    <string name="browse_backup_import_title">النسخ الاحتياطي والاستيراد</string>
     <string name="settings_nav_label">الإعدادات</string>
 
     <!-- Progress -->
@@ -532,7 +535,7 @@
     <string name="trophies_desc_category_presence_unlocked">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل من هذه الفئة.</string>
     <string name="trophies_desc_category_planning_locked">افتحها عند إضافة تمارين في هذه الفئة أو نقلها أو تنظيمها %1$d مرات.</string>
     <string name="trophies_desc_category_planning_unlocked">لقد أضفت تمارين في هذه الفئة أو نقلتها أو نظّمتها %1$d مرات.</string>
-    <string name="race_events_nav_label">الفعاليات</string>
+    <string name="race_events_nav_label">الفعالية</string>
     <string name="weekly_training_add_race_event">إضافة فعالية</string>
     <string name="weekly_training_delete_race_event">حذف</string>
     <string name="weekly_training_delete_race_event_title">حذف الفعالية؟</string>

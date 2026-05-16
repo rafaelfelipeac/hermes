@@ -6,9 +6,12 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">Semana</string>
+    <string name="weekly_training_nav_label">Início</string>
     <string name="activity_nav_label">Atividade</string>
     <string name="progress_nav_label">Progresso</string>
+    <string name="browse_nav_label">Explorar</string>
+    <string name="browse_title">Explorar</string>
+    <string name="browse_backup_import_title">Backup e importação</string>
     <string name="settings_nav_label">Config.</string>
 
     <!-- Progress -->
@@ -511,7 +514,7 @@
     <string name="trophies_desc_category_presence_unlocked">Você concluiu %1$d semanas que incluíam pelo menos um treino concluído desta categoria.</string>
     <string name="trophies_desc_category_planning_locked">Desbloqueie ao adicionar, mover ou organizar treinos nesta categoria %1$d vezes.</string>
     <string name="trophies_desc_category_planning_unlocked">Você adicionou, moveu ou organizou treinos nesta categoria %1$d vezes.</string>
-    <string name="race_events_nav_label">Eventos</string>
+    <string name="race_events_nav_label">Evento</string>
     <string name="weekly_training_add_race_event">Adicionar evento</string>
     <string name="weekly_training_delete_race_event">Excluir</string>
     <string name="weekly_training_delete_race_event_title">Excluir evento?</string>

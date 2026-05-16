@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Star
@@ -32,6 +33,8 @@ import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ModalBottomSheet
@@ -43,9 +46,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringArrayResource
@@ -62,7 +66,6 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ReleaseNotesBottomPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperSectionSpacing
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
@@ -70,7 +73,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
-import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -104,7 +106,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     initialRoute: SettingsRoute? = null,
     onRouteConsumed: () -> Unit = {},
-    onExitCategories: () -> Unit = {},
+    onBack: (() -> Unit)? = null,
 ) {
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -123,7 +125,6 @@ fun SettingsScreen(
     var isSlotModeHelpVisible by rememberSaveable { mutableStateOf(false) }
     var isBackupHelpVisible by rememberSaveable { mutableStateOf(false) }
     var isImportReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
-    var pendingDeveloperAction by rememberSaveable { mutableStateOf<DeveloperSeedAction?>(null) }
     var pendingImportPayload by remember { mutableStateOf<String?>(null) }
     var pendingSaveAsDestinationConfigured by rememberSaveable { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -224,12 +225,12 @@ fun SettingsScreen(
             }
         }
 
-    BackHandler(enabled = route != SettingsRoute.MAIN) {
-        if (route == SettingsRoute.CATEGORIES) {
-            onExitCategories()
+    BackHandler {
+        if (route != SettingsRoute.MAIN) {
+            route = SettingsRoute.MAIN
+        } else {
+            onBack?.invoke()
         }
-
-        route = SettingsRoute.MAIN
     }
 
     LaunchedEffect(initialRoute) {
@@ -310,6 +311,7 @@ fun SettingsScreen(
             SettingsContent(
                 state = state,
                 appVersion = VERSION_NAME,
+                onBack = onBack,
                 onThemeClick = { route = SettingsRoute.THEME },
                 onLanguageClick = { route = SettingsRoute.LANGUAGE },
                 onWeekStartClick = { route = SettingsRoute.START_OF_WEEK },
@@ -410,23 +412,6 @@ fun SettingsScreen(
                         }
                     }
                 },
-                onSeedDemoData = {
-                    pendingDeveloperAction = DeveloperSeedAction.DEMO_DATA
-                },
-                onSeedMixedTrophies = {
-                    pendingDeveloperAction = DeveloperSeedAction.MIXED_TROPHIES
-                },
-                onSeedLockedTrophies = {
-                    pendingDeveloperAction = DeveloperSeedAction.LOCKED_TROPHIES
-                },
-                onSeedCompletedTrophies = {
-                    pendingDeveloperAction = DeveloperSeedAction.UNLOCKED_TROPHIES
-                },
-                onClearDatabase = {
-                    pendingDeveloperAction = DeveloperSeedAction.CLEAR_DATABASE
-                },
-                onCategoriesClick = { route = SettingsRoute.CATEGORIES },
-                onBackupClick = { route = SettingsRoute.BACKUP },
                 modifier = modifier,
             )
         SettingsRoute.THEME ->
@@ -450,14 +435,6 @@ fun SettingsScreen(
                 onWeekStartSelected = viewModel::setWeekStartDay,
                 modifier = modifier,
             )
-        SettingsRoute.CATEGORIES ->
-            CategoriesScreen(
-                onBack = {
-                    route = SettingsRoute.MAIN
-                    onExitCategories()
-                },
-                modifier = modifier,
-            )
         SettingsRoute.SLOT_MODE ->
             SettingsSlotModeScreen(
                 slotModePolicy = state.slotModePolicy,
@@ -465,84 +442,6 @@ fun SettingsScreen(
                 onHelpClick = { isSlotModeHelpVisible = true },
                 onSlotModeSelected = viewModel::setSlotModePolicy,
                 modifier = modifier,
-            )
-        SettingsRoute.BACKUP ->
-            SettingsBackupScreen(
-                state = state,
-                onBack = { route = SettingsRoute.MAIN },
-                onHelpClick = { isBackupHelpVisible = true },
-                modifier = modifier,
-                onExportClick = {
-                    scope.launch {
-                        val configuredUri = state.backupFolderUri
-
-                        if (configuredUri == null) {
-                            pendingSaveAsDestinationConfigured = false
-                            exportDocumentLauncher.launch(backupFileName())
-                        } else {
-                            val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
-
-                            if (jsonResult.isFailure) {
-                                Toast.makeText(
-                                    context,
-                                    exportFallbackMessage,
-                                    Toast.LENGTH_SHORT,
-                                ).show()
-
-                                viewModel.logExportBackupResult(
-                                    exportResult = jsonResult,
-                                    destinationType = EXPORT_DESTINATION_FOLDER,
-                                    destinationConfigured = false,
-                                )
-                            } else {
-                                val writeSucceeded =
-                                    jsonResult.getOrNull()?.let { payload ->
-                                        writeTextToBackupFolder(
-                                            context = context,
-                                            treeUri = configuredUri.toUri(),
-                                            content = payload,
-                                        )
-                                    } ?: false
-
-                                if (writeSucceeded) {
-                                    Toast.makeText(
-                                        context,
-                                        exportSuccessMessage,
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
-
-                                    viewModel.logExportBackupResult(
-                                        exportResult = jsonResult,
-                                        destinationType = EXPORT_DESTINATION_FOLDER,
-                                        destinationConfigured = true,
-                                    )
-                                } else {
-                                    Toast.makeText(
-                                        context,
-                                        exportFallbackMessage,
-                                        Toast.LENGTH_SHORT,
-                                    ).show()
-
-                                    pendingSaveAsDestinationConfigured = true
-                                    exportDocumentLauncher.launch(backupFileName())
-
-                                    viewModel.logExportBackupResult(
-                                        exportResult = jsonResult,
-                                        destinationType = EXPORT_DESTINATION_FOLDER,
-                                        destinationConfigured = false,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                },
-                onImportClick = { importDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE)) },
-                onSelectFolderClick = { backupFolderLauncher.launch(null) },
-                onClearFolderClick = {
-                    scope.launch {
-                        viewModel.clearBackupFolderUri()
-                    }
-                },
             )
     }
 
@@ -607,56 +506,6 @@ fun SettingsScreen(
         )
     }
 
-    pendingDeveloperAction?.let { action ->
-        AlertDialog(
-            onDismissRequest = { pendingDeveloperAction = null },
-            title = {
-                Text(
-                    text =
-                        stringResource(
-                            if (action == DeveloperSeedAction.CLEAR_DATABASE) {
-                                R.string.settings_clear_database_confirm_title
-                            } else {
-                                R.string.settings_developer_confirm_title
-                            },
-                        ),
-                )
-            },
-            text = {
-                Text(
-                    text =
-                        stringResource(
-                            if (action == DeveloperSeedAction.CLEAR_DATABASE) {
-                                R.string.settings_clear_database_confirm_message
-                            } else {
-                                R.string.settings_developer_confirm_message
-                            },
-                        ),
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        when (action) {
-                            DeveloperSeedAction.DEMO_DATA -> viewModel.seedDemoData()
-                            DeveloperSeedAction.MIXED_TROPHIES -> viewModel.seedMixedTrophies()
-                            DeveloperSeedAction.LOCKED_TROPHIES -> viewModel.seedLockedTrophies()
-                            DeveloperSeedAction.UNLOCKED_TROPHIES -> viewModel.seedCompletedTrophies()
-                            DeveloperSeedAction.CLEAR_DATABASE -> viewModel.clearDatabase()
-                        }
-                        pendingDeveloperAction = null
-                    },
-                ) {
-                    Text(text = stringResource(R.string.settings_developer_confirm_continue))
-                }
-            },
-            dismissButton = {
-                Button(onClick = { pendingDeveloperAction = null }) {
-                    Text(text = stringResource(R.string.settings_developer_confirm_cancel))
-                }
-            },
-        )
-    }
 }
 
 @Composable
@@ -664,19 +513,13 @@ internal fun SettingsContent(
     modifier: Modifier = Modifier,
     state: SettingsState,
     appVersion: String,
+    onBack: (() -> Unit)? = null,
     onThemeClick: () -> Unit,
     onLanguageClick: () -> Unit,
     onWeekStartClick: () -> Unit,
     onSlotModeClick: () -> Unit,
     onFeedbackClick: (String, String) -> Unit,
     onRateClick: () -> Unit,
-    onSeedDemoData: () -> Unit,
-    onSeedMixedTrophies: () -> Unit,
-    onSeedLockedTrophies: () -> Unit,
-    onSeedCompletedTrophies: () -> Unit,
-    onClearDatabase: () -> Unit = {},
-    onCategoriesClick: () -> Unit,
-    onBackupClick: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
     val appName = stringResource(R.string.app_name)
@@ -689,159 +532,140 @@ internal fun SettingsContent(
         }
     }
 
+    val contentModifier =
+        if (onBack != null) {
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(bottom = SpacingXl)
+        } else {
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(SpacingXl)
+        }
+
     Box(modifier = modifier.fillMaxSize()) {
         Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(SpacingXl),
+            modifier = contentModifier,
             verticalArrangement = Arrangement.spacedBy(SpacingXxl),
         ) {
-            Text(
-                text = stringResource(R.string.settings_title),
-                style = typography.titleLarge,
-            )
+            if (onBack != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = SpacingSm,
+                                end = SpacingXl,
+                                top = SpacingSm,
+                                bottom = SpacingSm,
+                            ),
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = stringResource(R.string.settings_back),
+                        )
+                    }
 
-            SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
-                SettingsNavigationRow(
-                    label = stringResource(R.string.settings_categories),
-                    onClick = onCategoriesClick,
-                )
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-
-                SettingsNavigationRow(
-                    label = stringResource(R.string.settings_slot_mode_title),
-                    onClick = onSlotModeClick,
-                )
-
-                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-
-                SettingsNavigationRow(
-                    label = stringResource(R.string.settings_week_start_title),
-                    detail = weekStartLabel(state.weekStartDay),
-                    onClick = onWeekStartClick,
-                    modifier = Modifier.testTag(SETTINGS_WEEK_START_ROW_TAG),
-                )
-            }
-
-            SettingsSection(title = stringResource(R.string.settings_data_title)) {
-                SettingsNavigationRow(
-                    label = stringResource(R.string.settings_backup_title),
-                    onClick = onBackupClick,
-                )
-            }
-
-            SettingsSection(title = stringResource(R.string.settings_theme_title)) {
-                SettingsNavigationRow(
-                    label = themeLabel(state.themeMode),
-                    onClick = onThemeClick,
-                    modifier = Modifier.testTag(SETTINGS_THEME_ROW_TAG),
-                )
-            }
-
-            SettingsSection(title = stringResource(R.string.settings_language_title)) {
-                SettingsNavigationRow(
-                    label = languageLabel(state.language),
-                    onClick = onLanguageClick,
-                    modifier = Modifier.testTag(SETTINGS_LANGUAGE_ROW_TAG),
-                )
-            }
-
-            val feedbackSubject =
-                stringResource(
-                    R.string.settings_feedback_subject,
-                    appName,
-                )
-            val feedbackBody =
-                stringResource(
-                    R.string.settings_feedback_email_body,
-                    appVersion,
-                ).replace(NEW_LINE_TOKEN, NEW_LINE)
-
-            Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+                    Text(
+                        text = stringResource(R.string.settings_title),
+                        style = typography.titleLarge,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            } else {
                 Text(
-                    text = stringResource(R.string.settings_about_title),
-                    style = typography.titleMedium,
+                    text = stringResource(R.string.settings_title),
+                    style = typography.titleLarge,
                 )
+            }
 
-                SettingsCard {
-                    SettingsInfoRow(
-                        icon = Icons.Outlined.Email,
-                        title = stringResource(R.string.settings_feedback_title),
-                        body = stringResource(R.string.settings_feedback_body),
-                        onClick = { onFeedbackClick(feedbackSubject, feedbackBody) },
+            Column(
+                modifier =
+                    if (onBack != null) {
+                        Modifier.padding(horizontal = SpacingXl)
+                    } else {
+                        Modifier
+                    },
+                verticalArrangement = Arrangement.spacedBy(SpacingXxl),
+            ) {
+                SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
+                    SettingsNavigationRow(
+                        label = stringResource(R.string.settings_slot_mode_title),
+                        onClick = onSlotModeClick,
                     )
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
 
-                    SettingsInfoRow(
-                        icon = Icons.Outlined.Star,
-                        title = stringResource(R.string.settings_rate_title),
-                        body = stringResource(R.string.settings_rate_body),
-                        onClick = onRateClick,
+                    SettingsNavigationRow(
+                        label = stringResource(R.string.settings_week_start_title),
+                        detail = weekStartLabel(state.weekStartDay),
+                        onClick = onWeekStartClick,
+                        modifier = Modifier.testTag(SETTINGS_WEEK_START_ROW_TAG),
                     )
                 }
 
-                SettingsVersionCard(
-                    appVersion = appVersion,
-                    hasReleaseNotes = releaseNotesDefinition != null,
-                    onClick = { isReleaseNotesVisible = true },
-                )
-            }
+                SettingsSection(title = stringResource(R.string.settings_theme_title)) {
+                    SettingsNavigationRow(
+                        label = themeLabel(state.themeMode),
+                        onClick = onThemeClick,
+                        modifier = Modifier.testTag(SETTINGS_THEME_ROW_TAG),
+                    )
+                }
 
-            if (BuildConfig.DEBUG) {
-                SettingsSection(title = stringResource(R.string.settings_developer_title)) {
-                    Column(verticalArrangement = Arrangement.spacedBy(SettingsDeveloperSectionSpacing)) {
-                        Text(
-                            text = stringResource(R.string.settings_developer_data_title),
-                            style = typography.titleSmall,
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_developer_data_body),
-                            style = typography.bodySmall,
-                            color = colorScheme.onSurfaceVariant,
-                        )
+                SettingsSection(title = stringResource(R.string.settings_language_title)) {
+                    SettingsNavigationRow(
+                        label = languageLabel(state.language),
+                        onClick = onLanguageClick,
+                        modifier = Modifier.testTag(SETTINGS_LANGUAGE_ROW_TAG),
+                    )
+                }
 
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_demo_data),
-                            onClick = onSeedDemoData,
-                        )
+                val feedbackSubject =
+                    stringResource(
+                        R.string.settings_feedback_subject,
+                        appName,
+                    )
+                val feedbackBody =
+                    stringResource(
+                        R.string.settings_feedback_email_body,
+                        appVersion,
+                    ).replace(NEW_LINE_TOKEN, NEW_LINE)
 
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_clear_database),
-                            onClick = onClearDatabase,
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+                    Text(
+                        text = stringResource(R.string.settings_about_title),
+                        style = typography.titleMedium,
+                    )
+
+                    SettingsCard {
+                        SettingsInfoRow(
+                            icon = Icons.Outlined.Email,
+                            title = stringResource(R.string.settings_feedback_title),
+                            body = stringResource(R.string.settings_feedback_body),
+                            onClick = { onFeedbackClick(feedbackSubject, feedbackBody) },
                         )
 
                         HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
 
-                        Text(
-                            text = stringResource(R.string.settings_developer_trophies_title),
-                            style = typography.titleSmall,
-                        )
-                        Text(
-                            text = stringResource(R.string.settings_developer_trophies_body),
-                            style = typography.bodySmall,
-                            color = colorScheme.onSurfaceVariant,
-                        )
-
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_mixed_trophies),
-                            onClick = onSeedMixedTrophies,
-                        )
-
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_locked_trophies),
-                            onClick = onSeedLockedTrophies,
-                        )
-
-                        SettingsActionButton(
-                            label = stringResource(R.string.settings_seed_completed_trophies),
-                            onClick = onSeedCompletedTrophies,
+                        SettingsInfoRow(
+                            icon = Icons.Outlined.Star,
+                            title = stringResource(R.string.settings_rate_title),
+                            body = stringResource(R.string.settings_rate_body),
+                            onClick = onRateClick,
                         )
                     }
+
+                    SettingsVersionCard(
+                        appVersion = appVersion,
+                        hasReleaseNotes = releaseNotesDefinition != null,
+                        onClick = { isReleaseNotesVisible = true },
+                    )
                 }
+
             }
         }
 
@@ -982,14 +806,6 @@ private fun ReleaseNotesSection(
             }
         }
     }
-}
-
-private enum class DeveloperSeedAction {
-    DEMO_DATA,
-    MIXED_TROPHIES,
-    LOCKED_TROPHIES,
-    UNLOCKED_TROPHIES,
-    CLEAR_DATABASE,
 }
 
 private fun backupFileName(): String {

@@ -6,9 +6,12 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">週</string>
+    <string name="weekly_training_nav_label">ホーム</string>
     <string name="activity_nav_label">アクティビティ</string>
     <string name="progress_nav_label">進捗</string>
+    <string name="browse_nav_label">ブラウズ</string>
+    <string name="browse_title">ブラウズ</string>
+    <string name="browse_backup_import_title">バックアップとインポート</string>
     <string name="settings_nav_label">設定</string>
 
     <!-- Progress -->

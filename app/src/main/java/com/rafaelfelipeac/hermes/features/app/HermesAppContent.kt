@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.app
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -25,26 +26,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.ACTIVITY
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.BROWSE
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.EVENTS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.PROGRESS
-import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.SETTINGS
-import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.TROPHIES
-import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.WEEKLY_TRAINING
-import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
+import com.rafaelfelipeac.hermes.features.browse.presentation.BrowseDestination
+import com.rafaelfelipeac.hermes.features.browse.presentation.BrowseScreen
 import com.rafaelfelipeac.hermes.features.events.presentation.EventsScreen
 import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
 import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressNextFocusUi
 import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressScreen
 import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressUpcomingEventUi
-import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
-import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.CATEGORIES
-import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.MAIN
-import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
-import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophiesScreen
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyCelebrationViewModel
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
@@ -56,8 +52,10 @@ fun HermesAppContent() {
     val settingsViewModel: SettingsViewModel = hiltViewModel()
     val settingsState by settingsViewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var currentDestination by rememberSaveable { mutableStateOf(WEEKLY_TRAINING) }
-    var pendingSettingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
+    var currentDestination by rememberSaveable { mutableStateOf(HOME) }
+    var currentBrowseDestination by rememberSaveable { mutableStateOf(BrowseDestination.ROOT) }
+    var browseOriginTab by rememberSaveable { mutableStateOf<AppDestinations?>(null) }
+    var browseParentDestination by rememberSaveable { mutableStateOf(BrowseDestination.ROOT) }
     var pendingWorkoutDraft by rememberSaveable(stateSaver = WorkoutDialogDraft.Saver) {
         mutableStateOf<WorkoutDialogDraft?>(null)
     }
@@ -71,8 +69,35 @@ fun HermesAppContent() {
     var pendingRequestedActivityId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingCelebrationTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
-    val visibleDestinations = listOf(WEEKLY_TRAINING, PROGRESS, EVENTS, TROPHIES, SETTINGS)
+    val visibleDestinations = listOf(HOME, PROGRESS, EVENTS, BROWSE)
+    val showBottomNavigation = currentDestination != BROWSE || currentBrowseDestination == BrowseDestination.ROOT
     val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
+    fun resetBrowseNavigation() {
+        currentBrowseDestination = BrowseDestination.ROOT
+        browseOriginTab = null
+        browseParentDestination = BrowseDestination.ROOT
+    }
+    fun openBrowseDestination(
+        destination: BrowseDestination,
+        originTab: AppDestinations?,
+        parentDestination: BrowseDestination = BrowseDestination.ROOT,
+    ) {
+        currentDestination = BROWSE
+        currentBrowseDestination = destination
+        browseOriginTab = originTab
+        browseParentDestination = parentDestination
+    }
+    fun navigateToBrowse(destination: BrowseDestination) {
+        val originTab = if (currentDestination == BROWSE) null else currentDestination
+        val parentDestination =
+            if (currentDestination == BROWSE) {
+                currentBrowseDestination
+            } else {
+                BrowseDestination.ROOT
+            }
+
+        openBrowseDestination(destination, originTab = originTab, parentDestination = parentDestination)
+    }
     val openProgressEvent: (ProgressUpcomingEventUi) -> Unit = { event ->
         pendingWorkoutDraft = null
         pendingRequestedWorkoutId = null
@@ -91,7 +116,15 @@ fun HermesAppContent() {
         pendingRequestedTrophyStableId = null
         pendingRequestedEventId = null
         pendingRequestedActivityId = null
-        currentDestination = WEEKLY_TRAINING
+        currentDestination = HOME
+    }
+    val openProgressActivityItem: (ActivityItemUi) -> Unit = { item ->
+        pendingRequestedWorkoutId = null
+        pendingRequestedWorkoutDate = null
+        pendingRequestedActivityId = item.id
+        pendingRequestedEventId = null
+        pendingRequestedTrophyStableId = null
+        navigateToBrowse(BrowseDestination.ACTIVITIES)
     }
     val openProgressTrophy: (FeaturedTrophyUi) -> Unit = { trophy ->
         pendingRequestedWorkoutId = null
@@ -100,17 +133,9 @@ fun HermesAppContent() {
         pendingRequestedTrophyStableId = trophy.trophy.stableId
         pendingRequestedEventId = null
         pendingRequestedActivityId = null
-        currentDestination = TROPHIES
+        navigateToBrowse(BrowseDestination.TROPHIES)
     }
-    val openProgressActivityItem: (ActivityItemUi) -> Unit = { item ->
-        pendingRequestedWorkoutId = null
-        pendingRequestedWorkoutDate = null
-        pendingRequestedActivityId = item.id
-        pendingRequestedEventId = null
-        pendingRequestedTrophyStableId = null
-        currentDestination = ACTIVITY
-    }
-    val openCategoriesSettings: (WorkoutDialogDraft) -> Unit = { draft ->
+    val openCategoriesBrowse: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingEventDraft = null
         pendingWorkoutDraft = draft
         pendingRequestedWorkoutId = null
@@ -118,26 +143,39 @@ fun HermesAppContent() {
         pendingRequestedTrophyStableId = null
         pendingRequestedEventId = null
         pendingRequestedActivityId = null
-        pendingSettingsRoute = CATEGORIES
-        currentDestination = SETTINGS
-    }
-    val handleCategoriesExit = {
-        when {
-            pendingWorkoutDraft != null -> {
-                pendingEventDraft = null
-                currentDestination = WEEKLY_TRAINING
-            }
-            pendingEventDraft != null -> {
-                pendingWorkoutDraft = null
-                currentDestination = EVENTS
-            }
-        }
+        navigateToBrowse(BrowseDestination.CATEGORIES)
     }
     val openEventCategories: (EventDialogDraft) -> Unit = { draft ->
         pendingWorkoutDraft = null
         pendingEventDraft = draft
-        pendingSettingsRoute = CATEGORIES
-        currentDestination = SETTINGS
+        pendingRequestedWorkoutId = null
+        pendingRequestedWorkoutDate = null
+        pendingRequestedTrophyStableId = null
+        pendingRequestedEventId = null
+        pendingRequestedActivityId = null
+        navigateToBrowse(BrowseDestination.CATEGORIES)
+    }
+    val onBrowseBack = {
+        when (currentBrowseDestination) {
+            BrowseDestination.ACTIVITIES ->
+                if (browseParentDestination != BrowseDestination.ROOT) {
+                    currentBrowseDestination = browseParentDestination
+                    browseParentDestination = BrowseDestination.ROOT
+                } else if (browseOriginTab != null) {
+                    currentDestination = browseOriginTab!!
+                    resetBrowseNavigation()
+                } else {
+                    currentBrowseDestination = BrowseDestination.ROOT
+                }
+
+            else ->
+                if (browseOriginTab != null) {
+                    currentDestination = browseOriginTab!!
+                    resetBrowseNavigation()
+                } else {
+                    currentBrowseDestination = BrowseDestination.ROOT
+                }
+        }
     }
 
     LaunchedEffect(trophyCelebrationViewModel) {
@@ -152,50 +190,20 @@ fun HermesAppContent() {
                 )
             if (result == SnackbarResult.ActionPerformed) {
                 pendingCelebrationTrophyStableId = celebration.trophyStableId
-                currentDestination = TROPHIES
+                navigateToBrowse(BrowseDestination.TROPHIES)
             }
         }
     }
 
-    NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            visibleDestinations.forEach {
-                item(
-                    icon = {
-                        Icon(
-                            it.icon,
-                            contentDescription = stringResource(it.labelRes),
-                        )
-                    },
-                    label = { Text(stringResource(it.labelRes)) },
-                    selected = it == currentDestination,
-                    onClick = {
-                        if (
-                            currentDestination == SETTINGS &&
-                            pendingSettingsRoute == CATEGORIES &&
-                            it != SETTINGS
-                        ) {
-                            pendingWorkoutDraft = null
-                            pendingEventDraft = null
-                            pendingSettingsRoute = null
-                            pendingRequestedWorkoutId = null
-                            pendingRequestedWorkoutDate = null
-                        } else if (it == SETTINGS) {
-                            pendingSettingsRoute = MAIN
-                        }
-                        currentDestination = it
-                    },
-                )
-            }
-        },
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    @Composable
+    fun ShellContent(contentPadding: PaddingValues) {
+        Box(modifier = Modifier.fillMaxSize().padding(contentPadding)) {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                 when (currentDestination) {
-                    WEEKLY_TRAINING ->
+                    HOME ->
                         WeeklyTrainingScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onManageCategories = openCategoriesSettings,
+                            onManageCategories = openCategoriesBrowse,
                             pendingWorkoutDraft = pendingWorkoutDraft,
                             onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
                             requestedWorkoutId = pendingRequestedWorkoutId,
@@ -207,29 +215,11 @@ fun HermesAppContent() {
                     PROGRESS ->
                         ProgressScreen(
                             modifier = Modifier.padding(innerPadding),
-                            onOpenActivity = { currentDestination = ACTIVITY },
+                            onOpenActivity = { navigateToBrowse(BrowseDestination.ACTIVITIES) },
                             onOpenActivityItem = openProgressActivityItem,
                             onOpenWorkout = openProgressWorkout,
                             onOpenEvent = openProgressEvent,
                             onOpenTrophy = openProgressTrophy,
-                        )
-                    ACTIVITY ->
-                        ActivityScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            requestedActivityId = pendingRequestedActivityId,
-                            onRequestedActivityConsumed = { pendingRequestedActivityId = null },
-                            onBack = { currentDestination = PROGRESS },
-                        )
-                    TROPHIES ->
-                        TrophiesScreen(
-                            modifier = Modifier.padding(innerPadding),
-                            requestedTrophyStableId =
-                                pendingRequestedTrophyStableId ?: pendingCelebrationTrophyStableId,
-                            onRequestedTrophyConsumed = {
-                                pendingRequestedTrophyStableId = null
-                                pendingCelebrationTrophyStableId = null
-                            },
-                            onOpenActivities = { currentDestination = ACTIVITY },
                         )
                     EVENTS ->
                         EventsScreen(
@@ -241,12 +231,33 @@ fun HermesAppContent() {
                             onEventDraftConsumed = { pendingEventDraft = null },
                             weekStartDay = settingsState.weekStartDay,
                         )
-                    SETTINGS ->
-                        SettingsScreen(
+                    BROWSE ->
+                        BrowseScreen(
                             modifier = Modifier.padding(innerPadding),
-                            initialRoute = pendingSettingsRoute,
-                            onRouteConsumed = { pendingSettingsRoute = null },
-                            onExitCategories = handleCategoriesExit,
+                            route = currentBrowseDestination,
+                            settingsState = settingsState,
+                            settingsViewModel = settingsViewModel,
+                            requestedActivityId = pendingRequestedActivityId,
+                            onRequestedActivityConsumed = { pendingRequestedActivityId = null },
+                            requestedTrophyStableId =
+                                pendingRequestedTrophyStableId ?: pendingCelebrationTrophyStableId,
+                            onRequestedTrophyConsumed = {
+                                pendingRequestedTrophyStableId = null
+                                pendingCelebrationTrophyStableId = null
+                            },
+                            onNavigateTo = { destination ->
+                                when (destination) {
+                                    BrowseDestination.ROOT -> {
+                                        currentBrowseDestination = BrowseDestination.ROOT
+                                        browseOriginTab = null
+                                        browseParentDestination = BrowseDestination.ROOT
+                                    }
+                                    BrowseDestination.ACTIVITIES ->
+                                        navigateToBrowse(BrowseDestination.ACTIVITIES)
+                                    else -> navigateToBrowse(destination)
+                                }
+                            },
+                            onBack = onBrowseBack,
                         )
                 }
             }
@@ -263,5 +274,42 @@ fun HermesAppContent() {
                 )
             }
         }
+    }
+
+    if (showBottomNavigation) {
+        NavigationSuiteScaffold(
+            navigationSuiteItems = {
+                visibleDestinations.forEach {
+                    item(
+                        icon = {
+                            Icon(
+                                it.icon,
+                                contentDescription = stringResource(it.labelRes),
+                            )
+                        },
+                        label = { Text(stringResource(it.labelRes)) },
+                        selected = it == currentDestination,
+                        onClick = {
+                            if (it == BROWSE) {
+                                resetBrowseNavigation()
+                                currentDestination = BROWSE
+                            } else if (currentDestination == BROWSE && currentBrowseDestination != BrowseDestination.ROOT) {
+                                pendingWorkoutDraft = null
+                                pendingEventDraft = null
+                                resetBrowseNavigation()
+                                currentDestination = it
+                            } else {
+                                resetBrowseNavigation()
+                                currentDestination = it
+                            }
+                        },
+                    )
+                }
+            },
+        ) {
+            ShellContent(PaddingValues())
+        }
+    } else {
+        ShellContent(PaddingValues())
     }
 }

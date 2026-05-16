@@ -52,6 +52,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
@@ -133,6 +134,7 @@ private const val TROPHIES_QUOTE = "\""
 @Composable
 fun TrophiesScreen(
     modifier: Modifier = Modifier,
+    onBack: (() -> Unit)? = null,
     requestedTrophyStableId: String? = null,
     onRequestedTrophyConsumed: () -> Unit = {},
     onOpenActivities: () -> Unit = {},
@@ -159,6 +161,14 @@ fun TrophiesScreen(
                 .firstOrNull { it.stableId == requestedId }
         }
 
+    BackHandler {
+        if (selectedFamily != null) {
+            selectedFamilyName = null
+        } else {
+            onBack?.invoke()
+        }
+    }
+
     LaunchedEffect(requestedTrophy?.stableId) {
         if (requestedTrophy != null) {
             selectedFamilyName = requestedTrophy.family.name
@@ -171,12 +181,13 @@ fun TrophiesScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .padding(SpacingXl),
+                .padding(bottom = SpacingXl),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         TrophiesHeader(
             familySection = selectedFamily,
             onBack = { selectedFamilyName = null },
+            onBrowseBack = onBack,
             onOpenActivities = onOpenActivities,
         )
 
@@ -195,7 +206,7 @@ fun TrophiesScreen(
             },
             familyFirstVisibleItemIndex = familyFirstVisibleItemIndex,
             familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(horizontal = SpacingXl),
         )
     }
 
@@ -265,59 +276,62 @@ internal fun TrophiesContent(
 internal fun TrophiesHeader(
     familySection: TrophyFamilySectionUi?,
     onBack: () -> Unit,
+    onBrowseBack: (() -> Unit)?,
     onOpenActivities: () -> Unit,
 ) {
     if (familySection == null) {
-        Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = stringResource(R.string.trophies_title),
-                    style = typography.titleLarge,
-                    color = colorScheme.onSurface,
-                    modifier = Modifier.align(Alignment.TopStart),
-                )
-                ActivitiesButton(
-                    onClick = onOpenActivities,
-                    modifier =
-                        Modifier
-                            .align(Alignment.TopEnd)
-                            .offset(y = -(SpacingSm + SpacingXs)),
-                )
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = SpacingSm,
+                        end = SpacingXl,
+                        top = SpacingSm,
+                        bottom = SpacingSm,
+                    ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (onBrowseBack != null) {
+                IconButton(onClick = onBrowseBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = stringResource(R.string.trophies_back),
+                    )
+                }
             }
+
             Text(
-                text = stringResource(R.string.trophies_subtitle),
-                style = typography.bodyMedium,
-                color = colorScheme.onSurfaceVariant,
+                text = stringResource(R.string.trophies_title),
+                style = typography.titleLarge,
+                color = colorScheme.onSurface,
+                modifier = Modifier.weight(1f),
+            )
+
+            ActivitiesButton(
+                onClick = onOpenActivities,
             )
         }
     } else {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = SpacingSm,
+                        end = SpacingXl,
+                        top = SpacingSm,
+                        bottom = SpacingSm,
+                    ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Surface(
-                modifier =
-                    Modifier
-                        .size(TrophyBackButtonTouchTargetSize)
-                        .clickable(onClick = onBack),
-                color = Color.Transparent,
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Box(
-                        modifier = Modifier.size(TrophyBackButtonSize),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                            contentDescription = stringResource(R.string.trophies_back),
-                            tint = colorScheme.onSurface,
-                        )
-                    }
-                }
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = stringResource(R.string.trophies_back),
+                )
             }
+
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(SpacingXs),

@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.activity.compose.BackHandler
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowDownward
@@ -95,6 +96,8 @@ fun CategoriesScreen(
     var isHelpDialogVisible by rememberSaveable { mutableStateOf(false) }
     val listState = rememberLazyListState()
     val actionIconTint = colorScheme.onSurfaceVariant
+
+    BackHandler(onBack = onBack)
 
     LazyColumn(
         modifier =

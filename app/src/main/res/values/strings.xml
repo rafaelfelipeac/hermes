@@ -6,10 +6,13 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">Week</string>
+    <string name="weekly_training_nav_label">Home</string>
     <string name="activity_nav_label">Activity</string>
     <string name="progress_nav_label">Progress</string>
-    <string name="race_events_nav_label">Events</string>
+    <string name="race_events_nav_label">Event</string>
+    <string name="browse_nav_label">Browse</string>
+    <string name="browse_title">Browse</string>
+    <string name="browse_backup_import_title">Backup and Import</string>
     <string name="settings_nav_label">Settings</string>
 
     <!-- Progress -->

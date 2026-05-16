@@ -6,9 +6,12 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">सप्ताह</string>
+    <string name="weekly_training_nav_label">होम</string>
     <string name="activity_nav_label">गतिविधि</string>
     <string name="progress_nav_label">प्रगति</string>
+    <string name="browse_nav_label">ब्राउज़</string>
+    <string name="browse_title">ब्राउज़</string>
+    <string name="browse_backup_import_title">बैकअप और आयात</string>
     <string name="settings_nav_label">सेटिंग</string>
 
     <!-- Progress -->
@@ -512,7 +515,7 @@
     <string name="trophies_desc_category_presence_unlocked">आपने %1$d हफ्ते पूरे किए जिनमें इस श्रेणी का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
     <string name="trophies_desc_category_planning_locked">इस श्रेणी में %1$d बार वर्कआउट जोड़ने, खिसकाने या व्यवस्थित करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_category_planning_unlocked">आपने इस श्रेणी में %1$d बार वर्कआउट जोड़े, खिसकाए या व्यवस्थित किए।</string>
-    <string name="race_events_nav_label">इवेंट्स</string>
+    <string name="race_events_nav_label">इवेंट</string>
     <string name="weekly_training_add_race_event">इवेंट जोड़ें</string>
     <string name="weekly_training_delete_race_event">हटाएँ</string>
     <string name="weekly_training_delete_race_event_title">इवेंट हटाएँ?</string>

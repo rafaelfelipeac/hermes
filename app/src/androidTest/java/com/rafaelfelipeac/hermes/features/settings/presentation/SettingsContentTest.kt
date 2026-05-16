@@ -49,8 +49,6 @@ class SettingsContentTest {
                 onSeedMixedTrophies = {},
                 onSeedLockedTrophies = {},
                 onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
@@ -87,8 +85,6 @@ class SettingsContentTest {
                 onSeedMixedTrophies = {},
                 onSeedLockedTrophies = {},
                 onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
@@ -126,8 +122,6 @@ class SettingsContentTest {
                 onSeedMixedTrophies = {},
                 onSeedLockedTrophies = {},
                 onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
@@ -154,8 +148,6 @@ class SettingsContentTest {
                 onSeedMixedTrophies = {},
                 onSeedLockedTrophies = {},
                 onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
@@ -181,8 +173,6 @@ class SettingsContentTest {
                 onSeedMixedTrophies = {},
                 onSeedLockedTrophies = {},
                 onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
