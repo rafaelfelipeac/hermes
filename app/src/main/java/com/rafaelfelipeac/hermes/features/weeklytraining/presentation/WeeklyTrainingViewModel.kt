@@ -250,9 +250,9 @@ class WeeklyTrainingViewModel
             type: String,
             description: String,
             categoryId: Long?,
+            workoutDate: LocalDate? = null,
         ) {
             val currentState = state.value
-            val nextOrder = nextUnplannedOrder(currentState)
             val normalizedCategoryId =
                 resolveCategoryId(
                     eventType = EventType.WORKOUT,
@@ -263,12 +263,23 @@ class WeeklyTrainingViewModel
                 currentState.categories.firstOrNull { it.id == normalizedCategoryId }?.name
 
             viewModelScope.launch {
-                val storageWeekStart = canonicalStorageWeekStart(currentState.selectedDate)
+                val storageWeekStart = canonicalStorageWeekStart(workoutDate ?: currentState.selectedDate)
+                val dayOfWeek = workoutDate?.dayOfWeek
+                val nextOrder =
+                    if (dayOfWeek == null) {
+                        nextUnplannedOrder(currentState)
+                    } else {
+                        repository.getWorkoutsForWeek(storageWeekStart)
+                            .count { workout ->
+                                workout.dayOfWeek == dayOfWeek &&
+                                    workout.timeSlot == null
+                            }
+                    }
                 val workoutId =
                     repository.addWorkout(
                         AddWorkoutRequest(
                             weekStartDate = storageWeekStart,
-                            dayOfWeek = null,
+                            dayOfWeek = dayOfWeek,
                             type = type,
                             description = description,
                             categoryId = normalizedCategoryId,
@@ -282,8 +293,8 @@ class WeeklyTrainingViewModel
                     entityId = workoutId,
                     metadata =
                         mutableMapOf(
-                            WEEK_START_DATE to currentState.weekStartDate.toString(),
-                            DAY_OF_WEEK to UNPLANNED,
+                            WEEK_START_DATE to storageWeekStart.toString(),
+                            DAY_OF_WEEK to (dayOfWeek?.value?.toString() ?: UNPLANNED),
                             NEW_ORDER to nextOrder.toString(),
                             NEW_TYPE to type,
                             NEW_DESCRIPTION to description,
@@ -606,13 +617,14 @@ class WeeklyTrainingViewModel
             }
         }
 
-        @Suppress("LongMethod")
+        @Suppress("LongMethod", "CyclomaticComplexMethod")
         fun updateWorkoutDetails(
             workoutId: Long,
             type: String,
             description: String,
             eventType: EventType,
             categoryId: Long?,
+            workoutDate: LocalDate? = null,
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workoutId }
             val normalizedCategoryId =
@@ -632,6 +644,36 @@ class WeeklyTrainingViewModel
                 original?.takeIf {
                     it.eventType == EventType.WORKOUT || it.eventType == EventType.RACE_EVENT
                 }?.categoryId
+            val originalWorkoutDate =
+                original?.dayOfWeek?.let { dayOfWeek ->
+                    original.weekStartDate.plusDays((dayOfWeek.value - 1).toLong())
+                }
+            val targetWorkoutDate = workoutDate ?: originalWorkoutDate
+            val dateChanged =
+                eventType == EventType.WORKOUT &&
+                    original != null &&
+                    targetWorkoutDate != null &&
+                    targetWorkoutDate != originalWorkoutDate
+
+            if (dateChanged) {
+                val targetStorageWeekStart = canonicalStorageWeekStart(targetWorkoutDate)
+                val targetDayOfWeek = targetWorkoutDate.dayOfWeek
+                val nextOrder =
+                    repository.getWorkoutsForWeek(targetStorageWeekStart)
+                        .count { workout ->
+                            workout.id != workoutId &&
+                                workout.dayOfWeek == targetDayOfWeek &&
+                                workout.timeSlot == null
+                        }
+
+                repository.updateWorkoutSchedule(
+                    workoutId = workoutId,
+                    weekStartDate = targetStorageWeekStart,
+                    dayOfWeek = targetDayOfWeek,
+                    timeSlot = null,
+                    order = nextOrder,
+                )
+            }
 
             repository.updateWorkoutDetails(
                 workoutId = workoutId,
@@ -641,42 +683,91 @@ class WeeklyTrainingViewModel
                 categoryId = normalizedCategoryId,
             )
 
-            val entityType =
-                when {
-                    eventType != EventType.WORKOUT -> eventType.toUserActionEntityType()
-                    else -> original?.eventType?.toUserActionEntityType() ?: WORKOUT
-                }
-            val actionType =
-                when {
-                    original == null -> UPDATE_WORKOUT
-                    original.eventType != eventType ->
-                        when (eventType) {
-                            EventType.WORKOUT -> CONVERT_REST_DAY_TO_WORKOUT
-                            EventType.RACE_EVENT -> eventType.toUpdateActionType()
-                            else -> CONVERT_WORKOUT_TO_REST_DAY
-                        }
-                    eventType != EventType.WORKOUT -> eventType.toUpdateActionType()
-                    else -> UPDATE_WORKOUT
-                }
-
-            logWorkoutDetailsUpdate(
-                userActionLogger = userActionLogger,
-                actionType = actionType,
-                entityType = entityType,
-                workoutId = workoutId,
-                metadataInput =
-                    WorkoutUpdateMetadataInput(
-                        weekStartDate = state.value.weekStartDate.toString(),
-                        original = original,
+            if (dateChanged) {
+                val targetStorageWeekStart = canonicalStorageWeekStart(targetWorkoutDate)
+                val targetDayOfWeek = targetWorkoutDate.dayOfWeek
+                val updatedWorkout =
+                    original.copy(
+                        weekStartDate = targetStorageWeekStart,
+                        dayOfWeek = targetDayOfWeek,
                         type = type,
                         description = description,
-                        isRestDay = eventType == EventType.REST,
-                        oldCategoryId = oldCategoryId,
-                        newCategoryId = normalizedCategoryId,
-                        oldCategoryName = oldCategoryName,
-                        newCategoryName = newCategoryName,
-                    ),
-            )
+                        categoryId = normalizedCategoryId,
+                        order =
+                            repository.getWorkoutsForWeek(targetStorageWeekStart)
+                                .count { workout ->
+                                    workout.id != workoutId &&
+                                        workout.dayOfWeek == targetDayOfWeek &&
+                                        workout.timeSlot == null
+                                },
+                    )
+
+                userActionLogger.log(
+                    actionType = EventType.WORKOUT.toMoveActionType(),
+                    entityType = WORKOUT,
+                    entityId = workoutId,
+                    metadata =
+                        mutableMapOf(
+                            WEEK_START_DATE to targetStorageWeekStart.toString(),
+                            OLD_WEEK_START_DATE to (original.weekStartDate.toString()),
+                            NEW_WEEK_START_DATE to targetStorageWeekStart.toString(),
+                            OLD_DAY_OF_WEEK to (original.dayOfWeek?.value?.toString() ?: UNPLANNED),
+                            NEW_DAY_OF_WEEK to targetDayOfWeek.value.toString(),
+                            OLD_ORDER to original.order.toString(),
+                            NEW_ORDER to updatedWorkout.order.toString(),
+                            OLD_TYPE to (original.type),
+                            NEW_TYPE to type,
+                            OLD_DESCRIPTION to (original.description),
+                            NEW_DESCRIPTION to description,
+                        ).apply {
+                            putWorkoutCategoryMetadata(
+                                categoryId = normalizedCategoryId,
+                                categoryName = newCategoryName,
+                                oldCategoryId = oldCategoryId,
+                                newCategoryId = normalizedCategoryId,
+                                oldCategoryName = oldCategoryName,
+                                newCategoryName = newCategoryName,
+                            )
+                        },
+                )
+            } else {
+                val entityType =
+                    when {
+                        eventType != EventType.WORKOUT -> eventType.toUserActionEntityType()
+                        else -> original?.eventType?.toUserActionEntityType() ?: WORKOUT
+                    }
+                val actionType =
+                    when {
+                        original == null -> UPDATE_WORKOUT
+                        original.eventType != eventType ->
+                            when (eventType) {
+                                EventType.WORKOUT -> CONVERT_REST_DAY_TO_WORKOUT
+                                EventType.RACE_EVENT -> eventType.toUpdateActionType()
+                                else -> CONVERT_WORKOUT_TO_REST_DAY
+                            }
+                        eventType != EventType.WORKOUT -> eventType.toUpdateActionType()
+                        else -> UPDATE_WORKOUT
+                    }
+
+                logWorkoutDetailsUpdate(
+                    userActionLogger = userActionLogger,
+                    actionType = actionType,
+                    entityType = entityType,
+                    workoutId = workoutId,
+                    metadataInput =
+                        WorkoutUpdateMetadataInput(
+                            weekStartDate = state.value.weekStartDate.toString(),
+                            original = original,
+                            type = type,
+                            description = description,
+                            isRestDay = eventType == EventType.REST,
+                            oldCategoryId = oldCategoryId,
+                            newCategoryId = normalizedCategoryId,
+                            oldCategoryName = oldCategoryName,
+                            newCategoryName = newCategoryName,
+                        ),
+                )
+            }
         }
 
         @Suppress("CyclomaticComplexMethod", "LongMethod")

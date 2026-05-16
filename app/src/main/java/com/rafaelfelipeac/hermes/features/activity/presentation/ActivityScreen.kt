@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.activity.presentation
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -17,9 +18,12 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -34,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -41,7 +46,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ActivityEmptyPadding
+import com.rafaelfelipeac.hermes.core.strings.relativeDateText
+import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -53,7 +59,6 @@ import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPr
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivitySectionUi
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
 
@@ -61,6 +66,8 @@ import java.util.Locale
 fun ActivityScreen(
     modifier: Modifier = Modifier,
     onBack: () -> Unit,
+    requestedActivityId: Long? = null,
+    onRequestedActivityConsumed: () -> Unit = {},
     viewModel: ActivityViewModel = hiltViewModel(),
 ) {
     val configuration = LocalConfiguration.current
@@ -74,6 +81,12 @@ fun ActivityScreen(
 
     val state by viewModel.state.collectAsState()
 
+    LaunchedEffect(requestedActivityId) {
+        if (requestedActivityId != null) {
+            onRequestedActivityConsumed()
+        }
+    }
+
     Column(
         modifier =
             modifier
@@ -86,7 +99,16 @@ fun ActivityScreen(
         ActivityContent(
             sections = state.sections,
             currentLocale = currentLocale,
+            requestedActivityId = requestedActivityId,
             filters = state.filters,
+            emptyTitle =
+                stringResource(
+                    if (state.filters.isAnyFilterActive) {
+                        R.string.activity_filtered_empty_title
+                    } else {
+                        R.string.activity_empty_title
+                    },
+                ),
             emptyMessage =
                 stringResource(
                     if (state.filters.isAnyFilterActive) {
@@ -143,7 +165,9 @@ internal fun ActivityHeader(onBack: () -> Unit) {
 internal fun ActivityContent(
     sections: List<ActivitySectionUi>,
     currentLocale: Locale,
+    requestedActivityId: Long? = null,
     filters: ActivityFiltersUi = ActivityFiltersUi(),
+    emptyTitle: String = stringResource(R.string.activity_empty_title),
     emptyMessage: String = stringResource(R.string.activity_empty),
     onPrimaryFilterSelected: (ActivityPrimaryFilter) -> Unit = {},
     onCategorySelected: (Long) -> Unit = {},
@@ -158,6 +182,7 @@ internal fun ActivityContent(
             .toFormatter(currentLocale)
     val today = LocalDate.now(ZoneId.systemDefault())
     val todayLabel = stringResource(R.string.activity_today)
+    val tomorrowLabel = stringResource(R.string.activity_tomorrow)
     val yesterdayLabel = stringResource(R.string.activity_yesterday)
 
     Column(
@@ -173,18 +198,14 @@ internal fun ActivityContent(
         )
 
         if (sections.isEmpty()) {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(ActivityEmptyPadding),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center,
             ) {
-                Text(
-                    text = emptyMessage,
-                    style = typography.bodyLarge,
-                    color = colorScheme.onSurfaceVariant,
+                EmptyStateCard(
+                    icon = Icons.Outlined.History,
+                    title = emptyTitle,
+                    body = emptyMessage,
                 )
             }
 
@@ -197,7 +218,15 @@ internal fun ActivityContent(
             verticalArrangement = Arrangement.spacedBy(SpacingLg),
         ) {
             sections.forEach { section ->
-                val header = sectionTitle(section.date, today, dayFormatter, todayLabel, yesterdayLabel)
+                val header =
+                    relativeDateText(
+                        date = section.date,
+                        today = today,
+                        todayLabel = todayLabel,
+                        tomorrowLabel = tomorrowLabel,
+                        yesterdayLabel = yesterdayLabel,
+                        formatter = dayFormatter,
+                    )
 
                 item(key = HEADER_KEY_PREFIX + section.date) {
                     Text(
@@ -208,7 +237,10 @@ internal fun ActivityContent(
                 }
 
                 items(section.items, key = { it.id }) { item ->
-                    ActivityRow(item)
+                    ActivityRow(
+                        item = item,
+                        focusRequested = item.id == requestedActivityId,
+                    )
                 }
             }
         }
@@ -387,11 +419,31 @@ private suspend fun centerSelectedChip(
 }
 
 @Composable
-private fun ActivityRow(item: ActivityItemUi) {
+private fun ActivityRow(
+    item: ActivityItemUi,
+    focusRequested: Boolean,
+) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(focusRequested) {
+        if (focusRequested) {
+            bringIntoViewRequester.bringIntoView()
+        }
+    }
+
     Surface(
         tonalElevation = ElevationSm,
         shape = shapes.medium,
-        modifier = Modifier.fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .then(
+                    if (focusRequested) {
+                        Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         Column(
             modifier =
@@ -430,20 +482,6 @@ private fun ActivityRow(item: ActivityItemUi) {
                 )
             }
         }
-    }
-}
-
-private fun sectionTitle(
-    date: LocalDate,
-    today: LocalDate,
-    formatter: DateTimeFormatter,
-    todayLabel: String,
-    yesterdayLabel: String,
-): String {
-    return when (date) {
-        today -> todayLabel
-        today.minusDays(1) -> yesterdayLabel
-        else -> date.format(formatter)
     }
 }
 

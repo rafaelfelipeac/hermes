@@ -58,7 +58,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
+import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryActionIconSize
@@ -444,7 +446,7 @@ private fun CategoryEditorDialog(
     onDismiss: () -> Unit,
     onConfirm: (String, String) -> Unit,
 ) {
-    var name by rememberSaveable(initialName) { mutableStateOf(initialName) }
+    var name by rememberSaveable(initialName) { mutableStateOf(initialName.capitalizedFirstCharacter()) }
     var selectedColorId by rememberSaveable(initialColorId) { mutableStateOf(initialColorId) }
     val options = categoryColorOptions()
 
@@ -458,8 +460,9 @@ private fun CategoryEditorDialog(
             ) {
                 OutlinedTextField(
                     value = name,
-                    onValueChange = { name = it },
+                    onValueChange = { name = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.categories_name_label)) },
+                    keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier = Modifier.fillMaxWidth(),
                 )
 

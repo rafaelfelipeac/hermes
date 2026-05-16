@@ -74,6 +74,40 @@ import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private fun completionProfileForHistoryWeek(index: Int): CompletionProfile {
+    return when (index) {
+        0 -> CompletionProfile.NONE
+        1 -> CompletionProfile.LIGHT
+        2 -> CompletionProfile.SOME
+        3 -> CompletionProfile.BALANCED
+        4 -> CompletionProfile.HEAVY
+        5 -> CompletionProfile.COMPLETED_MOST
+        else -> CompletionProfile.BALANCED
+    }
+}
+
+private fun List<DayPlan>.withAddedWorkout(
+    dayOfWeek: DayOfWeek?,
+    workout: WorkoutSeed,
+): List<DayPlan> {
+    var didUpdateDay = false
+    val updatedPlans =
+        map { plan ->
+            if (plan.dayOfWeek == dayOfWeek) {
+                didUpdateDay = true
+                plan.copy(items = plan.items + workout)
+            } else {
+                plan
+            }
+        }.toMutableList()
+
+    if (!didUpdateDay) {
+        updatedPlans += DayPlan(dayOfWeek, listOf(workout))
+    }
+
+    return updatedPlans
+}
+
 @Singleton
 class DemoDataSeeder
     @Inject
@@ -138,22 +172,31 @@ class DemoDataSeeder
             val today = LocalDate.now()
             val currentWeekStart = today.with(TemporalAdjusters.previousOrSame(MONDAY))
             val previousWeekStart = currentWeekStart.minusWeeks(1)
-            val olderWeekStarts =
+            val activityHistoryWeekStarts =
                 listOf(
                     previousWeekStart.minusWeeks(3),
                     previousWeekStart.minusWeeks(2),
                     previousWeekStart.minusWeeks(1),
                     previousWeekStart,
                 )
+            val progressHistoryWeekStarts =
+                (1..7)
+                    .map { weekOffset -> currentWeekStart.minusWeeks(weekOffset.toLong()) }
+                    .reversed()
             val nextWeekStart = currentWeekStart.plusWeeks(1)
 
-            val workouts = buildDemoWorkouts(olderWeekStarts, currentWeekStart, nextWeekStart)
+            val workouts =
+                buildDemoWorkouts(
+                    historyWeekStarts = progressHistoryWeekStarts,
+                    currentWeekStart = currentWeekStart,
+                    nextWeekStart = nextWeekStart,
+                )
 
             workouts.forEach { workoutDao.insert(it) }
 
             seedActivityHistory(
                 currentWeekStart = currentWeekStart,
-                olderWeekStarts = olderWeekStarts,
+                olderWeekStarts = activityHistoryWeekStarts,
                 nextWeekStart = nextWeekStart,
             )
 
@@ -161,14 +204,18 @@ class DemoDataSeeder
         }
 
         private fun buildDemoWorkouts(
-            olderWeekStarts: List<LocalDate>,
+            historyWeekStarts: List<LocalDate>,
             currentWeekStart: LocalDate,
             nextWeekStart: LocalDate,
         ): List<WorkoutEntity> {
-            return olderWeekStarts.flatMap { weekStart ->
-                buildWeekSchedule(weekStart, CompletionProfile.COMPLETED_MOST)
-            } +
-                buildWeekSchedule(currentWeekStart, CompletionProfile.COMPLETED_SOME) +
+            return historyWeekStarts.mapIndexed { index, weekStart ->
+                buildWeekSchedule(
+                    weekStartDate = weekStart,
+                    completionProfile = completionProfileForHistoryWeek(index),
+                    plan = historyWeekPlanForIndex(index),
+                )
+            }.flatten() +
+                buildWeekSchedule(currentWeekStart, CompletionProfile.SOME) +
                 buildWeekSchedule(nextWeekStart, CompletionProfile.NONE) +
                 buildDemoRaceEvents(currentWeekStart, nextWeekStart)
         }
@@ -176,19 +223,8 @@ class DemoDataSeeder
         private fun buildWeekSchedule(
             weekStartDate: LocalDate,
             completionProfile: CompletionProfile,
+            plan: List<DayPlan> = defaultWeekPlan(),
         ): List<WorkoutEntity> {
-            val plan =
-                listOf(
-                    DayPlan(MONDAY, listOf(workoutSeed(0, MORNING), workoutSeed(1, NIGHT))),
-                    DayPlan(TUESDAY, listOf(busySeed(MORNING), workoutSeed(2, AFTERNOON), sickSeed(NIGHT))),
-                    DayPlan(WEDNESDAY, listOf(restSeed())),
-                    DayPlan(THURSDAY, listOf(workoutSeed(3, MORNING), workoutSeed(4, MORNING))),
-                    DayPlan(FRIDAY, listOf(workoutSeed(5))),
-                    DayPlan(SATURDAY, listOf(restSeed(NIGHT))),
-                    DayPlan(SUNDAY, listOf(workoutSeed(6, AFTERNOON))),
-                    DayPlan(null, listOf(workoutSeed(7))),
-                )
-
             val completedDays = completionProfile.completedDays()
 
             return plan.flatMap { dayPlan ->
@@ -220,6 +256,49 @@ class DemoDataSeeder
                         sortOrder = orderInSlot,
                     )
                 }
+            }
+        }
+
+        private fun defaultWeekPlan(): List<DayPlan> {
+            return listOf(
+                DayPlan(MONDAY, listOf(workoutSeed(0, MORNING), workoutSeed(1, NIGHT))),
+                DayPlan(TUESDAY, listOf(busySeed(MORNING), workoutSeed(2, AFTERNOON), sickSeed(NIGHT))),
+                DayPlan(WEDNESDAY, listOf(restSeed())),
+                DayPlan(THURSDAY, listOf(workoutSeed(3, MORNING), workoutSeed(4, MORNING))),
+                DayPlan(FRIDAY, listOf(workoutSeed(5))),
+                DayPlan(SATURDAY, listOf(restSeed(NIGHT))),
+                DayPlan(SUNDAY, listOf(workoutSeed(6, AFTERNOON))),
+                DayPlan(null, listOf(workoutSeed(7))),
+            )
+        }
+
+        private fun historyWeekPlanForIndex(index: Int): List<DayPlan> {
+            return when (index) {
+                0 -> defaultWeekPlan()
+                1 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(MONDAY, workoutSeed(8, AFTERNOON))
+                        .withAddedWorkout(THURSDAY, workoutSeed(9, NIGHT))
+                2 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(TUESDAY, workoutSeed(8, MORNING))
+                3 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(WEDNESDAY, workoutSeed(8, AFTERNOON))
+                        .withAddedWorkout(FRIDAY, workoutSeed(9, MORNING))
+                4 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(MONDAY, workoutSeed(8, NIGHT))
+                        .withAddedWorkout(THURSDAY, workoutSeed(9, AFTERNOON))
+                        .withAddedWorkout(SUNDAY, workoutSeed(10, MORNING))
+                5 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(TUESDAY, workoutSeed(8, AFTERNOON))
+                        .withAddedWorkout(SATURDAY, workoutSeed(9, MORNING))
+                        .withAddedWorkout(SUNDAY, workoutSeed(10, NIGHT))
+                else ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(WEDNESDAY, workoutSeed(8, MORNING))
             }
         }
 
@@ -1304,20 +1383,39 @@ private data class RaceEventPlan(
 )
 
 private enum class CompletionProfile {
+    LIGHT,
+    SOME,
+    BALANCED,
+    HEAVY,
     COMPLETED_MOST,
-    COMPLETED_SOME,
     NONE,
     ;
 
     fun completedDays(): Set<DayOfWeek> {
         return when (this) {
-            COMPLETED_MOST -> DayOfWeek.entries.toSet()
-            COMPLETED_SOME ->
+            LIGHT ->
+                setOf(
+                    MONDAY,
+                )
+            SOME ->
                 setOf(
                     MONDAY,
                     TUESDAY,
-                    WEDNESDAY,
                 )
+            BALANCED ->
+                setOf(
+                    MONDAY,
+                    TUESDAY,
+                    THURSDAY,
+                )
+            HEAVY ->
+                setOf(
+                    MONDAY,
+                    TUESDAY,
+                    THURSDAY,
+                    FRIDAY,
+                )
+            COMPLETED_MOST -> DayOfWeek.entries.toSet()
             NONE -> emptySet()
         }
     }

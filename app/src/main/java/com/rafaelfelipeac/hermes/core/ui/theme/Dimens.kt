@@ -17,6 +17,10 @@ object Dimens {
     val SpacingXl = 16.dp
     val SpacingXxl = 20.dp
     val ActivityEmptyPadding = 24.dp
+    val EmptyStateCardMaxWidth = 320.dp
+    val EmptyStateCardPadding = 24.dp
+    val EmptyStateIconContainerSize = 52.dp
+    val EmptyStateIconSize = 24.dp
 
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp
@@ -32,6 +36,22 @@ object Dimens {
     val SettingsDeveloperButtonContentHorizontalPadding = 12.dp
     val SettingsDeveloperButtonContentVerticalPadding = 8.dp
     val ReleaseNotesBottomPadding = 24.dp
+    val ProgressSummaryCardMinHeight = 92.dp
+    val ProgressReadoutBarHeight = 10.dp
+    val ProgressTrendBarHeight = 96.dp
+    val ProgressTrendBarMinWidth = 28.dp
+    val ProgressTrendAxisWidth = 34.dp
+    val ProgressTrendCountMinHeight = 14.dp
+    val ProgressTrendChartVerticalPadding = 8.dp
+    val ProgressTrendChartRowSpacing = 8.dp
+    val ProgressTrendSectionSpacing = 12.dp
+    val ProgressActivityContentGap = 24.dp
+    val ProgressRecentActivityTopPadding = 12.dp
+    val ProgressTrainingMixBarHeight = 18.dp
+    val ProgressCategoryColorDotSize = 10.dp
+    val ProgressActivityDotSize = 10.dp
+    val ProgressSupportCardMinHeight = 88.dp
+    val ProgressScreenBottomPadding = 32.dp
 
     val ContentPadding = 14.dp
     val CheckboxBoxSize = 32.dp
@@ -48,7 +68,7 @@ object Dimens {
     val EventCardHeight = 176.dp
     val EventsTestViewportWidth = 420.dp
     val EventsTestViewportHeight = 720.dp
-    val RaceEventDialogContentMaxHeight = 420.dp
+    val PlannedItemDialogContentMaxHeight = 420.dp
     val TrophyHeroMinHeight = 180.dp
     val TrophyCardMinHeight = 120.dp
     val TrophyAccentBarHeight = 6.dp

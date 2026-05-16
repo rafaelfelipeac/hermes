@@ -13,6 +13,7 @@
 
     <!-- Progress -->
     <string name="progress_title">Progreso</string>
+    <string name="progress_empty_title">Todavía no hay progreso.</string>
     <string name="progress_empty">Planifica unos cuantos entrenamientos para ver tu progreso aquí.</string>
     <string name="progress_section_at_a_glance">De un vistazo</string>
     <string name="progress_section_this_week">Esta semana</string>
@@ -28,7 +29,27 @@
     <string name="progress_card_upcoming_days">Días</string>
     <string name="progress_last_8_weeks">Últimas 8 semanas</string>
     <string name="progress_completed_of_planned">%1$d de %2$d completados</string>
-    <string name="progress_no_trophy_highlight">Sigue registrando entrenamiento para mostrar un trofeo destacado.</string>
+    <string name="progress_section_weekly_readout">Lectura semanal</string>
+    <string name="progress_readout_on_track">En ritmo</string>
+    <string name="progress_readout_completed">%1$d de %2$d elementos planificados completados</string>
+    <plurals name="progress_readout_items_left">
+        <item quantity="one">Queda %1$d elemento planificado</item>
+        <item quantity="other">Quedan %1$d elementos planificados</item>
+    </plurals>
+    <string name="progress_section_training_mix">Mezcla por categoría</string>
+    <string name="progress_weekly_chart_caption">Cada barra muestra los elementos planificados. La parte rellena muestra los completados.</string>
+    <string name="progress_weekly_chart_count">%1$d/%2$d</string>
+    <string name="progress_weekly_insight_heaviest">Semana más intensa de las últimas 8 semanas.</string>
+    <string name="progress_training_mix_caption">Elementos completados durante las últimas 8 semanas. El color muestra la categoría; el ancho muestra la proporción.</string>
+    <string name="progress_training_mix_balanced">Tu mezcla está equilibrada entre las categorías recientes.</string>
+    <string name="progress_training_mix_dominant">%1$s domina este periodo.</string>
+    <string name="progress_section_supporting_progress">Progreso de apoyo</string>
+    <string name="progress_support_next_focus">Próximo enfoque</string>
+    <string name="progress_support_upcoming_event">Evento próximo</string>
+    <string name="progress_support_trophy">Trofeo</string>
+    <string name="progress_no_support_cards">Sigue planificando para mostrar más detalle.</string>
+    <string name="progress_recent_activity_caption">Últimos cambios de tu historial de entrenamiento.</string>
+    <string name="progress_no_trophy_highlight">Sigue registrando para mostrar un trofeo destacado.</string>
     <string name="progress_trophy_recent_unlock">Recién desbloqueado</string>
     <string name="progress_trophy_nearest">Trofeo más cercano</string>
     <string name="progress_days_until">faltan %1$d días</string>
@@ -190,8 +211,10 @@
 
     <!-- Activity -->
     <string name="activity_title">Registro de actividades</string>
-    <string name="activity_empty">Aún no hay actividad.</string>
-    <string name="activity_filtered_empty">Ninguna actividad coincide con estos filtros.</string>
+    <string name="activity_empty_title">Aún no hay actividad.</string>
+    <string name="activity_filtered_empty_title">No hay actividad que coincida.</string>
+    <string name="activity_empty">Aquí aparecerán los entrenamientos completados, las actualizaciones de eventos y otros cambios.</string>
+    <string name="activity_filtered_empty">Borra los filtros para ver el registro completo.</string>
     <string name="activity_filter_all">Todo</string>
     <string name="activity_filter_completions">Completadas</string>
     <string name="activity_filter_planning">Planificación</string>
@@ -199,6 +222,7 @@
     <string name="filters_clear">Limpiar filtros</string>
     <string name="activity_today">Hoy</string>
     <string name="activity_yesterday">Ayer</string>
+    <string name="activity_tomorrow">Mañana</string>
     <string name="activity_workout_fallback">sin título</string>
     <string name="activity_action_create_workout">Creaste el entrenamiento %1$s.</string>
     <string name="activity_action_update_workout">Actualizaste el entrenamiento %1$s.</string>

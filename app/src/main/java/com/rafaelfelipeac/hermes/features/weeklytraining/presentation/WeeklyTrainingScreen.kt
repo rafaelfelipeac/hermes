@@ -101,6 +101,11 @@ fun WeeklyTrainingScreen(
     onManageCategories: (WorkoutDialogDraft) -> Unit = {},
     pendingWorkoutDraft: WorkoutDialogDraft? = null,
     onWorkoutDraftConsumed: () -> Unit = {},
+    requestedWorkoutId: Long? = null,
+    requestedWorkoutDate: LocalDate? = null,
+    requestedWorkoutRequestKey: Long = 0L,
+    onRequestedWorkoutDateConsumed: () -> Unit = {},
+    onRequestedWorkoutConsumed: () -> Unit = {},
     viewModel: WeeklyTrainingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -115,6 +120,9 @@ fun WeeklyTrainingScreen(
     var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(UNCATEGORIZED_ID) }
     var draftEventDate by remember { mutableStateOf<LocalDate?>(state.selectedDate) }
+    var requestedWorkoutRequestToken by remember { mutableStateOf<Long?>(null) }
+    var requestedWorkoutIdToOpen by remember { mutableStateOf<Long?>(null) }
+    var requestedWorkoutDateToOpen by remember { mutableStateOf<LocalDate?>(null) }
     var isRaceEventDialogVisible by rememberSaveable { mutableStateOf(false) }
     var focusedCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftConsumedLocally by remember { mutableStateOf(false) }
@@ -171,6 +179,46 @@ fun WeeklyTrainingScreen(
         }
     }
 
+    LaunchedEffect(requestedWorkoutRequestKey) {
+        requestedWorkoutRequestToken = requestedWorkoutRequestKey
+        requestedWorkoutIdToOpen = requestedWorkoutId
+        requestedWorkoutDateToOpen = requestedWorkoutDate
+        if (requestedWorkoutDate != null) {
+            viewModel.onDateSelected(requestedWorkoutDate)
+            onRequestedWorkoutDateConsumed()
+        }
+    }
+
+    LaunchedEffect(
+        requestedWorkoutRequestToken,
+        requestedWorkoutIdToOpen,
+        requestedWorkoutDateToOpen,
+        state.selectedDate,
+        state.workouts,
+    ) {
+        val targetWorkoutId = requestedWorkoutIdToOpen ?: return@LaunchedEffect
+
+        if (requestedWorkoutDateToOpen != null && state.selectedDate != requestedWorkoutDateToOpen) {
+            return@LaunchedEffect
+        }
+
+        val targetWorkout = state.workouts.firstOrNull { it.id == targetWorkoutId } ?: return@LaunchedEffect
+
+        if (editingWorkout?.id != targetWorkout.id) {
+            editingWorkout = targetWorkout
+        }
+    }
+
+    LaunchedEffect(editingWorkout?.id, requestedWorkoutRequestToken) {
+        val openedWorkoutId = editingWorkout?.id
+        if (openedWorkoutId != null && openedWorkoutId == requestedWorkoutIdToOpen) {
+            requestedWorkoutRequestToken = null
+            requestedWorkoutIdToOpen = null
+            requestedWorkoutDateToOpen = null
+            onRequestedWorkoutConsumed()
+        }
+    }
+
     LaunchedEffect(Unit) {
         viewModel.messages.collect { message ->
             when (message) {
@@ -195,6 +243,7 @@ fun WeeklyTrainingScreen(
             draftType = pendingWorkoutDraft.type
             draftDescription = pendingWorkoutDraft.description
             draftCategoryId = pendingWorkoutDraft.categoryId ?: UNCATEGORIZED_ID
+            draftEventDate = pendingWorkoutDraft.eventDate
             if (pendingWorkoutDraft.isRaceEvent) {
                 draftEventDate = pendingWorkoutDraft.eventDate
                 isRaceEventDialogVisible = true
@@ -321,6 +370,7 @@ fun WeeklyTrainingScreen(
                         selectedDate = state.selectedDate,
                         workouts = state.workouts,
                         focusedCategoryId = focusedCategoryId,
+                        requestedWorkoutId = requestedWorkoutIdToOpen,
                         dayOrder = state.dayOrder,
                         slotModePolicy = state.slotModePolicy,
                         onWorkoutMoved = viewModel::moveWorkout,
@@ -382,6 +432,7 @@ fun WeeklyTrainingScreen(
                             draftType = EMPTY
                             draftDescription = EMPTY
                             draftCategoryId = UNCATEGORIZED_ID
+                            draftEventDate = null
                             isAddDialogVisible = true
                         },
                     )
@@ -469,15 +520,17 @@ fun WeeklyTrainingScreen(
                 draftType = EMPTY
                 draftDescription = EMPTY
                 draftCategoryId = UNCATEGORIZED_ID
+                draftEventDate = null
             },
-            onSave = { type, description, categoryId ->
-                viewModel.addWorkout(type, description, categoryId)
+            onSave = { type, description, categoryId, workoutDate ->
+                viewModel.addWorkout(type, description, categoryId, workoutDate)
                 isAddDialogVisible = false
                 draftType = EMPTY
                 draftDescription = EMPTY
                 draftCategoryId = UNCATEGORIZED_ID
+                draftEventDate = null
             },
-            onManageCategories = { type, description, categoryId ->
+            onManageCategories = { type, description, categoryId, workoutDate ->
                 isAddDialogVisible = false
                 onManageCategories(
                     WorkoutDialogDraft(
@@ -485,12 +538,15 @@ fun WeeklyTrainingScreen(
                         type = type,
                         description = description,
                         categoryId = categoryId,
+                        eventDate = workoutDate,
                     ),
                 )
             },
             isEdit = false,
             categories = pickerCategories,
             selectedCategoryId = draftCategoryId,
+            weekStartDay = state.weekStartDay,
+            selectedDate = draftEventDate,
             initialType = draftType,
             initialDescription = draftDescription,
         )
@@ -503,7 +559,7 @@ fun WeeklyTrainingScreen(
                 draftType = EMPTY
                 draftDescription = EMPTY
                 draftCategoryId = UNCATEGORIZED_ID
-                draftEventDate = state.selectedDate
+                draftEventDate = null
             },
             onSave = { type, description, categoryId, eventDate ->
                 viewModel.addRaceEvent(type, description, categoryId, eventDate)
@@ -511,7 +567,7 @@ fun WeeklyTrainingScreen(
                 draftType = EMPTY
                 draftDescription = EMPTY
                 draftCategoryId = UNCATEGORIZED_ID
-                draftEventDate = state.selectedDate
+                draftEventDate = null
             },
             onManageCategories = { type, description, categoryId, eventDate ->
                 isRaceEventDialogVisible = false
@@ -533,6 +589,7 @@ fun WeeklyTrainingScreen(
             isEdit = false,
             categories = pickerCategories,
             selectedCategoryId = draftCategoryId,
+            weekStartDay = state.weekStartDay,
             selectedDate = draftEventDate,
             initialTitle = draftType,
             initialDescription = draftDescription,
@@ -578,6 +635,7 @@ fun WeeklyTrainingScreen(
                 isEdit = true,
                 categories = editCategories,
                 selectedCategoryId = workout.categoryId,
+                weekStartDay = state.weekStartDay,
                 selectedDate =
                     draftEventDate
                         ?: workout.weekStartDate.plusDays((workout.dayOfWeek?.value?.minus(1) ?: 0).toLong()),
@@ -587,17 +645,18 @@ fun WeeklyTrainingScreen(
         } else {
             AddWorkoutDialog(
                 onDismiss = { editingWorkout = null },
-                onSave = { type, description, categoryId ->
+                onSave = { type, description, categoryId, workoutDate ->
                     viewModel.updateWorkoutDetails(
                         workoutId = workout.id,
                         type = type,
                         description = description,
                         eventType = workout.eventType,
                         categoryId = categoryId,
+                        workoutDate = workoutDate,
                     )
                     editingWorkout = null
                 },
-                onManageCategories = { type, description, categoryId ->
+                onManageCategories = { type, description, categoryId, workoutDate ->
                     editingWorkout = null
                     onManageCategories(
                         WorkoutDialogDraft(
@@ -605,12 +664,15 @@ fun WeeklyTrainingScreen(
                             type = type,
                             description = description,
                             categoryId = categoryId,
+                            eventDate = workoutDate,
                         ),
                     )
                 },
                 isEdit = true,
                 categories = editCategories,
                 selectedCategoryId = workout.categoryId,
+                weekStartDay = state.weekStartDay,
+                selectedDate = workout.workoutDateOrNull(),
                 initialType = workout.type,
                 initialDescription = workout.description,
             )
@@ -692,6 +754,11 @@ fun WeeklyTrainingScreen(
             },
         )
     }
+}
+
+private fun WorkoutUi.workoutDateOrNull(): LocalDate? {
+    val day = dayOfWeek ?: return null
+    return weekStartDate.plusDays((day.value - 1).toLong())
 }
 
 @Composable

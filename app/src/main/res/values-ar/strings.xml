@@ -13,6 +13,7 @@
 
     <!-- Progress -->
     <string name="progress_title">التقدم</string>
+    <string name="progress_empty_title">لا يوجد تقدم بعد.</string>
     <string name="progress_empty">خطط لبعض التمارين لتظهر لك حالتك هنا.</string>
     <string name="progress_section_at_a_glance">نظرة سريعة</string>
     <string name="progress_section_this_week">هذا الأسبوع</string>
@@ -28,7 +29,31 @@
     <string name="progress_card_upcoming_days">الأيام</string>
     <string name="progress_last_8_weeks">آخر 8 أسابيع</string>
     <string name="progress_completed_of_planned">%1$d من %2$d مكتمل</string>
-    <string name="progress_no_trophy_highlight">استمر في تسجيل التمارين لعرض أبرز الكؤوس.</string>
+    <string name="progress_section_weekly_readout">قراءة أسبوعية</string>
+    <string name="progress_readout_on_track">على المسار</string>
+    <string name="progress_readout_completed">اكتمل %1$d من أصل %2$d عنصر مخطط</string>
+    <plurals name="progress_readout_items_left">
+        <item quantity="zero">لا تبقى أي عناصر مخططة</item>
+        <item quantity="one">تبقى %1$d عنصر مخطط</item>
+        <item quantity="two">تبقى %1$d عنصران مخططان</item>
+        <item quantity="few">تبقى %1$d عناصر مخططة</item>
+        <item quantity="many">تبقى %1$d عنصرًا مخططًا</item>
+        <item quantity="other">تبقى %1$d عناصر مخططة</item>
+    </plurals>
+    <string name="progress_section_training_mix">مزيج الفئات</string>
+    <string name="progress_weekly_chart_caption">يمثل كل شريط العناصر المخططة. ويُظهر الجزء المعبأ العناصر المكتملة.</string>
+    <string name="progress_weekly_chart_count">%1$d/%2$d</string>
+    <string name="progress_weekly_insight_heaviest">أثقل أسبوع خلال آخر 8 أسابيع.</string>
+    <string name="progress_training_mix_caption">العناصر المكتملة خلال آخر 8 أسابيع. يوضح اللون الفئة، ويوضح العرض الحصة.</string>
+    <string name="progress_training_mix_balanced">مزيجك متوازن عبر الفئات الأخيرة.</string>
+    <string name="progress_training_mix_dominant">%1$s يهيمن على هذه الفترة.</string>
+    <string name="progress_section_supporting_progress">دعم التقدم</string>
+    <string name="progress_support_next_focus">التركيز التالي</string>
+    <string name="progress_support_upcoming_event">حدث قادم</string>
+    <string name="progress_support_trophy">كأس</string>
+    <string name="progress_no_support_cards">واصل التخطيط لإظهار المزيد من التفاصيل.</string>
+    <string name="progress_recent_activity_caption">أحدث التغييرات من سجل تدريبك.</string>
+    <string name="progress_no_trophy_highlight">واصل التسجيل لإظهار أبرز الكؤوس.</string>
     <string name="progress_trophy_recent_unlock">مفتوح حديثًا</string>
     <string name="progress_trophy_nearest">أقرب كأس</string>
     <string name="progress_days_until">بعد %1$d أيام</string>
@@ -206,8 +231,10 @@
 
     <!-- Activity -->
     <string name="activity_title">سجل النشاط</string>
-    <string name="activity_empty">لا توجد أنشطة بعد.</string>
-    <string name="activity_filtered_empty">لا يوجد نشاط يطابق هذه الفلاتر.</string>
+    <string name="activity_empty_title">لا توجد أنشطة بعد.</string>
+    <string name="activity_filtered_empty_title">لا يوجد نشاط مطابق.</string>
+    <string name="activity_empty">ستظهر هنا التمارين المكتملة وتحديثات الفعاليات والتغييرات الأخرى.</string>
+    <string name="activity_filtered_empty">أزل الفلاتر لرؤية السجل الكامل.</string>
     <string name="activity_filter_all">الكل</string>
     <string name="activity_filter_completions">الإنجازات</string>
     <string name="activity_filter_planning">التخطيط</string>
@@ -215,6 +242,7 @@
     <string name="filters_clear">مسح الفلاتر</string>
     <string name="activity_today">اليوم</string>
     <string name="activity_yesterday">أمس</string>
+    <string name="activity_tomorrow">غدًا</string>
     <string name="activity_workout_fallback">بدون اسم</string>
     <string name="activity_action_create_workout">لقد أنشأت التمرين %1$s.</string>
     <string name="activity_action_update_workout">لقد حدّثت التمرين %1$s.</string>

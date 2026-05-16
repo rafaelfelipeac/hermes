@@ -11,11 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -27,7 +27,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,25 +36,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.core.os.ConfigurationCompat
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.RaceEventDialogContentMaxHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
-import java.time.Instant
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import java.time.LocalDate
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 internal const val RACE_EVENT_DIALOG_TITLE_FIELD_TAG = "race_event_dialog_title_field"
@@ -70,10 +67,14 @@ fun AddRaceEventDialog(
     isEdit: Boolean,
     categories: List<CategoryUi>,
     selectedCategoryId: Long?,
+    weekStartDay: WeekStartDay,
     selectedDate: LocalDate? = null,
     initialTitle: String = EMPTY,
     initialDescription: String = EMPTY,
 ) {
+    val configuration = LocalConfiguration.current
+    val currentLocale =
+        ConfigurationCompat.getLocales(configuration).get(0) ?: Locale.getDefault()
     var title by rememberSaveable(initialTitle) { mutableStateOf(initialTitle.capitalizedFirstCharacter()) }
     var description by rememberSaveable(initialDescription) {
         mutableStateOf(initialDescription.capitalizedFirstCharacter())
@@ -86,7 +87,7 @@ fun AddRaceEventDialog(
     val currentCategoryAccent = currentCategory?.colorId?.let(::categoryAccentColor)
     val categoryLabel =
         currentCategory?.name ?: stringResource(R.string.category_uncategorized)
-    val dateLabel = eventDate?.let(::formatDate).orEmpty()
+    val dateLabel = eventDate?.let { formatWorkoutDate(it, currentLocale) }.orEmpty()
 
     LaunchedEffect(categories, currentCategoryId) {
         if (currentCategoryId != null && categories.none { it.id == currentCategoryId }) {
@@ -111,14 +112,14 @@ fun AddRaceEventDialog(
                 modifier =
                     modifier
                         .fillMaxWidth()
-                        .heightIn(max = RaceEventDialogContentMaxHeight)
+                        .heightIn(max = PlannedItemDialogContentMaxHeight)
                         .verticalScroll(rememberScrollState()),
             ) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_title)) },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -131,7 +132,7 @@ fun AddRaceEventDialog(
                     value = description,
                     onValueChange = { description = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_description)) },
-                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -263,18 +264,23 @@ fun AddRaceEventDialog(
     if (showDatePicker) {
         val selectedDateMillis = eventDate?.toUtcEpochMillis()
         val minimumSelectableDateMillis = remember { LocalDate.now().toUtcEpochMillis() }
+        val selectableDates =
+            remember(minimumSelectableDateMillis) {
+                object : SelectableDates {
+                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                        return utcTimeMillis >= minimumSelectableDateMillis
+                    }
+                }
+            }
         val datePickerState =
-            rememberDatePickerState(
-                initialSelectedDateMillis = selectedDateMillis,
-                selectableDates =
-                    remember(minimumSelectableDateMillis) {
-                        object : SelectableDates {
-                            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                                return utcTimeMillis >= minimumSelectableDateMillis
-                            }
-                        }
-                    },
-            )
+            remember(selectedDateMillis, selectableDates) {
+                DatePickerState(
+                    locale = currentLocale,
+                    initialSelectedDateMillis = selectedDateMillis,
+                    selectableDates = selectableDates,
+                )
+            }
+        datePickerState.applyWeekStartDayOverride(weekStartDay)
 
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
@@ -300,22 +306,4 @@ fun AddRaceEventDialog(
             DatePicker(state = datePickerState)
         }
     }
-}
-
-private fun formatDate(date: LocalDate): String {
-    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
-    return date.format(formatter)
-}
-
-private fun LocalDate.toUtcEpochMillis(): Long {
-    return atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
-}
-
-private fun Long.toUtcLocalDate(): LocalDate {
-    return Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
-}
-
-private fun String.capitalizedFirstCharacter(): String {
-    if (isEmpty()) return this
-    return first().uppercaseChar() + substring(1)
 }

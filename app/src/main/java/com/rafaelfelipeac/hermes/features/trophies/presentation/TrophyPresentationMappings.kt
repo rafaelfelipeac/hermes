@@ -20,7 +20,7 @@ internal fun TrophyFamily.toUi(): TrophyFamilyUi {
 }
 
 @StringRes
-internal fun trophyNameRes(trophyId: TrophyId): Int {
+fun trophyNameRes(trophyId: TrophyId): Int {
     return when (trophyId) {
         TrophyId.FULL_TIME -> R.string.trophies_name_full_time
         TrophyId.SEASON_BUILDER -> R.string.trophies_name_season_builder

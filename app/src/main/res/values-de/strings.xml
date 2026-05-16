@@ -13,6 +13,7 @@
 
     <!-- Progress -->
     <string name="progress_title">Fortschritt</string>
+    <string name="progress_empty_title">Noch kein Fortschritt.</string>
     <string name="progress_empty">Plane ein paar Workouts, um deinen Fortschritt hier zu sehen.</string>
     <string name="progress_section_at_a_glance">Auf einen Blick</string>
     <string name="progress_section_this_week">Diese Woche</string>
@@ -28,7 +29,27 @@
     <string name="progress_card_upcoming_days">Tage</string>
     <string name="progress_last_8_weeks">Letzte 8 Wochen</string>
     <string name="progress_completed_of_planned">%1$d von %2$d abgeschlossen</string>
-    <string name="progress_no_trophy_highlight">Trage weiter Training ein, um ein Trophäen-Highlight freizuschalten.</string>
+    <string name="progress_section_weekly_readout">Wöchentliche Auswertung</string>
+    <string name="progress_readout_on_track">Im Plan</string>
+    <string name="progress_readout_completed">%1$d von %2$d geplanten Einträgen abgeschlossen</string>
+    <plurals name="progress_readout_items_left">
+        <item quantity="one">%1$d geplanter Eintrag übrig</item>
+        <item quantity="other">%1$d geplante Einträge übrig</item>
+    </plurals>
+    <string name="progress_section_training_mix">Kategoriemix</string>
+    <string name="progress_weekly_chart_caption">Jeder Balken zeigt die geplanten Einträge. Der gefüllte Teil zeigt die abgeschlossenen Einträge.</string>
+    <string name="progress_weekly_chart_count">%1$d/%2$d</string>
+    <string name="progress_weekly_insight_heaviest">Umfangreichste Woche der letzten 8 Wochen.</string>
+    <string name="progress_training_mix_caption">Abgeschlossene Einträge in den letzten 8 Wochen. Die Farbe zeigt die Kategorie, die Breite den Anteil.</string>
+    <string name="progress_training_mix_balanced">Dein Mix ist über die letzten Kategorien hinweg ausgewogen.</string>
+    <string name="progress_training_mix_dominant">%1$s dominiert dieses Zeitfenster.</string>
+    <string name="progress_section_supporting_progress">Unterstützender Fortschritt</string>
+    <string name="progress_support_next_focus">Nächster Fokus</string>
+    <string name="progress_support_upcoming_event">Anstehendes Ereignis</string>
+    <string name="progress_support_trophy">Trophäe</string>
+    <string name="progress_no_support_cards">Plane weiter, um mehr Details zu sehen.</string>
+    <string name="progress_recent_activity_caption">Neueste Änderungen aus deinem Trainingsverlauf.</string>
+    <string name="progress_no_trophy_highlight">Trage weiter ein, um ein Trophäen-Highlight zu sehen.</string>
     <string name="progress_trophy_recent_unlock">Zuletzt freigeschaltet</string>
     <string name="progress_trophy_nearest">Nächste Trophäe</string>
     <string name="progress_days_until">noch %1$d Tage</string>
@@ -190,8 +211,10 @@
 
     <!-- Activity -->
     <string name="activity_title">Aktivitätsprotokoll</string>
-    <string name="activity_empty">Noch keine Aktivitäten.</string>
-    <string name="activity_filtered_empty">Keine Aktivität entspricht diesen Filtern.</string>
+    <string name="activity_empty_title">Noch keine Aktivitäten.</string>
+    <string name="activity_filtered_empty_title">Keine passende Aktivität.</string>
+    <string name="activity_empty">Abgeschlossene Workouts, Event-Updates und andere Änderungen erscheinen hier.</string>
+    <string name="activity_filtered_empty">Filter löschen, um das vollständige Protokoll zu sehen.</string>
     <string name="activity_filter_all">Alle</string>
     <string name="activity_filter_completions">Abschlüsse</string>
     <string name="activity_filter_planning">Planung</string>
@@ -199,6 +222,7 @@
     <string name="filters_clear">Filter löschen</string>
     <string name="activity_today">Heute</string>
     <string name="activity_yesterday">Gestern</string>
+    <string name="activity_tomorrow">Morgen</string>
     <string name="activity_workout_fallback">ohne Titel</string>
     <string name="activity_action_create_workout">Du hast das Training %1$s erstellt.</string>
     <string name="activity_action_update_workout">Du hast das Training %1$s aktualisiert.</string>

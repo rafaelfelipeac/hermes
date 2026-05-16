@@ -9,6 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -45,6 +46,7 @@ class AddRaceEventDialogTest {
                         ),
                     ),
                 selectedCategoryId = UNCATEGORIZED_ID,
+                weekStartDay = WeekStartDay.MONDAY,
                 selectedDate = eventDate,
             )
         }

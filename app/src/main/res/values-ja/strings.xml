@@ -13,6 +13,7 @@
 
     <!-- Progress -->
     <string name="progress_title">進捗</string>
+    <string name="progress_empty_title">まだ進捗はありません。</string>
     <string name="progress_empty">いくつかのワークアウトを計画すると、ここに進捗が表示されます。</string>
     <string name="progress_section_at_a_glance">ひと目でわかる概要</string>
     <string name="progress_section_this_week">今週</string>
@@ -28,7 +29,27 @@
     <string name="progress_card_upcoming_days">日</string>
     <string name="progress_last_8_weeks">直近8週間</string>
     <string name="progress_completed_of_planned">%1$d / %2$d 完了</string>
-    <string name="progress_no_trophy_highlight">トレーニングを記録し続けると、トロフィーの注目が表示されます。</string>
+    <string name="progress_section_weekly_readout">週間の読み取り</string>
+    <string name="progress_readout_on_track">順調</string>
+    <string name="progress_readout_completed">計画済み項目 %1$d/%2$d 件完了</string>
+    <plurals name="progress_readout_items_left">
+        <item quantity="one">計画済み項目が%1$d件残っています</item>
+        <item quantity="other">計画済み項目が%1$d件残っています</item>
+    </plurals>
+    <string name="progress_section_training_mix">カテゴリ内訳</string>
+    <string name="progress_weekly_chart_caption">各バーは計画済み項目を示します。塗りつぶされた部分は完了数を示します。</string>
+    <string name="progress_weekly_chart_count">%1$d/%2$d</string>
+    <string name="progress_weekly_insight_heaviest">直近8週間で最も計画量の多い週。</string>
+    <string name="progress_training_mix_caption">直近8週間で完了した項目です。色はカテゴリー、幅は割合を示します。</string>
+    <string name="progress_training_mix_balanced">最近のカテゴリー間でバランスの取れた内訳です。</string>
+    <string name="progress_training_mix_dominant">%1$sがこの期間を占めています。</string>
+    <string name="progress_section_supporting_progress">進捗のサポート</string>
+    <string name="progress_support_next_focus">次のフォーカス</string>
+    <string name="progress_support_upcoming_event">今後のイベント</string>
+    <string name="progress_support_trophy">トロフィー</string>
+    <string name="progress_no_support_cards">詳細を表示するには、計画を続けましょう。</string>
+    <string name="progress_recent_activity_caption">トレーニング履歴からの最新の変更。</string>
+    <string name="progress_no_trophy_highlight">記録を続けると、トロフィーの注目が表示されます。</string>
     <string name="progress_trophy_recent_unlock">最近アンロック</string>
     <string name="progress_trophy_nearest">次に近いトロフィー</string>
     <string name="progress_days_until">あと%1$d日</string>
@@ -186,8 +207,10 @@
 
     <!-- Activity -->
     <string name="activity_title">アクティビティログ</string>
-    <string name="activity_empty">まだアクティビティはありません。</string>
-    <string name="activity_filtered_empty">これらのフィルターに一致するアクティビティはありません。</string>
+    <string name="activity_empty_title">まだアクティビティはありません。</string>
+    <string name="activity_filtered_empty_title">一致するアクティビティはありません。</string>
+    <string name="activity_empty">完了したワークアウト、イベント更新、その他の変更がここに表示されます。</string>
+    <string name="activity_filtered_empty">フィルターを解除すると、すべてのログが表示されます。</string>
     <string name="activity_filter_all">すべて</string>
     <string name="activity_filter_completions">完了</string>
     <string name="activity_filter_planning">計画</string>
@@ -195,6 +218,7 @@
     <string name="filters_clear">フィルターをクリア</string>
     <string name="activity_today">今日</string>
     <string name="activity_yesterday">昨日</string>
+    <string name="activity_tomorrow">明日</string>
     <string name="activity_workout_fallback">名前なし</string>
     <string name="activity_action_create_workout">%1$s のワークアウトを作成しました。</string>
     <string name="activity_action_update_workout">%1$s のワークアウトを更新しました。</string>

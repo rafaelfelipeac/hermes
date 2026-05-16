@@ -170,6 +170,59 @@ class WeeklyTrainingViewModelWeekAndAddTest {
         }
 
     @Test
+    fun addWorkout_withWorkoutDate_schedulesIntoDerivedWeek() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 2, 18)
+            val workoutDate = LocalDate.of(2026, 3, 7)
+            val derivedWeekStart = workoutDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(
+                        id = 9,
+                        weekStart = derivedWeekStart,
+                        day = workoutDate.dayOfWeek,
+                        order = 0,
+                    ),
+                )
+            coEvery {
+                repository.getWorkoutsForWeek(derivedWeekStart)
+            } returns workoutsFlow.value
+            advanceUntilIdle()
+
+            viewModel.addWorkout(
+                type = "Run",
+                description = "Easy",
+                categoryId = null,
+                workoutDate = workoutDate,
+            )
+            advanceUntilIdle()
+
+            val requestSlot = slot<AddWorkoutRequest>()
+
+            coVerify(exactly = 1) {
+                repository.addWorkout(capture(requestSlot))
+            }
+            assertEquals(derivedWeekStart, requestSlot.captured.weekStartDate)
+            assertEquals(workoutDate.dayOfWeek, requestSlot.captured.dayOfWeek)
+            assertEquals("Run", requestSlot.captured.type)
+            assertEquals("Easy", requestSlot.captured.description)
+            assertEquals(UNCATEGORIZED_ID, requestSlot.captured.categoryId)
+            assertEquals(1, requestSlot.captured.order)
+
+            collectJob.cancel()
+        }
+
+    @Test
     fun addRest_usesNextOrderForUnscheduled() =
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())

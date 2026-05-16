@@ -23,6 +23,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.Weekl
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import io.mockk.clearMocks
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -299,6 +300,74 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
                 )
             }
             coVerify(exactly = 1) { repository.deleteWorkout(44) }
+
+            collectJob.cancel()
+        }
+
+    @Test
+    fun updateWorkoutDetails_withNewDate_movesWorkoutAndLogsMoveAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val selectedDate = LocalDate.of(2026, 4, 6)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+            val originalDate = LocalDate.of(2026, 4, 6)
+            val targetDate = LocalDate.of(2026, 4, 8)
+            val targetWeekStart = targetDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 43, weekStart = weekStart, day = originalDate.dayOfWeek, order = 0),
+                )
+            coEvery {
+                repository.getWorkoutsForWeek(targetWeekStart)
+            } returns emptyList()
+            advanceUntilIdle()
+
+            viewModel.updateWorkoutDetails(
+                workoutId = 43,
+                type = "Bike",
+                description = "Tempo",
+                eventType = EventType.WORKOUT,
+                categoryId = null,
+                workoutDate = targetDate,
+            )
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                repository.updateWorkoutSchedule(
+                    workoutId = 43,
+                    weekStartDate = targetWeekStart,
+                    dayOfWeek = targetDate.dayOfWeek,
+                    timeSlot = null,
+                    order = 0,
+                )
+            }
+            coVerify(exactly = 1) {
+                repository.updateWorkoutDetails(
+                    workoutId = 43,
+                    type = "Bike",
+                    description = "Tempo",
+                    eventType = EventType.WORKOUT,
+                    categoryId = UNCATEGORIZED_ID,
+                )
+            }
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = MOVE_WORKOUT_BETWEEN_DAYS,
+                    entityType = any(),
+                    entityId = 43,
+                    metadata = any(),
+                    timestamp = any(),
+                )
+            }
 
             collectJob.cancel()
         }
