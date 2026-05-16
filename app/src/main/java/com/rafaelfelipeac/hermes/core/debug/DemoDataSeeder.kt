@@ -74,6 +74,40 @@ import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private fun completionProfileForHistoryWeek(index: Int): CompletionProfile {
+    return when (index) {
+        0 -> CompletionProfile.NONE
+        1 -> CompletionProfile.LIGHT
+        2 -> CompletionProfile.SOME
+        3 -> CompletionProfile.BALANCED
+        4 -> CompletionProfile.HEAVY
+        5 -> CompletionProfile.COMPLETED_MOST
+        else -> CompletionProfile.BALANCED
+    }
+}
+
+private fun List<DayPlan>.withAddedWorkout(
+    dayOfWeek: DayOfWeek?,
+    workout: WorkoutSeed,
+): List<DayPlan> {
+    var didUpdateDay = false
+    val updatedPlans =
+        map { plan ->
+            if (plan.dayOfWeek == dayOfWeek) {
+                didUpdateDay = true
+                plan.copy(items = plan.items + workout)
+            } else {
+                plan
+            }
+        }.toMutableList()
+
+    if (!didUpdateDay) {
+        updatedPlans += DayPlan(dayOfWeek, listOf(workout))
+    }
+
+    return updatedPlans
+}
+
 @Singleton
 class DemoDataSeeder
     @Inject
@@ -1386,40 +1420,6 @@ private enum class CompletionProfile {
         }
     }
 }
-
-        private fun completionProfileForHistoryWeek(index: Int): CompletionProfile {
-            return when (index) {
-                0 -> CompletionProfile.NONE
-                1 -> CompletionProfile.LIGHT
-                2 -> CompletionProfile.SOME
-        3 -> CompletionProfile.BALANCED
-        4 -> CompletionProfile.HEAVY
-        5 -> CompletionProfile.COMPLETED_MOST
-                else -> CompletionProfile.BALANCED
-            }
-        }
-
-        private fun List<DayPlan>.withAddedWorkout(
-            dayOfWeek: DayOfWeek?,
-            workout: WorkoutSeed,
-        ): List<DayPlan> {
-            var didUpdateDay = false
-            val updatedPlans =
-                map { plan ->
-                    if (plan.dayOfWeek == dayOfWeek) {
-                        didUpdateDay = true
-                        plan.copy(items = plan.items + workout)
-                    } else {
-                        plan
-                    }
-                }.toMutableList()
-
-            if (!didUpdateDay) {
-                updatedPlans += DayPlan(dayOfWeek, listOf(workout))
-            }
-
-            return updatedPlans
-        }
 
 private const val RESULT_SUCCESS = "success"
 private const val DEMO_RUN_WORKOUT_A1_ID = 10_001L

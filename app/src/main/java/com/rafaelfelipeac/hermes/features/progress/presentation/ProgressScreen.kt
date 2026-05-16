@@ -830,13 +830,6 @@ private fun ProgressCategoryShareUi.countShareText(): String {
     }
 }
 
-private fun Int.percentLabel(): String {
-    return buildString {
-        append(this@percentLabel)
-        append(PERCENT_SUFFIX)
-    }
-}
-
 private fun Int.percentFraction(): Float {
     return (this / PERCENT_MAX.toFloat()).coerceIn(PERCENT_MIN_FRACTION, PERCENT_MAX_FRACTION)
 }

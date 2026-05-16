@@ -428,3 +428,4 @@ Recent learnings:
 - `rememberSaveable` should not hold `LocalDate` directly for a cross-screen request handoff; storing ISO strings keeps the state saveable with less ceremony than a custom saver when the date only bridges navigation.
 - Material3 date pickers can honor week-start preferences without reflection by encoding the `fw` Unicode locale keyword into the picker locale. That keeps the behavior on the supported locale path instead of mutating internal state.
 - Progress trend labels are clearer when the axis uses percent values and the bar labels keep the raw completed/planned count. That separates "how full" from "how much was scheduled" instead of mixing the units.
+- Debug seed variation is more useful when the week template changes, not just the completion profile. Varying the planned workout shape across history weeks gives the progress chart a better max scale and catches layout assumptions that a uniform seed hides.
