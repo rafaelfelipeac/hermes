@@ -97,6 +97,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.undoSnackbarMessage
@@ -117,6 +118,7 @@ fun EventsScreen(
     onManageCategories: (EventDialogDraft) -> Unit = {},
     pendingEventDraft: EventDialogDraft? = null,
     onEventDraftConsumed: () -> Unit = {},
+    weekStartDay: WeekStartDay,
     requestedEventId: Long? = null,
     onRequestedEventConsumed: () -> Unit = {},
     viewModel: EventsViewModel = hiltViewModel(),
@@ -360,6 +362,7 @@ fun EventsScreen(
             isEdit = editingEvent != null,
             categories = categoriesForPicker,
             selectedCategoryId = draftCategoryId,
+            weekStartDay = weekStartDay,
             selectedDate = draftDate,
             initialTitle = draftTitle,
             initialDescription = draftDescription,

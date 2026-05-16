@@ -545,6 +545,7 @@ fun WeeklyTrainingScreen(
             isEdit = false,
             categories = pickerCategories,
             selectedCategoryId = draftCategoryId,
+            weekStartDay = state.weekStartDay,
             selectedDate = draftEventDate,
             initialType = draftType,
             initialDescription = draftDescription,
@@ -588,6 +589,7 @@ fun WeeklyTrainingScreen(
             isEdit = false,
             categories = pickerCategories,
             selectedCategoryId = draftCategoryId,
+            weekStartDay = state.weekStartDay,
             selectedDate = draftEventDate,
             initialTitle = draftType,
             initialDescription = draftDescription,
@@ -633,6 +635,7 @@ fun WeeklyTrainingScreen(
                 isEdit = true,
                 categories = editCategories,
                 selectedCategoryId = workout.categoryId,
+                weekStartDay = state.weekStartDay,
                 selectedDate =
                     draftEventDate
                         ?: workout.weekStartDate.plusDays((workout.dayOfWeek?.value?.minus(1) ?: 0).toLong()),
@@ -668,6 +671,7 @@ fun WeeklyTrainingScreen(
                 isEdit = true,
                 categories = editCategories,
                 selectedCategoryId = workout.categoryId,
+                weekStartDay = state.weekStartDay,
                 selectedDate = workout.workoutDateOrNull(),
                 initialType = workout.type,
                 initialDescription = workout.description,

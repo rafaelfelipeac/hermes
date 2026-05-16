@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,6 +35,7 @@ import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.events.presentation.EventsScreen
 import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
+import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.CATEGORIES
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.MAIN
@@ -50,6 +52,8 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Work
 @Composable
 fun HermesAppContent() {
     val trophyCelebrationViewModel: TrophyCelebrationViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+    val settingsState by settingsViewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var currentDestination by rememberSaveable { mutableStateOf(WEEKLY_TRAINING) }
     var pendingSettingsRoute by rememberSaveable { mutableStateOf<SettingsRoute?>(null) }
@@ -233,6 +237,7 @@ fun HermesAppContent() {
                             onManageCategories = openEventCategories,
                             pendingEventDraft = pendingEventDraft,
                             onEventDraftConsumed = { pendingEventDraft = null },
+                            weekStartDay = settingsState.weekStartDay,
                         )
                     SETTINGS ->
                         SettingsScreen(
