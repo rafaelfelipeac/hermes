@@ -530,12 +530,12 @@
     <string name="race_events_today">Hoje</string>
     <string name="race_events_tomorrow">Amanhã</string>
     <plurals name="race_events_days_left">
-        <item quantity="one">Falta %1$d dia</item>
-        <item quantity="other">Faltam %1$d dias</item>
+        <item quantity="one">falta %1$d dia</item>
+        <item quantity="other">faltam %1$d dias</item>
     </plurals>
     <plurals name="race_events_days_ago">
-        <item quantity="one">Há %1$d dia</item>
-        <item quantity="other">Há %1$d dias</item>
+        <item quantity="one">há %1$d dia</item>
+        <item quantity="other">há %1$d dias</item>
     </plurals>
     <string name="race_event_dialog_add_race_event">Adicionar evento</string>
     <string name="race_event_dialog_edit_race_event">Editar evento</string>

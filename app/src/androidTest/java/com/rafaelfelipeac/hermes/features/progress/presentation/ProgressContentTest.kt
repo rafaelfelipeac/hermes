@@ -93,4 +93,50 @@ class ProgressContentTest {
             assertTrue(openedActivity)
         }
     }
+
+    @Test
+    fun clickingWeeklyReadoutNextFocusOpensWorkout() {
+        var openedWorkout = false
+
+        val state =
+            ProgressState(
+                emptyReason = null,
+                sections =
+                    listOf(
+                        ProgressSectionUi.WeeklyReadout(
+                            readout =
+                                ProgressWeeklyReadoutUi(
+                                    plannedWorkouts = 2,
+                                    completedWorkouts = 1,
+                                    completionPercent = 50,
+                                    nextFocus =
+                                        ProgressNextFocusUi(
+                                            id = 41L,
+                                            title = "Easy run",
+                                            date = LocalDate.of(2026, 5, 15),
+                                            daysUntil = 2,
+                                        ),
+                                ),
+                        ),
+                    ),
+            )
+
+        composeRule.setContent {
+            ProgressContent(
+                state = state,
+                locale = Locale.US,
+                onOpenActivity = {},
+                onOpenActivityItem = {},
+                onOpenWorkout = { openedWorkout = true },
+                onOpenEvent = {},
+                onOpenTrophy = {},
+            )
+        }
+
+        composeRule.onNodeWithText("Easy run").assertIsDisplayed().performClick()
+
+        composeRule.runOnIdle {
+            assertTrue(openedWorkout)
+        }
+    }
 }
