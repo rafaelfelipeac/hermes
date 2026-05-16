@@ -17,7 +17,6 @@ import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyFamily
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyCardUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyFamilyUi
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekStart
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Locale
@@ -40,6 +40,7 @@ class ProgressViewModel
         userActionRepository: UserActionRepository,
         settingsRepository: SettingsRepository,
         stringProvider: StringProvider,
+        clock: Clock,
     ) : ViewModel() {
         private val trophyEngine = TrophyEngine()
         private val activityFormatter = ActivityUiFormatter(stringProvider)
@@ -95,7 +96,7 @@ class ProgressViewModel
                 val (workouts, categories) = workoutsAndCategories
                 val (actions, trophyCategories) = actionsAndTrophies
                 val (weekStartDay, locale) = settingsAndLocale
-                val today = LocalDate.now()
+                val today = LocalDate.now(clock)
                 val currentWeekStart = weekStart(today, weekStartDay.dayOfWeek)
                 val trophyCards =
                     trophyEngine.compute(

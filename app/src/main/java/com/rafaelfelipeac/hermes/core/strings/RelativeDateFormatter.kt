@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.core.strings
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@Suppress("LongParameterList")
 fun relativeDateText(
     date: LocalDate,
     today: LocalDate,

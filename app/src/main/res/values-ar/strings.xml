@@ -33,7 +33,11 @@
     <string name="progress_readout_on_track">على المسار</string>
     <string name="progress_readout_completed">اكتمل %1$d من أصل %2$d عنصر مخطط</string>
     <plurals name="progress_readout_items_left">
+        <item quantity="zero">لا تبقى أي عناصر مخططة</item>
         <item quantity="one">تبقى %1$d عنصر مخطط</item>
+        <item quantity="two">تبقى %1$d عنصران مخططان</item>
+        <item quantity="few">تبقى %1$d عناصر مخططة</item>
+        <item quantity="many">تبقى %1$d عنصرًا مخططًا</item>
         <item quantity="other">تبقى %1$d عناصر مخططة</item>
     </plurals>
     <string name="progress_section_training_mix">مزيج الفئات</string>

@@ -2,8 +2,6 @@
 
 package com.rafaelfelipeac.hermes.core.ui.components
 
-import android.content.res.Configuration
-import android.os.LocaleList
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +28,6 @@ import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,8 +36,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,12 +55,11 @@ import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
+
+internal const val ADD_WORKOUT_DIALOG_TITLE_FIELD_TAG = "add_workout_dialog_title_field"
+internal const val ADD_WORKOUT_DIALOG_DESCRIPTION_FIELD_TAG = "add_workout_dialog_description_field"
 
 @Composable
 fun AddWorkoutDialog(
@@ -79,7 +75,6 @@ fun AddWorkoutDialog(
     initialType: String = EMPTY,
     initialDescription: String = EMPTY,
 ) {
-    val currentContext = LocalContext.current
     val configuration = LocalConfiguration.current
     val currentLocale =
         ConfigurationCompat.getLocales(configuration).get(0) ?: Locale.getDefault()
@@ -128,7 +123,10 @@ fun AddWorkoutDialog(
                     onValueChange = { type = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_title)) },
                     keyboardOptions = DefaultTextFieldKeyboardOptions,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .testTag(ADD_WORKOUT_DIALOG_TITLE_FIELD_TAG),
                 )
 
                 Spacer(modifier = Modifier.height(SpacingLg))
@@ -138,7 +136,10 @@ fun AddWorkoutDialog(
                     onValueChange = { description = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_description)) },
                     keyboardOptions = DefaultTextFieldKeyboardOptions,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .testTag(ADD_WORKOUT_DIALOG_DESCRIPTION_FIELD_TAG),
                 )
 
                 Spacer(modifier = Modifier.height(SpacingLg))
@@ -258,16 +259,6 @@ fun AddWorkoutDialog(
     if (showDatePicker) {
         val selectedDateMillis = workoutDate?.toUtcEpochMillis()
         val minimumSelectableDateMillis = remember { LocalDate.now().toUtcEpochMillis() }
-        val datePickerConfiguration =
-            remember(configuration, currentLocale) {
-                Configuration(configuration).apply {
-                    setLocales(LocaleList.forLanguageTags(currentLocale.toLanguageTag()))
-                }
-            }
-        val datePickerContext =
-            remember(datePickerConfiguration) {
-                currentContext.createConfigurationContext(datePickerConfiguration)
-            }
         val selectableDates =
             remember(minimumSelectableDateMillis) {
                 object : SelectableDates {
@@ -277,7 +268,7 @@ fun AddWorkoutDialog(
                 }
             }
         val datePickerState =
-            remember(currentLocale, selectedDateMillis, selectableDates) {
+            remember(selectedDateMillis, selectableDates) {
                 DatePickerState(
                     locale = currentLocale,
                     initialSelectedDateMillis = selectedDateMillis,
@@ -307,30 +298,9 @@ fun AddWorkoutDialog(
                 }
             },
         ) {
-            CompositionLocalProvider(
-                LocalContext provides datePickerContext,
-                LocalConfiguration provides datePickerConfiguration,
-            ) {
-                DatePicker(state = datePickerState)
-            }
+            DatePicker(state = datePickerState)
         }
     }
-}
-
-private fun formatWorkoutDate(
-    date: LocalDate,
-    locale: Locale,
-): String {
-    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-    return date.format(formatter)
-}
-
-private fun LocalDate.toUtcEpochMillis(): Long {
-    return atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
-}
-
-private fun Long.toUtcLocalDate(): LocalDate {
-    return Instant.ofEpochMilli(this).atZone(ZoneOffset.UTC).toLocalDate()
 }
 
 @Preview(showBackground = true)

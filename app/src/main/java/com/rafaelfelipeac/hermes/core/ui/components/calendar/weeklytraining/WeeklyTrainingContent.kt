@@ -447,7 +447,7 @@ fun WeeklyTrainingContent(
                                             }
 
                                             key(workout.id) {
-                                        WorkoutRow(
+                                                WorkoutRow(
                                                     workout = workout,
                                                     isDragging = dragController.draggedWorkoutId == workout.id,
                                                     isDeemphasized = workout.shouldDeemphasize(focusedCategoryId),

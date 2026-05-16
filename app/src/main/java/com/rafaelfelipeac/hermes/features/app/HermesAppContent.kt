@@ -35,19 +35,20 @@ import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.events.presentation.EventsScreen
 import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
-import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
+import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressNextFocusUi
+import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressScreen
+import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressUpcomingEventUi
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.CATEGORIES
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsRoute.MAIN
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
-import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressScreen
-import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressNextFocusUi
-import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressUpcomingEventUi
+import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
+import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophiesScreen
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyCelebrationViewModel
-import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.WeeklyTrainingScreen
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutDialogDraft
+import java.time.LocalDate
 
 @Composable
 fun HermesAppContent() {
@@ -64,7 +65,7 @@ fun HermesAppContent() {
         mutableStateOf<EventDialogDraft?>(null)
     }
     var pendingRequestedWorkoutId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var pendingRequestedWorkoutDate by rememberSaveable { mutableStateOf<java.time.LocalDate?>(null) }
+    var pendingRequestedWorkoutDate by rememberSaveable { mutableStateOf<String?>(null) }
     var pendingRequestedWorkoutRequestKey by rememberSaveable { mutableStateOf(0L) }
     var pendingRequestedEventId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedActivityId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -85,7 +86,7 @@ fun HermesAppContent() {
     val openProgressWorkout: (ProgressNextFocusUi) -> Unit = { workout ->
         pendingWorkoutDraft = null
         pendingRequestedWorkoutId = workout.id
-        pendingRequestedWorkoutDate = workout.date
+        pendingRequestedWorkoutDate = workout.date?.toString()
         pendingRequestedWorkoutRequestKey += 1L
         pendingRequestedTrophyStableId = null
         pendingRequestedEventId = null
@@ -190,19 +191,19 @@ fun HermesAppContent() {
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    when (currentDestination) {
-                        WEEKLY_TRAINING ->
-                            WeeklyTrainingScreen(
-                                modifier = Modifier.padding(innerPadding),
-                                onManageCategories = openCategoriesSettings,
-                                pendingWorkoutDraft = pendingWorkoutDraft,
-                                onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
-                                requestedWorkoutId = pendingRequestedWorkoutId,
-                                requestedWorkoutDate = pendingRequestedWorkoutDate,
-                                requestedWorkoutRequestKey = pendingRequestedWorkoutRequestKey,
-                                onRequestedWorkoutDateConsumed = { pendingRequestedWorkoutDate = null },
-                                onRequestedWorkoutConsumed = { pendingRequestedWorkoutId = null },
-                            )
+                when (currentDestination) {
+                    WEEKLY_TRAINING ->
+                        WeeklyTrainingScreen(
+                            modifier = Modifier.padding(innerPadding),
+                            onManageCategories = openCategoriesSettings,
+                            pendingWorkoutDraft = pendingWorkoutDraft,
+                            onWorkoutDraftConsumed = { pendingWorkoutDraft = null },
+                            requestedWorkoutId = pendingRequestedWorkoutId,
+                            requestedWorkoutDate = pendingRequestedWorkoutDate?.let(LocalDate::parse),
+                            requestedWorkoutRequestKey = pendingRequestedWorkoutRequestKey,
+                            onRequestedWorkoutDateConsumed = { pendingRequestedWorkoutDate = null },
+                            onRequestedWorkoutConsumed = { pendingRequestedWorkoutId = null },
+                        )
                     PROGRESS ->
                         ProgressScreen(
                             modifier = Modifier.padding(innerPadding),
@@ -222,7 +223,8 @@ fun HermesAppContent() {
                     TROPHIES ->
                         TrophiesScreen(
                             modifier = Modifier.padding(innerPadding),
-                            requestedTrophyStableId = pendingRequestedTrophyStableId ?: pendingCelebrationTrophyStableId,
+                            requestedTrophyStableId =
+                                pendingRequestedTrophyStableId ?: pendingCelebrationTrophyStableId,
                             onRequestedTrophyConsumed = {
                                 pendingRequestedTrophyStableId = null
                                 pendingCelebrationTrophyStableId = null

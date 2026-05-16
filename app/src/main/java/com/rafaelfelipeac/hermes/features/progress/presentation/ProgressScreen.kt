@@ -11,8 +11,8 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -32,8 +34,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,10 +43,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.strings.relativeDaysUntilText
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityContentGap
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressCategoryColorDotSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressReadoutBarHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityContentGap
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressRecentActivityTopPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressScreenBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressSupportCardMinHeight
@@ -54,23 +56,22 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrainingMixBarHeig
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendAxisWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendBarHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendBarMinWidth
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendCountMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendChartRowSpacing
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendChartVerticalPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendCountMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressTrendSectionSpacing
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
-import com.rafaelfelipeac.hermes.core.strings.relativeDaysUntilText
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMode
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.trophyNameRes
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import java.util.Locale
 
 @Composable
@@ -220,7 +221,6 @@ internal fun ProgressContent(
                     ) {
                         ProgressRecentActivity(
                             items = section.items,
-                            onOpenActivity = onOpenActivity,
                             onOpenActivityItem = onOpenActivityItem,
                         )
                     }
@@ -360,8 +360,7 @@ private fun ProgressWeeklyTrend(
     insight: ProgressWeeklyTrendInsightUi?,
     locale: Locale,
 ) {
-    val formatter = DateTimeFormatter.ofPattern(WEEK_LABEL_FORMAT_PATTERN, locale)
-    val maxPlannedWorkouts = weeks.maxOfOrNull { it.plannedWorkouts } ?: 0
+    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
 
     Column(verticalArrangement = Arrangement.spacedBy(ProgressTrendSectionSpacing)) {
         Box(
@@ -390,11 +389,12 @@ private fun ProgressWeeklyTrend(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = stringResource(
-                                    R.string.progress_weekly_chart_count,
-                                    week.completedWorkouts,
-                                    week.plannedWorkouts,
-                                ),
+                                text =
+                                    stringResource(
+                                        R.string.progress_weekly_chart_count,
+                                        week.completedWorkouts,
+                                        week.plannedWorkouts,
+                                    ),
                                 style = typography.labelSmall,
                                 color = colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
@@ -418,12 +418,12 @@ private fun ProgressWeeklyTrend(
                         horizontalAlignment = Alignment.End,
                     ) {
                         Text(
-                            text = maxPlannedWorkouts.toString(),
+                            text = PERCENT_MAX.percentLabel(),
                             style = typography.labelSmall,
                             color = colorScheme.onSurfaceVariant,
                         )
                         Text(
-                            text = (maxPlannedWorkouts / 2).toString(),
+                            text = (PERCENT_MAX / 2).percentLabel(),
                             style = typography.labelSmall,
                             color = colorScheme.onSurfaceVariant,
                         )
@@ -738,7 +738,6 @@ private fun ProgressSupportBlock(
 @Composable
 private fun ProgressRecentActivity(
     items: List<com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi>,
-    onOpenActivity: () -> Unit,
     onOpenActivityItem: (ActivityItemUi) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
@@ -799,9 +798,7 @@ private fun ProgressTrainingMixInsightUi.trainingMixInsightText(): String {
     }
 }
 
-internal fun ProgressWeekBarUi.chartLabel(
-    formatter: DateTimeFormatter,
-): String {
+internal fun ProgressWeekBarUi.chartLabel(formatter: DateTimeFormatter): String {
     return weekStartDate.format(formatter)
 }
 
@@ -821,6 +818,13 @@ private fun ProgressCategoryShareUi.countShareText(): String {
         append(count)
         append(COUNT_SHARE_SEPARATOR)
         append(sharePercent)
+        append(PERCENT_SUFFIX)
+    }
+}
+
+private fun Int.percentLabel(): String {
+    return buildString {
+        append(this@percentLabel)
         append(PERCENT_SUFFIX)
     }
 }
@@ -846,7 +850,6 @@ private data class ProgressSupportCardContent(
     val detail: String? = null,
 )
 
-private const val WEEK_LABEL_FORMAT_PATTERN = "MMM d"
 private const val AXIS_LABEL_EMPTY = "0%"
 private const val COUNT_SHARE_SEPARATOR = " / "
 private const val PERCENT_SUFFIX = "%"

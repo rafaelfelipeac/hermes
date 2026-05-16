@@ -85,6 +85,32 @@ class ProgressSummaryBuilderTest {
     }
 
     @Test
+    fun buildProgressState_ignoresHiddenCategoriesInSharePercent() {
+        val hiddenCategories =
+            categories +
+                CategoryUi(4L, "Hidden", COLOR_RUN, 2, isHidden = true, isSystem = false)
+        val workouts =
+            listOf(
+                workout(1L, currentWeek, DayOfWeek.MONDAY, EventType.WORKOUT, isCompleted = true, categoryId = 2L),
+                workout(2L, currentWeek, DayOfWeek.TUESDAY, EventType.WORKOUT, isCompleted = true, categoryId = 4L),
+            )
+
+        val state =
+            buildProgressState(
+                workouts = workouts,
+                categories = hiddenCategories,
+                trophyCards = emptyList(),
+                recentActivities = emptyList(),
+                today = today,
+                currentWeekStart = currentWeek,
+            )
+
+        assertEquals(1, state.categoryDistribution.size)
+        assertEquals("Run", state.categoryDistribution.single().name)
+        assertEquals(100, state.categoryDistribution.single().sharePercent)
+    }
+
+    @Test
     fun buildProgressState_countsWorkoutsAndEventsInWeeklySummaryAndTrend() {
         val workouts =
             listOf(
@@ -298,8 +324,22 @@ class ProgressSummaryBuilderTest {
     fun buildProgressState_hidesNextFocusWhenCurrentWeekHasNoIncompleteWorkout() {
         val workouts =
             listOf(
-                workout(1L, currentWeek, DayOfWeek.MONDAY, EventType.WORKOUT, isCompleted = true, categoryId = 2L),
-                workout(2L, currentWeek.plusWeeks(1), DayOfWeek.WEDNESDAY, EventType.WORKOUT, isCompleted = false, categoryId = 3L),
+                workout(
+                    1L,
+                    currentWeek,
+                    DayOfWeek.MONDAY,
+                    EventType.WORKOUT,
+                    isCompleted = true,
+                    categoryId = 2L,
+                ),
+                workout(
+                    2L,
+                    currentWeek.plusWeeks(1),
+                    DayOfWeek.WEDNESDAY,
+                    EventType.WORKOUT,
+                    isCompleted = false,
+                    categoryId = 3L,
+                ),
             )
 
         val state =
@@ -319,8 +359,22 @@ class ProgressSummaryBuilderTest {
     fun buildProgressState_keepsUpcomingEventSeparateFromNextFocus() {
         val workouts =
             listOf(
-                workout(1L, currentWeek, DayOfWeek.WEDNESDAY, EventType.WORKOUT, isCompleted = false, categoryId = 2L),
-                workout(2L, currentWeek.plusWeeks(1), DayOfWeek.SATURDAY, RACE_EVENT, isCompleted = false, categoryId = 3L),
+                workout(
+                    1L,
+                    currentWeek,
+                    DayOfWeek.WEDNESDAY,
+                    EventType.WORKOUT,
+                    isCompleted = false,
+                    categoryId = 2L,
+                ),
+                workout(
+                    2L,
+                    currentWeek.plusWeeks(1),
+                    DayOfWeek.SATURDAY,
+                    RACE_EVENT,
+                    isCompleted = false,
+                    categoryId = 3L,
+                ),
             )
 
         val state =
@@ -442,6 +496,7 @@ class ProgressSummaryBuilderTest {
         return completedItems + pendingItems
     }
 
+    @Suppress("LongParameterList")
     private fun workout(
         id: Long,
         weekStart: LocalDate,
@@ -472,7 +527,11 @@ class ProgressSummaryBuilderTest {
     ): TrophyCardUi {
         val progress =
             TrophyProgress(
-                definition = (TrophyDefinitions.supportedV1 + TrophyDefinitions.categoryTemplates).first { it.id == trophyId },
+                definition =
+                    (
+                        TrophyDefinitions.supportedV1 +
+                            TrophyDefinitions.categoryTemplates
+                    ).first { it.id == trophyId },
                 currentValue = currentValue,
                 unlockedAt = unlockedAt,
                 categoryId = null,

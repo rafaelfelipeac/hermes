@@ -4,12 +4,14 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -39,14 +41,15 @@ class AddWorkoutDialogTest {
                 isEdit = false,
                 categories = emptyList(),
                 selectedCategoryId = null,
+                weekStartDay = WeekStartDay.MONDAY,
             )
         }
 
         composeRule
-            .onNodeWithText(context.getString(R.string.workout_dialog_add_workout_title))
+            .onNodeWithTag(ADD_WORKOUT_DIALOG_TITLE_FIELD_TAG)
             .performTextInput("tempo run")
         composeRule
-            .onNodeWithText(context.getString(R.string.workout_dialog_add_workout_description))
+            .onNodeWithTag(ADD_WORKOUT_DIALOG_DESCRIPTION_FIELD_TAG)
             .performTextInput("controlled effort")
         composeRule
             .onNodeWithText(context.getString(R.string.workout_dialog_add_workout_confirm))
@@ -67,6 +70,7 @@ class AddWorkoutDialogTest {
                 isEdit = false,
                 categories = emptyList(),
                 selectedCategoryId = null,
+                weekStartDay = WeekStartDay.MONDAY,
             )
         }
 
@@ -91,6 +95,7 @@ class AddWorkoutDialogTest {
                 isEdit = false,
                 categories = emptyList(),
                 selectedCategoryId = null,
+                weekStartDay = WeekStartDay.MONDAY,
                 selectedDate = selectedDate,
             )
         }
@@ -119,6 +124,7 @@ class AddWorkoutDialogTest {
                 isEdit = true,
                 categories = emptyList(),
                 selectedCategoryId = null,
+                weekStartDay = WeekStartDay.MONDAY,
                 selectedDate = selectedDate,
                 initialType = "Run",
                 initialDescription = "Easy",
@@ -165,6 +171,7 @@ class AddWorkoutDialogTest {
                 isEdit = false,
                 categories = categories,
                 selectedCategoryId = 1L,
+                weekStartDay = WeekStartDay.MONDAY,
                 initialType = "Run",
                 initialDescription = "Easy",
             )

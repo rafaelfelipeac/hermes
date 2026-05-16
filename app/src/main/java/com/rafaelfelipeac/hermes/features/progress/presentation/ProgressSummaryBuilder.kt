@@ -12,6 +12,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
+@Suppress("LongParameterList")
 internal fun buildProgressState(
     workouts: List<Workout>,
     categories: List<CategoryUi>,
@@ -152,16 +153,20 @@ private fun buildWeeklyTrend(
 }
 
 private fun buildWeeklyTrendInsight(weeklyTrend: List<ProgressWeekBarUi>): ProgressWeeklyTrendInsightUi? {
-    val currentWeek = weeklyTrend.firstOrNull { it.isCurrentWeek } ?: return null
-    val maxPlannedWorkouts = weeklyTrend.maxOfOrNull { it.plannedWorkouts } ?: return null
+    val currentWeek = weeklyTrend.firstOrNull { it.isCurrentWeek }
+    val maxPlannedWorkouts = weeklyTrend.maxOfOrNull { it.plannedWorkouts }
 
-    return if (currentWeek.plannedWorkouts > 0 && currentWeek.plannedWorkouts == maxPlannedWorkouts) {
-        ProgressWeeklyTrendInsightUi(ProgressWeeklyTrendInsightKind.CURRENT_WEEK_HEAVIEST)
-    } else {
-        null
-    }
+    return currentWeek
+        ?.takeIf {
+            it.plannedWorkouts > 0 &&
+                it.plannedWorkouts == maxPlannedWorkouts
+        }
+        ?.let {
+            ProgressWeeklyTrendInsightUi(ProgressWeeklyTrendInsightKind.CURRENT_WEEK_HEAVIEST)
+        }
 }
 
+@Suppress("LongParameterList")
 private fun buildSections(
     weeklyReadout: ProgressWeeklyReadoutUi,
     weeklyTrend: List<ProgressWeekBarUi>,
@@ -207,26 +212,36 @@ private fun buildCategoryDistribution(
                 !it.weekStartDate.isAfter(currentWeekStart)
         }
 
-    if (workoutsInWindow.isEmpty()) return emptyList()
+    return if (workoutsInWindow.isEmpty()) {
+        emptyList()
+    } else {
+        val categoriesById = categories.associateBy { it.id }
+        val countsByCategoryId =
+            workoutsInWindow.groupingBy { it.categoryId ?: UNCATEGORIZED_ID }.eachCount()
+        val visibleCountsByCategoryId =
+            countsByCategoryId.filterKeys { categoryId -> categoryId in categoriesById }
+        val visibleTotal = visibleCountsByCategoryId.values.sum()
 
-    val categoriesById = categories.associateBy { it.id }
-    val countsByCategoryId =
-        workoutsInWindow.groupingBy { it.categoryId ?: UNCATEGORIZED_ID }.eachCount()
-
-    return countsByCategoryId.mapNotNull { (categoryId, count) ->
-        val category = categoriesById[categoryId] ?: return@mapNotNull null
-        ProgressCategoryShareUi(
-            id = category.id,
-            name = category.name,
-            colorId = category.colorId,
-            count = count,
-            sharePercent = percent(count, workoutsInWindow.size),
-        )
-    }.sortedWith(
-        compareBy<ProgressCategoryShareUi> { it.id == UNCATEGORIZED_ID }
-            .thenByDescending { it.count }
-            .thenBy { it.name },
-    )
+        if (visibleTotal == 0) {
+            emptyList()
+        } else {
+            visibleCountsByCategoryId.mapNotNull { (categoryId, count) ->
+                categoriesById[categoryId]?.let { category ->
+                    ProgressCategoryShareUi(
+                        id = category.id,
+                        name = category.name,
+                        colorId = category.colorId,
+                        count = count,
+                        sharePercent = percent(count, visibleTotal),
+                    )
+                }
+            }.sortedWith(
+                compareBy<ProgressCategoryShareUi> { it.id == UNCATEGORIZED_ID }
+                    .thenByDescending { it.count }
+                    .thenBy { it.name },
+            )
+        }
+    }
 }
 
 private fun buildTrainingMixInsight(items: List<ProgressCategoryShareUi>): ProgressTrainingMixInsightUi? {

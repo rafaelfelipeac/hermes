@@ -46,20 +46,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.strings.relativeDateText
+import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
-import com.rafaelfelipeac.hermes.core.strings.relativeDateText
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityFiltersUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPrimaryFilter
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivitySectionUi
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.util.Locale
 
@@ -101,7 +100,6 @@ fun ActivityScreen(
             sections = state.sections,
             currentLocale = currentLocale,
             requestedActivityId = requestedActivityId,
-            onRequestedActivityConsumed = onRequestedActivityConsumed,
             filters = state.filters,
             emptyTitle =
                 stringResource(
@@ -168,7 +166,6 @@ internal fun ActivityContent(
     sections: List<ActivitySectionUi>,
     currentLocale: Locale,
     requestedActivityId: Long? = null,
-    onRequestedActivityConsumed: () -> Unit = {},
     filters: ActivityFiltersUi = ActivityFiltersUi(),
     emptyTitle: String = stringResource(R.string.activity_empty_title),
     emptyMessage: String = stringResource(R.string.activity_empty),

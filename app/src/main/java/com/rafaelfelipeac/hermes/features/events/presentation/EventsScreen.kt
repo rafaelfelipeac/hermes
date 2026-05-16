@@ -67,8 +67,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
+import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
@@ -306,7 +306,6 @@ fun EventsScreen(
             modifier = modifier,
             contentPadding = contentPadding,
             requestedEventId = requestedEventId,
-            onRequestedEventConsumed = onRequestedEventConsumed,
             onEditEvent = ::openEditDialog,
             onToggleCompleted = { eventId, checked ->
                 viewModel.updateRaceEventCompletion(
@@ -399,7 +398,6 @@ internal fun EventsContent(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     requestedEventId: Long? = null,
-    onRequestedEventConsumed: () -> Unit = {},
     onEditEvent: (WorkoutUi) -> Unit,
     onToggleCompleted: (eventId: Long, isCompleted: Boolean) -> Unit,
     onDeleteEvent: (eventId: Long) -> Unit,

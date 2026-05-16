@@ -32,9 +32,14 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.Clock
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters.previousOrSame
+
+private val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T00:00:00Z"), ZoneOffset.UTC)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ProgressViewModelTest {
@@ -44,7 +49,7 @@ class ProgressViewModelTest {
     @Test
     fun state_summarizesCurrentWeekAndRecentActivity() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val currentWeek = LocalDate.now().with(previousOrSame(DayOfWeek.MONDAY))
+            val currentWeek = LocalDate.now(TEST_CLOCK).with(previousOrSame(DayOfWeek.MONDAY))
             val workouts =
                 listOf(
                     workout(1L, currentWeek.minusWeeks(1), DayOfWeek.MONDAY, isCompleted = true, categoryId = 2L),
@@ -86,9 +91,9 @@ class ProgressViewModelTest {
     @Test
     fun state_limitsRecentActivityPreviewToFiveItems() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val currentWeek = LocalDate.now().with(previousOrSame(DayOfWeek.MONDAY))
+            val currentWeek = LocalDate.now(TEST_CLOCK).with(previousOrSame(DayOfWeek.MONDAY))
             val actions =
-                (1L..5L).map { id ->
+                (1L..6L).map { id ->
                     action(
                         id = id,
                         actionType = UserActionType.UPDATE_WORKOUT,
@@ -107,8 +112,8 @@ class ProgressViewModelTest {
                 val state = awaitItem()
 
                 assertEquals(5, state.recentActivities.size)
-                assertEquals(5L, state.recentActivities.first().id)
-                assertEquals(1L, state.recentActivities.last().id)
+                assertEquals(6L, state.recentActivities.first().id)
+                assertEquals(2L, state.recentActivities.last().id)
 
                 cancelAndIgnoreRemainingEvents()
             }
@@ -117,7 +122,7 @@ class ProgressViewModelTest {
     @Test
     fun state_updatesTrainingMixWhenCategoriesChange() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val currentWeek = LocalDate.now().with(previousOrSame(DayOfWeek.MONDAY))
+            val currentWeek = LocalDate.now(TEST_CLOCK).with(previousOrSame(DayOfWeek.MONDAY))
             val workouts =
                 listOf(
                     workout(1L, currentWeek, DayOfWeek.MONDAY, isCompleted = true, categoryId = 2L),
@@ -138,8 +143,22 @@ class ProgressViewModelTest {
 
                 categoryRepository.categories.value =
                     listOf(
-                        Category(UNCATEGORIZED_ID, "Uncategorized", "uncategorized", 0, isHidden = false, isSystem = true),
-                        Category(2L, "Tempo", COLOR_RUN, 1, isHidden = false, isSystem = true),
+                        Category(
+                            UNCATEGORIZED_ID,
+                            "Uncategorized",
+                            "uncategorized",
+                            0,
+                            isHidden = false,
+                            isSystem = true,
+                        ),
+                        Category(
+                            2L,
+                            "Tempo",
+                            COLOR_RUN,
+                            1,
+                            isHidden = false,
+                            isSystem = true,
+                        ),
                     )
                 advanceUntilIdle()
 
@@ -179,6 +198,7 @@ class ProgressViewModelTest {
             userActionRepository = FakeUserActionRepository(actions),
             settingsRepository = FakeSettingsRepository(),
             stringProvider = FakeStringProvider(),
+            clock = TEST_CLOCK,
         )
     }
 
@@ -223,50 +243,125 @@ class ProgressViewModelTest {
         private val workouts: List<Workout>,
     ) : WeeklyTrainingRepository {
         override fun observeWorkoutsForWeek(weekStartDate: LocalDate): Flow<List<Workout>> = flowOf(emptyList())
+
         override fun observeAllWorkouts(): Flow<List<Workout>> = flowOf(workouts)
+
         override fun observeWorkoutsByEventType(eventType: EventType): Flow<List<Workout>> = flowOf(emptyList())
-        override fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>> = flowOf(emptyList())
+
+        override fun observeWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): Flow<List<Workout>> {
+            return flowOf(emptyList())
+        }
+
         override suspend fun getWorkoutsForWeek(weekStartDate: LocalDate): List<Workout> = emptyList()
+
         override suspend fun getWorkoutsForWeekStarts(weekStartDates: List<LocalDate>): List<Workout> = emptyList()
+
         override suspend fun addWorkout(request: AddWorkoutRequest): Long = error("Not used")
+
         override suspend fun addEvent(
             weekStartDate: LocalDate,
             dayOfWeek: DayOfWeek?,
             eventType: EventType,
             order: Int,
         ): Long = error("Not used")
+
         override suspend fun insertWorkout(workout: Workout): Long = error("Not used")
-        override suspend fun updateWorkoutDayAndOrder(workoutId: Long, dayOfWeek: DayOfWeek?, timeSlot: TimeSlot?, order: Int) = Unit
-        override suspend fun updateWorkoutSchedule(workoutId: Long, weekStartDate: LocalDate, dayOfWeek: DayOfWeek?, timeSlot: TimeSlot?, order: Int) = Unit
-        override suspend fun updateWorkoutCompletion(workoutId: Long, isCompleted: Boolean) = Unit
-        override suspend fun updateWorkoutDetails(workoutId: Long, type: String, description: String, eventType: EventType, categoryId: Long?) = Unit
+
+        override suspend fun updateWorkoutDayAndOrder(
+            workoutId: Long,
+            dayOfWeek: DayOfWeek?,
+            timeSlot: TimeSlot?,
+            order: Int,
+        ) = Unit
+
+        override suspend fun updateWorkoutSchedule(
+            workoutId: Long,
+            weekStartDate: LocalDate,
+            dayOfWeek: DayOfWeek?,
+            timeSlot: TimeSlot?,
+            order: Int,
+        ) = Unit
+
+        override suspend fun updateWorkoutCompletion(
+            workoutId: Long,
+            isCompleted: Boolean,
+        ) = Unit
+
+        override suspend fun updateWorkoutDetails(
+            workoutId: Long,
+            type: String,
+            description: String,
+            eventType: EventType,
+            categoryId: Long?,
+        ) = Unit
+
         override suspend fun assignNullCategoryTo(uncategorizedId: Long) = Unit
-        override suspend fun reassignCategory(deletedCategoryId: Long, uncategorizedId: Long) = Unit
+
+        override suspend fun reassignCategory(
+            deletedCategoryId: Long,
+            uncategorizedId: Long,
+        ) = Unit
+
         override suspend fun deleteWorkout(workoutId: Long) = Unit
+
         override suspend fun deleteWorkoutsForWeek(weekStartDate: LocalDate) = Unit
-        override suspend fun replaceWorkoutsForWeek(weekStartDate: LocalDate, sourceWorkouts: List<Workout>) = Unit
+
+        override suspend fun replaceWorkoutsForWeek(
+            weekStartDate: LocalDate,
+            sourceWorkouts: List<Workout>,
+        ) = Unit
     }
 
     private class FakeCategoryRepository(
         initialCategories: List<Category> =
             listOf(
-                Category(UNCATEGORIZED_ID, "Uncategorized", "uncategorized", 0, isHidden = false, isSystem = true),
+                Category(
+                    UNCATEGORIZED_ID,
+                    "Uncategorized",
+                    "uncategorized",
+                    0,
+                    isHidden = false,
+                    isSystem = true,
+                ),
                 Category(2L, "Run", COLOR_RUN, 1, isHidden = false, isSystem = true),
             ),
     ) : CategoryRepository {
         val categories = MutableStateFlow(initialCategories)
 
         override fun observeCategories(): Flow<List<Category>> = categories
+
         override suspend fun getCategories(): List<Category> = emptyList()
+
         override suspend fun getCategory(id: Long): Category? = null
+
         override suspend fun getCount(): Int = 0
+
         override suspend fun insertCategory(category: Category): Long = error("Not used")
+
         override suspend fun insertCategories(categories: List<Category>): List<Long> = error("Not used")
+
         override suspend fun updateCategory(category: Category) = Unit
-        override suspend fun updateCategoryName(id: Long, name: String) = Unit
-        override suspend fun updateCategoryColor(id: Long, colorId: String) = Unit
-        override suspend fun updateCategoryVisibility(id: Long, isHidden: Boolean) = Unit
-        override suspend fun updateCategorySortOrder(id: Long, sortOrder: Int) = Unit
+
+        override suspend fun updateCategoryName(
+            id: Long,
+            name: String,
+        ) = Unit
+
+        override suspend fun updateCategoryColor(
+            id: Long,
+            colorId: String,
+        ) = Unit
+
+        override suspend fun updateCategoryVisibility(
+            id: Long,
+            isHidden: Boolean,
+        ) = Unit
+
+        override suspend fun updateCategorySortOrder(
+            id: Long,
+            sortOrder: Int,
+        ) = Unit
+
         override suspend fun deleteCategory(id: Long) = Unit
     }
 
@@ -285,17 +380,29 @@ class ProgressViewModelTest {
         override val lastBackupImportedAt = MutableStateFlow<String?>(null)
         override val backupFolderUri = MutableStateFlow<String?>(null)
         override val lastSeenTrophyCelebrationToken = MutableStateFlow<String?>(null)
+
         override fun initialThemeMode(): ThemeMode = themeMode.value
+
         override fun initialLanguage(): AppLanguage = language.value
+
         override fun initialSlotModePolicy(): SlotModePolicy = slotModePolicy.value
+
         override fun initialWeekStartDay(): WeekStartDay = weekStartDay.value
+
         override suspend fun setThemeMode(mode: ThemeMode) = Unit
+
         override suspend fun setLanguage(language: AppLanguage) = Unit
+
         override suspend fun setSlotModePolicy(policy: SlotModePolicy) = Unit
+
         override suspend fun setWeekStartDay(weekStartDay: WeekStartDay) = Unit
+
         override suspend fun setLastBackupExportedAt(value: String) = Unit
+
         override suspend fun setLastBackupImportedAt(value: String) = Unit
+
         override suspend fun setBackupFolderUri(value: String?) = Unit
+
         override suspend fun setLastSeenTrophyCelebrationToken(value: String?) = Unit
     }
 

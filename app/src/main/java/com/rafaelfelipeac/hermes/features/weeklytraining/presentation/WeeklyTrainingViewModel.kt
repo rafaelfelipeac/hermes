@@ -617,7 +617,7 @@ class WeeklyTrainingViewModel
             }
         }
 
-        @Suppress("LongMethod")
+        @Suppress("LongMethod", "CyclomaticComplexMethod")
         fun updateWorkoutDetails(
             workoutId: Long,
             type: String,
@@ -693,12 +693,13 @@ class WeeklyTrainingViewModel
                         type = type,
                         description = description,
                         categoryId = normalizedCategoryId,
-                        order = repository.getWorkoutsForWeek(targetStorageWeekStart)
-                            .count { workout ->
-                                workout.id != workoutId &&
-                                    workout.dayOfWeek == targetDayOfWeek &&
-                                    workout.timeSlot == null
-                            },
+                        order =
+                            repository.getWorkoutsForWeek(targetStorageWeekStart)
+                                .count { workout ->
+                                    workout.id != workoutId &&
+                                        workout.dayOfWeek == targetDayOfWeek &&
+                                        workout.timeSlot == null
+                                },
                     )
 
                 userActionLogger.log(
