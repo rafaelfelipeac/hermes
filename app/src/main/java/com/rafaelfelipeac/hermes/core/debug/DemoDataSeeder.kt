@@ -175,7 +175,11 @@ class DemoDataSeeder
             nextWeekStart: LocalDate,
         ): List<WorkoutEntity> {
             return historyWeekStarts.mapIndexed { index, weekStart ->
-                buildWeekSchedule(weekStart, completionProfileForHistoryWeek(index))
+                buildWeekSchedule(
+                    weekStartDate = weekStart,
+                    completionProfile = completionProfileForHistoryWeek(index),
+                    plan = historyWeekPlanForIndex(index),
+                )
             }.flatten() +
                 buildWeekSchedule(currentWeekStart, CompletionProfile.SOME) +
                 buildWeekSchedule(nextWeekStart, CompletionProfile.NONE) +
@@ -185,19 +189,8 @@ class DemoDataSeeder
         private fun buildWeekSchedule(
             weekStartDate: LocalDate,
             completionProfile: CompletionProfile,
+            plan: List<DayPlan> = defaultWeekPlan(),
         ): List<WorkoutEntity> {
-            val plan =
-                listOf(
-                    DayPlan(MONDAY, listOf(workoutSeed(0, MORNING), workoutSeed(1, NIGHT))),
-                    DayPlan(TUESDAY, listOf(busySeed(MORNING), workoutSeed(2, AFTERNOON), sickSeed(NIGHT))),
-                    DayPlan(WEDNESDAY, listOf(restSeed())),
-                    DayPlan(THURSDAY, listOf(workoutSeed(3, MORNING), workoutSeed(4, MORNING))),
-                    DayPlan(FRIDAY, listOf(workoutSeed(5))),
-                    DayPlan(SATURDAY, listOf(restSeed(NIGHT))),
-                    DayPlan(SUNDAY, listOf(workoutSeed(6, AFTERNOON))),
-                    DayPlan(null, listOf(workoutSeed(7))),
-                )
-
             val completedDays = completionProfile.completedDays()
 
             return plan.flatMap { dayPlan ->
@@ -229,6 +222,49 @@ class DemoDataSeeder
                         sortOrder = orderInSlot,
                     )
                 }
+            }
+        }
+
+        private fun defaultWeekPlan(): List<DayPlan> {
+            return listOf(
+                DayPlan(MONDAY, listOf(workoutSeed(0, MORNING), workoutSeed(1, NIGHT))),
+                DayPlan(TUESDAY, listOf(busySeed(MORNING), workoutSeed(2, AFTERNOON), sickSeed(NIGHT))),
+                DayPlan(WEDNESDAY, listOf(restSeed())),
+                DayPlan(THURSDAY, listOf(workoutSeed(3, MORNING), workoutSeed(4, MORNING))),
+                DayPlan(FRIDAY, listOf(workoutSeed(5))),
+                DayPlan(SATURDAY, listOf(restSeed(NIGHT))),
+                DayPlan(SUNDAY, listOf(workoutSeed(6, AFTERNOON))),
+                DayPlan(null, listOf(workoutSeed(7))),
+            )
+        }
+
+        private fun historyWeekPlanForIndex(index: Int): List<DayPlan> {
+            return when (index) {
+                0 -> defaultWeekPlan()
+                1 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(MONDAY, workoutSeed(8, AFTERNOON))
+                        .withAddedWorkout(THURSDAY, workoutSeed(9, NIGHT))
+                2 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(TUESDAY, workoutSeed(8, MORNING))
+                3 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(WEDNESDAY, workoutSeed(8, AFTERNOON))
+                        .withAddedWorkout(FRIDAY, workoutSeed(9, MORNING))
+                4 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(MONDAY, workoutSeed(8, NIGHT))
+                        .withAddedWorkout(THURSDAY, workoutSeed(9, AFTERNOON))
+                        .withAddedWorkout(SUNDAY, workoutSeed(10, MORNING))
+                5 ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(TUESDAY, workoutSeed(8, AFTERNOON))
+                        .withAddedWorkout(SATURDAY, workoutSeed(9, MORNING))
+                        .withAddedWorkout(SUNDAY, workoutSeed(10, NIGHT))
+                else ->
+                    defaultWeekPlan()
+                        .withAddedWorkout(WEDNESDAY, workoutSeed(8, MORNING))
             }
         }
 
@@ -1351,17 +1387,39 @@ private enum class CompletionProfile {
     }
 }
 
-private fun completionProfileForHistoryWeek(index: Int): CompletionProfile {
-    return when (index) {
-        0 -> CompletionProfile.NONE
-        1 -> CompletionProfile.LIGHT
-        2 -> CompletionProfile.SOME
+        private fun completionProfileForHistoryWeek(index: Int): CompletionProfile {
+            return when (index) {
+                0 -> CompletionProfile.NONE
+                1 -> CompletionProfile.LIGHT
+                2 -> CompletionProfile.SOME
         3 -> CompletionProfile.BALANCED
         4 -> CompletionProfile.HEAVY
         5 -> CompletionProfile.COMPLETED_MOST
-        else -> CompletionProfile.BALANCED
-    }
-}
+                else -> CompletionProfile.BALANCED
+            }
+        }
+
+        private fun List<DayPlan>.withAddedWorkout(
+            dayOfWeek: DayOfWeek?,
+            workout: WorkoutSeed,
+        ): List<DayPlan> {
+            var didUpdateDay = false
+            val updatedPlans =
+                map { plan ->
+                    if (plan.dayOfWeek == dayOfWeek) {
+                        didUpdateDay = true
+                        plan.copy(items = plan.items + workout)
+                    } else {
+                        plan
+                    }
+                }.toMutableList()
+
+            if (!didUpdateDay) {
+                updatedPlans += DayPlan(dayOfWeek, listOf(workout))
+            }
+
+            return updatedPlans
+        }
 
 private const val RESULT_SUCCESS = "success"
 private const val DEMO_RUN_WORKOUT_A1_ID = 10_001L

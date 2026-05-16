@@ -8,7 +8,10 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
@@ -16,6 +19,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class DemoDataSeederTest {
@@ -42,6 +46,43 @@ class DemoDataSeederTest {
             coVerify(exactly = 1) { workoutDao.deleteAll() }
             coVerify(exactly = 1) { userActionDao.deleteAll() }
             coVerify(exactly = 1) { categorySeeder.ensureSeeded() }
+        }
+
+    @Test
+    fun seed_createsVariedProgressWeeks() =
+        runTest {
+            val workoutDao = mockk<WorkoutDao>(relaxed = true)
+            val userActionDao = mockk<UserActionDao>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val settingsRepository = FakeSettingsRepository()
+            val capturedWorkouts = mutableListOf<WorkoutEntity>()
+            coEvery { categorySeeder.ensureSeeded() } returns Unit
+            coEvery { workoutDao.insert(capture(capturedWorkouts)) } returns 1L
+            coEvery { userActionDao.insert(any()) } returns 1L
+            val seeder =
+                DemoDataSeeder(
+                    workoutDao = workoutDao,
+                    userActionDao = userActionDao,
+                    stringProvider = FakeStringProvider,
+                    categorySeeder = categorySeeder,
+                    settingsRepository = settingsRepository,
+                )
+
+            val didSeed = seeder.seed()
+
+            assertEquals(true, didSeed)
+            val plannedCountsByWeek =
+                capturedWorkouts
+                    .groupBy { it.weekStartDate }
+                    .mapValues { (_, workouts) ->
+                        workouts.count { workout ->
+                            workout.dayOfWeek != null &&
+                                (workout.eventType == WORKOUT.name || workout.eventType == RACE_EVENT.name)
+                        }
+                    }
+
+            assertTrue(plannedCountsByWeek.values.toSet().size >= 3)
+            assertTrue(plannedCountsByWeek.values.maxOrNull()!! > plannedCountsByWeek.values.minOrNull()!!)
         }
 
     private object FakeStringProvider : StringProvider {
