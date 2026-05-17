@@ -5,27 +5,32 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.test.platform.app.InstrumentationRegistry
-import com.rafaelfelipeac.hermes.R
+import androidx.compose.ui.test.performClick
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WeeklyHeaderSummaryUi
 import org.junit.Rule
 import org.junit.Test
+
+private const val WEEKLY_SUMMARY_WORKOUTS_STAT_TAG = "weekly-summary-workouts-stat"
+private const val WEEKLY_SUMMARY_EVENTS_STAT_TAG = "weekly-summary-events-stat"
+private const val WEEKLY_SUMMARY_TOGGLE_TAG = "weekly-summary-toggle"
 
 class WeeklyHeaderSummaryTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun hidesSecondaryLineWhenRestBusyAndSickAreZero() {
+    fun startsCollapsed() {
         composeRule.setContent {
             WeeklyHeaderSummary(
                 summary =
                     WeeklyHeaderSummaryUi(
+                        plannedItems = 7,
+                        completedItems = 6,
                         plannedWorkouts = 7,
                         completedWorkouts = 6,
+                        plannedRaceEvents = 0,
+                        completedRaceEvents = 0,
                         plannedRestEvents = 0,
                         plannedBusyEvents = 0,
                         plannedSickEvents = 0,
@@ -37,24 +42,25 @@ class WeeklyHeaderSummaryTest {
 
         composeRule.onNodeWithTag(WEEKLY_SUMMARY_BLOCK_TAG).assertIsDisplayed()
         composeRule.onNodeWithTag(WEEKLY_SUMMARY_PROGRESS_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(WEEKLY_SUMMARY_TOGGLE_TAG).assertIsDisplayed()
+        composeRule.onAllNodesWithTag(WEEKLY_SUMMARY_METRICS_ROW_TAG).assertCountEquals(0)
+        composeRule.onAllNodesWithTag(WEEKLY_SUMMARY_WORKOUTS_STAT_TAG).assertCountEquals(0)
+        composeRule.onAllNodesWithTag(WEEKLY_SUMMARY_EVENTS_STAT_TAG).assertCountEquals(0)
         composeRule.onAllNodesWithTag(WEEKLY_SUMMARY_SECONDARY_ROW_TAG).assertCountEquals(0)
     }
 
     @Test
-    fun showsOnlyNonZeroSecondaryItems() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val restLabel = context.resources.getQuantityString(R.plurals.weekly_training_summary_item_rest, 2, 2)
-        val busyLabel = context.resources.getQuantityString(R.plurals.weekly_training_summary_item_busy, 1, 1)
-        val sickLabel = context.resources.getQuantityString(R.plurals.weekly_training_summary_item_sick, 1, 1)
-        val separator = context.getString(R.string.weekly_training_summary_separator)
-        val secondaryLine = listOf(restLabel, sickLabel).joinToString(separator = separator)
-
+    fun expandsToShowDetails() {
         composeRule.setContent {
             WeeklyHeaderSummary(
                 summary =
                     WeeklyHeaderSummaryUi(
+                        plannedItems = 8,
+                        completedItems = 5,
                         plannedWorkouts = 7,
                         completedWorkouts = 6,
+                        plannedRaceEvents = 1,
+                        completedRaceEvents = 1,
                         plannedRestEvents = 2,
                         plannedBusyEvents = 0,
                         plannedSickEvents = 1,
@@ -64,8 +70,11 @@ class WeeklyHeaderSummaryTest {
         }
         composeRule.waitForIdle()
 
+        composeRule.onNodeWithTag(WEEKLY_SUMMARY_TOGGLE_TAG).performClick()
+        composeRule.waitForIdle()
+
         composeRule.onNodeWithTag(WEEKLY_SUMMARY_SECONDARY_ROW_TAG).assertIsDisplayed()
-        composeRule.onNodeWithText(secondaryLine).assertIsDisplayed()
-        composeRule.onAllNodesWithText(busyLabel).assertCountEquals(0)
+        composeRule.onNodeWithTag(WEEKLY_SUMMARY_WORKOUTS_STAT_TAG).assertIsDisplayed()
+        composeRule.onNodeWithTag(WEEKLY_SUMMARY_EVENTS_STAT_TAG).assertIsDisplayed()
     }
 }

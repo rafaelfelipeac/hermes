@@ -321,7 +321,11 @@ fun WeeklyTrainingScreen(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .padding(SpacingXl),
+                        .padding(
+                            start = SpacingXl,
+                            top = SpacingXl,
+                            end = SpacingXl,
+                        ),
             ) {
                 Text(
                     text = stringResource(R.string.weekly_training_nav_label),

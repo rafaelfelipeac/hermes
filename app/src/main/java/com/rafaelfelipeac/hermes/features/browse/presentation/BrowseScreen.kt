@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material3.Card
@@ -234,7 +235,7 @@ private fun BrowseHome(
         if (BuildConfig.DEBUG) {
             BrowseDestinationCard(
                 title = stringResource(R.string.settings_developer_title),
-                icon = Icons.Outlined.GridView,
+                icon = Icons.Outlined.Construction,
                 onClick = { onNavigateTo(BrowseDestination.DEVELOPER) },
                 modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "developer"),
             )

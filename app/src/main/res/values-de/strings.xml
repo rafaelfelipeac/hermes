@@ -113,10 +113,15 @@
         <item quantity="other">%1$d krank</item>
     </plurals>
     <plurals name="weekly_training_summary_progress_content_description">
-        <item quantity="one">Wochenfortschritt: %1$d von %2$d Training abgeschlossen</item>
-        <item quantity="other">Wochenfortschritt: %1$d von %2$d Trainings abgeschlossen</item>
+        <item quantity="one">Wochenfortschritt: %1$d von %2$d geplantem Eintrag abgeschlossen</item>
+        <item quantity="other">Wochenfortschritt: %1$d von %2$d geplanten Einträgen abgeschlossen</item>
     </plurals>
-    <string name="weekly_training_week_completed_celebration">Stark gemacht! Du hast alle Trainings dieser Woche abgeschlossen.</string>
+    <string name="weekly_training_summary_expand_details">Details anzeigen</string>
+    <string name="weekly_training_summary_collapse_details">Details ausblenden</string>
+    <string name="weekly_training_summary_metric_workouts">Workouts</string>
+    <string name="weekly_training_summary_metric_events">Events</string>
+    <string name="weekly_training_summary_metric_value">%1$d/%2$d</string>
+    <string name="weekly_training_week_completed_celebration">Stark gemacht! Du hast diese Woche alles abgeschlossen.</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Entwicklermodus</string>
@@ -258,7 +263,7 @@
     <string name="activity_action_change_language">Du hast die Sprache geändert.</string>
     <string name="activity_action_change_theme">Du hast das Design geändert.</string>
     <string name="activity_action_open_week">Du hast eine andere Woche geöffnet.</string>
-    <string name="activity_action_complete_week_workouts">Du hast alle Trainings der Woche abgeschlossen.</string>
+    <string name="activity_action_complete_week_workouts">Du hast diese Woche alles abgeschlossen.</string>
     <string name="activity_action_copy_last_week">Du hast die letzte Woche in diese Woche kopiert.</string>
     <string name="activity_action_undo_copy_last_week">Du hast das Kopieren der letzten Woche in diese Woche rückgängig gemacht.</string>
     <string name="activity_action_fallback">Du hast eine Aktion in der App ausgeführt.</string>

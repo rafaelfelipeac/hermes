@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.NIGHT
@@ -247,12 +248,16 @@ class WeeklyTrainingStateTest {
 
         val summary = state.weeklyHeaderSummary
 
+        assertEquals(3, summary?.plannedItems)
+        assertEquals(1, summary?.completedItems)
         assertEquals(2, summary?.plannedWorkouts)
         assertEquals(1, summary?.completedWorkouts)
+        assertEquals(1, summary?.plannedRaceEvents)
+        assertEquals(0, summary?.completedRaceEvents)
         assertEquals(1, summary?.plannedRestEvents)
         assertEquals(1, summary?.plannedBusyEvents)
         assertEquals(1, summary?.plannedSickEvents)
-        assertEquals(0.5f, summary?.progress)
+        assertEquals(1f / 3f, summary?.progress)
     }
 
     @Test
@@ -305,11 +310,12 @@ private fun weeklyHeaderSummaryFixtureWorkouts(): List<WorkoutUi> {
     return listOf(
         workoutUi(id = 1L, dayOfWeek = MONDAY, type = "Run", description = "Easy", isCompleted = true),
         workoutUi(id = 2L, dayOfWeek = TUESDAY, type = "Gym", description = "Upper"),
-        workoutUi(id = 3L, dayOfWeek = WEDNESDAY, eventType = REST),
-        workoutUi(id = 4L, dayOfWeek = THURSDAY, eventType = BUSY),
-        workoutUi(id = 5L, dayOfWeek = THURSDAY, order = 1, eventType = SICK),
+        workoutUi(id = 3L, dayOfWeek = WEDNESDAY, eventType = RACE_EVENT),
+        workoutUi(id = 4L, dayOfWeek = THURSDAY, eventType = REST),
+        workoutUi(id = 5L, dayOfWeek = THURSDAY, order = 1, eventType = BUSY),
+        workoutUi(id = 6L, dayOfWeek = THURSDAY, order = 2, eventType = SICK),
         workoutUi(
-            id = 6L,
+            id = 7L,
             dayOfWeek = null,
             type = "Unplanned",
             description = "Should not count",

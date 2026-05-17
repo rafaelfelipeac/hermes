@@ -90,8 +90,7 @@ fun ActivityScreen(
     Column(
         modifier =
             modifier
-                .fillMaxSize()
-                .padding(bottom = SpacingXl),
+                .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         ActivityHeader(onBack = onBack)

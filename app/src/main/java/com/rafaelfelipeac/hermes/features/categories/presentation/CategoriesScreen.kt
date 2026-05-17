@@ -102,8 +102,7 @@ fun CategoriesScreen(
     LazyColumn(
         modifier =
             modifier
-                .fillMaxSize()
-                .padding(bottom = SpacingXl),
+                .fillMaxSize(),
         state = listState,
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {

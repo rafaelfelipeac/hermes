@@ -113,10 +113,15 @@
         <item quantity="other">%1$d बीमार</item>
     </plurals>
     <plurals name="weekly_training_summary_progress_content_description">
-        <item quantity="one">साप्ताहिक प्रगति: %2$d में से %1$d वर्कआउट पूरा हुआ</item>
-        <item quantity="other">साप्ताहिक प्रगति: %2$d में से %1$d वर्कआउट पूरे हुए</item>
+        <item quantity="one">साप्ताहिक प्रगति: %2$d नियोजित आइटमों में से %1$d पूरा हुआ</item>
+        <item quantity="other">साप्ताहिक प्रगति: %2$d नियोजित आइटमों में से %1$d पूरे हुए</item>
     </plurals>
-    <string name="weekly_training_week_completed_celebration">शानदार! आपने इस सप्ताह के सभी वर्कआउट पूरे कर लिए।</string>
+    <string name="weekly_training_summary_expand_details">विवरण दिखाएं</string>
+    <string name="weekly_training_summary_collapse_details">विवरण छिपाएं</string>
+    <string name="weekly_training_summary_metric_workouts">वर्कआउट</string>
+    <string name="weekly_training_summary_metric_events">इवेंट</string>
+    <string name="weekly_training_summary_metric_value">%1$d/%2$d</string>
+    <string name="weekly_training_week_completed_celebration">शानदार! आपने इस सप्ताह सब कुछ पूरा कर लिया।</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>
@@ -258,7 +263,7 @@
     <string name="activity_action_change_language">आपने भाषा बदली।</string>
     <string name="activity_action_change_theme">आपने थीम बदली।</string>
     <string name="activity_action_open_week">आपने एक और सप्ताह खोला।</string>
-    <string name="activity_action_complete_week_workouts">आपने सप्ताह के सभी वर्कआउट पूरे किए।</string>
+    <string name="activity_action_complete_week_workouts">आपने इस सप्ताह सब कुछ पूरा किया।</string>
     <string name="activity_action_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी किया।</string>
     <string name="activity_action_undo_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी करने की क्रिया को पूर्ववत किया।</string>
     <string name="activity_action_fallback">आपने ऐप में एक क्रिया की।</string>

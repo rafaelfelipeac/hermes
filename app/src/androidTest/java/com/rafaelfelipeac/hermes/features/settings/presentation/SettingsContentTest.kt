@@ -45,10 +45,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
             )
         }
 
@@ -81,10 +77,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
             )
         }
 
@@ -118,10 +110,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
             )
         }
 
@@ -144,10 +132,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
             )
         }
 
@@ -169,10 +153,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
             )
         }
 
