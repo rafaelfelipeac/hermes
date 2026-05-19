@@ -71,7 +71,6 @@ import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMo
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyUi
 import com.rafaelfelipeac.hermes.features.trophies.presentation.trophyNameRes
 import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 @Composable
@@ -360,7 +359,6 @@ private fun ProgressWeeklyTrend(
     insight: ProgressWeeklyTrendInsightUi?,
     locale: Locale,
 ) {
-    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
     val maxPlannedWorkouts = weeks.maxOfOrNull { it.plannedWorkouts } ?: 0
 
     Column(verticalArrangement = Arrangement.spacedBy(ProgressTrendSectionSpacing)) {
@@ -372,39 +370,6 @@ private fun ProgressWeeklyTrend(
                 modifier = Modifier.padding(vertical = ProgressTrendChartVerticalPadding),
                 verticalArrangement = Arrangement.spacedBy(ProgressTrendChartRowSpacing),
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-                    verticalAlignment = Alignment.Bottom,
-                ) {
-                    Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
-                    weeks.forEach { week ->
-                        Box(
-                            modifier =
-                                Modifier
-                                    .weight(1f)
-                                    .defaultMinSize(
-                                        minWidth = ProgressTrendBarMinWidth,
-                                        minHeight = ProgressTrendCountMinHeight,
-                                    ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text =
-                                    stringResource(
-                                        R.string.progress_weekly_chart_count,
-                                        week.completedWorkouts,
-                                        week.plannedWorkouts,
-                                    ),
-                                style = typography.labelSmall,
-                                color = colorScheme.onSurfaceVariant,
-                                textAlign = TextAlign.Center,
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.width(ProgressTrendAxisWidth))
-                }
-
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(SpacingSm),
@@ -499,7 +464,7 @@ private fun ProgressWeeklyTrend(
                             contentAlignment = Alignment.Center,
                         ) {
                             Text(
-                                text = week.chartLabel(formatter = formatter),
+                                text = week.chartLabel(locale = locale),
                                 style = typography.labelSmall,
                                 color = if (week.isCurrentWeek) colorScheme.onSurface else colorScheme.onSurfaceVariant,
                                 modifier = Modifier.fillMaxWidth(),
@@ -806,8 +771,8 @@ private fun ProgressTrainingMixInsightUi.trainingMixInsightText(): String {
     }
 }
 
-internal fun ProgressWeekBarUi.chartLabel(formatter: DateTimeFormatter): String {
-    return weekStartDate.format(formatter)
+internal fun ProgressWeekBarUi.chartLabel(locale: Locale): String {
+    return weekStartDate.format(DateTimeFormatter.ofPattern("MMM d", locale))
 }
 
 @Composable
