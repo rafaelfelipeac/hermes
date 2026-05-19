@@ -198,9 +198,9 @@
     <string name="settings_release_notes_added">Adicionado</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Tela de Eventos para planejar próximas corridas e outros eventos que não são treinos separadamente dos treinos</item>
-        <item>Criação, edição, conclusão, exclusão e desfazer para eventos</item>
-        <item>Histórico de Atividade, progresso de troféus e backup com suporte a eventos</item>
+        <item>Ajustes na tela de navegação para corridas futuras e planejamento de eventos que não são treinos</item>
+        <item>Resumo de coaching, prévia de atividade e melhorias nos gráficos na tela Progresso</item>
+        <item>Polimento do planejador semanal em conclusão, seletor de data e escala de carga de trabalho</item>
     </string-array>
     <string name="settings_back">Voltar</string>
     <string name="settings_feedback_title">Feedback</string>

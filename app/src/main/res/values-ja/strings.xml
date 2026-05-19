@@ -194,9 +194,9 @@
     <string name="settings_release_notes_added">追加</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>今後のレースやワークアウト以外の予定をワークアウトと分けて計画できるイベント画面</item>
-        <item>イベントの作成、編集、完了、削除、元に戻す操作に対応</item>
-        <item>イベントに対応したアクティビティ履歴、トロフィー進捗、バックアップ</item>
+        <item>今後のレースやワークアウト以外の予定を計画しやすくするための閲覧画面の改善</item>
+        <item>コーチングの要約、アクティビティのプレビュー、グラフ改善を進捗画面に追加</item>
+        <item>完了、日付選択、作業負荷の拡大表示にわたる週次プランナーの磨き込み</item>
     </string-array>
     <string name="settings_back">戻る</string>
     <string name="settings_feedback_title">フィードバック</string>

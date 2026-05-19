@@ -198,9 +198,9 @@
     <string name="settings_release_notes_added">Hinzugefügt</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Events-Bildschirm zum Planen kommender Rennen und anderer Nicht-Trainingstermine getrennt von Trainings</item>
-        <item>Erstellen, Bearbeiten, Abschließen, Löschen und Rückgängig für Events</item>
-        <item>Aktivitätsverlauf, Trophäenfortschritt und Backup-Unterstützung für Events</item>
+        <item>Verfeinerungen des Durchsuchen-Bildschirms für kommende Läufe und die Planung von Nicht-Trainingsevents</item>
+        <item>Coaching-Zusammenfassung, Aktivitätsvorschau und Diagrammverbesserungen auf dem Fortschrittsbildschirm</item>
+        <item>Feinschliff am Wochenplaner bei Abschluss, Datumsauswahl und Lastskalierung</item>
     </string-array>
     <string name="settings_back">Zurück</string>
     <string name="settings_feedback_title">Feedback</string>

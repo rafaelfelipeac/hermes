@@ -198,9 +198,9 @@
     <string name="settings_release_notes_added">जोड़ा गया</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>आने वाली रेस और अन्य गैर-वर्कआउट इवेंट को वर्कआउट से अलग प्लान करने के लिए इवेंट स्क्रीन</item>
-        <item>इवेंट बनाने, संपादित करने, पूरा करने, हटाने और पूर्ववत करने का समर्थन</item>
-        <item>इवेंट समर्थन के साथ गतिविधि इतिहास, ट्रॉफी प्रगति और बैकअप</item>
+        <item>आगामी रेस और गैर-वर्कआउट इवेंट की योजना के लिए ब्राउज़ स्क्रीन में सुधार</item>
+        <item>कोचिंग सारांश, गतिविधि पूर्वावलोकन और चार्ट सुधार प्रोग्रेस स्क्रीन में</item>
+        <item>पूर्णता, तारीख चयन और वर्कलोड स्केलिंग में साप्ताहिक प्लानर का परिष्कार</item>
     </string-array>
     <string name="settings_back">वापस</string>
     <string name="settings_feedback_title">प्रतिक्रिया</string>

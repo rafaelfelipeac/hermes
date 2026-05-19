@@ -229,9 +229,9 @@
     <string name="settings_release_notes_added">Added</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Events screen for planning upcoming races and other non-workout events separately from workouts</item>
-        <item>Event creation, editing, completion, deletion and undo support</item>
-        <item>Event Activity history, trophy progress and backup support</item>
+        <item>Browse screen refinements for upcoming races and non-workout event planning</item>
+        <item>Progress screen coaching summary, activity preview and chart improvements</item>
+        <item>Weekly planner polish across completion, date picker and workload scaling</item>
     </string-array>
     <string name="settings_back">Back</string>
     <string name="settings_feedback_title">Feedback</string>

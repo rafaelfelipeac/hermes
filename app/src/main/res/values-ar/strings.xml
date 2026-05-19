@@ -218,9 +218,9 @@
     <string name="settings_release_notes_added">تمت الإضافة</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>شاشة الأحداث لتخطيط السباقات القادمة وغيرها من الأحداث غير التدريبية بشكل منفصل عن التمارين</item>
-        <item>إنشاء الأحداث وتعديلها وإكمالها وحذفها والتراجع عنها</item>
-        <item>سجل النشاط وتقدم الجوائز والنسخ الاحتياطي مع دعم الأحداث</item>
+        <item>تحسينات شاشة التصفح لتخطيط السباقات القادمة وأحداث غير التمرين</item>
+        <item>ملخص التدريب ومعاينة النشاط وتحسينات الرسوم البيانية في شاشة التقدم</item>
+        <item>تحسينات المخطط الأسبوعي في الإكمال واختيار التاريخ وتوسيع عبء العمل</item>
     </string-array>
     <string name="settings_back">رجوع</string>
     <string name="settings_feedback_title">ملاحظات</string>
