@@ -213,7 +213,11 @@ internal fun ActivityContent(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = SpacingMd),
+            contentPadding =
+                PaddingValues(
+                    top = SpacingMd,
+                    bottom = SpacingXl,
+                ),
             verticalArrangement = Arrangement.spacedBy(SpacingLg),
         ) {
             sections.forEach { section ->

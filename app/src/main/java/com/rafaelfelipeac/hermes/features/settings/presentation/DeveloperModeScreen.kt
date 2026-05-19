@@ -18,6 +18,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperSectionSpacing
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 
 @Composable
 internal fun DeveloperModeScreen(
@@ -33,7 +35,10 @@ internal fun DeveloperModeScreen(
         modifier = modifier,
         contentInsideCard = false,
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(SettingsDeveloperSectionSpacing)) {
+        Column(
+            modifier = Modifier.padding(bottom = SpacingXl),
+            verticalArrangement = Arrangement.spacedBy(SettingsDeveloperSectionSpacing),
+        ) {
             SettingsSection(title = stringResource(R.string.settings_developer_data_title)) {
                 Column(verticalArrangement = Arrangement.spacedBy(SettingsDeveloperSectionSpacing)) {
                     Text(

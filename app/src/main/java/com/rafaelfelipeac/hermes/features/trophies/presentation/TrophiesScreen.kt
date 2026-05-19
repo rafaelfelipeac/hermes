@@ -205,7 +205,11 @@ fun TrophiesScreen(
             },
             familyFirstVisibleItemIndex = familyFirstVisibleItemIndex,
             familyFirstVisibleItemScrollOffset = familyFirstVisibleItemScrollOffset,
-            modifier = Modifier.fillMaxSize().padding(horizontal = SpacingXl),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = SpacingXl)
+                    .padding(bottom = SpacingXl),
         )
     }
 
