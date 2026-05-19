@@ -1,5 +1,7 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowUp
@@ -24,10 +24,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -37,13 +37,13 @@ import androidx.compose.ui.semantics.semantics
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.IndicatorSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyTrainingSummaryCollapsedMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WeeklyHeaderSummaryUi
 
 internal const val WEEKLY_SUMMARY_BLOCK_TAG = "weekly-summary-block"
@@ -107,11 +107,12 @@ fun WeeklyHeaderSummary(
         )
     val toggleDescription =
         stringResource(
-            id = if (isExpanded) {
-                R.string.weekly_training_summary_collapse_details
-            } else {
-                R.string.weekly_training_summary_expand_details
-            },
+            id =
+                if (isExpanded) {
+                    R.string.weekly_training_summary_collapse_details
+                } else {
+                    R.string.weekly_training_summary_expand_details
+                },
         )
     val contentVerticalPadding = if (isExpanded) SpacingSm else SpacingXs
     val progressTopPadding = if (isExpanded) SpacingSm else Zero
@@ -119,9 +120,10 @@ fun WeeklyHeaderSummary(
     Surface(
         tonalElevation = ElevationSm,
         shape = shapes.medium,
-        modifier = modifier
-            .fillMaxWidth()
-            .testTag(WEEKLY_SUMMARY_BLOCK_TAG),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .testTag(WEEKLY_SUMMARY_BLOCK_TAG),
     ) {
         if (isExpanded) {
             Column(

@@ -1,9 +1,9 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.NIGHT

@@ -28,8 +28,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.BROWSE
-import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.EVENTS
+import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.PROGRESS
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.browse.presentation.BrowseDestination
@@ -72,11 +72,13 @@ fun HermesAppContent() {
     val visibleDestinations = listOf(HOME, PROGRESS, EVENTS, BROWSE)
     val showBottomNavigation = currentDestination != BROWSE || currentBrowseDestination == BrowseDestination.ROOT
     val trophyViewActionLabel = stringResource(com.rafaelfelipeac.hermes.R.string.trophies_view_action)
+
     fun resetBrowseNavigation() {
         currentBrowseDestination = BrowseDestination.ROOT
         browseOriginTab = null
         browseParentDestination = BrowseDestination.ROOT
     }
+
     fun openBrowseDestination(
         destination: BrowseDestination,
         originTab: AppDestinations?,
@@ -87,6 +89,7 @@ fun HermesAppContent() {
         browseOriginTab = originTab
         browseParentDestination = parentDestination
     }
+
     fun navigateToBrowse(destination: BrowseDestination) {
         val originTab = if (currentDestination == BROWSE) null else currentDestination
         val parentDestination =
@@ -293,7 +296,10 @@ fun HermesAppContent() {
                             if (it == BROWSE) {
                                 resetBrowseNavigation()
                                 currentDestination = BROWSE
-                            } else if (currentDestination == BROWSE && currentBrowseDestination != BrowseDestination.ROOT) {
+                            } else if (
+                                currentDestination == BROWSE &&
+                                currentBrowseDestination != BrowseDestination.ROOT
+                            ) {
                                 pendingWorkoutDraft = null
                                 pendingEventDraft = null
                                 resetBrowseNavigation()

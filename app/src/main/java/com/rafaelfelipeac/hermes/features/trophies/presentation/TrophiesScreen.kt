@@ -92,8 +92,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBackButtonSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyBackButtonTouchTargetSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardArtworkTopPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardCategoryBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardTitleBlockHeight

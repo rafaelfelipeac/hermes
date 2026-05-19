@@ -6,9 +6,9 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.A
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.MONDAY
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
@@ -75,7 +75,10 @@ data class WeeklyTrainingState(
                         plannedRestEvents = scheduledItems.count { it.eventType == REST },
                         plannedBusyEvents = scheduledItems.count { it.eventType == BUSY },
                         plannedSickEvents = scheduledItems.count { it.eventType == SICK },
-                        progress = ((completedWorkouts + completedRaceEvents).toFloat() / plannedItems).coerceIn(0f, 1f),
+                        progress =
+                            (
+                                (completedWorkouts + completedRaceEvents).toFloat() / plannedItems
+                            ).coerceIn(0f, 1f),
                     )
                 }
             }

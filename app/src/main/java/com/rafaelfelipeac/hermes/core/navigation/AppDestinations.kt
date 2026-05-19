@@ -4,8 +4,8 @@ import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Flag
-import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.rafaelfelipeac.hermes.R
 

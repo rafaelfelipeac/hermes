@@ -2,13 +2,14 @@
 
 package com.rafaelfelipeac.hermes.features.browse.presentation
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
-import androidx.compose.foundation.clickable
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
+import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,11 +25,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Construction
-import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -38,13 +40,12 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -56,50 +57,32 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
-import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
-import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
-import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsBackupScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.DeveloperModeScreen
+import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsBackupScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsState
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophiesScreen
-import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
-import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
-import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 internal const val BROWSE_ROOT_TAG = "browse_root"
 private const val BROWSE_CARD_TAG_PREFIX = "browse_card_"
-private const val DEBUG_PACKAGE_SUFFIX = ".dev"
 private const val BACKUP_MIME_TYPE = "application/json"
 private const val BACKUP_EXTENSION = ".json"
 private const val BACKUP_FILE_NAME_PREFIX = "hermes-backup-"
 private const val ISO_TIME_SEPARATOR = ":"
 private const val FILE_SAFE_TIME_SEPARATOR = "-"
-private const val LOG_FEEDBACK_INTENT_NOT_FOUND = "Feedback intent not found."
-private const val LOG_FEEDBACK_INTENT_BLOCKED = "Feedback intent blocked by security policy."
-private const val LOG_MARKET_INTENT_NOT_FOUND = "Market intent not found."
-private const val LOG_MARKET_INTENT_BLOCKED = "Market intent blocked by security policy."
-private const val LOG_WEB_INTENT_NOT_FOUND = "Web intent not found."
-private const val LOG_WEB_INTENT_BLOCKED = "Web intent blocked by security policy."
 private const val EXPORT_WRITE_FAILED = "export_write_failed"
 private const val EXPORT_DESTINATION_SAVE_AS = "save_as"
 private const val EXPORT_DESTINATION_FOLDER = "folder"
