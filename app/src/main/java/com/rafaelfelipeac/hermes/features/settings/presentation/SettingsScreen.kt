@@ -225,7 +225,7 @@ fun SettingsScreen(
             }
         }
 
-    BackHandler {
+    BackHandler(enabled = route != SettingsRoute.MAIN || onBack != null) {
         if (route != SettingsRoute.MAIN) {
             route = SettingsRoute.MAIN
         } else {

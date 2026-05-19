@@ -161,7 +161,7 @@ fun TrophiesScreen(
                 .firstOrNull { it.stableId == requestedId }
         }
 
-    BackHandler {
+    BackHandler(enabled = selectedFamily != null || onBack != null) {
         if (selectedFamily != null) {
             selectedFamilyName = null
         } else {
