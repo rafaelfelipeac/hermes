@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.10.0]
+### Added
+- Browse screen refinements for upcoming races and non-workout event planning
+- Progress screen coaching summary, activity preview and chart improvements
+- Weekly planner polish across completion, date picker and workload scaling
+
 ## [v1.9.0]
 ### Added
 - Events screen for planning upcoming races and other non-workout events separately from workouts
