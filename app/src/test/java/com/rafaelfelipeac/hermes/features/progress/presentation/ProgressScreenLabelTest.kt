@@ -3,7 +3,6 @@ package com.rafaelfelipeac.hermes.features.progress.presentation
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class ProgressScreenLabelTest {
@@ -18,7 +17,7 @@ class ProgressScreenLabelTest {
                 isCurrentWeek = false,
             )
 
-        val label = week.chartLabel(DateTimeFormatter.ofPattern("MMM d", Locale.US))
+        val label = week.chartLabel(Locale.US)
 
         assertEquals("May 4", label)
     }
@@ -34,7 +33,7 @@ class ProgressScreenLabelTest {
                 isCurrentWeek = false,
             )
 
-        val label = week.chartLabel(DateTimeFormatter.ofPattern("MMM d", Locale.forLanguageTag("pt-BR")))
+        val label = week.chartLabel(Locale.forLanguageTag("pt-BR"))
 
         assertEquals("mai. 4", label)
     }
