@@ -6,9 +6,12 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">सप्ताह</string>
+    <string name="weekly_training_nav_label">होम</string>
     <string name="activity_nav_label">गतिविधि</string>
     <string name="progress_nav_label">प्रगति</string>
+    <string name="browse_nav_label">ब्राउज़</string>
+    <string name="browse_title">ब्राउज़</string>
+    <string name="browse_backup_import_title">बैकअप और आयात</string>
     <string name="settings_nav_label">सेटिंग</string>
 
     <!-- Progress -->
@@ -110,10 +113,15 @@
         <item quantity="other">%1$d बीमार</item>
     </plurals>
     <plurals name="weekly_training_summary_progress_content_description">
-        <item quantity="one">साप्ताहिक प्रगति: %2$d में से %1$d वर्कआउट पूरा हुआ</item>
-        <item quantity="other">साप्ताहिक प्रगति: %2$d में से %1$d वर्कआउट पूरे हुए</item>
+        <item quantity="one">साप्ताहिक प्रगति: %2$d नियोजित आइटमों में से %1$d पूरा हुआ</item>
+        <item quantity="other">साप्ताहिक प्रगति: %2$d नियोजित आइटमों में से %1$d पूरे हुए</item>
     </plurals>
-    <string name="weekly_training_week_completed_celebration">शानदार! आपने इस सप्ताह के सभी वर्कआउट पूरे कर लिए।</string>
+    <string name="weekly_training_summary_expand_details">विवरण दिखाएं</string>
+    <string name="weekly_training_summary_collapse_details">विवरण छिपाएं</string>
+    <string name="weekly_training_summary_metric_workouts">वर्कआउट</string>
+    <string name="weekly_training_summary_metric_events">इवेंट</string>
+    <string name="weekly_training_summary_metric_value">%1$d/%2$d</string>
+    <string name="weekly_training_week_completed_celebration">शानदार! आपने इस सप्ताह सब कुछ पूरा कर लिया।</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>
@@ -255,7 +263,7 @@
     <string name="activity_action_change_language">आपने भाषा बदली।</string>
     <string name="activity_action_change_theme">आपने थीम बदली।</string>
     <string name="activity_action_open_week">आपने एक और सप्ताह खोला।</string>
-    <string name="activity_action_complete_week_workouts">आपने सप्ताह के सभी वर्कआउट पूरे किए।</string>
+    <string name="activity_action_complete_week_workouts">आपने इस सप्ताह सब कुछ पूरा किया।</string>
     <string name="activity_action_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी किया।</string>
     <string name="activity_action_undo_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी करने की क्रिया को पूर्ववत किया।</string>
     <string name="activity_action_fallback">आपने ऐप में एक क्रिया की।</string>
@@ -512,7 +520,7 @@
     <string name="trophies_desc_category_presence_unlocked">आपने %1$d हफ्ते पूरे किए जिनमें इस श्रेणी का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
     <string name="trophies_desc_category_planning_locked">इस श्रेणी में %1$d बार वर्कआउट जोड़ने, खिसकाने या व्यवस्थित करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_category_planning_unlocked">आपने इस श्रेणी में %1$d बार वर्कआउट जोड़े, खिसकाए या व्यवस्थित किए।</string>
-    <string name="race_events_nav_label">इवेंट्स</string>
+    <string name="race_events_nav_label">इवेंट</string>
     <string name="weekly_training_add_race_event">इवेंट जोड़ें</string>
     <string name="weekly_training_delete_race_event">हटाएँ</string>
     <string name="weekly_training_delete_race_event_title">इवेंट हटाएँ?</string>

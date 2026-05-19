@@ -63,6 +63,7 @@ class TrophiesContentTest {
             TrophiesHeader(
                 familySection = null,
                 onBack = {},
+                onBrowseBack = null,
                 onOpenActivities = { clicked = true },
             )
         }

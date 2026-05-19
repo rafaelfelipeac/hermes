@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -107,6 +108,8 @@ internal fun SettingsDetailScreen(
             null
         }
 
+    BackHandler(onBack = onBack)
+
     Column(
         modifier =
             modifier
@@ -136,9 +139,8 @@ internal fun SettingsDetailScreen(
             Text(
                 text = title,
                 style = typography.titleLarge,
+                modifier = Modifier.weight(1f),
             )
-
-            Spacer(modifier = Modifier.weight(1f))
 
             if (onHelpClick != null) {
                 Surface(

@@ -24,6 +24,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.displayDateForDay
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
@@ -126,7 +127,7 @@ internal fun shouldCelebrateAllWorkoutsCompleted(
 ): Boolean {
     val plannedWorkouts =
         currentWorkouts.filter { workout ->
-            workout.eventType == WORKOUT && workout.dayOfWeek != null
+            workout.eventType in setOf(WORKOUT, RACE_EVENT) && workout.dayOfWeek != null
         }
 
     val allCompletedBeforeToggle =

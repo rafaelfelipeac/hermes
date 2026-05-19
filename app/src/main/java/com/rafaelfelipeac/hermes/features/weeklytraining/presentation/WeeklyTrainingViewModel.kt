@@ -581,7 +581,7 @@ class WeeklyTrainingViewModel
                 val message =
                     if (isCompleted) {
                         if (
-                            workout.eventType == EventType.WORKOUT &&
+                            workout.eventType.supportsCompletion() &&
                             shouldCelebrateAllWorkoutsCompleted(
                                 currentWorkouts = optimisticWorkouts,
                                 workoutId = workout.id,

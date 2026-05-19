@@ -45,12 +45,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
@@ -83,12 +77,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
@@ -122,12 +110,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
@@ -150,12 +132,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 
@@ -177,12 +153,6 @@ class SettingsContentTest {
                 onSlotModeClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
-                onSeedDemoData = {},
-                onSeedMixedTrophies = {},
-                onSeedLockedTrophies = {},
-                onSeedCompletedTrophies = {},
-                onCategoriesClick = {},
-                onBackupClick = {},
             )
         }
 

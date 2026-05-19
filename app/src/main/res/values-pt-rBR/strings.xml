@@ -6,9 +6,12 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">Semana</string>
+    <string name="weekly_training_nav_label">Início</string>
     <string name="activity_nav_label">Atividade</string>
     <string name="progress_nav_label">Progresso</string>
+    <string name="browse_nav_label">Explorar</string>
+    <string name="browse_title">Explorar</string>
+    <string name="browse_backup_import_title">Backup e importação</string>
     <string name="settings_nav_label">Config.</string>
 
     <!-- Progress -->
@@ -110,10 +113,15 @@
         <item quantity="other">%1$d doenças</item>
     </plurals>
     <plurals name="weekly_training_summary_progress_content_description">
-        <item quantity="one">Progresso semanal: %1$d de %2$d treino concluído</item>
-        <item quantity="other">Progresso semanal: %1$d de %2$d treinos concluídos</item>
+        <item quantity="one">Progresso semanal: %1$d de %2$d item planejado concluído</item>
+        <item quantity="other">Progresso semanal: %1$d de %2$d itens planejados concluídos</item>
     </plurals>
-    <string name="weekly_training_week_completed_celebration">Parabéns! Você concluiu todos os treinos desta semana.</string>
+    <string name="weekly_training_summary_expand_details">Mostrar detalhes</string>
+    <string name="weekly_training_summary_collapse_details">Ocultar detalhes</string>
+    <string name="weekly_training_summary_metric_workouts">Treinos</string>
+    <string name="weekly_training_summary_metric_events">Eventos</string>
+    <string name="weekly_training_summary_metric_value">%1$d/%2$d</string>
+    <string name="weekly_training_week_completed_celebration">Parabéns! Você concluiu tudo desta semana.</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modo desenvolvedor</string>
@@ -255,7 +263,7 @@
     <string name="activity_action_change_language">Você mudou o idioma.</string>
     <string name="activity_action_change_theme">Você mudou o tema.</string>
     <string name="activity_action_open_week">Você abriu outra semana.</string>
-    <string name="activity_action_complete_week_workouts">Você concluiu todos os treinos da semana.</string>
+    <string name="activity_action_complete_week_workouts">Você concluiu tudo da semana.</string>
     <string name="activity_action_copy_last_week">Você copiou a semana passada para esta semana.</string>
     <string name="activity_action_undo_copy_last_week">Você desfez a cópia da semana passada para esta semana.</string>
     <string name="activity_action_fallback">Você realizou uma ação no app.</string>
@@ -511,7 +519,7 @@
     <string name="trophies_desc_category_presence_unlocked">Você concluiu %1$d semanas que incluíam pelo menos um treino concluído desta categoria.</string>
     <string name="trophies_desc_category_planning_locked">Desbloqueie ao adicionar, mover ou organizar treinos nesta categoria %1$d vezes.</string>
     <string name="trophies_desc_category_planning_unlocked">Você adicionou, moveu ou organizou treinos nesta categoria %1$d vezes.</string>
-    <string name="race_events_nav_label">Eventos</string>
+    <string name="race_events_nav_label">Evento</string>
     <string name="weekly_training_add_race_event">Adicionar evento</string>
     <string name="weekly_training_delete_race_event">Excluir</string>
     <string name="weekly_training_delete_race_event_title">Excluir evento?</string>

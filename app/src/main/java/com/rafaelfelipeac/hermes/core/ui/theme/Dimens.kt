@@ -52,6 +52,7 @@ object Dimens {
     val ProgressActivityDotSize = 10.dp
     val ProgressSupportCardMinHeight = 88.dp
     val ProgressScreenBottomPadding = 32.dp
+    val WeeklyTrainingSummaryCollapsedMinHeight = 40.dp
 
     val ContentPadding = 14.dp
     val CheckboxBoxSize = 32.dp

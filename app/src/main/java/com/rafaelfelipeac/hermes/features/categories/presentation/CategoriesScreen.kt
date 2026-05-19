@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.categories.presentation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -96,123 +98,125 @@ fun CategoriesScreen(
     val listState = rememberLazyListState()
     val actionIconTint = colorScheme.onSurfaceVariant
 
-    LazyColumn(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .padding(bottom = SpacingXl),
-        state = listState,
-        verticalArrangement = Arrangement.spacedBy(SpacingLg),
-    ) {
-        item {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = SpacingSm,
-                            end = SpacingXl,
-                            top = SpacingSm,
-                            bottom = SpacingSm,
-                        ),
+    BackHandler(onBack = onBack)
+
+    Column(modifier = modifier.fillMaxSize()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = SpacingSm,
+                        end = SpacingXl,
+                        top = SpacingSm,
+                        bottom = SpacingSm,
+                    ),
+        ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                    contentDescription = stringResource(R.string.categories_back),
+                )
+            }
+
+            Text(
+                text = stringResource(R.string.categories_title),
+                style = typography.titleLarge,
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Surface(
+                onClick = { isHelpDialogVisible = true },
+                shape = CircleShape,
+                color = colorScheme.surfaceVariant,
+                tonalElevation = ElevationSm,
+                shadowElevation = ElevationSm,
+                modifier = Modifier.size(HelpIconSize),
             ) {
-                IconButton(onClick = onBack) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = stringResource(R.string.categories_back),
+                        imageVector = Icons.Outlined.HelpOutline,
+                        contentDescription = stringResource(R.string.categories_help_icon),
+                        tint = actionIconTint,
+                        modifier = Modifier.size(HelpIconGlyphSize),
                     )
                 }
-
-                Text(
-                    text = stringResource(R.string.categories_title),
-                    style = typography.titleLarge,
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Surface(
-                    onClick = { isHelpDialogVisible = true },
-                    shape = CircleShape,
-                    color = colorScheme.surfaceVariant,
-                    tonalElevation = ElevationSm,
-                    shadowElevation = ElevationSm,
-                    modifier = Modifier.size(HelpIconSize),
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.HelpOutline,
-                            contentDescription = stringResource(R.string.categories_help_icon),
-                            tint = actionIconTint,
-                            modifier = Modifier.size(HelpIconGlyphSize),
-                        )
-                    }
-                }
             }
         }
 
-        item {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = SpacingXl),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth(),
+        LazyColumn(
+            modifier =
+                Modifier
+                    .fillMaxSize(),
+            state = listState,
+            contentPadding = PaddingValues(bottom = SpacingXl),
+            verticalArrangement = Arrangement.spacedBy(SpacingLg),
+        ) {
+            item {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = SpacingXl),
+                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
                 ) {
-                    Button(onClick = { isAddDialogVisible = true }) {
-                        Text(text = stringResource(R.string.categories_add))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Button(onClick = { isAddDialogVisible = true }) {
+                            Text(text = stringResource(R.string.categories_add))
+                        }
+                    }
+
+                    TextButton(
+                        onClick = { isRestoreDefaultsDialogVisible = true },
+                        colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
+                    ) {
+                        Text(text = stringResource(R.string.categories_restore_defaults))
                     }
                 }
-
-                TextButton(
-                    onClick = { isRestoreDefaultsDialogVisible = true },
-                    colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
-                ) {
-                    Text(text = stringResource(R.string.categories_restore_defaults))
-                }
             }
-        }
 
-        item {
-            Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
-                Surface(
-                    shape = shapes.medium,
-                    tonalElevation = ElevationSm,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Column(
-                        modifier =
-                            Modifier.padding(
-                                horizontal = SpacingMd,
-                                vertical = SpacingXxs,
-                            ),
+            item {
+                Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
+                    Surface(
+                        shape = shapes.medium,
+                        tonalElevation = ElevationSm,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        state.categories.forEachIndexed { index, category ->
-                            CategoryRow(
-                                category = category,
-                                canMoveUp = index != 0,
-                                canMoveDown = index != state.categories.lastIndex,
-                                onMoveUp = { viewModel.moveCategoryUp(category.id) },
-                                onMoveDown = { viewModel.moveCategoryDown(category.id) },
-                                onToggleHidden = { isHidden ->
-                                    viewModel.updateCategoryVisibility(category.id, isHidden)
-                                },
-                                onEdit = { editorCategoryId = category.id },
-                                onDelete = { deletingCategoryId = category.id },
-                                modifier = Modifier.padding(vertical = SpacingXxs),
-                            )
-
-                            if (index != state.categories.lastIndex) {
-                                HorizontalDivider(
+                        Column(
+                            modifier =
+                                Modifier.padding(
+                                    horizontal = SpacingMd,
+                                    vertical = SpacingXxs,
+                                ),
+                        ) {
+                            state.categories.forEachIndexed { index, category ->
+                                CategoryRow(
+                                    category = category,
+                                    canMoveUp = index != 0,
+                                    canMoveDown = index != state.categories.lastIndex,
+                                    onMoveUp = { viewModel.moveCategoryUp(category.id) },
+                                    onMoveDown = { viewModel.moveCategoryDown(category.id) },
+                                    onToggleHidden = { isHidden ->
+                                        viewModel.updateCategoryVisibility(category.id, isHidden)
+                                    },
+                                    onEdit = { editorCategoryId = category.id },
+                                    onDelete = { deletingCategoryId = category.id },
                                     modifier = Modifier.padding(vertical = SpacingXxs),
                                 )
+
+                                if (index != state.categories.lastIndex) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(vertical = SpacingXxs),
+                                    )
+                                }
                             }
                         }
                     }

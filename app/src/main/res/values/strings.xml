@@ -6,10 +6,13 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">Week</string>
+    <string name="weekly_training_nav_label">Home</string>
     <string name="activity_nav_label">Activity</string>
     <string name="progress_nav_label">Progress</string>
-    <string name="race_events_nav_label">Events</string>
+    <string name="race_events_nav_label">Event</string>
+    <string name="browse_nav_label">Browse</string>
+    <string name="browse_title">Browse</string>
+    <string name="browse_backup_import_title">Backup and Import</string>
     <string name="settings_nav_label">Settings</string>
 
     <!-- Progress -->
@@ -118,10 +121,15 @@
         <item quantity="other">%1$d sick events</item>
     </plurals>
     <plurals name="weekly_training_summary_progress_content_description">
-        <item quantity="one">Weekly progress: %1$d of %2$d workout completed</item>
-        <item quantity="other">Weekly progress: %1$d of %2$d workouts completed</item>
+        <item quantity="one">Weekly progress: %1$d of %2$d planned item completed</item>
+        <item quantity="other">Weekly progress: %1$d of %2$d planned items completed</item>
     </plurals>
-    <string name="weekly_training_week_completed_celebration">Great job! You completed all workouts this week.</string>
+    <string name="weekly_training_summary_expand_details">Show details</string>
+    <string name="weekly_training_summary_collapse_details">Hide details</string>
+    <string name="weekly_training_summary_metric_workouts">Workouts</string>
+    <string name="weekly_training_summary_metric_events">Events</string>
+    <string name="weekly_training_summary_metric_value">%1$d/%2$d</string>
+    <string name="weekly_training_week_completed_celebration">Great job! You completed everything this week.</string>
 
     <!-- Events -->
     <string name="race_event_label">Event</string>
@@ -287,7 +295,7 @@
     <string name="activity_action_change_language">You changed the language.</string>
     <string name="activity_action_change_theme">You changed the theme.</string>
     <string name="activity_action_open_week">You opened another week.</string>
-    <string name="activity_action_complete_week_workouts">You completed all workouts for the week.</string>
+    <string name="activity_action_complete_week_workouts">You completed everything for the week.</string>
     <string name="activity_action_copy_last_week">You copied last week into this week.</string>
     <string name="activity_action_undo_copy_last_week">You undid copying last week into this week.</string>
     <string name="activity_action_fallback">You performed an action in the app.</string>

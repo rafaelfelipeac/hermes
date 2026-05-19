@@ -6,9 +6,12 @@
     <string name="app_name_dev">Hermes Dev</string>
 
     <!-- Navigation -->
-    <string name="weekly_training_nav_label">週</string>
+    <string name="weekly_training_nav_label">ホーム</string>
     <string name="activity_nav_label">アクティビティ</string>
     <string name="progress_nav_label">進捗</string>
+    <string name="browse_nav_label">ブラウズ</string>
+    <string name="browse_title">ブラウズ</string>
+    <string name="browse_backup_import_title">バックアップとインポート</string>
     <string name="settings_nav_label">設定</string>
 
     <!-- Progress -->
@@ -107,9 +110,14 @@
         <item quantity="other">%1$d件病気</item>
     </plurals>
     <plurals name="weekly_training_summary_progress_content_description">
-        <item quantity="other">週間の進捗: 全%2$d件中%1$d件のワークアウトを完了</item>
+        <item quantity="other">週間の進捗: 全%2$d件の予定項目のうち%1$d件を完了</item>
     </plurals>
-    <string name="weekly_training_week_completed_celebration">お見事です！今週のワークアウトをすべて完了しました。</string>
+    <string name="weekly_training_summary_expand_details">詳細を表示</string>
+    <string name="weekly_training_summary_collapse_details">詳細を非表示</string>
+    <string name="weekly_training_summary_metric_workouts">ワークアウト</string>
+    <string name="weekly_training_summary_metric_events">イベント</string>
+    <string name="weekly_training_summary_metric_value">%1$d/%2$d</string>
+    <string name="weekly_training_week_completed_celebration">お見事です！今週のすべてを完了しました。</string>
 
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">開発者モード</string>
@@ -251,7 +259,7 @@
     <string name="activity_action_change_language">言語を変更しました。</string>
     <string name="activity_action_change_theme">テーマを変更しました。</string>
     <string name="activity_action_open_week">別の週を開きました。</string>
-    <string name="activity_action_complete_week_workouts">今週のワークアウトをすべて完了しました。</string>
+    <string name="activity_action_complete_week_workouts">今週のすべてを完了しました。</string>
     <string name="activity_action_copy_last_week">先週を今週にコピーしました。</string>
     <string name="activity_action_undo_copy_last_week">先週を今週にコピーした操作を取り消しました。</string>
     <string name="activity_action_fallback">アプリで操作を行いました。</string>

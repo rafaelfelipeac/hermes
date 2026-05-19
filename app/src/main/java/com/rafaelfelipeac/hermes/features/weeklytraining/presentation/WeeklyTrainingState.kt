@@ -6,6 +6,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.A
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.MONDAY
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.SICK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
@@ -56,22 +57,28 @@ data class WeeklyTrainingState(
             .filter { it.dayOfWeek != null }
             .let { scheduledItems ->
                 val plannedWorkouts = scheduledItems.count { it.eventType == WORKOUT }
+                val plannedRaceEvents = scheduledItems.count { it.eventType == RACE_EVENT }
+                val completedWorkouts = scheduledItems.count { it.eventType == WORKOUT && it.isCompleted }
+                val completedRaceEvents = scheduledItems.count { it.eventType == RACE_EVENT && it.isCompleted }
+                val plannedItems = plannedWorkouts + plannedRaceEvents
 
-                if (plannedWorkouts == 0) {
+                if (plannedItems == 0) {
                     null
                 } else {
-                    val completedWorkouts =
-                        scheduledItems.count {
-                            it.eventType == WORKOUT && it.isCompleted
-                        }
-
                     WeeklyHeaderSummaryUi(
+                        plannedItems = plannedItems,
+                        completedItems = completedWorkouts + completedRaceEvents,
                         plannedWorkouts = plannedWorkouts,
                         completedWorkouts = completedWorkouts,
+                        plannedRaceEvents = plannedRaceEvents,
+                        completedRaceEvents = completedRaceEvents,
                         plannedRestEvents = scheduledItems.count { it.eventType == REST },
                         plannedBusyEvents = scheduledItems.count { it.eventType == BUSY },
                         plannedSickEvents = scheduledItems.count { it.eventType == SICK },
-                        progress = (completedWorkouts.toFloat() / plannedWorkouts).coerceIn(0f, 1f),
+                        progress =
+                            (
+                                (completedWorkouts + completedRaceEvents).toFloat() / plannedItems
+                            ).coerceIn(0f, 1f),
                     )
                 }
             }

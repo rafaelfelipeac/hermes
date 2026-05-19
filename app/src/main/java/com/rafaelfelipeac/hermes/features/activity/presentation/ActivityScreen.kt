@@ -90,8 +90,7 @@ fun ActivityScreen(
     Column(
         modifier =
             modifier
-                .fillMaxSize()
-                .padding(bottom = SpacingXl),
+                .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         ActivityHeader(onBack = onBack)
@@ -214,7 +213,11 @@ internal fun ActivityContent(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(vertical = SpacingMd),
+            contentPadding =
+                PaddingValues(
+                    top = SpacingMd,
+                    bottom = SpacingXl,
+                ),
             verticalArrangement = Arrangement.spacedBy(SpacingLg),
         ) {
             sections.forEach { section ->

@@ -419,6 +419,59 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
         }
 
     @Test
+    fun updateWorkoutCompletion_whenOpenRaceEventRemains_doesNotEmitWeekCelebration() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val workoutsFlow = MutableStateFlow(emptyList<Workout>())
+            val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+
+            every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
+
+            val viewModel = createViewModel(repository, userActionLogger)
+            val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val undoStates = mutableListOf<UndoState?>()
+            val undoJob = backgroundScope.launch { viewModel.undoUiState.collect(undoStates::add) }
+            val selectedDate = LocalDate.of(2026, 4, 7)
+            val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
+
+            viewModel.onWeekChanged(selectedDate)
+            workoutsFlow.value =
+                listOf(
+                    workout(id = 42, weekStart = weekStart, day = MONDAY, order = 0, isCompleted = false),
+                    workout(
+                        id = 43,
+                        weekStart = weekStart,
+                        day = TUESDAY,
+                        order = 1,
+                        eventType = EventType.RACE_EVENT,
+                        isCompleted = false,
+                    ),
+                )
+            advanceUntilIdle()
+
+            val targetWorkout = viewModel.state.value.workouts.first { it.id == 42L }
+            viewModel.updateWorkoutCompletion(workout = targetWorkout, isCompleted = true)
+            runCurrent()
+
+            assertEquals(
+                UndoMessage.Completed,
+                undoStates.lastOrNull()?.message,
+            )
+            coVerify(exactly = 0) {
+                userActionLogger.log(
+                    actionType = COMPLETE_WEEK_WORKOUTS,
+                    entityType = WEEK,
+                    entityId = weekStart.toEpochDay(),
+                    metadata = any(),
+                    timestamp = any(),
+                )
+            }
+
+            undoJob.cancel()
+            collectJob.cancel()
+        }
+
+    @Test
     fun updateWorkoutCompletion_logsCategoryMetadata() =
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
@@ -470,6 +523,8 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
 
             val viewModel = createViewModel(repository, userActionLogger)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
+            val undoStates = mutableListOf<UndoState?>()
+            val undoJob = backgroundScope.launch { viewModel.undoUiState.collect(undoStates::add) }
             val selectedDate = LocalDate.of(2026, 4, 7)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
 
@@ -500,7 +555,12 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
                     timestamp = any(),
                 )
             }
+            assertEquals(
+                UndoMessage.CompletedWeek,
+                undoStates.lastOrNull()?.message,
+            )
 
+            undoJob.cancel()
             collectJob.cancel()
         }
 
