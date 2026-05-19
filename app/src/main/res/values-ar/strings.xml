@@ -218,7 +218,7 @@
     <string name="settings_release_notes_added">تمت الإضافة</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>تحسينات شاشة التصفح لتخطيط السباقات القادمة وأحداث غير التمرين</item>
+        <item>تحسينات على تبويب التصفح والتنقل إلى النسخ الاحتياطي/الاستيراد والإعدادات والأنشطة والتطوير</item>
         <item>ملخص التدريب ومعاينة النشاط وتحسينات الرسوم البيانية في شاشة التقدم</item>
         <item>تحسينات المخطط الأسبوعي في الإكمال واختيار التاريخ وتوسيع عبء العمل</item>
     </string-array>

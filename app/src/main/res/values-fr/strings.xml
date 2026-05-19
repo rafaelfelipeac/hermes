@@ -197,7 +197,7 @@
     <string name="settings_release_notes_added">Ajouté</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Ajustements de l’écran Parcourir pour les prochaines courses et la planification des événements hors entraînement</item>
+        <item>Finitions de l’onglet Parcourir et de la navigation vers les sections sauvegarde/importation, paramètres, activités et développement</item>
         <item>Résumé d’entraînement, aperçu d’activité et améliorations des graphiques sur l’écran Progression</item>
         <item>Finitions du planificateur hebdomadaire pour la validation, le sélecteur de date et la mise à l’échelle de la charge de travail</item>
     </string-array>

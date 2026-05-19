@@ -229,7 +229,7 @@
     <string name="settings_release_notes_added">Added</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Browse screen refinements for upcoming races and non-workout event planning</item>
+        <item>Browse tab and navigation polish for backup/import, settings, activities and developer destinations</item>
         <item>Progress screen coaching summary, activity preview and chart improvements</item>
         <item>Weekly planner polish across completion, date picker and workload scaling</item>
     </string-array>

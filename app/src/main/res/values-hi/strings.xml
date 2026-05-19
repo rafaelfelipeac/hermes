@@ -198,7 +198,7 @@
     <string name="settings_release_notes_added">जोड़ा गया</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>आगामी रेस और गैर-वर्कआउट इवेंट की योजना के लिए ब्राउज़ स्क्रीन में सुधार</item>
+        <item>ब्राउज़ टैब और बैकअप/इम्पोर्ट, सेटिंग्स, गतिविधियों और डेवलपमेंट नेविगेशन में सुधार</item>
         <item>कोचिंग सारांश, गतिविधि पूर्वावलोकन और चार्ट सुधार प्रोग्रेस स्क्रीन में</item>
         <item>पूर्णता, तारीख चयन और वर्कलोड स्केलिंग में साप्ताहिक प्लानर का परिष्कार</item>
     </string-array>

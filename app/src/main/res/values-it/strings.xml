@@ -197,7 +197,7 @@
     <string name="settings_release_notes_added">Aggiunto</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Rifiniture della schermata Sfoglia per le prossime gare e la pianificazione di eventi non di allenamento</item>
+        <item>Rifiniture della scheda Sfoglia e della navigazione verso backup/importazione, impostazioni, attività e sviluppo</item>
         <item>Riepilogo coaching, anteprima attività e miglioramenti ai grafici nella schermata Progresso</item>
         <item>Rifiniture del pianificatore settimanale su completamento, selettore data e scala del carico di lavoro</item>
     </string-array>

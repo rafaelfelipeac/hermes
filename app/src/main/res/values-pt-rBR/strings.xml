@@ -198,7 +198,7 @@
     <string name="settings_release_notes_added">Adicionado</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Ajustes na tela de navegação para corridas futuras e planejamento de eventos que não são treinos</item>
+        <item>Ajustes na aba de navegação e nos atalhos para backup/importação, configurações, atividades e desenvolvimento</item>
         <item>Resumo de coaching, prévia de atividade e melhorias nos gráficos na tela Progresso</item>
         <item>Polimento do planejador semanal em conclusão, seletor de data e escala de carga de trabalho</item>
     </string-array>
