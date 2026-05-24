@@ -273,7 +273,7 @@ fun AddRaceEventDialog(
                 }
             }
         val datePickerState =
-            remember(selectedDateMillis, selectableDates) {
+            remember(currentLocale, selectedDateMillis, selectableDates) {
                 DatePickerState(
                     locale = currentLocale,
                     initialSelectedDateMillis = selectedDateMillis,
