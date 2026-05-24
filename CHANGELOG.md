@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.10.2]
+### Fixed
+- Week-start settings now apply correctly to workout and event date pickers in release builds
+
 ## [v1.10.1]
 ### Fixed
 - Week-start settings now apply correctly to workout and event date pickers
