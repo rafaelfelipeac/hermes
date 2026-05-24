@@ -2,6 +2,27 @@ package com.rafaelfelipeac.hermes.core.ui.components
 
 import androidx.compose.material3.DatePickerState
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import java.util.Locale
+
+internal fun Locale.withWeekStartDay(weekStartDay: WeekStartDay): Locale {
+    val weekStartKeyword =
+        when (weekStartDay) {
+            WeekStartDay.MONDAY -> "mon"
+            WeekStartDay.TUESDAY -> "tue"
+            WeekStartDay.WEDNESDAY -> "wed"
+            WeekStartDay.THURSDAY -> "thu"
+            WeekStartDay.FRIDAY -> "fri"
+            WeekStartDay.SATURDAY -> "sat"
+            WeekStartDay.SUNDAY -> "sun"
+        }
+
+    return runCatching {
+        Locale.Builder()
+            .setLocale(this)
+            .setUnicodeLocaleKeyword("fw", weekStartKeyword)
+            .build()
+    }.getOrElse { this }
+}
 
 internal fun DatePickerState.applyWeekStartDayOverride(weekStartDay: WeekStartDay) {
     runCatching {
@@ -14,6 +35,8 @@ internal fun DatePickerState.applyWeekStartDayOverride(weekStartDay: WeekStartDa
             calendarModel.javaClass.findDeclaredField("firstDayOfWeek") ?: return@runCatching
         firstDayField.isAccessible = true
         firstDayField.setInt(calendarModel, weekStartDay.dayOfWeek.value)
+        // Force the cached month to recalculate against the updated week start.
+        displayedMonthMillis = displayedMonthMillis
     }
 }
 

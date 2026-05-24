@@ -19,3 +19,16 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Preserve the private Material3 date picker fields we patch via reflection.
+# R8 renames these in release builds, which breaks the week-start override.
+-keepclassmembers class androidx.compose.material3.BaseDatePickerStateImpl {
+    java.util.Locale locale;
+    androidx.compose.material3.internal.CalendarModel calendarModel;
+}
+-keepclassmembers class androidx.compose.material3.internal.CalendarModelImpl {
+    int firstDayOfWeek;
+}
+-keepclassmembers class androidx.compose.material3.internal.LegacyCalendarModelImpl {
+    int firstDayOfWeek;
+}
