@@ -6,6 +6,7 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.UNSUPPORTED_SCHEMA_VERSION
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Failure
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupKnowledgeNoteRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
@@ -24,7 +25,8 @@ internal object BackupJsonCodec {
     internal const val SCHEMA_VERSION_V1 = 1
     internal const val SCHEMA_VERSION_V2 = 2
     internal const val SCHEMA_VERSION_V3 = 3
-    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V3
+    internal const val SCHEMA_VERSION_V4 = 4
+    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V4
 
     private val json =
         Json {
@@ -41,6 +43,10 @@ internal object BackupJsonCodec {
 
             putJsonArray(KEY_WORKOUTS) {
                 snapshot.workouts.forEach { addWorkout(it) }
+            }
+
+            putJsonArray(KEY_NOTES) {
+                snapshot.notes.forEach { addNote(it) }
             }
 
             putJsonArray(KEY_CATEGORIES) {
@@ -75,6 +81,7 @@ internal object BackupJsonCodec {
             SCHEMA_VERSION_V1 -> BackupV1Decoder.decode(root)
             SCHEMA_VERSION_V2 -> BackupV2Decoder.decode(root)
             SCHEMA_VERSION_V3 -> BackupV3Decoder.decode(root)
+            SCHEMA_VERSION_V4 -> BackupV4Decoder.decode(root)
             else -> Failure(UNSUPPORTED_SCHEMA_VERSION)
         }
     }
@@ -105,6 +112,25 @@ internal object BackupJsonCodec {
                 put(KEY_SORT_ORDER, record.sortOrder)
                 put(KEY_IS_HIDDEN, record.isHidden)
                 put(KEY_IS_SYSTEM, record.isSystem)
+            },
+        )
+    }
+
+    private fun JsonArrayBuilder.addNote(record: BackupKnowledgeNoteRecord) {
+        add(
+            buildJsonObject {
+                put(KEY_ID, record.id)
+                put(KEY_KIND, record.kind)
+                put(KEY_STATUS, record.status)
+                record.title?.let { put(KEY_TITLE, it) }
+                put(KEY_BODY, record.body)
+                record.sourceWorkoutId?.let { put(KEY_SOURCE_WORKOUT_ID, it) }
+                record.sourceType?.let { put(KEY_SOURCE_TYPE, it) }
+                record.sourceTitle?.let { put(KEY_SOURCE_TITLE, it) }
+                record.categoryId?.let { put(KEY_CATEGORY_ID, it) }
+                record.triggerScope?.let { put(KEY_TRIGGER_SCOPE, it) }
+                put(KEY_CREATED_AT, record.createdAt)
+                put(KEY_UPDATED_AT, record.updatedAt)
             },
         )
     }

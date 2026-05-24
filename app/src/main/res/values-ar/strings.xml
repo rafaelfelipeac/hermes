@@ -12,6 +12,26 @@
     <string name="browse_nav_label">تصفح</string>
     <string name="browse_title">تصفح</string>
     <string name="browse_backup_import_title">النسخ الاحتياطي والاستيراد</string>
+    <string name="knowledge_base_title">قاعدة المعرفة</string>
+    <string name="knowledge_base_search_label">بحث</string>
+    <string name="knowledge_base_search_placeholder">ابحث في الملاحظات</string>
+    <string name="knowledge_base_session_notes_title">ملاحظات الجلسة</string>
+    <string name="knowledge_base_notes_title">ملاحظات</string>
+    <string name="knowledge_base_important_notes_title">ملاحظات مهمة</string>
+    <string name="knowledge_base_session_notes_help">تُعدَّل ملاحظات الجلسة من التمرين أو الحدث الذي تنتمي إليه.</string>
+    <string name="knowledge_base_empty_results">لا توجد ملاحظات تطابق بحثك.</string>
+    <string name="knowledge_base_empty_session_notes">لا توجد ملاحظات جلسة بعد.</string>
+    <string name="knowledge_base_empty_notes">لا توجد ملاحظات بعد.</string>
+    <string name="knowledge_base_empty_important_notes">لا توجد ملاحظات مهمة بعد.</string>
+    <string name="knowledge_base_note_title_label">العنوان</string>
+    <string name="knowledge_base_note_body_label">ملاحظة</string>
+    <string name="knowledge_base_trigger_label">المشغّل</string>
+    <string name="knowledge_base_open_source">فتح المصدر</string>
+    <string name="knowledge_base_archive">أرشفة</string>
+    <string name="knowledge_base_unarchive">إلغاء الأرشفة</string>
+    <string name="knowledge_base_archived">مؤرشفة</string>
+    <string name="knowledge_base_session_source_workout">تمرين</string>
+    <string name="knowledge_base_session_source_event">حدث</string>
     <string name="settings_nav_label">الإعدادات</string>
 
     <!-- Progress -->
@@ -393,6 +413,14 @@
     <string name="activity_action_export_backup">لقد صدّرت نسخة احتياطية.</string>
     <string name="activity_action_import_backup">لقد استوردت نسخة احتياطية.</string>
     <string name="activity_action_share_trophy">لقد بدأت مشاركة الكأس %1$s.</string>
+    <string name="activity_action_create_note">لقد أنشأت %1$s.</string>
+    <string name="activity_action_update_note">لقد حدّثت %1$s.</string>
+    <string name="activity_action_archive_note">لقد أرشفت %1$s.</string>
+    <string name="activity_action_restore_note">لقد استعدت %1$s.</string>
+    <string name="activity_action_delete_note">لقد حذفت %1$s.</string>
+    <string name="activity_note_kind_session">ملاحظة جلسة</string>
+    <string name="activity_note_kind_note">ملاحظة</string>
+    <string name="activity_note_kind_important">ملاحظة مهمة</string>
     <string name="activity_action_set_backup_folder">لقد قمت بتحديد مجلد نسخ احتياطي.</string>
     <string name="activity_action_clear_backup_folder">لقد قمت بمسح مجلد النسخ الاحتياطي.</string>
     <string name="activity_action_seed_demo_data">لقد أضفت بيانات تجريبية.</string>

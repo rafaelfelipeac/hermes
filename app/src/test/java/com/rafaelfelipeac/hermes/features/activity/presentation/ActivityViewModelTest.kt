@@ -7,6 +7,11 @@ import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_BODY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_KIND
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_TITLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_TRIGGER_ENTITY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_TRIGGER_ENTITY_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
@@ -30,10 +35,12 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_SLO
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_NOTE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SHARE_TROPHY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.NOTE
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPrimaryFilter
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
@@ -122,6 +129,44 @@ class ActivityViewModelTest {
                 val title = awaitNonEmptyState().sections.first().items.first().title
 
                 assertTrue(title.contains("\"Bike\""))
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun noteLifecycle_actionsAppearInPlanningAndUseNoteKindTitle() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeUserActionRepository()
+            val viewModel = createViewModel(repository)
+            val metadata =
+                metadataJson(
+                    NOTE_KIND to "IMPORTANT_NOTE",
+                    NOTE_TITLE to "Heel pain",
+                    NOTE_BODY to "Reduce pace",
+                    NOTE_TRIGGER_ENTITY_TYPE to WORKOUT.name,
+                    NOTE_TRIGGER_ENTITY_ID to "1",
+                )
+
+            viewModel.selectPrimaryFilter(ActivityPrimaryFilter.PLANNING)
+            repository.emit(
+                listOf(
+                    UserActionRecord(
+                        id = 9L,
+                        actionType = CREATE_NOTE.name,
+                        entityType = NOTE.name,
+                        entityId = 1L,
+                        metadata = metadata,
+                        timestamp = System.currentTimeMillis(),
+                    ),
+                ),
+            )
+
+            viewModel.state.test {
+                val state = awaitNonEmptyState()
+                val item = state.sections.first().items.first()
+
+                assertTrue(item.title.contains("important note"))
 
                 cancelAndIgnoreRemainingEvents()
             }
@@ -683,6 +728,14 @@ class ActivityViewModelTest {
                 R.string.activity_action_copy_last_week to "You copied last week into this week.",
                 R.string.activity_action_undo_copy_last_week to "You undid copying last week into this week.",
                 R.string.activity_action_share_trophy to "You started sharing the trophy %1\$s.",
+                R.string.activity_action_create_note to "You created the %1\$s.",
+                R.string.activity_action_update_note to "You updated the %1\$s.",
+                R.string.activity_action_archive_note to "You archived the %1\$s.",
+                R.string.activity_action_restore_note to "You restored the %1\$s.",
+                R.string.activity_action_delete_note to "You deleted the %1\$s.",
+                R.string.activity_note_kind_session to "session note",
+                R.string.activity_note_kind_note to "note",
+                R.string.activity_note_kind_important to "important note",
                 R.string.activity_action_fallback to "You performed an action in the app.",
                 R.string.activity_subtitle_change_value to "From \"%1\$s\" to \"%2\$s\".",
                 R.string.activity_subtitle_move to "From \"%1\$s\" to \"%2\$s\".",

@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.SUPPORTED_
 import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.decode
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupKnowledgeNoteRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
@@ -21,6 +22,12 @@ import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupR
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.toImportBackupError
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
+import com.rafaelfelipeac.hermes.features.knowledgebase.data.local.KnowledgeNoteDao
+import com.rafaelfelipeac.hermes.features.knowledgebase.data.local.KnowledgeNoteEntity
+import com.rafaelfelipeac.hermes.features.knowledgebase.domain.model.KnowledgeNoteKind
+import com.rafaelfelipeac.hermes.features.knowledgebase.domain.model.KnowledgeNoteSourceType
+import com.rafaelfelipeac.hermes.features.knowledgebase.domain.model.KnowledgeNoteStatus
+import com.rafaelfelipeac.hermes.features.knowledgebase.domain.model.KnowledgeNoteTriggerScope
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
@@ -45,6 +52,7 @@ class BackupRepositoryImpl
     constructor(
         private val database: HermesDatabase,
         private val workoutDao: WorkoutDao,
+        private val knowledgeNoteDao: KnowledgeNoteDao,
         private val categoryDao: CategoryDao,
         private val userActionDao: UserActionDao,
         private val settingsRepository: SettingsRepository,
@@ -57,6 +65,7 @@ class BackupRepositoryImpl
                         exportedAt = Instant.now().atOffset(UTC).toString(),
                         appVersion = appVersion,
                         workouts = workoutDao.getAll().map { it.toBackupRecord() },
+                        notes = knowledgeNoteDao.getAll().map { it.toBackupRecord() },
                         categories = categoryDao.getCategories().map { it.toBackupRecord() },
                         userActions = userActionDao.getAll().map { it.toBackupRecord() },
                         settings =
@@ -91,8 +100,14 @@ class BackupRepositoryImpl
                 runCatching {
                     database.withTransaction {
                         workoutDao.deleteAll()
+                        knowledgeNoteDao.deleteAll()
                         categoryDao.deleteAll()
                         userActionDao.deleteAll()
+
+                        val notes = snapshot.notes.map { it.toEntity() }
+                        if (notes.isNotEmpty()) {
+                            knowledgeNoteDao.insertAll(notes)
+                        }
 
                         val categories = snapshot.categories.map { it.toEntity() }
                         if (categories.isNotEmpty()) {
@@ -134,6 +149,7 @@ class BackupRepositoryImpl
             return ImportBackupResult.Success(
                 schemaVersion = snapshot.schemaVersion,
                 workoutsCount = snapshot.workouts.size,
+                notesCount = snapshot.notes.size,
                 categoriesCount = snapshot.categories.size,
                 userActionsCount = snapshot.userActions.size,
             )
@@ -143,6 +159,7 @@ class BackupRepositoryImpl
             return BackupDataStats(
                 schemaVersion = SUPPORTED_SCHEMA_VERSION,
                 workoutsCount = workoutDao.getAll().size,
+                notesCount = knowledgeNoteDao.getAll().size,
                 categoriesCount = categoryDao.getCategories().size,
                 userActionsCount = userActionDao.getAll().size,
             )
@@ -150,6 +167,7 @@ class BackupRepositoryImpl
 
         override suspend fun hasAnyData(): Boolean {
             return workoutDao.getAll().isNotEmpty() ||
+                knowledgeNoteDao.getAll().isNotEmpty() ||
                 categoryDao.getCategories().isNotEmpty() ||
                 userActionDao.getAll().isNotEmpty()
         }
@@ -157,6 +175,7 @@ class BackupRepositoryImpl
         @Suppress("CyclomaticComplexMethod", "ReturnCount")
         private fun validateSnapshot(snapshot: BackupSnapshot): ImportBackupError? {
             val categoryIds = snapshot.categories.map { it.id }.toSet()
+            val workoutIds = snapshot.workouts.map { it.id }.toSet()
 
             snapshot.workouts.forEach { workout ->
                 if (workout.dayOfWeek != null && workout.dayOfWeek !in VALID_DAY_OF_WEEK_RANGE) {
@@ -182,6 +201,53 @@ class BackupRepositoryImpl
                 workout.categoryId?.let { categoryId ->
                     if (categoryId !in categoryIds) {
                         return ImportBackupError.INVALID_REFERENCE
+                    }
+                }
+            }
+
+            snapshot.notes.forEach { note ->
+                if (runCatching { KnowledgeNoteKind.valueOf(note.kind) }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching { KnowledgeNoteStatus.valueOf(note.status) }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+
+                when (KnowledgeNoteKind.valueOf(note.kind)) {
+                    KnowledgeNoteKind.SESSION -> {
+                        if (note.sourceWorkoutId == null) {
+                            return ImportBackupError.INVALID_FIELD_VALUE
+                        }
+                        if (note.sourceWorkoutId !in workoutIds) {
+                            return ImportBackupError.INVALID_REFERENCE
+                        }
+                        if (note.sourceType == null || runCatching { KnowledgeNoteSourceType.valueOf(note.sourceType) }.isFailure) {
+                            return ImportBackupError.INVALID_FIELD_VALUE
+                        }
+                        if (note.triggerScope != null) {
+                            return ImportBackupError.INVALID_FIELD_VALUE
+                        }
+                        if (note.categoryId != null) {
+                            return ImportBackupError.INVALID_FIELD_VALUE
+                        }
+                    }
+                    KnowledgeNoteKind.NOTE -> {
+                        if (note.sourceWorkoutId != null || note.sourceType != null || note.triggerScope != null || note.categoryId != null) {
+                            return ImportBackupError.INVALID_FIELD_VALUE
+                        }
+                    }
+                    KnowledgeNoteKind.IMPORTANT -> {
+                        if (note.triggerScope == null || runCatching { KnowledgeNoteTriggerScope.valueOf(note.triggerScope) }.isFailure) {
+                            return ImportBackupError.INVALID_FIELD_VALUE
+                        }
+                        if (note.sourceWorkoutId != null || note.sourceType != null) {
+                            return ImportBackupError.INVALID_FIELD_VALUE
+                        }
+                        note.categoryId?.let { categoryId ->
+                            if (categoryId !in categoryIds) {
+                                return ImportBackupError.INVALID_REFERENCE
+                            }
+                        }
                     }
                 }
             }
@@ -243,6 +309,23 @@ private fun UserActionEntity.toBackupRecord(): BackupUserActionRecord {
     )
 }
 
+private fun KnowledgeNoteEntity.toBackupRecord(): BackupKnowledgeNoteRecord {
+    return BackupKnowledgeNoteRecord(
+        id = id,
+        kind = kind,
+        status = status,
+        title = title,
+        body = body,
+        sourceWorkoutId = sourceWorkoutId,
+        sourceType = sourceType,
+        sourceTitle = sourceTitle,
+        categoryId = categoryId,
+        triggerScope = triggerScope,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+    )
+}
+
 private fun BackupWorkoutRecord.toEntity(): WorkoutEntity {
     return WorkoutEntity(
         id = id,
@@ -256,6 +339,23 @@ private fun BackupWorkoutRecord.toEntity(): WorkoutEntity {
         timeSlot = timeSlot,
         categoryId = categoryId,
         sortOrder = sortOrder,
+    )
+}
+
+private fun BackupKnowledgeNoteRecord.toEntity(): KnowledgeNoteEntity {
+    return KnowledgeNoteEntity(
+        id = id,
+        kind = kind,
+        status = status,
+        title = title,
+        body = body,
+        sourceWorkoutId = sourceWorkoutId,
+        sourceType = sourceType,
+        sourceTitle = sourceTitle,
+        categoryId = categoryId,
+        triggerScope = triggerScope,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
     )
 }
 

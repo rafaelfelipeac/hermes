@@ -33,8 +33,33 @@ val MIGRATION_2_3 =
         }
     }
 
+val MIGRATION_3_4 =
+    object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS knowledge_notes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    kind TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    title TEXT,
+                    body TEXT NOT NULL,
+                    sourceWorkoutId INTEGER,
+                    sourceType TEXT,
+                    sourceTitle TEXT,
+                    categoryId INTEGER,
+                    triggerScope TEXT,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+        }
+    }
+
 val ALL_MIGRATIONS =
     listOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
+        MIGRATION_3_4,
     )

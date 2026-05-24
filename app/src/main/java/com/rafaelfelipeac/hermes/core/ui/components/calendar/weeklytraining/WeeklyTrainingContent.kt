@@ -99,6 +99,7 @@ fun WeeklyTrainingContent(
     onWorkoutCompletionChanged: (WorkoutUi, Boolean) -> Unit,
     onWorkoutEdit: (WorkoutUi) -> Unit,
     onWorkoutDelete: (WorkoutUi) -> Unit,
+    onImportantNotesClick: (WorkoutUi) -> Unit = {},
     onWeekChanged: (LocalDate) -> Unit = {},
 ) {
     val sections =
@@ -469,6 +470,7 @@ fun WeeklyTrainingContent(
                                                     },
                                                     onEdit = { onWorkoutEdit(workout) },
                                                     onDelete = { onWorkoutDelete(workout) },
+                                                    onImportantNotesClick = { onImportantNotesClick(workout) },
                                                     onItemPositioned = { itemBounds[workout.id] = it },
                                                 )
                                             }
@@ -515,6 +517,7 @@ fun WeeklyTrainingContent(
                                         },
                                         onEdit = { onWorkoutEdit(workout) },
                                         onDelete = { onWorkoutDelete(workout) },
+                                        onImportantNotesClick = { onImportantNotesClick(workout) },
                                         onItemPositioned = { itemBounds[workout.id] = it },
                                     )
                                 }

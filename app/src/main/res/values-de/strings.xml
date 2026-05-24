@@ -12,6 +12,26 @@
     <string name="browse_nav_label">Entdecken</string>
     <string name="browse_title">Entdecken</string>
     <string name="browse_backup_import_title">Sicherung und Import</string>
+    <string name="knowledge_base_title">Wissensdatenbank</string>
+    <string name="knowledge_base_search_label">Suchen</string>
+    <string name="knowledge_base_search_placeholder">Notizen suchen</string>
+    <string name="knowledge_base_session_notes_title">Sitzungsnotizen</string>
+    <string name="knowledge_base_notes_title">Notizen</string>
+    <string name="knowledge_base_important_notes_title">Wichtige Notizen</string>
+    <string name="knowledge_base_session_notes_help">Sitzungsnotizen werden im zugehörigen Training oder Ereignis bearbeitet.</string>
+    <string name="knowledge_base_empty_results">Keine Notizen entsprechen deiner Suche.</string>
+    <string name="knowledge_base_empty_session_notes">Noch keine Sitzungsnotizen.</string>
+    <string name="knowledge_base_empty_notes">Noch keine Notizen.</string>
+    <string name="knowledge_base_empty_important_notes">Noch keine wichtigen Notizen.</string>
+    <string name="knowledge_base_note_title_label">Titel</string>
+    <string name="knowledge_base_note_body_label">Notiz</string>
+    <string name="knowledge_base_trigger_label">Auslöser</string>
+    <string name="knowledge_base_open_source">Quelle öffnen</string>
+    <string name="knowledge_base_archive">Archivieren</string>
+    <string name="knowledge_base_unarchive">Aus dem Archiv holen</string>
+    <string name="knowledge_base_archived">Archiviert</string>
+    <string name="knowledge_base_session_source_workout">Training</string>
+    <string name="knowledge_base_session_source_event">Ereignis</string>
     <string name="settings_nav_label">Optionen</string>
 
     <!-- Progress -->
@@ -373,6 +393,14 @@
     <string name="activity_action_export_backup">Du hast ein Backup exportiert.</string>
     <string name="activity_action_import_backup">Du hast ein Backup importiert.</string>
     <string name="activity_action_share_trophy">Du hast begonnen, die Trophäe %1$s zu teilen.</string>
+    <string name="activity_action_create_note">Du hast %1$s erstellt.</string>
+    <string name="activity_action_update_note">Du hast %1$s aktualisiert.</string>
+    <string name="activity_action_archive_note">Du hast %1$s archiviert.</string>
+    <string name="activity_action_restore_note">Du hast %1$s wiederhergestellt.</string>
+    <string name="activity_action_delete_note">Du hast %1$s gelöscht.</string>
+    <string name="activity_note_kind_session">Sitzungsnotiz</string>
+    <string name="activity_note_kind_note">Notiz</string>
+    <string name="activity_note_kind_important">wichtige Notiz</string>
     <string name="activity_action_set_backup_folder">Du hast einen Backup-Ordner festgelegt.</string>
     <string name="activity_action_clear_backup_folder">Du hast den Backup-Ordner entfernt.</string>
     <string name="activity_action_seed_demo_data">Du hast Demodaten eingefügt.</string>

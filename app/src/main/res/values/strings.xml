@@ -12,7 +12,27 @@
     <string name="race_events_nav_label">Event</string>
     <string name="browse_nav_label">Browse</string>
     <string name="browse_title">Browse</string>
+    <string name="knowledge_base_title">Knowledge Base</string>
     <string name="browse_backup_import_title">Backup and Import</string>
+    <string name="knowledge_base_search_label">Search</string>
+    <string name="knowledge_base_search_placeholder">Search notes</string>
+    <string name="knowledge_base_session_notes_title">Session notes</string>
+    <string name="knowledge_base_notes_title">Notes</string>
+    <string name="knowledge_base_important_notes_title">Important notes</string>
+    <string name="knowledge_base_session_notes_help">Session notes are edited from the workout or event they belong to.</string>
+    <string name="knowledge_base_empty_results">No notes match your search.</string>
+    <string name="knowledge_base_empty_session_notes">No session notes yet.</string>
+    <string name="knowledge_base_empty_notes">No notes yet.</string>
+    <string name="knowledge_base_empty_important_notes">No important notes yet.</string>
+    <string name="knowledge_base_note_title_label">Title</string>
+    <string name="knowledge_base_note_body_label">Note</string>
+    <string name="knowledge_base_trigger_label">Trigger</string>
+    <string name="knowledge_base_open_source">Open source</string>
+    <string name="knowledge_base_archive">Archive</string>
+    <string name="knowledge_base_unarchive">Unarchive</string>
+    <string name="knowledge_base_archived">Archived</string>
+    <string name="knowledge_base_session_source_workout">Workout</string>
+    <string name="knowledge_base_session_source_event">Event</string>
     <string name="settings_nav_label">Settings</string>
 
     <!-- Progress -->
@@ -404,6 +424,14 @@
     <string name="activity_action_export_backup">You exported a backup.</string>
     <string name="activity_action_import_backup">You imported a backup.</string>
     <string name="activity_action_share_trophy">You started sharing the trophy %1$s.</string>
+    <string name="activity_action_create_note">You created the %1$s.</string>
+    <string name="activity_action_update_note">You updated the %1$s.</string>
+    <string name="activity_action_archive_note">You archived the %1$s.</string>
+    <string name="activity_action_restore_note">You restored the %1$s.</string>
+    <string name="activity_action_delete_note">You deleted the %1$s.</string>
+    <string name="activity_note_kind_session">session note</string>
+    <string name="activity_note_kind_note">note</string>
+    <string name="activity_note_kind_important">important note</string>
     <string name="activity_action_set_backup_folder">You set a backup folder.</string>
     <string name="activity_action_clear_backup_folder">You cleared the backup folder.</string>
     <string name="activity_action_seed_demo_data">You seeded demo data.</string>

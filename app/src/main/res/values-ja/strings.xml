@@ -12,6 +12,26 @@
     <string name="browse_nav_label">ブラウズ</string>
     <string name="browse_title">ブラウズ</string>
     <string name="browse_backup_import_title">バックアップとインポート</string>
+    <string name="knowledge_base_title">ナレッジベース</string>
+    <string name="knowledge_base_search_label">検索</string>
+    <string name="knowledge_base_search_placeholder">ノートを検索</string>
+    <string name="knowledge_base_session_notes_title">セッションノート</string>
+    <string name="knowledge_base_notes_title">ノート</string>
+    <string name="knowledge_base_important_notes_title">重要ノート</string>
+    <string name="knowledge_base_session_notes_help">セッションノートは、属するワークアウトまたはイベントから編集します。</string>
+    <string name="knowledge_base_empty_results">検索に一致するノートはありません。</string>
+    <string name="knowledge_base_empty_session_notes">セッションノートはまだありません。</string>
+    <string name="knowledge_base_empty_notes">ノートはまだありません。</string>
+    <string name="knowledge_base_empty_important_notes">重要ノートはまだありません。</string>
+    <string name="knowledge_base_note_title_label">タイトル</string>
+    <string name="knowledge_base_note_body_label">ノート</string>
+    <string name="knowledge_base_trigger_label">トリガー</string>
+    <string name="knowledge_base_open_source">元を開く</string>
+    <string name="knowledge_base_archive">アーカイブ</string>
+    <string name="knowledge_base_unarchive">アーカイブ解除</string>
+    <string name="knowledge_base_archived">アーカイブ済み</string>
+    <string name="knowledge_base_session_source_workout">ワークアウト</string>
+    <string name="knowledge_base_session_source_event">イベント</string>
     <string name="settings_nav_label">設定</string>
 
     <!-- Progress -->
@@ -369,6 +389,14 @@
     <string name="activity_action_export_backup">バックアップをエクスポートしました。</string>
     <string name="activity_action_import_backup">バックアップをインポートしました。</string>
     <string name="activity_action_share_trophy">トロフィー %1$s の共有を始めました。</string>
+    <string name="activity_action_create_note">%1$s を作成しました。</string>
+    <string name="activity_action_update_note">%1$s を更新しました。</string>
+    <string name="activity_action_archive_note">%1$s をアーカイブしました。</string>
+    <string name="activity_action_restore_note">%1$s を復元しました。</string>
+    <string name="activity_action_delete_note">%1$s を削除しました。</string>
+    <string name="activity_note_kind_session">セッションメモ</string>
+    <string name="activity_note_kind_note">メモ</string>
+    <string name="activity_note_kind_important">重要なメモ</string>
     <string name="activity_action_set_backup_folder">バックアップフォルダを設定しました。</string>
     <string name="activity_action_clear_backup_folder">バックアップフォルダを解除しました。</string>
     <string name="activity_action_seed_demo_data">デモデータを投入しました。</string>

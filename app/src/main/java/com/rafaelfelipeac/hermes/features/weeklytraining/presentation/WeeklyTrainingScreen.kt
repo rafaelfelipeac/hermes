@@ -110,6 +110,7 @@ fun WeeklyTrainingScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val undoState by viewModel.undoUiState.collectAsState()
+    val importantNotesModalState by viewModel.importantNotesModalState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var isAddDialogVisible by rememberSaveable { mutableStateOf(false) }
     var isAddMenuVisible by rememberSaveable { mutableStateOf(false) }
@@ -384,6 +385,7 @@ fun WeeklyTrainingScreen(
                             editingWorkout = workout
                         },
                         onWorkoutDelete = { workout -> deletingWorkout = workout },
+                        onImportantNotesClick = { workout -> viewModel.showImportantNotesForWorkout(workout.id) },
                         onWeekChanged = viewModel::onWeekChanged,
                     )
                 } else {
@@ -725,6 +727,30 @@ fun WeeklyTrainingScreen(
             },
             dismissButton = {
                 TextButton(onClick = { deletingWorkout = null }) {
+                    Text(text = stringResource(R.string.add_workout_cancel))
+                }
+            },
+        )
+    }
+
+    importantNotesModalState?.let { modalState ->
+        AlertDialog(
+            onDismissRequest = { viewModel.hideImportantNotes() },
+            title = { Text(text = modalState.itemTitle) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                    modalState.notes.forEach { note ->
+                        Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                            Text(text = note.title, style = typography.titleSmall)
+                            note.summary?.takeIf { it.isNotBlank() }?.let { summary ->
+                                Text(text = summary, style = typography.bodySmall)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.hideImportantNotes() }) {
                     Text(text = stringResource(R.string.add_workout_cancel))
                 }
             },

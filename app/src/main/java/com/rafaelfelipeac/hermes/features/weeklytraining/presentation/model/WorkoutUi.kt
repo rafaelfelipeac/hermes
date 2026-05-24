@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model
 
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.ImportantNoteBadgeUi
 import java.time.DayOfWeek
 import java.time.LocalDate
 
@@ -26,4 +27,5 @@ data class WorkoutUi(
             EventType.WORKOUT
         },
     val timeSlot: TimeSlot? = null,
+    val importantNotes: List<ImportantNoteBadgeUi> = emptyList(),
 )

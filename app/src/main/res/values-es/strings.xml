@@ -12,6 +12,26 @@
     <string name="browse_nav_label">Explorar</string>
     <string name="browse_title">Explorar</string>
     <string name="browse_backup_import_title">Copia de seguridad e importación</string>
+    <string name="knowledge_base_title">Base de conocimientos</string>
+    <string name="knowledge_base_search_label">Buscar</string>
+    <string name="knowledge_base_search_placeholder">Buscar notas</string>
+    <string name="knowledge_base_session_notes_title">Notas de sesión</string>
+    <string name="knowledge_base_notes_title">Notas</string>
+    <string name="knowledge_base_important_notes_title">Notas importantes</string>
+    <string name="knowledge_base_session_notes_help">Las notas de sesión se editan desde el entrenamiento o evento al que pertenecen.</string>
+    <string name="knowledge_base_empty_results">No hay notas que coincidan con tu búsqueda.</string>
+    <string name="knowledge_base_empty_session_notes">Todavía no hay notas de sesión.</string>
+    <string name="knowledge_base_empty_notes">Todavía no hay notas.</string>
+    <string name="knowledge_base_empty_important_notes">Todavía no hay notas importantes.</string>
+    <string name="knowledge_base_note_title_label">Título</string>
+    <string name="knowledge_base_note_body_label">Nota</string>
+    <string name="knowledge_base_trigger_label">Disparador</string>
+    <string name="knowledge_base_open_source">Abrir origen</string>
+    <string name="knowledge_base_archive">Archivar</string>
+    <string name="knowledge_base_unarchive">Desarchivar</string>
+    <string name="knowledge_base_archived">Archivada</string>
+    <string name="knowledge_base_session_source_workout">Entrenamiento</string>
+    <string name="knowledge_base_session_source_event">Evento</string>
     <string name="settings_nav_label">Ajustes</string>
 
     <!-- Progress -->
@@ -372,6 +392,14 @@
     <string name="activity_action_export_backup">Exportaste una copia de seguridad.</string>
     <string name="activity_action_import_backup">Importaste una copia de seguridad.</string>
     <string name="activity_action_share_trophy">Empezaste a compartir el trofeo %1$s.</string>
+    <string name="activity_action_create_note">Has creado %1$s.</string>
+    <string name="activity_action_update_note">Has actualizado %1$s.</string>
+    <string name="activity_action_archive_note">Archivaste %1$s.</string>
+    <string name="activity_action_restore_note">Restauraste %1$s.</string>
+    <string name="activity_action_delete_note">Has eliminado %1$s.</string>
+    <string name="activity_note_kind_session">nota de sesión</string>
+    <string name="activity_note_kind_note">nota</string>
+    <string name="activity_note_kind_important">nota importante</string>
     <string name="activity_action_set_backup_folder">Definiste una carpeta de copia de seguridad.</string>
     <string name="activity_action_clear_backup_folder">Borraste la carpeta de copia de seguridad.</string>
     <string name="activity_action_seed_demo_data">Cargaste datos de demostración.</string>

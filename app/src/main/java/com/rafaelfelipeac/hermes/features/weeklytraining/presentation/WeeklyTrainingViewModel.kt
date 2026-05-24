@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
@@ -94,6 +95,7 @@ class WeeklyTrainingViewModel
     constructor(
         private val repository: WeeklyTrainingRepository,
         private val userActionLogger: UserActionLogger,
+        private val userActionRepository: UserActionRepository,
         private val categoryRepository: CategoryRepository,
         private val categorySeeder: CategorySeeder,
         private val settingsRepository: SettingsRepository,
@@ -114,6 +116,7 @@ class WeeklyTrainingViewModel
             categoryRepository.observeCategories().map { categories ->
                 categories.map { it.toUi() }
             }
+        private val userActionsFlow = userActionRepository.observeActions()
 
         private val workoutsForDisplayWeek =
             combine(selectedDate, weekStartDate, storageWeekStarts) { selected, displayWeekStart, weekStarts ->
@@ -137,6 +140,13 @@ class WeeklyTrainingViewModel
                 .combine(categoriesFlow) { workouts, categories ->
                     mapWorkoutsToUi(workouts, categories)
                 }
+                .combine(userActionsFlow) { workouts, actions ->
+                    enrichWorkoutsWithImportantNotes(
+                        workouts = workouts,
+                        actions = actions,
+                    )
+                }
+        private val importantNotesTargetId = MutableStateFlow<Long?>(null)
 
         private val workoutsLoadedForWeek =
             combine(weekStartDate, weekStartDay) { weekStart, startDay ->
@@ -216,6 +226,14 @@ class WeeklyTrainingViewModel
 
         val undoUiState: StateFlow<UndoState?> =
             undoState.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
+                initialValue = null,
+            )
+        val importantNotesModalState: StateFlow<ImportantNotesModalState?> =
+            combine(importantNotesTargetId, workoutsForWeek) { targetId, workouts ->
+                buildImportantNotesModalState(workouts, targetId)
+            }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue = null,
@@ -955,6 +973,14 @@ class WeeklyTrainingViewModel
             clearUndoTimeout()
 
             undoState.value = null
+        }
+
+        fun showImportantNotesForWorkout(workoutId: Long) {
+            importantNotesTargetId.value = workoutId
+        }
+
+        fun hideImportantNotes() {
+            importantNotesTargetId.value = null
         }
 
         private fun setUndoAction(

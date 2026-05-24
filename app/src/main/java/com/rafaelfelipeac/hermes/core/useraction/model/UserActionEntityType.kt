@@ -11,5 +11,6 @@ enum class UserActionEntityType {
     SETTINGS,
     CATEGORY,
     TROPHY,
+    NOTE,
     APP,
 }

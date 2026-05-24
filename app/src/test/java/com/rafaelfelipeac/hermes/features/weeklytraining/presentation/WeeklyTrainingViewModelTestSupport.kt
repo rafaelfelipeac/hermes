@@ -2,6 +2,8 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
@@ -58,6 +60,7 @@ data class WeeklyTrainingHarness(
     val viewModel: WeeklyTrainingViewModel,
     val repository: WeeklyTrainingRepository,
     val userActionLogger: UserActionLogger,
+    val userActionRepository: UserActionRepository,
     val categoryRepository: CategoryRepository,
     val settingsRepository: SettingsRepository,
     val collectJob: Job,
@@ -70,13 +73,16 @@ fun createWeeklyTrainingHarness(
 ): WeeklyTrainingHarness {
     val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
     val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+    val userActionRepository = mockk<UserActionRepository>(relaxed = true)
     val categoriesFlow = MutableStateFlow(listOf(defaultCategory()))
     val categoryRepository = mockk<CategoryRepository>(relaxed = true)
     val categorySeeder = mockk<CategorySeeder>(relaxed = true)
     val settingsRepository = mockk<SettingsRepository>()
+    val actionsFlow = MutableStateFlow<List<UserActionRecord>>(emptyList())
 
     every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
     every { categoryRepository.observeCategories() } returns categoriesFlow
+    every { userActionRepository.observeActions() } returns actionsFlow
     every { settingsRepository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
     every { settingsRepository.weekStartDay } returns MutableStateFlow(weekStartDay)
     every { settingsRepository.initialWeekStartDay() } returns weekStartDay
@@ -86,6 +92,7 @@ fun createWeeklyTrainingHarness(
         WeeklyTrainingViewModel(
             repository,
             userActionLogger,
+            userActionRepository,
             categoryRepository,
             categorySeeder,
             settingsRepository,
@@ -96,6 +103,7 @@ fun createWeeklyTrainingHarness(
         viewModel = viewModel,
         repository = repository,
         userActionLogger = userActionLogger,
+        userActionRepository = userActionRepository,
         categoryRepository = categoryRepository,
         settingsRepository = settingsRepository,
         collectJob = collectJob,
@@ -116,6 +124,7 @@ fun defaultCategory(): Category {
 fun createViewModel(
     repository: WeeklyTrainingRepository,
     userActionLogger: UserActionLogger,
+    userActionRepository: UserActionRepository = mockk(relaxed = true),
     categoriesFlow: MutableStateFlow<List<Category>> = MutableStateFlow(listOf(defaultCategory())),
     weekStartDay: WeekStartDay = WeekStartDay.MONDAY,
 ): WeeklyTrainingViewModel {
@@ -124,6 +133,7 @@ fun createViewModel(
     val settingsRepository = mockk<SettingsRepository>()
 
     every { categoryRepository.observeCategories() } returns categoriesFlow
+    every { userActionRepository.observeActions() } returns MutableStateFlow(emptyList())
     every { settingsRepository.slotModePolicy } returns MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
     every { settingsRepository.weekStartDay } returns MutableStateFlow(weekStartDay)
     every { settingsRepository.initialWeekStartDay() } returns weekStartDay
@@ -132,6 +142,7 @@ fun createViewModel(
     return WeeklyTrainingViewModel(
         repository,
         userActionLogger,
+        userActionRepository,
         categoryRepository,
         categorySeeder,
         settingsRepository,

@@ -3,6 +3,14 @@ package com.rafaelfelipeac.hermes.features.events.presentation
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_BODY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_KIND
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_TITLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_TRIGGER_ENTITY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_TRIGGER_ENTITY_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.NOTE_KIND_IMPORTANT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
@@ -32,6 +40,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -94,6 +104,55 @@ class EventsViewModelTest {
             assertEquals(CATEGORY_NAME, viewModel.state.value.events.single().categoryName)
 
             collectJob.cancel()
+        }
+
+    @Test
+    fun state_enrichesRaceEventWithImportantNotesAndOpensModalListing() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val actionsFlow = MutableStateFlow<List<com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord>>(emptyList())
+            val userActionRepository = mockk<UserActionRepository>()
+            every { userActionRepository.observeActions() } returns actionsFlow
+            val eventDate = LocalDate.now().plusDays(14)
+            val raceEvent =
+                workout(
+                    id = 1L,
+                    eventDate = eventDate,
+                    eventType = RACE_EVENT,
+                    categoryId = CATEGORY_ID,
+                    type = EVENT_TITLE,
+                )
+            val repository =
+                FakeWeeklyTrainingRepository(
+                    initialWorkouts = listOf(raceEvent),
+                )
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    userActionRepository = userActionRepository,
+                )
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+            val modalCollectJob = backgroundScope.launch { viewModel.importantNotesModalState.collect {} }
+
+            advanceUntilIdle()
+            actionsFlow.value =
+                listOf(
+                    noteAction(
+                        id = 10L,
+                        targetEntityType = UserActionEntityType.RACE_EVENT,
+                        targetEntityId = 1L,
+                    ),
+                )
+            advanceUntilIdle()
+
+            assertEquals(1, viewModel.state.value.events.first().importantNotes.size)
+
+            viewModel.showImportantNotesForEvent(1L)
+            advanceUntilIdle()
+
+            assertEquals(1, viewModel.importantNotesModalState.value?.notes?.size)
+
+            collectJob.cancel()
+            modalCollectJob.cancel()
         }
 
     @Test
@@ -521,12 +580,38 @@ class EventsViewModelTest {
         repository: FakeWeeklyTrainingRepository = FakeWeeklyTrainingRepository(),
         categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
+        userActionRepository: UserActionRepository = FakeUserActionRepository(),
     ): EventsViewModel {
         return EventsViewModel(
             repository = repository,
             categoryRepository = categoryRepository,
             categorySeeder = CategorySeeder(categoryRepository, FakeStringProvider()),
             userActionLogger = logger,
+            userActionRepository = userActionRepository,
+        )
+    }
+
+    private fun noteAction(
+        id: Long,
+        targetEntityType: UserActionEntityType,
+        targetEntityId: Long,
+    ): com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord {
+        return com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord(
+            id = id,
+            actionType = UserActionType.CREATE_NOTE.name,
+            entityType = UserActionEntityType.NOTE.name,
+            entityId = id,
+            metadata =
+                UserActionMetadataSerializer.toJson(
+                    mapOf(
+                        NOTE_KIND to NOTE_KIND_IMPORTANT,
+                        NOTE_TITLE to "Race note",
+                        NOTE_BODY to "Slow start",
+                        NOTE_TRIGGER_ENTITY_TYPE to targetEntityType.name,
+                        NOTE_TRIGGER_ENTITY_ID to targetEntityId.toString(),
+                    ),
+                ),
+            timestamp = 1L,
         )
     }
 
@@ -751,6 +836,12 @@ class EventsViewModelTest {
 
         override suspend fun log(action: UserAction) {
             actions += action
+        }
+    }
+
+    private class FakeUserActionRepository : UserActionRepository {
+        override fun observeActions(): Flow<List<com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord>> {
+            return MutableStateFlow(emptyList())
         }
     }
 

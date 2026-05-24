@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
@@ -32,8 +33,12 @@ import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.buildImportantNotesModalState
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.enrichWorkoutsWithImportantNotes
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.UndoMessage
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.buildImportantNotesModalState
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.enrichWorkoutsWithImportantNotes
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toCreateActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toDeleteActionType
@@ -66,11 +71,14 @@ class EventsViewModel
         private val categoryRepository: CategoryRepository,
         private val categorySeeder: CategorySeeder,
         private val userActionLogger: UserActionLogger,
+        private val userActionRepository: UserActionRepository,
     ) : ViewModel() {
         private val messageEvents = MutableSharedFlow<EventsMessage>(extraBufferCapacity = 1)
         private val undoState = MutableStateFlow<EventUndoState?>(null)
+        private val importantNotesTargetId = MutableStateFlow<Long?>(null)
         private var undoTimeoutJob: Job? = null
         private var undoCounter = 0L
+        private val userActionsFlow = userActionRepository.observeActions()
 
         val state =
             combine(
@@ -78,20 +86,29 @@ class EventsViewModel
                 categoryRepository.observeCategories(),
             ) { workouts, categories ->
                 val categoriesById = categories.associateBy { it.id }
-                EventsUiState(
-                    events =
-                        workouts.asSequence()
-                            .map { workout ->
-                                val category = workout.categoryId?.let(categoriesById::get)
-                                workout.toWorkoutUi(category?.toUi())
-                            }
-                            .toList(),
-                    categories = categories.map { it.toUi() },
-                )
-            }.stateIn(
+                workouts.map { workout ->
+                    val category = workout.categoryId?.let(categoriesById::get)
+                    workout.toWorkoutUi(category?.toUi())
+                } to categories.map { it.toUi() }
+            }
+                .combine(userActionsFlow) { (events, categories), actions ->
+                    EventsUiState(
+                        events = enrichWorkoutsWithImportantNotes(events, actions),
+                        categories = categories,
+                    )
+                }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue = EventsUiState(),
+            )
+
+        val importantNotesModalState =
+            combine(importantNotesTargetId, state) { targetId, currentState ->
+                buildImportantNotesModalState(currentState.events, targetId)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
+                initialValue = null,
             )
 
         val messages: SharedFlow<EventsMessage> = messageEvents.asSharedFlow()
@@ -169,6 +186,18 @@ class EventsViewModel
 
                 messageEvents.emit(EventsMessage.Created(title))
             }
+        }
+
+        fun showImportantNotesForWorkout(eventId: Long) {
+            importantNotesTargetId.value = eventId
+        }
+
+        fun showImportantNotesForEvent(eventId: Long) {
+            showImportantNotesForWorkout(eventId)
+        }
+
+        fun hideImportantNotes() {
+            importantNotesTargetId.value = null
         }
 
         @Suppress("CyclomaticComplexMethod", "LongMethod")

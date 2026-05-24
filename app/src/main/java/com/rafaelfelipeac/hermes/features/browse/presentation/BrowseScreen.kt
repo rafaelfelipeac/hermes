@@ -71,6 +71,8 @@ import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsBackupSc
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsState
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsViewModel
+import com.rafaelfelipeac.hermes.features.knowledgebase.presentation.BrowseKnowledgeBaseCard
+import com.rafaelfelipeac.hermes.features.knowledgebase.presentation.KnowledgeBaseScreen
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophiesScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -78,6 +80,7 @@ import kotlinx.coroutines.withContext
 
 internal const val BROWSE_ROOT_TAG = "browse_root"
 private const val BROWSE_CARD_TAG_PREFIX = "browse_card_"
+internal const val BROWSE_KNOWLEDGE_BASE_CARD_TAG = BROWSE_CARD_TAG_PREFIX + "knowledge_base"
 private const val BACKUP_MIME_TYPE = "application/json"
 private const val BACKUP_EXTENSION = ".json"
 private const val BACKUP_FILE_NAME_PREFIX = "hermes-backup-"
@@ -97,14 +100,24 @@ fun BrowseScreen(
     onRequestedActivityConsumed: () -> Unit = {},
     requestedTrophyStableId: String? = null,
     onRequestedTrophyConsumed: () -> Unit = {},
+    onOpenWorkout: (Long) -> Unit = {},
+    onOpenEvent: (Long) -> Unit = {},
     onNavigateTo: (BrowseDestination) -> Unit,
     onBack: () -> Unit,
 ) {
     when (route) {
         BrowseDestination.ROOT ->
-            BrowseHome(
+            BrowseHomeContent(
                 modifier = modifier,
                 onNavigateTo = onNavigateTo,
+            )
+
+        BrowseDestination.KNOWLEDGE_BASE ->
+            KnowledgeBaseScreen(
+                modifier = modifier,
+                onBack = onBack,
+                onOpenWorkout = onOpenWorkout,
+                onOpenEvent = onOpenEvent,
             )
 
         BrowseDestination.CATEGORIES ->
@@ -152,7 +165,7 @@ fun BrowseScreen(
                     viewModel = settingsViewModel,
                 )
             } else {
-                BrowseHome(
+                BrowseHomeContent(
                     modifier = modifier,
                     onNavigateTo = onNavigateTo,
                 )
@@ -161,7 +174,7 @@ fun BrowseScreen(
 }
 
 @Composable
-private fun BrowseHome(
+fun BrowseHomeContent(
     modifier: Modifier = Modifier,
     onNavigateTo: (BrowseDestination) -> Unit,
 ) {
@@ -190,6 +203,11 @@ private fun BrowseHome(
             icon = Icons.Outlined.EmojiEvents,
             onClick = { onNavigateTo(BrowseDestination.TROPHIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "trophies"),
+        )
+
+        BrowseKnowledgeBaseCard(
+            modifier = Modifier.testTag(BROWSE_KNOWLEDGE_BASE_CARD_TAG),
+            onClick = { onNavigateTo(BrowseDestination.KNOWLEDGE_BASE) },
         )
 
         BrowseDestinationCard(

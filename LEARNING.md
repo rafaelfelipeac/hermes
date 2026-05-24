@@ -17,6 +17,7 @@ Architectural choices and why they fit:
 - Local persistence uses a database for workouts and a lightweight preferences store for settings like theme and language. That split keeps the domain data durable while keeping small settings fast and simple.
 - Reactive flows and state holders are used so the UI can react to changes without manual refresh logic. That matches the "drag it, see it" interaction style.
 - User actions are logged locally and shown in an activity feed. This provides gentle feedback without turning into analytics or performance tracking.
+- Important-note badges should be derived from the user-action stream in the ViewModel, not by querying notes directly from composables; that keeps weekly/events as consumers of a single badge contract and makes the "only Important Notes badge" rule enforceable in one place.
 
 What this project deliberately avoids:
 - No accounts, no cloud sync, no server-side dependency. If that changes, it should be a deliberate decision, not a default.
@@ -258,6 +259,8 @@ Recent learnings:
 - Developer-mode tools read better in grouped subsections than as a flat stack of centered buttons; separating generic demo seeding from trophy-specific locked/unlocked states makes the intent of each debug action obvious and reduces accidental taps.
 - Even in debug-only settings, destructive seeders benefit from a simple confirmation dialog and explicit “replace local data” wording; that keeps the tools fast for developers without making it easy to wipe the current state by mistake.
 - A tighter trophy vocabulary reads better than mixing too many sports metaphors; names like `Full-Time`, `In Form`, `Comeback Week`, `Game Plan`, `Back In Formation`, and `Podium Place` feel more cohesive because they all imply progress within a training rhythm rather than unrelated badge themes.
+- The knowledge-base feature works best as one durable note table with variant metadata instead of separate tables per note kind. That keeps session links, standalone notes, and important-note triggers aligned with the same backup/export contract, and it makes schema v4 an additive extension instead of a structural rewrite.
+- Backup schema changes need to carry the note contract all the way through decode, import validation, and export counts. If a new note kind or source reference can appear in the database, the backup layer should reject broken references early rather than letting malformed rows leak into the persisted snapshot.
 - For Hermes trophies, the UX should separate raw history from interpreted meaning: Activity remains the timeline of events, while the trophy page should behave like a curated shelf of milestones with calm progress indicators and restrained unlock emphasis.
 - For Weekly Planner category filtering, visual focus works better than hard-hiding rows: dimming non-matching workouts preserves the full-week mental model and avoids introducing drag/drop bugs from operating on a partial list.
 - If Activity category filters are sourced from active categories, rename-safe matching needs stable category ids in workout logs; keeping a fallback alias map from category rename history lets existing logs remain filterable without a data migration.

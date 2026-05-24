@@ -8,11 +8,13 @@ import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
+import com.rafaelfelipeac.hermes.features.knowledgebase.data.local.KnowledgeNoteDao
+import com.rafaelfelipeac.hermes.features.knowledgebase.data.local.KnowledgeNoteEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 
 @Database(
-    entities = [WorkoutEntity::class, UserActionEntity::class, CategoryEntity::class],
+    entities = [WorkoutEntity::class, UserActionEntity::class, CategoryEntity::class, KnowledgeNoteEntity::class],
     version = DATABASE_VERSION,
 )
 @TypeConverters(LocalDateConverters::class)
@@ -23,7 +25,9 @@ abstract class HermesDatabase : RoomDatabase() {
 
     abstract fun categoryDao(): CategoryDao
 
+    abstract fun knowledgeNoteDao(): KnowledgeNoteDao
+
     companion object {
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
     }
 }

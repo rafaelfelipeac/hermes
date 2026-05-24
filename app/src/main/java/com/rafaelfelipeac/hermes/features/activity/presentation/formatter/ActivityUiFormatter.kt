@@ -4,8 +4,14 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_BODY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_KIND
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NOTE_TITLE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.NOTE_KIND_IMPORTANT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.NOTE_KIND_NOTE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.NOTE_KIND_SESSION
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
@@ -74,6 +80,7 @@ class ActivityUiFormatter(
                     )
                 UserActionEntityType.CATEGORY -> buildCategoryTitle(actionType, metadata)
                 UserActionEntityType.TROPHY -> buildTrophyTitle(actionType, metadata)
+                UserActionEntityType.NOTE -> buildNoteTitle(actionType, metadata)
                 else -> buildWorkoutTitle(actionType, quotedWorkoutLabel)
             }
 
@@ -318,6 +325,55 @@ class ActivityUiFormatter(
         }
     }
 
+    private fun buildNoteTitle(
+        actionType: UserActionType?,
+        metadata: Map<String, String>,
+    ): String? {
+        val kindLabel = noteKindLabel(metadata)
+
+        return when (actionType) {
+            UserActionType.CREATE_NOTE ->
+                stringProvider.get(R.string.activity_action_create_note, kindLabel)
+
+            UserActionType.UPDATE_NOTE ->
+                stringProvider.get(R.string.activity_action_update_note, kindLabel)
+
+            UserActionType.ARCHIVE_NOTE ->
+                stringProvider.get(R.string.activity_action_archive_note, kindLabel)
+
+            UserActionType.RESTORE_NOTE ->
+                stringProvider.get(R.string.activity_action_restore_note, kindLabel)
+
+            UserActionType.DELETE_NOTE ->
+                stringProvider.get(R.string.activity_action_delete_note, kindLabel)
+
+            else -> null
+        }
+    }
+
+    private fun buildNoteSubtitle(metadata: Map<String, String>): String? {
+        val noteTitle = metadata[NOTE_TITLE]?.takeIf { it.isNotBlank() }
+        val noteBody = metadata[NOTE_BODY]?.takeIf { it.isNotBlank() }
+        return listOfNotNull(noteTitle, noteBody)
+            .joinToString(" • ")
+            .takeIf { it.isNotBlank() }
+    }
+
+    private fun noteKindLabel(metadata: Map<String, String>): String {
+        return when (metadata[NOTE_KIND]) {
+            NOTE_KIND_IMPORTANT ->
+                stringProvider.get(R.string.activity_note_kind_important)
+
+            NOTE_KIND_SESSION ->
+                stringProvider.get(R.string.activity_note_kind_session)
+
+            NOTE_KIND_NOTE ->
+                stringProvider.get(R.string.activity_note_kind_note)
+
+            else -> stringProvider.get(R.string.activity_note_kind_note)
+        }
+    }
+
     private fun buildCategoryVisibilitySubtitle(metadata: Map<String, String>): String? {
         val oldValue = formatVisibilityValue(metadata[UserActionMetadataKeys.OLD_VALUE])
         val newValue = formatVisibilityValue(metadata[UserActionMetadataKeys.NEW_VALUE])
@@ -393,6 +449,13 @@ class ActivityUiFormatter(
 
             UserActionType.UPDATE_CATEGORY_VISIBILITY ->
                 buildCategoryVisibilitySubtitle(metadata)
+
+            UserActionType.CREATE_NOTE,
+            UserActionType.UPDATE_NOTE,
+            UserActionType.ARCHIVE_NOTE,
+            UserActionType.RESTORE_NOTE,
+            UserActionType.DELETE_NOTE,
+            -> buildNoteSubtitle(metadata)
 
             UserActionType.CREATE_WORKOUT ->
                 buildWorkoutCategorySubtitle(metadata)

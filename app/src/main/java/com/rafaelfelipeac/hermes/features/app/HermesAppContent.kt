@@ -138,6 +138,31 @@ fun HermesAppContent() {
         pendingRequestedActivityId = null
         navigateToBrowse(BrowseDestination.TROPHIES)
     }
+    val openKnowledgeBaseWorkout: (Long) -> Unit = { workoutId ->
+        pendingWorkoutDraft = null
+        pendingEventDraft = null
+        pendingRequestedWorkoutId = workoutId
+        pendingRequestedWorkoutDate = null
+        pendingRequestedWorkoutRequestKey += 1L
+        pendingRequestedTrophyStableId = null
+        pendingCelebrationTrophyStableId = null
+        pendingRequestedEventId = null
+        pendingRequestedActivityId = null
+        currentDestination = HOME
+        resetBrowseNavigation()
+    }
+    val openKnowledgeBaseEvent: (Long) -> Unit = { eventId ->
+        pendingWorkoutDraft = null
+        pendingEventDraft = null
+        pendingRequestedWorkoutId = null
+        pendingRequestedWorkoutDate = null
+        pendingRequestedTrophyStableId = null
+        pendingCelebrationTrophyStableId = null
+        pendingRequestedEventId = eventId
+        pendingRequestedActivityId = null
+        currentDestination = EVENTS
+        resetBrowseNavigation()
+    }
     val openCategoriesBrowse: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingEventDraft = null
         pendingWorkoutDraft = draft
@@ -248,6 +273,8 @@ fun HermesAppContent() {
                                 pendingRequestedTrophyStableId = null
                                 pendingCelebrationTrophyStableId = null
                             },
+                            onOpenWorkout = openKnowledgeBaseWorkout,
+                            onOpenEvent = openKnowledgeBaseEvent,
                             onNavigateTo = { destination ->
                                 when (destination) {
                                     BrowseDestination.ROOT -> {

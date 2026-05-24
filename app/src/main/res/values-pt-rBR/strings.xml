@@ -11,7 +11,27 @@
     <string name="progress_nav_label">Progresso</string>
     <string name="browse_nav_label">Explorar</string>
     <string name="browse_title">Explorar</string>
+    <string name="knowledge_base_title">Base de conhecimento</string>
     <string name="browse_backup_import_title">Backup e importação</string>
+    <string name="knowledge_base_search_label">Buscar</string>
+    <string name="knowledge_base_search_placeholder">Buscar notas</string>
+    <string name="knowledge_base_session_notes_title">Notas de sessão</string>
+    <string name="knowledge_base_notes_title">Notas</string>
+    <string name="knowledge_base_important_notes_title">Notas importantes</string>
+    <string name="knowledge_base_session_notes_help">As notas de sessão são editadas no treino ou evento ao qual pertencem.</string>
+    <string name="knowledge_base_empty_results">Nenhuma nota corresponde à sua busca.</string>
+    <string name="knowledge_base_empty_session_notes">Ainda não há notas de sessão.</string>
+    <string name="knowledge_base_empty_notes">Ainda não há notas.</string>
+    <string name="knowledge_base_empty_important_notes">Ainda não há notas importantes.</string>
+    <string name="knowledge_base_note_title_label">Título</string>
+    <string name="knowledge_base_note_body_label">Nota</string>
+    <string name="knowledge_base_trigger_label">Gatilho</string>
+    <string name="knowledge_base_open_source">Abrir origem</string>
+    <string name="knowledge_base_archive">Arquivar</string>
+    <string name="knowledge_base_unarchive">Desarquivar</string>
+    <string name="knowledge_base_archived">Arquivada</string>
+    <string name="knowledge_base_session_source_workout">Treino</string>
+    <string name="knowledge_base_session_source_event">Evento</string>
     <string name="settings_nav_label">Config.</string>
 
     <!-- Progress -->
@@ -372,6 +392,14 @@
     <string name="activity_action_export_backup">Você exportou um backup.</string>
     <string name="activity_action_import_backup">Você importou um backup.</string>
     <string name="activity_action_share_trophy">Você começou a compartilhar o troféu %1$s.</string>
+    <string name="activity_action_create_note">Você criou %1$s.</string>
+    <string name="activity_action_update_note">Você atualizou %1$s.</string>
+    <string name="activity_action_archive_note">Você arquivou %1$s.</string>
+    <string name="activity_action_restore_note">Você restaurou %1$s.</string>
+    <string name="activity_action_delete_note">Você excluiu %1$s.</string>
+    <string name="activity_note_kind_session">nota de sessão</string>
+    <string name="activity_note_kind_note">nota</string>
+    <string name="activity_note_kind_important">nota importante</string>
     <string name="activity_action_set_backup_folder">Você definiu uma pasta de backup.</string>
     <string name="activity_action_clear_backup_folder">Você limpou a pasta de backup.</string>
     <string name="activity_action_seed_demo_data">Você carregou dados de demonstração.</string>

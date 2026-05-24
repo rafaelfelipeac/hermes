@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.MedicalServices
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -104,6 +105,7 @@ internal fun WorkoutRow(
     onDragStarted: (Offset, Float) -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onImportantNotesClick: () -> Unit = {},
     onItemPositioned: (Rect) -> Unit,
 ) {
     var coordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
@@ -350,17 +352,35 @@ internal fun WorkoutRow(
             }
         }
 
-        Icon(
-            imageVector = Icons.Outlined.Close,
-            contentDescription = stringResource(R.string.weekly_training_delete_workout),
-            tint = colors.content,
+        Row(
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
-                    .offset(x = SpacingXs, y = Zero)
-                    .size(CloseIconSize)
-                    .clickable { onDelete() },
-        )
+                    .offset(x = SpacingXs, y = Zero),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(SpacingXs),
+        ) {
+            if (workout.importantNotes.isNotEmpty()) {
+                Icon(
+                    imageVector = Icons.Outlined.ErrorOutline,
+                    contentDescription = stringResource(R.string.knowledge_base_important_notes_title),
+                    tint = colorScheme.secondary,
+                    modifier =
+                        Modifier
+                            .size(CloseIconSize)
+                            .clickable { onImportantNotesClick() },
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Outlined.Close,
+                contentDescription = stringResource(R.string.weekly_training_delete_workout),
+                tint = colors.content,
+                modifier =
+                    Modifier
+                        .size(CloseIconSize)
+                        .clickable { onDelete() },
+            )
+        }
     }
 }
 

@@ -68,6 +68,7 @@ internal object BackupV1Decoder {
                     exportedAt = exportedAt,
                     appVersion = root.stringOrNull(KEY_APP_VERSION),
                     workouts = workouts,
+                    notes = emptyList(),
                     categories = categories,
                     userActions = userActions,
                     settings = settings,

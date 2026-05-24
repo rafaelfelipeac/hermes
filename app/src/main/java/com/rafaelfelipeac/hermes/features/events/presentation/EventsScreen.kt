@@ -27,6 +27,7 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -125,6 +126,7 @@ fun EventsScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val undoState by viewModel.undoUiState.collectAsState()
+    val importantNotesModalState by viewModel.importantNotesModalState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var isDialogVisible by rememberSaveable { mutableStateOf(false) }
     var editingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -314,6 +316,7 @@ fun EventsScreen(
                 )
             },
             onDeleteEvent = { eventId -> deletingEventId = eventId },
+            onImportantNotesClick = { event -> viewModel.showImportantNotesForWorkout(event.id) },
         )
     }
 
@@ -390,6 +393,30 @@ fun EventsScreen(
             },
         )
     }
+
+    importantNotesModalState?.let { modalState ->
+        AlertDialog(
+            onDismissRequest = { viewModel.hideImportantNotes() },
+            title = { Text(text = modalState.itemTitle) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                    modalState.notes.forEach { note ->
+                        Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                            Text(text = note.title, style = typography.titleSmall)
+                            note.summary?.takeIf { it.isNotBlank() }?.let { summary ->
+                                Text(text = summary, style = typography.bodySmall)
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.hideImportantNotes() }) {
+                    Text(text = stringResource(R.string.add_workout_cancel))
+                }
+            },
+        )
+    }
 }
 
 @Composable
@@ -401,6 +428,7 @@ internal fun EventsContent(
     onEditEvent: (WorkoutUi) -> Unit,
     onToggleCompleted: (eventId: Long, isCompleted: Boolean) -> Unit,
     onDeleteEvent: (eventId: Long) -> Unit,
+    onImportantNotesClick: (WorkoutUi) -> Unit = {},
 ) {
     val today = LocalDate.now()
     val upcomingEvents =
@@ -473,6 +501,7 @@ internal fun EventsContent(
                         onFocusRequested = { onEditEvent(event) },
                         onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
                         onDelete = { onDeleteEvent(event.id) },
+                        onImportantNotesClick = { onImportantNotesClick(event) },
                         focusRequested = event.id == requestedEventId,
                     )
                 }
@@ -493,6 +522,7 @@ internal fun EventsContent(
                         onFocusRequested = { onEditEvent(event) },
                         onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
                         onDelete = { onDeleteEvent(event.id) },
+                        onImportantNotesClick = { onImportantNotesClick(event) },
                         focusRequested = event.id == requestedEventId,
                     )
                 }
@@ -546,6 +576,7 @@ private fun EventCard(
     onFocusRequested: () -> Unit = {},
     onToggleCompleted: (Boolean) -> Unit,
     onDelete: () -> Unit,
+    onImportantNotesClick: () -> Unit = {},
     focusRequested: Boolean,
 ) {
     val eventDate = event.eventDate()
@@ -747,17 +778,35 @@ private fun EventCard(
                 }
             }
 
-            Icon(
-                imageVector = Icons.Outlined.Close,
-                contentDescription = stringResource(R.string.weekly_training_delete_race_event),
-                tint = colors.content,
+            Row(
                 modifier =
                     Modifier
                         .align(Alignment.TopEnd)
-                        .padding(top = SpacingMd, end = SpacingMd)
-                        .size(SmallIconSize)
-                        .clickable { onDelete() },
-            )
+                        .padding(top = SpacingMd, end = SpacingMd),
+                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+            ) {
+                if (event.importantNotes.isNotEmpty()) {
+                    Icon(
+                        imageVector = Icons.Outlined.ErrorOutline,
+                        contentDescription = stringResource(R.string.knowledge_base_important_notes_title),
+                        tint = colorScheme.secondary,
+                        modifier =
+                            Modifier
+                                .size(SmallIconSize)
+                                .clickable { onImportantNotesClick() },
+                    )
+                }
+
+                Icon(
+                    imageVector = Icons.Outlined.Close,
+                    contentDescription = stringResource(R.string.weekly_training_delete_race_event),
+                    tint = colors.content,
+                    modifier =
+                        Modifier
+                            .size(SmallIconSize)
+                            .clickable { onDelete() },
+                )
+            }
         }
     }
 }

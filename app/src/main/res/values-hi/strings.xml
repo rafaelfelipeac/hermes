@@ -12,6 +12,26 @@
     <string name="browse_nav_label">ब्राउज़</string>
     <string name="browse_title">ब्राउज़</string>
     <string name="browse_backup_import_title">बैकअप और आयात</string>
+    <string name="knowledge_base_title">ज्ञानकोष</string>
+    <string name="knowledge_base_search_label">खोजें</string>
+    <string name="knowledge_base_search_placeholder">नोट खोजें</string>
+    <string name="knowledge_base_session_notes_title">सत्र नोट</string>
+    <string name="knowledge_base_notes_title">नोट</string>
+    <string name="knowledge_base_important_notes_title">महत्वपूर्ण नोट</string>
+    <string name="knowledge_base_session_notes_help">सत्र नोट उसी वर्कआउट या इवेंट से संपादित किए जाते हैं जिनसे वे जुड़े हैं।</string>
+    <string name="knowledge_base_empty_results">आपकी खोज से कोई नोट मेल नहीं खाता।</string>
+    <string name="knowledge_base_empty_session_notes">अभी तक कोई सत्र नोट नहीं है।</string>
+    <string name="knowledge_base_empty_notes">अभी तक कोई नोट नहीं है।</string>
+    <string name="knowledge_base_empty_important_notes">अभी तक कोई महत्वपूर्ण नोट नहीं है।</string>
+    <string name="knowledge_base_note_title_label">शीर्षक</string>
+    <string name="knowledge_base_note_body_label">नोट</string>
+    <string name="knowledge_base_trigger_label">ट्रिगर</string>
+    <string name="knowledge_base_open_source">स्रोत खोलें</string>
+    <string name="knowledge_base_archive">संग्रहित करें</string>
+    <string name="knowledge_base_unarchive">असंग्रहित करें</string>
+    <string name="knowledge_base_archived">संग्रहीत</string>
+    <string name="knowledge_base_session_source_workout">वर्कआउट</string>
+    <string name="knowledge_base_session_source_event">इवेंट</string>
     <string name="settings_nav_label">सेटिंग</string>
 
     <!-- Progress -->
@@ -373,6 +393,14 @@
     <string name="activity_action_export_backup">आपने एक बैकअप निर्यात किया।</string>
     <string name="activity_action_import_backup">आपने एक बैकअप आयात किया।</string>
     <string name="activity_action_share_trophy">आपने ट्रॉफी %1$s साझा करना शुरू किया।</string>
+    <string name="activity_action_create_note">आपने %1$s बनाई।</string>
+    <string name="activity_action_update_note">आपने %1$s अपडेट की।</string>
+    <string name="activity_action_archive_note">आपने %1$s संग्रहित की।</string>
+    <string name="activity_action_restore_note">आपने %1$s पुनर्स्थापित की।</string>
+    <string name="activity_action_delete_note">आपने %1$s हटाई।</string>
+    <string name="activity_note_kind_session">सत्र नोट</string>
+    <string name="activity_note_kind_note">नोट</string>
+    <string name="activity_note_kind_important">महत्वपूर्ण नोट</string>
     <string name="activity_action_set_backup_folder">आपने एक बैकअप फ़ोल्डर सेट किया।</string>
     <string name="activity_action_clear_backup_folder">आपने बैकअप फ़ोल्डर साफ़ किया।</string>
     <string name="activity_action_seed_demo_data">आपने डेमो डेटा जोड़ा।</string>

@@ -202,4 +202,9 @@ private val planningActions =
         UserActionType.COPY_LAST_WEEK,
         UserActionType.UNDO_COPY_LAST_WEEK,
         UserActionType.OPEN_WEEK,
+        UserActionType.CREATE_NOTE,
+        UserActionType.UPDATE_NOTE,
+        UserActionType.ARCHIVE_NOTE,
+        UserActionType.RESTORE_NOTE,
+        UserActionType.DELETE_NOTE,
     )

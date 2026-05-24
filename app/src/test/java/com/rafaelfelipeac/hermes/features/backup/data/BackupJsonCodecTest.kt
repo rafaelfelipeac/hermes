@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.backup.data
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupKnowledgeNoteRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
@@ -17,7 +18,7 @@ class BackupJsonCodecTest {
     fun encodeDecode_roundTrip_preservesCoreFields() {
         val snapshot =
             BackupSnapshot(
-                schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V3,
+                schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V4,
                 exportedAt = "2026-02-25T10:00:00Z",
                 appVersion = "1.3.0",
                 workouts =
@@ -45,6 +46,37 @@ class BackupJsonCodecTest {
                             description = "Half marathon",
                             isCompleted = false,
                             categoryId = 1L,
+                        ),
+                    ),
+                notes =
+                    listOf(
+                        BackupKnowledgeNoteRecord(
+                            id = 20L,
+                            kind = "IMPORTANT",
+                            status = "ACTIVE",
+                            title = "Fueling",
+                            body = "Take gel before the workout",
+                            sourceWorkoutId = null,
+                            sourceType = null,
+                            sourceTitle = null,
+                            categoryId = 1L,
+                            triggerScope = "WORKOUT",
+                            createdAt = 1_772_040_000_000L,
+                            updatedAt = 1_772_040_500_000L,
+                        ),
+                        BackupKnowledgeNoteRecord(
+                            id = 21L,
+                            kind = "SESSION",
+                            status = "ACTIVE",
+                            title = null,
+                            body = "Warm up is longer on hills",
+                            sourceWorkoutId = 10L,
+                            sourceType = "WORKOUT",
+                            sourceTitle = "Morning Run",
+                            categoryId = null,
+                            triggerScope = null,
+                            createdAt = 1_772_040_100_000L,
+                            updatedAt = 1_772_040_100_000L,
                         ),
                     ),
                 categories =
@@ -87,6 +119,9 @@ class BackupJsonCodecTest {
         assertEquals(snapshot.exportedAt, restored.exportedAt)
         assertEquals("WORKOUT", restored.workouts.first().eventType)
         assertEquals("RACE_EVENT", restored.workouts.last().eventType)
+        assertEquals(2, restored.notes.size)
+        assertEquals("IMPORTANT", restored.notes.first().kind)
+        assertEquals("SESSION", restored.notes.last().kind)
         assertEquals(snapshot.categories.single().name, restored.categories.single().name)
         assertEquals(snapshot.userActions.single().actionType, restored.userActions.single().actionType)
         assertEquals(snapshot.settings?.slotModePolicy, restored.settings?.slotModePolicy)
@@ -178,10 +213,11 @@ class BackupJsonCodecTest {
         val raw =
             """
             {
-              "schemaVersion": 4,
+              "schemaVersion": 5,
               "exportedAt": "2026-02-25T10:00:00Z",
               "workouts": [],
               "categories": [],
+              "notes": [],
               "userActions": []
             }
             """.trimIndent()
@@ -236,6 +272,28 @@ class BackupJsonCodecTest {
         assertTrue(result is BackupDecodeResult.Failure)
         assertEquals(
             BackupDecodeError.INVALID_FIELD_VALUE,
+            (result as BackupDecodeResult.Failure).error,
+        )
+    }
+
+    @Test
+    fun decode_v4MissingNotesSection_returnsMissingRequiredSection() {
+        val raw =
+            """
+            {
+              "schemaVersion": 4,
+              "exportedAt": "2026-02-25T10:00:00Z",
+              "workouts": [],
+              "categories": [],
+              "userActions": []
+            }
+            """.trimIndent()
+
+        val result = BackupJsonCodec.decode(raw)
+
+        assertTrue(result is BackupDecodeResult.Failure)
+        assertEquals(
+            BackupDecodeError.MISSING_REQUIRED_SECTION,
             (result as BackupDecodeResult.Failure).error,
         )
     }
