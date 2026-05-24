@@ -3,7 +3,6 @@ package com.rafaelfelipeac.hermes.core.ui.components
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.DayOfWeek
 import java.time.temporal.WeekFields
 import java.util.Locale
 
