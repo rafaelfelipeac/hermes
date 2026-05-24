@@ -216,11 +216,15 @@
     <string name="settings_release_notes_available">ملاحظات الإصدار</string>
     <string name="settings_release_notes_title">الجديد في %1$s</string>
     <string name="settings_release_notes_added">تمت الإضافة</string>
+    <string name="settings_release_notes_fixed">تم الإصلاح</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
         <item>تحسينات على تبويب التصفح والتنقل إلى النسخ الاحتياطي/الاستيراد والإعدادات والأنشطة والتطوير</item>
         <item>ملخص التدريب ومعاينة النشاط وتحسينات الرسوم البيانية في شاشة التقدم</item>
         <item>تحسينات المخطط الأسبوعي في الإكمال واختيار التاريخ وتوسيع عبء العمل</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>يتم الآن تطبيق إعداد بداية الأسبوع بشكل صحيح على منتقي التاريخ للتمارين والأحداث.</item>
     </string-array>
     <string name="settings_back">رجوع</string>
     <string name="settings_feedback_title">ملاحظات</string>

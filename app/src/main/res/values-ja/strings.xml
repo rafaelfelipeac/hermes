@@ -192,11 +192,15 @@
     <string name="settings_release_notes_available">リリースノート</string>
     <string name="settings_release_notes_title">%1$s の新機能</string>
     <string name="settings_release_notes_added">追加</string>
+    <string name="settings_release_notes_fixed">修正</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
         <item>閲覧タブと、バックアップ/インポート・設定・アクティビティ・開発への移動まわりの磨き込み</item>
         <item>コーチングの要約、アクティビティのプレビュー、グラフ改善を進捗画面に追加</item>
         <item>完了、日付選択、作業負荷の拡大表示にわたる週次プランナーの磨き込み</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>週の開始日の設定が、ワークアウトとイベントの日付選択に正しく適用されるようになりました。</item>
     </string-array>
     <string name="settings_back">戻る</string>
     <string name="settings_feedback_title">フィードバック</string>

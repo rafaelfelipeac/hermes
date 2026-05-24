@@ -196,11 +196,15 @@
     <string name="settings_release_notes_available">Notas da versão</string>
     <string name="settings_release_notes_title">Novidades da versão %1$s</string>
     <string name="settings_release_notes_added">Adicionado</string>
+    <string name="settings_release_notes_fixed">Corrigido</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
         <item>Ajustes na aba de navegação e nos atalhos para backup/importação, configurações, atividades e desenvolvimento</item>
         <item>Resumo de coaching, prévia de atividade e melhorias nos gráficos na tela Progresso</item>
         <item>Polimento do planejador semanal em conclusão, seletor de data e escala de carga de trabalho</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>A configuração do início da semana agora se aplica corretamente aos seletores de data de treinos e eventos.</item>
     </string-array>
     <string name="settings_back">Voltar</string>
     <string name="settings_feedback_title">Feedback</string>

@@ -189,6 +189,7 @@ Recent learnings:
 - For cleanup flows that can be triggered by system state (for example, inaccessible persisted URI), expose an explicit `logUserAction` flag in ViewModel commands so only user-initiated actions appear in Activity history.
 - Release prep in Hermes stays consistent when the changelog section and app module version fields are updated together (`CHANGELOG.md` + `appVersionCode`/`appVersionName` in `app/build.gradle.kts`), using git tags (e.g., `v1.3.0`) as the boundary for summarizing changes.
 - For public-facing release surfaces (Play Store/README), backup notes read better with user-task wording ("export/import data", "choose default backup folder") instead of internal terms like schema compatibility.
+- Release notes in Settings are version-gated by `appVersionName`, so a new app release needs the changelog, version fields, and `ReleaseNotes.kt` mapping updated together or the shipped build will quietly lose its in-app release note entry.
 - Supporting non-Monday starts in Hermes requires distinguishing display-week boundaries from storage-week keys; with `weekStartDate + dayOfWeek` persistence, display weeks can span multiple storage buckets.
 - For cross-boundary drag/reorder correctness, write operations must persist both `weekStartDate` and `dayOfWeek` together; updating only `dayOfWeek` is insufficient once display ordering is configurable.
 - When settings state grows beyond five flows, split composition into staged `combine` calls to avoid Kotlin vararg-flow inference issues.

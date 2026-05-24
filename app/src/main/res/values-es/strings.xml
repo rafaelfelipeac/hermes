@@ -196,11 +196,15 @@
     <string name="settings_release_notes_available">Notas de la versión</string>
     <string name="settings_release_notes_title">Novedades de %1$s</string>
     <string name="settings_release_notes_added">Añadido</string>
+    <string name="settings_release_notes_fixed">Corregido</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
         <item>Pulido de la pestaña Explorar y de la navegación a copias de seguridad/importación, ajustes, actividades y desarrollo</item>
         <item>Resumen de entrenamiento, vista previa de actividad y mejoras de gráficos en la pantalla Progreso</item>
         <item>Pulido del planificador semanal en la finalización, el selector de fecha y el escalado de la carga de trabajo</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>La configuración del inicio de semana ahora se aplica correctamente a los selectores de fecha de entrenamientos y eventos.</item>
     </string-array>
     <string name="settings_back">Volver</string>
     <string name="settings_feedback_title">Feedback</string>

@@ -227,11 +227,15 @@
     <string name="settings_release_notes_available">Release notes</string>
     <string name="settings_release_notes_title">What\'s new in %1$s</string>
     <string name="settings_release_notes_added">Added</string>
+    <string name="settings_release_notes_fixed">Fixed</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
         <item>Browse tab and navigation polish for backup/import, settings, activities and developer destinations</item>
         <item>Progress screen coaching summary, activity preview and chart improvements</item>
         <item>Weekly planner polish across completion, date picker and workload scaling</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Week-start settings now apply correctly to workout and event date pickers</item>
     </string-array>
     <string name="settings_back">Back</string>
     <string name="settings_feedback_title">Feedback</string>
