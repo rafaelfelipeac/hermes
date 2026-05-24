@@ -1,8 +1,9 @@
 package com.rafaelfelipeac.hermes.core.ui.components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
@@ -12,7 +13,10 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 class DatePickerWeekStartTest {
     @get:Rule
@@ -72,21 +76,26 @@ class DatePickerWeekStartTest {
     ) {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val dateLabel = context.getString(R.string.race_event_dialog_date)
+        val locale =
+            androidx.core.os.ConfigurationCompat.getLocales(context.resources.configuration).get(0)
+                ?: Locale.getDefault()
+        val wednesdayLabel = weekdayLabel(DayOfWeek.WEDNESDAY, locale)
+        val mondayLabel = weekdayLabel(DayOfWeek.MONDAY, locale)
 
         composeRule.setContent(content)
 
         composeRule.onNodeWithText(dateLabel).performClick()
 
-        composeRule.onNodeWithText("W").assertIsDisplayed()
-        composeRule.onNodeWithText("M").assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(wednesdayLabel).assertExists()
+        composeRule.onNodeWithContentDescription(mondayLabel).assertExists()
 
         val wLeft =
-            composeRule.onNodeWithText("W", useUnmergedTree = true)
+            composeRule.onNodeWithContentDescription(wednesdayLabel, useUnmergedTree = true)
                 .fetchSemanticsNode()
                 .boundsInRoot
                 .left
         val mLeft =
-            composeRule.onNodeWithText("M", useUnmergedTree = true)
+            composeRule.onNodeWithContentDescription(mondayLabel, useUnmergedTree = true)
                 .fetchSemanticsNode()
                 .boundsInRoot
                 .left
@@ -95,5 +104,16 @@ class DatePickerWeekStartTest {
             "Expected ${weekStartDay.name} to appear before Monday in the date picker grid",
             wLeft < mLeft,
         )
+    }
+
+    private fun weekdayLabel(
+        dayOfWeek: DayOfWeek,
+        locale: Locale,
+    ): String {
+        return dayOfWeek
+            .getDisplayName(TextStyle.FULL_STANDALONE, locale)
+            .replaceFirstChar { char ->
+                if (char.isLowerCase()) char.titlecase(locale) else char.toString()
+            }
     }
 }
