@@ -11,9 +11,12 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_W
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import kotlinx.coroutines.Dispatchers
@@ -123,6 +126,9 @@ class TrophyCelebrationViewModelTest {
         override val language = MutableStateFlow(AppLanguage.SYSTEM)
         override val slotModePolicy = MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
         override val weekStartDay = MutableStateFlow(WeekStartDay.MONDAY)
+        override val distanceUnit = MutableStateFlow(DistanceUnit.KILOMETERS)
+        override val paceUnit = MutableStateFlow(PaceUnit.MIN_PER_KM)
+        override val weightUnit = MutableStateFlow(WeightUnit.KILOGRAMS)
         override val lastBackupExportedAt = MutableStateFlow<String?>(null)
         override val lastBackupImportedAt = MutableStateFlow<String?>(null)
         override val backupFolderUri = MutableStateFlow<String?>(null)
@@ -136,6 +142,12 @@ class TrophyCelebrationViewModelTest {
 
         override fun initialWeekStartDay(): WeekStartDay = WeekStartDay.MONDAY
 
+        override fun initialDistanceUnit(): DistanceUnit = distanceUnit.value
+
+        override fun initialPaceUnit(): PaceUnit = paceUnit.value
+
+        override fun initialWeightUnit(): WeightUnit = weightUnit.value
+
         override suspend fun setThemeMode(mode: ThemeMode) = error("Not needed in test")
 
         override suspend fun setLanguage(language: AppLanguage) = error("Not needed in test")
@@ -143,6 +155,12 @@ class TrophyCelebrationViewModelTest {
         override suspend fun setSlotModePolicy(policy: SlotModePolicy) = error("Not needed in test")
 
         override suspend fun setWeekStartDay(weekStartDay: WeekStartDay) = error("Not needed in test")
+
+        override suspend fun setDistanceUnit(distanceUnit: DistanceUnit) = error("Not needed in test")
+
+        override suspend fun setPaceUnit(paceUnit: PaceUnit) = error("Not needed in test")
+
+        override suspend fun setWeightUnit(weightUnit: WeightUnit) = error("Not needed in test")
 
         override suspend fun setLastBackupExportedAt(value: String) = error("Not needed in test")
 

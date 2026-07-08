@@ -19,9 +19,12 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WORKOUTS_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.APP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_DISTANCE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_PACE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_SLOT_MODE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_WEIGHT_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_WEEK_START
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
@@ -33,10 +36,16 @@ import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupR
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_KM
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -85,10 +94,26 @@ class SettingsViewModel
                     language = language,
                     slotModePolicy = slotModePolicy,
                     weekStartDay = weekStartDay,
+                    distanceUnit = repository.initialDistanceUnit(),
+                    paceUnit = repository.initialPaceUnit(),
+                    weightUnit = repository.initialWeightUnit(),
                     lastBackupExportedAt = null,
                     lastBackupImportedAt = null,
                     backupFolderUri = null,
                 )
+            }.let { baseSettings ->
+                combine(
+                    baseSettings,
+                    repository.distanceUnit,
+                    repository.paceUnit,
+                    repository.weightUnit,
+                ) { base, distanceUnit, paceUnit, weightUnit ->
+                    base.copy(
+                        distanceUnit = distanceUnit,
+                        paceUnit = paceUnit,
+                        weightUnit = weightUnit,
+                    )
+                }
             }.let { baseSettings ->
                 combine(
                     baseSettings,
@@ -113,6 +138,9 @@ class SettingsViewModel
                         language = repository.initialLanguage(),
                         slotModePolicy = repository.initialSlotModePolicy(),
                         weekStartDay = repository.initialWeekStartDay(),
+                        distanceUnit = repository.initialDistanceUnit(),
+                        paceUnit = repository.initialPaceUnit(),
+                        weightUnit = repository.initialWeightUnit(),
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
@@ -195,6 +223,63 @@ class SettingsViewModel
                             mapOf(
                                 OLD_VALUE to previous.name,
                                 NEW_VALUE to weekStartDay.name,
+                            ),
+                    )
+                }
+            }
+
+        fun setDistanceUnit(distanceUnit: DistanceUnit) =
+            viewModelScope.launch {
+                val previous = state.value.distanceUnit
+
+                repository.setDistanceUnit(distanceUnit)
+
+                if (previous != distanceUnit) {
+                    userActionLogger.log(
+                        actionType = CHANGE_DISTANCE_UNIT,
+                        entityType = SETTINGS,
+                        metadata =
+                            mapOf(
+                                OLD_VALUE to previous.name,
+                                NEW_VALUE to distanceUnit.name,
+                            ),
+                    )
+                }
+            }
+
+        fun setPaceUnit(paceUnit: PaceUnit) =
+            viewModelScope.launch {
+                val previous = state.value.paceUnit
+
+                repository.setPaceUnit(paceUnit)
+
+                if (previous != paceUnit) {
+                    userActionLogger.log(
+                        actionType = CHANGE_PACE_UNIT,
+                        entityType = SETTINGS,
+                        metadata =
+                            mapOf(
+                                OLD_VALUE to previous.name,
+                                NEW_VALUE to paceUnit.name,
+                            ),
+                    )
+                }
+            }
+
+        fun setWeightUnit(weightUnit: WeightUnit) =
+            viewModelScope.launch {
+                val previous = state.value.weightUnit
+
+                repository.setWeightUnit(weightUnit)
+
+                if (previous != weightUnit) {
+                    userActionLogger.log(
+                        actionType = CHANGE_WEIGHT_UNIT,
+                        entityType = SETTINGS,
+                        metadata =
+                            mapOf(
+                                OLD_VALUE to previous.name,
+                                NEW_VALUE to weightUnit.name,
                             ),
                     )
                 }
@@ -391,11 +476,17 @@ class SettingsViewModel
             val language = repository.language.first()
             val slotModePolicy = repository.slotModePolicy.first()
             val weekStartDay = repository.weekStartDay.first()
+            val distanceUnit = repository.distanceUnit.first()
+            val paceUnit = repository.paceUnit.first()
+            val weightUnit = repository.weightUnit.first()
 
             return themeMode != SYSTEM_THEME ||
                 language != SYSTEM ||
                 slotModePolicy != AUTO_WHEN_MULTIPLE ||
-                weekStartDay != WeekStartDay.MONDAY
+                weekStartDay != WeekStartDay.MONDAY ||
+                distanceUnit != KILOMETERS ||
+                paceUnit != MIN_PER_KM ||
+                weightUnit != KILOGRAMS
         }
 
         private suspend fun logDemoSeedMutation() {

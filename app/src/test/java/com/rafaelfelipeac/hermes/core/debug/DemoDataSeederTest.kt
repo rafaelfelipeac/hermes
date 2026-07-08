@@ -4,9 +4,12 @@ import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
@@ -103,6 +106,9 @@ class DemoDataSeederTest {
         override val language: Flow<AppLanguage> = MutableStateFlow(AppLanguage.SYSTEM)
         override val slotModePolicy: Flow<SlotModePolicy> = MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
         override val weekStartDay: Flow<WeekStartDay> = MutableStateFlow(WeekStartDay.MONDAY)
+        override val distanceUnit: Flow<DistanceUnit> = MutableStateFlow(DistanceUnit.KILOMETERS)
+        override val paceUnit: Flow<PaceUnit> = MutableStateFlow(PaceUnit.MIN_PER_KM)
+        override val weightUnit: Flow<WeightUnit> = MutableStateFlow(WeightUnit.KILOGRAMS)
         override val lastBackupExportedAt: Flow<String?> = MutableStateFlow(null)
         override val lastBackupImportedAt: Flow<String?> = MutableStateFlow(null)
         override val backupFolderUri: Flow<String?> = MutableStateFlow(null)
@@ -116,6 +122,12 @@ class DemoDataSeederTest {
 
         override fun initialWeekStartDay(): WeekStartDay = WeekStartDay.MONDAY
 
+        override fun initialDistanceUnit(): DistanceUnit = DistanceUnit.KILOMETERS
+
+        override fun initialPaceUnit(): PaceUnit = PaceUnit.MIN_PER_KM
+
+        override fun initialWeightUnit(): WeightUnit = WeightUnit.KILOGRAMS
+
         override suspend fun setThemeMode(mode: ThemeMode) = Unit
 
         override suspend fun setLanguage(language: AppLanguage) = Unit
@@ -123,6 +135,12 @@ class DemoDataSeederTest {
         override suspend fun setSlotModePolicy(policy: SlotModePolicy) = Unit
 
         override suspend fun setWeekStartDay(weekStartDay: WeekStartDay) = Unit
+
+        override suspend fun setDistanceUnit(distanceUnit: DistanceUnit) = Unit
+
+        override suspend fun setPaceUnit(paceUnit: PaceUnit) = Unit
+
+        override suspend fun setWeightUnit(weightUnit: WeightUnit) = Unit
 
         override suspend fun setLastBackupExportedAt(value: String) = Unit
 

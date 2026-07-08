@@ -11,9 +11,12 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNC
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
@@ -376,6 +379,9 @@ class ProgressViewModelTest {
         override val language = MutableStateFlow(AppLanguage.SYSTEM)
         override val slotModePolicy = MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
         override val weekStartDay = MutableStateFlow(WeekStartDay.MONDAY)
+        override val distanceUnit = MutableStateFlow(DistanceUnit.KILOMETERS)
+        override val paceUnit = MutableStateFlow(PaceUnit.MIN_PER_KM)
+        override val weightUnit = MutableStateFlow(WeightUnit.KILOGRAMS)
         override val lastBackupExportedAt = MutableStateFlow<String?>(null)
         override val lastBackupImportedAt = MutableStateFlow<String?>(null)
         override val backupFolderUri = MutableStateFlow<String?>(null)
@@ -389,6 +395,12 @@ class ProgressViewModelTest {
 
         override fun initialWeekStartDay(): WeekStartDay = weekStartDay.value
 
+        override fun initialDistanceUnit(): DistanceUnit = distanceUnit.value
+
+        override fun initialPaceUnit(): PaceUnit = paceUnit.value
+
+        override fun initialWeightUnit(): WeightUnit = weightUnit.value
+
         override suspend fun setThemeMode(mode: ThemeMode) = Unit
 
         override suspend fun setLanguage(language: AppLanguage) = Unit
@@ -396,6 +408,12 @@ class ProgressViewModelTest {
         override suspend fun setSlotModePolicy(policy: SlotModePolicy) = Unit
 
         override suspend fun setWeekStartDay(weekStartDay: WeekStartDay) = Unit
+
+        override suspend fun setDistanceUnit(distanceUnit: DistanceUnit) = Unit
+
+        override suspend fun setPaceUnit(paceUnit: PaceUnit) = Unit
+
+        override suspend fun setWeightUnit(weightUnit: WeightUnit) = Unit
 
         override suspend fun setLastBackupExportedAt(value: String) = Unit
 
