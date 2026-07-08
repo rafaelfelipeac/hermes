@@ -61,6 +61,12 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.JAPA
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SPANISH
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.MILES
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_KM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_MI
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
@@ -72,6 +78,9 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.SUN
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.THURSDAY
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.TUESDAY
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.WEDNESDAY
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.POUNDS
 
 @Composable
 internal fun SettingsSection(
@@ -373,5 +382,29 @@ internal fun weekStartLabel(weekStartDay: WeekStartDay): String {
         FRIDAY -> stringResource(R.string.day_friday)
         SATURDAY -> stringResource(R.string.day_saturday)
         SUNDAY -> stringResource(R.string.day_sunday)
+    }
+}
+
+@Composable
+internal fun distanceUnitLabel(distanceUnit: DistanceUnit): String {
+    return when (distanceUnit) {
+        KILOMETERS -> stringResource(R.string.settings_unit_kilometers)
+        MILES -> stringResource(R.string.settings_unit_miles)
+    }
+}
+
+@Composable
+internal fun paceUnitLabel(paceUnit: PaceUnit): String {
+    return when (paceUnit) {
+        MIN_PER_KM -> stringResource(R.string.settings_unit_min_per_km)
+        MIN_PER_MI -> stringResource(R.string.settings_unit_min_per_mi)
+    }
+}
+
+@Composable
+internal fun weightUnitLabel(weightUnit: WeightUnit): String {
+    return when (weightUnit) {
+        KILOGRAMS -> stringResource(R.string.settings_unit_kilograms)
+        POUNDS -> stringResource(R.string.settings_unit_pounds)
     }
 }

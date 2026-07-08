@@ -384,6 +384,17 @@
     <string name="settings_import_backup_replace_cancel">إلغاء</string>
     <string name="settings_slot_mode_title">وضع الفترات</string>
     <string name="settings_week_start_title">بداية الأسبوع</string>
+    <string name="settings_units_title">الوحدات</string>
+    <string name="settings_units_distance_title">المسافة</string>
+    <string name="settings_units_pace_title">الوتيرة</string>
+    <string name="settings_units_weight_title">الوزن</string>
+    <string name="settings_units_summary">%1$s, %2$s, %3$s</string>
+    <string name="settings_unit_kilometers">km</string>
+    <string name="settings_unit_miles">mi</string>
+    <string name="settings_unit_min_per_km">min/km</string>
+    <string name="settings_unit_min_per_mi">min/mi</string>
+    <string name="settings_unit_kilograms">kg</string>
+    <string name="settings_unit_pounds">lb</string>
     <string name="settings_slot_mode_auto">تلقائي (2+ أحداث/اليوم)</string>
     <string name="settings_slot_mode_always">إظهار الفترات دائمًا</string>
     <string name="settings_slot_mode_help_title">كيف يعمل وضع الفترات</string>

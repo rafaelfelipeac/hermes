@@ -15,6 +15,12 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.JAPA
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SPANISH
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.MILES
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_KM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_MI
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
@@ -29,6 +35,9 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.SUN
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.THURSDAY
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.TUESDAY
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.WEDNESDAY
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.POUNDS
 
 @Composable
 internal fun SettingsLanguageScreen(
@@ -200,5 +209,63 @@ internal fun SettingsWeekStartScreen(
             selected = weekStartDay == SUNDAY,
             onClick = { onWeekStartSelected(SUNDAY) },
         )
+    }
+}
+
+@Composable
+internal fun SettingsUnitsScreen(
+    distanceUnit: DistanceUnit,
+    paceUnit: PaceUnit,
+    weightUnit: WeightUnit,
+    onBack: () -> Unit,
+    onDistanceUnitSelected: (DistanceUnit) -> Unit,
+    onPaceUnitSelected: (PaceUnit) -> Unit,
+    onWeightUnitSelected: (WeightUnit) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    SettingsDetailScreen(
+        title = stringResource(R.string.settings_units_title),
+        onBack = onBack,
+        contentInsideCard = false,
+        modifier = modifier,
+    ) {
+        SettingsSection(title = stringResource(R.string.settings_units_distance_title)) {
+            SettingsOptionRow(
+                label = stringResource(R.string.settings_unit_kilometers),
+                selected = distanceUnit == KILOMETERS,
+                onClick = { onDistanceUnitSelected(KILOMETERS) },
+            )
+            SettingsOptionRow(
+                label = stringResource(R.string.settings_unit_miles),
+                selected = distanceUnit == MILES,
+                onClick = { onDistanceUnitSelected(MILES) },
+            )
+        }
+
+        SettingsSection(title = stringResource(R.string.settings_units_pace_title)) {
+            SettingsOptionRow(
+                label = stringResource(R.string.settings_unit_min_per_km),
+                selected = paceUnit == MIN_PER_KM,
+                onClick = { onPaceUnitSelected(MIN_PER_KM) },
+            )
+            SettingsOptionRow(
+                label = stringResource(R.string.settings_unit_min_per_mi),
+                selected = paceUnit == MIN_PER_MI,
+                onClick = { onPaceUnitSelected(MIN_PER_MI) },
+            )
+        }
+
+        SettingsSection(title = stringResource(R.string.settings_units_weight_title)) {
+            SettingsOptionRow(
+                label = stringResource(R.string.settings_unit_kilograms),
+                selected = weightUnit == KILOGRAMS,
+                onClick = { onWeightUnitSelected(KILOGRAMS) },
+            )
+            SettingsOptionRow(
+                label = stringResource(R.string.settings_unit_pounds),
+                selected = weightUnit == POUNDS,
+                onClick = { onWeightUnitSelected(POUNDS) },
+            )
+        }
     }
 }

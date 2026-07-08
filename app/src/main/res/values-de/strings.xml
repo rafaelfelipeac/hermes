@@ -364,6 +364,17 @@
     <string name="settings_import_backup_replace_cancel">Abbrechen</string>
     <string name="settings_slot_mode_title">Zeitfenster-Modus</string>
     <string name="settings_week_start_title">Wochenstart</string>
+    <string name="settings_units_title">Einheiten</string>
+    <string name="settings_units_distance_title">Distanz</string>
+    <string name="settings_units_pace_title">Pace</string>
+    <string name="settings_units_weight_title">Gewicht</string>
+    <string name="settings_units_summary">%1$s, %2$s, %3$s</string>
+    <string name="settings_unit_kilometers">km</string>
+    <string name="settings_unit_miles">mi</string>
+    <string name="settings_unit_min_per_km">min/km</string>
+    <string name="settings_unit_min_per_mi">min/mi</string>
+    <string name="settings_unit_kilograms">kg</string>
+    <string name="settings_unit_pounds">lb</string>
     <string name="settings_slot_mode_auto">Automatisch (2+ Ereignisse/Tag)</string>
     <string name="settings_slot_mode_always">Zeitfenster immer anzeigen</string>
     <string name="settings_slot_mode_help_title">So funktioniert der Zeitfenster-Modus</string>

@@ -6,4 +6,5 @@ enum class SettingsRoute {
     LANGUAGE,
     START_OF_WEEK,
     SLOT_MODE,
+    UNITS,
 }

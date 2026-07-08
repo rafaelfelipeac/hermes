@@ -70,6 +70,7 @@ private const val DEBUG_PACKAGE_SUFFIX = ".dev"
 internal const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
 internal const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
 internal const val SETTINGS_WEEK_START_ROW_TAG = "settings_week_start_row"
+internal const val SETTINGS_UNITS_ROW_TAG = "settings_units_row"
 internal const val SETTINGS_APP_VERSION_CARD_TAG = "settings_app_version_card"
 internal const val SETTINGS_RELEASE_NOTES_SHEET_TAG = "settings_release_notes_sheet"
 private const val SETTINGS_SCREEN_TAG = "SettingsScreen"
@@ -179,6 +180,7 @@ fun SettingsScreen(
                 onLanguageClick = { route = SettingsRoute.LANGUAGE },
                 onWeekStartClick = { route = SettingsRoute.START_OF_WEEK },
                 onSlotModeClick = { route = SettingsRoute.SLOT_MODE },
+                onUnitsClick = { route = SettingsRoute.UNITS },
                 onFeedbackClick = { subject, body ->
                     val normalizedBody = body.replace("\n", "\r\n")
                     val mailToUri =
@@ -306,6 +308,17 @@ fun SettingsScreen(
                 onSlotModeSelected = viewModel::setSlotModePolicy,
                 modifier = modifier,
             )
+        SettingsRoute.UNITS ->
+            SettingsUnitsScreen(
+                distanceUnit = state.distanceUnit,
+                paceUnit = state.paceUnit,
+                weightUnit = state.weightUnit,
+                onBack = { route = SettingsRoute.MAIN },
+                onDistanceUnitSelected = viewModel::setDistanceUnit,
+                onPaceUnitSelected = viewModel::setPaceUnit,
+                onWeightUnitSelected = viewModel::setWeightUnit,
+                modifier = modifier,
+            )
     }
 
     if (isSlotModeHelpVisible) {
@@ -332,6 +345,7 @@ internal fun SettingsContent(
     onLanguageClick: () -> Unit,
     onWeekStartClick: () -> Unit,
     onSlotModeClick: () -> Unit,
+    onUnitsClick: () -> Unit,
     onFeedbackClick: (String, String) -> Unit,
     onRateClick: () -> Unit,
 ) {
@@ -419,6 +433,21 @@ internal fun SettingsContent(
                         detail = weekStartLabel(state.weekStartDay),
                         onClick = onWeekStartClick,
                         modifier = Modifier.testTag(SETTINGS_WEEK_START_ROW_TAG),
+                    )
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
+
+                    SettingsNavigationRow(
+                        label = stringResource(R.string.settings_units_title),
+                        detail =
+                            stringResource(
+                                R.string.settings_units_summary,
+                                distanceUnitLabel(state.distanceUnit),
+                                paceUnitLabel(state.paceUnit),
+                                weightUnitLabel(state.weightUnit),
+                            ),
+                        onClick = onUnitsClick,
+                        modifier = Modifier.testTag(SETTINGS_UNITS_ROW_TAG),
                     )
                 }
 

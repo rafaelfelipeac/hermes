@@ -364,6 +364,17 @@
     <string name="settings_import_backup_replace_cancel">Annuler</string>
     <string name="settings_slot_mode_title">Mode des créneaux</string>
     <string name="settings_week_start_title">Début de semaine</string>
+    <string name="settings_units_title">Unités</string>
+    <string name="settings_units_distance_title">Distance</string>
+    <string name="settings_units_pace_title">Allure</string>
+    <string name="settings_units_weight_title">Poids</string>
+    <string name="settings_units_summary">%1$s, %2$s, %3$s</string>
+    <string name="settings_unit_kilometers">km</string>
+    <string name="settings_unit_miles">mi</string>
+    <string name="settings_unit_min_per_km">min/km</string>
+    <string name="settings_unit_min_per_mi">min/mi</string>
+    <string name="settings_unit_kilograms">kg</string>
+    <string name="settings_unit_pounds">lb</string>
     <string name="settings_slot_mode_auto">Automatique (2+ événements/jour)</string>
     <string name="settings_slot_mode_always">Toujours afficher les créneaux</string>
     <string name="settings_slot_mode_help_title">Comment fonctionne le mode des créneaux</string>

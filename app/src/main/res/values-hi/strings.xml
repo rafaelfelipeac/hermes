@@ -364,6 +364,17 @@
     <string name="settings_import_backup_replace_cancel">रद्द करें</string>
     <string name="settings_slot_mode_title">स्लॉट मोड</string>
     <string name="settings_week_start_title">सप्ताह की शुरुआत</string>
+    <string name="settings_units_title">इकाइयाँ</string>
+    <string name="settings_units_distance_title">दूरी</string>
+    <string name="settings_units_pace_title">पेस</string>
+    <string name="settings_units_weight_title">वज़न</string>
+    <string name="settings_units_summary">%1$s, %2$s, %3$s</string>
+    <string name="settings_unit_kilometers">km</string>
+    <string name="settings_unit_miles">mi</string>
+    <string name="settings_unit_min_per_km">min/km</string>
+    <string name="settings_unit_min_per_mi">min/mi</string>
+    <string name="settings_unit_kilograms">kg</string>
+    <string name="settings_unit_pounds">lb</string>
     <string name="settings_slot_mode_auto">स्वचालित (2+ इवेंट/दिन)</string>
     <string name="settings_slot_mode_always">स्लॉट हमेशा दिखाएँ</string>
     <string name="settings_slot_mode_help_title">स्लॉट मोड कैसे काम करता है</string>
