@@ -5,22 +5,20 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
-import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.HIGHER_IS_BETTER
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.DISTANCE
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
-import java.time.Instant
-import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Instant
+import java.time.LocalDate
 
 @RunWith(AndroidJUnit4::class)
 class PersonalRecordsRepositoryImplTest {
@@ -48,8 +46,14 @@ class PersonalRecordsRepositoryImplTest {
     fun insertFamilyAndEntries_persistsAndObserves() =
         runTest {
             val familyId = repository.insertFamily(sampleFamily())
-            val firstEntryId = repository.insertEntry(sampleEntry(familyId = familyId, id = 0, value = 5.0, recordDate = LocalDate.parse("2024-01-01")))
-            val secondEntryId = repository.insertEntry(sampleEntry(familyId = familyId, id = 0, value = 6.0, recordDate = LocalDate.parse("2024-01-02")))
+            val firstEntryId =
+                repository.insertEntry(
+                    sampleEntry(familyId = familyId, id = 0, value = 5.0, recordDate = LocalDate.parse("2024-01-01")),
+                )
+            val secondEntryId =
+                repository.insertEntry(
+                    sampleEntry(familyId = familyId, id = 0, value = 6.0, recordDate = LocalDate.parse("2024-01-02")),
+                )
 
             val families = repository.getFamilies()
             val entries = repository.getEntries()
@@ -100,16 +104,15 @@ class PersonalRecordsRepositoryImplTest {
         id: Long,
         value: Double,
         recordDate: LocalDate,
-    ) =
-        PersonalRecordEntry(
-            id = id,
-            familyId = familyId,
-            value = value,
-            unit = KILOMETER,
-            customUnitLabel = null,
-            recordDate = recordDate,
-            note = null,
-            createdAt = Instant.parse("2024-01-01T00:00:00Z"),
-            updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
-        )
+    ) = PersonalRecordEntry(
+        id = id,
+        familyId = familyId,
+        value = value,
+        unit = KILOMETER,
+        customUnitLabel = null,
+        recordDate = recordDate,
+        note = null,
+        createdAt = Instant.parse("2024-01-01T00:00:00Z"),
+        updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
+    )
 }

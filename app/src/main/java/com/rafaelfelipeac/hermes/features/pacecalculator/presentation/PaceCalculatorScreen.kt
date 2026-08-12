@@ -5,20 +5,18 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -33,8 +31,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -44,7 +42,6 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
-import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculator
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
@@ -56,8 +53,12 @@ import com.rafaelfelipeac.hermes.features.settings.presentation.distanceUnitLabe
 import com.rafaelfelipeac.hermes.features.settings.presentation.paceUnitLabel
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.roundToLong
 
 internal const val PACE_CALCULATOR_ROOT_TAG = "pace_calculator_root"
+internal const val PACE_CALCULATOR_DISTANCE_INPUT_TAG = "pace_calculator_distance_input"
+internal const val PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG = "pace_calculator_time_minutes_input"
+internal const val PACE_CALCULATOR_RESULT_TAG = "pace_calculator_result"
 
 @Composable
 fun PaceCalculatorScreen(
@@ -91,24 +92,25 @@ fun PaceCalculatorScreen(
             distanceUnitMeters,
         ) {
             calculatePaceCalculatorResult(
-                mode = mode,
-                distanceText = distanceText,
-                timeHoursText = timeHoursText,
-                timeMinutesText = timeMinutesText,
-                timeSecondsText = timeSecondsText,
-                paceMinutesText = paceMinutesText,
-                paceSecondsText = paceSecondsText,
-                paceUnitMeters = paceUnitMeters,
-                distanceUnitMeters = distanceUnitMeters,
+                PaceCalculatorInput(
+                    mode = mode,
+                    distanceText = distanceText,
+                    timeHoursText = timeHoursText,
+                    timeMinutesText = timeMinutesText,
+                    timeSecondsText = timeSecondsText,
+                    paceMinutesText = paceMinutesText,
+                    paceSecondsText = paceSecondsText,
+                    paceUnitMeters = paceUnitMeters,
+                    distanceUnitMeters = distanceUnitMeters,
+                ),
             )
         }
-
-    BackHandler(onBack = onBack)
 
     Column(
         modifier =
             modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(SpacingLg)
                 .testTag(PACE_CALCULATOR_ROOT_TAG),
         verticalArrangement = Arrangement.spacedBy(SpacingLg),
@@ -264,7 +266,7 @@ private fun DistanceInputField(
             KeyboardOptions(
                 keyboardType = KeyboardType.Decimal,
             ),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().testTag(PACE_CALCULATOR_DISTANCE_INPUT_TAG),
     )
 }
 
@@ -290,7 +292,7 @@ private fun TimeInputFields(
                 value = minutesText,
                 onValueChange = onMinutesTextChange,
                 label = stringResource(R.string.pace_calculator_minutes),
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG),
             )
             MiniNumberField(
                 value = secondsText,
@@ -400,17 +402,19 @@ private fun ResultCard(
                         }
                     },
                 style = typography.headlineMedium,
+                modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
             )
             val secondaryLabel =
                 when (mode) {
                     PaceCalculatorMode.PACE -> result.finishTimeSeconds?.let(::formatDuration).orEmpty()
-                    PaceCalculatorMode.TIME -> result.distanceMeters?.let {
-                        formatDistance(
-                            distanceMeters = it,
-                            distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
-                            unitLabel = distanceUnitLabel(settingsDistanceUnit),
-                        )
-                    }.orEmpty()
+                    PaceCalculatorMode.TIME ->
+                        result.distanceMeters?.let {
+                            formatDistance(
+                                distanceMeters = it,
+                                distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
+                                unitLabel = distanceUnitLabel(settingsDistanceUnit),
+                            )
+                        }.orEmpty()
                     PaceCalculatorMode.DISTANCE -> result.timeSeconds?.let(::formatDuration).orEmpty()
                 }
             if (secondaryLabel.isNotBlank()) {
@@ -429,13 +433,6 @@ private data class PaceDistancePreset(
     val valueMeters: Double,
 )
 
-private data class PaceCalculatorResultUi(
-    val paceSecondsPerUnit: Double? = null,
-    val finishTimeSeconds: Long? = null,
-    val distanceMeters: Double? = null,
-    val timeSeconds: Long? = null,
-)
-
 @Composable
 private fun paceDistancePresets(): List<PaceDistancePreset> {
     return listOf(
@@ -444,60 +441,12 @@ private fun paceDistancePresets(): List<PaceDistancePreset> {
         PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_5k), valueMeters = 5_000.0),
         PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_10k), valueMeters = 10_000.0),
         PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_15k), valueMeters = 15_000.0),
-        PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_half_marathon), valueMeters = 21_097.5),
+        PaceDistancePreset(
+            label = stringResource(R.string.pace_calculator_preset_half_marathon),
+            valueMeters = 21_097.5,
+        ),
         PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_marathon), valueMeters = 42_195.0),
     )
-}
-
-private fun calculatePaceCalculatorResult(
-    mode: PaceCalculatorMode,
-    distanceText: String,
-    timeHoursText: String,
-    timeMinutesText: String,
-    timeSecondsText: String,
-    paceMinutesText: String,
-    paceSecondsText: String,
-    paceUnitMeters: Double,
-    distanceUnitMeters: Double,
-): PaceCalculatorResultUi {
-    val distanceMeters = distanceText.toDoubleOrNull()?.times(distanceUnitMeters)
-    val timeSeconds =
-        listOf(timeHoursText.toLongOrNull(), timeMinutesText.toLongOrNull(), timeSecondsText.toLongOrNull())
-            .let { parts -> (parts[0] ?: 0L) * 3600 + (parts[1] ?: 0L) * 60 + (parts[2] ?: 0L) }
-    val paceSecondsPerUnit =
-        (paceMinutesText.toLongOrNull() ?: 0L) * 60 + (paceSecondsText.toLongOrNull() ?: 0L)
-
-    return when (mode) {
-        PaceCalculatorMode.PACE -> {
-            if (distanceMeters == null || timeSeconds == 0L) {
-                PaceCalculatorResultUi()
-            } else {
-                val paceSeconds =
-                    PaceCalculator.calculatePaceSecondsPerUnit(distanceMeters, timeSeconds.toDouble(), paceUnitMeters)
-                PaceCalculatorResultUi(paceSecondsPerUnit = paceSeconds, finishTimeSeconds = timeSeconds)
-            }
-        }
-
-        PaceCalculatorMode.TIME -> {
-            if (distanceMeters == null || paceSecondsPerUnit == 0L) {
-                PaceCalculatorResultUi()
-            } else {
-                val finishSeconds =
-                    PaceCalculator.calculateFinishTimeSeconds(distanceMeters, paceSecondsPerUnit.toDouble(), paceUnitMeters)
-                PaceCalculatorResultUi(finishTimeSeconds = finishSeconds.toLong(), distanceMeters = distanceMeters)
-            }
-        }
-
-        PaceCalculatorMode.DISTANCE -> {
-            if (paceSecondsPerUnit == 0L || timeSeconds == 0L) {
-                PaceCalculatorResultUi()
-            } else {
-                val distance =
-                    PaceCalculator.calculateDistanceMeters(timeSeconds.toDouble(), paceSecondsPerUnit.toDouble(), paceUnitMeters)
-                PaceCalculatorResultUi(distanceMeters = distance, timeSeconds = timeSeconds)
-            }
-        }
-    }
 }
 
 private fun formatDistance(
@@ -513,7 +462,7 @@ private fun formatDistance(
 }
 
 private fun formatPaceSeconds(paceSecondsPerUnit: Double): String {
-    val totalSeconds = paceSecondsPerUnit.toLong()
+    val totalSeconds = paceSecondsPerUnit.roundToLong()
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
     return "%d:%02d".format(minutes, seconds)

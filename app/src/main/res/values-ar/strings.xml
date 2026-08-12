@@ -292,9 +292,12 @@
     <string name="activity_subtitle_week">أسبوع %1$s.</string>
     <string name="activity_subtitle_workout_category">الفئة %1$s.</string>
     <string name="activity_subtitle_workout_category_change">الفئة من %1$s إلى %2$s.</string>
-    <string name="activity_action_create_personal_record_family">أنشأت عائلة سجلات شخصية.</string>
-    <string name="activity_action_update_personal_record_family">حدّثت عائلة سجلات شخصية.</string>
-    <string name="activity_action_delete_personal_record_family">حذفت عائلة سجلات شخصية.</string>
+    <string name="activity_action_change_distance_unit">غيّرت وحدة المسافة.</string>
+    <string name="activity_action_change_pace_unit">غيّرت وحدة الوتيرة.</string>
+    <string name="activity_action_change_weight_unit">غيّرت وحدة الوزن.</string>
+    <string name="activity_action_create_personal_record_family">أنشأت سلسلة سجلات شخصية.</string>
+    <string name="activity_action_update_personal_record_family">حدّثت سلسلة سجلات شخصية.</string>
+    <string name="activity_action_delete_personal_record_family">حذفت سلسلة سجلات شخصية.</string>
     <string name="activity_action_create_personal_record_entry">أضفت نتيجة سجل شخصي.</string>
     <string name="activity_action_update_personal_record_entry">حدّثت نتيجة سجل شخصي.</string>
     <string name="activity_action_delete_personal_record_entry">حذفت نتيجة سجل شخصي.</string>
@@ -311,8 +314,12 @@
     <string name="personal_records_summary_title">نظرة عامة</string>
     <string name="personal_records_summary_families">سلاسل PR: %1$d</string>
     <plurals name="personal_records_summary_entries">
+        <item quantity="zero">لا سجلات</item>
         <item quantity="one">سجل واحد</item>
-        <item quantity="other">%1$d سجلات</item>
+        <item quantity="two">سجلان</item>
+        <item quantity="few">%1$d سجلات</item>
+        <item quantity="many">%1$d سجلاً</item>
+        <item quantity="other">%1$d سجل</item>
     </plurals>
     <string name="personal_records_summary_last_update">آخر تحديث: %1$s</string>
     <string name="personal_records_summary_last_update_none">لا توجد تحديثات بعد.</string>
@@ -321,12 +328,18 @@
     <string name="personal_records_empty_title">لا توجد سلاسل PR بعد.</string>
     <string name="personal_records_empty_body">أنشئ سلسلة أولاً، ثم أضف النتائج لبناء السجل.</string>
     <plurals name="personal_records_family_entry_count">
+        <item quantity="zero">لا سجلات</item>
         <item quantity="one">سجل واحد</item>
-        <item quantity="other">%1$d سجلات</item>
+        <item quantity="two">سجلان</item>
+        <item quantity="few">%1$d سجلات</item>
+        <item quantity="many">%1$d سجلاً</item>
+        <item quantity="other">%1$d سجل</item>
     </plurals>
     <string name="personal_records_no_results">لا توجد نتيجة بعد.</string>
     <string name="personal_records_back_to_shelf">العودة إلى السلاسل</string>
     <string name="personal_records_current_best">أفضل نتيجة حالية</string>
+    <string name="personal_records_set_current">تعيين كرقم شخصي حالي</string>
+    <string name="personal_records_current_selected">الرقم الشخصي الحالي</string>
     <string name="personal_records_history_title">السجل</string>
     <string name="personal_records_history_empty_title">لا يوجد سجل بعد.</string>
     <string name="personal_records_history_empty_body">أضف أول نتيجة لبدء سلسلة PR هذه.</string>

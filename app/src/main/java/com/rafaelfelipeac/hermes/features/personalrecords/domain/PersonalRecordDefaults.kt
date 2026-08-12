@@ -11,7 +11,6 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.TIME
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.WEIGHT
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM as CUSTOM_UNIT
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.HOUR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOGRAM
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
@@ -25,8 +24,15 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.MILES
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.POUNDS
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM as CUSTOM_UNIT
 
-fun PersonalRecordMetricType.defaultUnit(distanceUnit: DistanceUnit = KILOMETERS): PersonalRecordUnit {
+fun PersonalRecordMetricType.defaultUnit(
+    distanceUnit: DistanceUnit = KILOMETERS,
+    weightUnit: WeightUnit = KILOGRAMS,
+): PersonalRecordUnit {
     return when (this) {
         DISTANCE ->
             when (distanceUnit) {
@@ -35,7 +41,11 @@ fun PersonalRecordMetricType.defaultUnit(distanceUnit: DistanceUnit = KILOMETERS
             }
 
         TIME -> SECOND
-        WEIGHT -> KILOGRAM
+        WEIGHT ->
+            when (weightUnit) {
+                KILOGRAMS -> KILOGRAM
+                POUNDS -> POUND
+            }
         POWER -> WATT
         REPS -> REP
         PersonalRecordMetricType.CUSTOM -> CUSTOM_UNIT

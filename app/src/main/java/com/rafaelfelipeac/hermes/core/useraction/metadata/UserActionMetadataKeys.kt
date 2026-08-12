@@ -26,7 +26,6 @@ object UserActionMetadataKeys {
     const val PERSONAL_RECORD_ENTRY_ID = "personal_record_entry_id"
     const val PERSONAL_RECORD_CATEGORY_ID = "personal_record_category_id"
     const val PERSONAL_RECORD_CATEGORY_NAME = "personal_record_category_name"
-    const val PERSONAL_RECORD_TITLE = "personal_record_title"
     const val PERSONAL_RECORD_METRIC_TYPE = "personal_record_metric_type"
     const val PERSONAL_RECORD_UNIT = "personal_record_unit"
     const val PERSONAL_RECORD_COMPARISON_RULE = "personal_record_comparison_rule"

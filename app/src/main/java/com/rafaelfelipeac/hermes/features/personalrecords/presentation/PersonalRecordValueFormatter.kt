@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordValueNormalizer
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.HOUR
@@ -15,6 +16,7 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import java.text.NumberFormat
 import java.time.Duration
 import java.util.Locale
+import kotlin.math.roundToLong
 
 fun formatPersonalRecordValue(
     value: Double,
@@ -26,7 +28,7 @@ fun formatPersonalRecordValue(
         SECOND,
         MINUTE,
         HOUR,
-        -> formatDuration(value.toLong())
+        -> formatDuration(PersonalRecordValueNormalizer.normalize(value, unit).roundToLong())
 
         REP,
         WATT,

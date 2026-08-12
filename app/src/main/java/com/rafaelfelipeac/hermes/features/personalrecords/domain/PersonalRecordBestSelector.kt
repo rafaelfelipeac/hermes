@@ -1,11 +1,11 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.domain
 
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.HIGHER_IS_BETTER
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.LOWER_IS_BETTER
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.MANUAL
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
 
 object PersonalRecordBestSelector {
     fun selectBest(
@@ -58,17 +58,12 @@ object PersonalRecordBestSelector {
     private fun compareEntriesForRecency(
         first: PersonalRecordEntry,
         second: PersonalRecordEntry,
-    ): Int {
-        val recordDateCompare = first.recordDate.compareTo(second.recordDate)
-        if (recordDateCompare != 0) {
-            return recordDateCompare
-        }
-
-        val createdAtCompare = first.createdAt.compareTo(second.createdAt)
-        if (createdAtCompare != 0) {
-            return createdAtCompare
-        }
-
-        return first.id.compareTo(second.id)
-    }
+    ): Int =
+        compareValuesBy(
+            first,
+            second,
+            PersonalRecordEntry::recordDate,
+            PersonalRecordEntry::createdAt,
+            PersonalRecordEntry::id,
+        )
 }

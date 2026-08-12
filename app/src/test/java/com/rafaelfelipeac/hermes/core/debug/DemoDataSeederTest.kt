@@ -2,8 +2,8 @@ package com.rafaelfelipeac.hermes.core.debug
 
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
-import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit

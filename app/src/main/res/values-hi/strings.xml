@@ -272,9 +272,12 @@
     <string name="activity_subtitle_week">%1$s का सप्ताह.</string>
     <string name="activity_subtitle_workout_category">श्रेणी %1$s।</string>
     <string name="activity_subtitle_workout_category_change">श्रेणी %1$s से %2$s।</string>
-    <string name="activity_action_create_personal_record_family">आपने एक व्यक्तिगत रिकॉर्ड परिवार बनाया।</string>
-    <string name="activity_action_update_personal_record_family">आपने एक व्यक्तिगत रिकॉर्ड परिवार अपडेट किया।</string>
-    <string name="activity_action_delete_personal_record_family">आपने एक व्यक्तिगत रिकॉर्ड परिवार हटाया।</string>
+    <string name="activity_action_change_distance_unit">आपने दूरी की इकाई बदली।</string>
+    <string name="activity_action_change_pace_unit">आपने गति की इकाई बदली।</string>
+    <string name="activity_action_change_weight_unit">आपने वज़न की इकाई बदली।</string>
+    <string name="activity_action_create_personal_record_family">आपने व्यक्तिगत रिकॉर्ड की एक शृंखला बनाई।</string>
+    <string name="activity_action_update_personal_record_family">आपने व्यक्तिगत रिकॉर्ड की एक शृंखला अपडेट की।</string>
+    <string name="activity_action_delete_personal_record_family">आपने व्यक्तिगत रिकॉर्ड की एक शृंखला हटाई।</string>
     <string name="activity_action_create_personal_record_entry">आपने एक व्यक्तिगत रिकॉर्ड परिणाम जोड़ा।</string>
     <string name="activity_action_update_personal_record_entry">आपने एक व्यक्तिगत रिकॉर्ड परिणाम अपडेट किया।</string>
     <string name="activity_action_delete_personal_record_entry">आपने एक व्यक्तिगत रिकॉर्ड परिणाम हटाया।</string>
@@ -307,6 +310,8 @@
     <string name="personal_records_no_results">अभी कोई परिणाम नहीं।</string>
     <string name="personal_records_back_to_shelf">सीरीज़ पर वापस जाएँ</string>
     <string name="personal_records_current_best">वर्तमान सर्वश्रेष्ठ</string>
+    <string name="personal_records_set_current">मौजूदा पीआर के रूप में सेट करें</string>
+    <string name="personal_records_current_selected">मौजूदा पीआर</string>
     <string name="personal_records_history_title">इतिहास</string>
     <string name="personal_records_history_empty_title">अभी तक कोई इतिहास नहीं।</string>
     <string name="personal_records_history_empty_body">इस PR सीरीज़ को शुरू करने के लिए पहला परिणाम जोड़ें।</string>

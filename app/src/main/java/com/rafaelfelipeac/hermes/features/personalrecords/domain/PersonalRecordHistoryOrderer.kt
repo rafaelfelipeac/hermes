@@ -15,7 +15,7 @@ object PersonalRecordHistoryOrderer {
 
         return when (family.comparisonRule) {
             HIGHER_IS_BETTER -> familyEntries.sortedWith(::compareForBestFirst)
-            LOWER_IS_BETTER -> familyEntries.sortedWith { first, second -> compareForBestFirst(second, first) }
+            LOWER_IS_BETTER -> familyEntries.sortedWith(::compareForLowestFirst)
             MANUAL -> orderManualHistory(family, familyEntries)
         }
     }
@@ -24,9 +24,10 @@ object PersonalRecordHistoryOrderer {
         family: PersonalRecordFamily,
         entries: List<PersonalRecordEntry>,
     ): List<PersonalRecordEntry> {
-        val manualCurrent = family.manualCurrentEntryId?.let { currentEntryId ->
-            entries.firstOrNull { it.id == currentEntryId }
-        }
+        val manualCurrent =
+            family.manualCurrentEntryId?.let { currentEntryId ->
+                entries.firstOrNull { it.id == currentEntryId }
+            }
         val remaining = entries.filterNot { it.id == manualCurrent?.id }.sortedWith(::compareByRecencyDescending)
 
         return listOfNotNull(manualCurrent) + remaining
@@ -45,16 +46,28 @@ object PersonalRecordHistoryOrderer {
         return compareByRecencyDescending(first, second)
     }
 
-    private fun compareByRecencyDescending(
+    private fun compareForLowestFirst(
         first: PersonalRecordEntry,
         second: PersonalRecordEntry,
     ): Int {
-        val dateCompare = second.recordDate.compareTo(first.recordDate)
-        if (dateCompare != 0) return dateCompare
+        val normalizedFirst = PersonalRecordValueNormalizer.normalize(first.value, first.unit)
+        val normalizedSecond = PersonalRecordValueNormalizer.normalize(second.value, second.unit)
+        val normalizedCompare = normalizedFirst.compareTo(normalizedSecond)
 
-        val createdAtCompare = second.createdAt.compareTo(first.createdAt)
-        if (createdAtCompare != 0) return createdAtCompare
+        if (normalizedCompare != 0) return normalizedCompare
 
-        return second.id.compareTo(first.id)
+        return compareByRecencyDescending(first, second)
     }
+
+    private fun compareByRecencyDescending(
+        first: PersonalRecordEntry,
+        second: PersonalRecordEntry,
+    ): Int =
+        compareValuesBy(
+            second,
+            first,
+            PersonalRecordEntry::recordDate,
+            PersonalRecordEntry::createdAt,
+            PersonalRecordEntry::id,
+        )
 }

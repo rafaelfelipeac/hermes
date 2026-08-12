@@ -1,30 +1,32 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 
 import android.content.Context
-import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.HIGHER_IS_BETTER
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.MANUAL
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.DISTANCE
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
-import java.time.Instant
-import java.time.LocalDate
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.Instant
+import java.time.LocalDate
 
 class PersonalRecordsContentTest {
     @get:Rule
@@ -99,6 +101,7 @@ class PersonalRecordsContentTest {
                 onEditFamily = {},
                 onDeleteFamily = {},
                 onEditEntry = {},
+                onSetManualCurrentEntry = { _, _ -> },
             )
         }
 
@@ -123,6 +126,64 @@ class PersonalRecordsContentTest {
 
         composeRule.onNodeWithTag(PERSONAL_RECORDS_ACTION_FAB_TAG).assertIsDisplayed()
         composeRule.onAllNodesWithText(context.getString(R.string.personal_records_add_result)).assertCountEquals(0)
+    }
+
+    @Test
+    fun manualSeries_allowsSelectingCurrentEntry() {
+        val family =
+            PersonalRecordFamily(
+                id = 10L,
+                categoryId = null,
+                title = "Push-ups",
+                metricType = DISTANCE,
+                defaultUnit = KILOMETER,
+                comparisonRule = MANUAL,
+                manualCurrentEntryId = null,
+                sortOrder = 0,
+                createdAt = Instant.parse("2024-01-01T00:00:00Z"),
+                updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
+            )
+        val olderEntry =
+            personalRecordEntry(
+                id = 100L,
+                familyId = family.id,
+                value = 5.0,
+                recordDate = LocalDate.parse("2024-01-01"),
+            )
+        val newerEntry =
+            personalRecordEntry(
+                id = 101L,
+                familyId = family.id,
+                value = 10.0,
+                recordDate = LocalDate.parse("2024-02-01"),
+            )
+        var selectedEntryId: Long? = null
+
+        composeRule.setContent {
+            PersonalRecordsContent(
+                state =
+                    PersonalRecordsState(
+                        families = listOf(family),
+                        entries = listOf(olderEntry, newerEntry),
+                    ),
+                selectedFamilyId = family.id,
+                onFamilySelected = {},
+                onBack = {},
+                onBackToShelf = {},
+                onCreateFamily = {},
+                onAddResult = {},
+                onEditFamily = {},
+                onDeleteFamily = {},
+                onEditEntry = {},
+                onSetManualCurrentEntry = { _, entryId -> selectedEntryId = entryId },
+            )
+        }
+
+        composeRule.onNodeWithTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + olderEntry.id).performClick()
+
+        composeRule.runOnIdle {
+            assertEquals(olderEntry.id, selectedEntryId)
+        }
     }
 
     private fun personalRecordEntry(

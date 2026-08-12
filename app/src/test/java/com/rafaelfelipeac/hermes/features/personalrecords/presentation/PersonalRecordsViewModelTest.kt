@@ -3,40 +3,37 @@ package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_ENTRY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_TITLE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_UNIT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.PERSONAL_RECORD
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.HIGHER_IS_BETTER
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.MANUAL
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.DISTANCE
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.TIME
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.SECOND
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
-import java.time.Instant
-import java.time.LocalDate
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -44,6 +41,9 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.time.Instant
+import java.time.LocalDate
+import java.util.concurrent.CopyOnWriteArrayList
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PersonalRecordsViewModelTest {
@@ -75,10 +75,20 @@ class PersonalRecordsViewModelTest {
             assertEquals(DISTANCE, updatedFamily.metricType)
             assertEquals(KILOMETER, updatedFamily.defaultUnit)
             assertEquals(UPDATE_PERSONAL_RECORD_FAMILY, logger.actions.single().actionType)
-            assertEquals("5K Run Updated", logger.actions.single().metadata?.get(PERSONAL_RECORD_TITLE))
+            assertTrue(logger.actions.single().metadata?.values?.contains("5K Run Updated") == false)
             assertEquals(category.id.toString(), logger.actions.single().metadata?.get(PERSONAL_RECORD_CATEGORY_ID))
-            assertEquals(DISTANCE.name, logger.actions.single().metadata?.get(com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE))
-            assertEquals(KILOMETER.name, logger.actions.single().metadata?.get(com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_UNIT))
+            assertEquals(
+                DISTANCE.name,
+                logger.actions.single().metadata?.get(
+                    PERSONAL_RECORD_METRIC_TYPE,
+                ),
+            )
+            assertEquals(
+                KILOMETER.name,
+                logger.actions.single().metadata?.get(
+                    com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_UNIT,
+                ),
+            )
             stateJob.cancel()
         }
 
@@ -122,12 +132,14 @@ class PersonalRecordsViewModelTest {
 
             viewModel.updateEntry(
                 entryId = 10L,
-                familyId = 1L,
-                value = 305.0,
-                unit = SECOND,
-                recordDate = updatedDate,
-                note = "New PR",
-                customUnitLabel = null,
+                input =
+                    PersonalRecordEntryInput(
+                        familyId = 1L,
+                        value = 305.0,
+                        unit = SECOND,
+                        recordDate = updatedDate,
+                        note = "New PR",
+                    ),
             )
 
             advanceUntilIdle()
@@ -167,6 +179,54 @@ class PersonalRecordsViewModelTest {
             stateJob.cancel()
         }
 
+    @Test
+    fun setManualCurrentEntry_updatesSelectedEntryAndLogsWithoutFreeText() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val family = sampleFamily(comparisonRule = MANUAL)
+            val entry = sampleEntry(familyId = family.id)
+            val repository =
+                FakePersonalRecordsRepository(
+                    initialFamilies = listOf(family),
+                    initialEntries = listOf(entry),
+                )
+            val logger = RecordingUserActionLogger()
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    categoryRepository = FakeCategoryRepository(),
+                    logger = logger,
+                )
+
+            viewModel.setManualCurrentEntry(family.id, entry.id)
+            advanceUntilIdle()
+
+            assertEquals(entry.id, repository.families.single().manualCurrentEntryId)
+            assertEquals(UPDATE_PERSONAL_RECORD_FAMILY, logger.actions.single().actionType)
+            assertTrue(logger.actions.single().metadata?.values?.contains(family.title) == false)
+        }
+
+    @Test
+    fun deleteEntry_clearsManualCurrentEntryReference() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val family = sampleFamily(comparisonRule = MANUAL, manualCurrentEntryId = 10L)
+            val repository =
+                FakePersonalRecordsRepository(
+                    initialFamilies = listOf(family),
+                    initialEntries = listOf(sampleEntry(familyId = family.id)),
+                )
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    categoryRepository = FakeCategoryRepository(),
+                    logger = RecordingUserActionLogger(),
+                )
+
+            viewModel.deleteEntry(10L)
+            advanceUntilIdle()
+
+            assertEquals(null, repository.families.single().manualCurrentEntryId)
+        }
+
     private fun createViewModel(
         repository: FakePersonalRecordsRepository,
         categoryRepository: FakeCategoryRepository,
@@ -188,9 +248,10 @@ class PersonalRecordsViewModelTest {
     private fun sampleFamily(
         id: Long = 1L,
         categoryId: Long? = null,
-        metricType: com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType = DISTANCE,
-        defaultUnit: com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit = KILOMETER,
-        comparisonRule: com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule = HIGHER_IS_BETTER,
+        metricType: PersonalRecordMetricType = DISTANCE,
+        defaultUnit: PersonalRecordUnit = KILOMETER,
+        comparisonRule: PersonalRecordComparisonRule = HIGHER_IS_BETTER,
+        manualCurrentEntryId: Long? = null,
     ) = PersonalRecordFamily(
         id = id,
         categoryId = categoryId,
@@ -198,7 +259,7 @@ class PersonalRecordsViewModelTest {
         metricType = metricType,
         defaultUnit = defaultUnit,
         comparisonRule = comparisonRule,
-        manualCurrentEntryId = null,
+        manualCurrentEntryId = manualCurrentEntryId,
         sortOrder = 0,
         createdAt = Instant.parse("2024-01-01T00:00:00Z"),
         updatedAt = Instant.parse("2024-01-01T00:00:00Z"),

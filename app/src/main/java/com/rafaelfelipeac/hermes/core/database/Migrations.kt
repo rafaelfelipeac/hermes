@@ -68,8 +68,14 @@ val MIGRATION_3_4 =
                 )
                 """.trimIndent(),
             )
-            db.execSQL("CREATE INDEX IF NOT EXISTS index_personal_record_families_categoryId ON personal_record_families(categoryId)")
-            db.execSQL("CREATE INDEX IF NOT EXISTS index_personal_record_entries_familyId ON personal_record_entries(familyId)")
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_personal_record_families_categoryId " +
+                    "ON personal_record_families(categoryId)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_personal_record_entries_familyId " +
+                    "ON personal_record_entries(familyId)",
+            )
         }
     }
 
@@ -108,8 +114,14 @@ val MIGRATION_4_5 =
                 )
                 """.trimIndent(),
             )
-            db.execSQL("CREATE INDEX IF NOT EXISTS index_personal_record_families_categoryId ON personal_record_families(categoryId)")
-            db.execSQL("CREATE INDEX IF NOT EXISTS index_personal_record_entries_familyId ON personal_record_entries(familyId)")
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_personal_record_families_categoryId " +
+                    "ON personal_record_families(categoryId)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_personal_record_entries_familyId " +
+                    "ON personal_record_entries(familyId)",
+            )
         }
     }
 

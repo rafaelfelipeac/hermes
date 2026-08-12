@@ -12,16 +12,14 @@ import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRec
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
-import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.data.SettingsRepositoryImpl
 import com.rafaelfelipeac.hermes.features.settings.data.settingsDataStore
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import kotlinx.coroutines.flow.first
-import java.time.Instant
-import java.time.LocalDate
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -29,6 +27,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.time.Instant
+import java.time.LocalDate
 
 @RunWith(AndroidJUnit4::class)
 class BackupRepositoryImplTest {
@@ -217,21 +217,21 @@ private fun buildImportBackupJson(
     val personalRecordFamiliesField =
         if (includePersonalRecords) {
             """
-            ,
-          "$KEY_PERSONAL_RECORD_FAMILIES": [
-            {
-              "$KEY_ID": 1,
-              "$KEY_CATEGORY_ID": null,
-              "$KEY_TITLE": "5K PR",
-              "$KEY_METRIC_TYPE": "DISTANCE",
-              "$KEY_DEFAULT_UNIT": "MILE",
-              "$KEY_COMPARISON_RULE": "LOWER_IS_BETTER",
-              "$KEY_MANUAL_CURRENT_ENTRY_ID": 1,
-              "$KEY_SORT_ORDER": 0,
-              "$KEY_CREATED_AT": "2026-02-25T10:00:00Z",
-              "$KEY_UPDATED_AT": "2026-02-25T10:00:00Z"
-            }
-          ]
+              ,
+            "$KEY_PERSONAL_RECORD_FAMILIES": [
+              {
+                "$KEY_ID": 1,
+                "$KEY_CATEGORY_ID": null,
+                "$KEY_TITLE": "5K PR",
+                "$KEY_METRIC_TYPE": "DISTANCE",
+                "$KEY_DEFAULT_UNIT": "MILE",
+                "$KEY_COMPARISON_RULE": "LOWER_IS_BETTER",
+                "$KEY_MANUAL_CURRENT_ENTRY_ID": 1,
+                "$KEY_SORT_ORDER": 0,
+                "$KEY_CREATED_AT": "2026-02-25T10:00:00Z",
+                "$KEY_UPDATED_AT": "2026-02-25T10:00:00Z"
+              }
+            ]
             """.trimIndent()
         } else {
             ""
@@ -239,20 +239,20 @@ private fun buildImportBackupJson(
     val personalRecordEntriesField =
         if (includePersonalRecords) {
             """
-            ,
-          "$KEY_PERSONAL_RECORD_ENTRIES": [
-            {
-              "$KEY_ID": 1,
-              "$KEY_FAMILY_ID": 1,
-              "$KEY_VALUE": 20.5,
-              "$KEY_UNIT": "MILE",
-              "$KEY_CUSTOM_UNIT_LABEL": null,
-              "$KEY_RECORD_DATE": "2026-02-24",
-              "$KEY_NOTE": "All-out effort",
-              "$KEY_CREATED_AT": "2026-02-25T10:15:00Z",
-              "$KEY_UPDATED_AT": "2026-02-25T10:15:00Z"
-            }
-          ]
+              ,
+            "$KEY_PERSONAL_RECORD_ENTRIES": [
+              {
+                "$KEY_ID": 1,
+                "$KEY_FAMILY_ID": 1,
+                "$KEY_VALUE": 20.5,
+                "$KEY_UNIT": "MILE",
+                "$KEY_CUSTOM_UNIT_LABEL": null,
+                "$KEY_RECORD_DATE": "2026-02-24",
+                "$KEY_NOTE": "All-out effort",
+                "$KEY_CREATED_AT": "2026-02-25T10:15:00Z",
+                "$KEY_UPDATED_AT": "2026-02-25T10:15:00Z"
+              }
+            ]
             """.trimIndent()
         } else {
             ""

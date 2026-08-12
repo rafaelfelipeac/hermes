@@ -272,9 +272,12 @@
     <string name="activity_subtitle_week">Woche vom %1$s.</string>
     <string name="activity_subtitle_workout_category">Kategorie %1$s.</string>
     <string name="activity_subtitle_workout_category_change">Kategorie von %1$s zu %2$s.</string>
-    <string name="activity_action_create_personal_record_family">Du hast eine Familie persönlicher Bestleistungen erstellt.</string>
-    <string name="activity_action_update_personal_record_family">Du hast eine Familie persönlicher Bestleistungen aktualisiert.</string>
-    <string name="activity_action_delete_personal_record_family">Du hast eine Familie persönlicher Bestleistungen gelöscht.</string>
+    <string name="activity_action_change_distance_unit">Du hast die Entfernungseinheit geändert.</string>
+    <string name="activity_action_change_pace_unit">Du hast die Tempoeinheit geändert.</string>
+    <string name="activity_action_change_weight_unit">Du hast die Gewichtseinheit geändert.</string>
+    <string name="activity_action_create_personal_record_family">Du hast eine Serie persönlicher Bestleistungen erstellt.</string>
+    <string name="activity_action_update_personal_record_family">Du hast eine Serie persönlicher Bestleistungen aktualisiert.</string>
+    <string name="activity_action_delete_personal_record_family">Du hast eine Serie persönlicher Bestleistungen gelöscht.</string>
     <string name="activity_action_create_personal_record_entry">Du hast ein persönliches Bestleistungsergebnis hinzugefügt.</string>
     <string name="activity_action_update_personal_record_entry">Du hast ein persönliches Bestleistungsergebnis aktualisiert.</string>
     <string name="activity_action_delete_personal_record_entry">Du hast ein persönliches Bestleistungsergebnis gelöscht.</string>
@@ -307,6 +310,8 @@
     <string name="personal_records_no_results">Noch kein Ergebnis.</string>
     <string name="personal_records_back_to_shelf">Zurück zu den Serien</string>
     <string name="personal_records_current_best">Aktuell beste Leistung</string>
+    <string name="personal_records_set_current">Als aktuellen PR festlegen</string>
+    <string name="personal_records_current_selected">Aktueller PR</string>
     <string name="personal_records_history_title">Verlauf</string>
     <string name="personal_records_history_empty_title">Noch kein Verlauf.</string>
     <string name="personal_records_history_empty_body">Füge das erste Ergebnis hinzu, um diese PR-Serie zu starten.</string>

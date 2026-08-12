@@ -5,8 +5,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
@@ -16,11 +16,11 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.DISTANCE
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
+import org.junit.Rule
+import org.junit.Test
 import java.time.Instant
 import java.time.LocalDate
 import java.util.Locale
-import org.junit.Rule
-import org.junit.Test
 
 class PersonalRecordsEntryEditorDialogTest {
     @get:Rule
@@ -89,16 +89,15 @@ class PersonalRecordsEntryEditorDialogTest {
     private fun sampleEntry(
         familyId: Long,
         recordDate: LocalDate,
-    ) =
-        PersonalRecordEntry(
-            id = 10L,
-            familyId = familyId,
-            value = 5.0,
-            unit = KILOMETER,
-            customUnitLabel = null,
-            recordDate = recordDate,
-            note = null,
-            createdAt = Instant.parse("2024-01-01T00:00:00Z"),
-            updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
-        )
+    ) = PersonalRecordEntry(
+        id = 10L,
+        familyId = familyId,
+        value = 5.0,
+        unit = KILOMETER,
+        customUnitLabel = null,
+        recordDate = recordDate,
+        note = null,
+        createdAt = Instant.parse("2024-01-01T00:00:00Z"),
+        updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
+    )
 }

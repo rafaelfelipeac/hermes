@@ -268,9 +268,12 @@
     <string name="activity_subtitle_week">%1$s の週。</string>
     <string name="activity_subtitle_workout_category">カテゴリ %1$s。</string>
     <string name="activity_subtitle_workout_category_change">カテゴリ %1$s から %2$s へ。</string>
-    <string name="activity_action_create_personal_record_family">個人記録のファミリーを作成しました。</string>
-    <string name="activity_action_update_personal_record_family">個人記録のファミリーを更新しました。</string>
-    <string name="activity_action_delete_personal_record_family">個人記録のファミリーを削除しました。</string>
+    <string name="activity_action_change_distance_unit">距離の単位を変更しました。</string>
+    <string name="activity_action_change_pace_unit">ペースの単位を変更しました。</string>
+    <string name="activity_action_change_weight_unit">重量の単位を変更しました。</string>
+    <string name="activity_action_create_personal_record_family">自己記録シリーズを作成しました。</string>
+    <string name="activity_action_update_personal_record_family">自己記録シリーズを更新しました。</string>
+    <string name="activity_action_delete_personal_record_family">自己記録シリーズを削除しました。</string>
     <string name="activity_action_create_personal_record_entry">個人記録の結果を追加しました。</string>
     <string name="activity_action_update_personal_record_entry">個人記録の結果を更新しました。</string>
     <string name="activity_action_delete_personal_record_entry">個人記録の結果を削除しました。</string>
@@ -303,6 +306,8 @@
     <string name="personal_records_no_results">まだ結果がありません。</string>
     <string name="personal_records_back_to_shelf">シリーズ一覧に戻る</string>
     <string name="personal_records_current_best">現在のベスト</string>
+    <string name="personal_records_set_current">現在の自己記録に設定</string>
+    <string name="personal_records_current_selected">現在の自己記録</string>
     <string name="personal_records_history_title">履歴</string>
     <string name="personal_records_history_empty_title">まだ履歴がありません。</string>
     <string name="personal_records_history_empty_body">最初の結果を追加すると、このPRシリーズが始まります。</string>

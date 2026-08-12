@@ -43,4 +43,3 @@ object PaceCalculator {
         return (timeSeconds / paceSecondsPerUnit) * paceUnitDistanceMeters
     }
 }
-

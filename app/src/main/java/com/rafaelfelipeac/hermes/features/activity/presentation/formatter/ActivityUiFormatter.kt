@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.activity.presentation.formatter
 
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.AppConstants.SPACE
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
@@ -10,11 +11,15 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
+import java.text.NumberFormat
 import java.time.DayOfWeek
 import java.time.DayOfWeek.FRIDAY
 import java.time.DayOfWeek.MONDAY
@@ -131,6 +136,15 @@ class ActivityUiFormatter(
 
             UserActionType.CHANGE_WEEK_START ->
                 stringProvider.get(R.string.activity_action_change_week_start)
+
+            UserActionType.CHANGE_DISTANCE_UNIT ->
+                stringProvider.get(R.string.activity_action_change_distance_unit)
+
+            UserActionType.CHANGE_PACE_UNIT ->
+                stringProvider.get(R.string.activity_action_change_pace_unit)
+
+            UserActionType.CHANGE_WEIGHT_UNIT ->
+                stringProvider.get(R.string.activity_action_change_weight_unit)
 
             UserActionType.EXPORT_BACKUP ->
                 stringProvider.get(R.string.activity_action_export_backup)
@@ -250,6 +264,9 @@ class ActivityUiFormatter(
             UserActionType.CHANGE_THEME -> themeLabel(raw)
             UserActionType.CHANGE_SLOT_MODE -> slotModeLabel(raw)
             UserActionType.CHANGE_WEEK_START -> weekStartDayLabel(raw)
+            UserActionType.CHANGE_DISTANCE_UNIT -> distanceUnitLabel(raw)
+            UserActionType.CHANGE_PACE_UNIT -> paceUnitLabel(raw)
+            UserActionType.CHANGE_WEIGHT_UNIT -> weightUnitLabel(raw)
             else -> raw
         }
     }
@@ -407,6 +424,9 @@ class ActivityUiFormatter(
             UserActionType.CHANGE_THEME,
             UserActionType.CHANGE_SLOT_MODE,
             UserActionType.CHANGE_WEEK_START,
+            UserActionType.CHANGE_DISTANCE_UNIT,
+            UserActionType.CHANGE_PACE_UNIT,
+            UserActionType.CHANGE_WEIGHT_UNIT,
             UserActionType.UPDATE_CATEGORY_NAME,
             -> buildValueChangeSubtitle(metadata, actionType)
 
@@ -425,12 +445,12 @@ class ActivityUiFormatter(
             UserActionType.CREATE_PERSONAL_RECORD_FAMILY,
             UserActionType.UPDATE_PERSONAL_RECORD_FAMILY,
             UserActionType.DELETE_PERSONAL_RECORD_FAMILY,
-                -> buildPersonalRecordFamilySubtitle(metadata)
+            -> buildPersonalRecordFamilySubtitle(metadata)
 
             UserActionType.CREATE_PERSONAL_RECORD_ENTRY,
             UserActionType.UPDATE_PERSONAL_RECORD_ENTRY,
             UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
-                -> buildPersonalRecordEntrySubtitle(metadata, currentLocale)
+            -> buildPersonalRecordEntrySubtitle(metadata, currentLocale)
 
             UserActionType.MOVE_WORKOUT_BETWEEN_DAYS,
             UserActionType.MOVE_REST,
@@ -480,11 +500,15 @@ class ActivityUiFormatter(
     }
 
     private fun buildPersonalRecordFamilySubtitle(metadata: Map<String, String>): String? {
-        val category = metadata[UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_NAME]
-            ?.takeIf { it.isNotBlank() }
-            ?: stringProvider.get(R.string.category_uncategorized)
+        val category =
+            metadata[UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_NAME]
+                ?.takeIf { it.isNotBlank() }
+                ?: stringProvider.get(R.string.category_uncategorized)
         val metricType = personalRecordMetricLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE])
-        val comparisonRule = personalRecordComparisonRuleLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_COMPARISON_RULE])
+        val comparisonRule =
+            personalRecordComparisonRuleLabel(
+                metadata[UserActionMetadataKeys.PERSONAL_RECORD_COMPARISON_RULE],
+            )
 
         if (metricType == null && comparisonRule == null) return null
 
@@ -499,24 +523,32 @@ class ActivityUiFormatter(
         metadata: Map<String, String>,
         currentLocale: Locale,
     ): String? {
-        val value = metadata[UserActionMetadataKeys.PERSONAL_RECORD_NORMALIZED_VALUE]
-            ?.takeIf { it.isNotBlank() }
-        val recordDate = metadata[UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE]
-            ?.takeIf { it.isNotBlank() }
-            ?.let { raw ->
-                runCatching {
-                    LocalDate.parse(raw).format(
-                        DateTimeFormatterBuilder()
-                            .appendPattern(stringProvider.get(R.string.activity_week_date_pattern))
-                            .toFormatter(currentLocale),
-                    )
-                }.getOrDefault(raw)
-            }
+        val value =
+            metadata[UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE]
+                ?.takeIf { it.isNotBlank() }
+                ?.toDoubleOrNull()
+                ?.let { NumberFormat.getNumberInstance(currentLocale).format(it) }
+                ?: metadata[UserActionMetadataKeys.PERSONAL_RECORD_NORMALIZED_VALUE]
+                    ?.takeIf { it.isNotBlank() }
+        val unit = personalRecordUnitLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_UNIT])
+        val valueWithUnit = listOfNotNull(value, unit).joinToString(SPACE).ifBlank { null }
+        val recordDate =
+            metadata[UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE]
+                ?.takeIf { it.isNotBlank() }
+                ?.let { raw ->
+                    runCatching {
+                        LocalDate.parse(raw).format(
+                            DateTimeFormatterBuilder()
+                                .appendPattern(stringProvider.get(R.string.activity_week_date_pattern))
+                                .toFormatter(currentLocale),
+                        )
+                    }.getOrDefault(raw)
+                }
 
-        if (value.isNullOrBlank() && recordDate.isNullOrBlank()) return null
+        if (valueWithUnit.isNullOrBlank() && recordDate.isNullOrBlank()) return null
 
         return listOfNotNull(
-            value,
+            valueWithUnit,
             recordDate,
         ).joinToString(stringProvider.get(R.string.activity_subtitle_separator))
     }
@@ -539,6 +571,46 @@ class ActivityUiFormatter(
             "LOWER_IS_BETTER" -> stringProvider.get(R.string.personal_records_comparison_lower)
             "MANUAL" -> stringProvider.get(R.string.personal_records_comparison_manual)
             else -> raw
+        }
+    }
+
+    private fun personalRecordUnitLabel(raw: String?): String? {
+        return when (raw?.uppercase(Locale.ENGLISH)) {
+            "KILOMETER" -> stringProvider.get(R.string.personal_records_unit_kilometer)
+            "MILE" -> stringProvider.get(R.string.personal_records_unit_mile)
+            "METER" -> stringProvider.get(R.string.personal_records_unit_meter)
+            "SECOND" -> stringProvider.get(R.string.personal_records_unit_second)
+            "MINUTE" -> stringProvider.get(R.string.personal_records_unit_minute)
+            "HOUR" -> stringProvider.get(R.string.personal_records_unit_hour)
+            "KILOGRAM" -> stringProvider.get(R.string.personal_records_unit_kilogram)
+            "POUND" -> stringProvider.get(R.string.personal_records_unit_pound)
+            "WATT" -> stringProvider.get(R.string.personal_records_unit_watt)
+            "REP" -> stringProvider.get(R.string.personal_records_unit_rep)
+            else -> null
+        }
+    }
+
+    private fun distanceUnitLabel(raw: String): String {
+        return when (runCatching { DistanceUnit.valueOf(raw.uppercase(Locale.ENGLISH)) }.getOrNull()) {
+            DistanceUnit.KILOMETERS -> stringProvider.get(R.string.settings_unit_kilometers)
+            DistanceUnit.MILES -> stringProvider.get(R.string.settings_unit_miles)
+            null -> raw
+        }
+    }
+
+    private fun paceUnitLabel(raw: String): String {
+        return when (runCatching { PaceUnit.valueOf(raw.uppercase(Locale.ENGLISH)) }.getOrNull()) {
+            PaceUnit.MIN_PER_KM -> stringProvider.get(R.string.settings_unit_min_per_km)
+            PaceUnit.MIN_PER_MI -> stringProvider.get(R.string.settings_unit_min_per_mi)
+            null -> raw
+        }
+    }
+
+    private fun weightUnitLabel(raw: String): String {
+        return when (runCatching { WeightUnit.valueOf(raw.uppercase(Locale.ENGLISH)) }.getOrNull()) {
+            WeightUnit.KILOGRAMS -> stringProvider.get(R.string.settings_unit_kilograms)
+            WeightUnit.POUNDS -> stringProvider.get(R.string.settings_unit_pounds)
+            null -> raw
         }
     }
 

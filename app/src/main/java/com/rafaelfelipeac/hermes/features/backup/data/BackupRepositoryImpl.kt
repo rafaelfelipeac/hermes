@@ -89,7 +89,7 @@ class BackupRepositoryImpl
             }
         }
 
-        @Suppress("ReturnCount")
+        @Suppress("LongMethod", "ReturnCount")
         override suspend fun importBackupJson(rawJson: String): ImportBackupResult {
             val snapshot =
                 when (val decoded = decode(rawJson)) {
@@ -188,11 +188,12 @@ class BackupRepositoryImpl
                 personalRecordDao.getEntries().isNotEmpty()
         }
 
-        @Suppress("CyclomaticComplexMethod", "ReturnCount")
+        @Suppress("CyclomaticComplexMethod", "LongMethod", "ReturnCount")
         private fun validateSnapshot(snapshot: BackupSnapshot): ImportBackupError? {
             val categoryIds = snapshot.categories.map { it.id }.toSet()
             val personalRecordFamilyIds = snapshot.personalRecordFamilies.map { it.id }.toSet()
             val personalRecordEntryIds = snapshot.personalRecordEntries.map { it.id }.toSet()
+            val personalRecordEntriesById = snapshot.personalRecordEntries.associateBy { it.id }
 
             snapshot.workouts.forEach { workout ->
                 if (workout.dayOfWeek != null && workout.dayOfWeek !in VALID_DAY_OF_WEEK_RANGE) {
@@ -223,25 +224,25 @@ class BackupRepositoryImpl
             }
 
             snapshot.personalRecordFamilies.forEach { family ->
-                if (runCatching {
-                        com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.valueOf(
-                            family.metricType,
-                        )
-                    }.isFailure) {
+                if (
+                    runCatching {
+                        PersonalRecordMetricType.valueOf(family.metricType)
+                    }.isFailure
+                ) {
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
-                if (runCatching {
-                        com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.valueOf(
-                            family.defaultUnit,
-                        )
-                    }.isFailure) {
+                if (
+                    runCatching {
+                        PersonalRecordUnit.valueOf(family.defaultUnit)
+                    }.isFailure
+                ) {
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
-                if (runCatching {
-                        com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.valueOf(
-                            family.comparisonRule,
-                        )
-                    }.isFailure) {
+                if (
+                    runCatching {
+                        PersonalRecordComparisonRule.valueOf(family.comparisonRule)
+                    }.isFailure
+                ) {
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
                 try {
@@ -256,7 +257,8 @@ class BackupRepositoryImpl
                     }
                 }
                 family.manualCurrentEntryId?.let { entryId ->
-                    if (entryId !in personalRecordEntryIds) {
+                    val referencedEntry = personalRecordEntriesById[entryId]
+                    if (entryId !in personalRecordEntryIds || referencedEntry?.familyId != family.id) {
                         return ImportBackupError.INVALID_REFERENCE
                     }
                 }

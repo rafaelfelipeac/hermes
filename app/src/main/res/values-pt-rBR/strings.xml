@@ -272,9 +272,12 @@
     <string name="activity_subtitle_week">Semana de %1$s.</string>
     <string name="activity_subtitle_workout_category">Categoria %1$s.</string>
     <string name="activity_subtitle_workout_category_change">Categoria de %1$s para %2$s.</string>
-    <string name="activity_action_create_personal_record_family">Você criou uma família de recordes pessoais.</string>
-    <string name="activity_action_update_personal_record_family">Você atualizou uma família de recordes pessoais.</string>
-    <string name="activity_action_delete_personal_record_family">Você excluiu uma família de recordes pessoais.</string>
+    <string name="activity_action_change_distance_unit">Você alterou a unidade de distância.</string>
+    <string name="activity_action_change_pace_unit">Você alterou a unidade de ritmo.</string>
+    <string name="activity_action_change_weight_unit">Você alterou a unidade de peso.</string>
+    <string name="activity_action_create_personal_record_family">Você criou uma série de recordes pessoais.</string>
+    <string name="activity_action_update_personal_record_family">Você atualizou uma série de recordes pessoais.</string>
+    <string name="activity_action_delete_personal_record_family">Você excluiu uma série de recordes pessoais.</string>
     <string name="activity_action_create_personal_record_entry">Você adicionou um resultado de recorde pessoal.</string>
     <string name="activity_action_update_personal_record_entry">Você atualizou um resultado de recorde pessoal.</string>
     <string name="activity_action_delete_personal_record_entry">Você excluiu um resultado de recorde pessoal.</string>
@@ -307,6 +310,8 @@
     <string name="personal_records_no_results">Ainda sem resultado.</string>
     <string name="personal_records_back_to_shelf">Voltar para as séries</string>
     <string name="personal_records_current_best">Melhor atual</string>
+    <string name="personal_records_set_current">Definir como PR atual</string>
+    <string name="personal_records_current_selected">PR atual</string>
     <string name="personal_records_history_title">Histórico</string>
     <string name="personal_records_history_empty_title">Ainda sem histórico.</string>
     <string name="personal_records_history_empty_body">Adicione o primeiro resultado para iniciar esta série de PR.</string>

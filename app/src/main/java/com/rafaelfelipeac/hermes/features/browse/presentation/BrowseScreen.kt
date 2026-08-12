@@ -28,8 +28,8 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Construction
-import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.EmojiEvents
+import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -122,6 +122,7 @@ fun BrowseScreen(
             PersonalRecordsScreen(
                 modifier = modifier,
                 settingsDistanceUnit = settingsState.distanceUnit,
+                settingsWeightUnit = settingsState.weightUnit,
                 onBack = onBack,
             )
 

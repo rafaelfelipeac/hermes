@@ -1,10 +1,11 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:Suppress("TooManyFunctions")
 
 package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,38 +14,38 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
@@ -57,50 +58,52 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.key
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.core.os.ConfigurationCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
+import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelColumnMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelContentPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelItemHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordsActionBottomPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -108,6 +111,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
@@ -129,7 +133,6 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.TIME
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.WEIGHT
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM as CUSTOM_UNIT
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.HOUR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOGRAM
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
@@ -141,11 +144,12 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.SECOND
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.WATT
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
-import kotlin.math.abs
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.Locale
-import androidx.compose.runtime.snapshotFlow
-import kotlinx.coroutines.launch
+import kotlin.math.abs
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM as CUSTOM_UNIT
 
 internal const val PERSONAL_RECORDS_ROOT_TAG = "personal_records_root"
 internal const val PERSONAL_RECORDS_BACK_BUTTON_TAG = "personal_records_back_button"
@@ -160,12 +164,14 @@ internal const val PERSONAL_RECORDS_ENTRY_DATE_FIELD_TAG = "personal_records_ent
 internal const val PERSONAL_RECORDS_EDIT_FAMILY_BUTTON_TAG = "personal_records_edit_family_button"
 internal const val PERSONAL_RECORDS_DELETE_FAMILY_BUTTON_TAG = "personal_records_delete_family_button"
 internal const val PERSONAL_RECORDS_ENTRY_CARD_TAG_PREFIX = "personal_records_entry_"
+internal const val PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX = "personal_records_set_current_"
 private const val PERSONAL_RECORDS_ADD_MENU_SCRIM_ALPHA = 0.30f
 
 @Composable
 fun PersonalRecordsScreen(
     modifier: Modifier = Modifier,
     settingsDistanceUnit: DistanceUnit,
+    settingsWeightUnit: WeightUnit,
     viewModel: PersonalRecordsViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
@@ -202,6 +208,7 @@ fun PersonalRecordsScreen(
         onEditFamily = { editingFamily = it },
         onDeleteFamily = { deletingFamily = it },
         onEditEntry = { editingEntry = it },
+        onSetManualCurrentEntry = viewModel::setManualCurrentEntry,
     )
 
     if (showCreateFamilyDialog) {
@@ -213,7 +220,11 @@ fun PersonalRecordsScreen(
                     categoryId = categoryId,
                     title = title,
                     metricType = metricType,
-                    defaultUnit = metricType.defaultUnit(settingsDistanceUnit),
+                    defaultUnit =
+                        metricType.defaultUnit(
+                            distanceUnit = settingsDistanceUnit,
+                            weightUnit = settingsWeightUnit,
+                        ),
                     comparisonRule = comparisonRule,
                 )
                 showCreateFamilyDialog = false
@@ -229,12 +240,14 @@ fun PersonalRecordsScreen(
             onDismiss = { showAddEntryDialog = false },
             onSave = { familyId, value, unit, recordDate, note, customUnitLabel ->
                 viewModel.addEntry(
-                    familyId = familyId,
-                    value = value,
-                    unit = unit,
-                    recordDate = recordDate,
-                    note = note,
-                    customUnitLabel = customUnitLabel,
+                    PersonalRecordEntryInput(
+                        familyId = familyId,
+                        value = value,
+                        unit = unit,
+                        recordDate = recordDate,
+                        note = note,
+                        customUnitLabel = customUnitLabel,
+                    ),
                 )
                 showAddEntryDialog = false
             },
@@ -304,12 +317,15 @@ fun PersonalRecordsScreen(
             onSave = { familyId, value, unit, recordDate, note, customUnitLabel ->
                 viewModel.updateEntry(
                     entryId = entry.id,
-                    familyId = familyId,
-                    value = value,
-                    unit = unit,
-                    recordDate = recordDate,
-                    note = note,
-                    customUnitLabel = customUnitLabel,
+                    input =
+                        PersonalRecordEntryInput(
+                            familyId = familyId,
+                            value = value,
+                            unit = unit,
+                            recordDate = recordDate,
+                            note = note,
+                            customUnitLabel = customUnitLabel,
+                        ),
                 )
                 editingEntry = null
             },
@@ -360,6 +376,7 @@ fun PersonalRecordsContent(
     onEditFamily: (PersonalRecordFamily) -> Unit,
     onDeleteFamily: (PersonalRecordFamily) -> Unit,
     onEditEntry: (PersonalRecordEntry) -> Unit,
+    onSetManualCurrentEntry: (familyId: Long, entryId: Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     var isAddMenuVisible by rememberSaveable { mutableStateOf(false) }
@@ -392,11 +409,17 @@ fun PersonalRecordsContent(
                             }
                             IconButton(
                                 onClick = { onDeleteFamily(selectedFamily) },
-                                modifier = Modifier.testTag(PERSONAL_RECORDS_DELETE_FAMILY_BUTTON_TAG),
+                                modifier =
+                                    Modifier.testTag(
+                                        PERSONAL_RECORDS_DELETE_FAMILY_BUTTON_TAG,
+                                    ),
                             ) {
                                 Icon(
                                     imageVector = Icons.Outlined.Delete,
-                                    contentDescription = stringResource(R.string.personal_records_delete_family_confirm),
+                                    contentDescription =
+                                        stringResource(
+                                            R.string.personal_records_delete_family_confirm,
+                                        ),
                                     tint = colorScheme.onSurface,
                                 )
                             }
@@ -427,8 +450,8 @@ fun PersonalRecordsContent(
                         state = state,
                         family = selectedFamily,
                         currentLocale = currentLocale,
-                        onAddResult = { onAddResult(selectedFamily.id) },
                         onEditEntry = onEditEntry,
+                        onSetManualCurrentEntry = onSetManualCurrentEntry,
                     )
                 }
             }
@@ -473,10 +496,14 @@ fun PersonalRecordsContent(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .background(colorScheme.scrim.copy(alpha = PERSONAL_RECORDS_ADD_MENU_SCRIM_ALPHA))
+                        .background(
+                            colorScheme.scrim.copy(
+                                alpha = PERSONAL_RECORDS_ADD_MENU_SCRIM_ALPHA,
+                            ),
+                        )
                         .clickable(
                             indication = null,
-                            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                            interactionSource = remember { MutableInteractionSource() },
                         ) {
                             isAddMenuVisible = false
                         },
@@ -630,7 +657,10 @@ private fun PersonalRecordsShelf(
                                     shadowElevation = ElevationSm,
                                     modifier = Modifier.size(SmallIconSize + SpacingSm),
                                 ) {
-                                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                    Box(
+                                        contentAlignment = Alignment.Center,
+                                        modifier = Modifier.fillMaxSize(),
+                                    ) {
                                         Icon(
                                             imageVector = categoryIcon(category),
                                             contentDescription = null,
@@ -642,7 +672,10 @@ private fun PersonalRecordsShelf(
 
                                 Spacer(modifier = Modifier.width(SpacingMd))
 
-                                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingXxs)) {
+                                Column(
+                                    modifier = Modifier.weight(1f),
+                                    verticalArrangement = Arrangement.spacedBy(SpacingXxs),
+                                ) {
                                     Text(text = family.title, style = typography.titleMedium)
                                     PersonalRecordMetadataRow(
                                         labels =
@@ -675,8 +708,8 @@ private fun PersonalRecordDetail(
     state: PersonalRecordsState,
     family: PersonalRecordFamily,
     currentLocale: Locale,
-    onAddResult: () -> Unit,
     onEditEntry: (PersonalRecordEntry) -> Unit,
+    onSetManualCurrentEntry: (familyId: Long, entryId: Long) -> Unit,
 ) {
     val familyEntries = remember(state.entries, family.id) { state.entries.filter { it.familyId == family.id } }
     val currentBest = PersonalRecordBestSelector.selectBest(family, familyEntries)
@@ -746,6 +779,9 @@ private fun PersonalRecordDetail(
                         entry = entry,
                         currentLocale = currentLocale,
                         onClick = { onEditEntry(entry) },
+                        isManualSelection = family.comparisonRule == MANUAL,
+                        isCurrent = currentBest?.id == entry.id,
+                        onSetCurrent = { onSetManualCurrentEntry(family.id, entry.id) },
                     )
                 }
             }
@@ -758,6 +794,9 @@ private fun PersonalRecordHistoryRow(
     entry: PersonalRecordEntry,
     currentLocale: Locale,
     onClick: () -> Unit,
+    isManualSelection: Boolean,
+    isCurrent: Boolean,
+    onSetCurrent: () -> Unit,
 ) {
     Card(
         onClick = onClick,
@@ -797,6 +836,26 @@ private fun PersonalRecordHistoryRow(
                 style = typography.bodySmall,
                 color = colorScheme.onSurfaceVariant,
             )
+
+            if (isManualSelection) {
+                IconButton(
+                    onClick = onSetCurrent,
+                    enabled = !isCurrent,
+                    modifier = Modifier.testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id),
+                ) {
+                    Icon(
+                        imageVector = if (isCurrent) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        contentDescription =
+                            stringResource(
+                                if (isCurrent) {
+                                    R.string.personal_records_current_selected
+                                } else {
+                                    R.string.personal_records_set_current
+                                },
+                            ),
+                    )
+                }
+            }
         }
     }
 }
@@ -833,9 +892,7 @@ private fun AddActionPill(
 }
 
 @Composable
-private fun PersonalRecordMetadataRow(
-    labels: List<String>,
-) {
+private fun PersonalRecordMetadataRow(labels: List<String>) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(SpacingXs),
         verticalAlignment = Alignment.CenterVertically,
@@ -1089,7 +1146,12 @@ internal fun PersonalRecordFamilyEditorDialog(
     categories: List<Category>,
     initialFamily: PersonalRecordFamily? = null,
     onDismiss: () -> Unit,
-    onSave: (categoryId: Long?, title: String, metricType: PersonalRecordMetricType, comparisonRule: PersonalRecordComparisonRule) -> Unit,
+    onSave: (
+        categoryId: Long?,
+        title: String,
+        metricType: PersonalRecordMetricType,
+        comparisonRule: PersonalRecordComparisonRule,
+    ) -> Unit,
 ) {
     val isEdit = initialFamily != null
     var title by rememberSaveable(initialFamily?.id) { mutableStateOf(initialFamily?.title.orEmpty()) }
@@ -1137,7 +1199,7 @@ internal fun PersonalRecordFamilyEditorDialog(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .heightIn(max = com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight)
+                        .heightIn(max = PlannedItemDialogContentMaxHeight)
                         .verticalScroll(rememberScrollState()),
             ) {
                 OutlinedTextField(
@@ -1214,11 +1276,20 @@ internal fun PersonalRecordFamilyEditorDialog(
                             readOnly = true,
                             value = metricLabel(metricType),
                             onValueChange = {},
-                            label = { Text(text = stringResource(R.string.personal_records_family_metric_type)) },
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.personal_records_family_metric_type),
+                                )
+                            },
                             trailingIcon = {
                                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = metricMenuExpanded)
                             },
-                            modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .menuAnchor(
+                                        ExposedDropdownMenuAnchorType.PrimaryNotEditable,
+                                    ),
                         )
 
                         DropdownMenu(
@@ -1310,7 +1381,14 @@ internal fun PersonalRecordEntryEditorDialog(
     initialEntry: PersonalRecordEntry? = null,
     isEdit: Boolean = false,
     onDismiss: () -> Unit,
-    onSave: (familyId: Long, value: Double, unit: PersonalRecordUnit, recordDate: LocalDate, note: String?, customUnitLabel: String?) -> Unit,
+    onSave: (
+        familyId: Long,
+        value: Double,
+        unit: PersonalRecordUnit,
+        recordDate: LocalDate,
+        note: String?,
+        customUnitLabel: String?,
+    ) -> Unit,
     onDeleteRequested: (() -> Unit)? = null,
 ) {
     val initialDialogFamilyId = initialEntry?.familyId ?: initialFamilyId ?: families.firstOrNull()?.id
@@ -1326,13 +1404,14 @@ internal fun PersonalRecordEntryEditorDialog(
     val selectedUnit = selectedFamily?.defaultUnit ?: KILOMETER
     val isTimeMetric = selectedFamily?.metricType == TIME
     val today = remember { LocalDate.now() }
-    val initialTimeParts = remember(initialEntry?.id, selectedFamily?.id) {
-        if (initialEntry != null && initialFamilyId != null && selectedFamily?.metricType == TIME) {
-            secondsToTimeParts(initialEntry.value.toLong())
-        } else {
-            TimeParts()
+    val initialTimeParts =
+        remember(initialEntry?.id, selectedFamily?.id) {
+            if (initialEntry != null && initialFamilyId != null && selectedFamily?.metricType == TIME) {
+                secondsToTimeParts(initialEntry.value.toLong())
+            } else {
+                TimeParts()
+            }
         }
-    }
     var timeHours by rememberSaveable(dialogKey) { mutableStateOf(initialTimeParts.hours) }
     var timeMinutes by rememberSaveable(dialogKey) { mutableStateOf(initialTimeParts.minutes) }
     var timeSeconds by rememberSaveable(dialogKey) { mutableStateOf(initialTimeParts.seconds) }
@@ -1387,7 +1466,7 @@ internal fun PersonalRecordEntryEditorDialog(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .heightIn(max = com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight)
+                        .heightIn(max = PlannedItemDialogContentMaxHeight)
                         .verticalScroll(rememberScrollState()),
             ) {
                 ExposedDropdownMenuBox(
@@ -1695,7 +1774,10 @@ private fun comparisonLabel(comparisonRule: PersonalRecordComparisonRule): Strin
 }
 
 @Composable
-private fun unitLabelFor(unit: PersonalRecordUnit, customLabel: String? = null): String {
+private fun unitLabelFor(
+    unit: PersonalRecordUnit,
+    customLabel: String? = null,
+): String {
     return when (unit) {
         KILOMETER -> stringResource(R.string.personal_records_unit_kilometer)
         MILE -> stringResource(R.string.personal_records_unit_mile)

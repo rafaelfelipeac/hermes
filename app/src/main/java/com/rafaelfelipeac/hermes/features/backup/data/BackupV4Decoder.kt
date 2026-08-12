@@ -1,3 +1,5 @@
+@file:Suppress("ReturnCount")
+
 package com.rafaelfelipeac.hermes.features.backup.data
 
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
@@ -25,8 +27,8 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.longOrNull
 
-@Suppress("ReturnCount")
 internal object BackupV4Decoder {
+    @Suppress("CyclomaticComplexMethod", "ReturnCount")
     fun decode(root: JsonObject): BackupDecodeResult {
         val exportedAt =
             root.stringOrNull(KEY_EXPORTED_AT)
@@ -201,7 +203,9 @@ internal object BackupV4Decoder {
 
     private fun JsonObject.booleanOrNull(key: String): Boolean? = (this[key] as? JsonPrimitive)?.booleanOrNull
 
-    private fun JsonObject.doubleOrNull(key: String): Double? = (this[key] as? JsonPrimitive)?.contentOrNull?.toDoubleOrNull()
+    private fun JsonObject.doubleOrNull(key: String): Double? {
+        return (this[key] as? JsonPrimitive)?.contentOrNull?.toDoubleOrNull()
+    }
 
     private fun JsonObject.arrayOrNull(key: String): JsonArray? = this[key] as? JsonArray
 

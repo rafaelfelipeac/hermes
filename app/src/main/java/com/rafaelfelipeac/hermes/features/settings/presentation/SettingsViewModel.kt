@@ -24,8 +24,8 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LAN
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_PACE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_SLOT_MODE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_THEME
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_WEIGHT_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_WEEK_START
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_WEIGHT_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
@@ -62,6 +62,7 @@ import javax.inject.Inject
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.SYSTEM as SYSTEM_THEME
 
 @HiltViewModel
+@Suppress("TooManyFunctions")
 class SettingsViewModel
     @Inject
     constructor(
