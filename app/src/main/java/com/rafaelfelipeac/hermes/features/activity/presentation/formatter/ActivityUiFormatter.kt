@@ -87,7 +87,7 @@ class ActivityUiFormatter(
     ): String? {
         val actionType = runCatching { UserActionType.valueOf(record.actionType) }.getOrNull()
         val weekSubtitle = buildWeekSubtitle(metadata, currentLocale)
-        val actionSubtitle = buildActionSubtitle(actionType, metadata)
+        val actionSubtitle = buildActionSubtitle(actionType, metadata, currentLocale)
 
         return combineSubtitles(
             weekSubtitle = weekSubtitle,
@@ -158,6 +158,24 @@ class ActivityUiFormatter(
 
             UserActionType.COMPLETE_WEEK_WORKOUTS ->
                 stringProvider.get(R.string.activity_action_complete_week_workouts)
+
+            UserActionType.CREATE_PERSONAL_RECORD_FAMILY ->
+                stringProvider.get(R.string.activity_action_create_personal_record_family)
+
+            UserActionType.UPDATE_PERSONAL_RECORD_FAMILY ->
+                stringProvider.get(R.string.activity_action_update_personal_record_family)
+
+            UserActionType.DELETE_PERSONAL_RECORD_FAMILY ->
+                stringProvider.get(R.string.activity_action_delete_personal_record_family)
+
+            UserActionType.CREATE_PERSONAL_RECORD_ENTRY ->
+                stringProvider.get(R.string.activity_action_create_personal_record_entry)
+
+            UserActionType.UPDATE_PERSONAL_RECORD_ENTRY ->
+                stringProvider.get(R.string.activity_action_update_personal_record_entry)
+
+            UserActionType.DELETE_PERSONAL_RECORD_ENTRY ->
+                stringProvider.get(R.string.activity_action_delete_personal_record_entry)
 
             else -> stringProvider.get(R.string.activity_action_fallback)
         }
@@ -382,6 +400,7 @@ class ActivityUiFormatter(
     private fun buildActionSubtitle(
         actionType: UserActionType?,
         metadata: Map<String, String>,
+        currentLocale: Locale,
     ): String? {
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE,
@@ -402,6 +421,16 @@ class ActivityUiFormatter(
 
             UserActionType.SHARE_TROPHY ->
                 buildWorkoutCategorySubtitle(metadata)
+
+            UserActionType.CREATE_PERSONAL_RECORD_FAMILY,
+            UserActionType.UPDATE_PERSONAL_RECORD_FAMILY,
+            UserActionType.DELETE_PERSONAL_RECORD_FAMILY,
+                -> buildPersonalRecordFamilySubtitle(metadata)
+
+            UserActionType.CREATE_PERSONAL_RECORD_ENTRY,
+            UserActionType.UPDATE_PERSONAL_RECORD_ENTRY,
+            UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
+                -> buildPersonalRecordEntrySubtitle(metadata, currentLocale)
 
             UserActionType.MOVE_WORKOUT_BETWEEN_DAYS,
             UserActionType.MOVE_REST,
@@ -448,6 +477,69 @@ class ActivityUiFormatter(
             actionType == UserActionType.UPDATE_WORKOUT ||
             actionType == UserActionType.CHANGE_SLOT_MODE ||
             actionType == UserActionType.CHANGE_WEEK_START
+    }
+
+    private fun buildPersonalRecordFamilySubtitle(metadata: Map<String, String>): String? {
+        val category = metadata[UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_NAME]
+            ?.takeIf { it.isNotBlank() }
+            ?: stringProvider.get(R.string.category_uncategorized)
+        val metricType = personalRecordMetricLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE])
+        val comparisonRule = personalRecordComparisonRuleLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_COMPARISON_RULE])
+
+        if (metricType == null && comparisonRule == null) return null
+
+        return listOfNotNull(
+            quoteValue(category),
+            metricType,
+            comparisonRule,
+        ).joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+    }
+
+    private fun buildPersonalRecordEntrySubtitle(
+        metadata: Map<String, String>,
+        currentLocale: Locale,
+    ): String? {
+        val value = metadata[UserActionMetadataKeys.PERSONAL_RECORD_NORMALIZED_VALUE]
+            ?.takeIf { it.isNotBlank() }
+        val recordDate = metadata[UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE]
+            ?.takeIf { it.isNotBlank() }
+            ?.let { raw ->
+                runCatching {
+                    LocalDate.parse(raw).format(
+                        DateTimeFormatterBuilder()
+                            .appendPattern(stringProvider.get(R.string.activity_week_date_pattern))
+                            .toFormatter(currentLocale),
+                    )
+                }.getOrDefault(raw)
+            }
+
+        if (value.isNullOrBlank() && recordDate.isNullOrBlank()) return null
+
+        return listOfNotNull(
+            value,
+            recordDate,
+        ).joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+    }
+
+    private fun personalRecordMetricLabel(raw: String?): String? {
+        return when (raw?.uppercase(Locale.ENGLISH)) {
+            "DISTANCE" -> stringProvider.get(R.string.personal_records_metric_distance)
+            "TIME" -> stringProvider.get(R.string.personal_records_metric_time)
+            "WEIGHT" -> stringProvider.get(R.string.personal_records_metric_weight)
+            "POWER" -> stringProvider.get(R.string.personal_records_metric_power)
+            "REPS" -> stringProvider.get(R.string.personal_records_metric_reps)
+            "CUSTOM" -> stringProvider.get(R.string.personal_records_metric_custom)
+            else -> raw
+        }
+    }
+
+    private fun personalRecordComparisonRuleLabel(raw: String?): String? {
+        return when (raw?.uppercase(Locale.ENGLISH)) {
+            "HIGHER_IS_BETTER" -> stringProvider.get(R.string.personal_records_comparison_higher)
+            "LOWER_IS_BETTER" -> stringProvider.get(R.string.personal_records_comparison_lower)
+            "MANUAL" -> stringProvider.get(R.string.personal_records_comparison_manual)
+            else -> raw
+        }
     }
 
     private fun combineSubtitles(

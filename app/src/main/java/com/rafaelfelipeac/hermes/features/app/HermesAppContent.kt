@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.app
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -179,6 +180,12 @@ fun HermesAppContent() {
                     currentBrowseDestination = BrowseDestination.ROOT
                 }
         }
+    }
+
+    BackHandler(
+        enabled = currentDestination == BROWSE && currentBrowseDestination != BrowseDestination.ROOT,
+    ) {
+        onBrowseBack()
     }
 
     LaunchedEffect(trophyCelebrationViewModel) {

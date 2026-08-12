@@ -9,6 +9,8 @@ import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.SUPPORTED_
 import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.decode
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordEntryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordFamilyRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
@@ -21,10 +23,19 @@ import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupR
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.toImportBackupError
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
@@ -47,6 +58,7 @@ class BackupRepositoryImpl
         private val workoutDao: WorkoutDao,
         private val categoryDao: CategoryDao,
         private val userActionDao: UserActionDao,
+        private val personalRecordDao: PersonalRecordDao,
         private val settingsRepository: SettingsRepository,
     ) : BackupRepository {
         override suspend fun exportBackupJson(appVersion: String): Result<String> {
@@ -58,6 +70,8 @@ class BackupRepositoryImpl
                         appVersion = appVersion,
                         workouts = workoutDao.getAll().map { it.toBackupRecord() },
                         categories = categoryDao.getCategories().map { it.toBackupRecord() },
+                        personalRecordFamilies = personalRecordDao.getFamilies().map { it.toBackupRecord() },
+                        personalRecordEntries = personalRecordDao.getEntries().map { it.toBackupRecord() },
                         userActions = userActionDao.getAll().map { it.toBackupRecord() },
                         settings =
                             BackupSettingsRecord(
@@ -65,6 +79,9 @@ class BackupRepositoryImpl
                                 languageTag = settingsRepository.language.first().tag,
                                 slotModePolicy = settingsRepository.slotModePolicy.first().name,
                                 weekStartDay = settingsRepository.weekStartDay.first().name,
+                                distanceUnit = settingsRepository.distanceUnit.first().name,
+                                paceUnit = settingsRepository.paceUnit.first().name,
+                                weightUnit = settingsRepository.weightUnit.first().name,
                             ),
                     )
 
@@ -93,10 +110,22 @@ class BackupRepositoryImpl
                         workoutDao.deleteAll()
                         categoryDao.deleteAll()
                         userActionDao.deleteAll()
+                        personalRecordDao.deleteAllEntries()
+                        personalRecordDao.deleteAllFamilies()
 
                         val categories = snapshot.categories.map { it.toEntity() }
                         if (categories.isNotEmpty()) {
                             categoryDao.insertAll(categories)
+                        }
+
+                        val families = snapshot.personalRecordFamilies.map { it.toEntity() }
+                        if (families.isNotEmpty()) {
+                            personalRecordDao.insertFamilies(families)
+                        }
+
+                        val entries = snapshot.personalRecordEntries.map { it.toEntity() }
+                        if (entries.isNotEmpty()) {
+                            personalRecordDao.insertEntries(entries)
                         }
 
                         val workouts = snapshot.workouts.map { it.toEntity() }
@@ -122,6 +151,9 @@ class BackupRepositoryImpl
                     settingsRepository.setLanguage(AppLanguage.fromTag(settings.languageTag))
                     settingsRepository.setSlotModePolicy(SlotModePolicy.valueOf(settings.slotModePolicy))
                     settingsRepository.setWeekStartDay(WeekStartDay.valueOf(settings.weekStartDay))
+                    settingsRepository.setDistanceUnit(DistanceUnit.valueOf(settings.distanceUnit))
+                    settingsRepository.setPaceUnit(PaceUnit.valueOf(settings.paceUnit))
+                    settingsRepository.setWeightUnit(WeightUnit.valueOf(settings.weightUnit))
                 }.onFailure {
                     Log.w(
                         BACKUP_REPOSITORY_LOG_TAG,
@@ -151,12 +183,16 @@ class BackupRepositoryImpl
         override suspend fun hasAnyData(): Boolean {
             return workoutDao.getAll().isNotEmpty() ||
                 categoryDao.getCategories().isNotEmpty() ||
-                userActionDao.getAll().isNotEmpty()
+                userActionDao.getAll().isNotEmpty() ||
+                personalRecordDao.getFamilies().isNotEmpty() ||
+                personalRecordDao.getEntries().isNotEmpty()
         }
 
         @Suppress("CyclomaticComplexMethod", "ReturnCount")
         private fun validateSnapshot(snapshot: BackupSnapshot): ImportBackupError? {
             val categoryIds = snapshot.categories.map { it.id }.toSet()
+            val personalRecordFamilyIds = snapshot.personalRecordFamilies.map { it.id }.toSet()
+            val personalRecordEntryIds = snapshot.personalRecordEntries.map { it.id }.toSet()
 
             snapshot.workouts.forEach { workout ->
                 if (workout.dayOfWeek != null && workout.dayOfWeek !in VALID_DAY_OF_WEEK_RANGE) {
@@ -186,6 +222,65 @@ class BackupRepositoryImpl
                 }
             }
 
+            snapshot.personalRecordFamilies.forEach { family ->
+                if (runCatching {
+                        com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.valueOf(
+                            family.metricType,
+                        )
+                    }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching {
+                        com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.valueOf(
+                            family.defaultUnit,
+                        )
+                    }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching {
+                        com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.valueOf(
+                            family.comparisonRule,
+                        )
+                    }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                try {
+                    Instant.parse(family.createdAt)
+                    Instant.parse(family.updatedAt)
+                } catch (_: DateTimeParseException) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                family.categoryId?.let { categoryId ->
+                    if (categoryId !in categoryIds) {
+                        return ImportBackupError.INVALID_REFERENCE
+                    }
+                }
+                family.manualCurrentEntryId?.let { entryId ->
+                    if (entryId !in personalRecordEntryIds) {
+                        return ImportBackupError.INVALID_REFERENCE
+                    }
+                }
+            }
+
+            snapshot.personalRecordEntries.forEach { entry ->
+                if (entry.familyId !in personalRecordFamilyIds) {
+                    return ImportBackupError.INVALID_REFERENCE
+                }
+                if (!entry.value.isFinite()) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching { PersonalRecordUnit.valueOf(entry.unit) }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                try {
+                    LocalDate.parse(entry.recordDate)
+                    Instant.parse(entry.createdAt)
+                    Instant.parse(entry.updatedAt)
+                } catch (_: DateTimeParseException) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+            }
+
             snapshot.settings?.let { settings ->
                 if (runCatching { ThemeMode.valueOf(settings.themeMode) }.isFailure) {
                     return ImportBackupError.INVALID_FIELD_VALUE
@@ -194,6 +289,15 @@ class BackupRepositoryImpl
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
                 if (runCatching { WeekStartDay.valueOf(settings.weekStartDay) }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching { DistanceUnit.valueOf(settings.distanceUnit) }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching { PaceUnit.valueOf(settings.paceUnit) }.isFailure) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching { WeightUnit.valueOf(settings.weightUnit) }.isFailure) {
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
             }
@@ -232,6 +336,35 @@ private fun CategoryEntity.toBackupRecord(): BackupCategoryRecord {
     )
 }
 
+private fun PersonalRecordFamilyEntity.toBackupRecord(): BackupPersonalRecordFamilyRecord {
+    return BackupPersonalRecordFamilyRecord(
+        id = id,
+        categoryId = categoryId,
+        title = title,
+        metricType = metricType.name,
+        defaultUnit = defaultUnit.name,
+        comparisonRule = comparisonRule.name,
+        manualCurrentEntryId = manualCurrentEntryId,
+        sortOrder = sortOrder,
+        createdAt = Instant.ofEpochMilli(createdAt).toString(),
+        updatedAt = Instant.ofEpochMilli(updatedAt).toString(),
+    )
+}
+
+private fun PersonalRecordEntryEntity.toBackupRecord(): BackupPersonalRecordEntryRecord {
+    return BackupPersonalRecordEntryRecord(
+        id = id,
+        familyId = familyId,
+        value = value,
+        unit = unit.name,
+        customUnitLabel = customUnitLabel,
+        recordDate = recordDate.toString(),
+        note = note,
+        createdAt = Instant.ofEpochMilli(createdAt).toString(),
+        updatedAt = Instant.ofEpochMilli(updatedAt).toString(),
+    )
+}
+
 private fun UserActionEntity.toBackupRecord(): BackupUserActionRecord {
     return BackupUserActionRecord(
         id = id,
@@ -267,6 +400,35 @@ private fun BackupCategoryRecord.toEntity(): CategoryEntity {
         sortOrder = sortOrder,
         isHidden = isHidden,
         isSystem = isSystem,
+    )
+}
+
+private fun BackupPersonalRecordFamilyRecord.toEntity(): PersonalRecordFamilyEntity {
+    return PersonalRecordFamilyEntity(
+        id = id,
+        categoryId = categoryId,
+        title = title,
+        metricType = PersonalRecordMetricType.valueOf(metricType),
+        defaultUnit = PersonalRecordUnit.valueOf(defaultUnit),
+        comparisonRule = PersonalRecordComparisonRule.valueOf(comparisonRule),
+        manualCurrentEntryId = manualCurrentEntryId,
+        sortOrder = sortOrder,
+        createdAt = Instant.parse(createdAt).toEpochMilli(),
+        updatedAt = Instant.parse(updatedAt).toEpochMilli(),
+    )
+}
+
+private fun BackupPersonalRecordEntryRecord.toEntity(): PersonalRecordEntryEntity {
+    return PersonalRecordEntryEntity(
+        id = id,
+        familyId = familyId,
+        value = value,
+        unit = PersonalRecordUnit.valueOf(unit),
+        customUnitLabel = customUnitLabel,
+        recordDate = LocalDate.parse(recordDate),
+        note = note,
+        createdAt = Instant.parse(createdAt).toEpochMilli(),
+        updatedAt = Instant.parse(updatedAt).toEpochMilli(),
     )
 }
 

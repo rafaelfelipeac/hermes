@@ -202,4 +202,10 @@ private val planningActions =
         UserActionType.COPY_LAST_WEEK,
         UserActionType.UNDO_COPY_LAST_WEEK,
         UserActionType.OPEN_WEEK,
+        UserActionType.CREATE_PERSONAL_RECORD_FAMILY,
+        UserActionType.UPDATE_PERSONAL_RECORD_FAMILY,
+        UserActionType.DELETE_PERSONAL_RECORD_FAMILY,
+        UserActionType.CREATE_PERSONAL_RECORD_ENTRY,
+        UserActionType.UPDATE_PERSONAL_RECORD_ENTRY,
+        UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
     )

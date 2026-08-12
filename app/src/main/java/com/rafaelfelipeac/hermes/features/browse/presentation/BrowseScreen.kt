@@ -25,8 +25,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Construction
+import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material3.AlertDialog
@@ -60,12 +62,15 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
+import com.rafaelfelipeac.hermes.features.pacecalculator.presentation.PaceCalculatorScreen
+import com.rafaelfelipeac.hermes.features.personalrecords.presentation.PersonalRecordsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.DeveloperModeScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsBackupScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
@@ -111,6 +116,21 @@ fun BrowseScreen(
             CategoriesScreen(
                 onBack = onBack,
                 modifier = modifier,
+            )
+
+        BrowseDestination.PERSONAL_RECORDS ->
+            PersonalRecordsScreen(
+                modifier = modifier,
+                settingsDistanceUnit = settingsState.distanceUnit,
+                onBack = onBack,
+            )
+
+        BrowseDestination.PACE_CALCULATOR ->
+            PaceCalculatorScreen(
+                modifier = modifier,
+                settingsDistanceUnit = settingsState.distanceUnit,
+                settingsPaceUnit = settingsState.paceUnit,
+                onBack = onBack,
             )
 
         BrowseDestination.TROPHIES ->
@@ -193,6 +213,22 @@ private fun BrowseHome(
         )
 
         BrowseDestinationCard(
+            title = stringResource(R.string.personal_records_title),
+            subtitle = stringResource(R.string.browse_personal_records_subtitle),
+            icon = Icons.Outlined.FitnessCenter,
+            onClick = { onNavigateTo(BrowseDestination.PERSONAL_RECORDS) },
+            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "personal_records"),
+        )
+
+        BrowseDestinationCard(
+            title = stringResource(R.string.pace_calculator_title),
+            subtitle = stringResource(R.string.browse_pace_calculator_subtitle),
+            icon = Icons.Outlined.Calculate,
+            onClick = { onNavigateTo(BrowseDestination.PACE_CALCULATOR) },
+            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "pace_calculator"),
+        )
+
+        BrowseDestinationCard(
             title = stringResource(R.string.trophies_activities_action),
             icon = Icons.Default.History,
             onClick = { onNavigateTo(BrowseDestination.ACTIVITIES) },
@@ -229,6 +265,7 @@ private fun BrowseHome(
 @Composable
 private fun BrowseDestinationCard(
     title: String,
+    subtitle: String? = null,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -253,11 +290,20 @@ private fun BrowseDestinationCard(
                 tint = colorScheme.primary,
             )
             Spacer(modifier = Modifier.width(SpacingMd))
-            Text(
-                text = title,
-                style = typography.titleMedium,
-                color = colorScheme.onSurfaceVariant,
-            )
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                Text(
+                    text = title,
+                    style = typography.titleMedium,
+                    color = colorScheme.onSurfaceVariant,
+                )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }

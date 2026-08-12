@@ -45,6 +45,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.STRENGTH_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWIM_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
@@ -114,6 +115,7 @@ class DemoDataSeeder
     constructor(
         private val workoutDao: WorkoutDao,
         private val userActionDao: UserActionDao,
+        private val personalRecordDao: PersonalRecordDao,
         private val stringProvider: StringProvider,
         private val categorySeeder: CategorySeeder,
         private val settingsRepository: SettingsRepository,
@@ -123,6 +125,8 @@ class DemoDataSeeder
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
+            personalRecordDao.deleteAllEntries()
+            personalRecordDao.deleteAllFamilies()
             categorySeeder.ensureSeeded()
             settingsRepository.setLastSeenTrophyCelebrationToken(null)
 
@@ -148,6 +152,8 @@ class DemoDataSeeder
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
+            personalRecordDao.deleteAllEntries()
+            personalRecordDao.deleteAllFamilies()
             settingsRepository.setLastSeenTrophyCelebrationToken(null)
 
             val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -168,6 +174,8 @@ class DemoDataSeeder
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
+            personalRecordDao.deleteAllEntries()
+            personalRecordDao.deleteAllFamilies()
 
             val today = LocalDate.now()
             val currentWeekStart = today.with(TemporalAdjusters.previousOrSame(MONDAY))

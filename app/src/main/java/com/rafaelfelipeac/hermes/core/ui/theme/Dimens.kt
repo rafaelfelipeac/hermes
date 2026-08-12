@@ -24,11 +24,16 @@ object Dimens {
 
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp
+    val PersonalRecordsActionBottomPadding = 80.dp
     val WeeklyCalendarBottomPadding = 96.dp
     val WeeklyTrainingAutoScrollEdge = 96.dp
     val WeeklyTrainingAutoScrollSafePadding = 16.dp
     val AddActionPillMinWidth = 180.dp
     val AddActionPillHorizontalPadding = 18.dp
+    val PersonalRecordTimeWheelHeight = 144.dp
+    val PersonalRecordTimeWheelItemHeight = 32.dp
+    val PersonalRecordTimeWheelColumnMinWidth = 72.dp
+    val PersonalRecordTimeWheelContentPadding = 40.dp
     val HelpIconSize = 36.dp
     val HelpIconGlyphSize = 22.dp
     val SettingsDeveloperSectionSpacing = 10.dp

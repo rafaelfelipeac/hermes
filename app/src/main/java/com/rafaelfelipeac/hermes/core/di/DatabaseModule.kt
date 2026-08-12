@@ -6,6 +6,7 @@ import com.rafaelfelipeac.hermes.core.database.ALL_MIGRATIONS
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
 import dagger.Module
 import dagger.Provides
@@ -49,6 +50,11 @@ object DatabaseModule {
     @Provides
     fun provideCategoryDao(database: HermesDatabase): CategoryDao {
         return database.categoryDao()
+    }
+
+    @Provides
+    fun providePersonalRecordDao(database: HermesDatabase): PersonalRecordDao {
+        return database.personalRecordDao()
     }
 }
 

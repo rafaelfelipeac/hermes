@@ -11,6 +11,9 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsReco
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -68,6 +71,8 @@ internal object BackupV3Decoder {
                     appVersion = root.stringOrNull(KEY_APP_VERSION),
                     workouts = workouts,
                     categories = categories,
+                    personalRecordFamilies = emptyList(),
+                    personalRecordEntries = emptyList(),
                     userActions = userActions,
                     settings = settings,
                 ),
@@ -123,6 +128,9 @@ internal object BackupV3Decoder {
             languageTag = obj.stringOrNull(KEY_LANGUAGE_TAG) ?: return null,
             slotModePolicy = obj.stringOrNull(KEY_SLOT_MODE_POLICY) ?: return null,
             weekStartDay = obj.stringOrNull(KEY_WEEK_START_DAY) ?: return null,
+            distanceUnit = DistanceUnit.KILOMETERS.name,
+            paceUnit = PaceUnit.MIN_PER_KM.name,
+            weightUnit = WeightUnit.KILOGRAMS.name,
         )
     }
 

@@ -43,6 +43,7 @@ class SettingsContentTest {
                 onLanguageClick = {},
                 onWeekStartClick = {},
                 onSlotModeClick = {},
+                onUnitsClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
             )
@@ -75,6 +76,7 @@ class SettingsContentTest {
                 onLanguageClick = { invoked = true },
                 onWeekStartClick = {},
                 onSlotModeClick = {},
+                onUnitsClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
             )
@@ -108,6 +110,7 @@ class SettingsContentTest {
                 onLanguageClick = {},
                 onWeekStartClick = { invoked = true },
                 onSlotModeClick = {},
+                onUnitsClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
             )
@@ -130,6 +133,7 @@ class SettingsContentTest {
                 onLanguageClick = {},
                 onWeekStartClick = {},
                 onSlotModeClick = {},
+                onUnitsClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
             )
@@ -151,6 +155,7 @@ class SettingsContentTest {
                 onLanguageClick = {},
                 onWeekStartClick = {},
                 onSlotModeClick = {},
+                onUnitsClick = {},
                 onFeedbackClick = { _, _ -> },
                 onRateClick = {},
             )
