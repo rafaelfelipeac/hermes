@@ -91,6 +91,7 @@ class TrophyViewModel
                     TrophyFamilyUi.MOMENTUM,
                     TrophyFamilyUi.BUILDER,
                     TrophyFamilyUi.RACE_EVENTS,
+                    TrophyFamilyUi.PERSONAL_RECORDS,
                     TrophyFamilyUi.CATEGORIES,
                 )
         }

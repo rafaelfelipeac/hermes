@@ -173,6 +173,7 @@ class ProgressViewModel
                 TrophyFamily.MOMENTUM -> TrophyFamilyUi.MOMENTUM
                 TrophyFamily.BUILDER -> TrophyFamilyUi.BUILDER
                 TrophyFamily.RACE_EVENTS -> TrophyFamilyUi.RACE_EVENTS
+                TrophyFamily.PERSONAL_RECORDS -> TrophyFamilyUi.PERSONAL_RECORDS
                 TrophyFamily.CATEGORIES -> TrophyFamilyUi.CATEGORIES
             }
         }

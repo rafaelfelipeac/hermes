@@ -7,5 +7,6 @@ enum class TrophyFamily {
     MOMENTUM,
     BUILDER,
     RACE_EVENTS,
+    PERSONAL_RECORDS,
     CATEGORIES,
 }

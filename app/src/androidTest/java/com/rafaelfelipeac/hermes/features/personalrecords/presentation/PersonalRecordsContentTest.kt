@@ -106,6 +106,18 @@ class PersonalRecordsContentTest {
         }
 
         composeRule.onNodeWithTag(PERSONAL_RECORDS_BACK_BUTTON_TAG).assertIsDisplayed()
+        val backBounds =
+            composeRule
+                .onNodeWithTag(PERSONAL_RECORDS_BACK_BUTTON_TAG)
+                .fetchSemanticsNode()
+                .boundsInRoot
+        val titleBounds =
+            composeRule
+                .onNodeWithText(context.getString(R.string.personal_records_title))
+                .fetchSemanticsNode()
+                .boundsInRoot
+        assertTrue(backBounds.top < titleBounds.bottom && titleBounds.top < backBounds.bottom)
+
         composeRule.onNodeWithTag(PERSONAL_RECORDS_BACK_BUTTON_TAG).performClick()
         composeRule.runOnIdle {
             assertTrue(backPressed)

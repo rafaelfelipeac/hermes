@@ -1,4 +1,7 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
+)
 @file:Suppress("TooManyFunctions")
 
 package com.rafaelfelipeac.hermes.features.personalrecords.presentation
@@ -10,10 +13,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,6 +64,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -81,6 +88,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -117,6 +125,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordBestSelector
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordHistoryOrderer
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordLatestEntrySelector
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordValueNormalizer
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.defaultComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.defaultUnit
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
@@ -143,6 +153,7 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.REP
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.SECOND
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.WATT
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.supportedUnits
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import kotlinx.coroutines.launch
@@ -237,6 +248,8 @@ fun PersonalRecordsScreen(
             families = state.families,
             entries = state.entries,
             initialFamilyId = addEntryFamilyId,
+            settingsDistanceUnit = settingsDistanceUnit,
+            settingsWeightUnit = settingsWeightUnit,
             onDismiss = { showAddEntryDialog = false },
             onSave = { familyId, value, unit, recordDate, note, customUnitLabel ->
                 viewModel.addEntry(
@@ -311,6 +324,8 @@ fun PersonalRecordsScreen(
             families = state.families,
             entries = state.entries,
             initialFamilyId = entry.familyId,
+            settingsDistanceUnit = settingsDistanceUnit,
+            settingsWeightUnit = settingsWeightUnit,
             initialEntry = entry,
             isEdit = true,
             onDismiss = { editingEntry = null },
@@ -383,111 +398,132 @@ fun PersonalRecordsContent(
     val configuration = LocalConfiguration.current
     val currentLocale = ConfigurationCompat.getLocales(configuration)[0] ?: Locale.getDefault()
     val selectedFamily = state.families.firstOrNull { it.id == selectedFamilyId }
-    val headerTitle =
+    val contentTitle =
         selectedFamily?.title ?: stringResource(R.string.personal_records_title)
+    val handleBack = {
+        if (selectedFamily == null) {
+            onBack()
+        } else {
+            onBackToShelf()
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize(),
-        ) {
-            PersonalRecordsHeader(
-                title = headerTitle,
-                onBack = if (selectedFamily == null) onBack else onBackToShelf,
-                actions =
+        Scaffold(
+            modifier = Modifier.fillMaxSize(),
+            floatingActionButton = {
+                Box {
                     if (selectedFamily != null) {
-                        {
-                            IconButton(
-                                onClick = { onEditFamily(selectedFamily) },
-                                modifier = Modifier.testTag(PERSONAL_RECORDS_EDIT_FAMILY_BUTTON_TAG),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Edit,
-                                    contentDescription = stringResource(R.string.save_changes),
-                                )
-                            }
-                            IconButton(
-                                onClick = { onDeleteFamily(selectedFamily) },
-                                modifier =
-                                    Modifier.testTag(
-                                        PERSONAL_RECORDS_DELETE_FAMILY_BUTTON_TAG,
-                                    ),
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Delete,
-                                    contentDescription =
-                                        stringResource(
-                                            R.string.personal_records_delete_family_confirm,
-                                        ),
-                                    tint = colorScheme.onSurface,
-                                )
-                            }
+                        FloatingActionButton(
+                            onClick = { onAddResult(selectedFamily.id) },
+                            containerColor = colorScheme.primaryContainer,
+                            contentColor = colorScheme.onPrimaryContainer,
+                            modifier = Modifier.testTag(PERSONAL_RECORDS_ACTION_FAB_TAG),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.personal_records_add_result),
+                            )
                         }
                     } else {
-                        {}
-                    },
-            )
+                        FloatingActionButton(
+                            onClick = { isAddMenuVisible = !isAddMenuVisible },
+                            containerColor = colorScheme.primaryContainer,
+                            contentColor = colorScheme.onPrimaryContainer,
+                            modifier = Modifier.testTag(PERSONAL_RECORDS_ACTION_FAB_TAG),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(R.string.weekly_training_add_item),
+                            )
+                        }
+                    }
+                }
+            },
+        ) { contentPadding ->
+            val layoutDirection = LocalLayoutDirection.current
+            val screenContentPadding =
+                PaddingValues(
+                    start = contentPadding.calculateStartPadding(layoutDirection),
+                    top = Zero,
+                    end = contentPadding.calculateEndPadding(layoutDirection),
+                    bottom = contentPadding.calculateBottomPadding(),
+                )
 
             Column(
                 modifier =
                     Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = SpacingXl)
-                        .padding(bottom = SpacingXl)
+                        .padding(screenContentPadding)
                         .testTag(PERSONAL_RECORDS_ROOT_TAG),
                 verticalArrangement = Arrangement.spacedBy(SpacingLg),
             ) {
-                if (selectedFamily == null) {
-                    PersonalRecordsShelf(
-                        state = state,
-                        currentLocale = currentLocale,
-                        onFamilySelected = onFamilySelected,
-                    )
-                } else {
-                    PersonalRecordDetail(
-                        state = state,
-                        family = selectedFamily,
-                        currentLocale = currentLocale,
-                        onEditEntry = onEditEntry,
-                        onSetManualCurrentEntry = onSetManualCurrentEntry,
-                    )
-                }
-            }
-        }
+                PersonalRecordsHeader(
+                    title = contentTitle,
+                    onBack = handleBack,
+                    actions =
+                        if (selectedFamily != null) {
+                            {
+                                IconButton(
+                                    onClick = { onEditFamily(selectedFamily) },
+                                    modifier = Modifier.testTag(PERSONAL_RECORDS_EDIT_FAMILY_BUTTON_TAG),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Edit,
+                                        contentDescription = stringResource(R.string.save_changes),
+                                    )
+                                }
+                                IconButton(
+                                    onClick = { onDeleteFamily(selectedFamily) },
+                                    modifier =
+                                        Modifier.testTag(
+                                            PERSONAL_RECORDS_DELETE_FAMILY_BUTTON_TAG,
+                                        ),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.Delete,
+                                        contentDescription =
+                                            stringResource(
+                                                R.string.personal_records_delete_family_confirm,
+                                            ),
+                                        tint = colorScheme.onSurface,
+                                    )
+                                }
+                            }
+                        } else {
+                            {}
+                        },
+                )
 
-        if (selectedFamily != null) {
-            FloatingActionButton(
-                onClick = { onAddResult(selectedFamily.id) },
-                containerColor = colorScheme.primaryContainer,
-                contentColor = colorScheme.onPrimaryContainer,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = SpacingXl, bottom = PersonalRecordsActionBottomPadding)
-                        .testTag(PERSONAL_RECORDS_ACTION_FAB_TAG),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.personal_records_add_result),
-                )
-            }
-        } else {
-            FloatingActionButton(
-                onClick = { isAddMenuVisible = !isAddMenuVisible },
-                containerColor = colorScheme.primaryContainer,
-                contentColor = colorScheme.onPrimaryContainer,
-                modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = SpacingXl, bottom = PersonalRecordsActionBottomPadding)
-                        .testTag(PERSONAL_RECORDS_ACTION_FAB_TAG),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.weekly_training_add_item),
-                )
+                key(selectedFamilyId) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .padding(horizontal = SpacingXl)
+                                .padding(bottom = SpacingXl)
+                                .verticalScroll(rememberScrollState()),
+                    ) {
+                        if (selectedFamily == null) {
+                            PersonalRecordsShelf(
+                                state = state,
+                                currentLocale = currentLocale,
+                                onFamilySelected = onFamilySelected,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        } else {
+                            PersonalRecordDetail(
+                                state = state,
+                                family = selectedFamily,
+                                currentLocale = currentLocale,
+                                onEditEntry = onEditEntry,
+                                onSetManualCurrentEntry = onSetManualCurrentEntry,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -575,6 +611,7 @@ private fun PersonalRecordsHeader(
         Text(
             text = title,
             style = typography.titleLarge,
+            color = colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
@@ -589,10 +626,11 @@ private fun PersonalRecordsShelf(
     state: PersonalRecordsState,
     currentLocale: Locale,
     onFamilySelected: (Long) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val groups = remember(state.categories, state.families) { buildFamilyGroups(state.categories, state.families) }
 
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (state.families.isEmpty()) {
             EmptyStateCard(
                 icon = Icons.Outlined.Inventory2,
@@ -601,98 +639,123 @@ private fun PersonalRecordsShelf(
                 modifier = Modifier.fillMaxWidth(),
             )
         } else {
-            groups.forEach { group ->
-                Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
-                    Text(
-                        text =
-                            group.category?.name
-                                ?: stringResource(R.string.category_uncategorized),
-                        style = typography.titleMedium,
-                    )
+            Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+                groups.forEach { group ->
+                    Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                        Text(
+                            text =
+                                group.category?.name
+                                    ?: stringResource(R.string.category_uncategorized),
+                            style = typography.titleMedium,
+                        )
 
-                    group.families.forEach { family ->
-                        val familyEntries = state.entries.filter { it.familyId == family.id }
-                        val currentBest = PersonalRecordBestSelector.selectBest(family, familyEntries)
-                        val entryCountText =
-                            pluralStringResource(
-                                R.plurals.personal_records_family_entry_count,
-                                familyEntries.size,
-                                familyEntries.size,
-                            )
-                        val category = group.category
-                        val accent = category?.colorId?.let(::categoryAccentColor) ?: colorScheme.surfaceVariant
-                        val contentColor =
-                            if (category == null) {
-                                colorScheme.onSurfaceVariant
-                            } else {
-                                contentColorForBackground(accent)
-                            }
-                        val currentBestLabel =
-                            currentBest?.let {
-                                formatPersonalRecordValue(
-                                    value = it.value,
-                                    unit = it.unit,
-                                    locale = currentLocale,
-                                    unitLabel = unitLabelFor(it.unit, it.customUnitLabel),
+                        group.families.forEach { family ->
+                            val familyEntries = state.entries.filter { it.familyId == family.id }
+                            val currentBest = PersonalRecordBestSelector.selectBest(family, familyEntries)
+                            val entryCountText =
+                                pluralStringResource(
+                                    R.plurals.personal_records_family_entry_count,
+                                    familyEntries.size,
+                                    familyEntries.size,
                                 )
-                            } ?: stringResource(R.string.personal_records_no_results)
+                            val category = group.category
+                            val accent = category?.colorId?.let(::categoryAccentColor) ?: colorScheme.surfaceVariant
+                            val contentColor =
+                                if (category == null) {
+                                    colorScheme.onSurfaceVariant
+                                } else {
+                                    contentColorForBackground(accent)
+                                }
 
-                        Card(
-                            onClick = { onFamilySelected(family.id) },
-                            colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
-                            shape = shapes.medium,
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .testTag(PERSONAL_RECORDS_FAMILY_CARD_TAG_PREFIX + family.id),
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth().padding(SpacingLg),
-                                verticalAlignment = Alignment.CenterVertically,
+                            Card(
+                                onClick = { onFamilySelected(family.id) },
+                                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+                                shape = shapes.medium,
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .testTag(PERSONAL_RECORDS_FAMILY_CARD_TAG_PREFIX + family.id),
                             ) {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = accent,
-                                    tonalElevation = ElevationSm,
-                                    shadowElevation = ElevationSm,
-                                    modifier = Modifier.size(SmallIconSize + SpacingSm),
-                                ) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier.fillMaxSize(),
-                                    ) {
-                                        Icon(
-                                            imageVector = categoryIcon(category),
-                                            contentDescription = null,
-                                            tint = contentColor,
-                                            modifier = Modifier.size(SmallIconSize),
-                                        )
-                                    }
-                                }
-
-                                Spacer(modifier = Modifier.width(SpacingMd))
-
                                 Column(
-                                    modifier = Modifier.weight(1f),
-                                    verticalArrangement = Arrangement.spacedBy(SpacingXxs),
+                                    modifier = Modifier.fillMaxWidth().padding(SpacingLg),
+                                    verticalArrangement = Arrangement.spacedBy(SpacingMd),
                                 ) {
-                                    Text(text = family.title, style = typography.titleMedium)
-                                    PersonalRecordMetadataRow(
-                                        labels =
-                                            listOf(
-                                                metricLabel(family.metricType),
-                                                comparisonLabel(family.comparisonRule),
-                                            ),
-                                    )
-                                }
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Surface(
+                                            shape = CircleShape,
+                                            color = accent,
+                                            tonalElevation = ElevationSm,
+                                            shadowElevation = ElevationSm,
+                                            modifier = Modifier.size(SmallIconSize + SpacingSm),
+                                        ) {
+                                            Box(
+                                                contentAlignment = Alignment.Center,
+                                                modifier = Modifier.fillMaxSize(),
+                                            ) {
+                                                Icon(
+                                                    imageVector = categoryIcon(category),
+                                                    contentDescription = null,
+                                                    tint = contentColor,
+                                                    modifier = Modifier.size(SmallIconSize),
+                                                )
+                                            }
+                                        }
 
-                                Column(horizontalAlignment = Alignment.End) {
-                                    Text(text = currentBestLabel, style = typography.titleMedium)
-                                    Text(
-                                        text = entryCountText,
-                                        style = typography.bodySmall,
-                                        color = colorScheme.onSurfaceVariant,
-                                    )
+                                        Spacer(modifier = Modifier.width(SpacingMd))
+
+                                        Column(
+                                            modifier = Modifier.weight(1f),
+                                            verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                                        ) {
+                                            Text(text = family.title, style = typography.titleMedium)
+                                            FlowRow(
+                                                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                                                verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                                            ) {
+                                                TitleChip(
+                                                    label = metricLabel(family.metricType),
+                                                    containerColor = colorScheme.surfaceVariant,
+                                                    contentColor = colorScheme.onSurfaceVariant,
+                                                )
+                                                TitleChip(
+                                                    label = comparisonLabel(family.comparisonRule),
+                                                    containerColor = colorScheme.surfaceVariant,
+                                                    contentColor = colorScheme.onSurfaceVariant,
+                                                )
+                                            }
+                                        }
+                                    }
+
+                                    val currentBestLabel =
+                                        currentBest?.let {
+                                            formatPersonalRecordValue(
+                                                value = it.value,
+                                                unit = it.unit,
+                                                locale = currentLocale,
+                                                unitLabel = unitLabelFor(it.unit, it.customUnitLabel, it.value),
+                                            )
+                                        }
+
+                                    if (currentBestLabel == null) {
+                                        AddActionPill(
+                                            icon = Icons.Outlined.Add,
+                                            label = stringResource(R.string.personal_records_add_first_result),
+                                            onClick = { onFamilySelected(family.id) },
+                                        )
+                                    } else {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.Bottom,
+                                        ) {
+                                            Text(text = currentBestLabel, style = typography.titleMedium)
+                                            Text(
+                                                text = entryCountText,
+                                                style = typography.bodySmall,
+                                                color = colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -710,6 +773,7 @@ private fun PersonalRecordDetail(
     currentLocale: Locale,
     onEditEntry: (PersonalRecordEntry) -> Unit,
     onSetManualCurrentEntry: (familyId: Long, entryId: Long) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val familyEntries = remember(state.entries, family.id) { state.entries.filter { it.familyId == family.id } }
     val currentBest = PersonalRecordBestSelector.selectBest(family, familyEntries)
@@ -721,68 +785,98 @@ private fun PersonalRecordDetail(
                 value = it.value,
                 unit = it.unit,
                 locale = currentLocale,
-                unitLabel = unitLabelFor(it.unit, it.customUnitLabel),
+                unitLabel = unitLabelFor(it.unit, it.customUnitLabel, it.value),
             )
-        } ?: stringResource(R.string.personal_records_no_results)
+        }
     val currentBestDateLabel =
         currentBest?.let { formatWorkoutDate(it.recordDate, currentLocale) }
 
-    Column(verticalArrangement = Arrangement.spacedBy(SpacingLg)) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(SpacingLg),
+    ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(SpacingXs),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             PersonalRecordCategoryChip(category = category)
-            PersonalRecordMetadataRow(
-                labels =
-                    listOf(
-                        metricLabel(family.metricType),
-                        comparisonLabel(family.comparisonRule),
-                    ),
-            )
-        }
-
-        Card(
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
-            shape = shapes.medium,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier.padding(SpacingLg),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                verticalArrangement = Arrangement.spacedBy(SpacingXs),
             ) {
-                Text(text = stringResource(R.string.personal_records_current_best), style = typography.titleMedium)
-                Text(text = currentBestLabel, style = typography.headlineMedium)
-                if (currentBestDateLabel != null) {
-                    Text(
-                        text = currentBestDateLabel,
-                        style = typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                }
+                TitleChip(
+                    label = metricLabel(family.metricType),
+                    containerColor = colorScheme.surfaceVariant,
+                    contentColor = colorScheme.onSurfaceVariant,
+                )
+                TitleChip(
+                    label = comparisonLabel(family.comparisonRule),
+                    containerColor = colorScheme.surfaceVariant,
+                    contentColor = colorScheme.onSurfaceVariant,
+                )
             }
         }
 
-        Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
-            Text(text = stringResource(R.string.personal_records_history_title), style = typography.titleMedium)
-
-            if (orderedHistory.isEmpty()) {
+        if (currentBest == null) {
+            Box(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
                 EmptyStateCard(
-                    icon = Icons.Outlined.History,
-                    title = stringResource(R.string.personal_records_history_empty_title),
-                    body = stringResource(R.string.personal_records_history_empty_body),
+                    icon = Icons.Outlined.Add,
+                    title = stringResource(R.string.personal_records_add_first_result),
+                    body = stringResource(R.string.personal_records_add_first_result_body),
                     modifier = Modifier.fillMaxWidth(),
                 )
-            } else {
-                orderedHistory.forEach { entry ->
-                    PersonalRecordHistoryRow(
-                        entry = entry,
-                        currentLocale = currentLocale,
-                        onClick = { onEditEntry(entry) },
-                        isManualSelection = family.comparisonRule == MANUAL,
-                        isCurrent = currentBest?.id == entry.id,
-                        onSetCurrent = { onSetManualCurrentEntry(family.id, entry.id) },
-                    )
+            }
+        } else {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+                shape = shapes.medium,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Column(
+                    modifier = Modifier.padding(SpacingLg),
+                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                ) {
+                    Text(text = stringResource(R.string.personal_records_current_best), style = typography.titleMedium)
+                    Text(text = currentBestLabel.orEmpty(), style = typography.headlineMedium)
+                    if (currentBestDateLabel != null) {
+                        Text(
+                            text = currentBestDateLabel,
+                            style = typography.bodyMedium,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                Text(text = stringResource(R.string.personal_records_history_title), style = typography.titleMedium)
+
+                if (orderedHistory.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().weight(1f),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        EmptyStateCard(
+                            icon = Icons.Outlined.History,
+                            title = stringResource(R.string.personal_records_history_empty_title),
+                            body = stringResource(R.string.personal_records_history_empty_body),
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                } else {
+                    orderedHistory.forEach { entry ->
+                        PersonalRecordHistoryRow(
+                            entry = entry,
+                            currentLocale = currentLocale,
+                            onClick = { onEditEntry(entry) },
+                            isManualSelection = family.comparisonRule == MANUAL,
+                            isCurrent = currentBest?.id == entry.id,
+                            onSetCurrent = { onSetManualCurrentEntry(family.id, entry.id) },
+                        )
+                    }
                 }
             }
         }
@@ -809,18 +903,39 @@ private fun PersonalRecordHistoryRow(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(SpacingLg),
-            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+            verticalAlignment = Alignment.Top,
         ) {
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingXxs)) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(SpacingXs),
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text =
+                            formatPersonalRecordValue(
+                                value = entry.value,
+                                unit = entry.unit,
+                                locale = currentLocale,
+                                unitLabel = unitLabelFor(entry.unit, entry.customUnitLabel, entry.value),
+                            ),
+                        style = typography.titleMedium,
+                    )
+                    if (isCurrent) {
+                        TitleChip(
+                            label = stringResource(R.string.personal_records_current_selected),
+                            containerColor = colorScheme.primaryContainer,
+                            contentColor = colorScheme.onPrimaryContainer,
+                        )
+                    }
+                }
                 Text(
-                    text =
-                        formatPersonalRecordValue(
-                            value = entry.value,
-                            unit = entry.unit,
-                            locale = currentLocale,
-                            unitLabel = unitLabelFor(entry.unit, entry.customUnitLabel),
-                        ),
-                    style = typography.titleMedium,
+                    text = formatWorkoutDate(entry.recordDate, currentLocale),
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
                 )
                 if (!entry.note.isNullOrBlank()) {
                     Text(
@@ -830,12 +945,6 @@ private fun PersonalRecordHistoryRow(
                     )
                 }
             }
-
-            Text(
-                text = formatWorkoutDate(entry.recordDate, currentLocale),
-                style = typography.bodySmall,
-                color = colorScheme.onSurfaceVariant,
-            )
 
             if (isManualSelection) {
                 IconButton(
@@ -887,24 +996,6 @@ private fun AddActionPill(
         ) {
             Icon(imageVector = icon, contentDescription = null)
             Text(text = label, style = typography.titleSmall)
-        }
-    }
-}
-
-@Composable
-private fun PersonalRecordMetadataRow(labels: List<String>) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(SpacingXs),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        labels.forEach { label ->
-            TitleChip(
-                label = label,
-                containerColor = colorScheme.surfaceVariant,
-                contentColor = colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
         }
     }
 }
@@ -1298,7 +1389,16 @@ internal fun PersonalRecordFamilyEditorDialog(
                         ) {
                             PersonalRecordMetricType.entries.forEach { option ->
                                 DropdownMenuItem(
-                                    text = { Text(text = metricLabel(option)) },
+                                    text = {
+                                        Column(verticalArrangement = Arrangement.spacedBy(SpacingXxs)) {
+                                            Text(text = metricLabel(option))
+                                            Text(
+                                                text = metricDescription(option),
+                                                style = typography.bodySmall,
+                                                color = colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    },
                                     onClick = {
                                         metricType = option
                                         metricMenuExpanded = false
@@ -1308,6 +1408,13 @@ internal fun PersonalRecordFamilyEditorDialog(
                         }
                     }
                 }
+
+                Text(
+                    text = metricDescription(metricType),
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = SpacingXs),
+                )
 
                 Spacer(modifier = Modifier.height(SpacingLg))
 
@@ -1378,6 +1485,8 @@ internal fun PersonalRecordEntryEditorDialog(
     families: List<PersonalRecordFamily>,
     entries: List<PersonalRecordEntry>,
     initialFamilyId: Long?,
+    settingsDistanceUnit: DistanceUnit,
+    settingsWeightUnit: WeightUnit,
     initialEntry: PersonalRecordEntry? = null,
     isEdit: Boolean = false,
     onDismiss: () -> Unit,
@@ -1398,18 +1507,34 @@ internal fun PersonalRecordEntryEditorDialog(
     var note by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.note.orEmpty()) }
     var customUnitLabel by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.customUnitLabel.orEmpty()) }
     var familyMenuExpanded by rememberSaveable { mutableStateOf(false) }
+    var unitMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     var recordDate by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.recordDate ?: LocalDate.now()) }
+    var selectedUnit by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.unit ?: KILOMETER) }
     val selectedFamily = families.firstOrNull { it.id == familyId }
-    val selectedUnit = selectedFamily?.defaultUnit ?: KILOMETER
     val isTimeMetric = selectedFamily?.metricType == TIME
+    val isDistanceOrWeightMetric = selectedFamily?.metricType == DISTANCE || selectedFamily?.metricType == WEIGHT
     val today = remember { LocalDate.now() }
-    val initialTimeParts =
-        remember(initialEntry?.id, selectedFamily?.id) {
-            if (initialEntry != null && initialFamilyId != null && selectedFamily?.metricType == TIME) {
-                secondsToTimeParts(initialEntry.value.toLong())
+    val latestEntry =
+        remember(familyId, entries, initialEntry?.id, isEdit) {
+            if (isEdit) {
+                initialEntry
             } else {
-                TimeParts()
+                familyId?.let { PersonalRecordLatestEntrySelector.latestForFamily(it, entries) }
+            }
+        }
+    val initialTimeParts =
+        remember(initialEntry?.id, selectedFamily?.id, latestEntry?.id) {
+            when {
+                isEdit && initialEntry != null && selectedFamily?.metricType == TIME ->
+                    secondsToTimeParts(initialEntry.value.toLong())
+
+                !isEdit && selectedFamily?.metricType == TIME && latestEntry != null ->
+                    secondsToTimeParts(
+                        PersonalRecordValueNormalizer.normalize(latestEntry.value, latestEntry.unit).toLong(),
+                    )
+
+                else -> TimeParts()
             }
         }
     var timeHours by rememberSaveable(dialogKey) { mutableStateOf(initialTimeParts.hours) }
@@ -1418,24 +1543,71 @@ internal fun PersonalRecordEntryEditorDialog(
     var hasLoadedInitialState by rememberSaveable(dialogKey) { mutableStateOf(false) }
 
     LaunchedEffect(familyId) {
-        if (hasLoadedInitialState) {
-            if (isTimeMetric) {
-                timeHours = 0
-                timeMinutes = 0
-                timeSeconds = 0
-            } else {
-                valueText = ""
-                customUnitLabel = ""
+        val family = selectedFamily ?: return@LaunchedEffect
+
+        if (isEdit) {
+            if (!hasLoadedInitialState && initialEntry != null) {
+                hasLoadedInitialState = true
+                selectedUnit = initialEntry.unit
+                recordDate = initialEntry.recordDate
+                note = initialEntry.note.orEmpty()
+                customUnitLabel = initialEntry.customUnitLabel.orEmpty()
+                if (family.metricType == TIME) {
+                    val parts = secondsToTimeParts(initialEntry.value.toLong())
+                    timeHours = parts.hours
+                    timeMinutes = parts.minutes
+                    timeSeconds = parts.seconds
+                    valueText = ""
+                } else {
+                    valueText = formatEditableNumber(initialEntry.value)
+                }
             }
-        } else {
-            hasLoadedInitialState = true
-            if (selectedFamily?.metricType == TIME && initialEntry != null) {
-                val parts = secondsToTimeParts(initialEntry.value.toLong())
+            return@LaunchedEffect
+        }
+
+        hasLoadedInitialState = true
+        recordDate = today
+        note = ""
+        customUnitLabel = latestEntry?.customUnitLabel.orEmpty()
+
+        when (family.metricType) {
+            TIME -> {
+                selectedUnit = SECOND
+                val parts =
+                    latestEntry?.let {
+                        secondsToTimeParts(
+                            PersonalRecordValueNormalizer.normalize(it.value, it.unit).toLong(),
+                        )
+                    } ?: TimeParts()
                 timeHours = parts.hours
                 timeMinutes = parts.minutes
                 timeSeconds = parts.seconds
-            } else if (initialEntry != null) {
-                valueText = formatEditableNumber(initialEntry.value)
+                valueText = ""
+            }
+
+            DISTANCE -> {
+                selectedUnit = settingsDistanceUnit.asPersonalRecordUnit()
+                valueText =
+                    latestEntry?.let {
+                        formatEditableNumber(
+                            PersonalRecordValueNormalizer.convert(it.value, it.unit, selectedUnit),
+                        )
+                    }.orEmpty()
+            }
+
+            WEIGHT -> {
+                selectedUnit = settingsWeightUnit.asPersonalRecordUnit()
+                valueText =
+                    latestEntry?.let {
+                        formatEditableNumber(
+                            PersonalRecordValueNormalizer.convert(it.value, it.unit, selectedUnit),
+                        )
+                    }.orEmpty()
+            }
+
+            else -> {
+                selectedUnit = latestEntry?.unit ?: family.defaultUnit
+                valueText = latestEntry?.let { formatEditableNumber(it.value) }.orEmpty()
             }
         }
     }
@@ -1514,18 +1686,77 @@ internal fun PersonalRecordEntryEditorDialog(
                         )
                     }
                 } else {
-                    Spacer(modifier = Modifier.height(SpacingLg))
-
-                    OutlinedTextField(
-                        value = valueText,
-                        onValueChange = { valueText = it },
-                        label = { Text(text = stringResource(R.string.personal_records_entry_value)) },
-                        keyboardOptions =
-                            androidx.compose.foundation.text.KeyboardOptions(
-                                keyboardType = KeyboardType.Decimal,
-                            ),
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                    )
+                        horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                    ) {
+                        OutlinedTextField(
+                            value = valueText,
+                            onValueChange = { valueText = it },
+                            label = { Text(text = stringResource(R.string.personal_records_entry_value)) },
+                            keyboardOptions =
+                                androidx.compose.foundation.text.KeyboardOptions(
+                                    keyboardType = KeyboardType.Decimal,
+                                ),
+                            modifier = Modifier.weight(1f),
+                        )
+
+                        if (isDistanceOrWeightMetric) {
+                            ExposedDropdownMenuBox(
+                                expanded = unitMenuExpanded,
+                                onExpandedChange = { unitMenuExpanded = !unitMenuExpanded },
+                            ) {
+                                OutlinedTextField(
+                                    readOnly = true,
+                                    value = unitChoiceLabelFor(selectedUnit),
+                                    onValueChange = {},
+                                    label = { Text(text = stringResource(R.string.personal_records_entry_unit)) },
+                                    trailingIcon = {
+                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitMenuExpanded)
+                                    },
+                                    modifier =
+                                        Modifier
+                                            .widthIn(min = PersonalRecordTimeWheelColumnMinWidth)
+                                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                                )
+
+                                DropdownMenu(
+                                    expanded = unitMenuExpanded,
+                                    onDismissRequest = { unitMenuExpanded = false },
+                                ) {
+                                    selectedFamily?.metricType?.supportedUnits().orEmpty().forEach { option ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column(verticalArrangement = Arrangement.spacedBy(SpacingXxs)) {
+                                                    Text(text = unitChoiceLabelFor(option))
+                                                    Text(
+                                                        text = unitValueLabelFor(option),
+                                                        style = typography.bodySmall,
+                                                        color = colorScheme.onSurfaceVariant,
+                                                    )
+                                                }
+                                            },
+                                            onClick = {
+                                                val previousUnit = selectedUnit
+                                                selectedUnit = option
+                                                unitMenuExpanded = false
+                                                parsePersonalRecordValue(valueText)?.let { parsed ->
+                                                    valueText =
+                                                        formatEditableNumber(
+                                                            PersonalRecordValueNormalizer.convert(
+                                                                parsed,
+                                                                previousUnit,
+                                                                option,
+                                                            ),
+                                                        )
+                                                }
+                                            },
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (!isTimeMetric && selectedUnit == CUSTOM_UNIT) {
@@ -1582,14 +1813,8 @@ internal fun PersonalRecordEntryEditorDialog(
         confirmButton = {
             val canSave =
                 familyId != null &&
-                    (
-                        if (isTimeMetric) {
-                            true
-                        } else {
-                            parsePersonalRecordValue(valueText) != null
-                        }
-                    ) &&
-                    (selectedUnit != CUSTOM_UNIT || customUnitLabel.isNotBlank()) &&
+                    (if (isTimeMetric) true else parsePersonalRecordValue(valueText) != null) &&
+                    (!isDistanceOrWeightMetric || selectedUnit != CUSTOM_UNIT || customUnitLabel.isNotBlank()) &&
                     !recordDate.isAfter(today)
 
             TextButton(
@@ -1602,10 +1827,11 @@ internal fun PersonalRecordEntryEditorDialog(
                         } else {
                             parsePersonalRecordValue(valueText) ?: return@TextButton
                         }
+                    val resolvedUnit = if (isTimeMetric) SECOND else selectedUnit
                     onSave(
                         resolvedFamilyId,
                         resolvedValue,
-                        if (isTimeMetric) SECOND else selectedUnit,
+                        resolvedUnit,
                         recordDate,
                         note.trim().ifBlank { null },
                         customUnitLabel.trim().ifBlank { null },
@@ -1774,9 +2000,20 @@ private fun comparisonLabel(comparisonRule: PersonalRecordComparisonRule): Strin
 }
 
 @Composable
-private fun unitLabelFor(
+private fun metricDescription(metricType: PersonalRecordMetricType): String {
+    return when (metricType) {
+        DISTANCE -> stringResource(R.string.personal_records_metric_distance_help)
+        TIME -> stringResource(R.string.personal_records_metric_time_help)
+        WEIGHT -> stringResource(R.string.personal_records_metric_weight_help)
+        POWER -> stringResource(R.string.personal_records_metric_power_help)
+        REPS -> stringResource(R.string.personal_records_metric_reps_help)
+        CUSTOM -> stringResource(R.string.personal_records_metric_custom_help)
+    }
+}
+
+@Composable
+private fun unitChoiceLabelFor(
     unit: PersonalRecordUnit,
-    customLabel: String? = null,
 ): String {
     return when (unit) {
         KILOMETER -> stringResource(R.string.personal_records_unit_kilometer)
@@ -1789,7 +2026,64 @@ private fun unitLabelFor(
         POUND -> stringResource(R.string.personal_records_unit_pound)
         WATT -> stringResource(R.string.personal_records_unit_watt)
         REP -> stringResource(R.string.personal_records_unit_rep)
+        CUSTOM_UNIT -> stringResource(R.string.personal_records_unit_custom)
+    }
+}
+
+@Composable
+private fun unitValueLabelFor(unit: PersonalRecordUnit): String {
+    return when (unit) {
+        KILOMETER -> stringResource(R.string.settings_unit_kilometers)
+        MILE -> stringResource(R.string.settings_unit_miles)
+        METER -> stringResource(R.string.personal_records_unit_meter_symbol)
+        SECOND -> stringResource(R.string.personal_records_unit_second_symbol)
+        MINUTE -> stringResource(R.string.personal_records_unit_minute_symbol)
+        HOUR -> stringResource(R.string.personal_records_unit_hour_symbol)
+        KILOGRAM -> stringResource(R.string.settings_unit_kilograms)
+        POUND -> stringResource(R.string.settings_unit_pounds)
+        WATT -> stringResource(R.string.personal_records_unit_watt_symbol)
+        REP -> stringResource(R.string.personal_records_unit_rep_singular)
+        CUSTOM_UNIT -> stringResource(R.string.personal_records_unit_custom)
+    }
+}
+
+@Composable
+private fun unitLabelFor(
+    unit: PersonalRecordUnit,
+    customLabel: String? = null,
+    quantity: Double? = null,
+): String {
+    return when (unit) {
+        KILOMETER -> stringResource(R.string.settings_unit_kilometers)
+        MILE -> stringResource(R.string.settings_unit_miles)
+        METER -> stringResource(R.string.personal_records_unit_meter_symbol)
+        SECOND -> stringResource(R.string.personal_records_unit_second_symbol)
+        MINUTE -> stringResource(R.string.personal_records_unit_minute_symbol)
+        HOUR -> stringResource(R.string.personal_records_unit_hour_symbol)
+        KILOGRAM -> stringResource(R.string.settings_unit_kilograms)
+        POUND -> stringResource(R.string.settings_unit_pounds)
+        WATT -> stringResource(R.string.personal_records_unit_watt_symbol)
+        REP ->
+            if (quantity == 1.0) {
+                stringResource(R.string.personal_records_unit_rep_singular)
+            } else {
+                stringResource(R.string.personal_records_unit_rep_plural)
+            }
         CUSTOM_UNIT -> customLabel?.ifBlank { null } ?: stringResource(R.string.personal_records_unit_custom)
+    }
+}
+
+private fun DistanceUnit.asPersonalRecordUnit(): PersonalRecordUnit {
+    return when (this) {
+        DistanceUnit.KILOMETERS -> KILOMETER
+        DistanceUnit.MILES -> MILE
+    }
+}
+
+private fun WeightUnit.asPersonalRecordUnit(): PersonalRecordUnit {
+    return when (this) {
+        WeightUnit.KILOGRAMS -> KILOGRAM
+        WeightUnit.POUNDS -> POUND
     }
 }
 

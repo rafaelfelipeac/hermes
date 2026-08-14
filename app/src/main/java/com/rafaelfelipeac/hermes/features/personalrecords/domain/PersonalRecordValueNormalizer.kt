@@ -32,4 +32,33 @@ object PersonalRecordValueNormalizer {
             CUSTOM -> value
         }
     }
+
+    fun denormalize(
+        value: Double,
+        unit: PersonalRecordUnit,
+    ): Double {
+        return when (unit) {
+            KILOMETER -> value / 1000.0
+            MILE -> value / 1609.344
+            METER -> value
+            SECOND -> value
+            MINUTE -> value / 60.0
+            HOUR -> value / 3600.0
+            KILOGRAM -> value
+            POUND -> value / 0.45359237
+            WATT -> value
+            REP -> value
+            CUSTOM -> value
+        }
+    }
+
+    fun convert(
+        value: Double,
+        fromUnit: PersonalRecordUnit,
+        toUnit: PersonalRecordUnit,
+    ): Double {
+        if (fromUnit == toUnit) return value
+
+        return denormalize(normalize(value, fromUnit), toUnit)
+    }
 }

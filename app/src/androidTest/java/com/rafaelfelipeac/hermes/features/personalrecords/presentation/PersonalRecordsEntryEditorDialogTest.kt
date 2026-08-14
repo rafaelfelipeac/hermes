@@ -16,6 +16,8 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.DISTANCE
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
 import org.junit.Rule
 import org.junit.Test
 import java.time.Instant
@@ -38,6 +40,8 @@ class PersonalRecordsEntryEditorDialogTest {
                 families = listOf(family),
                 entries = emptyList(),
                 initialFamilyId = family.id,
+                settingsDistanceUnit = KILOMETERS,
+                settingsWeightUnit = KILOGRAMS,
                 initialEntry = sampleEntry(familyId = family.id, recordDate = entryDate),
                 isEdit = true,
                 onDismiss = {},
@@ -62,6 +66,8 @@ class PersonalRecordsEntryEditorDialogTest {
                 families = listOf(sampleFamily()),
                 entries = emptyList(),
                 initialFamilyId = 1L,
+                settingsDistanceUnit = KILOMETERS,
+                settingsWeightUnit = KILOGRAMS,
                 initialEntry = sampleEntry(familyId = 1L, recordDate = futureDate),
                 isEdit = true,
                 onDismiss = {},

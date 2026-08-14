@@ -12,6 +12,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_FAMILY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
@@ -201,7 +202,9 @@ class PersonalRecordsViewModelTest {
             advanceUntilIdle()
 
             assertEquals(entry.id, repository.families.single().manualCurrentEntryId)
-            assertEquals(UPDATE_PERSONAL_RECORD_FAMILY, logger.actions.single().actionType)
+            assertEquals(SET_CURRENT_PERSONAL_RECORD_ENTRY, logger.actions.single().actionType)
+            assertEquals(entry.value.toString(), logger.actions.single().metadata?.get(PERSONAL_RECORD_NEW_VALUE))
+            assertEquals(entry.recordDate.toString(), logger.actions.single().metadata?.get(PERSONAL_RECORD_RECORD_DATE))
             assertTrue(logger.actions.single().metadata?.values?.contains(family.title) == false)
         }
 

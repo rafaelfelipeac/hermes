@@ -21,6 +21,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_PER
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_FAMILY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
@@ -168,7 +169,7 @@ class PersonalRecordsViewModel
                 )
 
                 userActionLogger.log(
-                    actionType = UPDATE_PERSONAL_RECORD_FAMILY,
+                    actionType = SET_CURRENT_PERSONAL_RECORD_ENTRY,
                     entityType = PERSONAL_RECORD,
                     entityId = familyId,
                     metadata =
@@ -180,6 +181,10 @@ class PersonalRecordsViewModel
                             PERSONAL_RECORD_METRIC_TYPE to family.metricType.name,
                             PERSONAL_RECORD_UNIT to family.defaultUnit.name,
                             PERSONAL_RECORD_COMPARISON_RULE to family.comparisonRule.name,
+                            PERSONAL_RECORD_NEW_VALUE to entry.value.toString(),
+                            PERSONAL_RECORD_RECORD_DATE to entry.recordDate.toString(),
+                            PERSONAL_RECORD_NORMALIZED_VALUE to
+                                PersonalRecordValueNormalizer.normalize(entry.value, entry.unit).toString(),
                         ),
                 )
             }

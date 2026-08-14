@@ -18,6 +18,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.A
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
+import com.rafaelfelipeac.hermes.features.personalrecords.presentation.formatPersonalRecordValue
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import java.text.NumberFormat
 import java.time.DayOfWeek
@@ -79,6 +80,8 @@ class ActivityUiFormatter(
                     )
                 UserActionEntityType.CATEGORY -> buildCategoryTitle(actionType, metadata)
                 UserActionEntityType.TROPHY -> buildTrophyTitle(actionType, metadata)
+                UserActionEntityType.PERSONAL_RECORD ->
+                    buildPersonalRecordTitle(actionType, metadata)
                 else -> buildWorkoutTitle(actionType, quotedWorkoutLabel)
             }
 
@@ -190,6 +193,9 @@ class ActivityUiFormatter(
 
             UserActionType.DELETE_PERSONAL_RECORD_ENTRY ->
                 stringProvider.get(R.string.activity_action_delete_personal_record_entry)
+
+            UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY ->
+                stringProvider.get(R.string.activity_action_set_current_personal_record_entry)
 
             else -> stringProvider.get(R.string.activity_action_fallback)
         }
@@ -353,6 +359,39 @@ class ActivityUiFormatter(
         }
     }
 
+    private fun buildPersonalRecordTitle(
+        actionType: UserActionType?,
+        metadata: Map<String, String>,
+    ): String? {
+        val metricLabel = personalRecordMetricLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE])
+            ?: stringProvider.get(R.string.personal_records_metric_custom)
+
+        return when (actionType) {
+            UserActionType.CREATE_PERSONAL_RECORD_FAMILY ->
+                stringProvider.get(R.string.activity_action_create_personal_record_family, metricLabel)
+
+            UserActionType.UPDATE_PERSONAL_RECORD_FAMILY ->
+                stringProvider.get(R.string.activity_action_update_personal_record_family, metricLabel)
+
+            UserActionType.DELETE_PERSONAL_RECORD_FAMILY ->
+                stringProvider.get(R.string.activity_action_delete_personal_record_family, metricLabel)
+
+            UserActionType.CREATE_PERSONAL_RECORD_ENTRY ->
+                stringProvider.get(R.string.activity_action_create_personal_record_entry, metricLabel)
+
+            UserActionType.UPDATE_PERSONAL_RECORD_ENTRY ->
+                stringProvider.get(R.string.activity_action_update_personal_record_entry, metricLabel)
+
+            UserActionType.DELETE_PERSONAL_RECORD_ENTRY ->
+                stringProvider.get(R.string.activity_action_delete_personal_record_entry, metricLabel)
+
+            UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY ->
+                stringProvider.get(R.string.activity_action_set_current_personal_record_entry, metricLabel)
+
+            else -> null
+        }
+    }
+
     private fun buildCategoryVisibilitySubtitle(metadata: Map<String, String>): String? {
         val oldValue = formatVisibilityValue(metadata[UserActionMetadataKeys.OLD_VALUE])
         val newValue = formatVisibilityValue(metadata[UserActionMetadataKeys.NEW_VALUE])
@@ -450,7 +489,8 @@ class ActivityUiFormatter(
             UserActionType.CREATE_PERSONAL_RECORD_ENTRY,
             UserActionType.UPDATE_PERSONAL_RECORD_ENTRY,
             UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
-            -> buildPersonalRecordEntrySubtitle(metadata, currentLocale)
+            UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY,
+            -> buildPersonalRecordEntrySubtitle(actionType, metadata, currentLocale)
 
             UserActionType.MOVE_WORKOUT_BETWEEN_DAYS,
             UserActionType.MOVE_REST,
@@ -520,18 +560,18 @@ class ActivityUiFormatter(
     }
 
     private fun buildPersonalRecordEntrySubtitle(
+        actionType: UserActionType?,
         metadata: Map<String, String>,
         currentLocale: Locale,
     ): String? {
-        val value =
-            metadata[UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE]
+        val unit = metadata[UserActionMetadataKeys.PERSONAL_RECORD_UNIT]
+        val newValue = personalRecordValueLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE], unit, currentLocale)
+        val oldValue = personalRecordValueLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_OLD_VALUE], unit, currentLocale)
+        val normalizedValue =
+            metadata[UserActionMetadataKeys.PERSONAL_RECORD_NORMALIZED_VALUE]
                 ?.takeIf { it.isNotBlank() }
                 ?.toDoubleOrNull()
                 ?.let { NumberFormat.getNumberInstance(currentLocale).format(it) }
-                ?: metadata[UserActionMetadataKeys.PERSONAL_RECORD_NORMALIZED_VALUE]
-                    ?.takeIf { it.isNotBlank() }
-        val unit = personalRecordUnitLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_UNIT])
-        val valueWithUnit = listOfNotNull(value, unit).joinToString(SPACE).ifBlank { null }
         val recordDate =
             metadata[UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE]
                 ?.takeIf { it.isNotBlank() }
@@ -545,12 +585,49 @@ class ActivityUiFormatter(
                     }.getOrDefault(raw)
                 }
 
-        if (valueWithUnit.isNullOrBlank() && recordDate.isNullOrBlank()) return null
+        return when (actionType) {
+            UserActionType.UPDATE_PERSONAL_RECORD_ENTRY -> {
+                val valueChange =
+                    when {
+                        !oldValue.isNullOrBlank() && !newValue.isNullOrBlank() ->
+                            stringProvider.get(
+                                R.string.activity_subtitle_change_value,
+                                quoteValue(oldValue).orEmpty(),
+                                quoteValue(newValue).orEmpty(),
+                            )
+                        !newValue.isNullOrBlank() && !normalizedValue.isNullOrBlank() -> newValue
+                        else -> newValue ?: normalizedValue
+                    }
 
-        return listOfNotNull(
-            valueWithUnit,
-            recordDate,
-        ).joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+                listOfNotNull(valueChange, recordDate)
+                    .takeIf { it.isNotEmpty() }
+                    ?.joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+            }
+
+            UserActionType.CREATE_PERSONAL_RECORD_ENTRY,
+            UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
+            UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY,
+            -> {
+                val valueWithUnit =
+                    listOfNotNull(
+                        newValue,
+                        personalRecordUnitLabel(
+                            unit,
+                            metadata[UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE]
+                                ?.takeIf { it.isNotBlank() }
+                                ?.toDoubleOrNull(),
+                        ),
+                    )
+                    .joinToString(SPACE)
+                    .ifBlank { null }
+
+                listOfNotNull(valueWithUnit, recordDate)
+                    .takeIf { it.isNotEmpty() }
+                    ?.joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+            }
+
+            else -> null
+        }
     }
 
     private fun personalRecordMetricLabel(raw: String?): String? {
@@ -574,20 +651,55 @@ class ActivityUiFormatter(
         }
     }
 
-    private fun personalRecordUnitLabel(raw: String?): String? {
+    private fun personalRecordValueLabel(
+        raw: String?,
+        unit: String?,
+        currentLocale: Locale,
+    ): String? {
+        val value = raw?.takeIf { it.isNotBlank() } ?: return null
+        val parsed = value.toDoubleOrNull()
+        return when {
+            parsed != null -> formatPersonalRecordValue(
+                value = parsed,
+                unit = personalRecordUnit(unit),
+                locale = currentLocale,
+                unitLabel = personalRecordUnitLabel(unit, parsed),
+            )
+
+            else -> value
+        }
+    }
+
+    private fun personalRecordUnitLabel(
+        raw: String?,
+        value: Double? = null,
+    ): String? {
         return when (raw?.uppercase(Locale.ENGLISH)) {
-            "KILOMETER" -> stringProvider.get(R.string.personal_records_unit_kilometer)
-            "MILE" -> stringProvider.get(R.string.personal_records_unit_mile)
-            "METER" -> stringProvider.get(R.string.personal_records_unit_meter)
-            "SECOND" -> stringProvider.get(R.string.personal_records_unit_second)
-            "MINUTE" -> stringProvider.get(R.string.personal_records_unit_minute)
-            "HOUR" -> stringProvider.get(R.string.personal_records_unit_hour)
-            "KILOGRAM" -> stringProvider.get(R.string.personal_records_unit_kilogram)
-            "POUND" -> stringProvider.get(R.string.personal_records_unit_pound)
-            "WATT" -> stringProvider.get(R.string.personal_records_unit_watt)
-            "REP" -> stringProvider.get(R.string.personal_records_unit_rep)
+            "KILOMETER" -> stringProvider.get(R.string.settings_unit_kilometers)
+            "MILE" -> stringProvider.get(R.string.settings_unit_miles)
+            "METER" -> stringProvider.get(R.string.personal_records_unit_meter_symbol)
+            "SECOND" -> null
+            "MINUTE" -> null
+            "HOUR" -> null
+            "KILOGRAM" -> stringProvider.get(R.string.settings_unit_kilograms)
+            "POUND" -> stringProvider.get(R.string.settings_unit_pounds)
+            "WATT" -> stringProvider.get(R.string.personal_records_unit_watt_symbol)
+            "REP" ->
+                if (value == 1.0) {
+                    stringProvider.get(R.string.personal_records_unit_rep_singular)
+                } else {
+                    stringProvider.get(R.string.personal_records_unit_rep_plural)
+                }
             else -> null
         }
+    }
+
+    private fun personalRecordUnit(raw: String?): com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit {
+        return runCatching {
+            com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.valueOf(
+                raw?.uppercase(Locale.ENGLISH).orEmpty(),
+            )
+        }.getOrDefault(com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM)
     }
 
     private fun distanceUnitLabel(raw: String): String {

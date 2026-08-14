@@ -1055,6 +1055,7 @@ private fun trophyFamilyAccentColor(family: TrophyFamilyUi): Color {
         TrophyFamilyUi.MOMENTUM -> Color(0xFF7B63C8)
         TrophyFamilyUi.BUILDER -> Color(0xFF6F7E4A)
         TrophyFamilyUi.RACE_EVENTS -> Color(0xFFB44F3E)
+        TrophyFamilyUi.PERSONAL_RECORDS -> Color(0xFF3F7C74)
         TrophyFamilyUi.CATEGORIES -> Color(0xFF8A5E3A)
     }
 }
@@ -1095,6 +1096,13 @@ internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector
         TrophyId.RACE_SHARP,
         TrophyId.RACE_FINISH,
         -> Icons.Outlined.CheckCircle
+        TrophyId.FIRST_BENCHMARK,
+        TrophyId.BENCHMARK_BUILDER,
+        TrophyId.RECORD_LIBRARY,
+        TrophyId.ON_THE_BOARD,
+        TrophyId.FORM_BOOK,
+        TrophyId.RECORD_KEEPER,
+        -> Icons.Outlined.FitnessCenter
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,

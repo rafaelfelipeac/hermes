@@ -208,4 +208,5 @@ private val planningActions =
         UserActionType.CREATE_PERSONAL_RECORD_ENTRY,
         UserActionType.UPDATE_PERSONAL_RECORD_ENTRY,
         UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
+        UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY,
     )

@@ -29,15 +29,12 @@ fun formatPersonalRecordValue(
         MINUTE,
         HOUR,
         -> formatDuration(PersonalRecordValueNormalizer.normalize(value, unit).roundToLong())
-
-        REP,
-        WATT,
-        -> formatWholeNumber(value, locale)
-
         KILOMETER,
         MILE,
         METER,
         KILOGRAM,
+        REP,
+        WATT,
         POUND,
         CUSTOM,
         -> {
