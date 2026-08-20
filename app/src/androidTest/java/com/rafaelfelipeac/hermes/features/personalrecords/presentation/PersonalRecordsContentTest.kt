@@ -141,6 +141,47 @@ class PersonalRecordsContentTest {
     }
 
     @Test
+    fun emptyFamilyDetailShowsAddFirstResultPlaceholder() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val family =
+            PersonalRecordFamily(
+                id = 10L,
+                categoryId = null,
+                title = "Push-ups",
+                metricType = DISTANCE,
+                defaultUnit = KILOMETER,
+                comparisonRule = HIGHER_IS_BETTER,
+                manualCurrentEntryId = null,
+                sortOrder = 0,
+                createdAt = Instant.parse("2024-01-01T00:00:00Z"),
+                updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
+            )
+
+        composeRule.setContent {
+            PersonalRecordsContent(
+                state = PersonalRecordsState(families = listOf(family)),
+                selectedFamilyId = family.id,
+                onFamilySelected = {},
+                onBack = {},
+                onBackToShelf = {},
+                onCreateFamily = {},
+                onAddResult = {},
+                onEditFamily = {},
+                onDeleteFamily = {},
+                onEditEntry = {},
+                onSetManualCurrentEntry = { _, _ -> },
+            )
+        }
+
+        composeRule
+            .onNodeWithText(context.getString(R.string.personal_records_add_first_result))
+            .assertIsDisplayed()
+        composeRule
+            .onNodeWithText(context.getString(R.string.personal_records_add_first_result_body))
+            .assertIsDisplayed()
+    }
+
+    @Test
     fun manualSeries_allowsSelectingCurrentEntry() {
         val family =
             PersonalRecordFamily(

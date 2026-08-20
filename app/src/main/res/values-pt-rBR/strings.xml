@@ -375,8 +375,14 @@
     <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">Meia maratona</string>
     <string name="pace_calculator_preset_marathon">Maratona</string>
+    <string name="browse_categories_subtitle">Organize categorias de treino, cores, visibilidade e ordem.</string>
+    <string name="browse_trophies_subtitle">Confira conquistas e o progresso por trás de cada troféu.</string>
     <string name="browse_personal_records_subtitle">Acompanhe recordes pessoais flexíveis por série e histórico.</string>
     <string name="browse_pace_calculator_subtitle">Calcule ritmo, tempo e distância com suas unidades preferidas.</string>
+    <string name="browse_activities_subtitle">Confira alterações e ações recentes dos seus treinos.</string>
+    <string name="browse_backup_import_subtitle">Exporte, importe e gerencie o local dos seus backups.</string>
+    <string name="browse_settings_subtitle">Personalize unidades, aparência, idioma e comportamento do app.</string>
+    <string name="browse_developer_subtitle">Consulte diagnósticos e ferramentas exclusivas para desenvolvimento.</string>
     <string name="activity_day_unplanned">A definir</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>

@@ -423,8 +423,14 @@
     <string name="pace_calculator_preset_15k">15K</string>
     <string name="pace_calculator_preset_half_marathon">Half marathon</string>
     <string name="pace_calculator_preset_marathon">Marathon</string>
+    <string name="browse_categories_subtitle">Organize workout categories, colors, visibility, and order.</string>
+    <string name="browse_trophies_subtitle">Review achievements and the progress behind each trophy.</string>
     <string name="browse_personal_records_subtitle">Track flexible personal records by series and history.</string>
     <string name="browse_pace_calculator_subtitle">Calculate pace, time, and distance with your preferred units.</string>
+    <string name="browse_activities_subtitle">Review recent changes and actions across your training.</string>
+    <string name="browse_backup_import_subtitle">Export, import, and manage your backup location.</string>
+    <string name="browse_settings_subtitle">Customize units, appearance, language, and app behavior.</string>
+    <string name="browse_developer_subtitle">Inspect developer-only diagnostics and tools.</string>
     <string name="activity_day_unplanned">To be defined</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>

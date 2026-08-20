@@ -47,6 +47,7 @@ import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -283,6 +284,7 @@ fun AddRaceEventDialog(
         datePickerState.applyWeekStartDayOverride(weekStartDay)
 
         DatePickerDialog(
+            modifier = Modifier.padding(horizontal = SpacingXl),
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(

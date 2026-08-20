@@ -7,9 +7,11 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
@@ -58,6 +61,7 @@ import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -84,6 +88,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
@@ -105,6 +111,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelColumnMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelContentPadding
@@ -120,6 +127,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
+import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_DARK
+import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_LIGHT
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
@@ -411,6 +420,7 @@ fun PersonalRecordsContent(
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            contentWindowInsets = WindowInsets(0, 0, 0, 0),
             floatingActionButton = {
                 Box {
                     if (selectedFamily != null) {
@@ -418,7 +428,10 @@ fun PersonalRecordsContent(
                             onClick = { onAddResult(selectedFamily.id) },
                             containerColor = colorScheme.primaryContainer,
                             contentColor = colorScheme.onPrimaryContainer,
-                            modifier = Modifier.testTag(PERSONAL_RECORDS_ACTION_FAB_TAG),
+                            modifier =
+                                Modifier
+                                    .padding(bottom = SpacingXl)
+                                    .testTag(PERSONAL_RECORDS_ACTION_FAB_TAG),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
@@ -430,7 +443,10 @@ fun PersonalRecordsContent(
                             onClick = { isAddMenuVisible = !isAddMenuVisible },
                             containerColor = colorScheme.primaryContainer,
                             contentColor = colorScheme.onPrimaryContainer,
-                            modifier = Modifier.testTag(PERSONAL_RECORDS_ACTION_FAB_TAG),
+                            modifier =
+                                Modifier
+                                    .padding(bottom = SpacingXl)
+                                    .testTag(PERSONAL_RECORDS_ACTION_FAB_TAG),
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Add,
@@ -496,21 +512,35 @@ fun PersonalRecordsContent(
                 )
 
                 key(selectedFamilyId) {
+                    val hasScrollableContent =
+                        if (selectedFamily == null) {
+                            state.families.isNotEmpty()
+                        } else {
+                            state.entries.any { it.familyId == selectedFamily.id }
+                        }
+                    val bodyModifier =
+                        if (hasScrollableContent) {
+                            Modifier
+                                .fillMaxWidth()
+                                .verticalScroll(rememberScrollState())
+                                .padding(bottom = PersonalRecordsActionBottomPadding)
+                        } else {
+                            Modifier.fillMaxSize()
+                        }
+
                     Box(
                         modifier =
                             Modifier
                                 .fillMaxWidth()
                                 .weight(1f)
-                                .padding(horizontal = SpacingXl)
-                                .padding(bottom = SpacingXl)
-                                .verticalScroll(rememberScrollState()),
+                                .padding(horizontal = SpacingXl),
                     ) {
                         if (selectedFamily == null) {
                             PersonalRecordsShelf(
                                 state = state,
                                 currentLocale = currentLocale,
                                 onFamilySelected = onFamilySelected,
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = bodyModifier,
                             )
                         } else {
                             PersonalRecordDetail(
@@ -519,7 +549,7 @@ fun PersonalRecordsContent(
                                 currentLocale = currentLocale,
                                 onEditEntry = onEditEntry,
                                 onSetManualCurrentEntry = onSetManualCurrentEntry,
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = bodyModifier,
                             )
                         }
                     }
@@ -669,7 +699,8 @@ private fun PersonalRecordsShelf(
 
                             Card(
                                 onClick = { onFamilySelected(family.id) },
-                                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+                                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+                                border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
                                 shape = shapes.medium,
                                 modifier =
                                     Modifier
@@ -703,27 +734,31 @@ private fun PersonalRecordsShelf(
 
                                         Spacer(modifier = Modifier.width(SpacingMd))
 
-                                        Column(
+                                        Text(
+                                            text = family.title,
+                                            style = typography.titleMedium,
                                             modifier = Modifier.weight(1f),
-                                            verticalArrangement = Arrangement.spacedBy(SpacingXs),
-                                        ) {
-                                            Text(text = family.title, style = typography.titleMedium)
-                                            FlowRow(
-                                                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
-                                                verticalArrangement = Arrangement.spacedBy(SpacingXs),
-                                            ) {
-                                                TitleChip(
-                                                    label = metricLabel(family.metricType),
-                                                    containerColor = colorScheme.surfaceVariant,
-                                                    contentColor = colorScheme.onSurfaceVariant,
-                                                )
-                                                TitleChip(
-                                                    label = comparisonLabel(family.comparisonRule),
-                                                    containerColor = colorScheme.surfaceVariant,
-                                                    contentColor = colorScheme.onSurfaceVariant,
-                                                )
-                                            }
-                                        }
+                                        )
+                                    }
+
+                                    FlowRow(
+                                        modifier =
+                                            Modifier.padding(
+                                                start = SmallIconSize + SpacingSm + SpacingMd,
+                                            ),
+                                        horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                                        verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                                    ) {
+                                        TitleChip(
+                                            label = metricLabel(family.metricType),
+                                            containerColor = colorScheme.surfaceVariant,
+                                            contentColor = colorScheme.onSurfaceVariant,
+                                        )
+                                        TitleChip(
+                                            label = comparisonLabel(family.comparisonRule),
+                                            containerColor = colorScheme.surfaceVariant,
+                                            contentColor = colorScheme.onSurfaceVariant,
+                                        )
                                     }
 
                                     val currentBestLabel =
@@ -737,9 +772,12 @@ private fun PersonalRecordsShelf(
                                         }
 
                                     if (currentBestLabel == null) {
+                                        val actionColors = personalRecordRelatedColors(category)
                                         AddActionPill(
                                             icon = Icons.Outlined.Add,
                                             label = stringResource(R.string.personal_records_add_first_result),
+                                            containerColor = actionColors.container,
+                                            contentColor = actionColors.content,
                                             onClick = { onFamilySelected(family.id) },
                                         )
                                     } else {
@@ -822,16 +860,21 @@ private fun PersonalRecordDetail(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 contentAlignment = Alignment.Center,
             ) {
+                val emptyStateColors = personalRecordRelatedColors(category)
                 EmptyStateCard(
                     icon = Icons.Outlined.Add,
                     title = stringResource(R.string.personal_records_add_first_result),
                     body = stringResource(R.string.personal_records_add_first_result_body),
                     modifier = Modifier.fillMaxWidth(),
+                    containerColor = colorScheme.surfaceContainerHigh,
+                    iconContainerColor = emptyStateColors.container,
+                    iconContentColor = emptyStateColors.content,
                 )
             }
         } else {
             Card(
-                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+                border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
                 shape = shapes.medium,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -874,6 +917,7 @@ private fun PersonalRecordDetail(
                             onClick = { onEditEntry(entry) },
                             isManualSelection = family.comparisonRule == MANUAL,
                             isCurrent = currentBest?.id == entry.id,
+                            category = category,
                             onSetCurrent = { onSetManualCurrentEntry(family.id, entry.id) },
                         )
                     }
@@ -890,11 +934,15 @@ private fun PersonalRecordHistoryRow(
     onClick: () -> Unit,
     isManualSelection: Boolean,
     isCurrent: Boolean,
+    category: Category?,
     onSetCurrent: () -> Unit,
 ) {
+    val currentFlagColors = personalRecordRelatedColors(category)
+
     Card(
         onClick = onClick,
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
         shape = shapes.medium,
         modifier =
             Modifier
@@ -927,8 +975,8 @@ private fun PersonalRecordHistoryRow(
                     if (isCurrent) {
                         TitleChip(
                             label = stringResource(R.string.personal_records_current_selected),
-                            containerColor = colorScheme.primaryContainer,
-                            contentColor = colorScheme.onPrimaryContainer,
+                            containerColor = currentFlagColors.container,
+                            contentColor = currentFlagColors.content,
                         )
                     }
                 }
@@ -974,12 +1022,16 @@ private fun AddActionPill(
     icon: ImageVector,
     label: String,
     onClick: () -> Unit,
+    containerColor: Color? = null,
+    contentColor: Color? = null,
 ) {
     Surface(
         onClick = onClick,
         shape = shapes.extraLarge,
         tonalElevation = ElevationSm,
         shadowElevation = ElevationSm,
+        color = containerColor ?: colorScheme.surface,
+        contentColor = contentColor ?: colorScheme.onSurface,
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -998,6 +1050,32 @@ private fun AddActionPill(
             Text(text = label, style = typography.titleSmall)
         }
     }
+}
+
+private data class PersonalRecordRelatedColors(
+    val container: Color,
+    val content: Color,
+)
+
+@Composable
+private fun personalRecordRelatedColors(category: Category?): PersonalRecordRelatedColors {
+    val container =
+        category?.colorId?.let(::categoryAccentColor)?.let { categoryColor ->
+            val blend =
+                if (isSystemInDarkTheme()) {
+                    INDICATOR_EXTRA_BLEND_DARK
+                } else {
+                    INDICATOR_EXTRA_BLEND_LIGHT
+                }
+            lerp(categoryColor, colorScheme.surface, blend)
+        } ?: colorScheme.primaryContainer
+    val content =
+        if (category == null) {
+            colorScheme.onPrimaryContainer
+        } else {
+            contentColorForBackground(container)
+        }
+    return PersonalRecordRelatedColors(container = container, content = content)
 }
 
 @Composable
@@ -1224,14 +1302,6 @@ private fun secondsToTimeParts(totalSeconds: Long): TimeParts {
     return TimeParts(hours = hours, minutes = minutes, seconds = seconds)
 }
 
-private fun formatEditableNumber(value: Double): String {
-    return if (value % 1.0 == 0.0) {
-        value.toLong().toString()
-    } else {
-        value.toString()
-    }
-}
-
 @Composable
 internal fun PersonalRecordFamilyEditorDialog(
     categories: List<Category>,
@@ -1387,7 +1457,7 @@ internal fun PersonalRecordFamilyEditorDialog(
                             expanded = metricMenuExpanded,
                             onDismissRequest = { metricMenuExpanded = false },
                         ) {
-                            PersonalRecordMetricType.entries.forEach { option ->
+                            PersonalRecordMetricType.entries.forEachIndexed { index, option ->
                                 DropdownMenuItem(
                                     text = {
                                         Column(verticalArrangement = Arrangement.spacedBy(SpacingXxs)) {
@@ -1404,6 +1474,12 @@ internal fun PersonalRecordFamilyEditorDialog(
                                         metricMenuExpanded = false
                                     },
                                 )
+                                if (index != PersonalRecordMetricType.entries.lastIndex) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(vertical = SpacingXs),
+                                        color = colorScheme.outlineVariant,
+                                    )
+                                }
                             }
                         }
                     }
@@ -1559,7 +1635,7 @@ internal fun PersonalRecordEntryEditorDialog(
                     timeSeconds = parts.seconds
                     valueText = ""
                 } else {
-                    valueText = formatEditableNumber(initialEntry.value)
+                    valueText = formatEditablePersonalRecordValue(initialEntry.value)
                 }
             }
             return@LaunchedEffect
@@ -1589,7 +1665,7 @@ internal fun PersonalRecordEntryEditorDialog(
                 selectedUnit = settingsDistanceUnit.asPersonalRecordUnit()
                 valueText =
                     latestEntry?.let {
-                        formatEditableNumber(
+                        formatEditablePersonalRecordValue(
                             PersonalRecordValueNormalizer.convert(it.value, it.unit, selectedUnit),
                         )
                     }.orEmpty()
@@ -1599,7 +1675,7 @@ internal fun PersonalRecordEntryEditorDialog(
                 selectedUnit = settingsWeightUnit.asPersonalRecordUnit()
                 valueText =
                     latestEntry?.let {
-                        formatEditableNumber(
+                        formatEditablePersonalRecordValue(
                             PersonalRecordValueNormalizer.convert(it.value, it.unit, selectedUnit),
                         )
                     }.orEmpty()
@@ -1607,7 +1683,7 @@ internal fun PersonalRecordEntryEditorDialog(
 
             else -> {
                 selectedUnit = latestEntry?.unit ?: family.defaultUnit
-                valueText = latestEntry?.let { formatEditableNumber(it.value) }.orEmpty()
+                valueText = latestEntry?.let { formatEditablePersonalRecordValue(it.value) }.orEmpty()
             }
         }
     }
@@ -1686,37 +1762,40 @@ internal fun PersonalRecordEntryEditorDialog(
                         )
                     }
                 } else {
-                    Row(
+                    Column(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                        verticalArrangement = Arrangement.spacedBy(SpacingSm),
                     ) {
                         OutlinedTextField(
                             value = valueText,
                             onValueChange = { valueText = it },
                             label = { Text(text = stringResource(R.string.personal_records_entry_value)) },
+                            singleLine = true,
                             keyboardOptions =
                                 androidx.compose.foundation.text.KeyboardOptions(
                                     keyboardType = KeyboardType.Decimal,
                                 ),
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.fillMaxWidth(),
                         )
 
                         if (isDistanceOrWeightMetric) {
                             ExposedDropdownMenuBox(
                                 expanded = unitMenuExpanded,
                                 onExpandedChange = { unitMenuExpanded = !unitMenuExpanded },
+                                modifier = Modifier.fillMaxWidth(),
                             ) {
                                 OutlinedTextField(
                                     readOnly = true,
                                     value = unitChoiceLabelFor(selectedUnit),
                                     onValueChange = {},
                                     label = { Text(text = stringResource(R.string.personal_records_entry_unit)) },
+                                    singleLine = true,
                                     trailingIcon = {
                                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitMenuExpanded)
                                     },
                                     modifier =
                                         Modifier
-                                            .widthIn(min = PersonalRecordTimeWheelColumnMinWidth)
+                                            .fillMaxWidth()
                                             .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                                 )
 
@@ -1742,7 +1821,7 @@ internal fun PersonalRecordEntryEditorDialog(
                                                 unitMenuExpanded = false
                                                 parsePersonalRecordValue(valueText)?.let { parsed ->
                                                     valueText =
-                                                        formatEditableNumber(
+                                                        formatEditablePersonalRecordValue(
                                                             PersonalRecordValueNormalizer.convert(
                                                                 parsed,
                                                                 previousUnit,
@@ -1894,6 +1973,7 @@ internal fun PersonalRecordEntryEditorDialog(
             }
 
         DatePickerDialog(
+            modifier = Modifier.padding(horizontal = SpacingXl),
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(
@@ -2012,9 +2092,7 @@ private fun metricDescription(metricType: PersonalRecordMetricType): String {
 }
 
 @Composable
-private fun unitChoiceLabelFor(
-    unit: PersonalRecordUnit,
-): String {
+private fun unitChoiceLabelFor(unit: PersonalRecordUnit): String {
     return when (unit) {
         KILOMETER -> stringResource(R.string.personal_records_unit_kilometer)
         MILE -> stringResource(R.string.personal_records_unit_mile)

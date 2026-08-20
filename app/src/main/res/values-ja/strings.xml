@@ -371,8 +371,14 @@
     <string name="pace_calculator_preset_15k">15K</string>
     <string name="pace_calculator_preset_half_marathon">ハーフマラソン</string>
     <string name="pace_calculator_preset_marathon">マラソン</string>
+    <string name="browse_categories_subtitle">トレーニングカテゴリー、色、表示状態、順序を整理します。</string>
+    <string name="browse_trophies_subtitle">実績と各トロフィー獲得までの進捗を確認します。</string>
     <string name="browse_personal_records_subtitle">シリーズと履歴で柔軟な個人記録を管理します。</string>
     <string name="browse_pace_calculator_subtitle">お好みの単位でペース、時間、距離を計算します。</string>
+    <string name="browse_activities_subtitle">トレーニングの最近の変更や操作を確認します。</string>
+    <string name="browse_backup_import_subtitle">バックアップの書き出し、読み込み、保存場所の管理を行います。</string>
+    <string name="browse_settings_subtitle">単位、外観、言語、アプリの動作をカスタマイズします。</string>
+    <string name="browse_developer_subtitle">開発者向けの診断情報とツールを確認します。</string>
     <string name="activity_day_unplanned">未定</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>

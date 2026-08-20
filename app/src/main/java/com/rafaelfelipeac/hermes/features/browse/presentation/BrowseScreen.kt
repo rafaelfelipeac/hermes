@@ -201,6 +201,7 @@ private fun BrowseHome(
 
         BrowseDestinationCard(
             title = stringResource(R.string.categories_title),
+            subtitle = stringResource(R.string.browse_categories_subtitle),
             icon = Icons.Outlined.Category,
             onClick = { onNavigateTo(BrowseDestination.CATEGORIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "categories"),
@@ -208,6 +209,7 @@ private fun BrowseHome(
 
         BrowseDestinationCard(
             title = stringResource(R.string.trophies_title),
+            subtitle = stringResource(R.string.browse_trophies_subtitle),
             icon = Icons.Outlined.EmojiEvents,
             onClick = { onNavigateTo(BrowseDestination.TROPHIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "trophies"),
@@ -231,6 +233,7 @@ private fun BrowseHome(
 
         BrowseDestinationCard(
             title = stringResource(R.string.trophies_activities_action),
+            subtitle = stringResource(R.string.browse_activities_subtitle),
             icon = Icons.Default.History,
             onClick = { onNavigateTo(BrowseDestination.ACTIVITIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "activities"),
@@ -238,6 +241,7 @@ private fun BrowseHome(
 
         BrowseDestinationCard(
             title = stringResource(R.string.browse_backup_import_title),
+            subtitle = stringResource(R.string.browse_backup_import_subtitle),
             icon = Icons.Outlined.Inventory2,
             onClick = { onNavigateTo(BrowseDestination.BACKUP) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "backup"),
@@ -247,6 +251,7 @@ private fun BrowseHome(
 
         BrowseDestinationCard(
             title = stringResource(R.string.settings_title),
+            subtitle = stringResource(R.string.browse_settings_subtitle),
             icon = Icons.Default.Settings,
             onClick = { onNavigateTo(BrowseDestination.SETTINGS) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "settings"),
@@ -255,6 +260,7 @@ private fun BrowseHome(
         if (BuildConfig.DEBUG) {
             BrowseDestinationCard(
                 title = stringResource(R.string.settings_developer_title),
+                subtitle = stringResource(R.string.browse_developer_subtitle),
                 icon = Icons.Outlined.Construction,
                 onClick = { onNavigateTo(BrowseDestination.DEVELOPER) },
                 modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "developer"),
@@ -277,33 +283,34 @@ private fun BrowseDestinationCard(
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
         modifier = modifier.fillMaxWidth(),
     ) {
-        Row(
+        Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
                     .padding(SpacingLg),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(SmallIconSize),
-                tint = colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.width(SpacingMd))
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(SmallIconSize),
+                    tint = colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.width(SpacingMd))
                 Text(
                     text = title,
                     style = typography.titleMedium,
                     color = colorScheme.onSurfaceVariant,
                 )
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                }
+            }
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = SmallIconSize + SpacingMd),
+                )
             }
         }
     }

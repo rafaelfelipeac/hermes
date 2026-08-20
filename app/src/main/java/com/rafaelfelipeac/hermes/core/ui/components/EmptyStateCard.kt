@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EmptyStateCardMaxWidth
@@ -33,12 +34,15 @@ fun EmptyStateCard(
     title: String,
     body: String,
     modifier: Modifier = Modifier,
+    containerColor: Color = colorScheme.surfaceContainerLow,
+    iconContainerColor: Color = colorScheme.primaryContainer,
+    iconContentColor: Color = colorScheme.onPrimaryContainer,
     actionContent: (@Composable () -> Unit)? = null,
 ) {
     Card(
         modifier = modifier.fillMaxWidth().widthIn(max = EmptyStateCardMaxWidth),
         shape = shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
     ) {
         Column(
             modifier = Modifier.padding(EmptyStateCardPadding),
@@ -47,7 +51,7 @@ fun EmptyStateCard(
         ) {
             Surface(
                 shape = shapes.small,
-                color = colorScheme.primaryContainer,
+                color = iconContainerColor,
             ) {
                 Box(
                     modifier = Modifier.size(EmptyStateIconContainerSize),
@@ -56,7 +60,7 @@ fun EmptyStateCard(
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = colorScheme.onPrimaryContainer,
+                        tint = iconContentColor,
                         modifier = Modifier.size(EmptyStateIconSize),
                     )
                 }

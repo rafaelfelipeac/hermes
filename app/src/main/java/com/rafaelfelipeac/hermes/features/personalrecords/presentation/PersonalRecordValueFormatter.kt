@@ -13,10 +13,14 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.REP
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.SECOND
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.WATT
+import java.math.BigDecimal
+import java.math.RoundingMode
 import java.text.NumberFormat
 import java.time.Duration
 import java.util.Locale
 import kotlin.math.roundToLong
+
+private const val EDITABLE_VALUE_DECIMAL_SCALE = 2
 
 fun formatPersonalRecordValue(
     value: Double,
@@ -50,6 +54,14 @@ fun formatPersonalRecordValue(
     }
 }
 
+internal fun formatEditablePersonalRecordValue(value: Double): String {
+    return BigDecimal
+        .valueOf(value)
+        .setScale(EDITABLE_VALUE_DECIMAL_SCALE, RoundingMode.HALF_UP)
+        .stripTrailingZeros()
+        .toPlainString()
+}
+
 private fun formatDuration(totalSeconds: Long): String {
     val duration = Duration.ofSeconds(totalSeconds)
     val hours = duration.toHours()
@@ -75,7 +87,7 @@ private fun formatNumber(
     locale: Locale,
 ): String {
     val formatter = NumberFormat.getNumberInstance(locale)
-    formatter.minimumFractionDigits = if (value % 1.0 == 0.0) 0 else 1
+    formatter.minimumFractionDigits = 0
     formatter.maximumFractionDigits = 2
     return formatter.format(value)
 }

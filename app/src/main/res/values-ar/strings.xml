@@ -403,8 +403,14 @@
     <string name="pace_calculator_preset_15k">15 كلم</string>
     <string name="pace_calculator_preset_half_marathon">نصف ماراثون</string>
     <string name="pace_calculator_preset_marathon">ماراثون</string>
+    <string name="browse_categories_subtitle">نظّم فئات التمرين والألوان ومستوى الظهور والترتيب.</string>
+    <string name="browse_trophies_subtitle">راجع الإنجازات والتقدم وراء كل جائزة.</string>
     <string name="browse_personal_records_subtitle">تابع السجلات الشخصية المرنة حسب السلسلة والسجل.</string>
     <string name="browse_pace_calculator_subtitle">احسب الإيقاع والوقت والمسافة بوحداتك المفضلة.</string>
+    <string name="browse_activities_subtitle">راجع التغييرات والإجراءات الأخيرة في تدريباتك.</string>
+    <string name="browse_backup_import_subtitle">صدّر النسخ الاحتياطية واستوردها وأدِر موقع حفظها.</string>
+    <string name="browse_settings_subtitle">خصّص الوحدات والمظهر واللغة وسلوك التطبيق.</string>
+    <string name="browse_developer_subtitle">راجع أدوات التشخيص والأدوات المخصصة للمطورين.</string>
     <string name="activity_day_unplanned">قيد التحديد</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>

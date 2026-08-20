@@ -375,8 +375,14 @@
     <string name="pace_calculator_preset_15k">15K</string>
     <string name="pace_calculator_preset_half_marathon">हाफ मैराथन</string>
     <string name="pace_calculator_preset_marathon">मैराथन</string>
+    <string name="browse_categories_subtitle">वर्कआउट श्रेणियाँ, रंग, दृश्यता और क्रम व्यवस्थित करें।</string>
+    <string name="browse_trophies_subtitle">उपलब्धियाँ और हर ट्रॉफ़ी के पीछे की प्रगति देखें।</string>
     <string name="browse_personal_records_subtitle">सीरीज़ और इतिहास के साथ लचीले व्यक्तिगत रिकॉर्ड ट्रैक करें।</string>
     <string name="browse_pace_calculator_subtitle">अपनी पसंदीदा इकाइयों में रफ्तार, समय और दूरी गणना करें।</string>
+    <string name="browse_activities_subtitle">अपने प्रशिक्षण के हाल के बदलाव और कार्रवाइयाँ देखें।</string>
+    <string name="browse_backup_import_subtitle">बैकअप निर्यात और आयात करें तथा उसका स्थान प्रबंधित करें।</string>
+    <string name="browse_settings_subtitle">इकाइयाँ, रूप-रंग, भाषा और ऐप का व्यवहार अनुकूलित करें।</string>
+    <string name="browse_developer_subtitle">केवल डेवलपर के लिए उपलब्ध जाँच और टूल देखें।</string>
     <string name="activity_day_unplanned">निर्धारित नहीं</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>

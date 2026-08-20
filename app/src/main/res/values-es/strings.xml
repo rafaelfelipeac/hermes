@@ -375,8 +375,14 @@
     <string name="pace_calculator_preset_15k">15K</string>
     <string name="pace_calculator_preset_half_marathon">Media maratón</string>
     <string name="pace_calculator_preset_marathon">Maratón</string>
+    <string name="browse_categories_subtitle">Organiza las categorías de entrenamiento, los colores, la visibilidad y el orden.</string>
+    <string name="browse_trophies_subtitle">Consulta los logros y el progreso detrás de cada trofeo.</string>
     <string name="browse_personal_records_subtitle">Sigue récords personales flexibles por serie e historial.</string>
     <string name="browse_pace_calculator_subtitle">Calcula ritmo, tiempo y distancia con tus unidades preferidas.</string>
+    <string name="browse_activities_subtitle">Consulta los cambios y las acciones recientes de tus entrenamientos.</string>
+    <string name="browse_backup_import_subtitle">Exporta, importa y gestiona la ubicación de tus copias de seguridad.</string>
+    <string name="browse_settings_subtitle">Personaliza las unidades, la apariencia, el idioma y el comportamiento de la aplicación.</string>
+    <string name="browse_developer_subtitle">Consulta diagnósticos y herramientas exclusivos para desarrollo.</string>
     <string name="activity_day_unplanned">Por definir</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>
