@@ -23,9 +23,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowDownward
@@ -61,6 +59,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
+import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
@@ -458,9 +457,8 @@ private fun CategoryEditorDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = title) },
         text = {
-            Column(
+            KeyboardAwareDialogForm(
                 verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                modifier = Modifier.verticalScroll(rememberScrollState()),
             ) {
                 OutlinedTextField(
                     value = name,

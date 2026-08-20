@@ -4,17 +4,12 @@ package com.rafaelfelipeac.hermes.core.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,10 +42,8 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewProvider
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -112,13 +105,7 @@ fun AddWorkoutDialog(
             )
         },
         text = {
-            Column(
-                modifier =
-                    modifier
-                        .fillMaxWidth()
-                        .heightIn(max = PlannedItemDialogContentMaxHeight)
-                        .verticalScroll(rememberScrollState()),
-            ) {
+            KeyboardAwareDialogForm(modifier = modifier) {
                 OutlinedTextField(
                     value = type,
                     onValueChange = { type = it.capitalizedFirstCharacter() },
@@ -278,8 +265,7 @@ fun AddWorkoutDialog(
             }
         datePickerState.applyWeekStartDayOverride(weekStartDay)
 
-        DatePickerDialog(
-            modifier = Modifier.padding(horizontal = SpacingXl),
+        HermesDatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(

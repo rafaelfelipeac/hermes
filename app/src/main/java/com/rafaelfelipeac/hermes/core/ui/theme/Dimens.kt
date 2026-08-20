@@ -74,6 +74,7 @@ object Dimens {
     val EventCardHeight = 176.dp
     val EventsTestViewportWidth = 420.dp
     val EventsTestViewportHeight = 720.dp
+    val DatePickerDialogMaxHeight = 568.dp
     val KeyboardVisibleDialogContentMaxHeight = 220.dp
     val PlannedItemDialogContentMaxHeight = 420.dp
     val TrophyHeroMinHeight = 180.dp

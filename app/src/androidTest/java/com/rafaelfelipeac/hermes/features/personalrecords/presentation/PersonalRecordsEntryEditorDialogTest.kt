@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.HERMES_DATE_PICKER_DIALOG_TAG
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.HIGHER_IS_BETTER
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
@@ -54,6 +55,14 @@ class PersonalRecordsEntryEditorDialogTest {
         composeRule.onNodeWithText(expectedDateLabel).assertIsDisplayed()
         composeRule.onNodeWithTag(PERSONAL_RECORDS_ENTRY_DATE_FIELD_TAG).performClick()
         composeRule.onNodeWithText(context.getString(R.string.personal_records_confirm)).assertIsDisplayed()
+        val datePickerBounds =
+            composeRule
+                .onNodeWithTag(HERMES_DATE_PICKER_DIALOG_TAG)
+                .fetchSemanticsNode()
+                .boundsInRoot
+        val screenWidth = context.resources.displayMetrics.widthPixels.toFloat()
+        assertTrue(datePickerBounds.left > 0f)
+        assertTrue(datePickerBounds.right < screenWidth)
         composeRule.onAllNodesWithText(context.getString(R.string.add_workout_cancel))[1].performClick()
         composeRule.onNodeWithText(expectedDateLabel).assertIsDisplayed()
     }

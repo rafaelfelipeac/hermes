@@ -27,8 +27,6 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -54,7 +52,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -106,6 +103,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
+import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
+import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
@@ -114,13 +113,11 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPad
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.KeyboardVisibleDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelColumnMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelContentPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelItemHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordsActionBottomPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -1359,13 +1356,7 @@ internal fun PersonalRecordFamilyEditorDialog(
                 )
             },
         text = {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = PlannedItemDialogContentMaxHeight)
-                        .verticalScroll(rememberScrollState()),
-            ) {
+            KeyboardAwareDialogForm {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
@@ -1696,13 +1687,6 @@ internal fun PersonalRecordEntryEditorDialog(
             (if (isTimeMetric) true else parsePersonalRecordValue(valueText) != null) &&
             (!isDistanceOrWeightMetric || selectedUnit != CUSTOM_UNIT || customUnitLabel.isNotBlank()) &&
             !recordDate.isAfter(today)
-    val formContentMaxHeight =
-        if (WindowInsets.isImeVisible) {
-            KeyboardVisibleDialogContentMaxHeight
-        } else {
-            PlannedItemDialogContentMaxHeight
-        }
-
     AlertDialog(
         modifier =
             Modifier.testTag(
@@ -1725,13 +1709,7 @@ internal fun PersonalRecordEntryEditorDialog(
                 )
             },
         text = {
-            Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = formContentMaxHeight)
-                        .verticalScroll(rememberScrollState()),
-            ) {
+            KeyboardAwareDialogForm {
                 ExposedDropdownMenuBox(
                     expanded = familyMenuExpanded,
                     onExpandedChange = { familyMenuExpanded = !familyMenuExpanded },
@@ -1985,8 +1963,7 @@ internal fun PersonalRecordEntryEditorDialog(
                 )
             }
 
-        DatePickerDialog(
-            modifier = Modifier.padding(horizontal = SpacingXl),
+        HermesDatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
                 TextButton(
