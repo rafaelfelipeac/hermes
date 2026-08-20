@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -113,6 +114,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPad
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.KeyboardVisibleDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelColumnMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelContentPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelHeight
@@ -180,6 +182,7 @@ internal const val PERSONAL_RECORDS_CREATE_FAMILY_DIALOG_TAG = "personal_records
 internal const val PERSONAL_RECORDS_EDIT_FAMILY_DIALOG_TAG = "personal_records_edit_family_dialog"
 internal const val PERSONAL_RECORDS_ADD_ENTRY_DIALOG_TAG = "personal_records_add_entry_dialog"
 internal const val PERSONAL_RECORDS_EDIT_ENTRY_DIALOG_TAG = "personal_records_edit_entry_dialog"
+internal const val PERSONAL_RECORDS_ENTRY_VALUE_FIELD_TAG = "personal_records_entry_value_field"
 internal const val PERSONAL_RECORDS_ENTRY_DATE_FIELD_TAG = "personal_records_entry_date_field"
 internal const val PERSONAL_RECORDS_EDIT_FAMILY_BUTTON_TAG = "personal_records_edit_family_button"
 internal const val PERSONAL_RECORDS_DELETE_FAMILY_BUTTON_TAG = "personal_records_delete_family_button"
@@ -1688,6 +1691,18 @@ internal fun PersonalRecordEntryEditorDialog(
         }
     }
 
+    val canSave =
+        familyId != null &&
+            (if (isTimeMetric) true else parsePersonalRecordValue(valueText) != null) &&
+            (!isDistanceOrWeightMetric || selectedUnit != CUSTOM_UNIT || customUnitLabel.isNotBlank()) &&
+            !recordDate.isAfter(today)
+    val formContentMaxHeight =
+        if (WindowInsets.isImeVisible) {
+            KeyboardVisibleDialogContentMaxHeight
+        } else {
+            PlannedItemDialogContentMaxHeight
+        }
+
     AlertDialog(
         modifier =
             Modifier.testTag(
@@ -1714,7 +1729,7 @@ internal fun PersonalRecordEntryEditorDialog(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .heightIn(max = PlannedItemDialogContentMaxHeight)
+                        .heightIn(max = formContentMaxHeight)
                         .verticalScroll(rememberScrollState()),
             ) {
                 ExposedDropdownMenuBox(
@@ -1775,7 +1790,10 @@ internal fun PersonalRecordEntryEditorDialog(
                                 androidx.compose.foundation.text.KeyboardOptions(
                                     keyboardType = KeyboardType.Decimal,
                                 ),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .testTag(PERSONAL_RECORDS_ENTRY_VALUE_FIELD_TAG),
                         )
 
                         if (isDistanceOrWeightMetric) {
@@ -1890,46 +1908,8 @@ internal fun PersonalRecordEntryEditorDialog(
             }
         },
         confirmButton = {
-            val canSave =
-                familyId != null &&
-                    (if (isTimeMetric) true else parsePersonalRecordValue(valueText) != null) &&
-                    (!isDistanceOrWeightMetric || selectedUnit != CUSTOM_UNIT || customUnitLabel.isNotBlank()) &&
-                    !recordDate.isAfter(today)
-
-            TextButton(
-                enabled = canSave,
-                onClick = {
-                    val resolvedFamilyId = familyId ?: return@TextButton
-                    val resolvedValue =
-                        if (isTimeMetric) {
-                            (timeHours * 3600 + timeMinutes * 60 + timeSeconds).toDouble()
-                        } else {
-                            parsePersonalRecordValue(valueText) ?: return@TextButton
-                        }
-                    val resolvedUnit = if (isTimeMetric) SECOND else selectedUnit
-                    onSave(
-                        resolvedFamilyId,
-                        resolvedValue,
-                        resolvedUnit,
-                        recordDate,
-                        note.trim().ifBlank { null },
-                        customUnitLabel.trim().ifBlank { null },
-                    )
-                },
-            ) {
-                Text(
-                    text =
-                        if (isEdit) {
-                            stringResource(R.string.save_changes)
-                        } else {
-                            stringResource(R.string.personal_records_save_result)
-                        },
-                )
-            }
-        },
-        dismissButton = {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (isEdit && onDeleteRequested != null) {
@@ -1942,8 +1922,41 @@ internal fun PersonalRecordEntryEditorDialog(
                     }
                 }
 
+                Spacer(modifier = Modifier.weight(1f))
+
                 TextButton(onClick = onDismiss) {
                     Text(text = stringResource(R.string.add_workout_cancel))
+                }
+
+                TextButton(
+                    enabled = canSave,
+                    onClick = {
+                        val resolvedFamilyId = familyId ?: return@TextButton
+                        val resolvedValue =
+                            if (isTimeMetric) {
+                                (timeHours * 3600 + timeMinutes * 60 + timeSeconds).toDouble()
+                            } else {
+                                parsePersonalRecordValue(valueText) ?: return@TextButton
+                            }
+                        val resolvedUnit = if (isTimeMetric) SECOND else selectedUnit
+                        onSave(
+                            resolvedFamilyId,
+                            resolvedValue,
+                            resolvedUnit,
+                            recordDate,
+                            note.trim().ifBlank { null },
+                            customUnitLabel.trim().ifBlank { null },
+                        )
+                    },
+                ) {
+                    Text(
+                        text =
+                            if (isEdit) {
+                                stringResource(R.string.save_changes)
+                            } else {
+                                stringResource(R.string.personal_records_save_result)
+                            },
+                    )
                 }
             }
         },

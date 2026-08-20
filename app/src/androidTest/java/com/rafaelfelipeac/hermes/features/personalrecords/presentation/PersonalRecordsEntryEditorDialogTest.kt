@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -18,6 +19,7 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.Instant
@@ -76,6 +78,74 @@ class PersonalRecordsEntryEditorDialogTest {
         }
 
         composeRule.onNodeWithText(context.getString(R.string.save_changes)).assertIsNotEnabled()
+    }
+
+    @Test
+    fun editActions_placeDeleteLeftOfCancelAndSave() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val family = sampleFamily()
+
+        composeRule.setContent {
+            PersonalRecordEntryEditorDialog(
+                families = listOf(family),
+                entries = emptyList(),
+                initialFamilyId = family.id,
+                settingsDistanceUnit = KILOMETERS,
+                settingsWeightUnit = KILOGRAMS,
+                initialEntry = sampleEntry(familyId = family.id, recordDate = LocalDate.of(2024, 2, 1)),
+                isEdit = true,
+                onDismiss = {},
+                onSave = { _, _, _, _, _, _ -> },
+                onDeleteRequested = {},
+            )
+        }
+
+        val deleteBounds =
+            composeRule
+                .onNodeWithContentDescription(
+                    context.getString(R.string.personal_records_delete_result_confirm),
+                ).fetchSemanticsNode()
+                .boundsInRoot
+        val cancelBounds =
+            composeRule
+                .onNodeWithText(context.getString(R.string.add_workout_cancel))
+                .fetchSemanticsNode()
+                .boundsInRoot
+        val saveBounds =
+            composeRule
+                .onNodeWithText(context.getString(R.string.save_changes))
+                .fetchSemanticsNode()
+                .boundsInRoot
+
+        assertTrue(deleteBounds.center.x < cancelBounds.center.x)
+        assertTrue(cancelBounds.center.x < saveBounds.center.x)
+    }
+
+    @Test
+    fun focusedValueField_keepsCancelAndSaveVisible() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val family = sampleFamily()
+
+        composeRule.setContent {
+            PersonalRecordEntryEditorDialog(
+                families = listOf(family),
+                entries = emptyList(),
+                initialFamilyId = family.id,
+                settingsDistanceUnit = KILOMETERS,
+                settingsWeightUnit = KILOGRAMS,
+                initialEntry = sampleEntry(familyId = family.id, recordDate = LocalDate.of(2024, 2, 1)),
+                isEdit = true,
+                onDismiss = {},
+                onSave = { _, _, _, _, _, _ -> },
+                onDeleteRequested = {},
+            )
+        }
+
+        composeRule.onNodeWithTag(PERSONAL_RECORDS_ENTRY_VALUE_FIELD_TAG).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.add_workout_cancel)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.save_changes)).assertIsDisplayed()
     }
 
     private fun sampleFamily() =
