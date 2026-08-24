@@ -119,6 +119,7 @@ class TrophyEngine(
         val kickoffMilestones: List<Long>,
         val personalRecordFamilyCreationMilestones: List<Long>,
         val personalRecordEntryCreationMilestones: List<Long>,
+        val paceCalculationMilestones: List<Long>,
         val protectedTimeMilestones: List<Long>,
         val raceEventCreationMilestones: List<Long>,
         val raceEventCompletionMilestones: List<Long>,
@@ -143,6 +144,7 @@ class TrophyEngine(
                 TrophyMetric.WORKOUT_CREATIONS -> kickoffMilestones
                 TrophyMetric.PERSONAL_RECORD_FAMILY_CREATIONS -> personalRecordFamilyCreationMilestones
                 TrophyMetric.PERSONAL_RECORD_ENTRY_CREATIONS -> personalRecordEntryCreationMilestones
+                TrophyMetric.PACE_CALCULATIONS -> paceCalculationMilestones
                 TrophyMetric.PROTECTED_TIME_BLOCKS -> protectedTimeMilestones
                 TrophyMetric.RACE_EVENT_CREATIONS -> raceEventCreationMilestones
                 TrophyMetric.RACE_EVENT_COMPLETIONS -> raceEventCompletionMilestones
@@ -191,6 +193,7 @@ class TrophyEngine(
                 val workoutCreationTimestamps = mutableListOf<Long>()
                 val personalRecordFamilyCreationTimestamps = mutableListOf<Long>()
                 val personalRecordEntryCreationTimestamps = mutableListOf<Long>()
+                val paceCalculationTimestamps = mutableListOf<Long>()
                 val protectedTimeTimestamps = mutableListOf<Long>()
                 val raceEventCreationStacksByEventId = mutableMapOf<Long, ArrayDeque<Long>>()
                 val raceEventCompletionStacksByEventId = mutableMapOf<Long, ArrayDeque<Long>>()
@@ -352,6 +355,9 @@ class TrophyEngine(
                         UserActionType.CREATE_PERSONAL_RECORD_ENTRY ->
                             personalRecordEntryCreationTimestamps += action.record.timestamp
 
+                        UserActionType.USE_PACE_CALCULATOR ->
+                            paceCalculationTimestamps += action.record.timestamp
+
                         UserActionType.CREATE_REST_DAY,
                         UserActionType.CREATE_BUSY,
                         -> protectedTimeTimestamps += action.record.timestamp
@@ -494,6 +500,7 @@ class TrophyEngine(
                     kickoffMilestones = workoutCreationTimestamps.sorted(),
                     personalRecordFamilyCreationMilestones = personalRecordFamilyCreationTimestamps.sorted(),
                     personalRecordEntryCreationMilestones = personalRecordEntryCreationTimestamps.sorted(),
+                    paceCalculationMilestones = paceCalculationTimestamps.sorted(),
                     protectedTimeMilestones = protectedTimeTimestamps.sorted(),
                     raceEventCreationMilestones = effectiveRaceEventCreationTimestamps.sorted(),
                     raceEventCompletionMilestones = effectiveRaceEventCompletionTimestamps.sorted(),

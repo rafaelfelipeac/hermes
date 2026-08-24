@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BasicAlertDialog
@@ -27,11 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.window.DialogProperties
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.DatePickerDialogMaxHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.DatePickerDialogMaxWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.KeyboardVisibleDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PlannedItemDialogContentMaxHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 
 internal const val HERMES_DATE_PICKER_DIALOG_TAG = "hermes_date_picker_dialog"
 
@@ -70,37 +72,40 @@ internal fun HermesDatePickerDialog(
 
     BasicAlertDialog(
         onDismissRequest = onDismissRequest,
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = SpacingXl),
+        modifier = Modifier.fillMaxWidth(),
         properties = DialogProperties(usePlatformDefaultWidth = false),
     ) {
-        Surface(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = DatePickerDialogMaxHeight)
-                    .testTag(HERMES_DATE_PICKER_DIALOG_TAG),
-            shape = DatePickerDefaults.shape,
-            color = colors.containerColor,
-            tonalElevation = DatePickerDefaults.TonalElevation,
+        Box(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = SpacingXs),
+            contentAlignment = Alignment.Center,
         ) {
-            Column(verticalArrangement = Arrangement.SpaceBetween) {
-                Box(modifier = Modifier.weight(1f, fill = false)) {
-                    content()
-                }
+            Surface(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .widthIn(max = DatePickerDialogMaxWidth)
+                        .heightIn(max = DatePickerDialogMaxHeight)
+                        .testTag(HERMES_DATE_PICKER_DIALOG_TAG),
+                shape = DatePickerDefaults.shape,
+                color = colors.containerColor,
+                tonalElevation = DatePickerDefaults.TonalElevation,
+            ) {
+                Column(verticalArrangement = Arrangement.SpaceBetween) {
+                    Box(modifier = Modifier.weight(1f, fill = false)) {
+                        content()
+                    }
 
-                Row(
-                    modifier =
-                        Modifier
-                            .align(Alignment.End)
-                            .padding(end = SpacingSm, bottom = SpacingMd),
-                    horizontalArrangement = Arrangement.spacedBy(SpacingMd),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    dismissButton?.invoke()
-                    confirmButton()
+                    Row(
+                        modifier =
+                            Modifier
+                                .align(Alignment.End)
+                                .padding(end = SpacingSm, bottom = SpacingMd),
+                        horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        dismissButton?.invoke()
+                        confirmButton()
+                    }
                 }
             }
         }

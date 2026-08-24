@@ -4,16 +4,19 @@ import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.DpRect
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PaceCalculatorTestViewportHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PaceCalculatorTestViewportWidth
@@ -22,6 +25,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import kotlin.math.abs
 
 class PaceCalculatorScreenTest {
     @get:Rule
@@ -83,7 +87,7 @@ class PaceCalculatorScreenTest {
     }
 
     @Test
-    fun timeFields_stack_onCompactWidth() {
+    fun timeFields_shareOneRowWithEqualWidths_onCompactWidth() {
         setCompactContent()
 
         val hoursBounds =
@@ -99,8 +103,73 @@ class PaceCalculatorScreenTest {
                 .onNodeWithTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG)
                 .getUnclippedBoundsInRoot()
 
-        assertTrue(hoursBounds.bottom <= minutesBounds.top)
-        assertTrue(minutesBounds.bottom <= secondsBounds.top)
+        assertTrue(abs(hoursBounds.top.value - minutesBounds.top.value) <= 1f)
+        assertTrue(abs(minutesBounds.top.value - secondsBounds.top.value) <= 1f)
+        assertTrue(abs(fieldWidth(hoursBounds) - fieldWidth(minutesBounds)) <= 1f)
+        assertTrue(abs(fieldWidth(minutesBounds) - fieldWidth(secondsBounds)) <= 1f)
+    }
+
+    @Test
+    fun paceFields_shareOneRowWithEqualWidths_onCompactWidth() {
+        setCompactContent()
+        composeRule.onNodeWithTag(PACE_CALCULATOR_MODE_TIME_TAG).performClick()
+
+        val minutesBounds =
+            composeRule
+                .onNodeWithTag(PACE_CALCULATOR_PACE_MINUTES_INPUT_TAG)
+                .getUnclippedBoundsInRoot()
+        val secondsBounds =
+            composeRule
+                .onNodeWithTag(PACE_CALCULATOR_PACE_SECONDS_INPUT_TAG)
+                .getUnclippedBoundsInRoot()
+
+        assertTrue(abs(minutesBounds.top.value - secondsBounds.top.value) <= 1f)
+        assertTrue(abs(fieldWidth(minutesBounds) - fieldWidth(secondsBounds)) <= 1f)
+    }
+
+    @Test
+    fun timeFields_startAtZero() {
+        setCompactContent()
+        val hours = composeRule.activity.getString(R.string.pace_calculator_hours)
+        val minutes = composeRule.activity.getString(R.string.pace_calculator_minutes)
+        val seconds = composeRule.activity.getString(R.string.pace_calculator_seconds)
+
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_HOURS_INPUT_TAG).assertTextEquals(hours, "0")
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG).assertTextEquals(minutes, "0")
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG).assertTextEquals(seconds, "0")
+    }
+
+    @Test
+    fun timeFields_acceptWatchStyleDurationWithLeadingZeros() {
+        setCompactContent()
+        val hours = composeRule.activity.getString(R.string.pace_calculator_hours)
+        val minutes = composeRule.activity.getString(R.string.pace_calculator_minutes)
+        val seconds = composeRule.activity.getString(R.string.pace_calculator_seconds)
+
+        composeRule.onNodeWithTag(PACE_CALCULATOR_DISTANCE_INPUT_TAG).performTextInput("10")
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_HOURS_INPUT_TAG).performTextInput("3")
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG).performTextInput("09")
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG).performTextInput("04")
+
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_HOURS_INPUT_TAG).assertTextEquals(hours, "3")
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG).assertTextEquals(minutes, "09")
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG).assertTextEquals(seconds, "04")
+
+        composeRule.onNodeWithTag(PACE_CALCULATOR_BODY_TAG).performTouchInput {
+            repeat(4) {
+                swipeUp()
+            }
+        }
+        composeRule.onNodeWithText("3:09:04", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    fun distanceMode_hidesDistancePresets() {
+        setCompactContent()
+
+        composeRule.onNodeWithTag(PACE_CALCULATOR_MODE_DISTANCE_TAG).performClick()
+
+        composeRule.onAllNodesWithTag(PACE_CALCULATOR_PRESETS_TAG).assertCountEquals(0)
     }
 
     @Test
@@ -164,8 +233,25 @@ class PaceCalculatorScreenTest {
         composeRule.onNodeWithText("5 $distanceUnit", useUnmergedTree = true).assertIsDisplayed()
     }
 
+    @Test
+    fun firstValidResult_logsOneCalculatorSession() {
+        var calculations = 0
+        setContent(onValidCalculation = { calculations += 1 })
+
+        composeRule.onNodeWithTag(PACE_CALCULATOR_DISTANCE_INPUT_TAG).performTextInput("5")
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG).performTextInput("25")
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG).performTextInput("30")
+        composeRule.waitForIdle()
+
+        composeRule.runOnIdle {
+            assertTrue(calculations == 1)
+        }
+    }
+
     private fun setContent(
         onBack: () -> Unit = {},
+        onValidCalculation: (com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode) -> Unit = {},
     ) {
         composeRule.setContent {
             Box(
@@ -179,14 +265,15 @@ class PaceCalculatorScreenTest {
                     settingsDistanceUnit = KILOMETERS,
                     settingsPaceUnit = MIN_PER_KM,
                     onBack = onBack,
+                    onValidCalculation = onValidCalculation,
                 )
             }
         }
     }
 
-    private fun setCompactContent(
-        onBack: () -> Unit = {},
-    ) {
+    private fun setCompactContent(onBack: () -> Unit = {}) {
         setContent(onBack = onBack)
     }
+
+    private fun fieldWidth(bounds: DpRect): Float = bounds.right.value - bounds.left.value
 }

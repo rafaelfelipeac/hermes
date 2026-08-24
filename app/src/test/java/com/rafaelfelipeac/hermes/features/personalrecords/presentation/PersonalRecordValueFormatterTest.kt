@@ -10,7 +10,7 @@ import java.util.Locale
 class PersonalRecordValueFormatterTest {
     @Test
     fun formatPersonalRecordValue_normalizesMinuteAndHourUnits() {
-        assertEquals("02:00", formatPersonalRecordValue(2.0, MINUTE, Locale.US))
+        assertEquals("2:00", formatPersonalRecordValue(2.0, MINUTE, Locale.US))
         assertEquals("1:30:00", formatPersonalRecordValue(1.5, HOUR, Locale.US))
     }
 

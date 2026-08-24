@@ -58,9 +58,9 @@ object Dimens {
     val ProgressSupportCardMinHeight = 88.dp
     val ProgressScreenBottomPadding = 32.dp
     val WeeklyTrainingSummaryCollapsedMinHeight = 40.dp
-    val PaceCalculatorCompactWidthBreakpoint = 360.dp
     val PaceCalculatorTestViewportWidth = 320.dp
     val PaceCalculatorTestViewportHeight = 560.dp
+    val TrophySnackbarFabClearance = 88.dp
 
     val ContentPadding = 14.dp
     val CheckboxBoxSize = 32.dp
@@ -78,6 +78,7 @@ object Dimens {
     val EventsTestViewportWidth = 420.dp
     val EventsTestViewportHeight = 720.dp
     val DatePickerDialogMaxHeight = 568.dp
+    val DatePickerDialogMaxWidth = 360.dp
     val KeyboardVisibleDialogContentMaxHeight = 220.dp
     val PlannedItemDialogContentMaxHeight = 420.dp
     val TrophyHeroMinHeight = 180.dp

@@ -5,6 +5,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.APP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.BUSY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.RACE_EVENT
@@ -41,6 +42,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELET
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.USE_PACE_CALCULATOR
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
@@ -556,6 +558,28 @@ class TrophyEngineTest {
         assertTrue(progress.require(TrophyId.SEASON_BUILDER).isUnlocked)
         assertFalse(progress.require(TrophyId.SEASON_ANCHOR).isUnlocked)
         assertEquals(160L, progress.require(TrophyId.SEASON_BUILDER).unlockedAt)
+    }
+
+    @Test
+    fun paceCalculatorTrophies_countValidCalculationSessions() {
+        val actions =
+            (1L..10L).map { id ->
+                UserActionRecord(
+                    id = id,
+                    actionType = USE_PACE_CALCULATOR.name,
+                    entityType = APP.name,
+                    entityId = null,
+                    metadata = null,
+                    timestamp = id * 10L,
+                )
+            }
+
+        val progress = engine.compute(actions)
+
+        assertTrue(progress.require(TrophyId.PACE_SETTER).isUnlocked)
+        assertEquals(10, progress.require(TrophyId.SPLIT_STRATEGIST).currentValue)
+        assertTrue(progress.require(TrophyId.SPLIT_STRATEGIST).isUnlocked)
+        assertFalse(progress.require(TrophyId.PACE_MASTER).isUnlocked)
     }
 
     private fun List<TrophyProgress>.require(trophyId: TrophyId) = first { it.definition.id == trophyId }

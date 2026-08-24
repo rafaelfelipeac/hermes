@@ -56,6 +56,9 @@ fun trophyNameRes(trophyId: TrophyId): Int {
         TrophyId.ON_THE_BOARD -> R.string.trophies_name_on_the_board
         TrophyId.FORM_BOOK -> R.string.trophies_name_form_book
         TrophyId.RECORD_KEEPER -> R.string.trophies_name_record_keeper
+        TrophyId.PACE_SETTER -> R.string.trophies_name_pace_setter
+        TrophyId.SPLIT_STRATEGIST -> R.string.trophies_name_split_strategist
+        TrophyId.PACE_MASTER -> R.string.trophies_name_pace_master
         TrophyId.PODIUM_PLACE -> R.string.trophies_name_podium_place
         TrophyId.IN_ROTATION -> R.string.trophies_name_in_rotation
         TrophyId.MAINSTAY -> R.string.trophies_name_mainstay
@@ -189,6 +192,15 @@ internal fun trophyDescriptionRes(
             } else {
                 R.string.trophies_desc_personal_record_result_creations_locked
             }
+        TrophyId.PACE_SETTER,
+        TrophyId.SPLIT_STRATEGIST,
+        TrophyId.PACE_MASTER,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_pace_calculations_unlocked
+            } else {
+                R.string.trophies_desc_pace_calculations_locked
+            }
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
@@ -261,6 +273,10 @@ internal fun trophyShareDescriptionRes(trophyId: TrophyId): Int {
         TrophyId.FORM_BOOK,
         TrophyId.RECORD_KEEPER,
         -> R.string.trophies_share_desc_personal_record_result_creations
+        TrophyId.PACE_SETTER,
+        TrophyId.SPLIT_STRATEGIST,
+        TrophyId.PACE_MASTER,
+        -> R.string.trophies_share_desc_pace_calculations
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,

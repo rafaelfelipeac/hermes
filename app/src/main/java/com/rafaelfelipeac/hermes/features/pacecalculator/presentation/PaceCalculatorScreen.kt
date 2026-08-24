@@ -5,7 +5,6 @@ package com.rafaelfelipeac.hermes.features.pacecalculator.presentation
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -33,6 +32,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,13 +40,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.strings.formatElapsedTime
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PaceCalculatorCompactWidthBreakpoint
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -80,6 +85,24 @@ internal const val PACE_CALCULATOR_MODE_PACE_TAG = "pace_calculator_mode_pace"
 internal const val PACE_CALCULATOR_MODE_TIME_TAG = "pace_calculator_mode_time"
 internal const val PACE_CALCULATOR_MODE_DISTANCE_TAG = "pace_calculator_mode_distance"
 internal const val PACE_CALCULATOR_RESULT_TAG = "pace_calculator_result"
+private const val DEFAULT_NUMBER_TEXT = "0"
+
+@Composable
+fun PaceCalculatorRoute(
+    settingsDistanceUnit: DistanceUnit,
+    settingsPaceUnit: PaceUnit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: PaceCalculatorViewModel = hiltViewModel(),
+) {
+    PaceCalculatorScreen(
+        settingsDistanceUnit = settingsDistanceUnit,
+        settingsPaceUnit = settingsPaceUnit,
+        onBack = onBack,
+        modifier = modifier,
+        onValidCalculation = viewModel::logCalculation,
+    )
+}
 
 @Composable
 fun PaceCalculatorScreen(
@@ -87,17 +110,19 @@ fun PaceCalculatorScreen(
     settingsPaceUnit: PaceUnit,
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    onValidCalculation: (PaceCalculatorMode) -> Unit = {},
 ) {
     BackHandler(onBack = onBack)
 
     var mode by rememberSaveable { mutableStateOf(PaceCalculatorMode.PACE) }
     var distanceText by rememberSaveable { mutableStateOf(EMPTY) }
-    var timeHoursText by rememberSaveable { mutableStateOf(EMPTY) }
-    var timeMinutesText by rememberSaveable { mutableStateOf(EMPTY) }
-    var timeSecondsText by rememberSaveable { mutableStateOf(EMPTY) }
-    var paceMinutesText by rememberSaveable { mutableStateOf(EMPTY) }
-    var paceSecondsText by rememberSaveable { mutableStateOf(EMPTY) }
+    var timeHoursText by rememberSaveable { mutableStateOf(DEFAULT_NUMBER_TEXT) }
+    var timeMinutesText by rememberSaveable { mutableStateOf(DEFAULT_NUMBER_TEXT) }
+    var timeSecondsText by rememberSaveable { mutableStateOf(DEFAULT_NUMBER_TEXT) }
+    var paceMinutesText by rememberSaveable { mutableStateOf(DEFAULT_NUMBER_TEXT) }
+    var paceSecondsText by rememberSaveable { mutableStateOf(DEFAULT_NUMBER_TEXT) }
     var selectedPresetMeters by rememberSaveable { mutableStateOf<Double?>(null) }
+    var hasLoggedValidCalculation by rememberSaveable { mutableStateOf(false) }
     val paceUnitMeters = paceUnitMeters(settingsPaceUnit)
     val distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit)
     val result =
@@ -127,13 +152,31 @@ fun PaceCalculatorScreen(
             )
         }
 
+    LaunchedEffect(result, mode, hasLoggedValidCalculation) {
+        if (!hasLoggedValidCalculation && result.hasResult()) {
+            hasLoggedValidCalculation = true
+            onValidCalculation(mode)
+        }
+    }
+
     Column(
         modifier =
             modifier
                 .fillMaxSize()
                 .testTag(PACE_CALCULATOR_ROOT_TAG),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = SpacingSm,
+                        end = SpacingXl,
+                        top = SpacingSm,
+                        bottom = SpacingSm,
+                    ),
+        ) {
             IconButton(
                 onClick = onBack,
                 modifier =
@@ -149,7 +192,10 @@ fun PaceCalculatorScreen(
             Text(
                 text = stringResource(R.string.pace_calculator_title),
                 style = typography.titleLarge,
-                modifier = Modifier.testTag(PACE_CALCULATOR_TITLE_TAG),
+                color = colorScheme.onSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TITLE_TAG),
             )
         }
 
@@ -189,50 +235,16 @@ fun PaceCalculatorScreen(
                 }
             }
 
-            Card(
-                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-                border = BorderStroke(BorderThin, colorScheme.outlineVariant),
-                shape = shapes.medium,
-                modifier = Modifier.fillMaxWidth().testTag(PACE_CALCULATOR_PRESETS_TAG),
-            ) {
-                Column(
-                    modifier = Modifier.padding(SpacingLg),
-                    verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                ) {
-                    Text(
-                        text = stringResource(R.string.pace_calculator_distance_presets),
-                        style = typography.titleMedium,
-                    )
-
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-                        verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                    ) {
-                        paceDistancePresets().forEach { preset ->
-                            FilterChip(
-                                selected = preset.valueMeters == selectedPresetMeters,
-                                onClick = {
-                                    selectedPresetMeters = preset.valueMeters
-                                    distanceText =
-                                        formatDistanceInput(
-                                            preset.valueMeters,
-                                            settingsDistanceUnit,
-                                        )
-                                },
-                                label = { Text(text = preset.label) },
-                                colors = FilterChipDefaults.filterChipColors(),
-                            )
-                        }
-                        FilterChip(
-                            selected = selectedPresetMeters == null,
-                            onClick = { selectedPresetMeters = null },
-                            label = {
-                                Text(text = stringResource(R.string.pace_calculator_distance_custom))
-                            },
-                            colors = FilterChipDefaults.filterChipColors(),
-                        )
-                    }
-                }
+            if (mode != PaceCalculatorMode.DISTANCE) {
+                DistancePresets(
+                    settingsDistanceUnit = settingsDistanceUnit,
+                    selectedPresetMeters = selectedPresetMeters,
+                    onPresetSelected = { preset ->
+                        selectedPresetMeters = preset.valueMeters
+                        distanceText = formatDistanceInput(preset.valueMeters, settingsDistanceUnit)
+                    },
+                    onCustomSelected = { selectedPresetMeters = null },
+                )
             }
 
             when (mode) {
@@ -241,8 +253,10 @@ fun PaceCalculatorScreen(
                         distanceText = distanceText,
                         settingsDistanceUnit = settingsDistanceUnit,
                         onDistanceTextChange = {
-                            distanceText = it
-                            selectedPresetMeters = null
+                            if (validDistanceInput(it)) {
+                                distanceText = it
+                                selectedPresetMeters = null
+                            }
                         },
                     )
                     TimeInputFields(
@@ -260,8 +274,10 @@ fun PaceCalculatorScreen(
                         distanceText = distanceText,
                         settingsDistanceUnit = settingsDistanceUnit,
                         onDistanceTextChange = {
-                            distanceText = it
-                            selectedPresetMeters = null
+                            if (validDistanceInput(it)) {
+                                distanceText = it
+                                selectedPresetMeters = null
+                            }
                         },
                     )
                     PaceInputFields(
@@ -300,6 +316,56 @@ fun PaceCalculatorScreen(
     }
 }
 
+private fun PaceCalculatorResultUi.hasResult(): Boolean {
+    return paceSecondsPerUnit != null ||
+        finishTimeSeconds != null ||
+        distanceMeters != null
+}
+
+@Composable
+private fun DistancePresets(
+    settingsDistanceUnit: DistanceUnit,
+    selectedPresetMeters: Double?,
+    onPresetSelected: (PaceDistancePreset) -> Unit,
+    onCustomSelected: () -> Unit,
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+        border = BorderStroke(BorderThin, colorScheme.outlineVariant),
+        shape = shapes.medium,
+        modifier = Modifier.fillMaxWidth().testTag(PACE_CALCULATOR_PRESETS_TAG),
+    ) {
+        Column(
+            modifier = Modifier.padding(SpacingLg),
+            verticalArrangement = Arrangement.spacedBy(SpacingMd),
+        ) {
+            Text(
+                text = stringResource(R.string.pace_calculator_distance_presets),
+                style = typography.titleMedium,
+            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                verticalArrangement = Arrangement.spacedBy(SpacingSm),
+            ) {
+                paceDistancePresets(settingsDistanceUnit).forEach { preset ->
+                    FilterChip(
+                        selected = preset.valueMeters == selectedPresetMeters,
+                        onClick = { onPresetSelected(preset) },
+                        label = { Text(text = preset.label) },
+                        colors = FilterChipDefaults.filterChipColors(),
+                    )
+                }
+                FilterChip(
+                    selected = selectedPresetMeters == null,
+                    onClick = onCustomSelected,
+                    label = { Text(text = stringResource(R.string.pace_calculator_distance_custom)) },
+                    colors = FilterChipDefaults.filterChipColors(),
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun DistanceInputField(
     distanceText: String,
@@ -330,62 +396,34 @@ private fun TimeInputFields(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
         Text(text = stringResource(R.string.pace_calculator_time), style = typography.titleMedium)
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            if (maxWidth < PaceCalculatorCompactWidthBreakpoint) {
-                Column(verticalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
-                    MiniNumberField(
-                        value = hoursText,
-                        onValueChange = onHoursTextChange,
-                        label = stringResource(R.string.pace_calculator_hours),
-                        modifier = Modifier.fillMaxWidth().testTag(PACE_CALCULATOR_TIME_HOURS_INPUT_TAG),
-                    )
-                    MiniNumberField(
-                        value = minutesText,
-                        onValueChange = onMinutesTextChange,
-                        label = stringResource(R.string.pace_calculator_minutes),
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .testTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG),
-                    )
-                    MiniNumberField(
-                        value = secondsText,
-                        onValueChange = onSecondsTextChange,
-                        label = stringResource(R.string.pace_calculator_seconds),
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .testTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG),
-                    )
-                }
-            } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    MiniNumberField(
-                        value = hoursText,
-                        onValueChange = onHoursTextChange,
-                        label = stringResource(R.string.pace_calculator_hours),
-                        modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TIME_HOURS_INPUT_TAG),
-                    )
-                    MiniNumberField(
-                        value = minutesText,
-                        onValueChange = onMinutesTextChange,
-                        label = stringResource(R.string.pace_calculator_minutes),
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .testTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG),
-                    )
-                    MiniNumberField(
-                        value = secondsText,
-                        onValueChange = onSecondsTextChange,
-                        label = stringResource(R.string.pace_calculator_seconds),
-                        modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG),
-                    )
-                }
-            }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            MiniNumberField(
+                value = hoursText,
+                onValueChange = onHoursTextChange,
+                label = stringResource(R.string.pace_calculator_hours),
+                maxValue = MAX_TIME_HOURS.toInt(),
+                modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TIME_HOURS_INPUT_TAG),
+            )
+            MiniNumberField(
+                value = minutesText,
+                onValueChange = onMinutesTextChange,
+                label = stringResource(R.string.pace_calculator_minutes),
+                maxValue = MAX_MINUTES_OR_SECONDS.toInt(),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .testTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG),
+            )
+            MiniNumberField(
+                value = secondsText,
+                onValueChange = onSecondsTextChange,
+                label = stringResource(R.string.pace_calculator_seconds),
+                maxValue = MAX_MINUTES_OR_SECONDS.toInt(),
+                modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG),
+            )
         }
     }
 }
@@ -402,53 +440,30 @@ private fun PaceInputFields(
             text = stringResource(R.string.pace_calculator_pace),
             style = typography.titleMedium,
         )
-        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-            if (maxWidth < PaceCalculatorCompactWidthBreakpoint) {
-                Column(verticalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
-                    MiniNumberField(
-                        value = paceMinutesText,
-                        onValueChange = onMinutesChange,
-                        label = stringResource(R.string.pace_calculator_minutes),
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .testTag(PACE_CALCULATOR_PACE_MINUTES_INPUT_TAG),
-                    )
-                    MiniNumberField(
-                        value = paceSecondsText,
-                        onValueChange = onSecondsChange,
-                        label = stringResource(R.string.pace_calculator_seconds),
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .testTag(PACE_CALCULATOR_PACE_SECONDS_INPUT_TAG),
-                    )
-                }
-            } else {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    MiniNumberField(
-                        value = paceMinutesText,
-                        onValueChange = onMinutesChange,
-                        label = stringResource(R.string.pace_calculator_minutes),
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .testTag(PACE_CALCULATOR_PACE_MINUTES_INPUT_TAG),
-                    )
-                    MiniNumberField(
-                        value = paceSecondsText,
-                        onValueChange = onSecondsChange,
-                        label = stringResource(R.string.pace_calculator_seconds),
-                        modifier =
-                            Modifier
-                                .weight(1f)
-                                .testTag(PACE_CALCULATOR_PACE_SECONDS_INPUT_TAG),
-                    )
-                }
-            }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            MiniNumberField(
+                value = paceMinutesText,
+                onValueChange = onMinutesChange,
+                label = stringResource(R.string.pace_calculator_minutes),
+                maxValue = MAX_PACE_MINUTES,
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .testTag(PACE_CALCULATOR_PACE_MINUTES_INPUT_TAG),
+            )
+            MiniNumberField(
+                value = paceSecondsText,
+                onValueChange = onSecondsChange,
+                label = stringResource(R.string.pace_calculator_seconds),
+                maxValue = MAX_MINUTES_OR_SECONDS.toInt(),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .testTag(PACE_CALCULATOR_PACE_SECONDS_INPUT_TAG),
+            )
         }
     }
 }
@@ -458,12 +473,24 @@ private fun MiniNumberField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
+    maxValue: Int,
     modifier: Modifier = Modifier,
     suffix: String? = null,
 ) {
+    var fieldValue by remember { mutableStateOf(TextFieldValue(value)) }
+    LaunchedEffect(value) {
+        if (fieldValue.text != value) {
+            fieldValue = TextFieldValue(text = value, selection = TextRange(value.length))
+        }
+    }
     OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
+        value = fieldValue,
+        onValueChange = { updatedValue ->
+            sanitizedWholeNumberInput(updatedValue.text, maxValue)?.let { sanitizedText ->
+                fieldValue = updatedValue.copy(text = sanitizedText)
+                onValueChange(sanitizedText)
+            }
+        },
         label = { Text(text = label) },
         singleLine = true,
         trailingIcon = suffix?.let { { Text(text = it) } },
@@ -471,7 +498,18 @@ private fun MiniNumberField(
             KeyboardOptions(
                 keyboardType = KeyboardType.Number,
             ),
-        modifier = modifier,
+        modifier =
+            modifier.onFocusChanged { focusState ->
+                when {
+                    focusState.isFocused && fieldValue.text == DEFAULT_NUMBER_TEXT -> {
+                        fieldValue = fieldValue.copy(selection = TextRange(0, fieldValue.text.length))
+                    }
+                    !focusState.isFocused && fieldValue.text.isEmpty() -> {
+                        fieldValue = TextFieldValue(DEFAULT_NUMBER_TEXT)
+                        onValueChange(DEFAULT_NUMBER_TEXT)
+                    }
+                }
+            },
     )
 }
 
@@ -482,6 +520,7 @@ private fun ResultCard(
     settingsDistanceUnit: DistanceUnit,
     settingsPaceUnit: PaceUnit,
 ) {
+    val hasResult = result.hasResult()
     Card(
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
         border = BorderStroke(BorderThin, colorScheme.outlineVariant),
@@ -493,65 +532,85 @@ private fun ResultCard(
             verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
             Text(text = stringResource(R.string.pace_calculator_result), style = typography.titleMedium)
-            Text(
-                text = paceCalculatorResultLabel(mode),
-                style = typography.bodyMedium,
-                color = colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text =
-                    when (mode) {
-                        PaceCalculatorMode.PACE -> {
-                            result.paceSecondsPerUnit?.let {
-                                formatPaceSeconds(
-                                    paceSecondsPerUnit = it,
-                                    unitLabel = paceUnitLabel(settingsPaceUnit),
-                                )
-                            }
-                                ?: stringResource(R.string.pace_calculator_result_empty)
-                        }
-
-                        PaceCalculatorMode.TIME -> {
-                            result.finishTimeSeconds?.let { formatDuration(it) }
-                                ?: stringResource(R.string.pace_calculator_result_empty)
-                        }
-
-                        PaceCalculatorMode.DISTANCE -> {
-                            result.distanceMeters?.let {
-                                formatDistance(
-                                    distanceMeters = it,
-                                    distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
-                                    unitLabel = distanceUnitLabel(settingsDistanceUnit),
-                                )
-                            } ?: stringResource(R.string.pace_calculator_result_empty)
-                        }
-                    },
-                style = typography.headlineMedium,
-                modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
-            )
-            val secondaryLabel =
-                when (mode) {
-                    PaceCalculatorMode.PACE -> result.finishTimeSeconds?.let(::formatDuration).orEmpty()
-                    PaceCalculatorMode.TIME ->
-                        result.distanceMeters?.let {
-                            formatDistance(
-                                distanceMeters = it,
-                                distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
-                                unitLabel = distanceUnitLabel(settingsDistanceUnit),
-                            )
-                        }.orEmpty()
-                    PaceCalculatorMode.DISTANCE -> result.timeSeconds?.let(::formatDuration).orEmpty()
-                }
-            if (secondaryLabel.isNotBlank()) {
+            if (hasResult) {
+                val labels = result.labels(mode, settingsDistanceUnit, settingsPaceUnit)
                 Text(
-                    text = secondaryLabel,
+                    text = paceCalculatorResultLabel(mode),
                     style = typography.bodyMedium,
                     color = colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = labels.primary,
+                    style = typography.headlineMedium,
+                    modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
+                )
+                if (labels.secondary.isNotBlank()) {
+                    Text(
+                        text = labels.secondary,
+                        style = typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                Text(
+                    text = stringResource(R.string.pace_calculator_result_empty),
+                    style = typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant,
+                    modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
                 )
             }
         }
     }
 }
+
+private data class PaceCalculatorResultLabels(
+    val primary: String,
+    val secondary: String,
+)
+
+@Composable
+private fun PaceCalculatorResultUi.labels(
+    mode: PaceCalculatorMode,
+    settingsDistanceUnit: DistanceUnit,
+    settingsPaceUnit: PaceUnit,
+): PaceCalculatorResultLabels =
+    when (mode) {
+        PaceCalculatorMode.PACE ->
+            PaceCalculatorResultLabels(
+                primary =
+                    paceSecondsPerUnit?.let {
+                        formatPaceSeconds(
+                            paceSecondsPerUnit = it,
+                            unitLabel = paceUnitLabel(settingsPaceUnit),
+                        )
+                    }.orEmpty(),
+                secondary = finishTimeSeconds?.let(::formatElapsedTime).orEmpty(),
+            )
+        PaceCalculatorMode.TIME ->
+            PaceCalculatorResultLabels(
+                primary = finishTimeSeconds?.let(::formatElapsedTime).orEmpty(),
+                secondary =
+                    distanceMeters?.let {
+                        formatDistance(
+                            distanceMeters = it,
+                            distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
+                            unitLabel = distanceUnitLabel(settingsDistanceUnit),
+                        )
+                    }.orEmpty(),
+            )
+        PaceCalculatorMode.DISTANCE ->
+            PaceCalculatorResultLabels(
+                primary =
+                    distanceMeters?.let {
+                        formatDistance(
+                            distanceMeters = it,
+                            distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
+                            unitLabel = distanceUnitLabel(settingsDistanceUnit),
+                        )
+                    }.orEmpty(),
+                secondary = timeSeconds?.let(::formatElapsedTime).orEmpty(),
+            )
+    }
 
 private data class PaceDistancePreset(
     val label: String,
@@ -559,19 +618,29 @@ private data class PaceDistancePreset(
 )
 
 @Composable
-private fun paceDistancePresets(): List<PaceDistancePreset> {
-    return listOf(
-        PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_1_km), valueMeters = 1_000.0),
-        PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_1_mile), valueMeters = 1_609.344),
-        PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_5k), valueMeters = 5_000.0),
-        PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_10k), valueMeters = 10_000.0),
-        PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_15k), valueMeters = 15_000.0),
-        PaceDistancePreset(
-            label = stringResource(R.string.pace_calculator_preset_half_marathon),
-            valueMeters = 21_097.5,
-        ),
-        PaceDistancePreset(label = stringResource(R.string.pace_calculator_preset_marathon), valueMeters = 42_195.0),
-    )
+private fun paceDistancePresets(distanceUnit: DistanceUnit): List<PaceDistancePreset> {
+    val halfMarathon = PaceDistancePreset(stringResource(R.string.pace_calculator_preset_half_marathon), 21_097.5)
+    val marathon = PaceDistancePreset(stringResource(R.string.pace_calculator_preset_marathon), 42_195.0)
+    return when (distanceUnit) {
+        KILOMETERS ->
+            listOf(
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_1_km), 1_000.0),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_5k), 5_000.0),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_10k), 10_000.0),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_15k), 15_000.0),
+                halfMarathon,
+                marathon,
+            )
+
+        MILES ->
+            listOf(
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_1_mile), 1_609.344),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_5_miles), 8_046.72),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_10_miles), 16_093.44),
+                halfMarathon,
+                marathon,
+            )
+    }
 }
 
 private fun formatDistance(
@@ -594,17 +663,6 @@ private fun formatPaceSeconds(
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
     return "%d:%02d %s".format(minutes, seconds, unitLabel)
-}
-
-private fun formatDuration(totalSeconds: Long): String {
-    val hours = totalSeconds / 3600
-    val minutes = (totalSeconds % 3600) / 60
-    val seconds = totalSeconds % 60
-    return if (hours > 0) {
-        "%d:%02d:%02d".format(hours, minutes, seconds)
-    } else {
-        "%02d:%02d".format(minutes, seconds)
-    }
 }
 
 @Composable

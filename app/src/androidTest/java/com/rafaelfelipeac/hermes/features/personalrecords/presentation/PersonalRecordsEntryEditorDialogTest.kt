@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 import android.content.Context
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -157,6 +158,40 @@ class PersonalRecordsEntryEditorDialogTest {
         composeRule.onNodeWithText(context.getString(R.string.save_changes)).assertIsDisplayed()
     }
 
+    @Test
+    fun newResult_defaultsToCurrentPersonalRecordInsteadOfLatestEntry() {
+        val family = sampleFamily()
+        val currentBest =
+            sampleEntry(
+                familyId = family.id,
+                recordDate = LocalDate.of(2024, 1, 1),
+                id = 10L,
+                value = 10.0,
+            )
+        val newerButLower =
+            sampleEntry(
+                familyId = family.id,
+                recordDate = LocalDate.of(2024, 2, 1),
+                id = 11L,
+                value = 5.0,
+            )
+
+        composeRule.setContent {
+            PersonalRecordEntryEditorDialog(
+                families = listOf(family),
+                entries = listOf(currentBest, newerButLower),
+                initialFamilyId = family.id,
+                settingsDistanceUnit = KILOMETERS,
+                settingsWeightUnit = KILOGRAMS,
+                onDismiss = {},
+                onSave = { _, _, _, _, _, _ -> },
+            )
+        }
+
+        composeRule.waitForIdle()
+        composeRule.onNodeWithTag(PERSONAL_RECORDS_ENTRY_VALUE_FIELD_TAG).assertTextEquals("10")
+    }
+
     private fun sampleFamily() =
         PersonalRecordFamily(
             id = 1L,
@@ -174,10 +209,12 @@ class PersonalRecordsEntryEditorDialogTest {
     private fun sampleEntry(
         familyId: Long,
         recordDate: LocalDate,
+        id: Long = 10L,
+        value: Double = 5.0,
     ) = PersonalRecordEntry(
-        id = 10L,
+        id = id,
         familyId = familyId,
-        value = 5.0,
+        value = value,
         unit = KILOMETER,
         customUnitLabel = null,
         recordDate = recordDate,

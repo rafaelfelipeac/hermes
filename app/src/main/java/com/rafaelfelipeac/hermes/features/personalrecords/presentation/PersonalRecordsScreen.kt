@@ -40,14 +40,12 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -66,6 +64,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
@@ -106,6 +105,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
 import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
+import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
@@ -133,7 +133,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordBestSelector
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordHistoryOrderer
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordLatestEntrySelector
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordValueNormalizer
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.defaultComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.defaultUnit
@@ -995,22 +994,23 @@ private fun PersonalRecordHistoryRow(
             }
 
             if (isManualSelection) {
-                IconButton(
-                    onClick = onSetCurrent,
-                    enabled = !isCurrent,
-                    modifier = Modifier.testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id),
-                ) {
-                    Icon(
-                        imageVector = if (isCurrent) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                        contentDescription =
-                            stringResource(
-                                if (isCurrent) {
-                                    R.string.personal_records_current_selected
-                                } else {
-                                    R.string.personal_records_set_current
-                                },
-                            ),
+                if (isCurrent) {
+                    RadioButton(
+                        selected = true,
+                        onClick = null,
+                        modifier = Modifier.testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id),
                     )
+                } else {
+                    TextButton(
+                        onClick = onSetCurrent,
+                        modifier = Modifier.testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id),
+                    ) {
+                        RadioButton(selected = false, onClick = null)
+                        Text(
+                            text = stringResource(R.string.personal_records_set_current),
+                            style = typography.labelSmall,
+                        )
+                    }
                 }
             }
         }
@@ -1315,7 +1315,9 @@ internal fun PersonalRecordFamilyEditorDialog(
     ) -> Unit,
 ) {
     val isEdit = initialFamily != null
-    var title by rememberSaveable(initialFamily?.id) { mutableStateOf(initialFamily?.title.orEmpty()) }
+    var title by rememberSaveable(initialFamily?.id) {
+        mutableStateOf(initialFamily?.title.orEmpty().capitalizedFirstCharacter())
+    }
     var categoryId by rememberSaveable(initialFamily?.id) { mutableStateOf(initialFamily?.categoryId) }
     var metricType by rememberSaveable(initialFamily?.id) { mutableStateOf(initialFamily?.metricType ?: DISTANCE) }
     var comparisonRule by rememberSaveable(initialFamily?.id) {
@@ -1359,7 +1361,7 @@ internal fun PersonalRecordFamilyEditorDialog(
             KeyboardAwareDialogForm {
                 OutlinedTextField(
                     value = title,
-                    onValueChange = { title = it },
+                    onValueChange = { title = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.personal_records_family_title)) },
                     keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier = Modifier.fillMaxWidth(),
@@ -1574,7 +1576,9 @@ internal fun PersonalRecordEntryEditorDialog(
     val dialogKey = initialEntry?.id ?: initialDialogFamilyId ?: -1L
     var familyId by rememberSaveable(dialogKey) { mutableStateOf(initialDialogFamilyId) }
     var valueText by rememberSaveable(dialogKey) { mutableStateOf("") }
-    var note by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.note.orEmpty()) }
+    var note by rememberSaveable(dialogKey) {
+        mutableStateOf(initialEntry?.note.orEmpty().capitalizedFirstCharacter())
+    }
     var customUnitLabel by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.customUnitLabel.orEmpty()) }
     var familyMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var unitMenuExpanded by rememberSaveable { mutableStateOf(false) }
@@ -1585,23 +1589,23 @@ internal fun PersonalRecordEntryEditorDialog(
     val isTimeMetric = selectedFamily?.metricType == TIME
     val isDistanceOrWeightMetric = selectedFamily?.metricType == DISTANCE || selectedFamily?.metricType == WEIGHT
     val today = remember { LocalDate.now() }
-    val latestEntry =
+    val currentEntry =
         remember(familyId, entries, initialEntry?.id, isEdit) {
             if (isEdit) {
                 initialEntry
             } else {
-                familyId?.let { PersonalRecordLatestEntrySelector.latestForFamily(it, entries) }
+                selectedFamily?.let { PersonalRecordBestSelector.selectBest(it, entries) }
             }
         }
     val initialTimeParts =
-        remember(initialEntry?.id, selectedFamily?.id, latestEntry?.id) {
+        remember(initialEntry?.id, selectedFamily?.id, currentEntry?.id) {
             when {
                 isEdit && initialEntry != null && selectedFamily?.metricType == TIME ->
                     secondsToTimeParts(initialEntry.value.toLong())
 
-                !isEdit && selectedFamily?.metricType == TIME && latestEntry != null ->
+                !isEdit && selectedFamily?.metricType == TIME && currentEntry != null ->
                     secondsToTimeParts(
-                        PersonalRecordValueNormalizer.normalize(latestEntry.value, latestEntry.unit).toLong(),
+                        PersonalRecordValueNormalizer.normalize(currentEntry.value, currentEntry.unit).toLong(),
                     )
 
                 else -> TimeParts()
@@ -1620,7 +1624,7 @@ internal fun PersonalRecordEntryEditorDialog(
                 hasLoadedInitialState = true
                 selectedUnit = initialEntry.unit
                 recordDate = initialEntry.recordDate
-                note = initialEntry.note.orEmpty()
+                note = initialEntry.note.orEmpty().capitalizedFirstCharacter()
                 customUnitLabel = initialEntry.customUnitLabel.orEmpty()
                 if (family.metricType == TIME) {
                     val parts = secondsToTimeParts(initialEntry.value.toLong())
@@ -1638,13 +1642,13 @@ internal fun PersonalRecordEntryEditorDialog(
         hasLoadedInitialState = true
         recordDate = today
         note = ""
-        customUnitLabel = latestEntry?.customUnitLabel.orEmpty()
+        customUnitLabel = currentEntry?.customUnitLabel.orEmpty()
 
         when (family.metricType) {
             TIME -> {
                 selectedUnit = SECOND
                 val parts =
-                    latestEntry?.let {
+                    currentEntry?.let {
                         secondsToTimeParts(
                             PersonalRecordValueNormalizer.normalize(it.value, it.unit).toLong(),
                         )
@@ -1658,7 +1662,7 @@ internal fun PersonalRecordEntryEditorDialog(
             DISTANCE -> {
                 selectedUnit = settingsDistanceUnit.asPersonalRecordUnit()
                 valueText =
-                    latestEntry?.let {
+                    currentEntry?.let {
                         formatEditablePersonalRecordValue(
                             PersonalRecordValueNormalizer.convert(it.value, it.unit, selectedUnit),
                         )
@@ -1668,7 +1672,7 @@ internal fun PersonalRecordEntryEditorDialog(
             WEIGHT -> {
                 selectedUnit = settingsWeightUnit.asPersonalRecordUnit()
                 valueText =
-                    latestEntry?.let {
+                    currentEntry?.let {
                         formatEditablePersonalRecordValue(
                             PersonalRecordValueNormalizer.convert(it.value, it.unit, selectedUnit),
                         )
@@ -1676,8 +1680,8 @@ internal fun PersonalRecordEntryEditorDialog(
             }
 
             else -> {
-                selectedUnit = latestEntry?.unit ?: family.defaultUnit
-                valueText = latestEntry?.let { formatEditablePersonalRecordValue(it.value) }.orEmpty()
+                selectedUnit = currentEntry?.unit ?: family.defaultUnit
+                valueText = currentEntry?.let { formatEditablePersonalRecordValue(it.value) }.orEmpty()
             }
         }
     }
@@ -1879,8 +1883,9 @@ internal fun PersonalRecordEntryEditorDialog(
 
                 OutlinedTextField(
                     value = note,
-                    onValueChange = { note = it },
+                    onValueChange = { note = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.personal_records_entry_note)) },
+                    keyboardOptions = DefaultTextFieldKeyboardOptions,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }

@@ -209,4 +209,5 @@ private val planningActions =
         UserActionType.UPDATE_PERSONAL_RECORD_ENTRY,
         UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
         UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY,
+        UserActionType.USE_PACE_CALCULATOR,
     )

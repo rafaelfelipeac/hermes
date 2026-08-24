@@ -204,7 +204,10 @@ class PersonalRecordsViewModelTest {
             assertEquals(entry.id, repository.families.single().manualCurrentEntryId)
             assertEquals(SET_CURRENT_PERSONAL_RECORD_ENTRY, logger.actions.single().actionType)
             assertEquals(entry.value.toString(), logger.actions.single().metadata?.get(PERSONAL_RECORD_NEW_VALUE))
-            assertEquals(entry.recordDate.toString(), logger.actions.single().metadata?.get(PERSONAL_RECORD_RECORD_DATE))
+            assertEquals(
+                entry.recordDate.toString(),
+                logger.actions.single().metadata?.get(PERSONAL_RECORD_RECORD_DATE),
+            )
             assertTrue(logger.actions.single().metadata?.values?.contains(family.title) == false)
         }
 

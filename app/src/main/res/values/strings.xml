@@ -314,6 +314,7 @@
     <string name="activity_action_update_personal_record_entry">You updated a %1$s PR result.</string>
     <string name="activity_action_delete_personal_record_entry">You deleted a %1$s PR result.</string>
     <string name="activity_action_set_current_personal_record_entry">You set a %1$s PR result as current.</string>
+    <string name="activity_action_use_pace_calculator">You used the pace calculator.</string>
     <string name="personal_records_metric_distance">Distance</string>
     <string name="personal_records_metric_time">Time</string>
     <string name="personal_records_metric_weight">Weight</string>
@@ -418,9 +419,11 @@
     <string name="pace_calculator_distance_custom">Custom</string>
     <string name="pace_calculator_preset_1_km">1 km</string>
     <string name="pace_calculator_preset_1_mile">1 mile</string>
-    <string name="pace_calculator_preset_5k">5K</string>
-    <string name="pace_calculator_preset_10k">10K</string>
-    <string name="pace_calculator_preset_15k">15K</string>
+    <string name="pace_calculator_preset_5_miles">5 miles</string>
+    <string name="pace_calculator_preset_10_miles">10 miles</string>
+    <string name="pace_calculator_preset_5k">5 km</string>
+    <string name="pace_calculator_preset_10k">10 km</string>
+    <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">Half marathon</string>
     <string name="pace_calculator_preset_marathon">Marathon</string>
     <string name="browse_categories_subtitle">Organize workout categories, colors, visibility, and order.</string>
@@ -431,6 +434,9 @@
     <string name="browse_backup_import_subtitle">Export, import, and manage your backup location.</string>
     <string name="browse_settings_subtitle">Customize units, appearance, language, and app behavior.</string>
     <string name="browse_developer_subtitle">Inspect developer-only diagnostics and tools.</string>
+    <string name="browse_section_training">Training</string>
+    <string name="browse_section_progress">Progress</string>
+    <string name="browse_section_app_data">App and data</string>
     <string name="activity_day_unplanned">To be defined</string>
     <string name="activity_subtitle_separator"> • </string>
     <string name="activity_time_pattern">HH:mm</string>
@@ -667,6 +673,9 @@
     <string name="trophies_name_on_the_board">On The Board</string>
     <string name="trophies_name_form_book">Form Book</string>
     <string name="trophies_name_record_keeper">Record Keeper</string>
+    <string name="trophies_name_pace_setter">Pace Setter</string>
+    <string name="trophies_name_split_strategist">Split Strategist</string>
+    <string name="trophies_name_pace_master">Pace Master</string>
     <string name="trophies_name_podium_place">Podium Place</string>
     <string name="trophies_name_in_rotation">Podium Place: In Rotation</string>
     <string name="trophies_name_mainstay">Podium Place: Go-To</string>
@@ -680,6 +689,9 @@
     <string name="trophies_desc_personal_record_result_creations_locked">Add PR results to unlock this trophy.</string>
     <string name="trophies_share_desc_personal_record_series_creations">PR series created.</string>
     <string name="trophies_share_desc_personal_record_result_creations">PR results added.</string>
+    <string name="trophies_desc_pace_calculations_locked">Unlock by using the pace calculator %1$d times.</string>
+    <string name="trophies_desc_pace_calculations_unlocked">You used the pace calculator %1$d times.</string>
+    <string name="trophies_share_desc_pace_calculations">Pace calculations completed.</string>
     <string name="trophies_desc_complete_weeks_locked">Unlock by finishing every planned workout in %1$d different weeks.</string>
     <string name="trophies_desc_complete_weeks_unlocked">You finished every planned workout in %1$d different weeks.</string>
     <string name="trophies_desc_workout_completions_locked">Unlock by marking %1$d workouts as completed.</string>

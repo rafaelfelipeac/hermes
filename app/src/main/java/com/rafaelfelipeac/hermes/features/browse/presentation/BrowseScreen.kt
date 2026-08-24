@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,12 +28,13 @@ import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material.icons.outlined.EmojiEvents
-import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
@@ -60,16 +60,14 @@ import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
-import com.rafaelfelipeac.hermes.features.pacecalculator.presentation.PaceCalculatorScreen
+import com.rafaelfelipeac.hermes.features.pacecalculator.presentation.PaceCalculatorRoute
 import com.rafaelfelipeac.hermes.features.personalrecords.presentation.PersonalRecordsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.DeveloperModeScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsBackupScreen
@@ -127,7 +125,7 @@ fun BrowseScreen(
             )
 
         BrowseDestination.PACE_CALCULATOR ->
-            PaceCalculatorScreen(
+            PaceCalculatorRoute(
                 modifier = modifier,
                 settingsDistanceUnit = settingsState.distanceUnit,
                 settingsPaceUnit = settingsState.paceUnit,
@@ -192,12 +190,14 @@ private fun BrowseHome(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(SpacingXl),
-        verticalArrangement = Arrangement.spacedBy(SpacingLg),
+        verticalArrangement = Arrangement.spacedBy(SpacingMd),
     ) {
         Text(
             text = stringResource(R.string.browse_title),
             style = typography.titleLarge,
         )
+
+        BrowseSectionTitle(text = stringResource(R.string.browse_section_training))
 
         BrowseDestinationCard(
             title = stringResource(R.string.categories_title),
@@ -208,17 +208,9 @@ private fun BrowseHome(
         )
 
         BrowseDestinationCard(
-            title = stringResource(R.string.trophies_title),
-            subtitle = stringResource(R.string.browse_trophies_subtitle),
-            icon = Icons.Outlined.EmojiEvents,
-            onClick = { onNavigateTo(BrowseDestination.TROPHIES) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "trophies"),
-        )
-
-        BrowseDestinationCard(
             title = stringResource(R.string.personal_records_title),
             subtitle = stringResource(R.string.browse_personal_records_subtitle),
-            icon = Icons.Outlined.FitnessCenter,
+            icon = Icons.Outlined.Leaderboard,
             onClick = { onNavigateTo(BrowseDestination.PERSONAL_RECORDS) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "personal_records"),
         )
@@ -231,6 +223,17 @@ private fun BrowseHome(
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "pace_calculator"),
         )
 
+        HorizontalDivider()
+        BrowseSectionTitle(text = stringResource(R.string.browse_section_progress))
+
+        BrowseDestinationCard(
+            title = stringResource(R.string.trophies_title),
+            subtitle = stringResource(R.string.browse_trophies_subtitle),
+            icon = Icons.Outlined.EmojiEvents,
+            onClick = { onNavigateTo(BrowseDestination.TROPHIES) },
+            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "trophies"),
+        )
+
         BrowseDestinationCard(
             title = stringResource(R.string.trophies_activities_action),
             subtitle = stringResource(R.string.browse_activities_subtitle),
@@ -239,6 +242,9 @@ private fun BrowseHome(
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "activities"),
         )
 
+        HorizontalDivider()
+        BrowseSectionTitle(text = stringResource(R.string.browse_section_app_data))
+
         BrowseDestinationCard(
             title = stringResource(R.string.browse_backup_import_title),
             subtitle = stringResource(R.string.browse_backup_import_subtitle),
@@ -246,8 +252,6 @@ private fun BrowseHome(
             onClick = { onNavigateTo(BrowseDestination.BACKUP) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "backup"),
         )
-
-        Spacer(modifier = Modifier.height(SpacingXxl))
 
         BrowseDestinationCard(
             title = stringResource(R.string.settings_title),
@@ -270,6 +274,15 @@ private fun BrowseHome(
 }
 
 @Composable
+private fun BrowseSectionTitle(text: String) {
+    Text(
+        text = text,
+        style = typography.labelLarge,
+        color = colorScheme.primary,
+    )
+}
+
+@Composable
 private fun BrowseDestinationCard(
     title: String,
     subtitle: String? = null,
@@ -287,8 +300,8 @@ private fun BrowseDestinationCard(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(SpacingLg),
-            verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                    .padding(SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingXs),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
@@ -300,14 +313,14 @@ private fun BrowseDestinationCard(
                 Spacer(modifier = Modifier.width(SpacingMd))
                 Text(
                     text = title,
-                    style = typography.titleMedium,
+                    style = typography.titleSmall,
                     color = colorScheme.onSurfaceVariant,
                 )
             }
             if (subtitle != null) {
                 Text(
                     text = subtitle,
-                    style = typography.bodyMedium,
+                    style = typography.bodySmall,
                     color = colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = SmallIconSize + SpacingMd),
                 )

@@ -272,6 +272,30 @@ object TrophyDefinitions {
                 sortOrder = 60,
                 badgeRank = 3,
             ),
+            definition(
+                id = TrophyId.PACE_SETTER,
+                family = TrophyFamily.BUILDER,
+                metric = TrophyMetric.PACE_CALCULATIONS,
+                target = 1,
+                sortOrder = 70,
+                badgeRank = 1,
+            ),
+            definition(
+                id = TrophyId.SPLIT_STRATEGIST,
+                family = TrophyFamily.BUILDER,
+                metric = TrophyMetric.PACE_CALCULATIONS,
+                target = 10,
+                sortOrder = 80,
+                badgeRank = 2,
+            ),
+            definition(
+                id = TrophyId.PACE_MASTER,
+                family = TrophyFamily.BUILDER,
+                metric = TrophyMetric.PACE_CALCULATIONS,
+                target = 50,
+                sortOrder = 90,
+                badgeRank = 3,
+            ),
         )
 
     val categoryTemplates: List<TrophyDefinition> =

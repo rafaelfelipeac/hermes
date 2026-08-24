@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 
+import com.rafaelfelipeac.hermes.core.strings.formatElapsedTime
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordValueNormalizer
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM
@@ -16,7 +17,6 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.text.NumberFormat
-import java.time.Duration
 import java.util.Locale
 import kotlin.math.roundToLong
 
@@ -32,7 +32,7 @@ fun formatPersonalRecordValue(
         SECOND,
         MINUTE,
         HOUR,
-        -> formatDuration(PersonalRecordValueNormalizer.normalize(value, unit).roundToLong())
+        -> formatElapsedTime(PersonalRecordValueNormalizer.normalize(value, unit).roundToLong())
         KILOMETER,
         MILE,
         METER,
@@ -60,26 +60,6 @@ internal fun formatEditablePersonalRecordValue(value: Double): String {
         .setScale(EDITABLE_VALUE_DECIMAL_SCALE, RoundingMode.HALF_UP)
         .stripTrailingZeros()
         .toPlainString()
-}
-
-private fun formatDuration(totalSeconds: Long): String {
-    val duration = Duration.ofSeconds(totalSeconds)
-    val hours = duration.toHours()
-    val minutes = duration.minusHours(hours).toMinutes()
-    val seconds = duration.minusHours(hours).minusMinutes(minutes).seconds
-
-    return if (hours > 0) {
-        "%d:%02d:%02d".format(hours, minutes, seconds)
-    } else {
-        "%02d:%02d".format(minutes, seconds)
-    }
-}
-
-private fun formatWholeNumber(
-    value: Double,
-    locale: Locale,
-): String {
-    return NumberFormat.getIntegerInstance(locale).format(value)
 }
 
 private fun formatNumber(

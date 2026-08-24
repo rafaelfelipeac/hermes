@@ -24,6 +24,7 @@ class ActivityUiFormatterTest {
                     R.string.activity_value_quoted ->
                         "\"$firstArg\""
                     R.string.activity_action_change_distance_unit -> "You changed the distance unit."
+                    R.string.activity_action_use_pace_calculator -> "You used the pace calculator."
                     R.string.settings_unit_kilometers -> "km"
                     R.string.settings_unit_miles -> "mi"
                     R.string.activity_subtitle_change_value -> "From ${args[0]} to ${args[1]}."
@@ -83,5 +84,20 @@ class ActivityUiFormatterTest {
 
         assertEquals("You changed the distance unit.", formatter.buildTitle(record, metadata))
         assertEquals("From \"km\" to \"mi\".", formatter.buildSubtitle(record, metadata, Locale.US))
+    }
+
+    @Test
+    fun paceCalculatorUse_hasLocalizedActivityTitle() {
+        val record =
+            UserActionRecord(
+                id = 1L,
+                actionType = UserActionType.USE_PACE_CALCULATOR.name,
+                entityType = UserActionEntityType.APP.name,
+                entityId = null,
+                metadata = null,
+                timestamp = 0L,
+            )
+
+        assertEquals("You used the pace calculator.", formatter.buildTitle(record, emptyMap()))
     }
 }

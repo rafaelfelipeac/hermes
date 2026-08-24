@@ -33,6 +33,7 @@ object UserActionMetadataKeys {
     const val PERSONAL_RECORD_NORMALIZED_VALUE = "personal_record_normalized_value"
     const val PERSONAL_RECORD_OLD_VALUE = "personal_record_old_value"
     const val PERSONAL_RECORD_NEW_VALUE = "personal_record_new_value"
+    const val PACE_CALCULATOR_MODE = "pace_calculator_mode"
     const val WAS_COMPLETED = "was_completed"
     const val IS_COMPLETED = "is_completed"
     const val CATEGORY_NAME = "category_name"
