@@ -1,9 +1,9 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 
 import android.content.Context
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -21,6 +21,7 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -189,7 +190,13 @@ class PersonalRecordsEntryEditorDialogTest {
         }
 
         composeRule.waitForIdle()
-        composeRule.onNodeWithTag(PERSONAL_RECORDS_ENTRY_VALUE_FIELD_TAG).assertTextEquals("10")
+        val editableValue =
+            composeRule
+                .onNodeWithTag(PERSONAL_RECORDS_ENTRY_VALUE_FIELD_TAG)
+                .fetchSemanticsNode()
+                .config[SemanticsProperties.EditableText]
+                .text
+        assertEquals("10", editableValue)
     }
 
     private fun sampleFamily() =
