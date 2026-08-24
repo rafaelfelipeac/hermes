@@ -1,12 +1,17 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+
 package com.rafaelfelipeac.hermes.features.pacecalculator.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -39,9 +44,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PaceCalculatorCompactWidthBreakpoint
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
@@ -56,8 +66,19 @@ import java.util.Locale
 import kotlin.math.roundToLong
 
 internal const val PACE_CALCULATOR_ROOT_TAG = "pace_calculator_root"
+internal const val PACE_CALCULATOR_BACK_BUTTON_TAG = "pace_calculator_back_button"
+internal const val PACE_CALCULATOR_TITLE_TAG = "pace_calculator_title"
+internal const val PACE_CALCULATOR_BODY_TAG = "pace_calculator_body"
+internal const val PACE_CALCULATOR_PRESETS_TAG = "pace_calculator_presets"
 internal const val PACE_CALCULATOR_DISTANCE_INPUT_TAG = "pace_calculator_distance_input"
 internal const val PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG = "pace_calculator_time_minutes_input"
+internal const val PACE_CALCULATOR_TIME_HOURS_INPUT_TAG = "pace_calculator_time_hours_input"
+internal const val PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG = "pace_calculator_time_seconds_input"
+internal const val PACE_CALCULATOR_PACE_MINUTES_INPUT_TAG = "pace_calculator_pace_minutes_input"
+internal const val PACE_CALCULATOR_PACE_SECONDS_INPUT_TAG = "pace_calculator_pace_seconds_input"
+internal const val PACE_CALCULATOR_MODE_PACE_TAG = "pace_calculator_mode_pace"
+internal const val PACE_CALCULATOR_MODE_TIME_TAG = "pace_calculator_mode_time"
+internal const val PACE_CALCULATOR_MODE_DISTANCE_TAG = "pace_calculator_mode_distance"
 internal const val PACE_CALCULATOR_RESULT_TAG = "pace_calculator_result"
 
 @Composable
@@ -70,12 +91,12 @@ fun PaceCalculatorScreen(
     BackHandler(onBack = onBack)
 
     var mode by rememberSaveable { mutableStateOf(PaceCalculatorMode.PACE) }
-    var distanceText by rememberSaveable { mutableStateOf("") }
-    var timeHoursText by rememberSaveable { mutableStateOf("") }
-    var timeMinutesText by rememberSaveable { mutableStateOf("") }
-    var timeSecondsText by rememberSaveable { mutableStateOf("") }
-    var paceMinutesText by rememberSaveable { mutableStateOf("") }
-    var paceSecondsText by rememberSaveable { mutableStateOf("") }
+    var distanceText by rememberSaveable { mutableStateOf(EMPTY) }
+    var timeHoursText by rememberSaveable { mutableStateOf(EMPTY) }
+    var timeMinutesText by rememberSaveable { mutableStateOf(EMPTY) }
+    var timeSecondsText by rememberSaveable { mutableStateOf(EMPTY) }
+    var paceMinutesText by rememberSaveable { mutableStateOf(EMPTY) }
+    var paceSecondsText by rememberSaveable { mutableStateOf(EMPTY) }
     var selectedPresetMeters by rememberSaveable { mutableStateOf<Double?>(null) }
     val paceUnitMeters = paceUnitMeters(settingsPaceUnit)
     val distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit)
@@ -110,13 +131,15 @@ fun PaceCalculatorScreen(
         modifier =
             modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(SpacingLg)
                 .testTag(PACE_CALCULATOR_ROOT_TAG),
-        verticalArrangement = Arrangement.spacedBy(SpacingLg),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-            IconButton(onClick = onBack) {
+            IconButton(
+                onClick = onBack,
+                modifier =
+                    Modifier
+                        .testTag(PACE_CALCULATOR_BACK_BUTTON_TAG),
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                     contentDescription = stringResource(R.string.settings_back),
@@ -126,128 +149,154 @@ fun PaceCalculatorScreen(
             Text(
                 text = stringResource(R.string.pace_calculator_title),
                 style = typography.titleLarge,
+                modifier = Modifier.testTag(PACE_CALCULATOR_TITLE_TAG),
             )
         }
 
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            PaceCalculatorMode.entries.forEachIndexed { index, option ->
-                val selected = mode == option
-                SegmentedButton(
-                    selected = selected,
-                    onClick = { mode = option },
-                    shape = SegmentedButtonDefaults.itemShape(index, PaceCalculatorMode.entries.size),
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(text = paceCalculatorModeLabel(option))
+        Column(
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .imePadding()
+                    .testTag(PACE_CALCULATOR_BODY_TAG)
+                    .padding(
+                        start = SpacingXl,
+                        end = SpacingXl,
+                        bottom = SpacingXxl,
+                    ),
+            verticalArrangement = Arrangement.spacedBy(SpacingLg),
+        ) {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                PaceCalculatorMode.entries.forEachIndexed { index, option ->
+                    val selected = mode == option
+                    SegmentedButton(
+                        selected = selected,
+                        onClick = { mode = option },
+                        shape =
+                            SegmentedButtonDefaults.itemShape(
+                                index,
+                                PaceCalculatorMode.entries.size,
+                            ),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .testTag(paceCalculatorModeTestTag(option)),
+                    ) {
+                        Text(text = paceCalculatorModeLabel(option))
+                    }
                 }
             }
-        }
 
-        Card(
-            colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
-            shape = shapes.medium,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier.padding(SpacingLg),
-                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+            Card(
+                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+                border = BorderStroke(BorderThin, colorScheme.outlineVariant),
+                shape = shapes.medium,
+                modifier = Modifier.fillMaxWidth().testTag(PACE_CALCULATOR_PRESETS_TAG),
             ) {
-                Text(
-                    text = stringResource(R.string.pace_calculator_distance_presets),
-                    style = typography.titleMedium,
-                )
-
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                Column(
+                    modifier = Modifier.padding(SpacingLg),
+                    verticalArrangement = Arrangement.spacedBy(SpacingMd),
                 ) {
-                    paceDistancePresets().forEach { preset ->
+                    Text(
+                        text = stringResource(R.string.pace_calculator_distance_presets),
+                        style = typography.titleMedium,
+                    )
+
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                        verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                    ) {
+                        paceDistancePresets().forEach { preset ->
+                            FilterChip(
+                                selected = preset.valueMeters == selectedPresetMeters,
+                                onClick = {
+                                    selectedPresetMeters = preset.valueMeters
+                                    distanceText =
+                                        formatDistanceInput(
+                                            preset.valueMeters,
+                                            settingsDistanceUnit,
+                                        )
+                                },
+                                label = { Text(text = preset.label) },
+                                colors = FilterChipDefaults.filterChipColors(),
+                            )
+                        }
                         FilterChip(
-                            selected = preset.valueMeters == selectedPresetMeters,
-                            onClick = {
-                                selectedPresetMeters = preset.valueMeters
-                                distanceText =
-                                    formatDistanceInput(
-                                        preset.valueMeters,
-                                        settingsDistanceUnit,
-                                    )
+                            selected = selectedPresetMeters == null,
+                            onClick = { selectedPresetMeters = null },
+                            label = {
+                                Text(text = stringResource(R.string.pace_calculator_distance_custom))
                             },
-                            label = { Text(text = preset.label) },
                             colors = FilterChipDefaults.filterChipColors(),
                         )
                     }
-                    FilterChip(
-                        selected = selectedPresetMeters == null,
-                        onClick = { selectedPresetMeters = null },
-                        label = { Text(text = stringResource(R.string.pace_calculator_distance_custom)) },
-                        colors = FilterChipDefaults.filterChipColors(),
+                }
+            }
+
+            when (mode) {
+                PaceCalculatorMode.PACE -> {
+                    DistanceInputField(
+                        distanceText = distanceText,
+                        settingsDistanceUnit = settingsDistanceUnit,
+                        onDistanceTextChange = {
+                            distanceText = it
+                            selectedPresetMeters = null
+                        },
+                    )
+                    TimeInputFields(
+                        hoursText = timeHoursText,
+                        minutesText = timeMinutesText,
+                        secondsText = timeSecondsText,
+                        onHoursTextChange = { timeHoursText = it },
+                        onMinutesTextChange = { timeMinutesText = it },
+                        onSecondsTextChange = { timeSecondsText = it },
+                    )
+                }
+
+                PaceCalculatorMode.TIME -> {
+                    DistanceInputField(
+                        distanceText = distanceText,
+                        settingsDistanceUnit = settingsDistanceUnit,
+                        onDistanceTextChange = {
+                            distanceText = it
+                            selectedPresetMeters = null
+                        },
+                    )
+                    PaceInputFields(
+                        paceMinutesText = paceMinutesText,
+                        paceSecondsText = paceSecondsText,
+                        onMinutesChange = { paceMinutesText = it },
+                        onSecondsChange = { paceSecondsText = it },
+                    )
+                }
+
+                PaceCalculatorMode.DISTANCE -> {
+                    TimeInputFields(
+                        hoursText = timeHoursText,
+                        minutesText = timeMinutesText,
+                        secondsText = timeSecondsText,
+                        onHoursTextChange = { timeHoursText = it },
+                        onMinutesTextChange = { timeMinutesText = it },
+                        onSecondsTextChange = { timeSecondsText = it },
+                    )
+                    PaceInputFields(
+                        paceMinutesText = paceMinutesText,
+                        paceSecondsText = paceSecondsText,
+                        onMinutesChange = { paceMinutesText = it },
+                        onSecondsChange = { paceSecondsText = it },
                     )
                 }
             }
+
+            ResultCard(
+                mode = mode,
+                result = result,
+                settingsDistanceUnit = settingsDistanceUnit,
+                settingsPaceUnit = settingsPaceUnit,
+            )
         }
-
-        when (mode) {
-            PaceCalculatorMode.PACE -> {
-                DistanceInputField(
-                    distanceText = distanceText,
-                    settingsDistanceUnit = settingsDistanceUnit,
-                    onDistanceTextChange = {
-                        distanceText = it
-                        selectedPresetMeters = null
-                    },
-                )
-                TimeInputFields(
-                    hoursText = timeHoursText,
-                    minutesText = timeMinutesText,
-                    secondsText = timeSecondsText,
-                    onHoursTextChange = { timeHoursText = it },
-                    onMinutesTextChange = { timeMinutesText = it },
-                    onSecondsTextChange = { timeSecondsText = it },
-                )
-            }
-
-            PaceCalculatorMode.TIME -> {
-                DistanceInputField(
-                    distanceText = distanceText,
-                    settingsDistanceUnit = settingsDistanceUnit,
-                    onDistanceTextChange = {
-                        distanceText = it
-                        selectedPresetMeters = null
-                    },
-                )
-                PaceInputFields(
-                    paceMinutesText = paceMinutesText,
-                    paceSecondsText = paceSecondsText,
-                    settingsPaceUnit = settingsPaceUnit,
-                    onMinutesChange = { paceMinutesText = it },
-                    onSecondsChange = { paceSecondsText = it },
-                )
-            }
-
-            PaceCalculatorMode.DISTANCE -> {
-                TimeInputFields(
-                    hoursText = timeHoursText,
-                    minutesText = timeMinutesText,
-                    secondsText = timeSecondsText,
-                    onHoursTextChange = { timeHoursText = it },
-                    onMinutesTextChange = { timeMinutesText = it },
-                    onSecondsTextChange = { timeSecondsText = it },
-                )
-                PaceInputFields(
-                    paceMinutesText = paceMinutesText,
-                    paceSecondsText = paceSecondsText,
-                    settingsPaceUnit = settingsPaceUnit,
-                    onMinutesChange = { paceMinutesText = it },
-                    onSecondsChange = { paceSecondsText = it },
-                )
-            }
-        }
-
-        ResultCard(
-            mode = mode,
-            result = result,
-            settingsDistanceUnit = settingsDistanceUnit,
-        )
     }
 }
 
@@ -281,25 +330,62 @@ private fun TimeInputFields(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
         Text(text = stringResource(R.string.pace_calculator_time), style = typography.titleMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
-            MiniNumberField(
-                value = hoursText,
-                onValueChange = onHoursTextChange,
-                label = stringResource(R.string.pace_calculator_hours),
-                modifier = Modifier.weight(1f),
-            )
-            MiniNumberField(
-                value = minutesText,
-                onValueChange = onMinutesTextChange,
-                label = stringResource(R.string.pace_calculator_minutes),
-                modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG),
-            )
-            MiniNumberField(
-                value = secondsText,
-                onValueChange = onSecondsTextChange,
-                label = stringResource(R.string.pace_calculator_seconds),
-                modifier = Modifier.weight(1f),
-            )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            if (maxWidth < PaceCalculatorCompactWidthBreakpoint) {
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
+                    MiniNumberField(
+                        value = hoursText,
+                        onValueChange = onHoursTextChange,
+                        label = stringResource(R.string.pace_calculator_hours),
+                        modifier = Modifier.fillMaxWidth().testTag(PACE_CALCULATOR_TIME_HOURS_INPUT_TAG),
+                    )
+                    MiniNumberField(
+                        value = minutesText,
+                        onValueChange = onMinutesTextChange,
+                        label = stringResource(R.string.pace_calculator_minutes),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .testTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG),
+                    )
+                    MiniNumberField(
+                        value = secondsText,
+                        onValueChange = onSecondsTextChange,
+                        label = stringResource(R.string.pace_calculator_seconds),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .testTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG),
+                    )
+                }
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    MiniNumberField(
+                        value = hoursText,
+                        onValueChange = onHoursTextChange,
+                        label = stringResource(R.string.pace_calculator_hours),
+                        modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TIME_HOURS_INPUT_TAG),
+                    )
+                    MiniNumberField(
+                        value = minutesText,
+                        onValueChange = onMinutesTextChange,
+                        label = stringResource(R.string.pace_calculator_minutes),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .testTag(PACE_CALCULATOR_TIME_MINUTES_INPUT_TAG),
+                    )
+                    MiniNumberField(
+                        value = secondsText,
+                        onValueChange = onSecondsTextChange,
+                        label = stringResource(R.string.pace_calculator_seconds),
+                        modifier = Modifier.weight(1f).testTag(PACE_CALCULATOR_TIME_SECONDS_INPUT_TAG),
+                    )
+                }
+            }
         }
     }
 }
@@ -308,7 +394,6 @@ private fun TimeInputFields(
 private fun PaceInputFields(
     paceMinutesText: String,
     paceSecondsText: String,
-    settingsPaceUnit: PaceUnit,
     onMinutesChange: (String) -> Unit,
     onSecondsChange: (String) -> Unit,
 ) {
@@ -317,20 +402,53 @@ private fun PaceInputFields(
             text = stringResource(R.string.pace_calculator_pace),
             style = typography.titleMedium,
         )
-        Row(horizontalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
-            MiniNumberField(
-                value = paceMinutesText,
-                onValueChange = onMinutesChange,
-                label = stringResource(R.string.pace_calculator_minutes),
-                suffix = paceUnitLabel(settingsPaceUnit).substringAfter('/'),
-                modifier = Modifier.weight(1f),
-            )
-            MiniNumberField(
-                value = paceSecondsText,
-                onValueChange = onSecondsChange,
-                label = stringResource(R.string.pace_calculator_seconds),
-                modifier = Modifier.weight(1f),
-            )
+        BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+            if (maxWidth < PaceCalculatorCompactWidthBreakpoint) {
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
+                    MiniNumberField(
+                        value = paceMinutesText,
+                        onValueChange = onMinutesChange,
+                        label = stringResource(R.string.pace_calculator_minutes),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .testTag(PACE_CALCULATOR_PACE_MINUTES_INPUT_TAG),
+                    )
+                    MiniNumberField(
+                        value = paceSecondsText,
+                        onValueChange = onSecondsChange,
+                        label = stringResource(R.string.pace_calculator_seconds),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .testTag(PACE_CALCULATOR_PACE_SECONDS_INPUT_TAG),
+                    )
+                }
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    MiniNumberField(
+                        value = paceMinutesText,
+                        onValueChange = onMinutesChange,
+                        label = stringResource(R.string.pace_calculator_minutes),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .testTag(PACE_CALCULATOR_PACE_MINUTES_INPUT_TAG),
+                    )
+                    MiniNumberField(
+                        value = paceSecondsText,
+                        onValueChange = onSecondsChange,
+                        label = stringResource(R.string.pace_calculator_seconds),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .testTag(PACE_CALCULATOR_PACE_SECONDS_INPUT_TAG),
+                    )
+                }
+            }
         }
     }
 }
@@ -362,9 +480,11 @@ private fun ResultCard(
     mode: PaceCalculatorMode,
     result: PaceCalculatorResultUi,
     settingsDistanceUnit: DistanceUnit,
+    settingsPaceUnit: PaceUnit,
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+        border = BorderStroke(BorderThin, colorScheme.outlineVariant),
         shape = shapes.medium,
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -382,7 +502,12 @@ private fun ResultCard(
                 text =
                     when (mode) {
                         PaceCalculatorMode.PACE -> {
-                            result.paceSecondsPerUnit?.let { formatPaceSeconds(it) }
+                            result.paceSecondsPerUnit?.let {
+                                formatPaceSeconds(
+                                    paceSecondsPerUnit = it,
+                                    unitLabel = paceUnitLabel(settingsPaceUnit),
+                                )
+                            }
                                 ?: stringResource(R.string.pace_calculator_result_empty)
                         }
 
@@ -461,11 +586,14 @@ private fun formatDistance(
     return "${formatter.format(value)} $unitLabel"
 }
 
-private fun formatPaceSeconds(paceSecondsPerUnit: Double): String {
+private fun formatPaceSeconds(
+    paceSecondsPerUnit: Double,
+    unitLabel: String,
+): String {
     val totalSeconds = paceSecondsPerUnit.roundToLong()
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
-    return "%d:%02d".format(minutes, seconds)
+    return "%d:%02d %s".format(minutes, seconds, unitLabel)
 }
 
 private fun formatDuration(totalSeconds: Long): String {
@@ -494,6 +622,14 @@ private fun paceCalculatorResultLabel(mode: PaceCalculatorMode): String {
         PaceCalculatorMode.PACE -> stringResource(R.string.pace_calculator_result_pace)
         PaceCalculatorMode.TIME -> stringResource(R.string.pace_calculator_result_time)
         PaceCalculatorMode.DISTANCE -> stringResource(R.string.pace_calculator_result_distance)
+    }
+}
+
+private fun paceCalculatorModeTestTag(mode: PaceCalculatorMode): String {
+    return when (mode) {
+        PaceCalculatorMode.PACE -> PACE_CALCULATOR_MODE_PACE_TAG
+        PaceCalculatorMode.TIME -> PACE_CALCULATOR_MODE_TIME_TAG
+        PaceCalculatorMode.DISTANCE -> PACE_CALCULATOR_MODE_DISTANCE_TAG
     }
 }
 
