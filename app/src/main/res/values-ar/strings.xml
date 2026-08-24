@@ -670,7 +670,7 @@
     <string name="trophies_desc_category_presence_unlocked">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل من هذه الفئة.</string>
     <string name="trophies_desc_category_planning_locked">افتحها عند إضافة تمارين في هذه الفئة أو نقلها أو تنظيمها %1$d مرات.</string>
     <string name="trophies_desc_category_planning_unlocked">لقد أضفت تمارين في هذه الفئة أو نقلتها أو نظّمتها %1$d مرات.</string>
-    <string name="race_events_nav_label">الفعالية</string>
+    <string name="race_events_nav_label">الفعاليات</string>
     <string name="weekly_training_add_race_event">إضافة فعالية</string>
     <string name="weekly_training_delete_race_event">حذف</string>
     <string name="weekly_training_delete_race_event_title">حذف الفعالية؟</string>

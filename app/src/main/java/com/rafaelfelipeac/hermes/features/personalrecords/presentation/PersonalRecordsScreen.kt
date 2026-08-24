@@ -43,9 +43,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.FitnessCenter
 import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -113,11 +112,11 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPad
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelColumnMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelContentPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelItemHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordsActionBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -522,7 +521,7 @@ fun PersonalRecordsContent(
                             Modifier
                                 .fillMaxWidth()
                                 .verticalScroll(rememberScrollState())
-                                .padding(bottom = PersonalRecordsActionBottomPadding)
+                                .padding(bottom = FloatingActionContentBottomPadding)
                         } else {
                             Modifier.fillMaxSize()
                         }
@@ -581,13 +580,13 @@ fun PersonalRecordsContent(
                     Modifier
                         .width(IntrinsicSize.Max)
                         .align(Alignment.BottomEnd)
-                        .padding(end = SpacingXl, bottom = PersonalRecordsActionBottomPadding)
+                        .padding(end = SpacingXl, bottom = FloatingActionContentBottomPadding)
                         .testTag(PERSONAL_RECORDS_ACTION_MENU_TAG),
                 verticalArrangement = Arrangement.spacedBy(SpacingLg),
                 horizontalAlignment = Alignment.End,
             ) {
                 AddActionPill(
-                    icon = Icons.Outlined.FitnessCenter,
+                    icon = Icons.Outlined.Leaderboard,
                     label = stringResource(R.string.personal_records_new_family),
                     onClick = {
                         isAddMenuVisible = false
@@ -662,7 +661,7 @@ private fun PersonalRecordsShelf(
     Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         if (state.families.isEmpty()) {
             EmptyStateCard(
-                icon = Icons.Outlined.Inventory2,
+                icon = Icons.Outlined.Leaderboard,
                 title = stringResource(R.string.personal_records_empty_title),
                 body = stringResource(R.string.personal_records_empty_body),
                 modifier = Modifier.fillMaxWidth(),
@@ -723,7 +722,7 @@ private fun PersonalRecordsShelf(
                                                 modifier = Modifier.fillMaxSize(),
                                             ) {
                                                 Icon(
-                                                    imageVector = categoryIcon(category),
+                                                    imageVector = Icons.Outlined.Leaderboard,
                                                     contentDescription = null,
                                                     tint = contentColor,
                                                     modifier = Modifier.size(SmallIconSize),
@@ -2165,9 +2164,4 @@ internal fun parsePersonalRecordValue(valueText: String): Double? {
         .trim()
         .replace(',', '.')
         .toDoubleOrNull()
-}
-
-@Composable
-private fun categoryIcon(category: Category?): androidx.compose.ui.graphics.vector.ImageVector {
-    return if (category == null) Icons.Outlined.Inventory2 else Icons.Outlined.FitnessCenter
 }

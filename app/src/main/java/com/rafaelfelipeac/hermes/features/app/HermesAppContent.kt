@@ -360,4 +360,10 @@ internal fun trophySnackbarNeedsFabClearance(
 ): Boolean =
     currentDestination == HOME ||
         currentDestination == EVENTS ||
-        (currentDestination == BROWSE && currentBrowseDestination == BrowseDestination.PERSONAL_RECORDS)
+        (
+            currentDestination == BROWSE &&
+                (
+                    currentBrowseDestination == BrowseDestination.CATEGORIES ||
+                        currentBrowseDestination == BrowseDestination.PERSONAL_RECORDS
+                )
+        )

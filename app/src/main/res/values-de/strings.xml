@@ -642,7 +642,7 @@
     <string name="trophies_desc_category_presence_unlocked">Du hast %1$d Wochen beendet, die mindestens ein abgeschlossenes Workout aus dieser Kategorie enthielten.</string>
     <string name="trophies_desc_category_planning_locked">Schalte es frei, indem du Workouts in dieser Kategorie %1$d-mal hinzufügst, verschiebst oder organisierst.</string>
     <string name="trophies_desc_category_planning_unlocked">Du hast Workouts in dieser Kategorie %1$d-mal hinzugefügt, verschoben oder organisiert.</string>
-    <string name="race_events_nav_label">Event</string>
+    <string name="race_events_nav_label">Events</string>
     <string name="weekly_training_add_race_event">Event hinzufügen</string>
     <string name="weekly_training_delete_race_event">Löschen</string>
     <string name="weekly_training_delete_race_event_title">Event löschen?</string>

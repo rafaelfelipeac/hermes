@@ -24,7 +24,7 @@ object Dimens {
 
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp
-    val PersonalRecordsActionBottomPadding = 96.dp
+    val FloatingActionContentBottomPadding = 96.dp
     val WeeklyCalendarBottomPadding = 96.dp
     val WeeklyTrainingAutoScrollEdge = 96.dp
     val WeeklyTrainingAutoScrollSafePadding = 16.dp

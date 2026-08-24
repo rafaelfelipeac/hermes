@@ -641,7 +641,7 @@
     <string name="trophies_desc_category_presence_unlocked">Você concluiu %1$d semanas que incluíam pelo menos um treino concluído desta categoria.</string>
     <string name="trophies_desc_category_planning_locked">Desbloqueie ao adicionar, mover ou organizar treinos nesta categoria %1$d vezes.</string>
     <string name="trophies_desc_category_planning_unlocked">Você adicionou, moveu ou organizou treinos nesta categoria %1$d vezes.</string>
-    <string name="race_events_nav_label">Evento</string>
+    <string name="race_events_nav_label">Eventos</string>
     <string name="weekly_training_add_race_event">Adicionar evento</string>
     <string name="weekly_training_delete_race_event">Excluir</string>
     <string name="weekly_training_delete_race_event_title">Excluir evento?</string>

@@ -14,6 +14,7 @@ class HermesAppContentTest {
     fun trophySnackbar_clearsScreensWithFloatingActions() {
         assertTrue(trophySnackbarNeedsFabClearance(HOME, BrowseDestination.ROOT))
         assertTrue(trophySnackbarNeedsFabClearance(EVENTS, BrowseDestination.ROOT))
+        assertTrue(trophySnackbarNeedsFabClearance(BROWSE, BrowseDestination.CATEGORIES))
         assertTrue(trophySnackbarNeedsFabClearance(BROWSE, BrowseDestination.PERSONAL_RECORDS))
     }
 

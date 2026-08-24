@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
@@ -33,6 +34,34 @@ private const val EMPTY_STRING = ""
 class CategoriesScreenTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    @Test
+    fun addCategory_usesFloatingActionButton() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val repository = FakeCategoryRepository()
+        val viewModel =
+            CategoriesViewModel(
+                repository = repository,
+                workoutRepository = FakeWeeklyTrainingRepository(),
+                categorySeeder = CategorySeeder(repository, FakeStringProvider()),
+                userActionLogger = FakeUserActionLogger(),
+            )
+
+        composeRule.setContent {
+            CategoriesScreen(onBack = {}, viewModel = viewModel)
+        }
+
+        composeRule
+            .onAllNodesWithText(context.getString(R.string.categories_add))
+            .assertCountEquals(0)
+        composeRule
+            .onNodeWithContentDescription(context.getString(R.string.categories_add))
+            .assertIsDisplayed()
+            .performClick()
+        composeRule
+            .onNodeWithText(context.getString(R.string.categories_add_title))
+            .assertIsDisplayed()
+    }
 
     @Test
     fun restoreDefaultsDialog_showsAndConfirms() {
