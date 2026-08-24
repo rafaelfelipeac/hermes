@@ -158,12 +158,12 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Developer mode</string>
     <string name="settings_developer_data_title">Data</string>
-    <string name="settings_developer_data_body">Replaces local data with a demo weekly plan.</string>
+    <string name="settings_developer_data_body">Replaces local data with demo workouts, events, personal records and Activity history.</string>
     <string name="settings_developer_trophies_title">Trophies</string>
     <string name="settings_developer_trophies_body">Replaces local history to preview trophy states.</string>
     <string name="settings_seed_demo_data">Replace with demo data</string>
     <string name="settings_demo_data_created">Demo data created</string>
-    <string name="settings_clear_database_confirm_message">This deletes workouts, events, categories, and Activity history from the local database.</string>
+    <string name="settings_clear_database_confirm_message">This deletes workouts, events, categories and Activity history from the local database.</string>
     <string name="settings_clear_database_confirm_title">Clear database?</string>
     <string name="settings_database_cleared">Database cleared</string>
     <string name="settings_clear_database">Clear database</string>
@@ -196,6 +196,13 @@
     <string name="mock_workout_description_mobility">Hips + shoulders, 15 min</string>
     <string name="mock_workout_description_long_run">Zone 2, 12 km</string>
     <string name="mock_workout_description_core">Compound lifts, 40 min</string>
+    <string name="mock_personal_record_5_km">5 km</string>
+    <string name="mock_personal_record_longest_run">Longest run</string>
+    <string name="mock_personal_record_deadlift">Deadlift</string>
+    <string name="mock_personal_record_cycling_power">Cycling power</string>
+    <string name="mock_personal_record_push_ups">Push-ups</string>
+    <string name="mock_personal_record_weekly_consistency">Weekly consistency</string>
+    <string name="mock_personal_record_sessions_unit">sessions</string>
 
     <!-- Training week: days -->
     <string name="day_monday">Monday</string>
@@ -253,7 +260,7 @@
     <string name="activity_title">Activity Log</string>
     <string name="activity_empty_title">No activity yet.</string>
     <string name="activity_filtered_empty_title">No matching activity.</string>
-    <string name="activity_empty">Completed workouts, event updates, and other changes will appear here.</string>
+    <string name="activity_empty">Completed workouts, event updates and other changes will appear here.</string>
     <string name="activity_filtered_empty">Clear filters to see the full log.</string>
     <string name="activity_filter_all">All</string>
     <string name="activity_filter_completions">Completions</string>
@@ -426,13 +433,13 @@
     <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">Half marathon</string>
     <string name="pace_calculator_preset_marathon">Marathon</string>
-    <string name="browse_categories_subtitle">Organize workout categories, colors, visibility, and order.</string>
+    <string name="browse_categories_subtitle">Organize workout categories, colors, visibility and order.</string>
     <string name="browse_trophies_subtitle">Review achievements and the progress behind each trophy.</string>
     <string name="browse_personal_records_subtitle">Track flexible personal records by series and history.</string>
-    <string name="browse_pace_calculator_subtitle">Calculate pace, time, and distance with your preferred units.</string>
+    <string name="browse_pace_calculator_subtitle">Calculate pace, time and distance with your preferred units.</string>
     <string name="browse_activities_subtitle">Review recent changes and actions across your training.</string>
-    <string name="browse_backup_import_subtitle">Export, import, and manage your backup location.</string>
-    <string name="browse_settings_subtitle">Customize units, appearance, language, and app behavior.</string>
+    <string name="browse_backup_import_subtitle">Export, import and manage your backup location.</string>
+    <string name="browse_settings_subtitle">Customize units, appearance, language and app behavior.</string>
     <string name="browse_developer_subtitle">Inspect developer-only diagnostics and tools.</string>
     <string name="browse_section_training">Training</string>
     <string name="browse_section_progress">Progress</string>

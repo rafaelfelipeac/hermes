@@ -23,6 +23,7 @@ object UserActionMetadataKeys {
     const val OLD_CATEGORY_ID = "old_category_id"
     const val NEW_CATEGORY_ID = "new_category_id"
     const val PERSONAL_RECORD_FAMILY_ID = "personal_record_family_id"
+    const val PERSONAL_RECORD_FAMILY_TITLE = "personal_record_family_title"
     const val PERSONAL_RECORD_ENTRY_ID = "personal_record_entry_id"
     const val PERSONAL_RECORD_CATEGORY_ID = "personal_record_category_id"
     const val PERSONAL_RECORD_CATEGORY_NAME = "personal_record_category_name"

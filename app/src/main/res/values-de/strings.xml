@@ -126,7 +126,7 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Entwicklermodus</string>
     <string name="settings_developer_data_title">Daten</string>
-    <string name="settings_developer_data_body">Ersetzt die lokalen Daten durch einen Demo-Wochenplan.</string>
+    <string name="settings_developer_data_body">Ersetzt lokale Daten durch Demo-Trainings, Events, persönliche Bestleistungen und Aktivitätsverlauf.</string>
     <string name="settings_developer_trophies_title">Trophäen</string>
     <string name="settings_developer_trophies_body">Ersetzt den lokalen Verlauf, um Trophäenzustände vorzuschauen.</string>
     <string name="settings_seed_demo_data">Durch Demo-Daten ersetzen</string>
@@ -164,6 +164,13 @@
     <string name="mock_workout_description_mobility">Hüfte + Schultern, 15 Min</string>
     <string name="mock_workout_description_long_run">Zone 2, 12 km</string>
     <string name="mock_workout_description_core">Grundübungen, 40 Min</string>
+    <string name="mock_personal_record_5_km">5 km</string>
+    <string name="mock_personal_record_longest_run">Längster Lauf</string>
+    <string name="mock_personal_record_deadlift">Kreuzheben</string>
+    <string name="mock_personal_record_cycling_power">Radfahrleistung</string>
+    <string name="mock_personal_record_push_ups">Liegestütze</string>
+    <string name="mock_personal_record_weekly_consistency">Wöchentliche Konstanz</string>
+    <string name="mock_personal_record_sessions_unit">Einheiten</string>
 
     <!-- Training week: days -->
     <string name="day_monday">Montag</string>
@@ -278,9 +285,9 @@
     <string name="activity_action_create_personal_record_family">Du hast eine Serie persönlicher Bestleistungen erstellt.</string>
     <string name="activity_action_update_personal_record_family">Du hast eine Serie persönlicher Bestleistungen aktualisiert.</string>
     <string name="activity_action_delete_personal_record_family">Du hast eine Serie persönlicher Bestleistungen gelöscht.</string>
-    <string name="activity_action_create_personal_record_entry">Du hast ein persönliches Bestleistungsergebnis hinzugefügt.</string>
-    <string name="activity_action_update_personal_record_entry">Du hast ein persönliches Bestleistungsergebnis aktualisiert.</string>
-    <string name="activity_action_delete_personal_record_entry">Du hast ein persönliches Bestleistungsergebnis gelöscht.</string>
+    <string name="activity_action_create_personal_record_entry">Du hast der PB-Serie %1$s ein Ergebnis hinzugefügt.</string>
+    <string name="activity_action_update_personal_record_entry">Du hast ein Ergebnis der PB-Serie %1$s aktualisiert.</string>
+    <string name="activity_action_delete_personal_record_entry">Du hast ein Ergebnis der PB-Serie %1$s gelöscht.</string>
     <string name="personal_records_metric_distance">Distanz</string>
     <string name="personal_records_metric_time">Zeit</string>
     <string name="personal_records_metric_weight">Gewicht</string>
@@ -693,7 +700,7 @@
     <string name="trophies_desc_pace_calculations_locked">Verwende den Temporechner %1$d-mal, um diese Trophäe freizuschalten.</string>
     <string name="trophies_desc_pace_calculations_unlocked">Du hast den Temporechner %1$d-mal verwendet.</string>
     <string name="trophies_share_desc_pace_calculations">Tempoberechnungen abgeschlossen.</string>
-    <string name="activity_action_set_current_personal_record_entry">Du hast ein %1$s-PB-Ergebnis als aktuell festgelegt.</string>
+    <string name="activity_action_set_current_personal_record_entry">Du hast ein Ergebnis der PB-Serie %1$s als aktuell festgelegt.</string>
     <string name="personal_records_metric_distance_help">Miss die Distanz. Höhere Werte gewinnen normalerweise.</string>
     <string name="personal_records_metric_time_help">Miss die verstrichene Zeit. Niedrigere Werte gewinnen normalerweise.</string>
     <string name="personal_records_metric_weight_help">Miss das Gewicht. Höhere Werte gewinnen normalerweise.</string>

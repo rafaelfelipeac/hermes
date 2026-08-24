@@ -372,6 +372,10 @@ class ActivityUiFormatter(
         val metricLabel =
             personalRecordMetricLabel(metadata[UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE])
                 ?: stringProvider.get(R.string.personal_records_metric_custom)
+        val entryLabel =
+            metadata[UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_TITLE]
+                ?.takeIf { it.isNotBlank() }
+                ?: metricLabel
 
         return when (actionType) {
             UserActionType.CREATE_PERSONAL_RECORD_FAMILY ->
@@ -384,16 +388,16 @@ class ActivityUiFormatter(
                 stringProvider.get(R.string.activity_action_delete_personal_record_family, metricLabel)
 
             UserActionType.CREATE_PERSONAL_RECORD_ENTRY ->
-                stringProvider.get(R.string.activity_action_create_personal_record_entry, metricLabel)
+                stringProvider.get(R.string.activity_action_create_personal_record_entry, entryLabel)
 
             UserActionType.UPDATE_PERSONAL_RECORD_ENTRY ->
-                stringProvider.get(R.string.activity_action_update_personal_record_entry, metricLabel)
+                stringProvider.get(R.string.activity_action_update_personal_record_entry, entryLabel)
 
             UserActionType.DELETE_PERSONAL_RECORD_ENTRY ->
-                stringProvider.get(R.string.activity_action_delete_personal_record_entry, metricLabel)
+                stringProvider.get(R.string.activity_action_delete_personal_record_entry, entryLabel)
 
             UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY ->
-                stringProvider.get(R.string.activity_action_set_current_personal_record_entry, metricLabel)
+                stringProvider.get(R.string.activity_action_set_current_personal_record_entry, entryLabel)
 
             else -> null
         }
@@ -563,7 +567,7 @@ class ActivityUiFormatter(
             quoteValue(category),
             metricType,
             comparisonRule,
-        ).joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+        ).joinToString(activitySubtitleSeparator())
     }
 
     @Suppress("LongMethod")
@@ -612,29 +616,18 @@ class ActivityUiFormatter(
 
                 listOfNotNull(valueChange, recordDate)
                     .takeIf { it.isNotEmpty() }
-                    ?.joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+                    ?.joinToString(activitySubtitleSeparator())
             }
 
             UserActionType.CREATE_PERSONAL_RECORD_ENTRY,
             UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
             UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY,
             -> {
-                val valueWithUnit =
-                    listOfNotNull(
-                        newValue,
-                        personalRecordUnitLabel(
-                            unit,
-                            metadata[UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE]
-                                ?.takeIf { it.isNotBlank() }
-                                ?.toDoubleOrNull(),
-                        ),
-                    )
-                        .joinToString(SPACE)
-                        .ifBlank { null }
+                val valueWithUnit = newValue ?: normalizedValue
 
                 listOfNotNull(valueWithUnit, recordDate)
                     .takeIf { it.isNotEmpty() }
-                    ?.joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+                    ?.joinToString(activitySubtitleSeparator())
             }
 
             else -> null
@@ -764,8 +757,12 @@ class ActivityUiFormatter(
         } else {
             listOfNotNull(weekSubtitle, actionSubtitle)
                 .takeIf { it.isNotEmpty() }
-                ?.joinToString(stringProvider.get(R.string.activity_subtitle_separator))
+                ?.joinToString(activitySubtitleSeparator())
         }
+    }
+
+    private fun activitySubtitleSeparator(): String {
+        return SPACE + stringProvider.get(R.string.activity_subtitle_separator).trim() + SPACE
     }
 
     private fun formatVisibilityValue(raw: String?): String? {

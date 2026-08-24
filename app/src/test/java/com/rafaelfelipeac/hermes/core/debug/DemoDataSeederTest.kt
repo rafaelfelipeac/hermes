@@ -2,8 +2,13 @@ package com.rafaelfelipeac.hermes.core.debug
 
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
+import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
@@ -65,9 +70,18 @@ class DemoDataSeederTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val settingsRepository = FakeSettingsRepository()
             val capturedWorkouts = mutableListOf<WorkoutEntity>()
+            val capturedFamilies = mutableListOf<PersonalRecordFamilyEntity>()
+            val capturedEntries = mutableListOf<PersonalRecordEntryEntity>()
+            val capturedActions = mutableListOf<UserActionEntity>()
             coEvery { categorySeeder.ensureSeeded() } returns Unit
             coEvery { workoutDao.insert(capture(capturedWorkouts)) } returns 1L
-            coEvery { userActionDao.insert(any()) } returns 1L
+            coEvery { personalRecordDao.insertFamily(capture(capturedFamilies)) } answers {
+                capturedFamilies.size.toLong()
+            }
+            coEvery { personalRecordDao.insertEntry(capture(capturedEntries)) } answers {
+                capturedEntries.size.toLong()
+            }
+            coEvery { userActionDao.insert(capture(capturedActions)) } returns 1L
             val seeder =
                 DemoDataSeeder(
                     workoutDao = workoutDao,
@@ -93,6 +107,68 @@ class DemoDataSeederTest {
 
             assertTrue(plannedCountsByWeek.values.toSet().size >= 3)
             assertTrue(plannedCountsByWeek.values.maxOrNull()!! > plannedCountsByWeek.values.minOrNull()!!)
+            assertEquals(PersonalRecordMetricType.entries.toSet(), capturedFamilies.map { it.metricType }.toSet())
+            assertEquals(18, capturedEntries.size)
+            assertEquals(
+                6,
+                capturedActions.count { it.actionType == UserActionType.CREATE_PERSONAL_RECORD_FAMILY.name },
+            )
+            assertEquals(
+                18,
+                capturedActions.count { it.actionType == UserActionType.CREATE_PERSONAL_RECORD_ENTRY.name },
+            )
+            assertEquals(
+                4,
+                capturedActions.count { it.actionType == UserActionType.USE_PACE_CALCULATOR.name },
+            )
+            coVerify(exactly = 1) {
+                personalRecordDao.updateFamily(match { it.manualCurrentEntryId != null })
+            }
+        }
+
+    @Test
+    fun seedCompletedTrophies_includesPersonalRecordAndPaceMilestones() =
+        runTest {
+            val workoutDao = mockk<WorkoutDao>(relaxed = true)
+            val userActionDao = mockk<UserActionDao>(relaxed = true)
+            val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val capturedActions = mutableListOf<UserActionEntity>()
+            var nextFamilyId = 1L
+            var nextEntryId = 1L
+            coEvery { categorySeeder.ensureSeeded() } returns Unit
+            coEvery { workoutDao.insert(any()) } returns 1L
+            coEvery { personalRecordDao.insertFamily(any()) } answers { nextFamilyId++ }
+            coEvery { personalRecordDao.insertEntry(any()) } answers { nextEntryId++ }
+            coEvery { userActionDao.insert(capture(capturedActions)) } returns 1L
+            val seeder =
+                DemoDataSeeder(
+                    workoutDao = workoutDao,
+                    userActionDao = userActionDao,
+                    personalRecordDao = personalRecordDao,
+                    stringProvider = FakeStringProvider,
+                    categorySeeder = categorySeeder,
+                    settingsRepository = FakeSettingsRepository(),
+                )
+
+            val didSeed = seeder.seedCompletedTrophies()
+
+            assertTrue(didSeed)
+            assertTrue(
+                capturedActions.count {
+                    it.actionType == UserActionType.CREATE_PERSONAL_RECORD_FAMILY.name
+                } >= 15,
+            )
+            assertTrue(
+                capturedActions.count {
+                    it.actionType == UserActionType.CREATE_PERSONAL_RECORD_ENTRY.name
+                } >= 50,
+            )
+            assertTrue(
+                capturedActions.count {
+                    it.actionType == UserActionType.USE_PACE_CALCULATOR.name
+                } >= 10,
+            )
         }
 
     private object FakeStringProvider : StringProvider {

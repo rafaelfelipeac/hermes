@@ -28,13 +28,9 @@ class CategorySeeder
         private val stringProvider: StringProvider,
     ) {
         suspend fun ensureSeeded() {
-            val count = repository.getCount()
-            if (count == 0) {
+            if (repository.getCount() == 0) {
                 repository.insertCategories(buildStarterCategories())
-                return
             }
-
-            restoreDefaults()
         }
 
         suspend fun restoreDefaults(): Int {

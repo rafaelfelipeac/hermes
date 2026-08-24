@@ -126,7 +126,7 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modo desarrollador</string>
     <string name="settings_developer_data_title">Datos</string>
-    <string name="settings_developer_data_body">Reemplaza los datos locales con un plan semanal de demostración.</string>
+    <string name="settings_developer_data_body">Reemplaza los datos locales con entrenamientos, eventos, récords personales e historial de Actividad de demostración.</string>
     <string name="settings_developer_trophies_title">Trofeos</string>
     <string name="settings_developer_trophies_body">Reemplaza el historial local para previsualizar estados de trofeos.</string>
     <string name="settings_seed_demo_data">Reemplazar con datos de demo</string>
@@ -164,6 +164,13 @@
     <string name="mock_workout_description_mobility">Cadera + hombros, 15 min</string>
     <string name="mock_workout_description_long_run">Zona 2, 12 km</string>
     <string name="mock_workout_description_core">Ejercicios compuestos, 40 min</string>
+    <string name="mock_personal_record_5_km">5 km</string>
+    <string name="mock_personal_record_longest_run">Carrera más larga</string>
+    <string name="mock_personal_record_deadlift">Peso muerto</string>
+    <string name="mock_personal_record_cycling_power">Potencia en ciclismo</string>
+    <string name="mock_personal_record_push_ups">Flexiones</string>
+    <string name="mock_personal_record_weekly_consistency">Constancia semanal</string>
+    <string name="mock_personal_record_sessions_unit">sesiones</string>
 
     <!-- Training week: days -->
     <string name="day_monday">Lunes</string>
@@ -278,9 +285,9 @@
     <string name="activity_action_create_personal_record_family">Has creado una serie de récords personales.</string>
     <string name="activity_action_update_personal_record_family">Has actualizado una serie de récords personales.</string>
     <string name="activity_action_delete_personal_record_family">Has eliminado una serie de récords personales.</string>
-    <string name="activity_action_create_personal_record_entry">Has añadido un resultado de récord personal.</string>
-    <string name="activity_action_update_personal_record_entry">Has actualizado un resultado de récord personal.</string>
-    <string name="activity_action_delete_personal_record_entry">Has eliminado un resultado de récord personal.</string>
+    <string name="activity_action_create_personal_record_entry">Has añadido un resultado de RP a la serie %1$s.</string>
+    <string name="activity_action_update_personal_record_entry">Has actualizado un resultado de RP de la serie %1$s.</string>
+    <string name="activity_action_delete_personal_record_entry">Has eliminado un resultado de RP de la serie %1$s.</string>
     <string name="personal_records_metric_distance">Distancia</string>
     <string name="personal_records_metric_time">Tiempo</string>
     <string name="personal_records_metric_weight">Peso</string>
@@ -692,7 +699,7 @@
     <string name="trophies_desc_pace_calculations_locked">Desbloquéalo usando la calculadora de ritmo %1$d veces.</string>
     <string name="trophies_desc_pace_calculations_unlocked">Usaste la calculadora de ritmo %1$d veces.</string>
     <string name="trophies_share_desc_pace_calculations">Cálculos de ritmo completados.</string>
-    <string name="activity_action_set_current_personal_record_entry">Marcaste como actual un resultado de RP de %1$s.</string>
+    <string name="activity_action_set_current_personal_record_entry">Marcaste como actual un resultado de RP de la serie %1$s.</string>
     <string name="personal_records_metric_distance_help">Mide la distancia. Los valores más altos suelen ganar.</string>
     <string name="personal_records_metric_time_help">Mide el tiempo transcurrido. Los valores más bajos suelen ganar.</string>
     <string name="personal_records_metric_weight_help">Mide el peso. Los valores más altos suelen ganar.</string>

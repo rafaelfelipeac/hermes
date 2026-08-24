@@ -10,6 +10,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_COMPARISON_RULE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_ENTRY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_TITLE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_NORMALIZED_VALUE
@@ -175,6 +176,7 @@ class PersonalRecordsViewModel
                     metadata =
                         mapOf(
                             PERSONAL_RECORD_FAMILY_ID to familyId.toString(),
+                            PERSONAL_RECORD_FAMILY_TITLE to family.title,
                             PERSONAL_RECORD_ENTRY_ID to entryId.toString(),
                             PERSONAL_RECORD_CATEGORY_ID to family.categoryId?.toString().orEmpty(),
                             PERSONAL_RECORD_CATEGORY_NAME to category?.name.orEmpty(),
@@ -243,6 +245,7 @@ class PersonalRecordsViewModel
                         mapOf(
                             PERSONAL_RECORD_ENTRY_ID to entryId.toString(),
                             PERSONAL_RECORD_FAMILY_ID to familyId.toString(),
+                            PERSONAL_RECORD_FAMILY_TITLE to family.title,
                             PERSONAL_RECORD_CATEGORY_ID to family.categoryId?.toString().orEmpty(),
                             PERSONAL_RECORD_CATEGORY_NAME to (category?.name.orEmpty()),
                             PERSONAL_RECORD_METRIC_TYPE to family.metricType.name,
@@ -287,6 +290,7 @@ class PersonalRecordsViewModel
                         mapOf(
                             PERSONAL_RECORD_ENTRY_ID to entryId.toString(),
                             PERSONAL_RECORD_FAMILY_ID to familyId.toString(),
+                            PERSONAL_RECORD_FAMILY_TITLE to family.title,
                             PERSONAL_RECORD_CATEGORY_ID to family.categoryId?.toString().orEmpty(),
                             PERSONAL_RECORD_CATEGORY_NAME to (category?.name.orEmpty()),
                             PERSONAL_RECORD_METRIC_TYPE to family.metricType.name,
@@ -323,6 +327,7 @@ class PersonalRecordsViewModel
                         mapOf(
                             PERSONAL_RECORD_ENTRY_ID to entryId.toString(),
                             PERSONAL_RECORD_FAMILY_ID to entry.familyId.toString(),
+                            PERSONAL_RECORD_FAMILY_TITLE to family?.title.orEmpty(),
                             PERSONAL_RECORD_CATEGORY_ID to family?.categoryId?.toString().orEmpty(),
                             PERSONAL_RECORD_CATEGORY_NAME to (category?.name.orEmpty()),
                             PERSONAL_RECORD_METRIC_TYPE to (family?.metricType?.name.orEmpty()),

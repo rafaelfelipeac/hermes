@@ -126,7 +126,7 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>
     <string name="settings_developer_data_title">डेटा</string>
-    <string name="settings_developer_data_body">लोकल डेटा को डेमो वीक प्लान से बदल देता है।</string>
+    <string name="settings_developer_data_body">लोकल डेटा को डेमो वर्कआउट, इवेंट, व्यक्तिगत रिकॉर्ड और गतिविधि इतिहास से बदलता है।</string>
     <string name="settings_developer_trophies_title">ट्रॉफियां</string>
     <string name="settings_developer_trophies_body">ट्रॉफी स्टेट देखने के लिए लोकल हिस्ट्री को बदल देता है।</string>
     <string name="settings_seed_demo_data">डेमो डेटा से बदलें</string>
@@ -164,6 +164,13 @@
     <string name="mock_workout_description_mobility">हिप्स + शोल्डर, 15 मिनट</string>
     <string name="mock_workout_description_long_run">ज़ोन 2, 12 किमी</string>
     <string name="mock_workout_description_core">कंपाउंड लिफ्ट्स, 40 मिनट</string>
+    <string name="mock_personal_record_5_km">5 km</string>
+    <string name="mock_personal_record_longest_run">सबसे लंबी दौड़</string>
+    <string name="mock_personal_record_deadlift">डेडलिफ्ट</string>
+    <string name="mock_personal_record_cycling_power">साइकिलिंग पावर</string>
+    <string name="mock_personal_record_push_ups">पुश-अप्स</string>
+    <string name="mock_personal_record_weekly_consistency">साप्ताहिक निरंतरता</string>
+    <string name="mock_personal_record_sessions_unit">सत्र</string>
 
     <!-- Training week: days -->
     <string name="day_monday">सोमवार</string>
@@ -278,9 +285,9 @@
     <string name="activity_action_create_personal_record_family">आपने व्यक्तिगत रिकॉर्ड की एक शृंखला बनाई।</string>
     <string name="activity_action_update_personal_record_family">आपने व्यक्तिगत रिकॉर्ड की एक शृंखला अपडेट की।</string>
     <string name="activity_action_delete_personal_record_family">आपने व्यक्तिगत रिकॉर्ड की एक शृंखला हटाई।</string>
-    <string name="activity_action_create_personal_record_entry">आपने एक व्यक्तिगत रिकॉर्ड परिणाम जोड़ा।</string>
-    <string name="activity_action_update_personal_record_entry">आपने एक व्यक्तिगत रिकॉर्ड परिणाम अपडेट किया।</string>
-    <string name="activity_action_delete_personal_record_entry">आपने एक व्यक्तिगत रिकॉर्ड परिणाम हटाया।</string>
+    <string name="activity_action_create_personal_record_entry">आपने %1$s व्यक्तिगत रिकॉर्ड शृंखला में एक परिणाम जोड़ा।</string>
+    <string name="activity_action_update_personal_record_entry">आपने %1$s व्यक्तिगत रिकॉर्ड शृंखला में एक परिणाम अपडेट किया।</string>
+    <string name="activity_action_delete_personal_record_entry">आपने %1$s व्यक्तिगत रिकॉर्ड शृंखला से एक परिणाम हटाया।</string>
     <string name="personal_records_metric_distance">दूरी</string>
     <string name="personal_records_metric_time">समय</string>
     <string name="personal_records_metric_weight">वज़न</string>
@@ -693,7 +700,7 @@
     <string name="trophies_desc_pace_calculations_locked">गति कैलकुलेटर का %1$d बार उपयोग करके अनलॉक करें।</string>
     <string name="trophies_desc_pace_calculations_unlocked">आपने गति कैलकुलेटर का %1$d बार उपयोग किया।</string>
     <string name="trophies_share_desc_pace_calculations">गति की गणनाएँ पूरी हुईं।</string>
-    <string name="activity_action_set_current_personal_record_entry">आपने %1$s का एक निजी रिकॉर्ड परिणाम वर्तमान के रूप में सेट किया।</string>
+    <string name="activity_action_set_current_personal_record_entry">आपने %1$s व्यक्तिगत रिकॉर्ड शृंखला के एक परिणाम को वर्तमान के रूप में सेट किया।</string>
     <string name="personal_records_metric_distance_help">दूरी मापें। आम तौर पर बड़ा मान बेहतर होता है।</string>
     <string name="personal_records_metric_time_help">बीता समय मापें। आम तौर पर छोटा मान बेहतर होता है।</string>
     <string name="personal_records_metric_weight_help">वज़न मापें। आम तौर पर बड़ा मान बेहतर होता है।</string>

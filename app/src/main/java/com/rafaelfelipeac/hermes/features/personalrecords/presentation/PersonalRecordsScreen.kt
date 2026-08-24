@@ -94,6 +94,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.os.ConfigurationCompat
@@ -950,7 +952,7 @@ private fun PersonalRecordHistoryRow(
         Row(
             modifier = Modifier.fillMaxWidth().padding(SpacingLg),
             horizontalArrangement = Arrangement.spacedBy(SpacingMd),
-            verticalAlignment = Alignment.Top,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(
                 modifier = Modifier.weight(1f),
@@ -993,24 +995,24 @@ private fun PersonalRecordHistoryRow(
             }
 
             if (isManualSelection) {
-                if (isCurrent) {
-                    RadioButton(
-                        selected = true,
-                        onClick = null,
-                        modifier = Modifier.testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id),
+                val selectionDescription =
+                    stringResource(
+                        if (isCurrent) {
+                            R.string.personal_records_current_selected
+                        } else {
+                            R.string.personal_records_set_current
+                        },
                     )
-                } else {
-                    TextButton(
-                        onClick = onSetCurrent,
-                        modifier = Modifier.testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id),
-                    ) {
-                        RadioButton(selected = false, onClick = null)
-                        Text(
-                            text = stringResource(R.string.personal_records_set_current),
-                            style = typography.labelSmall,
-                        )
-                    }
-                }
+                RadioButton(
+                    selected = isCurrent,
+                    onClick = {
+                        if (!isCurrent) onSetCurrent()
+                    },
+                    modifier =
+                        Modifier
+                            .testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id)
+                            .semantics { contentDescription = selectionDescription },
+                )
             }
         }
     }

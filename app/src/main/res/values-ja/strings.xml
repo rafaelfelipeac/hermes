@@ -122,7 +122,7 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">開発者モード</string>
     <string name="settings_developer_data_title">データ</string>
-    <string name="settings_developer_data_body">ローカルデータをデモ用の週間プランに置き換えます。</string>
+    <string name="settings_developer_data_body">ローカルデータをデモ用のワークアウト、イベント、自己ベスト、アクティビティ履歴に置き換えます。</string>
     <string name="settings_developer_trophies_title">トロフィー</string>
     <string name="settings_developer_trophies_body">ローカル履歴を置き換えてトロフィー状態を確認します。</string>
     <string name="settings_seed_demo_data">デモデータに置き換える</string>
@@ -160,6 +160,13 @@
     <string name="mock_workout_description_mobility">股関節＋肩、15分</string>
     <string name="mock_workout_description_long_run">ゾーン2、12 km</string>
     <string name="mock_workout_description_core">複合種目、40分</string>
+    <string name="mock_personal_record_5_km">5 km</string>
+    <string name="mock_personal_record_longest_run">最長ラン</string>
+    <string name="mock_personal_record_deadlift">デッドリフト</string>
+    <string name="mock_personal_record_cycling_power">サイクリングパワー</string>
+    <string name="mock_personal_record_push_ups">腕立て伏せ</string>
+    <string name="mock_personal_record_weekly_consistency">週間継続度</string>
+    <string name="mock_personal_record_sessions_unit">セッション</string>
 
     <!-- Training week: days -->
     <string name="day_monday">月曜日</string>
@@ -274,9 +281,9 @@
     <string name="activity_action_create_personal_record_family">自己記録シリーズを作成しました。</string>
     <string name="activity_action_update_personal_record_family">自己記録シリーズを更新しました。</string>
     <string name="activity_action_delete_personal_record_family">自己記録シリーズを削除しました。</string>
-    <string name="activity_action_create_personal_record_entry">個人記録の結果を追加しました。</string>
-    <string name="activity_action_update_personal_record_entry">個人記録の結果を更新しました。</string>
-    <string name="activity_action_delete_personal_record_entry">個人記録の結果を削除しました。</string>
+    <string name="activity_action_create_personal_record_entry">自己ベストシリーズ「%1$s」に結果を追加しました。</string>
+    <string name="activity_action_update_personal_record_entry">自己ベストシリーズ「%1$s」の結果を更新しました。</string>
+    <string name="activity_action_delete_personal_record_entry">自己ベストシリーズ「%1$s」の結果を削除しました。</string>
     <string name="personal_records_metric_distance">距離</string>
     <string name="personal_records_metric_time">時間</string>
     <string name="personal_records_metric_weight">重量</string>
@@ -689,7 +696,7 @@
     <string name="trophies_desc_pace_calculations_locked">ペース計算機を%1$d回使用すると解除されます。</string>
     <string name="trophies_desc_pace_calculations_unlocked">ペース計算機を%1$d回使用しました。</string>
     <string name="trophies_share_desc_pace_calculations">ペース計算を完了しました。</string>
-    <string name="activity_action_set_current_personal_record_entry">%1$sの自己ベスト結果を現在の記録に設定しました。</string>
+    <string name="activity_action_set_current_personal_record_entry">自己ベストシリーズ「%1$s」の結果を現在の記録に設定しました。</string>
     <string name="personal_records_metric_distance_help">距離を測定します。通常は大きい値が優れています。</string>
     <string name="personal_records_metric_time_help">経過時間を測定します。通常は小さい値が優れています。</string>
     <string name="personal_records_metric_weight_help">重量を測定します。通常は大きい値が優れています。</string>

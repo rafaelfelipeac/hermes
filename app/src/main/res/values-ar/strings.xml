@@ -146,7 +146,7 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">وضع المطوّر</string>
     <string name="settings_developer_data_title">البيانات</string>
-    <string name="settings_developer_data_body">يستبدل البيانات المحلية بخطة أسبوعية تجريبية.</string>
+    <string name="settings_developer_data_body">يستبدل البيانات المحلية بتمارين وفعاليات وأرقام شخصية وسجل نشاط تجريبي.</string>
     <string name="settings_developer_trophies_title">الكؤوس</string>
     <string name="settings_developer_trophies_body">يستبدل السجل المحلي لمعاينة حالات الكؤوس.</string>
     <string name="settings_seed_demo_data">استبدال ببيانات تجريبية</string>
@@ -184,6 +184,13 @@
     <string name="mock_workout_description_mobility">الورك + الأكتاف، 15 دقيقة</string>
     <string name="mock_workout_description_long_run">المنطقة 2، 12 كم</string>
     <string name="mock_workout_description_core">تمارين مركبة، 40 دقيقة</string>
+    <string name="mock_personal_record_5_km">5 km</string>
+    <string name="mock_personal_record_longest_run">أطول جري</string>
+    <string name="mock_personal_record_deadlift">الرفعة المميتة</string>
+    <string name="mock_personal_record_cycling_power">قوة ركوب الدراجات</string>
+    <string name="mock_personal_record_push_ups">تمارين الضغط</string>
+    <string name="mock_personal_record_weekly_consistency">الانتظام الأسبوعي</string>
+    <string name="mock_personal_record_sessions_unit">جلسات</string>
 
     <!-- Training week: days -->
     <string name="day_monday">الاثنين</string>
@@ -298,9 +305,9 @@
     <string name="activity_action_create_personal_record_family">أنشأت سلسلة سجلات شخصية.</string>
     <string name="activity_action_update_personal_record_family">حدّثت سلسلة سجلات شخصية.</string>
     <string name="activity_action_delete_personal_record_family">حذفت سلسلة سجلات شخصية.</string>
-    <string name="activity_action_create_personal_record_entry">أضفت نتيجة سجل شخصي.</string>
-    <string name="activity_action_update_personal_record_entry">حدّثت نتيجة سجل شخصي.</string>
-    <string name="activity_action_delete_personal_record_entry">حذفت نتيجة سجل شخصي.</string>
+    <string name="activity_action_create_personal_record_entry">أضفت نتيجة إلى سلسلة الأرقام الشخصية %1$s.</string>
+    <string name="activity_action_update_personal_record_entry">حدّثت نتيجة في سلسلة الأرقام الشخصية %1$s.</string>
+    <string name="activity_action_delete_personal_record_entry">حذفت نتيجة من سلسلة الأرقام الشخصية %1$s.</string>
     <string name="personal_records_metric_distance">المسافة</string>
     <string name="personal_records_metric_time">الوقت</string>
     <string name="personal_records_metric_weight">الوزن</string>
@@ -729,7 +736,7 @@
     <string name="trophies_desc_pace_calculations_locked">افتحها باستخدام حاسبة الوتيرة %1$d مرات.</string>
     <string name="trophies_desc_pace_calculations_unlocked">استخدمت حاسبة الوتيرة %1$d مرات.</string>
     <string name="trophies_share_desc_pace_calculations">اكتملت حسابات الوتيرة.</string>
-    <string name="activity_action_set_current_personal_record_entry">عيّنت نتيجة رقم شخصي في %1$s كنتيجة حالية.</string>
+    <string name="activity_action_set_current_personal_record_entry">عيّنت نتيجة في سلسلة الأرقام الشخصية %1$s كنتيجة حالية.</string>
     <string name="personal_records_metric_distance_help">قِس المسافة. القيم الأعلى تفوز عادةً.</string>
     <string name="personal_records_metric_time_help">قِس الوقت المنقضي. القيم الأقل تفوز عادةً.</string>
     <string name="personal_records_metric_weight_help">قِس الوزن. القيم الأعلى تفوز عادةً.</string>

@@ -25,6 +25,18 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PACE_CALCULATOR_MODE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_COMPARISON_RULE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_ENTRY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_TITLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_NORMALIZED_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
@@ -45,7 +57,13 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.STRENGTH_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWIM_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
+import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.ALWAYS_SHOW
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
@@ -202,6 +220,8 @@ class DemoDataSeeder
 
             workouts.forEach { workoutDao.insert(it) }
 
+            seedPersonalRecords(today)
+
             seedActivityHistory(
                 currentWeekStart = currentWeekStart,
                 olderWeekStarts = activityHistoryWeekStarts,
@@ -209,6 +229,172 @@ class DemoDataSeeder
             )
 
             return true
+        }
+
+        @Suppress("LongMethod")
+        private suspend fun seedPersonalRecords(today: LocalDate) {
+            val zoneId = ZoneId.systemDefault()
+
+            personalRecordSeeds().forEachIndexed { sortOrder, seed ->
+                val familyCreatedAt =
+                    today
+                        .minusDays(seed.entries.maxOf { it.daysAgo } + 1)
+                        .atStartOfDay(zoneId)
+                        .toInstant()
+                        .toEpochMilli()
+                val family =
+                    PersonalRecordFamilyEntity(
+                        categoryId = seed.categoryId,
+                        title = seed.title,
+                        metricType = seed.metricType,
+                        defaultUnit = seed.unit,
+                        comparisonRule = seed.comparisonRule,
+                        manualCurrentEntryId = null,
+                        sortOrder = sortOrder,
+                        createdAt = familyCreatedAt,
+                        updatedAt = System.currentTimeMillis(),
+                    )
+                val familyId = personalRecordDao.insertFamily(family)
+
+                userActionDao.insert(
+                    createPersonalRecordFamilyAction(
+                        familyId = familyId,
+                        seed = seed,
+                        timestamp = familyCreatedAt,
+                    ),
+                )
+
+                val entryIds =
+                    seed.entries.map { entrySeed ->
+                        val recordDate = today.minusDays(entrySeed.daysAgo)
+                        val timestamp =
+                            recordDate
+                                .atStartOfDay(zoneId)
+                                .plusHours(DEMO_PERSONAL_RECORD_ENTRY_HOUR)
+                                .toInstant()
+                                .toEpochMilli()
+                        val entryId =
+                            personalRecordDao.insertEntry(
+                                PersonalRecordEntryEntity(
+                                    familyId = familyId,
+                                    value = entrySeed.value,
+                                    unit = seed.unit,
+                                    customUnitLabel = seed.customUnitLabel,
+                                    recordDate = recordDate,
+                                    note = null,
+                                    createdAt = timestamp,
+                                    updatedAt = timestamp,
+                                ),
+                            )
+
+                        userActionDao.insert(
+                            createPersonalRecordEntryAction(
+                                familyId = familyId,
+                                entryId = entryId,
+                                seed = seed,
+                                entrySeed = entrySeed,
+                                recordDate = recordDate,
+                                timestamp = timestamp,
+                            ),
+                        )
+                        entryId
+                    }
+
+                seed.manualCurrentEntryIndex?.let { selectedIndex ->
+                    personalRecordDao.updateFamily(
+                        family.copy(
+                            id = familyId,
+                            manualCurrentEntryId = entryIds[selectedIndex],
+                        ),
+                    )
+                }
+            }
+        }
+
+        @Suppress("LongMethod")
+        private fun personalRecordSeeds(): List<PersonalRecordSeed> {
+            return listOf(
+                PersonalRecordSeed(
+                    title = stringProvider.get(R.string.mock_personal_record_5_km),
+                    categoryId = RUN_ID,
+                    metricType = PersonalRecordMetricType.TIME,
+                    unit = PersonalRecordUnit.SECOND,
+                    comparisonRule = PersonalRecordComparisonRule.LOWER_IS_BETTER,
+                    entries =
+                        listOf(
+                            PersonalRecordEntrySeed(value = 1_532.0, daysAgo = 45),
+                            PersonalRecordEntrySeed(value = 1_485.0, daysAgo = 24),
+                            PersonalRecordEntrySeed(value = 1_438.0, daysAgo = 7),
+                        ),
+                ),
+                PersonalRecordSeed(
+                    title = stringProvider.get(R.string.mock_personal_record_longest_run),
+                    categoryId = RUN_ID,
+                    metricType = PersonalRecordMetricType.DISTANCE,
+                    unit = PersonalRecordUnit.KILOMETER,
+                    comparisonRule = PersonalRecordComparisonRule.HIGHER_IS_BETTER,
+                    entries =
+                        listOf(
+                            PersonalRecordEntrySeed(value = 10.0, daysAgo = 52),
+                            PersonalRecordEntrySeed(value = 15.0, daysAgo = 31),
+                            PersonalRecordEntrySeed(value = 21.1, daysAgo = 10),
+                        ),
+                ),
+                PersonalRecordSeed(
+                    title = stringProvider.get(R.string.mock_personal_record_deadlift),
+                    categoryId = STRENGTH_ID,
+                    metricType = PersonalRecordMetricType.WEIGHT,
+                    unit = PersonalRecordUnit.KILOGRAM,
+                    comparisonRule = PersonalRecordComparisonRule.HIGHER_IS_BETTER,
+                    entries =
+                        listOf(
+                            PersonalRecordEntrySeed(value = 100.0, daysAgo = 60),
+                            PersonalRecordEntrySeed(value = 110.0, daysAgo = 35),
+                            PersonalRecordEntrySeed(value = 120.0, daysAgo = 12),
+                        ),
+                ),
+                PersonalRecordSeed(
+                    title = stringProvider.get(R.string.mock_personal_record_cycling_power),
+                    categoryId = CYCLING_ID,
+                    metricType = PersonalRecordMetricType.POWER,
+                    unit = PersonalRecordUnit.WATT,
+                    comparisonRule = PersonalRecordComparisonRule.HIGHER_IS_BETTER,
+                    entries =
+                        listOf(
+                            PersonalRecordEntrySeed(value = 245.0, daysAgo = 48),
+                            PersonalRecordEntrySeed(value = 268.0, daysAgo = 27),
+                            PersonalRecordEntrySeed(value = 286.0, daysAgo = 5),
+                        ),
+                ),
+                PersonalRecordSeed(
+                    title = stringProvider.get(R.string.mock_personal_record_push_ups),
+                    categoryId = STRENGTH_ID,
+                    metricType = PersonalRecordMetricType.REPS,
+                    unit = PersonalRecordUnit.REP,
+                    comparisonRule = PersonalRecordComparisonRule.HIGHER_IS_BETTER,
+                    entries =
+                        listOf(
+                            PersonalRecordEntrySeed(value = 24.0, daysAgo = 42),
+                            PersonalRecordEntrySeed(value = 31.0, daysAgo = 19),
+                            PersonalRecordEntrySeed(value = 38.0, daysAgo = 3),
+                        ),
+                ),
+                PersonalRecordSeed(
+                    title = stringProvider.get(R.string.mock_personal_record_weekly_consistency),
+                    categoryId = OTHER_ID,
+                    metricType = PersonalRecordMetricType.CUSTOM,
+                    unit = PersonalRecordUnit.CUSTOM,
+                    comparisonRule = PersonalRecordComparisonRule.MANUAL,
+                    customUnitLabel = stringProvider.get(R.string.mock_personal_record_sessions_unit),
+                    entries =
+                        listOf(
+                            PersonalRecordEntrySeed(value = 3.0, daysAgo = 20),
+                            PersonalRecordEntrySeed(value = 5.0, daysAgo = 13),
+                            PersonalRecordEntrySeed(value = 4.0, daysAgo = 6),
+                        ),
+                    manualCurrentEntryIndex = 1,
+                ),
+            )
         }
 
         private fun buildDemoWorkouts(
@@ -505,6 +691,57 @@ class DemoDataSeeder
                                 zoneId = zoneId,
                                 dayOffset = (dayOfWeek.value - 1).toLong(),
                                 hour = 15,
+                                minute = index.toLong(),
+                            ),
+                    )
+            }
+
+            val personalRecordSeed = personalRecordSeeds().first()
+            val personalRecordDate = finalWeek.plusDays(6)
+            repeat(COMPLETED_TROPHY_PERSONAL_RECORD_FAMILIES) { index ->
+                val familyId = COMPLETED_TROPHY_PERSONAL_RECORD_FAMILY_ID_START + index
+                actions +=
+                    createPersonalRecordFamilyAction(
+                        familyId = familyId,
+                        seed = personalRecordSeed,
+                        timestamp =
+                            weekTimestamp(
+                                weekStartDate = finalWeek,
+                                zoneId = zoneId,
+                                dayOffset = 6,
+                                hour = 12,
+                                minute = index.toLong(),
+                            ),
+                    )
+            }
+            repeat(COMPLETED_TROPHY_PERSONAL_RECORD_ENTRIES) { index ->
+                actions +=
+                    createPersonalRecordEntryAction(
+                        familyId = COMPLETED_TROPHY_PERSONAL_RECORD_FAMILY_ID_START,
+                        entryId = COMPLETED_TROPHY_PERSONAL_RECORD_ENTRY_ID_START + index,
+                        seed = personalRecordSeed,
+                        entrySeed = PersonalRecordEntrySeed(value = 1_500.0 - index, daysAgo = 0),
+                        recordDate = personalRecordDate,
+                        timestamp =
+                            weekTimestamp(
+                                weekStartDate = finalWeek,
+                                zoneId = zoneId,
+                                dayOffset = 6,
+                                hour = 13,
+                                minute = index.toLong(),
+                            ),
+                    )
+            }
+            repeat(COMPLETED_TROPHY_PACE_CALCULATIONS) { index ->
+                actions +=
+                    paceCalculatorAction(
+                        mode = PaceCalculatorMode.entries[index % PaceCalculatorMode.entries.size],
+                        timestamp =
+                            weekTimestamp(
+                                weekStartDate = finalWeek,
+                                zoneId = zoneId,
+                                dayOffset = 6,
+                                hour = 14,
                                 minute = index.toLong(),
                             ),
                     )
@@ -959,8 +1196,15 @@ class DemoDataSeeder
                         timestamp = now - dayMillis + 3_000,
                     ),
                 )
+            val builderActions =
+                listOf(
+                    paceCalculatorAction(PaceCalculatorMode.PACE, now - dayMillis * 5 + 1_000),
+                    paceCalculatorAction(PaceCalculatorMode.TIME, now - dayMillis * 4 + 1_000),
+                    paceCalculatorAction(PaceCalculatorMode.DISTANCE, now - dayMillis * 3 + 1_000),
+                    paceCalculatorAction(PaceCalculatorMode.PACE, now - dayMillis * 2 + 1_000),
+                )
 
-            return trainingActions + plannerActions + navigationActions
+            return trainingActions + plannerActions + builderActions + navigationActions
         }
 
         private fun openWeekAction(
@@ -1111,6 +1355,70 @@ class DemoDataSeeder
                 entityType = UserActionEntityType.CATEGORY,
                 entityId = categoryId,
                 metadata = mapOf(CATEGORY_NAME to categoryName),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun createPersonalRecordFamilyAction(
+            familyId: Long,
+            seed: PersonalRecordSeed,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.CREATE_PERSONAL_RECORD_FAMILY,
+                entityType = UserActionEntityType.PERSONAL_RECORD,
+                entityId = familyId,
+                metadata =
+                    mapOf(
+                        PERSONAL_RECORD_FAMILY_ID to familyId.toString(),
+                        PERSONAL_RECORD_CATEGORY_ID to seed.categoryId.toString(),
+                        PERSONAL_RECORD_CATEGORY_NAME to categoryNameForId(seed.categoryId),
+                        PERSONAL_RECORD_METRIC_TYPE to seed.metricType.name,
+                        PERSONAL_RECORD_UNIT to seed.unit.name,
+                        PERSONAL_RECORD_COMPARISON_RULE to seed.comparisonRule.name,
+                    ),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun createPersonalRecordEntryAction(
+            familyId: Long,
+            entryId: Long,
+            seed: PersonalRecordSeed,
+            entrySeed: PersonalRecordEntrySeed,
+            recordDate: LocalDate,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.CREATE_PERSONAL_RECORD_ENTRY,
+                entityType = UserActionEntityType.PERSONAL_RECORD,
+                entityId = entryId,
+                metadata =
+                    mapOf(
+                        PERSONAL_RECORD_ENTRY_ID to entryId.toString(),
+                        PERSONAL_RECORD_FAMILY_ID to familyId.toString(),
+                        PERSONAL_RECORD_FAMILY_TITLE to seed.title,
+                        PERSONAL_RECORD_CATEGORY_ID to seed.categoryId.toString(),
+                        PERSONAL_RECORD_CATEGORY_NAME to categoryNameForId(seed.categoryId),
+                        PERSONAL_RECORD_METRIC_TYPE to seed.metricType.name,
+                        PERSONAL_RECORD_UNIT to seed.unit.name,
+                        PERSONAL_RECORD_COMPARISON_RULE to seed.comparisonRule.name,
+                        PERSONAL_RECORD_RECORD_DATE to recordDate.toString(),
+                        PERSONAL_RECORD_NEW_VALUE to entrySeed.value.toString(),
+                        PERSONAL_RECORD_NORMALIZED_VALUE to entrySeed.value.toString(),
+                    ),
+                timestamp = timestamp,
+            )
+        }
+
+        private fun paceCalculatorAction(
+            mode: PaceCalculatorMode,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.USE_PACE_CALCULATOR,
+                entityType = UserActionEntityType.APP,
+                metadata = mapOf(PACE_CALCULATOR_MODE to mode.name),
                 timestamp = timestamp,
             )
         }
@@ -1357,6 +1665,22 @@ class DemoDataSeeder
         }
     }
 
+private data class PersonalRecordSeed(
+    val title: String,
+    val categoryId: Long,
+    val metricType: PersonalRecordMetricType,
+    val unit: PersonalRecordUnit,
+    val comparisonRule: PersonalRecordComparisonRule,
+    val entries: List<PersonalRecordEntrySeed>,
+    val customUnitLabel: String? = null,
+    val manualCurrentEntryIndex: Int? = null,
+)
+
+private data class PersonalRecordEntrySeed(
+    val value: Double,
+    val daysAgo: Long,
+)
+
 private data class DayPlan(
     val dayOfWeek: DayOfWeek?,
     val items: List<WorkoutSeed>,
@@ -1454,6 +1778,12 @@ private const val COMPLETED_TROPHY_CATEGORY_ACTIONS = 10
 private const val COMPLETED_TROPHY_BACKUP_SUCCESSES = 5
 private const val COMPLETED_TROPHY_PROTECTED_TIME_BLOCKS = 20
 private const val COMPLETED_TROPHY_ENTITY_ID_START = 50_000L
+private const val COMPLETED_TROPHY_PERSONAL_RECORD_FAMILIES = 15
+private const val COMPLETED_TROPHY_PERSONAL_RECORD_ENTRIES = 50
+private const val COMPLETED_TROPHY_PACE_CALCULATIONS = 10
+private const val COMPLETED_TROPHY_PERSONAL_RECORD_FAMILY_ID_START = 60_000L
+private const val COMPLETED_TROPHY_PERSONAL_RECORD_ENTRY_ID_START = 70_000L
+private const val DEMO_PERSONAL_RECORD_ENTRY_HOUR = 12L
 private val COMPLETED_TROPHY_CATEGORY_ACTION_TYPES =
     listOf(
         UserActionType.UPDATE_CATEGORY_COLOR,

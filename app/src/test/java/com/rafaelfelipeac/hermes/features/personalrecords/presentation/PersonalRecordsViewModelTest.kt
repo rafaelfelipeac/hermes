@@ -5,11 +5,13 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_ENTRY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_TITLE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_UNIT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY
@@ -50,6 +52,29 @@ import java.util.concurrent.CopyOnWriteArrayList
 class PersonalRecordsViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+
+    @Test
+    fun addEntry_logsPersonalRecordSeriesTitle() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val family = sampleFamily()
+            val repository = FakePersonalRecordsRepository(initialFamilies = listOf(family))
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository, FakeCategoryRepository(), logger)
+
+            viewModel.addEntry(
+                PersonalRecordEntryInput(
+                    familyId = family.id,
+                    value = 5.0,
+                    unit = KILOMETER,
+                    recordDate = LocalDate.parse("2024-01-01"),
+                    note = null,
+                ),
+            )
+            advanceUntilIdle()
+
+            assertEquals(CREATE_PERSONAL_RECORD_ENTRY, logger.actions.single().actionType)
+            assertEquals(family.title, logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_TITLE))
+        }
 
     @Test
     fun updateFamily_updatesRepositoryAndLogsAction() =
@@ -153,6 +178,7 @@ class PersonalRecordsViewModelTest {
             assertEquals("298.0", logger.actions.single().metadata?.get(PERSONAL_RECORD_OLD_VALUE))
             assertEquals("305.0", logger.actions.single().metadata?.get(PERSONAL_RECORD_NEW_VALUE))
             assertEquals(updatedDate.toString(), logger.actions.single().metadata?.get(PERSONAL_RECORD_RECORD_DATE))
+            assertEquals("5K", logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_TITLE))
             stateJob.cancel()
         }
 
@@ -177,11 +203,12 @@ class PersonalRecordsViewModelTest {
             assertEquals(DELETE_PERSONAL_RECORD_ENTRY, logger.actions.single().actionType)
             assertEquals("10", logger.actions.single().metadata?.get(PERSONAL_RECORD_ENTRY_ID))
             assertEquals("1", logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_ID))
+            assertEquals("5K", logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_TITLE))
             stateJob.cancel()
         }
 
     @Test
-    fun setManualCurrentEntry_updatesSelectedEntryAndLogsWithoutFreeText() =
+    fun setManualCurrentEntry_updatesSelectedEntryAndLogsSeriesTitle() =
         runTest(mainDispatcherRule.testDispatcher) {
             val family = sampleFamily(comparisonRule = MANUAL)
             val entry = sampleEntry(familyId = family.id)
@@ -208,7 +235,7 @@ class PersonalRecordsViewModelTest {
                 entry.recordDate.toString(),
                 logger.actions.single().metadata?.get(PERSONAL_RECORD_RECORD_DATE),
             )
-            assertTrue(logger.actions.single().metadata?.values?.contains(family.title) == false)
+            assertEquals(family.title, logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_TITLE))
         }
 
     @Test

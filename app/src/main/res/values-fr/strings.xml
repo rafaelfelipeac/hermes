@@ -126,7 +126,7 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Mode développeur</string>
     <string name="settings_developer_data_title">Données</string>
-    <string name="settings_developer_data_body">Remplace les données locales par un planning hebdomadaire de démonstration.</string>
+    <string name="settings_developer_data_body">Remplace les données locales par des entraînements, événements, records personnels et un historique d’activité de démonstration.</string>
     <string name="settings_developer_trophies_title">Trophées</string>
     <string name="settings_developer_trophies_body">Remplace l’historique local pour prévisualiser les états des trophées.</string>
     <string name="settings_seed_demo_data">Remplacer par des données de démo</string>
@@ -164,6 +164,13 @@
     <string name="mock_workout_description_mobility">Hanches + épaules, 15 min</string>
     <string name="mock_workout_description_long_run">Zone 2, 12 km</string>
     <string name="mock_workout_description_core">Mouvements composés, 40 min</string>
+    <string name="mock_personal_record_5_km">5 km</string>
+    <string name="mock_personal_record_longest_run">Course la plus longue</string>
+    <string name="mock_personal_record_deadlift">Soulevé de terre</string>
+    <string name="mock_personal_record_cycling_power">Puissance à vélo</string>
+    <string name="mock_personal_record_push_ups">Pompes</string>
+    <string name="mock_personal_record_weekly_consistency">Régularité hebdomadaire</string>
+    <string name="mock_personal_record_sessions_unit">séances</string>
 
     <!-- Training week: days -->
     <string name="day_monday">Lundi</string>
@@ -278,9 +285,9 @@
     <string name="activity_action_create_personal_record_family">Vous avez créé une série de records personnels.</string>
     <string name="activity_action_update_personal_record_family">Vous avez mis à jour une série de records personnels.</string>
     <string name="activity_action_delete_personal_record_family">Vous avez supprimé une série de records personnels.</string>
-    <string name="activity_action_create_personal_record_entry">Vous avez ajouté un résultat de record personnel.</string>
-    <string name="activity_action_update_personal_record_entry">Vous avez mis à jour un résultat de record personnel.</string>
-    <string name="activity_action_delete_personal_record_entry">Vous avez supprimé un résultat de record personnel.</string>
+    <string name="activity_action_create_personal_record_entry">Vous avez ajouté un résultat à la série de RP %1$s.</string>
+    <string name="activity_action_update_personal_record_entry">Vous avez mis à jour un résultat de la série de RP %1$s.</string>
+    <string name="activity_action_delete_personal_record_entry">Vous avez supprimé un résultat de la série de RP %1$s.</string>
     <string name="personal_records_metric_distance">Distance</string>
     <string name="personal_records_metric_time">Temps</string>
     <string name="personal_records_metric_weight">Poids</string>
@@ -693,7 +700,7 @@
     <string name="trophies_desc_pace_calculations_locked">À débloquer en utilisant le calculateur d’allure %1$d fois.</string>
     <string name="trophies_desc_pace_calculations_unlocked">Vous avez utilisé le calculateur d’allure %1$d fois.</string>
     <string name="trophies_share_desc_pace_calculations">Calculs d’allure effectués.</string>
-    <string name="activity_action_set_current_personal_record_entry">Vous avez défini un résultat de RP de %1$s comme actuel.</string>
+    <string name="activity_action_set_current_personal_record_entry">Vous avez défini un résultat de la série de RP %1$s comme actuel.</string>
     <string name="personal_records_metric_distance_help">Mesurez la distance. Les valeurs les plus élevées gagnent généralement.</string>
     <string name="personal_records_metric_time_help">Mesurez le temps écoulé. Les valeurs les plus faibles gagnent généralement.</string>
     <string name="personal_records_metric_weight_help">Mesurez le poids. Les valeurs les plus élevées gagnent généralement.</string>
