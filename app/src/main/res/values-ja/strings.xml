@@ -695,7 +695,7 @@
     <string name="trophies_name_pace_master">ペースマスター</string>
     <string name="trophies_desc_pace_calculations_locked">ペース計算機を%1$d回使用すると解除されます。</string>
     <string name="trophies_desc_pace_calculations_unlocked">ペース計算機を%1$d回使用しました。</string>
-    <string name="trophies_share_desc_pace_calculations">ペース計算を完了しました。</string>
+    <string name="trophies_share_desc_pace_calculations">ペース計算機を%1$d回使用しました。</string>
     <string name="activity_action_set_current_personal_record_entry">自己ベストシリーズ「%1$s」の結果を現在の記録に設定しました。</string>
     <string name="personal_records_metric_distance_help">距離を測定します。通常は大きい値が優れています。</string>
     <string name="personal_records_metric_time_help">経過時間を測定します。通常は小さい値が優れています。</string>
@@ -704,6 +704,7 @@
     <string name="personal_records_metric_reps_help">回数を数えます。通常は大きい値が優れています。</string>
     <string name="personal_records_metric_custom_help">その他の記録を登録します。</string>
     <string name="personal_records_add_first_result">最初の結果を追加</string>
+    <string name="personal_records_add_first_result_title">最初の結果を追加。</string>
     <string name="personal_records_add_first_result_body">最初の結果を登録して履歴を開始します。</string>
     <string name="personal_records_unit_meter_symbol">m</string>
     <string name="personal_records_unit_second_symbol">秒</string>
@@ -720,10 +721,10 @@
     <string name="trophies_name_on_the_board">記録達成</string>
     <string name="trophies_name_form_book">調子の記録</string>
     <string name="trophies_name_record_keeper">記録の守り手</string>
-    <string name="trophies_desc_personal_record_series_creations_unlocked">自己ベストシリーズの作成で獲得しました。</string>
-    <string name="trophies_desc_personal_record_series_creations_locked">自己ベストシリーズを作成して解除します。</string>
-    <string name="trophies_desc_personal_record_result_creations_unlocked">自己ベスト結果の追加で獲得しました。</string>
-    <string name="trophies_desc_personal_record_result_creations_locked">自己ベスト結果を追加して解除します。</string>
-    <string name="trophies_share_desc_personal_record_series_creations">自己ベストシリーズを作成しました。</string>
-    <string name="trophies_share_desc_personal_record_result_creations">自己ベスト結果を追加しました。</string>
+    <string name="trophies_desc_personal_record_series_creations_unlocked">自己ベストシリーズを%1$d件作成して獲得しました。</string>
+    <string name="trophies_desc_personal_record_series_creations_locked">自己ベストシリーズを%1$d件作成して解除します。</string>
+    <string name="trophies_desc_personal_record_result_creations_unlocked">自己ベスト結果を%1$d件追加して獲得しました。</string>
+    <string name="trophies_desc_personal_record_result_creations_locked">自己ベスト結果を%1$d件追加して解除します。</string>
+    <string name="trophies_share_desc_personal_record_series_creations">自己ベストシリーズを%1$d件作成しました。</string>
+    <string name="trophies_share_desc_personal_record_result_creations">自己ベスト結果を%1$d件追加しました。</string>
 </resources>

@@ -174,7 +174,7 @@ class PersonalRecordsContentTest {
         }
 
         composeRule
-            .onNodeWithText(context.getString(R.string.personal_records_add_first_result))
+            .onNodeWithText(context.getString(R.string.personal_records_add_first_result_title))
             .assertIsDisplayed()
         composeRule
             .onNodeWithText(context.getString(R.string.personal_records_add_first_result_body))

@@ -699,7 +699,7 @@
     <string name="trophies_name_pace_master">गति विशेषज्ञ</string>
     <string name="trophies_desc_pace_calculations_locked">गति कैलकुलेटर का %1$d बार उपयोग करके अनलॉक करें।</string>
     <string name="trophies_desc_pace_calculations_unlocked">आपने गति कैलकुलेटर का %1$d बार उपयोग किया।</string>
-    <string name="trophies_share_desc_pace_calculations">गति की गणनाएँ पूरी हुईं।</string>
+    <string name="trophies_share_desc_pace_calculations">मैंने गति कैलकुलेटर का %1$d बार उपयोग किया है।</string>
     <string name="activity_action_set_current_personal_record_entry">आपने %1$s व्यक्तिगत रिकॉर्ड शृंखला के एक परिणाम को वर्तमान के रूप में सेट किया।</string>
     <string name="personal_records_metric_distance_help">दूरी मापें। आम तौर पर बड़ा मान बेहतर होता है।</string>
     <string name="personal_records_metric_time_help">बीता समय मापें। आम तौर पर छोटा मान बेहतर होता है।</string>
@@ -708,6 +708,7 @@
     <string name="personal_records_metric_reps_help">दोहराव गिनें। आम तौर पर बड़ा मान बेहतर होता है।</string>
     <string name="personal_records_metric_custom_help">किसी अन्य प्रकार का रिकॉर्ड दर्ज करें।</string>
     <string name="personal_records_add_first_result">पहला परिणाम जोड़ें</string>
+    <string name="personal_records_add_first_result_title">पहला परिणाम जोड़ें।</string>
     <string name="personal_records_add_first_result_body">इतिहास शुरू करने के लिए अपना पहला परिणाम दर्ज करें।</string>
     <string name="personal_records_unit_meter_symbol">मी</string>
     <string name="personal_records_unit_second_symbol">से</string>
@@ -724,10 +725,10 @@
     <string name="trophies_name_on_the_board">रिकॉर्ड दर्ज</string>
     <string name="trophies_name_form_book">प्रदर्शन पुस्तिका</string>
     <string name="trophies_name_record_keeper">रिकॉर्ड संरक्षक</string>
-    <string name="trophies_desc_personal_record_series_creations_unlocked">निजी रिकॉर्ड शृंखलाएँ बनाने के लिए दिया गया।</string>
-    <string name="trophies_desc_personal_record_series_creations_locked">इस ट्रॉफ़ी को खोलने के लिए निजी रिकॉर्ड शृंखलाएँ बनाएँ।</string>
-    <string name="trophies_desc_personal_record_result_creations_unlocked">निजी रिकॉर्ड परिणाम जोड़ने के लिए दिया गया।</string>
-    <string name="trophies_desc_personal_record_result_creations_locked">इस ट्रॉफ़ी को खोलने के लिए निजी रिकॉर्ड परिणाम जोड़ें।</string>
-    <string name="trophies_share_desc_personal_record_series_creations">निजी रिकॉर्ड शृंखलाएँ बनाई गईं।</string>
-    <string name="trophies_share_desc_personal_record_result_creations">निजी रिकॉर्ड परिणाम जोड़े गए।</string>
+    <string name="trophies_desc_personal_record_series_creations_unlocked">%1$d निजी रिकॉर्ड शृंखलाएँ बनाने के लिए दिया गया।</string>
+    <string name="trophies_desc_personal_record_series_creations_locked">इस ट्रॉफ़ी को खोलने के लिए %1$d निजी रिकॉर्ड शृंखलाएँ बनाएँ।</string>
+    <string name="trophies_desc_personal_record_result_creations_unlocked">%1$d निजी रिकॉर्ड परिणाम जोड़ने के लिए दिया गया।</string>
+    <string name="trophies_desc_personal_record_result_creations_locked">इस ट्रॉफ़ी को खोलने के लिए %1$d निजी रिकॉर्ड परिणाम जोड़ें।</string>
+    <string name="trophies_share_desc_personal_record_series_creations">मैंने %1$d निजी रिकॉर्ड शृंखलाएँ बनाई हैं।</string>
+    <string name="trophies_share_desc_personal_record_result_creations">मैंने %1$d निजी रिकॉर्ड परिणाम जोड़े हैं।</string>
 </resources>

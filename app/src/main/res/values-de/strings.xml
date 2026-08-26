@@ -699,7 +699,7 @@
     <string name="trophies_name_pace_master">Tempo-Meister</string>
     <string name="trophies_desc_pace_calculations_locked">Verwende den Temporechner %1$d-mal, um diese Trophäe freizuschalten.</string>
     <string name="trophies_desc_pace_calculations_unlocked">Du hast den Temporechner %1$d-mal verwendet.</string>
-    <string name="trophies_share_desc_pace_calculations">Tempoberechnungen abgeschlossen.</string>
+    <string name="trophies_share_desc_pace_calculations">Ich habe den Temporechner %1$d-mal verwendet.</string>
     <string name="activity_action_set_current_personal_record_entry">Du hast ein Ergebnis der PB-Serie %1$s als aktuell festgelegt.</string>
     <string name="personal_records_metric_distance_help">Miss die Distanz. Höhere Werte gewinnen normalerweise.</string>
     <string name="personal_records_metric_time_help">Miss die verstrichene Zeit. Niedrigere Werte gewinnen normalerweise.</string>
@@ -708,6 +708,7 @@
     <string name="personal_records_metric_reps_help">Zähle Wiederholungen. Höhere Werte gewinnen normalerweise.</string>
     <string name="personal_records_metric_custom_help">Erfasse jede andere Art von Rekord.</string>
     <string name="personal_records_add_first_result">Erstes Ergebnis hinzufügen</string>
+    <string name="personal_records_add_first_result_title">Erstes Ergebnis hinzufügen.</string>
     <string name="personal_records_add_first_result_body">Erfasse dein erstes Ergebnis, um den Verlauf zu beginnen.</string>
     <string name="personal_records_unit_meter_symbol">m</string>
     <string name="personal_records_unit_second_symbol">s</string>
@@ -724,10 +725,10 @@
     <string name="trophies_name_on_the_board">Auf der Tafel</string>
     <string name="trophies_name_form_book">Formbuch</string>
     <string name="trophies_name_record_keeper">Rekordhalter</string>
-    <string name="trophies_desc_personal_record_series_creations_unlocked">Verliehen für das Erstellen von PB-Serien.</string>
-    <string name="trophies_desc_personal_record_series_creations_locked">Erstelle PB-Serien, um diese Trophäe freizuschalten.</string>
-    <string name="trophies_desc_personal_record_result_creations_unlocked">Verliehen für das Hinzufügen von PB-Ergebnissen.</string>
-    <string name="trophies_desc_personal_record_result_creations_locked">Füge PB-Ergebnisse hinzu, um diese Trophäe freizuschalten.</string>
-    <string name="trophies_share_desc_personal_record_series_creations">PB-Serien erstellt.</string>
-    <string name="trophies_share_desc_personal_record_result_creations">PB-Ergebnisse hinzugefügt.</string>
+    <string name="trophies_desc_personal_record_series_creations_unlocked">Verliehen für das Erstellen von %1$d PB-Serien.</string>
+    <string name="trophies_desc_personal_record_series_creations_locked">Erstelle %1$d PB-Serien, um diese Trophäe freizuschalten.</string>
+    <string name="trophies_desc_personal_record_result_creations_unlocked">Verliehen für das Hinzufügen von %1$d PB-Ergebnissen.</string>
+    <string name="trophies_desc_personal_record_result_creations_locked">Füge %1$d PB-Ergebnisse hinzu, um diese Trophäe freizuschalten.</string>
+    <string name="trophies_share_desc_personal_record_series_creations">Ich habe %1$d PB-Serien erstellt.</string>
+    <string name="trophies_share_desc_personal_record_result_creations">Ich habe %1$d PB-Ergebnisse hinzugefügt.</string>
 </resources>

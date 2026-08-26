@@ -863,7 +863,7 @@ private fun PersonalRecordDetail(
                 val emptyStateColors = personalRecordRelatedColors(category)
                 EmptyStateCard(
                     icon = Icons.Outlined.Add,
-                    title = stringResource(R.string.personal_records_add_first_result),
+                    title = stringResource(R.string.personal_records_add_first_result_title),
                     body = stringResource(R.string.personal_records_add_first_result_body),
                     modifier = Modifier.fillMaxWidth(),
                     containerColor = colorScheme.surfaceContainerHigh,

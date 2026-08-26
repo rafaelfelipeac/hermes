@@ -839,12 +839,10 @@ internal fun TrophyDetailDialog(
                     color = colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
-                if (!trophy.isUnlocked) {
-                    TrophyProgressIndicator(
-                        trophy = trophy,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+                TrophyProgressIndicator(
+                    trophy = trophy,
+                    modifier = Modifier.fillMaxWidth(),
+                )
                 trophy.unlockedAt?.let { unlockedAt ->
                     TrophyDetailMeta(
                         label = unlockedDateLabel(unlockedAt),
@@ -986,7 +984,7 @@ private fun familyTitle(family: TrophyFamilyUi): String = stringResource(familyT
 private fun trophyConditionLabel(trophy: TrophyCardUi): String {
     return stringResource(
         R.string.trophies_unlock_target,
-        trophy.currentValue.coerceAtMost(trophy.target),
+        trophy.currentValue,
         trophy.target,
     )
 }
