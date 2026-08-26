@@ -226,12 +226,10 @@
     <string name="settings_release_notes_fixed">تم الإصلاح</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>تحسينات على تبويب التصفح والتنقل إلى النسخ الاحتياطي/الاستيراد والإعدادات والأنشطة والتطوير</item>
-        <item>ملخص التدريب ومعاينة النشاط وتحسينات الرسوم البيانية في شاشة التقدم</item>
-        <item>تحسينات المخطط الأسبوعي في الإكمال واختيار التاريخ وتوسيع عبء العمل</item>
-    </string-array>
-    <string-array name="settings_release_notes_current_fixed">
-        <item>يتم الآن تطبيق إعداد بداية الأسبوع بشكل صحيح على منتقي التاريخ للتمارين والأحداث.</item>
+        <item>أرقام قياسية شخصية مع سلاسل قابلة للتخصيص وسجل للنتائج واختيار تلقائي أو يدوي لأفضل نتيجة</item>
+        <item>حاسبة وتيرة لحساب الوتيرة أو الوقت أو المسافة باستخدام مسافات شائعة معدة مسبقًا</item>
+        <item>تفضيلات وحدات المسافة والوتيرة والوزن في الإعدادات</item>
+        <item>دعم الأرقام القياسية الشخصية في سجل النشاط والجوائز والبيانات التجريبية والنسخ الاحتياطي والاستعادة</item>
     </string-array>
     <string name="settings_back">رجوع</string>
     <string name="settings_feedback_title">ملاحظات</string>

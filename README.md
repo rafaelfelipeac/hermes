@@ -41,6 +41,9 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 - Activity history filters by type, category and week
 - Trophy families, overview/detail screens and celebration banners
 - Events screen for upcoming races and other non-workout planning moments
+- Personal Records with customizable series, result history and best-result tracking
+- Pace calculator for pace, time and distance
+- Configurable distance, pace and weight units
 - Mark days or sessions as:
   - **Training**
   - **Rest day**

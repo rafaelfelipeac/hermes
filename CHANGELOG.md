@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.11.0]
+### Added
+- Personal Records with customizable series, result history and automatic or manual best-result selection
+- Pace calculator for solving pace, time or distance with common distance presets
+- Distance, pace and weight unit preferences in Settings
+- Personal Record support across Activity history, trophies, demo data and backup/restore
+
 ## [v1.10.2]
 ### Fixed
 - Week-start settings now apply correctly to workout and event date pickers in release builds

@@ -206,12 +206,10 @@
     <string name="settings_release_notes_fixed">सुधारा गया</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>ब्राउज़ टैब और बैकअप/इम्पोर्ट, सेटिंग्स, गतिविधियों और डेवलपमेंट नेविगेशन में सुधार</item>
-        <item>कोचिंग सारांश, गतिविधि पूर्वावलोकन और चार्ट सुधार प्रोग्रेस स्क्रीन में</item>
-        <item>पूर्णता, तारीख चयन और वर्कलोड स्केलिंग में साप्ताहिक प्लानर का परिष्कार</item>
-    </string-array>
-    <string-array name="settings_release_notes_current_fixed">
-        <item>सप्ताह की शुरुआत की सेटिंग अब वर्कआउट और इवेंट की तारीख चुनने वालों पर सही तरह से लागू होती है।</item>
+        <item>अनुकूलन योग्य सीरीज़, परिणाम इतिहास और सर्वश्रेष्ठ परिणाम के स्वचालित या मैन्युअल चयन के साथ व्यक्तिगत रिकॉर्ड</item>
+        <item>सामान्य दूरी प्रीसेट के साथ गति, समय या दूरी निकालने के लिए पेस कैलकुलेटर</item>
+        <item>सेटिंग्स में दूरी, पेस और वजन की इकाई प्राथमिकताएँ</item>
+        <item>गतिविधि इतिहास, ट्रॉफ़ी, डेमो डेटा और बैकअप/रीस्टोर में व्यक्तिगत रिकॉर्ड का समर्थन</item>
     </string-array>
     <string name="settings_back">वापस</string>
     <string name="settings_feedback_title">प्रतिक्रिया</string>

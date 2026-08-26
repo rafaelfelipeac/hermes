@@ -205,12 +205,10 @@
     <string name="settings_release_notes_fixed">Corretto</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Rifiniture della scheda Sfoglia e della navigazione verso backup/importazione, impostazioni, attività e sviluppo</item>
-        <item>Riepilogo coaching, anteprima attività e miglioramenti ai grafici nella schermata Progresso</item>
-        <item>Rifiniture del pianificatore settimanale su completamento, selettore data e scala del carico di lavoro</item>
-    </string-array>
-    <string-array name="settings_release_notes_current_fixed">
-        <item>L’impostazione dell’inizio della settimana viene ora applicata correttamente ai selettori data di allenamenti ed eventi.</item>
+        <item>Record personali con serie personalizzabili, cronologia dei risultati e selezione automatica o manuale del risultato migliore</item>
+        <item>Calcolatore del passo per calcolare passo, tempo o distanza con distanze predefinite comuni</item>
+        <item>Preferenze per le unità di distanza, passo e peso nelle Impostazioni</item>
+        <item>Supporto dei record personali nella cronologia Attività, nei trofei, nei dati demo e nel backup/ripristino</item>
     </string-array>
     <string name="settings_back">Indietro</string>
     <string name="settings_feedback_title">Feedback</string>

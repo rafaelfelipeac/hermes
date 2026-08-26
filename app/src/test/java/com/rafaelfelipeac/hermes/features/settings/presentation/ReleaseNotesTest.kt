@@ -9,27 +9,27 @@ class ReleaseNotesTest {
     @Test
     fun normalizedReleaseNotesVersionRemovesDevSuffix() {
         assertEquals(
-            "1.10.2",
-            normalizedReleaseNotesVersion("1.10.2-dev"),
+            "1.11.0",
+            normalizedReleaseNotesVersion("1.11.0-dev"),
         )
     }
 
     @Test
     fun releaseNotesForVersionReturnsCurrentVersionNotes() {
-        assertNotNull(releaseNotesForVersion("1.10.2"))
+        assertNotNull(releaseNotesForVersion("1.11.0"))
     }
 
     @Test
     fun releaseNotesForVersionReturnsOnlySectionsPresentInCurrentChangelog() {
         assertEquals(
             1,
-            releaseNotesForVersion("1.10.2")?.sections?.size,
+            releaseNotesForVersion("1.11.0")?.sections?.size,
         )
     }
 
     @Test
     fun releaseNotesForVersionReturnsCurrentVersionNotesForDevBuilds() {
-        assertNotNull(releaseNotesForVersion("1.10.2-dev"))
+        assertNotNull(releaseNotesForVersion("1.11.0-dev"))
     }
 
     @Test
