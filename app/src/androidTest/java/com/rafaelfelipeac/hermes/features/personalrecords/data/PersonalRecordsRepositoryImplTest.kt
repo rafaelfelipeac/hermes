@@ -85,10 +85,23 @@ class PersonalRecordsRepositoryImplTest {
             assertEquals(0, repository.getEntries().size)
         }
 
-    private fun sampleFamily() =
+    @Test
+    fun reassignCategory_onlyUpdatesFamiliesInDeletedCategory() =
+        runTest {
+            val deletedCategoryFamilyId = repository.insertFamily(sampleFamily(categoryId = 7L))
+            val otherFamilyId = repository.insertFamily(sampleFamily(categoryId = 8L))
+
+            repository.reassignCategory(categoryId = 7L, newCategoryId = null)
+
+            val familiesById = repository.getFamilies().associateBy { it.id }
+            assertEquals(null, familiesById.getValue(deletedCategoryFamilyId).categoryId)
+            assertEquals(8L, familiesById.getValue(otherFamilyId).categoryId)
+        }
+
+    private fun sampleFamily(categoryId: Long? = null) =
         PersonalRecordFamily(
             id = 0L,
-            categoryId = null,
+            categoryId = categoryId,
             title = "5K",
             metricType = DISTANCE,
             defaultUnit = KILOMETER,

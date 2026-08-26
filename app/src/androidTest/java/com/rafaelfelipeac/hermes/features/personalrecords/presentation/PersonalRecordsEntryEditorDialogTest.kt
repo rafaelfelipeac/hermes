@@ -17,8 +17,13 @@ import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.HIGHER_IS_BETTER
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.DISTANCE
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.TIME
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.MINUTE
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.SECOND
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
 import org.junit.Assert.assertEquals
@@ -160,6 +165,64 @@ class PersonalRecordsEntryEditorDialogTest {
     }
 
     @Test
+    fun editResult_disablesFamilySelection() {
+        val family = sampleFamily()
+
+        composeRule.setContent {
+            PersonalRecordEntryEditorDialog(
+                families = listOf(family, sampleFamily(id = 2L)),
+                entries = emptyList(),
+                initialFamilyId = family.id,
+                settingsDistanceUnit = KILOMETERS,
+                settingsWeightUnit = KILOGRAMS,
+                initialEntry = sampleEntry(familyId = family.id, recordDate = LocalDate.of(2024, 2, 1)),
+                isEdit = true,
+                onDismiss = {},
+                onSave = { _, _, _, _, _, _ -> },
+            )
+        }
+
+        composeRule.onNodeWithTag(PERSONAL_RECORDS_ENTRY_FAMILY_FIELD_TAG).assertIsNotEnabled()
+    }
+
+    @Test
+    fun editTimeResult_normalizesStoredMinutesBeforeSaving() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val family = sampleFamily(metricType = TIME, defaultUnit = SECOND)
+        var savedValue: Double? = null
+        var savedUnit = KILOMETER
+
+        composeRule.setContent {
+            PersonalRecordEntryEditorDialog(
+                families = listOf(family),
+                entries = emptyList(),
+                initialFamilyId = family.id,
+                settingsDistanceUnit = KILOMETERS,
+                settingsWeightUnit = KILOGRAMS,
+                initialEntry =
+                    sampleEntry(
+                        familyId = family.id,
+                        recordDate = LocalDate.of(2024, 2, 1),
+                        value = 5.0,
+                        unit = MINUTE,
+                    ),
+                isEdit = true,
+                onDismiss = {},
+                onSave = { _, value, unit, _, _, _ ->
+                    savedValue = value
+                    savedUnit = unit
+                },
+            )
+        }
+
+        composeRule.waitForIdle()
+        composeRule.onNodeWithText(context.getString(R.string.save_changes)).performClick()
+
+        assertEquals(300.0, savedValue ?: 0.0, 0.0)
+        assertEquals(SECOND, savedUnit)
+    }
+
+    @Test
     fun newResult_defaultsToCurrentPersonalRecordInsteadOfLatestEntry() {
         val family = sampleFamily()
         val currentBest =
@@ -199,30 +262,34 @@ class PersonalRecordsEntryEditorDialogTest {
         assertEquals("10", editableValue)
     }
 
-    private fun sampleFamily() =
-        PersonalRecordFamily(
-            id = 1L,
-            categoryId = null,
-            title = "5K",
-            metricType = DISTANCE,
-            defaultUnit = KILOMETER,
-            comparisonRule = HIGHER_IS_BETTER,
-            manualCurrentEntryId = null,
-            sortOrder = 0,
-            createdAt = Instant.parse("2024-01-01T00:00:00Z"),
-            updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
-        )
+    private fun sampleFamily(
+        id: Long = 1L,
+        metricType: PersonalRecordMetricType = DISTANCE,
+        defaultUnit: PersonalRecordUnit = KILOMETER,
+    ) = PersonalRecordFamily(
+        id = id,
+        categoryId = null,
+        title = "5K",
+        metricType = metricType,
+        defaultUnit = defaultUnit,
+        comparisonRule = HIGHER_IS_BETTER,
+        manualCurrentEntryId = null,
+        sortOrder = 0,
+        createdAt = Instant.parse("2024-01-01T00:00:00Z"),
+        updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
+    )
 
     private fun sampleEntry(
         familyId: Long,
         recordDate: LocalDate,
         id: Long = 10L,
         value: Double = 5.0,
+        unit: PersonalRecordUnit = KILOMETER,
     ) = PersonalRecordEntry(
         id = id,
         familyId = familyId,
         value = value,
-        unit = KILOMETER,
+        unit = unit,
         customUnitLabel = null,
         recordDate = recordDate,
         note = null,

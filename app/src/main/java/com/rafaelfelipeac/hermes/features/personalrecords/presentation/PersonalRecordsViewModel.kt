@@ -265,7 +265,7 @@ class PersonalRecordsViewModel
         ) {
             viewModelScope.launch {
                 val existingEntry = repository.getEntry(entryId) ?: return@launch
-                val familyId = input.familyId
+                val familyId = existingEntry.familyId
                 val family = repository.getFamily(familyId) ?: return@launch
                 val category = categoryById(family.categoryId)
                 val normalizedValue = PersonalRecordValueNormalizer.normalize(input.value, input.unit)

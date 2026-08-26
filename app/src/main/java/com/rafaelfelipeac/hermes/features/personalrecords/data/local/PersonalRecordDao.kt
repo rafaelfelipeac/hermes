@@ -9,6 +9,7 @@ import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
+@Suppress("TooManyFunctions")
 interface PersonalRecordDao {
     @Query("SELECT * FROM personal_record_families ORDER BY sortOrder ASC, id ASC")
     fun observeFamilies(): Flow<List<PersonalRecordFamilyEntity>>
@@ -39,6 +40,12 @@ interface PersonalRecordDao {
 
     @Update
     suspend fun updateFamily(family: PersonalRecordFamilyEntity)
+
+    @Query("UPDATE personal_record_families SET categoryId = :newCategoryId WHERE categoryId = :categoryId")
+    suspend fun reassignCategory(
+        categoryId: Long,
+        newCategoryId: Long?,
+    )
 
     @Query("DELETE FROM personal_record_families WHERE id = :id")
     suspend fun deleteFamily(id: Long)

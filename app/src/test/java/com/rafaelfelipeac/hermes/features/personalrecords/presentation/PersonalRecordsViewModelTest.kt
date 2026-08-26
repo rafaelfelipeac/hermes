@@ -183,6 +183,36 @@ class PersonalRecordsViewModelTest {
         }
 
     @Test
+    fun updateEntry_keepsOriginalFamilyWhenInputRequestsAnotherFamily() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val originalFamily = sampleFamily(id = 1L)
+            val otherFamily = sampleFamily(id = 2L)
+            val repository =
+                FakePersonalRecordsRepository(
+                    initialFamilies = listOf(originalFamily, otherFamily),
+                    initialEntries = listOf(sampleEntry(familyId = originalFamily.id)),
+                )
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository, FakeCategoryRepository(), logger)
+
+            viewModel.updateEntry(
+                entryId = 10L,
+                input =
+                    PersonalRecordEntryInput(
+                        familyId = otherFamily.id,
+                        value = 6.0,
+                        unit = KILOMETER,
+                        recordDate = LocalDate.parse("2024-02-01"),
+                        note = null,
+                    ),
+            )
+            advanceUntilIdle()
+
+            assertEquals(originalFamily.id, repository.entries.single().familyId)
+            assertEquals(originalFamily.id.toString(), logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_ID))
+        }
+
+    @Test
     fun deleteEntry_removesEntryAndLogsAction() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository =
@@ -431,6 +461,16 @@ class PersonalRecordsViewModelTest {
 
         override suspend fun updateFamily(family: PersonalRecordFamily) {
             familiesFlow.value = familiesFlow.value.map { if (it.id == family.id) family else it }
+        }
+
+        override suspend fun reassignCategory(
+            categoryId: Long,
+            newCategoryId: Long?,
+        ) {
+            familiesFlow.value =
+                familiesFlow.value.map { family ->
+                    if (family.categoryId == categoryId) family.copy(categoryId = newCategoryId) else family
+                }
         }
 
         override suspend fun deleteFamily(id: Long) {

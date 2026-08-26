@@ -15,6 +15,9 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
@@ -43,6 +46,7 @@ class CategoriesScreenTest {
             CategoriesViewModel(
                 repository = repository,
                 workoutRepository = FakeWeeklyTrainingRepository(),
+                personalRecordsRepository = FakePersonalRecordsRepository(),
                 categorySeeder = CategorySeeder(repository, FakeStringProvider()),
                 userActionLogger = FakeUserActionLogger(),
             )
@@ -89,6 +93,7 @@ class CategoriesScreenTest {
             CategoriesViewModel(
                 repository = repository,
                 workoutRepository = workoutRepository,
+                personalRecordsRepository = FakePersonalRecordsRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -143,6 +148,7 @@ class CategoriesScreenTest {
             CategoriesViewModel(
                 repository = repository,
                 workoutRepository = workoutRepository,
+                personalRecordsRepository = FakePersonalRecordsRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -190,6 +196,7 @@ class CategoriesScreenTest {
             CategoriesViewModel(
                 repository = repository,
                 workoutRepository = workoutRepository,
+                personalRecordsRepository = FakePersonalRecordsRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -220,6 +227,39 @@ class CategoriesScreenTest {
 
     private class FakeUserActionLogger : UserActionLogger {
         override suspend fun log(action: UserAction) = Unit
+    }
+
+    private class FakePersonalRecordsRepository : PersonalRecordsRepository {
+        override fun observeFamilies(): Flow<List<PersonalRecordFamily>> = emptyFlow()
+
+        override fun observeEntries(): Flow<List<PersonalRecordEntry>> = emptyFlow()
+
+        override fun observeEntriesForFamily(familyId: Long): Flow<List<PersonalRecordEntry>> = emptyFlow()
+
+        override suspend fun getFamilies(): List<PersonalRecordFamily> = emptyList()
+
+        override suspend fun getEntries(): List<PersonalRecordEntry> = emptyList()
+
+        override suspend fun getFamily(id: Long): PersonalRecordFamily? = null
+
+        override suspend fun getEntry(id: Long): PersonalRecordEntry? = null
+
+        override suspend fun insertFamily(family: PersonalRecordFamily): Long = 0L
+
+        override suspend fun updateFamily(family: PersonalRecordFamily) = Unit
+
+        override suspend fun reassignCategory(
+            categoryId: Long,
+            newCategoryId: Long?,
+        ) = Unit
+
+        override suspend fun deleteFamily(id: Long) = Unit
+
+        override suspend fun insertEntry(entry: PersonalRecordEntry): Long = 0L
+
+        override suspend fun updateEntry(entry: PersonalRecordEntry) = Unit
+
+        override suspend fun deleteEntry(id: Long) = Unit
     }
 
     private class FakeCategoryRepository : CategoryRepository {

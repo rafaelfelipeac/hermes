@@ -60,6 +60,13 @@ class PersonalRecordsRepositoryImpl
             personalRecordDao.updateFamily(family.toEntity())
         }
 
+        override suspend fun reassignCategory(
+            categoryId: Long,
+            newCategoryId: Long?,
+        ) {
+            personalRecordDao.reassignCategory(categoryId, newCategoryId)
+        }
+
         override suspend fun deleteFamily(id: Long) {
             personalRecordDao.deleteFamilyAndEntries(id)
         }

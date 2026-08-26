@@ -23,6 +23,11 @@ interface PersonalRecordsRepository {
 
     suspend fun updateFamily(family: PersonalRecordFamily)
 
+    suspend fun reassignCategory(
+        categoryId: Long,
+        newCategoryId: Long?,
+    )
+
     suspend fun deleteFamily(id: Long)
 
     suspend fun insertEntry(entry: PersonalRecordEntry): Long

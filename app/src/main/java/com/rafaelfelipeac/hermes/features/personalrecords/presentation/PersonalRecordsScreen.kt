@@ -179,6 +179,7 @@ internal const val PERSONAL_RECORDS_CREATE_FAMILY_DIALOG_TAG = "personal_records
 internal const val PERSONAL_RECORDS_EDIT_FAMILY_DIALOG_TAG = "personal_records_edit_family_dialog"
 internal const val PERSONAL_RECORDS_ADD_ENTRY_DIALOG_TAG = "personal_records_add_entry_dialog"
 internal const val PERSONAL_RECORDS_EDIT_ENTRY_DIALOG_TAG = "personal_records_edit_entry_dialog"
+internal const val PERSONAL_RECORDS_ENTRY_FAMILY_FIELD_TAG = "personal_records_entry_family_field"
 internal const val PERSONAL_RECORDS_ENTRY_VALUE_FIELD_TAG = "personal_records_entry_value_field"
 internal const val PERSONAL_RECORDS_ENTRY_DATE_FIELD_TAG = "personal_records_entry_date_field"
 internal const val PERSONAL_RECORDS_EDIT_FAMILY_BUTTON_TAG = "personal_records_edit_family_button"
@@ -1602,7 +1603,9 @@ internal fun PersonalRecordEntryEditorDialog(
         remember(initialEntry?.id, selectedFamily?.id, currentEntry?.id) {
             when {
                 isEdit && initialEntry != null && selectedFamily?.metricType == TIME ->
-                    secondsToTimeParts(initialEntry.value.toLong())
+                    secondsToTimeParts(
+                        PersonalRecordValueNormalizer.normalize(initialEntry.value, initialEntry.unit).toLong(),
+                    )
 
                 !isEdit && selectedFamily?.metricType == TIME && currentEntry != null ->
                     secondsToTimeParts(
@@ -1628,7 +1631,10 @@ internal fun PersonalRecordEntryEditorDialog(
                 note = initialEntry.note.orEmpty().capitalizedFirstCharacter()
                 customUnitLabel = initialEntry.customUnitLabel.orEmpty()
                 if (family.metricType == TIME) {
-                    val parts = secondsToTimeParts(initialEntry.value.toLong())
+                    val parts =
+                        secondsToTimeParts(
+                            PersonalRecordValueNormalizer.normalize(initialEntry.value, initialEntry.unit).toLong(),
+                        )
                     timeHours = parts.hours
                     timeMinutes = parts.minutes
                     timeSeconds = parts.seconds
@@ -1717,17 +1723,28 @@ internal fun PersonalRecordEntryEditorDialog(
             KeyboardAwareDialogForm {
                 ExposedDropdownMenuBox(
                     expanded = familyMenuExpanded,
-                    onExpandedChange = { familyMenuExpanded = !familyMenuExpanded },
+                    onExpandedChange = {
+                        if (!isEdit) {
+                            familyMenuExpanded = !familyMenuExpanded
+                        }
+                    },
                 ) {
                     OutlinedTextField(
+                        enabled = !isEdit,
                         readOnly = true,
                         value = familyLabelFor(selectedFamily, entries),
                         onValueChange = {},
                         label = { Text(text = stringResource(R.string.personal_records_entry_family)) },
                         trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = familyMenuExpanded)
+                            if (!isEdit) {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = familyMenuExpanded)
+                            }
                         },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .testTag(PERSONAL_RECORDS_ENTRY_FAMILY_FIELD_TAG)
+                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
                     )
 
                     DropdownMenu(
