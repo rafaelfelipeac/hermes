@@ -3,6 +3,8 @@ package com.rafaelfelipeac.hermes.features.backup.data
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordEntryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordFamilyRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
@@ -17,7 +19,7 @@ class BackupJsonCodecTest {
     fun encodeDecode_roundTrip_preservesCoreFields() {
         val snapshot =
             BackupSnapshot(
-                schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V3,
+                schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V4,
                 exportedAt = "2026-02-25T10:00:00Z",
                 appVersion = "1.3.0",
                 workouts =
@@ -58,6 +60,35 @@ class BackupJsonCodecTest {
                             isSystem = true,
                         ),
                     ),
+                personalRecordFamilies =
+                    listOf(
+                        BackupPersonalRecordFamilyRecord(
+                            id = 200L,
+                            categoryId = 1L,
+                            title = "5K PR",
+                            metricType = "DISTANCE",
+                            defaultUnit = "MILE",
+                            comparisonRule = "LOWER_IS_BETTER",
+                            manualCurrentEntryId = 300L,
+                            sortOrder = 0,
+                            createdAt = "2026-02-25T10:00:00Z",
+                            updatedAt = "2026-02-26T10:00:00Z",
+                        ),
+                    ),
+                personalRecordEntries =
+                    listOf(
+                        BackupPersonalRecordEntryRecord(
+                            id = 300L,
+                            familyId = 200L,
+                            value = 20.5,
+                            unit = "MILE",
+                            customUnitLabel = null,
+                            recordDate = "2026-02-24",
+                            note = "All-out effort",
+                            createdAt = "2026-02-25T10:15:00Z",
+                            updatedAt = "2026-02-26T10:15:00Z",
+                        ),
+                    ),
                 userActions =
                     listOf(
                         BackupUserActionRecord(
@@ -75,6 +106,9 @@ class BackupJsonCodecTest {
                         languageTag = "en",
                         slotModePolicy = "AUTO_WHEN_MULTIPLE",
                         weekStartDay = "WEDNESDAY",
+                        distanceUnit = "MILES",
+                        paceUnit = "MIN_PER_MI",
+                        weightUnit = "POUNDS",
                     ),
             )
 
@@ -88,9 +122,14 @@ class BackupJsonCodecTest {
         assertEquals("WORKOUT", restored.workouts.first().eventType)
         assertEquals("RACE_EVENT", restored.workouts.last().eventType)
         assertEquals(snapshot.categories.single().name, restored.categories.single().name)
+        assertEquals(snapshot.personalRecordFamilies.single().title, restored.personalRecordFamilies.single().title)
+        assertEquals(snapshot.personalRecordEntries.single().note, restored.personalRecordEntries.single().note)
         assertEquals(snapshot.userActions.single().actionType, restored.userActions.single().actionType)
         assertEquals(snapshot.settings?.slotModePolicy, restored.settings?.slotModePolicy)
         assertEquals(snapshot.settings?.weekStartDay, restored.settings?.weekStartDay)
+        assertEquals(snapshot.settings?.distanceUnit, restored.settings?.distanceUnit)
+        assertEquals(snapshot.settings?.paceUnit, restored.settings?.paceUnit)
+        assertEquals(snapshot.settings?.weightUnit, restored.settings?.weightUnit)
     }
 
     @Test
@@ -174,11 +213,41 @@ class BackupJsonCodecTest {
     }
 
     @Test
+    fun decode_v3DefaultsMissingPersonalRecordsAndUnitPreferences() {
+        val raw =
+            """
+            {
+              "schemaVersion": 3,
+              "exportedAt": "2026-02-25T10:00:00Z",
+              "workouts": [],
+              "categories": [],
+              "userActions": [],
+              "settings": {
+                "themeMode": "SYSTEM",
+                "languageTag": "en",
+                "slotModePolicy": "AUTO_WHEN_MULTIPLE",
+                "weekStartDay": "FRIDAY"
+              }
+            }
+            """.trimIndent()
+
+        val result = BackupJsonCodec.decode(raw)
+
+        assertTrue(result is BackupDecodeResult.Success)
+        val snapshot = (result as BackupDecodeResult.Success).snapshot
+        assertTrue(snapshot.personalRecordFamilies.isEmpty())
+        assertTrue(snapshot.personalRecordEntries.isEmpty())
+        assertEquals("KILOMETERS", snapshot.settings?.distanceUnit)
+        assertEquals("MIN_PER_KM", snapshot.settings?.paceUnit)
+        assertEquals("KILOGRAMS", snapshot.settings?.weightUnit)
+    }
+
+    @Test
     fun decode_unknownFutureSchema_returnsUnsupportedSchema() {
         val raw =
             """
             {
-              "schemaVersion": 4,
+              "schemaVersion": 5,
               "exportedAt": "2026-02-25T10:00:00Z",
               "workouts": [],
               "categories": [],

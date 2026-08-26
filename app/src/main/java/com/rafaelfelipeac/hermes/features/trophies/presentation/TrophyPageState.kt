@@ -35,6 +35,7 @@ enum class TrophyFamilyUi {
     MOMENTUM,
     BUILDER,
     RACE_EVENTS,
+    PERSONAL_RECORDS,
     CATEGORIES,
 }
 

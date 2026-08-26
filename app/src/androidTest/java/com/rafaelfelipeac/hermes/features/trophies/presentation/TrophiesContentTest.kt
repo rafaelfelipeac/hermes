@@ -19,6 +19,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.util.Locale
@@ -26,6 +27,22 @@ import java.util.Locale
 class TrophiesContentTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    @Test
+    fun everyTrophyDescriptionIncludesItsTarget() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val target = 137
+
+        TrophyId.entries.forEach { trophyId ->
+            val lockedDescription = context.getString(trophyDescriptionRes(trophyId, isUnlocked = false), target)
+            val unlockedDescription = context.getString(trophyDescriptionRes(trophyId, isUnlocked = true), target)
+            val shareDescription = context.getString(trophyShareDescriptionRes(trophyId), target, target.toString())
+
+            assertTrue(lockedDescription.contains(target.toString()))
+            assertTrue(unlockedDescription.contains(target.toString()))
+            assertTrue(shareDescription.contains(target.toString()))
+        }
+    }
 
     @Test
     fun showsEmptyStateWhenNoFamiliesExist() {
@@ -342,12 +359,13 @@ class TrophiesContentTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val close = context.getString(R.string.trophies_detail_close)
         val requirement = context.getString(R.string.trophies_desc_complete_weeks_unlocked, 1)
+        val progress = context.getString(R.string.trophies_unlock_target, 10, 1)
 
         composeRule.setContent {
             TrophyDetailDialog(
                 trophy =
                     sampleCard(
-                        currentValue = 1,
+                        currentValue = 10,
                         target = 1,
                         isUnlocked = true,
                         unlockedAt = 1234L,
@@ -361,6 +379,7 @@ class TrophiesContentTest {
         composeRule.onNodeWithTag(TROPHIES_DETAIL_DIALOG_TAG).assertIsDisplayed()
         composeRule.onNodeWithText(close).assertIsDisplayed()
         composeRule.onNodeWithText(requirement).assertIsDisplayed()
+        composeRule.onNodeWithText(progress).assertIsDisplayed()
     }
 
     @Test

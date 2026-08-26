@@ -4,9 +4,12 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +58,33 @@ class SettingsRepositoryImpl
                 }
                 .distinctUntilChanged()
 
+        override val distanceUnit: Flow<DistanceUnit> =
+            dataStore.data
+                .map { prefs ->
+                    prefs[DISTANCE_UNIT_KEY]
+                        ?.let { raw -> runCatching { DistanceUnit.valueOf(raw) }.getOrNull() }
+                        ?: defaultDistanceUnit()
+                }
+                .distinctUntilChanged()
+
+        override val paceUnit: Flow<PaceUnit> =
+            dataStore.data
+                .map { prefs ->
+                    prefs[PACE_UNIT_KEY]
+                        ?.let { raw -> runCatching { PaceUnit.valueOf(raw) }.getOrNull() }
+                        ?: defaultPaceUnit()
+                }
+                .distinctUntilChanged()
+
+        override val weightUnit: Flow<WeightUnit> =
+            dataStore.data
+                .map { prefs ->
+                    prefs[WEIGHT_UNIT_KEY]
+                        ?.let { raw -> runCatching { WeightUnit.valueOf(raw) }.getOrNull() }
+                        ?: defaultWeightUnit()
+                }
+                .distinctUntilChanged()
+
         override val lastBackupExportedAt: Flow<String?> =
             dataStore.data
                 .map { prefs -> prefs[LAST_BACKUP_EXPORTED_AT_KEY] }
@@ -83,6 +113,12 @@ class SettingsRepositoryImpl
 
         override fun initialWeekStartDay(): WeekStartDay = defaultWeekStartDay()
 
+        override fun initialDistanceUnit(): DistanceUnit = defaultDistanceUnit()
+
+        override fun initialPaceUnit(): PaceUnit = defaultPaceUnit()
+
+        override fun initialWeightUnit(): WeightUnit = defaultWeightUnit()
+
         override suspend fun setThemeMode(mode: ThemeMode) {
             dataStore.edit { prefs ->
                 prefs[THEME_MODE_KEY] = mode.name
@@ -104,6 +140,24 @@ class SettingsRepositoryImpl
         override suspend fun setWeekStartDay(weekStartDay: WeekStartDay) {
             dataStore.edit { prefs ->
                 prefs[WEEK_START_DAY_KEY] = weekStartDay.name
+            }
+        }
+
+        override suspend fun setDistanceUnit(distanceUnit: DistanceUnit) {
+            dataStore.edit { prefs ->
+                prefs[DISTANCE_UNIT_KEY] = distanceUnit.name
+            }
+        }
+
+        override suspend fun setPaceUnit(paceUnit: PaceUnit) {
+            dataStore.edit { prefs ->
+                prefs[PACE_UNIT_KEY] = paceUnit.name
+            }
+        }
+
+        override suspend fun setWeightUnit(weightUnit: WeightUnit) {
+            dataStore.edit { prefs ->
+                prefs[WEIGHT_UNIT_KEY] = weightUnit.name
             }
         }
 
@@ -154,4 +208,16 @@ private fun defaultSlotModePolicy(): SlotModePolicy {
 
 private fun defaultWeekStartDay(): WeekStartDay {
     return WeekStartDay.MONDAY
+}
+
+private fun defaultDistanceUnit(): DistanceUnit {
+    return DistanceUnit.KILOMETERS
+}
+
+private fun defaultPaceUnit(): PaceUnit {
+    return PaceUnit.MIN_PER_KM
+}
+
+private fun defaultWeightUnit(): WeightUnit {
+    return WeightUnit.KILOGRAMS
 }

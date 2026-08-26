@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,14 +24,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
@@ -58,14 +60,15 @@ import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
+import com.rafaelfelipeac.hermes.features.pacecalculator.presentation.PaceCalculatorRoute
+import com.rafaelfelipeac.hermes.features.personalrecords.presentation.PersonalRecordsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.DeveloperModeScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsBackupScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.SettingsScreen
@@ -111,6 +114,22 @@ fun BrowseScreen(
             CategoriesScreen(
                 onBack = onBack,
                 modifier = modifier,
+            )
+
+        BrowseDestination.PERSONAL_RECORDS ->
+            PersonalRecordsScreen(
+                modifier = modifier,
+                settingsDistanceUnit = settingsState.distanceUnit,
+                settingsWeightUnit = settingsState.weightUnit,
+                onBack = onBack,
+            )
+
+        BrowseDestination.PACE_CALCULATOR ->
+            PaceCalculatorRoute(
+                modifier = modifier,
+                settingsDistanceUnit = settingsState.distanceUnit,
+                settingsPaceUnit = settingsState.paceUnit,
+                onBack = onBack,
             )
 
         BrowseDestination.TROPHIES ->
@@ -171,22 +190,45 @@ private fun BrowseHome(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(SpacingXl),
-        verticalArrangement = Arrangement.spacedBy(SpacingLg),
+        verticalArrangement = Arrangement.spacedBy(SpacingMd),
     ) {
         Text(
             text = stringResource(R.string.browse_title),
             style = typography.titleLarge,
         )
 
+        BrowseSectionTitle(text = stringResource(R.string.browse_section_training))
+
         BrowseDestinationCard(
             title = stringResource(R.string.categories_title),
+            subtitle = stringResource(R.string.browse_categories_subtitle),
             icon = Icons.Outlined.Category,
             onClick = { onNavigateTo(BrowseDestination.CATEGORIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "categories"),
         )
 
         BrowseDestinationCard(
+            title = stringResource(R.string.personal_records_title),
+            subtitle = stringResource(R.string.browse_personal_records_subtitle),
+            icon = Icons.Outlined.Leaderboard,
+            onClick = { onNavigateTo(BrowseDestination.PERSONAL_RECORDS) },
+            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "personal_records"),
+        )
+
+        BrowseDestinationCard(
+            title = stringResource(R.string.pace_calculator_title),
+            subtitle = stringResource(R.string.browse_pace_calculator_subtitle),
+            icon = Icons.Outlined.Calculate,
+            onClick = { onNavigateTo(BrowseDestination.PACE_CALCULATOR) },
+            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "pace_calculator"),
+        )
+
+        HorizontalDivider()
+        BrowseSectionTitle(text = stringResource(R.string.browse_section_progress))
+
+        BrowseDestinationCard(
             title = stringResource(R.string.trophies_title),
+            subtitle = stringResource(R.string.browse_trophies_subtitle),
             icon = Icons.Outlined.EmojiEvents,
             onClick = { onNavigateTo(BrowseDestination.TROPHIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "trophies"),
@@ -194,22 +236,26 @@ private fun BrowseHome(
 
         BrowseDestinationCard(
             title = stringResource(R.string.trophies_activities_action),
+            subtitle = stringResource(R.string.browse_activities_subtitle),
             icon = Icons.Default.History,
             onClick = { onNavigateTo(BrowseDestination.ACTIVITIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "activities"),
         )
 
+        HorizontalDivider()
+        BrowseSectionTitle(text = stringResource(R.string.browse_section_app_data))
+
         BrowseDestinationCard(
             title = stringResource(R.string.browse_backup_import_title),
+            subtitle = stringResource(R.string.browse_backup_import_subtitle),
             icon = Icons.Outlined.Inventory2,
             onClick = { onNavigateTo(BrowseDestination.BACKUP) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "backup"),
         )
 
-        Spacer(modifier = Modifier.height(SpacingXxl))
-
         BrowseDestinationCard(
             title = stringResource(R.string.settings_title),
+            subtitle = stringResource(R.string.browse_settings_subtitle),
             icon = Icons.Default.Settings,
             onClick = { onNavigateTo(BrowseDestination.SETTINGS) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "settings"),
@@ -218,6 +264,7 @@ private fun BrowseHome(
         if (BuildConfig.DEBUG) {
             BrowseDestinationCard(
                 title = stringResource(R.string.settings_developer_title),
+                subtitle = stringResource(R.string.browse_developer_subtitle),
                 icon = Icons.Outlined.Construction,
                 onClick = { onNavigateTo(BrowseDestination.DEVELOPER) },
                 modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "developer"),
@@ -227,8 +274,18 @@ private fun BrowseHome(
 }
 
 @Composable
+private fun BrowseSectionTitle(text: String) {
+    Text(
+        text = text,
+        style = typography.labelLarge,
+        color = colorScheme.primary,
+    )
+}
+
+@Composable
 private fun BrowseDestinationCard(
     title: String,
+    subtitle: String? = null,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -239,25 +296,35 @@ private fun BrowseDestinationCard(
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
         modifier = modifier.fillMaxWidth(),
     ) {
-        Row(
+        Column(
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(SpacingLg),
-            verticalAlignment = Alignment.CenterVertically,
+                    .padding(SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingXs),
         ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(SmallIconSize),
-                tint = colorScheme.primary,
-            )
-            Spacer(modifier = Modifier.width(SpacingMd))
-            Text(
-                text = title,
-                style = typography.titleMedium,
-                color = colorScheme.onSurfaceVariant,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(SmallIconSize),
+                    tint = colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.width(SpacingMd))
+                Text(
+                    text = title,
+                    style = typography.titleSmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = SmallIconSize + SpacingMd),
+                )
+            }
         }
     }
 }

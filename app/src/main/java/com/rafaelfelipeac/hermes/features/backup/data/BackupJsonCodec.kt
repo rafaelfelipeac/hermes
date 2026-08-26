@@ -6,6 +6,8 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.UNSUPPORTED_SCHEMA_VERSION
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Failure
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordEntryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordFamilyRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
@@ -24,7 +26,8 @@ internal object BackupJsonCodec {
     internal const val SCHEMA_VERSION_V1 = 1
     internal const val SCHEMA_VERSION_V2 = 2
     internal const val SCHEMA_VERSION_V3 = 3
-    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V3
+    internal const val SCHEMA_VERSION_V4 = 4
+    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V4
 
     private val json =
         Json {
@@ -47,6 +50,14 @@ internal object BackupJsonCodec {
                 snapshot.categories.forEach { addCategory(it) }
             }
 
+            putJsonArray(KEY_PERSONAL_RECORD_FAMILIES) {
+                snapshot.personalRecordFamilies.forEach { addPersonalRecordFamily(it) }
+            }
+
+            putJsonArray(KEY_PERSONAL_RECORD_ENTRIES) {
+                snapshot.personalRecordEntries.forEach { addPersonalRecordEntry(it) }
+            }
+
             putJsonArray(KEY_USER_ACTIONS) {
                 snapshot.userActions.forEach { addUserAction(it) }
             }
@@ -57,6 +68,9 @@ internal object BackupJsonCodec {
                     put(KEY_LANGUAGE_TAG, settings.languageTag)
                     put(KEY_SLOT_MODE_POLICY, settings.slotModePolicy)
                     put(KEY_WEEK_START_DAY, settings.weekStartDay)
+                    put(KEY_DISTANCE_UNIT, settings.distanceUnit)
+                    put(KEY_PACE_UNIT, settings.paceUnit)
+                    put(KEY_WEIGHT_UNIT, settings.weightUnit)
                 }
             }
         }.toString()
@@ -75,6 +89,7 @@ internal object BackupJsonCodec {
             SCHEMA_VERSION_V1 -> BackupV1Decoder.decode(root)
             SCHEMA_VERSION_V2 -> BackupV2Decoder.decode(root)
             SCHEMA_VERSION_V3 -> BackupV3Decoder.decode(root)
+            SCHEMA_VERSION_V4 -> BackupV4Decoder.decode(root)
             else -> Failure(UNSUPPORTED_SCHEMA_VERSION)
         }
     }
@@ -105,6 +120,39 @@ internal object BackupJsonCodec {
                 put(KEY_SORT_ORDER, record.sortOrder)
                 put(KEY_IS_HIDDEN, record.isHidden)
                 put(KEY_IS_SYSTEM, record.isSystem)
+            },
+        )
+    }
+
+    private fun JsonArrayBuilder.addPersonalRecordFamily(record: BackupPersonalRecordFamilyRecord) {
+        add(
+            buildJsonObject {
+                put(KEY_ID, record.id)
+                record.categoryId?.let { put(KEY_CATEGORY_ID, it) }
+                put(KEY_TITLE, record.title)
+                put(KEY_METRIC_TYPE, record.metricType)
+                put(KEY_DEFAULT_UNIT, record.defaultUnit)
+                put(KEY_COMPARISON_RULE, record.comparisonRule)
+                record.manualCurrentEntryId?.let { put(KEY_MANUAL_CURRENT_ENTRY_ID, it) }
+                put(KEY_SORT_ORDER, record.sortOrder)
+                put(KEY_CREATED_AT, record.createdAt)
+                put(KEY_UPDATED_AT, record.updatedAt)
+            },
+        )
+    }
+
+    private fun JsonArrayBuilder.addPersonalRecordEntry(record: BackupPersonalRecordEntryRecord) {
+        add(
+            buildJsonObject {
+                put(KEY_ID, record.id)
+                put(KEY_FAMILY_ID, record.familyId)
+                put(KEY_VALUE, record.value)
+                put(KEY_UNIT, record.unit)
+                record.customUnitLabel?.let { put(KEY_CUSTOM_UNIT_LABEL, it) }
+                put(KEY_RECORD_DATE, record.recordDate)
+                record.note?.let { put(KEY_NOTE, it) }
+                put(KEY_CREATED_AT, record.createdAt)
+                put(KEY_UPDATED_AT, record.updatedAt)
             },
         )
     }

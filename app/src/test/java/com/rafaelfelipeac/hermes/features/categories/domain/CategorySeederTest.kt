@@ -12,11 +12,50 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CategorySeederTest {
+    @Test
+    fun ensureSeeded_insertsStarterCategoriesForEmptyDatabase() =
+        runTest {
+            val repository = FakeCategoryRepository()
+            val seeder = CategorySeeder(repository, FakeStringProvider())
+
+            seeder.ensureSeeded()
+
+            assertEquals(7, repository.categories.value.size)
+        }
+
+    @Test
+    fun ensureSeeded_doesNotRestoreDeletedDefaultCategories() =
+        runTest {
+            val remainingCategory = systemCategory(id = 1L, name = "Uncategorized")
+            val repository = FakeCategoryRepository(listOf(remainingCategory))
+            val seeder = CategorySeeder(repository, FakeStringProvider())
+
+            seeder.ensureSeeded()
+
+            assertEquals(listOf(remainingCategory), repository.categories.value)
+        }
+
+    @Test
+    fun restoreDefaults_recreatesDeletedDefaultCategories() =
+        runTest {
+            val remainingCategory = systemCategory(id = 1L, name = "Uncategorized")
+            val repository = FakeCategoryRepository(listOf(remainingCategory))
+            val seeder = CategorySeeder(repository, FakeStringProvider())
+
+            val restoredCount = seeder.restoreDefaults()
+
+            assertEquals(6, restoredCount)
+            assertEquals(7, repository.categories.value.size)
+        }
+
     @Test
     fun syncLocalizedNames_updatesSystemNameWhenMatchesPrevious() =
         runTest {
@@ -138,5 +177,66 @@ class CategorySeederTest {
             isHidden = false,
             isSystem = false,
         )
+    }
+
+    private class FakeCategoryRepository(
+        initialCategories: List<Category> = emptyList(),
+    ) : CategoryRepository {
+        val categories = MutableStateFlow(initialCategories)
+
+        override fun observeCategories(): Flow<List<Category>> = categories
+
+        override suspend fun getCategories(): List<Category> = categories.value
+
+        override suspend fun getCategory(id: Long): Category? = categories.value.firstOrNull { it.id == id }
+
+        override suspend fun getCount(): Int = categories.value.size
+
+        override suspend fun insertCategory(category: Category): Long {
+            categories.value += category
+            return category.id
+        }
+
+        override suspend fun insertCategories(categories: List<Category>): List<Long> {
+            this.categories.value += categories
+            return categories.map(Category::id)
+        }
+
+        override suspend fun updateCategory(category: Category) = error("Not needed in test")
+
+        override suspend fun updateCategoryName(
+            id: Long,
+            name: String,
+        ) = error("Not needed in test")
+
+        override suspend fun updateCategoryColor(
+            id: Long,
+            colorId: String,
+        ) = error("Not needed in test")
+
+        override suspend fun updateCategoryVisibility(
+            id: Long,
+            isHidden: Boolean,
+        ) = error("Not needed in test")
+
+        override suspend fun updateCategorySortOrder(
+            id: Long,
+            sortOrder: Int,
+        ) = error("Not needed in test")
+
+        override suspend fun deleteCategory(id: Long) = error("Not needed in test")
+    }
+
+    private class FakeStringProvider : StringProvider {
+        override fun get(
+            id: Int,
+            vararg args: Any,
+        ): String = id.toString()
+
+        override fun getForLanguage(
+            languageTag: String?,
+            id: Int,
+            vararg args: Any,
+        ): String = id.toString()
     }
 }

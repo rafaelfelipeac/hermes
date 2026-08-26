@@ -186,4 +186,30 @@ class AddWorkoutDialogTest {
             .onNodeWithText(context.getString(R.string.workout_dialog_manage_categories))
             .assertIsDisplayed()
     }
+
+    @Test
+    fun focusedTitle_keepsCancelAndAddVisible() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+        composeRule.setContent {
+            AddWorkoutDialog(
+                onDismiss = {},
+                onSave = { _, _, _, _ -> },
+                onManageCategories = { _, _, _, _ -> },
+                isEdit = false,
+                categories = emptyList(),
+                selectedCategoryId = null,
+                weekStartDay = WeekStartDay.MONDAY,
+                initialType = "Run",
+            )
+        }
+
+        composeRule.onNodeWithTag(ADD_WORKOUT_DIALOG_TITLE_FIELD_TAG).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.add_workout_cancel)).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(context.getString(R.string.workout_dialog_add_workout_confirm))
+            .assertIsDisplayed()
+    }
 }

@@ -1,0 +1,73 @@
+package com.rafaelfelipeac.hermes.features.personalrecords.presentation
+
+import com.rafaelfelipeac.hermes.core.strings.formatElapsedTime
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordValueNormalizer
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.HOUR
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOGRAM
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.METER
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.MILE
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.MINUTE
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.POUND
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.REP
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.SECOND
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.WATT
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.NumberFormat
+import java.util.Locale
+import kotlin.math.roundToLong
+
+private const val EDITABLE_VALUE_DECIMAL_SCALE = 2
+
+fun formatPersonalRecordValue(
+    value: Double,
+    unit: PersonalRecordUnit,
+    locale: Locale,
+    unitLabel: String? = null,
+): String {
+    return when (unit) {
+        SECOND,
+        MINUTE,
+        HOUR,
+        -> formatElapsedTime(PersonalRecordValueNormalizer.normalize(value, unit).roundToLong())
+        KILOMETER,
+        MILE,
+        METER,
+        KILOGRAM,
+        REP,
+        WATT,
+        POUND,
+        CUSTOM,
+        -> {
+            val formattedNumber = formatNumber(value, locale)
+            val suffix =
+                unitLabel?.takeIf { it.isNotBlank() }
+            if (suffix == null) {
+                formattedNumber
+            } else {
+                "$formattedNumber $suffix"
+            }
+        }
+    }
+}
+
+internal fun formatEditablePersonalRecordValue(value: Double): String {
+    return BigDecimal
+        .valueOf(value)
+        .setScale(EDITABLE_VALUE_DECIMAL_SCALE, RoundingMode.HALF_UP)
+        .stripTrailingZeros()
+        .toPlainString()
+}
+
+private fun formatNumber(
+    value: Double,
+    locale: Locale,
+): String {
+    val formatter = NumberFormat.getNumberInstance(locale)
+    formatter.minimumFractionDigits = 0
+    formatter.maximumFractionDigits = 2
+    return formatter.format(value)
+}

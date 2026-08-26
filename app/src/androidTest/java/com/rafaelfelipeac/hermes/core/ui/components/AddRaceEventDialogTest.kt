@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.core.ui.components
 
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -58,5 +59,32 @@ class AddRaceEventDialogTest {
             .performClick()
 
         assertEquals(listOf("Marathon", "City race"), savedValues)
+    }
+
+    @Test
+    fun focusedTitle_keepsCancelAndAddVisible() {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
+        composeRule.setContent {
+            AddRaceEventDialog(
+                onDismiss = {},
+                onSave = { _, _, _, _ -> },
+                onManageCategories = { _, _, _, _ -> },
+                isEdit = false,
+                categories = emptyList(),
+                selectedCategoryId = null,
+                weekStartDay = WeekStartDay.MONDAY,
+                selectedDate = LocalDate.now().plusDays(5),
+                initialTitle = "Race",
+            )
+        }
+
+        composeRule.onNodeWithTag(RACE_EVENT_DIALOG_TITLE_FIELD_TAG).performClick()
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithText(context.getString(R.string.add_workout_cancel)).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(context.getString(R.string.race_event_dialog_add_race_event_confirm))
+            .assertIsDisplayed()
     }
 }

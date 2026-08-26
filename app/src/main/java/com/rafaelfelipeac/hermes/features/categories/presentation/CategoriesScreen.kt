@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,11 +24,10 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Delete
@@ -36,8 +36,8 @@ import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,6 +45,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -61,6 +62,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
+import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
@@ -70,6 +72,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorGridHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorSwatchSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryMoveIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
@@ -100,122 +103,129 @@ fun CategoriesScreen(
 
     BackHandler(onBack = onBack)
 
-    Column(modifier = modifier.fillMaxSize()) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = SpacingSm,
-                        end = SpacingXl,
-                        top = SpacingSm,
-                        bottom = SpacingSm,
-                    ),
-        ) {
-            IconButton(onClick = onBack) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { isAddDialogVisible = true },
+                containerColor = colorScheme.primaryContainer,
+                contentColor = colorScheme.onPrimaryContainer,
+                modifier = Modifier.padding(bottom = SpacingXl),
+            ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                    contentDescription = stringResource(R.string.categories_back),
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.categories_add),
                 )
             }
-
-            Text(
-                text = stringResource(R.string.categories_title),
-                style = typography.titleLarge,
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Surface(
-                onClick = { isHelpDialogVisible = true },
-                shape = CircleShape,
-                color = colorScheme.surfaceVariant,
-                tonalElevation = ElevationSm,
-                shadowElevation = ElevationSm,
-                modifier = Modifier.size(HelpIconSize),
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.HelpOutline,
-                        contentDescription = stringResource(R.string.categories_help_icon),
-                        tint = actionIconTint,
-                        modifier = Modifier.size(HelpIconGlyphSize),
-                    )
-                }
-            }
-        }
-
-        LazyColumn(
+        },
+    ) { contentPadding ->
+        Column(
             modifier =
                 Modifier
-                    .fillMaxSize(),
-            state = listState,
-            contentPadding = PaddingValues(bottom = SpacingXl),
-            verticalArrangement = Arrangement.spacedBy(SpacingLg),
+                    .fillMaxSize()
+                    .padding(contentPadding),
         ) {
-            item {
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = SpacingXl),
-                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Button(onClick = { isAddDialogVisible = true }) {
-                            Text(text = stringResource(R.string.categories_add))
-                        }
-                    }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = SpacingSm,
+                            end = SpacingXl,
+                            top = SpacingSm,
+                            bottom = SpacingSm,
+                        ),
+            ) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = stringResource(R.string.categories_back),
+                    )
+                }
 
+                Text(
+                    text = stringResource(R.string.categories_title),
+                    style = typography.titleLarge,
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Surface(
+                    onClick = { isHelpDialogVisible = true },
+                    shape = CircleShape,
+                    color = colorScheme.surfaceVariant,
+                    tonalElevation = ElevationSm,
+                    shadowElevation = ElevationSm,
+                    modifier = Modifier.size(HelpIconSize),
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.HelpOutline,
+                            contentDescription = stringResource(R.string.categories_help_icon),
+                            tint = actionIconTint,
+                            modifier = Modifier.size(HelpIconGlyphSize),
+                        )
+                    }
+                }
+            }
+
+            LazyColumn(
+                modifier =
+                    Modifier
+                        .fillMaxSize(),
+                state = listState,
+                contentPadding = PaddingValues(bottom = FloatingActionContentBottomPadding),
+                verticalArrangement = Arrangement.spacedBy(SpacingLg),
+            ) {
+                item {
                     TextButton(
                         onClick = { isRestoreDefaultsDialogVisible = true },
                         colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
+                        modifier = Modifier.padding(horizontal = SpacingXl),
                     ) {
                         Text(text = stringResource(R.string.categories_restore_defaults))
                     }
                 }
-            }
 
-            item {
-                Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
-                    Surface(
-                        shape = shapes.medium,
-                        tonalElevation = ElevationSm,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Column(
-                            modifier =
-                                Modifier.padding(
-                                    horizontal = SpacingMd,
-                                    vertical = SpacingXxs,
-                                ),
+                item {
+                    Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
+                        Surface(
+                            shape = shapes.medium,
+                            tonalElevation = ElevationSm,
+                            modifier = Modifier.fillMaxWidth(),
                         ) {
-                            state.categories.forEachIndexed { index, category ->
-                                CategoryRow(
-                                    category = category,
-                                    canMoveUp = index != 0,
-                                    canMoveDown = index != state.categories.lastIndex,
-                                    onMoveUp = { viewModel.moveCategoryUp(category.id) },
-                                    onMoveDown = { viewModel.moveCategoryDown(category.id) },
-                                    onToggleHidden = { isHidden ->
-                                        viewModel.updateCategoryVisibility(category.id, isHidden)
-                                    },
-                                    onEdit = { editorCategoryId = category.id },
-                                    onDelete = { deletingCategoryId = category.id },
-                                    modifier = Modifier.padding(vertical = SpacingXxs),
-                                )
-
-                                if (index != state.categories.lastIndex) {
-                                    HorizontalDivider(
+                            Column(
+                                modifier =
+                                    Modifier.padding(
+                                        horizontal = SpacingMd,
+                                        vertical = SpacingXxs,
+                                    ),
+                            ) {
+                                state.categories.forEachIndexed { index, category ->
+                                    CategoryRow(
+                                        category = category,
+                                        canMoveUp = index != 0,
+                                        canMoveDown = index != state.categories.lastIndex,
+                                        onMoveUp = { viewModel.moveCategoryUp(category.id) },
+                                        onMoveDown = { viewModel.moveCategoryDown(category.id) },
+                                        onToggleHidden = { isHidden ->
+                                            viewModel.updateCategoryVisibility(category.id, isHidden)
+                                        },
+                                        onEdit = { editorCategoryId = category.id },
+                                        onDelete = { deletingCategoryId = category.id },
                                         modifier = Modifier.padding(vertical = SpacingXxs),
                                     )
+
+                                    if (index != state.categories.lastIndex) {
+                                        HorizontalDivider(
+                                            modifier = Modifier.padding(vertical = SpacingXxs),
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -458,9 +468,8 @@ private fun CategoryEditorDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = title) },
         text = {
-            Column(
+            KeyboardAwareDialogForm(
                 verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                modifier = Modifier.verticalScroll(rememberScrollState()),
             ) {
                 OutlinedTextField(
                     value = name,

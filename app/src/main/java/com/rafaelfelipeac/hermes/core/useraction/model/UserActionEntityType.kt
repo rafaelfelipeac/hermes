@@ -7,6 +7,7 @@ enum class UserActionEntityType {
     BUSY,
     SICK,
     RACE_EVENT,
+    PERSONAL_RECORD,
     WEEK,
     SETTINGS,
     CATEGORY,

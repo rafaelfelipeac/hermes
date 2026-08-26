@@ -33,8 +33,102 @@ val MIGRATION_2_3 =
         }
     }
 
+val MIGRATION_3_4 =
+    object : Migration(3, 4) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS personal_record_families (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    categoryId INTEGER,
+                    title TEXT NOT NULL,
+                    metricType TEXT NOT NULL,
+                    defaultUnit TEXT NOT NULL,
+                    comparisonRule TEXT NOT NULL,
+                    manualCurrentEntryId INTEGER,
+                    sortOrder INTEGER NOT NULL,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS personal_record_entries (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    familyId INTEGER NOT NULL,
+                    value REAL NOT NULL,
+                    unit TEXT NOT NULL,
+                    customUnitLabel TEXT,
+                    recordDate TEXT NOT NULL,
+                    note TEXT,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL,
+                    FOREIGN KEY(familyId) REFERENCES personal_record_families(id) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_personal_record_families_categoryId " +
+                    "ON personal_record_families(categoryId)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_personal_record_entries_familyId " +
+                    "ON personal_record_entries(familyId)",
+            )
+        }
+    }
+
+val MIGRATION_4_5 =
+    object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS personal_record_families (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    categoryId INTEGER,
+                    title TEXT NOT NULL,
+                    metricType TEXT NOT NULL,
+                    defaultUnit TEXT NOT NULL,
+                    comparisonRule TEXT NOT NULL,
+                    manualCurrentEntryId INTEGER,
+                    sortOrder INTEGER NOT NULL,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS personal_record_entries (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    familyId INTEGER NOT NULL,
+                    value REAL NOT NULL,
+                    unit TEXT NOT NULL,
+                    customUnitLabel TEXT,
+                    recordDate TEXT NOT NULL,
+                    note TEXT,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL,
+                    FOREIGN KEY(familyId) REFERENCES personal_record_families(id) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_personal_record_families_categoryId " +
+                    "ON personal_record_families(categoryId)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_personal_record_entries_familyId " +
+                    "ON personal_record_entries(familyId)",
+            )
+        }
+    }
+
 val ALL_MIGRATIONS =
     listOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
+        MIGRATION_3_4,
+        MIGRATION_4_5,
     )

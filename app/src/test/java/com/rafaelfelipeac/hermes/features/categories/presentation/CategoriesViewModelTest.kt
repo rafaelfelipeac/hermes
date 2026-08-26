@@ -20,9 +20,11 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNC
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -38,6 +40,8 @@ import org.junit.Test
 class CategoriesViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+
+    private val personalRecordsRepository = mockk<PersonalRecordsRepository>(relaxed = true)
 
     @Test
     fun addCategory_logsCreateMetadata() =
@@ -62,6 +66,7 @@ class CategoriesViewModelTest {
                 CategoriesViewModel(
                     repository = repository,
                     workoutRepository = workoutRepository,
+                    personalRecordsRepository = personalRecordsRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -96,6 +101,7 @@ class CategoriesViewModelTest {
                 CategoriesViewModel(
                     repository = repository,
                     workoutRepository = workoutRepository,
+                    personalRecordsRepository = personalRecordsRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -137,6 +143,7 @@ class CategoriesViewModelTest {
                 CategoriesViewModel(
                     repository = repository,
                     workoutRepository = workoutRepository,
+                    personalRecordsRepository = personalRecordsRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -178,6 +185,7 @@ class CategoriesViewModelTest {
                 CategoriesViewModel(
                     repository = repository,
                     workoutRepository = workoutRepository,
+                    personalRecordsRepository = personalRecordsRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -220,6 +228,7 @@ class CategoriesViewModelTest {
                 CategoriesViewModel(
                     repository = repository,
                     workoutRepository = workoutRepository,
+                    personalRecordsRepository = personalRecordsRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -255,6 +264,7 @@ class CategoriesViewModelTest {
                 CategoriesViewModel(
                     repository = repository,
                     workoutRepository = workoutRepository,
+                    personalRecordsRepository = personalRecordsRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -263,6 +273,7 @@ class CategoriesViewModelTest {
             viewModel.deleteCategory(categoryId = 2L)
             advanceUntilIdle()
 
+            coVerify(exactly = 1) { personalRecordsRepository.reassignCategory(2L, null) }
             val action = logger.actions.last()
             assertEquals(DELETE_CATEGORY, action.actionType)
             assertEquals(2L, action.entityId)
@@ -288,6 +299,7 @@ class CategoriesViewModelTest {
                 CategoriesViewModel(
                     repository = repository,
                     workoutRepository = workoutRepository,
+                    personalRecordsRepository = personalRecordsRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -321,6 +333,7 @@ class CategoriesViewModelTest {
                 CategoriesViewModel(
                     repository = repository,
                     workoutRepository = workoutRepository,
+                    personalRecordsRepository = personalRecordsRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )

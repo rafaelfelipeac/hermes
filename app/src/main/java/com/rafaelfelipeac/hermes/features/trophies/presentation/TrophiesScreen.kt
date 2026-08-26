@@ -31,10 +31,13 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Calculate
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.EventBusy
@@ -44,8 +47,10 @@ import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.GridView
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.Repeat
 import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.SportsScore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -834,12 +839,10 @@ internal fun TrophyDetailDialog(
                     color = colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
-                if (!trophy.isUnlocked) {
-                    TrophyProgressIndicator(
-                        trophy = trophy,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
+                TrophyProgressIndicator(
+                    trophy = trophy,
+                    modifier = Modifier.fillMaxWidth(),
+                )
                 trophy.unlockedAt?.let { unlockedAt ->
                     TrophyDetailMeta(
                         label = unlockedDateLabel(unlockedAt),
@@ -981,7 +984,7 @@ private fun familyTitle(family: TrophyFamilyUi): String = stringResource(familyT
 private fun trophyConditionLabel(trophy: TrophyCardUi): String {
     return stringResource(
         R.string.trophies_unlock_target,
-        trophy.currentValue.coerceAtMost(trophy.target),
+        trophy.currentValue,
         trophy.target,
     )
 }
@@ -1055,6 +1058,7 @@ private fun trophyFamilyAccentColor(family: TrophyFamilyUi): Color {
         TrophyFamilyUi.MOMENTUM -> Color(0xFF7B63C8)
         TrophyFamilyUi.BUILDER -> Color(0xFF6F7E4A)
         TrophyFamilyUi.RACE_EVENTS -> Color(0xFFB44F3E)
+        TrophyFamilyUi.PERSONAL_RECORDS -> Color(0xFF3F7C74)
         TrophyFamilyUi.CATEGORIES -> Color(0xFF8A5E3A)
     }
 }
@@ -1064,7 +1068,7 @@ internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector
         TrophyId.FULL_TIME,
         TrophyId.SEASON_BUILDER,
         TrophyId.SEASON_ANCHOR,
-        -> Icons.Outlined.FitnessCenter
+        -> Icons.Outlined.CalendarMonth
         TrophyId.MATCH_FITNESS,
         TrophyId.ENGINE_ROOM,
         TrophyId.WORKHORSE,
@@ -1094,7 +1098,19 @@ internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector
         TrophyId.RACE_READY,
         TrophyId.RACE_SHARP,
         TrophyId.RACE_FINISH,
-        -> Icons.Outlined.CheckCircle
+        -> Icons.Outlined.SportsScore
+        TrophyId.FIRST_BENCHMARK,
+        TrophyId.BENCHMARK_BUILDER,
+        TrophyId.RECORD_LIBRARY,
+        -> Icons.AutoMirrored.Outlined.LibraryBooks
+        TrophyId.ON_THE_BOARD,
+        TrophyId.FORM_BOOK,
+        TrophyId.RECORD_KEEPER,
+        -> Icons.Outlined.Leaderboard
+        TrophyId.PACE_SETTER,
+        TrophyId.SPLIT_STRATEGIST,
+        TrophyId.PACE_MASTER,
+        -> Icons.Outlined.Calculate
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,

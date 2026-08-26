@@ -5,4 +5,7 @@ data class BackupSettingsRecord(
     val languageTag: String,
     val slotModePolicy: String,
     val weekStartDay: String,
+    val distanceUnit: String,
+    val paceUnit: String,
+    val weightUnit: String,
 )

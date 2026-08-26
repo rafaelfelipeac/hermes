@@ -15,6 +15,7 @@ internal fun TrophyFamily.toUi(): TrophyFamilyUi {
         TrophyFamily.MOMENTUM -> TrophyFamilyUi.MOMENTUM
         TrophyFamily.BUILDER -> TrophyFamilyUi.BUILDER
         TrophyFamily.RACE_EVENTS -> TrophyFamilyUi.RACE_EVENTS
+        TrophyFamily.PERSONAL_RECORDS -> TrophyFamilyUi.PERSONAL_RECORDS
         TrophyFamily.CATEGORIES -> TrophyFamilyUi.CATEGORIES
     }
 }
@@ -49,6 +50,15 @@ fun trophyNameRes(trophyId: TrophyId): Int {
         TrophyId.RACE_READY -> R.string.trophies_name_race_ready
         TrophyId.RACE_SHARP -> R.string.trophies_name_race_sharp
         TrophyId.RACE_FINISH -> R.string.trophies_name_race_finish
+        TrophyId.FIRST_BENCHMARK -> R.string.trophies_name_first_benchmark
+        TrophyId.BENCHMARK_BUILDER -> R.string.trophies_name_benchmark_builder
+        TrophyId.RECORD_LIBRARY -> R.string.trophies_name_record_library
+        TrophyId.ON_THE_BOARD -> R.string.trophies_name_on_the_board
+        TrophyId.FORM_BOOK -> R.string.trophies_name_form_book
+        TrophyId.RECORD_KEEPER -> R.string.trophies_name_record_keeper
+        TrophyId.PACE_SETTER -> R.string.trophies_name_pace_setter
+        TrophyId.SPLIT_STRATEGIST -> R.string.trophies_name_split_strategist
+        TrophyId.PACE_MASTER -> R.string.trophies_name_pace_master
         TrophyId.PODIUM_PLACE -> R.string.trophies_name_podium_place
         TrophyId.IN_ROTATION -> R.string.trophies_name_in_rotation
         TrophyId.MAINSTAY -> R.string.trophies_name_mainstay
@@ -164,6 +174,33 @@ internal fun trophyDescriptionRes(
             } else {
                 R.string.trophies_desc_race_event_completions_locked
             }
+        TrophyId.FIRST_BENCHMARK,
+        TrophyId.BENCHMARK_BUILDER,
+        TrophyId.RECORD_LIBRARY,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_personal_record_series_creations_unlocked
+            } else {
+                R.string.trophies_desc_personal_record_series_creations_locked
+            }
+        TrophyId.ON_THE_BOARD,
+        TrophyId.FORM_BOOK,
+        TrophyId.RECORD_KEEPER,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_personal_record_result_creations_unlocked
+            } else {
+                R.string.trophies_desc_personal_record_result_creations_locked
+            }
+        TrophyId.PACE_SETTER,
+        TrophyId.SPLIT_STRATEGIST,
+        TrophyId.PACE_MASTER,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_pace_calculations_unlocked
+            } else {
+                R.string.trophies_desc_pace_calculations_locked
+            }
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
@@ -228,6 +265,18 @@ internal fun trophyShareDescriptionRes(trophyId: TrophyId): Int {
         TrophyId.RACE_SHARP,
         TrophyId.RACE_FINISH,
         -> R.string.trophies_share_desc_race_event_completions
+        TrophyId.FIRST_BENCHMARK,
+        TrophyId.BENCHMARK_BUILDER,
+        TrophyId.RECORD_LIBRARY,
+        -> R.string.trophies_share_desc_personal_record_series_creations
+        TrophyId.ON_THE_BOARD,
+        TrophyId.FORM_BOOK,
+        TrophyId.RECORD_KEEPER,
+        -> R.string.trophies_share_desc_personal_record_result_creations
+        TrophyId.PACE_SETTER,
+        TrophyId.SPLIT_STRATEGIST,
+        TrophyId.PACE_MASTER,
+        -> R.string.trophies_share_desc_pace_calculations
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
@@ -249,6 +298,7 @@ internal fun familyTitleRes(family: TrophyFamilyUi): Int {
         TrophyFamilyUi.MOMENTUM -> R.string.trophies_family_momentum
         TrophyFamilyUi.BUILDER -> R.string.trophies_family_builder
         TrophyFamilyUi.RACE_EVENTS -> R.string.trophies_family_race_events
+        TrophyFamilyUi.PERSONAL_RECORDS -> R.string.trophies_family_personal_records
         TrophyFamilyUi.CATEGORIES -> R.string.trophies_family_categories
     }
 }
@@ -262,6 +312,7 @@ internal fun familyDescriptionRes(family: TrophyFamilyUi): Int {
         TrophyFamilyUi.MOMENTUM -> R.string.trophies_family_momentum_desc
         TrophyFamilyUi.BUILDER -> R.string.trophies_family_builder_desc
         TrophyFamilyUi.RACE_EVENTS -> R.string.trophies_family_race_events_desc
+        TrophyFamilyUi.PERSONAL_RECORDS -> R.string.trophies_family_personal_records_desc
         TrophyFamilyUi.CATEGORIES -> R.string.trophies_family_categories_desc
     }
 }
