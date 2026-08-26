@@ -71,19 +71,27 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 A quick look at Hermes in action — focused on clarity and flexibility.
 
 ### ☀️ Light mode
-<p float="left">
-  <img src="docs/screenshots/light/hermes-light-1.jpeg" width="24%" />
-  <img src="docs/screenshots/light/hermes-light-2.jpeg" width="24%" />
-  <img src="docs/screenshots/light/hermes-light-3.jpeg" width="24%" />
-  <img src="docs/screenshots/light/hermes-light-4.jpeg" width="24%" />
+<p align="center">
+  <img src="docs/screenshots/light/weekly.jpeg" width="32%" alt="Light theme weekly screen with the current week and planned workouts." />
+  <img src="docs/screenshots/light/progress.jpeg" width="32%" alt="Light theme progress screen with weekly readout, completion chart, and category mix." />
+  <img src="docs/screenshots/light/events.jpeg" width="32%" alt="Light theme events screen with upcoming race and training events." />
+</p>
+<p align="center">
+  <img src="docs/screenshots/light/personal-records.jpeg" width="32%" alt="Light theme personal records screen with record families and best results." />
+  <img src="docs/screenshots/light/pace-calculator.jpeg" width="32%" alt="Light theme pace calculator screen configured for 5 km in 24:00." />
+  <img src="docs/screenshots/light/trophies.jpeg" width="32%" alt="Light theme trophies screen with unlocked and locked trophy cards." />
 </p>
 
 ### 🌙 Dark mode
-<p float="left">
-  <img src="docs/screenshots/dark/hermes-dark-1.jpeg" width="24%" />
-  <img src="docs/screenshots/dark/hermes-dark-2.jpeg" width="24%" />
-  <img src="docs/screenshots/dark/hermes-dark-3.jpeg" width="24%" />
-  <img src="docs/screenshots/dark/hermes-dark-4.jpeg" width="24%" />
+<p align="center">
+  <img src="docs/screenshots/dark/weekly.jpeg" width="32%" alt="Dark theme weekly screen with the current week and planned workouts." />
+  <img src="docs/screenshots/dark/progress.jpeg" width="32%" alt="Dark theme progress screen with weekly readout, completion chart, and category mix." />
+  <img src="docs/screenshots/dark/events.jpeg" width="32%" alt="Dark theme events screen with upcoming race and training events." />
+</p>
+<p align="center">
+  <img src="docs/screenshots/dark/personal-records.jpeg" width="32%" alt="Dark theme personal records screen with record families and best results." />
+  <img src="docs/screenshots/dark/pace-calculator.jpeg" width="32%" alt="Dark theme pace calculator screen configured for 5 km in 24:00." />
+  <img src="docs/screenshots/dark/trophies.jpeg" width="32%" alt="Dark theme trophies screen with unlocked and locked trophy cards." />
 </p>
 
 ---
