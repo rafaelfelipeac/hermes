@@ -502,3 +502,4 @@ Recent learnings:
 - Trophy thresholds mark when a badge unlocks, but they are not a ceiling on the underlying achievement count. Unlocked trophy details should keep showing the live count so earlier tiers still communicate continued progress beyond their target.
 - Empty-state headings follow sentence punctuation, while compact action labels do not. When the same wording serves both roles, separate resources preserve that visual grammar instead of forcing button copy to inherit placeholder punctuation.
 - Trophy descriptions are a cross-surface contract, not dialog-only copy. Locked, unlocked, and share variants must each include the tier target because share messages leave the in-app progress component behind.
+- Trophy icon tests need to enforce the visual grammar in both directions: every level inside one family-and-metric block shares one icon, and that icon must remain exclusive to the block.

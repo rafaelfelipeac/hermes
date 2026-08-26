@@ -6,6 +6,21 @@ import org.junit.Test
 
 class TrophyIconTest {
     @Test
+    fun trophyLevels_reuseOneIconWithinEachBlock() {
+        val definitions = TrophyDefinitions.supportedV1 + TrophyDefinitions.categoryTemplates
+        val iconsByBlock =
+            definitions
+                .groupBy { it.family to it.metric }
+                .mapValues { (_, matches) -> matches.map { trophyIcon(it.id).name }.toSet() }
+        val blocksWithMultipleIcons = iconsByBlock.filterValues { it.size > 1 }
+
+        assertTrue(
+            "Multiple icons used within trophy blocks: $blocksWithMultipleIcons",
+            blocksWithMultipleIcons.isEmpty(),
+        )
+    }
+
+    @Test
     fun trophyIcons_areNotReusedAcrossBlocks() {
         val definitions = TrophyDefinitions.supportedV1 + TrophyDefinitions.categoryTemplates
         val blocksByIcon =
