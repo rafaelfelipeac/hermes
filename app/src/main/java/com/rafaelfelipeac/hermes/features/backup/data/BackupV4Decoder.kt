@@ -89,6 +89,8 @@ internal object BackupV4Decoder {
                     schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V4,
                     exportedAt = exportedAt,
                     appVersion = root.stringOrNull(KEY_APP_VERSION),
+                    challenges = emptyList(),
+                    challengeProgressEntries = emptyList(),
                     workouts = workouts,
                     categories = categories,
                     personalRecordFamilies = personalRecordFamilies,

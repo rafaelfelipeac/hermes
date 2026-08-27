@@ -1,3 +1,5 @@
+@file:Suppress("LongMethod", "MaxLineLength")
+
 package com.rafaelfelipeac.hermes.features.activity.presentation.formatter
 
 import com.rafaelfelipeac.hermes.R
@@ -10,6 +12,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValu
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuantity
 import com.rafaelfelipeac.hermes.features.personalrecords.presentation.formatPersonalRecordValue
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
@@ -81,6 +84,7 @@ class ActivityUiFormatter(
                         actionType = actionType,
                         quotedWorkoutLabel = quotedWorkoutLabel,
                     )
+                UserActionEntityType.CHALLENGE -> buildChallengeTitle(actionType, metadata)
                 UserActionEntityType.CATEGORY -> buildCategoryTitle(actionType, metadata)
                 UserActionEntityType.TROPHY -> buildTrophyTitle(actionType, metadata)
                 UserActionEntityType.PERSONAL_RECORD ->
@@ -99,10 +103,17 @@ class ActivityUiFormatter(
         val actionType = runCatching { UserActionType.valueOf(record.actionType) }.getOrNull()
         val weekSubtitle = buildWeekSubtitle(metadata, currentLocale)
         val actionSubtitle = buildActionSubtitle(actionType, metadata, currentLocale)
+        val entityType = runCatching { UserActionEntityType.valueOf(record.entityType) }.getOrNull()
+        val challengeSubtitle =
+            if (entityType == UserActionEntityType.CHALLENGE) {
+                buildChallengeSubtitle(actionType, metadata, currentLocale)
+            } else {
+                null
+            }
 
         return combineSubtitles(
             weekSubtitle = weekSubtitle,
-            actionSubtitle = actionSubtitle,
+            actionSubtitle = challengeSubtitle ?: actionSubtitle,
             shouldSplitLines = shouldSplitLines(actionType),
         )
     }
@@ -202,6 +213,33 @@ class ActivityUiFormatter(
 
             UserActionType.USE_PACE_CALCULATOR ->
                 stringProvider.get(R.string.activity_action_use_pace_calculator)
+
+            UserActionType.CREATE_CHALLENGE ->
+                stringProvider.get(R.string.activity_action_create_challenge)
+
+            UserActionType.UPDATE_CHALLENGE ->
+                stringProvider.get(R.string.activity_action_update_challenge)
+
+            UserActionType.ARCHIVE_CHALLENGE ->
+                stringProvider.get(R.string.activity_action_archive_challenge)
+
+            UserActionType.REACTIVATE_CHALLENGE ->
+                stringProvider.get(R.string.activity_action_reactivate_challenge)
+
+            UserActionType.DELETE_CHALLENGE ->
+                stringProvider.get(R.string.activity_action_delete_challenge)
+
+            UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY ->
+                stringProvider.get(R.string.activity_action_create_challenge_progress_entry)
+
+            UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY ->
+                stringProvider.get(R.string.activity_action_update_challenge_progress_entry)
+
+            UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY ->
+                stringProvider.get(R.string.activity_action_delete_challenge_progress_entry)
+
+            UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY ->
+                stringProvider.get(R.string.activity_action_restore_challenge_progress_entry)
 
             else -> stringProvider.get(R.string.activity_action_fallback)
         }
@@ -523,8 +561,205 @@ class ActivityUiFormatter(
             UserActionType.UNDO_REORDER_BUSY,
             UserActionType.UNDO_REORDER_SICK,
             -> buildReorderSubtitle(metadata)
+            UserActionType.CREATE_CHALLENGE,
+            UserActionType.UPDATE_CHALLENGE,
+            UserActionType.ARCHIVE_CHALLENGE,
+            UserActionType.REACTIVATE_CHALLENGE,
+            UserActionType.DELETE_CHALLENGE,
+            UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY,
+            UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY,
+            UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY,
+            UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
+            -> buildChallengeSubtitle(actionType, metadata, currentLocale)
             else -> null
         }
+    }
+
+    private fun buildChallengeTitle(
+        actionType: UserActionType?,
+        metadata: Map<String, String>,
+    ): String? {
+        val label = challengeLabel(metadata)
+
+        return when (actionType) {
+            UserActionType.CREATE_CHALLENGE ->
+                stringProvider.get(
+                    R.string.activity_action_create_challenge_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.UPDATE_CHALLENGE ->
+                stringProvider.get(
+                    R.string.activity_action_update_challenge_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.ARCHIVE_CHALLENGE ->
+                stringProvider.get(
+                    R.string.activity_action_archive_challenge_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.REACTIVATE_CHALLENGE ->
+                stringProvider.get(
+                    R.string.activity_action_reactivate_challenge_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.DELETE_CHALLENGE ->
+                stringProvider.get(
+                    R.string.activity_action_delete_challenge_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY ->
+                stringProvider.get(
+                    R.string.activity_action_create_challenge_progress_entry_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY ->
+                stringProvider.get(
+                    R.string.activity_action_update_challenge_progress_entry_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY ->
+                stringProvider.get(
+                    R.string.activity_action_delete_challenge_progress_entry_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY ->
+                stringProvider.get(
+                    R.string.activity_action_restore_challenge_progress_entry_named,
+                    quoteValue(label) ?: label,
+                )
+            else -> null
+        }
+    }
+
+    private fun buildChallengeSubtitle(
+        actionType: UserActionType?,
+        metadata: Map<String, String>,
+        currentLocale: Locale,
+    ): String? {
+        val challengeTitle = challengeLabel(metadata)
+        val targetQuantity =
+            formatChallengeQuantity(
+                metadata[UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY]
+                    ?: metadata[UserActionMetadataKeys.CHALLENGE_NEW_VALUE]
+                    ?: metadata[UserActionMetadataKeys.NEW_VALUE],
+                currentLocale,
+            )
+        val oldQuantity =
+            formatChallengeQuantity(
+                metadata[UserActionMetadataKeys.CHALLENGE_OLD_VALUE]
+                    ?: metadata[UserActionMetadataKeys.OLD_VALUE],
+                currentLocale,
+            )
+        val startDate =
+            formatChallengeDate(metadata[UserActionMetadataKeys.CHALLENGE_START_DATE], currentLocale)
+        val endDate =
+            formatChallengeDate(metadata[UserActionMetadataKeys.CHALLENGE_END_DATE], currentLocale)
+        val progressQuantity =
+            formatChallengeQuantity(metadata[UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY], currentLocale)
+        val progressDate =
+            formatChallengeDate(metadata[UserActionMetadataKeys.CHALLENGE_PROGRESS_DATE], currentLocale)
+        val oldStatus = metadata[UserActionMetadataKeys.CHALLENGE_OLD_STATUS]
+        val newStatus = metadata[UserActionMetadataKeys.CHALLENGE_NEW_STATUS]
+        val recovered = metadata[UserActionMetadataKeys.CHALLENGE_RECOVERED]?.toBooleanStrictOrNull() == true
+
+        return when (actionType) {
+            UserActionType.CREATE_CHALLENGE,
+            UserActionType.UPDATE_CHALLENGE,
+            -> {
+                val details =
+                    buildList {
+                        if (!oldQuantity.isNullOrBlank() || !targetQuantity.isNullOrBlank()) {
+                            add(
+                                stringProvider.get(
+                                    R.string.activity_subtitle_change_value,
+                                    oldQuantity.orEmpty(),
+                                    targetQuantity.orEmpty(),
+                                ),
+                            )
+                        }
+                        if (startDate != null || endDate != null) {
+                            add(
+                                stringProvider.get(
+                                    R.string.activity_subtitle_challenge_dates,
+                                    startDate.orEmpty(),
+                                    endDate.orEmpty(),
+                                ),
+                            )
+                        }
+                    }
+
+                details.takeIf { it.isNotEmpty() }?.joinToString(activitySubtitleSeparator())
+            }
+            UserActionType.ARCHIVE_CHALLENGE,
+            UserActionType.REACTIVATE_CHALLENGE,
+            UserActionType.DELETE_CHALLENGE,
+            -> {
+                val oldValue = oldStatus ?: metadata[UserActionMetadataKeys.CHALLENGE_LIFECYCLE]
+                val newValue = newStatus ?: metadata[UserActionMetadataKeys.CHALLENGE_LIFECYCLE]
+                if (oldValue.isNullOrBlank() && newValue.isNullOrBlank()) return null
+                stringProvider.get(
+                    R.string.activity_subtitle_change_value,
+                    quoteValue(oldValue).orEmpty(),
+                    quoteValue(newValue).orEmpty(),
+                )
+            }
+            UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY,
+            UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY,
+            UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY,
+            UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
+            -> {
+                val details =
+                    buildList {
+                        if (progressQuantity != null || progressDate != null) {
+                            add(
+                                stringProvider.get(
+                                    R.string.activity_subtitle_challenge_progress,
+                                    progressQuantity.orEmpty(),
+                                    progressDate.orEmpty(),
+                                ),
+                            )
+                        }
+                        if (recovered) {
+                            add(stringProvider.get(R.string.activity_subtitle_challenge_recovered))
+                        }
+                        if (!challengeTitle.isBlank() && challengeTitle != stringProvider.get(R.string.activity_value_unknown)) {
+                            add(quoteValue(challengeTitle).orEmpty())
+                        }
+                    }
+
+                details.takeIf { it.isNotEmpty() }?.joinToString(activitySubtitleSeparator())
+            }
+            else -> null
+        }
+    }
+
+    private fun challengeLabel(metadata: Map<String, String>): String {
+        return metadata[UserActionMetadataKeys.CHALLENGE_TITLE]
+            ?.takeIf { it.isNotBlank() }
+            ?: metadata[UserActionMetadataKeys.CHALLENGE_UNIT]
+                ?.takeIf { it.isNotBlank() }
+            ?: stringProvider.get(R.string.activity_value_unknown)
+    }
+
+    private fun formatChallengeQuantity(
+        raw: String?,
+        currentLocale: Locale,
+    ): String? {
+        val scaled = raw?.toLongOrNull() ?: return null
+        return ChallengeQuantity.format(scaled, currentLocale)
+    }
+
+    private fun formatChallengeDate(
+        raw: String?,
+        currentLocale: Locale,
+    ): String? {
+        if (raw.isNullOrBlank()) return null
+        val pattern = stringProvider.get(R.string.activity_week_date_pattern)
+        val formatter =
+            DateTimeFormatterBuilder()
+                .appendPattern(pattern)
+                .toFormatter(currentLocale)
+        return runCatching { LocalDate.parse(raw).format(formatter) }.getOrNull()
     }
 
     private fun shouldSplitLines(actionType: UserActionType?): Boolean {

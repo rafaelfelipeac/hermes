@@ -34,6 +34,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.outlined.AddTask
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Calculate
@@ -49,8 +50,10 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Leaderboard
 import androidx.compose.material.icons.outlined.Repeat
+import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.SportsScore
+import androidx.compose.material.icons.outlined.TrackChanges
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -1032,6 +1035,16 @@ private fun quotedShareValue(value: String): String = TROPHIES_QUOTE + value + T
 private fun trophyShareDescription(trophy: TrophyCardUi): String {
     val categoryName = trophy.categoryName.orEmpty()
     return when (trophy.trophyId) {
+        TrophyId.CHALLENGE_ACCEPTED,
+        -> stringResource(R.string.trophies_share_desc_challenge_creations, trophy.target)
+        TrophyId.FIRST_CHALLENGE_WIN,
+        TrophyId.CHALLENGE_MOMENTUM,
+        TrophyId.CHALLENGE_VETERAN,
+        -> stringResource(R.string.trophies_share_desc_challenge_completions, trophy.target)
+        TrophyId.BACK_ON_TRACK,
+        TrophyId.COMEBACK_MOMENTUM,
+        TrophyId.NEVER_OUT,
+        -> stringResource(R.string.trophies_share_desc_challenge_recoveries, trophy.target)
         TrophyId.PODIUM_PLACE,
         TrophyId.IN_ROTATION,
         TrophyId.MAINSTAY,
@@ -1052,6 +1065,7 @@ internal fun trophyAccentColor(trophy: TrophyCardUi): Color {
 
 private fun trophyFamilyAccentColor(family: TrophyFamilyUi): Color {
     return when (family) {
+        TrophyFamilyUi.CHALLENGES -> Color(0xFF4A7A89)
         TrophyFamilyUi.FOLLOW_THROUGH -> Color(0xFF4277B8)
         TrophyFamilyUi.CONSISTENCY -> Color(0xFF2B917D)
         TrophyFamilyUi.ADAPTABILITY -> Color(0xFFB97B38)
@@ -1065,6 +1079,15 @@ private fun trophyFamilyAccentColor(family: TrophyFamilyUi): Color {
 
 internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector.ImageVector {
     return when (trophyId) {
+        TrophyId.CHALLENGE_ACCEPTED -> Icons.Outlined.AddTask
+        TrophyId.FIRST_CHALLENGE_WIN,
+        TrophyId.CHALLENGE_MOMENTUM,
+        TrophyId.CHALLENGE_VETERAN,
+        -> Icons.Outlined.TrackChanges
+        TrophyId.BACK_ON_TRACK,
+        TrophyId.COMEBACK_MOMENTUM,
+        TrophyId.NEVER_OUT,
+        -> Icons.Outlined.RestartAlt
         TrophyId.FULL_TIME,
         TrophyId.SEASON_BUILDER,
         TrophyId.SEASON_ANCHOR,

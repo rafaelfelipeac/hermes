@@ -1,9 +1,29 @@
-@file:Suppress("CyclomaticComplexMethod", "LongMethod", "NestedBlockDepth")
+@file:Suppress(
+    "ArgumentListWrapping",
+    "LargeClass",
+    "LongMethod",
+    "MaxLineLength",
+    "CyclomaticComplexMethod",
+    "NestedBlockDepth",
+    "PropertyWrapping",
+    "ReturnCount",
+)
 
 package com.rafaelfelipeac.hermes.features.trophies.domain
 
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ARCHIVED_AT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_END_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_LIFECYCLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_ENTRY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
@@ -13,17 +33,31 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.ARCHIVE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_CHALLENGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CHALLENGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REACTIVATE_CHALLENGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY
+import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyDefinition
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyMetric
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
+import java.time.Instant
 import java.time.LocalDate
 import java.util.ArrayDeque
 
@@ -81,6 +115,8 @@ class TrophyEngine(
         val record: UserActionRecord,
         val actionType: UserActionType?,
         val metadata: Map<String, String>,
+        val challengeId: Long?,
+        val challengeProgressEntryId: Long?,
         val weekStartDate: LocalDate?,
         val categoryId: Long?,
         val categoryNames: Set<String>,
@@ -106,7 +142,20 @@ class TrophyEngine(
         val completionTimestamp: Long?,
     )
 
+    private data class ChallengeMilestone(
+        val challengeId: Long,
+        val timestamp: Long,
+    )
+
+    private data class DeletedChallengeState(
+        val challenge: Challenge,
+        val entries: List<ChallengeProgressEntry>,
+    )
+
     private data class TrophyHistory(
+        val challengeCreationMilestones: List<Long>,
+        val challengeCompletionMilestones: List<Long>,
+        val challengeRecoveryMilestones: List<Long>,
         val completedWeekMilestones: List<Long>,
         val matchFitnessMilestones: List<Long>,
         val longestStreakMilestones: List<Long>,
@@ -132,6 +181,9 @@ class TrophyEngine(
             categoryId: Long?,
         ): List<Long> {
             return when (metric) {
+                TrophyMetric.CHALLENGE_CREATIONS -> challengeCreationMilestones
+                TrophyMetric.CHALLENGE_COMPLETIONS -> challengeCompletionMilestones
+                TrophyMetric.CHALLENGE_RECOVERIES -> challengeRecoveryMilestones
                 TrophyMetric.COMPLETED_WEEKS -> completedWeekMilestones
                 TrophyMetric.WORKOUT_COMPLETIONS -> matchFitnessMilestones
                 TrophyMetric.CONSECUTIVE_COMPLETED_WEEKS -> longestStreakMilestones
@@ -173,6 +225,10 @@ class TrophyEngine(
                                 record = action,
                                 actionType = action.actionType.toUserActionTypeOrNull(),
                                 metadata = metadata,
+                                challengeId =
+                                    metadata[CHALLENGE_ID]?.toLongOrNull()
+                                        ?: action.entityId?.takeIf { action.actionType.toUserActionTypeOrNull() in challengeActions },
+                                challengeProgressEntryId = metadata[CHALLENGE_PROGRESS_ENTRY_ID]?.toLongOrNull(),
                                 weekStartDate = metadata[WEEK_START_DATE]?.toLocalDateOrNull(),
                                 categoryId = metadata[CATEGORY_ID]?.toLongOrNull(),
                                 categoryNames =
@@ -184,6 +240,15 @@ class TrophyEngine(
                             )
                         }.sortedWith(compareBy<ParsedAction>({ it.record.timestamp }, { it.record.id }))
 
+                val challengeCreationMilestones = mutableListOf<Long>()
+                val challengeCompletionMilestones = mutableListOf<ChallengeMilestone>()
+                val challengeRecoveryMilestones = mutableListOf<ChallengeMilestone>()
+                val activeChallengeCompletionById = mutableMapOf<Long, ChallengeMilestone>()
+                val activeChallengeRecoveryById = mutableMapOf<Long, ChallengeMilestone>()
+                val challengesById = mutableMapOf<Long, Challenge>()
+                val challengeEntriesById = mutableMapOf<Long, MutableMap<Long, ChallengeProgressEntry>>()
+                val deletedChallengeStacksById = mutableMapOf<Long, ArrayDeque<DeletedChallengeState>>()
+                val deletedProgressEntryStacksById = mutableMapOf<Long, ArrayDeque<ChallengeProgressEntry>>()
                 val completedWeeks = linkedMapOf<LocalDate, Long>()
                 val effectiveCompletionTimestamps = mutableListOf<Long>()
                 val effectivePlanningEvents = mutableListOf<WeekEvent>()
@@ -206,9 +271,259 @@ class TrophyEngine(
                 val categoryCompletionWeekCounts = mutableMapOf<Long, MutableMap<LocalDate, Int>>()
                 val categoryTrainingBlockMilestones = mutableMapOf<Long, MutableList<Long>>()
 
+                fun currentChallengeEntries(challengeId: Long): List<ChallengeProgressEntry> {
+                    return challengeEntriesById[challengeId]
+                        ?.values
+                        ?.sortedWith(compareBy<ChallengeProgressEntry>({ it.entryDate }, { it.occurredAt }, { it.id }))
+                        .orEmpty()
+                }
+
+                fun currentChallengeResult(
+                    challengeId: Long,
+                ): com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult? {
+                    val challenge = challengesById[challengeId] ?: return null
+                    return ChallengeCalculator().calculate(
+                        challenge = challenge,
+                        progressEntries = currentChallengeEntries(challengeId),
+                        today = challenge.endDate,
+                    )
+                }
+
+                fun isChallengeCompleted(challengeId: Long): Boolean {
+                    return currentChallengeResult(challengeId)
+                        ?.status
+                        ?.let {
+                            it == com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeStatus.COMPLETED ||
+                                it == com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeStatus.EXCEEDED
+                        } == true
+                }
+
+                fun removeChallengeMilestone(
+                    milestones: MutableList<ChallengeMilestone>,
+                    challengeId: Long,
+                ): ChallengeMilestone? {
+                    val index = milestones.indexOfLast { it.challengeId == challengeId }
+                    if (index < 0) return null
+                    return milestones.removeAt(index)
+                }
+
+                fun syncChallengeMilestones(
+                    challengeId: Long,
+                    timestamp: Long,
+                ) {
+                    val isCompletedNow = isChallengeCompleted(challengeId)
+                    val hasCompletion = activeChallengeCompletionById.containsKey(challengeId)
+                    when {
+                        hasCompletion && !isCompletedNow -> {
+                            removeChallengeMilestone(challengeCompletionMilestones, challengeId)
+                            if (activeChallengeRecoveryById.remove(challengeId) != null) {
+                                removeChallengeMilestone(challengeRecoveryMilestones, challengeId)
+                            }
+                            activeChallengeCompletionById.remove(challengeId)
+                        }
+
+                        !hasCompletion && isCompletedNow -> {
+                            val recovered = currentChallengeResult(challengeId)?.recoveredCompletionAt != null
+                            val completionMilestone = ChallengeMilestone(challengeId = challengeId, timestamp = timestamp)
+                            challengeCompletionMilestones += completionMilestone
+                            activeChallengeCompletionById[challengeId] = completionMilestone
+                            if (recovered) {
+                                val recoveryMilestone = ChallengeMilestone(challengeId = challengeId, timestamp = timestamp)
+                                challengeRecoveryMilestones += recoveryMilestone
+                                activeChallengeRecoveryById[challengeId] = recoveryMilestone
+                            }
+                        }
+                    }
+                }
+
+                fun challengeFromMetadata(
+                    action: ParsedAction,
+                    createdAt: Long,
+                    updatedAt: Long,
+                ): Challenge? {
+                    val challengeId = action.challengeId ?: return null
+                    val title = action.metadata[CHALLENGE_TITLE]?.takeIf { it.isNotBlank() } ?: return null
+                    val unit = action.metadata[CHALLENGE_UNIT]?.takeIf { it.isNotBlank() } ?: return null
+                    val targetQuantity = action.metadata[CHALLENGE_TARGET_QUANTITY]?.toLongOrNull() ?: return null
+                    val startDate = action.metadata[CHALLENGE_START_DATE]?.let(LocalDate::parse) ?: return null
+                    val endDate = action.metadata[CHALLENGE_END_DATE]?.let(LocalDate::parse) ?: return null
+                    val lifecycle =
+                        action.metadata[CHALLENGE_LIFECYCLE]
+                            ?.let {
+                                runCatching { ChallengeLifecycle.valueOf(it) }.getOrNull()
+                            }
+                            ?: ChallengeLifecycle.ACTIVE
+                    val archivedAt =
+                        action.metadata[CHALLENGE_ARCHIVED_AT]
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { runCatching { Instant.parse(it) }.getOrNull() }
+                    return Challenge(
+                        id = challengeId,
+                        title = title,
+                        description =
+                            action.metadata[com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_DESCRIPTION]
+                                ?.takeIf { it.isNotBlank() },
+                        targetQuantity = targetQuantity,
+                        unit = unit,
+                        startDate = startDate,
+                        endDate = endDate,
+                        lifecycle = lifecycle,
+                        archivedAt = archivedAt,
+                        createdAt = Instant.ofEpochMilli(createdAt),
+                        updatedAt = Instant.ofEpochMilli(updatedAt),
+                    )
+                }
+
+                fun recordChallengeSnapshot(challengeId: Long) {
+                    val challenge = challengesById[challengeId] ?: return
+                    val entries = currentChallengeEntries(challengeId)
+                    deletedChallengeStacksById
+                        .getOrPut(challengeId, ::ArrayDeque)
+                        .addLast(
+                            DeletedChallengeState(
+                                challenge = challenge,
+                                entries = entries,
+                            ),
+                        )
+                }
+
+                fun restoreChallengeSnapshot(challengeId: Long): Boolean {
+                    val snapshot =
+                        deletedChallengeStacksById[challengeId]
+                            ?.removeLastIfPresent()
+                            ?: return false
+                    challengesById[challengeId] = snapshot.challenge
+                    challengeEntriesById[challengeId] = snapshot.entries.associateByTo(linkedMapOf()) { it.id }
+                    return true
+                }
+
+                fun restoreDeletedProgressEntry(entryId: Long): Boolean {
+                    val entry =
+                        deletedProgressEntryStacksById[entryId]
+                            ?.removeLastIfPresent()
+                            ?: return false
+                    challengeEntriesById.getOrPut(entry.challengeId, ::linkedMapOf)[entry.id] = entry
+                    return true
+                }
+
                 parsedActions.forEach { action ->
                     val categoryIds = resolveCategoryIds(action, categoryAliasesById)
+                    val affectedChallengeIds = linkedSetOf<Long>()
+
+                    fun markChallengeAffected(challengeId: Long?) {
+                        challengeId ?: return
+                        affectedChallengeIds += challengeId
+                    }
+
                     when (action.actionType) {
+                        CREATE_CHALLENGE -> {
+                            val challenge =
+                                challengeFromMetadata(action, action.record.timestamp, action.record.timestamp)
+                                    ?: return@forEach
+                            challengesById[challenge.id] = challenge
+                            challengeEntriesById.getOrPut(challenge.id, ::linkedMapOf)
+                            challengeCreationMilestones += action.record.timestamp
+                            markChallengeAffected(challenge.id)
+                        }
+
+                        UPDATE_CHALLENGE,
+                        ARCHIVE_CHALLENGE,
+                        REACTIVATE_CHALLENGE,
+                        -> {
+                            val challengeId = action.challengeId ?: return@forEach
+                            val currentChallenge = challengesById[challengeId] ?: return@forEach
+                            val updatedChallenge =
+                                challengeFromMetadata(
+                                    action = action,
+                                    createdAt = currentChallenge.createdAt.toEpochMilli(),
+                                    updatedAt = action.record.timestamp,
+                                ) ?: return@forEach
+                            challengesById[challengeId] = updatedChallenge
+                            markChallengeAffected(challengeId)
+                        }
+
+                        DELETE_CHALLENGE -> {
+                            val challengeId = action.challengeId ?: return@forEach
+                            markChallengeAffected(challengeId)
+                            recordChallengeSnapshot(challengeId)
+                            challengesById.remove(challengeId)
+                            challengeEntriesById.remove(challengeId)
+                            if (activeChallengeCompletionById.remove(challengeId) != null) {
+                                removeChallengeMilestone(challengeCompletionMilestones, challengeId)
+                            }
+                            if (activeChallengeRecoveryById.remove(challengeId) != null) {
+                                removeChallengeMilestone(challengeRecoveryMilestones, challengeId)
+                            }
+                        }
+
+                        CREATE_CHALLENGE_PROGRESS_ENTRY -> {
+                            val challengeId = action.challengeId ?: return@forEach
+                            val quantity = action.metadata[CHALLENGE_PROGRESS_QUANTITY]?.toLongOrNull() ?: return@forEach
+                            val entryDate =
+                                action.metadata[CHALLENGE_PROGRESS_DATE]?.let(LocalDate::parse) ?: return@forEach
+                            val entry =
+                                ChallengeProgressEntry(
+                                    id = action.record.entityId ?: return@forEach,
+                                    challengeId = challengeId,
+                                    quantity = quantity,
+                                    entryDate = entryDate,
+                                    occurredAt = Instant.ofEpochMilli(action.record.timestamp),
+                                    createdAt = Instant.ofEpochMilli(action.record.timestamp),
+                                    updatedAt = Instant.ofEpochMilli(action.record.timestamp),
+                                )
+                            challengeEntriesById.getOrPut(challengeId, ::linkedMapOf)[entry.id] = entry
+                            markChallengeAffected(challengeId)
+                        }
+
+                        UPDATE_CHALLENGE_PROGRESS_ENTRY -> {
+                            val entryId = action.challengeProgressEntryId ?: action.record.entityId ?: return@forEach
+                            val quantity = action.metadata[CHALLENGE_PROGRESS_QUANTITY]?.toLongOrNull() ?: return@forEach
+                            val entryDate =
+                                action.metadata[CHALLENGE_PROGRESS_DATE]?.let(LocalDate::parse) ?: return@forEach
+                            val challengeId = action.challengeId
+                            val currentEntry =
+                                challengeId?.let { challengeEntriesById[it]?.get(entryId) }
+                                    ?: challengeEntriesById.values.firstNotNullOfOrNull { entries -> entries[entryId] }
+                                    ?: return@forEach
+                            val updatedEntry =
+                                currentEntry.copy(
+                                    quantity = quantity,
+                                    entryDate = entryDate,
+                                    updatedAt = Instant.ofEpochMilli(action.record.timestamp),
+                                )
+                            challengeEntriesById.getOrPut(updatedEntry.challengeId, ::linkedMapOf)[entryId] = updatedEntry
+                            markChallengeAffected(updatedEntry.challengeId)
+                        }
+
+                        DELETE_CHALLENGE_PROGRESS_ENTRY -> {
+                            val entryId = action.challengeProgressEntryId ?: action.record.entityId ?: return@forEach
+                            val challengeId =
+                                action.challengeId ?: challengeEntriesById.entries.firstOrNull { (_, entries) ->
+                                    entries.containsKey(entryId)
+                                }?.key ?: return@forEach
+                            val removedEntry = challengeEntriesById[challengeId]?.remove(entryId) ?: return@forEach
+                            deletedProgressEntryStacksById
+                                .getOrPut(entryId, ::ArrayDeque)
+                                .addLast(removedEntry)
+                            markChallengeAffected(challengeId)
+                        }
+
+                        RESTORE_CHALLENGE_PROGRESS_ENTRY -> {
+                            val progressEntryId = action.challengeProgressEntryId
+                            if (progressEntryId != null) {
+                                val restoredEntry =
+                                    deletedProgressEntryStacksById[progressEntryId]
+                                        ?.removeLastIfPresent()
+                                        ?: return@forEach
+                                challengeEntriesById.getOrPut(restoredEntry.challengeId, ::linkedMapOf)[restoredEntry.id] = restoredEntry
+                                markChallengeAffected(restoredEntry.challengeId)
+                            } else {
+                                val challengeId = action.challengeId ?: return@forEach
+                                if (!restoreChallengeSnapshot(challengeId)) return@forEach
+                                markChallengeAffected(challengeId)
+                            }
+                        }
+
                         UserActionType.COMPLETE_WEEK_WORKOUTS -> {
                             val weekStartDate = action.weekStartDate ?: return@forEach
                             completedWeeks.putIfAbsent(weekStartDate, action.record.timestamp)
@@ -427,6 +742,13 @@ class TrophyEngine(
                         else -> Unit
                     }
 
+                    affectedChallengeIds.forEach { challengeId ->
+                        syncChallengeMilestones(
+                            challengeId = challengeId,
+                            timestamp = action.record.timestamp,
+                        )
+                    }
+
                     if (action.actionType in categoryTrainingBlockActions) {
                         categoryIds.forEach { categoryId ->
                             categoryTrainingBlockMilestones
@@ -488,6 +810,9 @@ class TrophyEngine(
                     }
 
                 return TrophyHistory(
+                    challengeCreationMilestones = challengeCreationMilestones.sorted(),
+                    challengeCompletionMilestones = challengeCompletionMilestones.map(ChallengeMilestone::timestamp).sorted(),
+                    challengeRecoveryMilestones = challengeRecoveryMilestones.map(ChallengeMilestone::timestamp).sorted(),
                     completedWeekMilestones = completedWeekEvents.map(WeekCompletion::completedAt),
                     matchFitnessMilestones = effectiveCompletionTimestamps.sorted(),
                     longestStreakMilestones = buildLongestStreakMilestones(completedWeeks),
@@ -622,6 +947,19 @@ class TrophyEngine(
                     UserActionType.UPDATE_WORKOUT,
                     UserActionType.UNDO_DELETE_WORKOUT,
                     UserActionType.CONVERT_REST_DAY_TO_WORKOUT,
+                )
+
+            private val challengeActions =
+                setOf(
+                    CREATE_CHALLENGE,
+                    UPDATE_CHALLENGE,
+                    ARCHIVE_CHALLENGE,
+                    REACTIVATE_CHALLENGE,
+                    DELETE_CHALLENGE,
+                    CREATE_CHALLENGE_PROGRESS_ENTRY,
+                    UPDATE_CHALLENGE_PROGRESS_ENTRY,
+                    DELETE_CHALLENGE_PROGRESS_ENTRY,
+                    RESTORE_CHALLENGE_PROGRESS_ENTRY,
                 )
         }
     }

@@ -38,6 +38,7 @@ internal fun filterActions(
             ActivityPrimaryFilter.COMPLETIONS -> action.isCompletionAction()
             ActivityPrimaryFilter.PLANNING -> action.isPlanningAction()
             ActivityPrimaryFilter.CATEGORIES -> action.isCategoryAction()
+            ActivityPrimaryFilter.CHALLENGES -> action.isChallengeAction()
             ActivityPrimaryFilter.CATEGORY -> {
                 val selectedCategoryName = context.categoryId?.let(categoryNameById::get)
                 val categoryIds = categoryIdsForAction(action, formatter)
@@ -142,6 +143,11 @@ private fun UserActionRecord.isSettingsAction(): Boolean {
     return entityType == UserActionEntityType.SETTINGS || entityType == UserActionEntityType.APP
 }
 
+private fun UserActionRecord.isChallengeAction(): Boolean {
+    val actionType = actionType.toUserActionTypeOrNull() ?: return false
+    return actionType in challengeActions
+}
+
 private val completionActions =
     setOf(
         UserActionType.COMPLETE_WORKOUT,
@@ -210,4 +216,17 @@ private val planningActions =
         UserActionType.DELETE_PERSONAL_RECORD_ENTRY,
         UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY,
         UserActionType.USE_PACE_CALCULATOR,
+    )
+
+private val challengeActions =
+    setOf(
+        UserActionType.CREATE_CHALLENGE,
+        UserActionType.UPDATE_CHALLENGE,
+        UserActionType.ARCHIVE_CHALLENGE,
+        UserActionType.REACTIVATE_CHALLENGE,
+        UserActionType.DELETE_CHALLENGE,
+        UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
     )
