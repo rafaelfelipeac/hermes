@@ -247,7 +247,7 @@ class BackupJsonCodecTest {
         val raw =
             """
             {
-              "schemaVersion": 6,
+              "schemaVersion": 5,
               "exportedAt": "2026-02-25T10:00:00Z",
               "workouts": [],
               "categories": [],

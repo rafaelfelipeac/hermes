@@ -1,7 +1,6 @@
 package com.rafaelfelipeac.hermes.features.trophies.domain.model
 
 enum class TrophyFamily {
-    CHALLENGES,
     FOLLOW_THROUGH,
     CONSISTENCY,
     ADAPTABILITY,

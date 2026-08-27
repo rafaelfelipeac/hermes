@@ -1,13 +1,6 @@
 package com.rafaelfelipeac.hermes.features.trophies.domain.model
 
 enum class TrophyId {
-    CHALLENGE_ACCEPTED,
-    FIRST_CHALLENGE_WIN,
-    CHALLENGE_MOMENTUM,
-    CHALLENGE_VETERAN,
-    BACK_ON_TRACK,
-    COMEBACK_MOMENTUM,
-    NEVER_OUT,
     FULL_TIME,
     SEASON_BUILDER,
     SEASON_ANCHOR,

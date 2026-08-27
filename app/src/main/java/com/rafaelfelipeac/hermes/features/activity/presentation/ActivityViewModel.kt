@@ -193,10 +193,6 @@ class ActivityViewModel
                     stringProvider.get(R.string.settings_categories),
                 ),
                 ActivityPrimaryFilterUi(
-                    ActivityPrimaryFilter.CHALLENGES,
-                    stringProvider.get(R.string.challenges_title),
-                ),
-                ActivityPrimaryFilterUi(
                     ActivityPrimaryFilter.CATEGORY,
                     stringProvider.get(R.string.workout_dialog_add_workout_category),
                 ),

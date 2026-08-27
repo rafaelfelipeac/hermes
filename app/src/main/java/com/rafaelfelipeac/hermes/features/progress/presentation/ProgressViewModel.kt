@@ -167,7 +167,6 @@ class ProgressViewModel
 
         private fun TrophyFamily.toUi(): TrophyFamilyUi {
             return when (this) {
-                TrophyFamily.CHALLENGES -> TrophyFamilyUi.CHALLENGES
                 TrophyFamily.FOLLOW_THROUGH -> TrophyFamilyUi.FOLLOW_THROUGH
                 TrophyFamily.CONSISTENCY -> TrophyFamilyUi.CONSISTENCY
                 TrophyFamily.ADAPTABILITY -> TrophyFamilyUi.ADAPTABILITY

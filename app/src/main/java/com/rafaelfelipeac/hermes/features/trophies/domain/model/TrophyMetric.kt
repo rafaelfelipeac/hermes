@@ -1,9 +1,6 @@
 package com.rafaelfelipeac.hermes.features.trophies.domain.model
 
 enum class TrophyMetric {
-    CHALLENGE_CREATIONS,
-    CHALLENGE_COMPLETIONS,
-    CHALLENGE_RECOVERIES,
     COMPLETED_WEEKS,
     WORKOUT_COMPLETIONS,
     CONSECUTIVE_COMPLETED_WEEKS,

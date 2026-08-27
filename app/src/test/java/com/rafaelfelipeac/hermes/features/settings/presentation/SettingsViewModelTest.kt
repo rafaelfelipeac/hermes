@@ -4,8 +4,6 @@ import app.cash.turbine.test
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGES_COUNT
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_ENTRIES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_CONFIGURED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
@@ -482,8 +480,6 @@ class SettingsViewModelTest {
             coEvery { backupRepository.getDataStats() } returns
                 BackupDataStats(
                     schemaVersion = 1,
-                    challengesCount = 5,
-                    challengeProgressEntriesCount = 7,
                     workoutsCount = 2,
                     categoriesCount = 3,
                     userActionsCount = 4,
@@ -517,8 +513,6 @@ class SettingsViewModelTest {
                             DESTINATION_TYPE to "save_as",
                             DESTINATION_CONFIGURED to "false",
                             SCHEMA_VERSION to "1",
-                            CHALLENGES_COUNT to "5",
-                            CHALLENGE_PROGRESS_ENTRIES_COUNT to "7",
                             WORKOUTS_COUNT to "2",
                             CATEGORIES_COUNT to "3",
                             USER_ACTIONS_COUNT to "4",
@@ -539,8 +533,6 @@ class SettingsViewModelTest {
             coEvery { backupRepository.importBackupJson(any()) } returns
                 ImportBackupResult.Success(
                     schemaVersion = 1,
-                    challengesCount = 5,
-                    challengeProgressEntriesCount = 7,
                     workoutsCount = 2,
                     categoriesCount = 3,
                     userActionsCount = 4,
@@ -567,8 +559,6 @@ class SettingsViewModelTest {
                         mapOf(
                             RESULT to "success",
                             SCHEMA_VERSION to "1",
-                            CHALLENGES_COUNT to "5",
-                            CHALLENGE_PROGRESS_ENTRIES_COUNT to "7",
                             WORKOUTS_COUNT to "2",
                             CATEGORIES_COUNT to "3",
                             USER_ACTIONS_COUNT to "4",

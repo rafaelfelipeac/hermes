@@ -5,7 +5,6 @@ enum class BrowseDestination {
     CATEGORIES,
     TROPHIES,
     PERSONAL_RECORDS,
-    CHALLENGES,
     PACE_CALCULATOR,
     ACTIVITIES,
     BACKUP,
