@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Calculate
@@ -67,6 +68,7 @@ import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
+import com.rafaelfelipeac.hermes.features.challenges.presentation.ChallengesScreen
 import com.rafaelfelipeac.hermes.features.pacecalculator.presentation.PaceCalculatorRoute
 import com.rafaelfelipeac.hermes.features.personalrecords.presentation.PersonalRecordsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.DeveloperModeScreen
@@ -121,6 +123,12 @@ fun BrowseScreen(
                 modifier = modifier,
                 settingsDistanceUnit = settingsState.distanceUnit,
                 settingsWeightUnit = settingsState.weightUnit,
+                onBack = onBack,
+            )
+
+        BrowseDestination.CHALLENGES ->
+            ChallengesScreen(
+                modifier = modifier,
                 onBack = onBack,
             )
 
@@ -213,6 +221,14 @@ private fun BrowseHome(
             icon = Icons.Outlined.Leaderboard,
             onClick = { onNavigateTo(BrowseDestination.PERSONAL_RECORDS) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "personal_records"),
+        )
+
+        BrowseDestinationCard(
+            title = stringResource(R.string.challenges_title),
+            subtitle = stringResource(R.string.browse_challenges_subtitle),
+            icon = Icons.Filled.Flag,
+            onClick = { onNavigateTo(BrowseDestination.CHALLENGES) },
+            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "challenges"),
         )
 
         BrowseDestinationCard(

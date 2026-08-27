@@ -50,6 +50,7 @@ class BackupRepositoryImplTest {
             repository =
                 BackupRepositoryImpl(
                     database = database,
+                    challengeDao = database.challengeDao(),
                     workoutDao = database.workoutDao(),
                     categoryDao = database.categoryDao(),
                     userActionDao = database.userActionDao(),
@@ -64,7 +65,7 @@ class BackupRepositoryImplTest {
     }
 
     @Test
-    fun exportBackupJson_writesPersonalRecordsAndUnitPreferencesInV4() =
+    fun exportBackupJson_writesPersonalRecordsAndUnitPreferencesInV5() =
         runTest {
             settingsRepository.setDistanceUnit(DistanceUnit.MILES)
             settingsRepository.setPaceUnit(PaceUnit.MIN_PER_MI)
@@ -105,7 +106,7 @@ class BackupRepositoryImplTest {
             assertTrue(decoded is com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Success)
             val snapshot =
                 (decoded as com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Success).snapshot
-            assertEquals(BackupJsonCodec.SCHEMA_VERSION_V4, snapshot.schemaVersion)
+            assertEquals(BackupJsonCodec.SCHEMA_VERSION_V5, snapshot.schemaVersion)
             assertEquals(1, snapshot.personalRecordFamilies.size)
             assertEquals(1, snapshot.personalRecordEntries.size)
             assertEquals(WeekStartDay.WEDNESDAY.name, snapshot.settings?.weekStartDay)

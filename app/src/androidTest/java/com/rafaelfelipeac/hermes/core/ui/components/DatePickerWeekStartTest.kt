@@ -1,7 +1,7 @@
 package com.rafaelfelipeac.hermes.core.ui.components
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -86,8 +86,8 @@ class DatePickerWeekStartTest {
 
         composeRule.onNodeWithText(dateLabel).performClick()
 
-        composeRule.onNodeWithContentDescription(wednesdayLabel).assertExists()
-        composeRule.onNodeWithContentDescription(mondayLabel).assertExists()
+        composeRule.onNodeWithContentDescription(wednesdayLabel).assertIsDisplayed()
+        composeRule.onNodeWithContentDescription(mondayLabel).assertIsDisplayed()
 
         val wLeft =
             composeRule.onNodeWithContentDescription(wednesdayLabel, useUnmergedTree = true)

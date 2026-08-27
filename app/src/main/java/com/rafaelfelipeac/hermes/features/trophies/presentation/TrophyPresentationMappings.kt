@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 
 internal fun TrophyFamily.toUi(): TrophyFamilyUi {
     return when (this) {
+        TrophyFamily.CHALLENGES -> TrophyFamilyUi.CHALLENGES
         TrophyFamily.FOLLOW_THROUGH -> TrophyFamilyUi.FOLLOW_THROUGH
         TrophyFamily.CONSISTENCY -> TrophyFamilyUi.CONSISTENCY
         TrophyFamily.ADAPTABILITY -> TrophyFamilyUi.ADAPTABILITY
@@ -23,6 +24,13 @@ internal fun TrophyFamily.toUi(): TrophyFamilyUi {
 @StringRes
 fun trophyNameRes(trophyId: TrophyId): Int {
     return when (trophyId) {
+        TrophyId.CHALLENGE_ACCEPTED -> R.string.trophies_name_challenge_accepted
+        TrophyId.FIRST_CHALLENGE_WIN -> R.string.trophies_name_first_challenge_win
+        TrophyId.CHALLENGE_MOMENTUM -> R.string.trophies_name_challenge_momentum
+        TrophyId.CHALLENGE_VETERAN -> R.string.trophies_name_challenge_veteran
+        TrophyId.BACK_ON_TRACK -> R.string.trophies_name_back_on_track
+        TrophyId.COMEBACK_MOMENTUM -> R.string.trophies_name_comeback_momentum
+        TrophyId.NEVER_OUT -> R.string.trophies_name_never_out
         TrophyId.FULL_TIME -> R.string.trophies_name_full_time
         TrophyId.SEASON_BUILDER -> R.string.trophies_name_season_builder
         TrophyId.SEASON_ANCHOR -> R.string.trophies_name_season_anchor
@@ -75,6 +83,31 @@ internal fun trophyDescriptionRes(
     isUnlocked: Boolean,
 ): Int {
     return when (trophyId) {
+        TrophyId.CHALLENGE_ACCEPTED,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_challenge_creations_unlocked
+            } else {
+                R.string.trophies_desc_challenge_creations_locked
+            }
+        TrophyId.FIRST_CHALLENGE_WIN,
+        TrophyId.CHALLENGE_MOMENTUM,
+        TrophyId.CHALLENGE_VETERAN,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_challenge_completions_unlocked
+            } else {
+                R.string.trophies_desc_challenge_completions_locked
+            }
+        TrophyId.BACK_ON_TRACK,
+        TrophyId.COMEBACK_MOMENTUM,
+        TrophyId.NEVER_OUT,
+        ->
+            if (isUnlocked) {
+                R.string.trophies_desc_challenge_recoveries_unlocked
+            } else {
+                R.string.trophies_desc_challenge_recoveries_locked
+            }
         TrophyId.FULL_TIME,
         TrophyId.SEASON_BUILDER,
         TrophyId.SEASON_ANCHOR,
@@ -231,6 +264,16 @@ internal fun trophyDescriptionRes(
 @StringRes
 internal fun trophyShareDescriptionRes(trophyId: TrophyId): Int {
     return when (trophyId) {
+        TrophyId.CHALLENGE_ACCEPTED,
+        -> R.string.trophies_share_desc_challenge_creations
+        TrophyId.FIRST_CHALLENGE_WIN,
+        TrophyId.CHALLENGE_MOMENTUM,
+        TrophyId.CHALLENGE_VETERAN,
+        -> R.string.trophies_share_desc_challenge_completions
+        TrophyId.BACK_ON_TRACK,
+        TrophyId.COMEBACK_MOMENTUM,
+        TrophyId.NEVER_OUT,
+        -> R.string.trophies_share_desc_challenge_recoveries
         TrophyId.FULL_TIME,
         TrophyId.SEASON_BUILDER,
         TrophyId.SEASON_ANCHOR,
@@ -292,6 +335,7 @@ internal fun trophyShareDescriptionRes(trophyId: TrophyId): Int {
 @StringRes
 internal fun familyTitleRes(family: TrophyFamilyUi): Int {
     return when (family) {
+        TrophyFamilyUi.CHALLENGES -> R.string.trophies_family_challenges
         TrophyFamilyUi.FOLLOW_THROUGH -> R.string.trophies_family_follow_through
         TrophyFamilyUi.CONSISTENCY -> R.string.trophies_family_consistency
         TrophyFamilyUi.ADAPTABILITY -> R.string.trophies_family_adaptability
@@ -306,6 +350,7 @@ internal fun familyTitleRes(family: TrophyFamilyUi): Int {
 @StringRes
 internal fun familyDescriptionRes(family: TrophyFamilyUi): Int {
     return when (family) {
+        TrophyFamilyUi.CHALLENGES -> R.string.trophies_family_challenges_desc
         TrophyFamilyUi.FOLLOW_THROUGH -> R.string.trophies_family_follow_through_desc
         TrophyFamilyUi.CONSISTENCY -> R.string.trophies_family_consistency_desc
         TrophyFamilyUi.ADAPTABILITY -> R.string.trophies_family_adaptability_desc

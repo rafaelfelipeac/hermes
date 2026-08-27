@@ -29,6 +29,7 @@ data class TrophySectionUi(
 )
 
 enum class TrophyFamilyUi {
+    CHALLENGES,
     FOLLOW_THROUGH,
     CONSISTENCY,
     ADAPTABILITY,

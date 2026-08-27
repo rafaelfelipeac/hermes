@@ -1,6 +1,8 @@
 package com.rafaelfelipeac.hermes.features.backup.data
 
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeProgressEntryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.INVALID_FIELD_VALUE
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError.UNSUPPORTED_SCHEMA_VERSION
@@ -27,7 +29,8 @@ internal object BackupJsonCodec {
     internal const val SCHEMA_VERSION_V2 = 2
     internal const val SCHEMA_VERSION_V3 = 3
     internal const val SCHEMA_VERSION_V4 = 4
-    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V4
+    internal const val SCHEMA_VERSION_V5 = 5
+    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V5
 
     private val json =
         Json {
@@ -41,6 +44,14 @@ internal object BackupJsonCodec {
             put(KEY_EXPORTED_AT, snapshot.exportedAt)
 
             snapshot.appVersion?.let { put(KEY_APP_VERSION, it) }
+
+            putJsonArray(KEY_CHALLENGES) {
+                snapshot.challenges.forEach { addChallenge(it) }
+            }
+
+            putJsonArray(KEY_CHALLENGE_PROGRESS_ENTRIES) {
+                snapshot.challengeProgressEntries.forEach { addChallengeProgressEntry(it) }
+            }
 
             putJsonArray(KEY_WORKOUTS) {
                 snapshot.workouts.forEach { addWorkout(it) }
@@ -90,8 +101,41 @@ internal object BackupJsonCodec {
             SCHEMA_VERSION_V2 -> BackupV2Decoder.decode(root)
             SCHEMA_VERSION_V3 -> BackupV3Decoder.decode(root)
             SCHEMA_VERSION_V4 -> BackupV4Decoder.decode(root)
+            SCHEMA_VERSION_V5 -> BackupV5Decoder.decode(root)
             else -> Failure(UNSUPPORTED_SCHEMA_VERSION)
         }
+    }
+
+    private fun JsonArrayBuilder.addChallenge(record: BackupChallengeRecord) {
+        add(
+            buildJsonObject {
+                put(KEY_ID, record.id)
+                put(KEY_TITLE, record.title)
+                record.description?.let { put(KEY_DESCRIPTION, it) }
+                put(KEY_TARGET_QUANTITY, record.targetQuantity)
+                put(KEY_UNIT, record.unit)
+                put(KEY_CREATED_AT, record.createdAt)
+                put(KEY_UPDATED_AT, record.updatedAt)
+                put(KEY_LIFECYCLE, record.lifecycle)
+                put(KEY_START_DATE, record.startDate)
+                put(KEY_END_DATE, record.endDate)
+                record.archivedAt?.let { put(KEY_ARCHIVED_AT, it) }
+            },
+        )
+    }
+
+    private fun JsonArrayBuilder.addChallengeProgressEntry(record: BackupChallengeProgressEntryRecord) {
+        add(
+            buildJsonObject {
+                put(KEY_ID, record.id)
+                put(KEY_CHALLENGE_ID, record.challengeId)
+                put(KEY_VALUE, record.quantity)
+                put(KEY_ENTRY_DATE, record.entryDate)
+                put(KEY_OCCURRED_AT, record.occurredAt)
+                put(KEY_CREATED_AT, record.createdAt)
+                put(KEY_UPDATED_AT, record.updatedAt)
+            },
+        )
     }
 
     private fun JsonArrayBuilder.addWorkout(record: BackupWorkoutRecord) {

@@ -364,6 +364,7 @@ internal fun trophySnackbarNeedsFabClearance(
             currentDestination == BROWSE &&
                 (
                     currentBrowseDestination == BrowseDestination.CATEGORIES ||
-                        currentBrowseDestination == BrowseDestination.PERSONAL_RECORDS
+                        currentBrowseDestination == BrowseDestination.PERSONAL_RECORDS ||
+                        currentBrowseDestination == BrowseDestination.CHALLENGES
                 )
         )

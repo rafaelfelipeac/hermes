@@ -125,10 +125,58 @@ val MIGRATION_4_5 =
         }
     }
 
+val MIGRATION_5_6 =
+    object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS challenges (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    title TEXT NOT NULL,
+                    description TEXT,
+                    targetQuantity INTEGER NOT NULL,
+                    unit TEXT NOT NULL,
+                    startDate TEXT NOT NULL,
+                    endDate TEXT NOT NULL,
+                    lifecycle TEXT NOT NULL,
+                    archivedAt INTEGER,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS challenge_progress_entries (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                    challengeId INTEGER NOT NULL,
+                    quantity INTEGER NOT NULL,
+                    entryDate TEXT NOT NULL,
+                    occurredAt INTEGER NOT NULL,
+                    createdAt INTEGER NOT NULL,
+                    updatedAt INTEGER NOT NULL,
+                    FOREIGN KEY(challengeId) REFERENCES challenges(id) ON DELETE CASCADE
+                )
+                """.trimIndent(),
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_challenges_lifecycle ON challenges(lifecycle)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_challenges_updatedAt ON challenges(updatedAt)",
+            )
+            db.execSQL(
+                "CREATE INDEX IF NOT EXISTS index_challenge_progress_entries_challengeId_entryDate_occurredAt_id " +
+                    "ON challenge_progress_entries(challengeId, entryDate, occurredAt, id)",
+            )
+        }
+    }
+
 val ALL_MIGRATIONS =
     listOf(
         MIGRATION_1_2,
         MIGRATION_2_3,
         MIGRATION_3_4,
         MIGRATION_4_5,
+        MIGRATION_5_6,
     )
