@@ -830,6 +830,7 @@
     <string name="activity_action_create_challenge_progress_entry">لقد سجّلت تقدّم التحدي.</string>
     <string name="activity_action_update_challenge_progress_entry">لقد حدّثت تقدّم التحدي.</string>
     <string name="activity_action_delete_challenge_progress_entry">لقد حذفت تقدّم التحدي.</string>
+    <string name="activity_action_restore_challenge">لقد استعدت تحديًا.</string>
     <string name="activity_action_restore_challenge_progress_entry">لقد استعدت تقدّم التحدي.</string>
     <string name="activity_action_create_challenge_named">لقد أنشأت التحدي %1$s.</string>
     <string name="activity_action_update_challenge_named">لقد حدّثت التحدي %1$s.</string>
@@ -839,6 +840,7 @@
     <string name="activity_action_create_challenge_progress_entry_named">لقد سجّلت تقدّمًا لـ %1$s.</string>
     <string name="activity_action_update_challenge_progress_entry_named">لقد حدّثت تقدّم %1$s.</string>
     <string name="activity_action_delete_challenge_progress_entry_named">لقد حذفت تقدّم %1$s.</string>
+    <string name="activity_action_restore_challenge_named">لقد استعدت التحدي %1$s.</string>
     <string name="activity_action_restore_challenge_progress_entry_named">لقد استعدت تقدّم %1$s.</string>
     <string name="activity_subtitle_challenge_dates">%1$s إلى %2$s.</string>
     <string name="activity_subtitle_challenge_progress">%1$s في %2$s.</string>

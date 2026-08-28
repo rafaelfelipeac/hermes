@@ -516,3 +516,6 @@ Recent learnings:
 - Feature-heavy release notes stay clearer when they group implementation breadth into user outcomes. For Personal Records, the record workflow, calculator, unit preferences and cross-feature integrations are easier to scan than a list of internal migrations and UI refinements.
 - Challenge trophy replay needs a full snapshot restore path for deleted challenges, because the undo flow rehydrates the parent challenge and its entries without replaying each entry as its own action.
 - Completion-state metadata belongs on the mutation log itself. Logging `wasCompleted` and `isCompleted` at the change boundary keeps Activity and trophy replay aligned when a challenge crosses the threshold, reverses, or gets restored.
+- Validation-driven Compose flows need a synchronous accept/reject boundary before dismissal so validation errors stay visible.
+- Challenge lifecycle and `archivedAt` should stay outside the general editor to preserve the persistence invariant used by backup validation.
+- Activity metadata is replay input. Progress updates need the challenge-specific quantity and date keys in addition to the display fields.

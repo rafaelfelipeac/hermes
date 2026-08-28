@@ -228,5 +228,6 @@ private val challengeActions =
         UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY,
         UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY,
         UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.RESTORE_CHALLENGE,
         UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
     )

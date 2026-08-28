@@ -34,8 +34,9 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -67,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
+import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
@@ -212,7 +214,7 @@ fun ChallengesScreen(
                     onAddProgress = { quantity, date ->
                         state.selectedChallenge?.id?.let { challengeId ->
                             viewModel.addProgressEntry(challengeId, quantity, date)
-                        }
+                        } ?: false
                     },
                     onEditProgress = { entryId, quantity, date ->
                         viewModel.updateProgressEntry(entryId, quantity, date)
@@ -238,17 +240,17 @@ fun ChallengesScreen(
                 ChallengesEditorRoute(
                     modifier = Modifier.padding(padding),
                     editorState = state.editorState,
-                    validationMessage = state.validationMessage,
+                    validationMessage = state.editorState.validationMessage,
                     onTitleChange = viewModel::updateEditorTitle,
                     onDescriptionChange = viewModel::updateEditorDescription,
                     onTargetQuantityChange = viewModel::updateEditorTargetQuantity,
                     onUnitChange = viewModel::updateEditorUnit,
                     onStartDateChange = viewModel::updateEditorStartDate,
                     onEndDateChange = viewModel::updateEditorEndDate,
-                    onLifecycleChange = viewModel::updateEditorLifecycle,
                     onSave = {
-                        viewModel.saveEditorChallenge()
-                        route = editorOriginRoute
+                        if (viewModel.saveEditorChallenge()) {
+                            route = editorOriginRoute
+                        }
                     },
                     onCancel = { route = editorOriginRoute },
                 )
@@ -425,8 +427,8 @@ private fun ChallengesDetailRoute(
     onArchive: (Long) -> Unit,
     onReactivate: (Long) -> Unit,
     onDelete: (Long) -> Unit,
-    onAddProgress: (String, LocalDate) -> Unit,
-    onEditProgress: (Long, String, LocalDate) -> Unit,
+    onAddProgress: (String, LocalDate) -> Boolean,
+    onEditProgress: (Long, String, LocalDate) -> Boolean,
     onDeleteProgress: (Long) -> Unit,
 ) {
     val challenge = state.selectedChallenge
@@ -443,7 +445,6 @@ private fun ChallengesDetailRoute(
     val today = LocalDate.now()
     val validDate = challenge.endDate.coerceAtMost(today).takeIf { !it.isBefore(challenge.startDate) }
     var showProgressDialog by rememberSaveable(challenge.id) { mutableStateOf(false) }
-    var showDatePicker by rememberSaveable(challenge.id) { mutableStateOf(false) }
     var customEntryDate by rememberSaveable(challenge.id) { mutableStateOf(validDate ?: challenge.endDate) }
     var customEntryQuantity by rememberSaveable(challenge.id) { mutableStateOf("") }
     var showEditProgressDialog by rememberSaveable(challenge.id) { mutableStateOf(false) }
@@ -547,12 +548,14 @@ private fun ChallengesDetailRoute(
             title = stringResource(R.string.challenges_add_progress),
             date = customEntryDate,
             quantity = customEntryQuantity,
+            validationMessage = state.editorState.validationMessage,
             onDateChange = { customEntryDate = it },
             onQuantityChange = { customEntryQuantity = it },
             onDismiss = { showProgressDialog = false },
             onConfirm = {
-                onAddProgress(customEntryQuantity, customEntryDate)
-                showProgressDialog = false
+                if (onAddProgress(customEntryQuantity, customEntryDate)) {
+                    showProgressDialog = false
+                }
             },
         )
     }
@@ -562,20 +565,22 @@ private fun ChallengesDetailRoute(
             title = stringResource(R.string.challenges_edit_progress),
             date = editProgressDate,
             quantity = editProgressQuantity,
+            validationMessage = state.editorState.validationMessage,
             onDateChange = { editProgressDate = it },
             onQuantityChange = { editProgressQuantity = it },
             onDismiss = { showEditProgressDialog = false },
             onConfirm = {
-                onEditProgress(selectedProgressEntryId!!, editProgressQuantity, editProgressDate)
-                showEditProgressDialog = false
-                selectedProgressEntryId = null
+                if (onEditProgress(selectedProgressEntryId!!, editProgressQuantity, editProgressDate)) {
+                    showEditProgressDialog = false
+                    selectedProgressEntryId = null
+                }
             },
         )
     }
 }
 
 @Composable
-private fun ChallengesEditorRoute(
+internal fun ChallengesEditorRoute(
     modifier: Modifier,
     editorState: ChallengeEditorState,
     validationMessage: String?,
@@ -585,10 +590,12 @@ private fun ChallengesEditorRoute(
     onUnitChange: (String) -> Unit,
     onStartDateChange: (LocalDate?) -> Unit,
     onEndDateChange: (LocalDate?) -> Unit,
-    onLifecycleChange: (ChallengeLifecycle) -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
 ) {
+    var showStartDatePicker by rememberSaveable { mutableStateOf(false) }
+    var showEndDatePicker by rememberSaveable { mutableStateOf(false) }
+
     Column(
         modifier = modifier.fillMaxSize().padding(SpacingXl),
         verticalArrangement = Arrangement.spacedBy(SpacingMd),
@@ -625,32 +632,21 @@ private fun ChallengesEditorRoute(
         )
 
         Row(horizontalArrangement = Arrangement.spacedBy(SpacingSm)) {
-            FilterChip(
-                selected = editorState.lifecycle == ChallengeLifecycle.ACTIVE,
-                onClick = { onLifecycleChange(ChallengeLifecycle.ACTIVE) },
-                label = { Text(text = stringResource(R.string.challenges_lifecycle_active)) },
-            )
-            FilterChip(
-                selected = editorState.lifecycle == ChallengeLifecycle.ARCHIVED,
-                onClick = { onLifecycleChange(ChallengeLifecycle.ARCHIVED) },
-                label = { Text(text = stringResource(R.string.challenges_lifecycle_archived)) },
-            )
-        }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(SpacingSm)) {
-            TextButton(onClick = {
-                if (editorState.startDate != null) {
-                    onStartDateChange(editorState.startDate)
+            TextButton(onClick = { showStartDatePicker = true }) {
+                Column(horizontalAlignment = Alignment.Start) {
+                    Text(text = stringResource(R.string.challenges_field_start_date))
+                    editorState.startDate?.let { date ->
+                        Text(text = formatWorkoutDate(date, Locale.getDefault()))
+                    }
                 }
-            }) {
-                Text(text = stringResource(R.string.challenges_field_start_date))
             }
-            TextButton(onClick = {
-                if (editorState.endDate != null) {
-                    onEndDateChange(editorState.endDate)
+            TextButton(onClick = { showEndDatePicker = true }) {
+                Column(horizontalAlignment = Alignment.Start) {
+                    Text(text = stringResource(R.string.challenges_field_end_date))
+                    editorState.endDate?.let { date ->
+                        Text(text = formatWorkoutDate(date, Locale.getDefault()))
+                    }
                 }
-            }) {
-                Text(text = stringResource(R.string.challenges_field_end_date))
             }
         }
 
@@ -662,6 +658,22 @@ private fun ChallengesEditorRoute(
                 Text(text = stringResource(R.string.save_changes))
             }
         }
+    }
+
+    if (showStartDatePicker) {
+        ChallengeDatePickerDialog(
+            date = editorState.startDate ?: LocalDate.now(),
+            onDateSelected = onStartDateChange,
+            onDismiss = { showStartDatePicker = false },
+        )
+    }
+
+    if (showEndDatePicker) {
+        ChallengeDatePickerDialog(
+            date = editorState.endDate ?: editorState.startDate ?: LocalDate.now(),
+            onDateSelected = onEndDateChange,
+            onDismiss = { showEndDatePicker = false },
+        )
     }
 }
 
@@ -760,6 +772,7 @@ private fun ChallengeProgressDialog(
     title: String,
     date: LocalDate,
     quantity: String,
+    validationMessage: String?,
     onDateChange: (LocalDate) -> Unit,
     onQuantityChange: (String) -> Unit,
     onDismiss: () -> Unit,
@@ -771,6 +784,9 @@ private fun ChallengeProgressDialog(
         title = { Text(text = title) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+                validationMessage?.let { message ->
+                    Text(text = message, color = colorScheme.error)
+                }
                 OutlinedTextField(
                     value = quantity,
                     onValueChange = onQuantityChange,
@@ -779,7 +795,7 @@ private fun ChallengeProgressDialog(
                     keyboardOptions = DefaultTextFieldKeyboardOptions,
                 )
                 TextButton(onClick = { showDatePicker = true }) {
-                    Text(text = date.toString())
+                    Text(text = formatWorkoutDate(date, Locale.getDefault()))
                 }
             }
         },
@@ -796,31 +812,49 @@ private fun ChallengeProgressDialog(
     )
 
     if (showDatePicker) {
-        val datePickerState =
-            androidx.compose.material3.DatePickerState(
+        ChallengeDatePickerDialog(
+            date = date,
+            onDateSelected = onDateChange,
+            onDismiss = { showDatePicker = false },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ChallengeDatePickerDialog(
+    date: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    val selectedDateMillis = remember(date) { date.toUtcEpochMillis() }
+    val datePickerState =
+        remember(selectedDateMillis) {
+            DatePickerState(
                 locale = Locale.getDefault(),
-                initialSelectedDateMillis = date.toUtcEpochMillis(),
+                initialSelectedDateMillis = selectedDateMillis,
             )
-        HermesDatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let { onDateChange(it.toUtcLocalDate()) }
-                        showDatePicker = false
-                    },
-                ) {
-                    Text(text = stringResource(R.string.save_changes))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(text = stringResource(R.string.add_workout_cancel))
-                }
-            },
-        ) {
-            androidx.compose.material3.DatePicker(state = datePickerState)
         }
+
+    HermesDatePickerDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    datePickerState.selectedDateMillis?.let { onDateSelected(it.toUtcLocalDate()) }
+                    onDismiss()
+                },
+            ) {
+                Text(text = stringResource(R.string.save_changes))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.add_workout_cancel))
+            }
+        },
+    ) {
+        DatePicker(state = datePickerState)
     }
 }
 

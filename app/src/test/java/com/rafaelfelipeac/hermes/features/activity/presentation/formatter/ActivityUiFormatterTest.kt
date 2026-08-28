@@ -27,6 +27,8 @@ class ActivityUiFormatterTest {
                     R.string.activity_action_use_pace_calculator -> "You used the pace calculator."
                     R.string.activity_action_create_personal_record_entry ->
                         "You added a $firstArg PR result."
+                    R.string.activity_action_restore_challenge_named ->
+                        "You restored the challenge $firstArg."
                     R.string.activity_subtitle_separator -> "•"
                     R.string.activity_week_date_pattern -> "MMM d, uuuu"
                     R.string.settings_unit_kilometers -> "km"
@@ -158,6 +160,27 @@ class ActivityUiFormatterTest {
         assertEquals(
             "39:20 • Aug 24, 2026",
             formatter.buildSubtitle(record, metadata, Locale.US),
+        )
+    }
+
+    @Test
+    fun restoreChallenge_usesDedicatedActivityTitle() {
+        val record =
+            UserActionRecord(
+                id = 1L,
+                actionType = UserActionType.RESTORE_CHALLENGE.name,
+                entityType = UserActionEntityType.CHALLENGE.name,
+                entityId = 42L,
+                metadata = null,
+                timestamp = 0L,
+            )
+
+        assertEquals(
+            "You restored the challenge \"August distance\".",
+            formatter.buildTitle(
+                record,
+                mapOf(UserActionMetadataKeys.CHALLENGE_TITLE to "August distance"),
+            ),
         )
     }
 

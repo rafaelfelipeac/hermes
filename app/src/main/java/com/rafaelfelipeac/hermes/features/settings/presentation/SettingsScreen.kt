@@ -526,17 +526,17 @@ private fun SettingsVersionCard(
     hasReleaseNotes: Boolean,
     onClick: () -> Unit,
 ) {
-    val clickModifier =
-        if (hasReleaseNotes) {
-            Modifier.clickable(onClick = onClick)
-        } else {
-            Modifier
-        }
-
     SettingsCard(
         modifier =
-            clickModifier
-                .testTag(SETTINGS_APP_VERSION_CARD_TAG),
+            Modifier
+                .testTag(SETTINGS_APP_VERSION_CARD_TAG)
+                .then(
+                    if (hasReleaseNotes) {
+                        Modifier.clickable(onClick = onClick)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         Column(
             modifier =

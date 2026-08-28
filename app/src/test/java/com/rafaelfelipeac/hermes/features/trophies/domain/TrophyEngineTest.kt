@@ -51,7 +51,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
@@ -895,7 +895,7 @@ class TrophyEngineTest {
     ): UserActionRecord {
         return UserActionRecord(
             id = id,
-            actionType = RESTORE_CHALLENGE_PROGRESS_ENTRY.name,
+            actionType = RESTORE_CHALLENGE.name,
             entityType = com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CHALLENGE.name,
             entityId = challengeId,
             metadata =

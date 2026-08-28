@@ -238,6 +238,9 @@ class ActivityUiFormatter(
             UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY ->
                 stringProvider.get(R.string.activity_action_delete_challenge_progress_entry)
 
+            UserActionType.RESTORE_CHALLENGE ->
+                stringProvider.get(R.string.activity_action_restore_challenge)
+
             UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY ->
                 stringProvider.get(R.string.activity_action_restore_challenge_progress_entry)
 
@@ -569,6 +572,7 @@ class ActivityUiFormatter(
             UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY,
             UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY,
             UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY,
+            UserActionType.RESTORE_CHALLENGE,
             UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
             -> buildChallengeSubtitle(actionType, metadata, currentLocale)
             else -> null
@@ -620,6 +624,11 @@ class ActivityUiFormatter(
             UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY ->
                 stringProvider.get(
                     R.string.activity_action_delete_challenge_progress_entry_named,
+                    quoteValue(label) ?: label,
+                )
+            UserActionType.RESTORE_CHALLENGE ->
+                stringProvider.get(
+                    R.string.activity_action_restore_challenge_named,
                     quoteValue(label) ?: label,
                 )
             UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY ->
@@ -729,6 +738,7 @@ class ActivityUiFormatter(
 
                 details.takeIf { it.isNotEmpty() }?.joinToString(activitySubtitleSeparator())
             }
+            UserActionType.RESTORE_CHALLENGE -> null
             else -> null
         }
     }

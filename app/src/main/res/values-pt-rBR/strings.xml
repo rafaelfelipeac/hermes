@@ -793,6 +793,7 @@
     <string name="activity_action_create_challenge_progress_entry">Você registrou progresso do desafio.</string>
     <string name="activity_action_update_challenge_progress_entry">Você atualizou o progresso do desafio.</string>
     <string name="activity_action_delete_challenge_progress_entry">Você excluiu o progresso do desafio.</string>
+    <string name="activity_action_restore_challenge">Você restaurou um desafio.</string>
     <string name="activity_action_restore_challenge_progress_entry">Você restaurou o progresso do desafio.</string>
     <string name="activity_action_create_challenge_named">Você criou o desafio %1$s.</string>
     <string name="activity_action_update_challenge_named">Você atualizou o desafio %1$s.</string>
@@ -802,6 +803,7 @@
     <string name="activity_action_create_challenge_progress_entry_named">Você registrou progresso para %1$s.</string>
     <string name="activity_action_update_challenge_progress_entry_named">Você atualizou o progresso de %1$s.</string>
     <string name="activity_action_delete_challenge_progress_entry_named">Você excluiu o progresso de %1$s.</string>
+    <string name="activity_action_restore_challenge_named">Você restaurou o desafio %1$s.</string>
     <string name="activity_action_restore_challenge_progress_entry_named">Você restaurou o progresso de %1$s.</string>
     <string name="activity_subtitle_challenge_dates">De %1$s a %2$s.</string>
     <string name="activity_subtitle_challenge_progress">%1$s em %2$s.</string>

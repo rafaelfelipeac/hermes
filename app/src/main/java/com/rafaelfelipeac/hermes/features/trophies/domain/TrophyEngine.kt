@@ -43,6 +43,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CHA
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REACTIVATE_CHALLENGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_RACE_EVENT
@@ -508,6 +509,12 @@ class TrophyEngine(
                             markChallengeAffected(challengeId)
                         }
 
+                        RESTORE_CHALLENGE -> {
+                            val challengeId = action.challengeId ?: return@forEach
+                            if (!restoreChallengeSnapshot(challengeId)) return@forEach
+                            markChallengeAffected(challengeId)
+                        }
+
                         RESTORE_CHALLENGE_PROGRESS_ENTRY -> {
                             val progressEntryId = action.challengeProgressEntryId
                             if (progressEntryId != null) {
@@ -959,6 +966,7 @@ class TrophyEngine(
                     CREATE_CHALLENGE_PROGRESS_ENTRY,
                     UPDATE_CHALLENGE_PROGRESS_ENTRY,
                     DELETE_CHALLENGE_PROGRESS_ENTRY,
+                    RESTORE_CHALLENGE,
                     RESTORE_CHALLENGE_PROGRESS_ENTRY,
                 )
         }

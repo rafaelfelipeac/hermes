@@ -1,6 +1,6 @@
 @file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 
-@file:Suppress("LongMethod", "MaxLineLength", "TooManyFunctions", "ArgumentListWrapping")
+@file:Suppress("LongMethod", "MaxLineLength", "TooManyFunctions", "ArgumentListWrapping", "ReturnCount")
 
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
@@ -39,6 +39,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_CHA
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REACTIVATE_CHALLENGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY
@@ -215,49 +216,46 @@ class ChallengesViewModel
             updateEditor { copy(endDate = date, isDirty = true, validationMessage = null) }
         }
 
-        fun updateEditorLifecycle(lifecycle: ChallengeLifecycle) {
-            updateEditor { copy(lifecycle = lifecycle, isDirty = true, validationMessage = null) }
-        }
+        fun saveEditorChallenge(): Boolean {
+            val editor = editorState.value
+            val title = editor.title.trim()
+            val description = editor.description.trim()
+            val unit = editor.unit.trim()
+            val startDate = editor.startDate
+            val endDate = editor.endDate
+            val targetQuantity =
+                ChallengeQuantity.parseLocalized(editor.targetQuantityText, Locale.getDefault())
 
-        fun saveEditorChallenge() {
+            when {
+                title.isBlank() -> {
+                    setEditorValidation(R.string.challenge_validation_title_required)
+                    return false
+                }
+
+                unit.isBlank() -> {
+                    setEditorValidation(R.string.challenge_validation_unit_required)
+                    return false
+                }
+
+                targetQuantity == null -> {
+                    setEditorValidation(R.string.challenge_validation_quantity_required)
+                    return false
+                }
+
+                startDate == null || endDate == null -> {
+                    setEditorValidation(R.string.challenge_validation_dates_required)
+                    return false
+                }
+
+                startDate.isAfter(endDate) -> {
+                    setEditorValidation(R.string.challenge_validation_date_range_invalid)
+                    return false
+                }
+            }
+
+            clearValidationMessage()
             viewModelScope.launch {
                 actionMutex.withLock {
-                    val editor = editorState.value
-                    val title = editor.title.trim()
-                    val description = editor.description.trim()
-                    val unit = editor.unit.trim()
-                    val startDate = editor.startDate
-                    val endDate = editor.endDate
-                    val targetQuantity =
-                        ChallengeQuantity.parseLocalized(editor.targetQuantityText, Locale.getDefault())
-
-                    when {
-                        title.isBlank() -> {
-                            setEditorValidation(R.string.challenge_validation_title_required)
-                            return@withLock
-                        }
-
-                        unit.isBlank() -> {
-                            setEditorValidation(R.string.challenge_validation_unit_required)
-                            return@withLock
-                        }
-
-                        targetQuantity == null -> {
-                            setEditorValidation(R.string.challenge_validation_quantity_required)
-                            return@withLock
-                        }
-
-                        startDate == null || endDate == null -> {
-                            setEditorValidation(R.string.challenge_validation_dates_required)
-                            return@withLock
-                        }
-
-                        startDate.isAfter(endDate) -> {
-                            setEditorValidation(R.string.challenge_validation_date_range_invalid)
-                            return@withLock
-                        }
-                    }
-
                     val now = Instant.now(clock)
                     val existing = editor.challengeId?.let { repository.getChallenge(it) }
                     val wasCompleted = editor.challengeId?.let { completionState(it) }
@@ -268,9 +266,9 @@ class ChallengesViewModel
                             description = description.takeIf { it.isNotBlank() },
                             targetQuantity = targetQuantity,
                             unit = unit,
-                            startDate = startDate!!,
-                            endDate = endDate!!,
-                            lifecycle = editor.lifecycle,
+                            startDate = startDate,
+                            endDate = endDate,
+                            lifecycle = existing?.lifecycle ?: ChallengeLifecycle.ACTIVE,
                             archivedAt = existing?.archivedAt,
                             createdAt = existing?.createdAt ?: now,
                             updatedAt = now,
@@ -312,6 +310,7 @@ class ChallengesViewModel
                     editorState.value = defaultEditorState(today = LocalDate.now(clock))
                 }
             }
+            return true
         }
 
         fun archiveChallenge(challengeId: Long) {
@@ -388,21 +387,23 @@ class ChallengesViewModel
             challengeId: Long,
             quantityText: String,
             entryDate: LocalDate,
-        ) {
+        ): Boolean {
+            val challenge = currentChallengeFromState(challengeId) ?: return false
+            if (!canEditProgress(challenge, entryDate)) {
+                setEditorValidation(R.string.challenge_validation_progress_date_invalid)
+                return false
+            }
+
+            val quantity = ChallengeQuantity.parseLocalized(quantityText, Locale.getDefault())
+            if (quantity == null) {
+                setEditorValidation(R.string.challenge_validation_quantity_required)
+                return false
+            }
+
+            clearValidationMessage()
             viewModelScope.launch {
                 actionMutex.withLock {
-                    val challenge = repository.getChallenge(challengeId) ?: return@withLock
-                    if (!canEditProgress(challenge, entryDate)) {
-                        setEditorValidation(R.string.challenge_validation_progress_date_invalid)
-                        return@withLock
-                    }
-
-                    val quantity = ChallengeQuantity.parseLocalized(quantityText, Locale.getDefault())
-                    if (quantity == null) {
-                        setEditorValidation(R.string.challenge_validation_quantity_required)
-                        return@withLock
-                    }
-
+                    val currentChallenge = repository.getChallenge(challengeId) ?: return@withLock
                     val wasCompleted = completionState(challengeId)
                     val now = Instant.now(clock)
                     val entry =
@@ -417,72 +418,85 @@ class ChallengesViewModel
                         )
                     val entryId = repository.insertProgressEntry(entry)
                     val isCompleted = completionState(challengeId)
+                    val calculation =
+                        calculator.calculate(
+                            challenge = currentChallenge,
+                            progressEntries = repository.getProgressEntries(challengeId),
+                            today = LocalDate.now(clock),
+                        )
                     userActionLogger.log(
                         actionType = CREATE_CHALLENGE_PROGRESS_ENTRY,
                         entityType = CHALLENGE,
                         entityId = entryId,
                         metadata =
-                            challengeMetadata(challenge, challengeId) +
+                            challengeMetadata(currentChallenge, challengeId) +
                                 mapOf(
                                     CHALLENGE_PROGRESS_ENTRY_ID to entryId.toString(),
                                     CHALLENGE_PROGRESS_QUANTITY to quantity.toString(),
                                     CHALLENGE_PROGRESS_DATE to entryDate.toString(),
-                                    CHALLENGE_FIRST_COMPLETION_AT to (state.value.calculation?.firstCompletionAt?.toString().orEmpty()),
-                                    CHALLENGE_RECOVERED to (state.value.calculation?.recoveredCompletionAt != null).toString(),
+                                    CHALLENGE_FIRST_COMPLETION_AT to calculation.firstCompletionAt?.toString().orEmpty(),
+                                    CHALLENGE_RECOVERED to (calculation.recoveredCompletionAt != null).toString(),
                                 ) +
                                 completionMetadata(wasCompleted, isCompleted),
                     )
                 }
             }
+            return true
         }
 
         fun updateProgressEntry(
             entryId: Long,
             quantityText: String,
             entryDate: LocalDate,
-        ) {
+        ): Boolean {
+            val currentEntry = currentProgressEntryFromState(entryId) ?: return false
+            val challenge = currentChallengeFromState(currentEntry.challengeId) ?: return false
+            if (!canEditProgress(challenge, entryDate)) {
+                setEditorValidation(R.string.challenge_validation_progress_date_invalid)
+                return false
+            }
+
+            val quantity = ChallengeQuantity.parseLocalized(quantityText, Locale.getDefault())
+            if (quantity == null) {
+                setEditorValidation(R.string.challenge_validation_quantity_required)
+                return false
+            }
+
+            clearValidationMessage()
             viewModelScope.launch {
                 actionMutex.withLock {
-                    val currentEntry = currentProgressEntry(entryId) ?: return@withLock
-                    val challenge = repository.getChallenge(currentEntry.challengeId) ?: return@withLock
-                    if (!canEditProgress(challenge, entryDate)) {
-                        setEditorValidation(R.string.challenge_validation_progress_date_invalid)
-                        return@withLock
-                    }
-
-                    val quantity = ChallengeQuantity.parseLocalized(quantityText, Locale.getDefault())
-                    if (quantity == null) {
-                        setEditorValidation(R.string.challenge_validation_quantity_required)
-                        return@withLock
-                    }
-
-                    val wasCompleted = completionState(challenge.id)
+                    val latestEntry = currentProgressEntry(entryId) ?: return@withLock
+                    val currentChallenge = repository.getChallenge(latestEntry.challengeId) ?: return@withLock
+                    val wasCompleted = completionState(currentChallenge.id)
                     val now = Instant.now(clock)
                     repository.updateProgressEntry(
-                        currentEntry.copy(
+                        latestEntry.copy(
                             quantity = quantity,
                             entryDate = entryDate,
                             updatedAt = now,
                         ),
                     )
-                    val isCompleted = completionState(challenge.id)
+                    val isCompleted = completionState(currentChallenge.id)
                     userActionLogger.log(
                         actionType = UPDATE_CHALLENGE_PROGRESS_ENTRY,
                         entityType = CHALLENGE,
                         entityId = entryId,
                         metadata =
-                            challengeMetadata(challenge, challenge.id) +
+                            challengeMetadata(currentChallenge, currentChallenge.id) +
                                 mapOf(
                                     CHALLENGE_PROGRESS_ENTRY_ID to entryId.toString(),
-                                    CHALLENGE_OLD_VALUE to currentEntry.quantity.toString(),
+                                    CHALLENGE_PROGRESS_QUANTITY to quantity.toString(),
+                                    CHALLENGE_PROGRESS_DATE to entryDate.toString(),
+                                    CHALLENGE_OLD_VALUE to latestEntry.quantity.toString(),
                                     CHALLENGE_NEW_VALUE to quantity.toString(),
-                                    CHALLENGE_OLD_DATE to currentEntry.entryDate.toString(),
+                                    CHALLENGE_OLD_DATE to latestEntry.entryDate.toString(),
                                     CHALLENGE_NEW_DATE to entryDate.toString(),
                                 ) +
                                 completionMetadata(wasCompleted, isCompleted),
                     )
                 }
             }
+            return true
         }
 
         fun deleteProgressEntry(entryId: Long) {
@@ -528,7 +542,7 @@ class ChallengesViewModel
                             val wasCompleted = false
                             val isCompleted = completionState(action.challenge.id)
                             userActionLogger.log(
-                                actionType = RESTORE_CHALLENGE_PROGRESS_ENTRY,
+                                actionType = RESTORE_CHALLENGE,
                                 entityType = CHALLENGE,
                                 entityId = action.challenge.id,
                                 metadata =
@@ -576,17 +590,25 @@ class ChallengesViewModel
         }
 
         private suspend fun currentChallenge(challengeId: Long): Challenge? {
-            return state.value.activeChallenges.firstOrNull { it.id == challengeId }
-                ?: state.value.archivedChallenges.firstOrNull { it.id == challengeId }
-                ?: state.value.selectedChallenge?.takeIf { it.id == challengeId }
+            return currentChallengeFromState(challengeId)
                 ?: repository.getChallenge(challengeId)
         }
 
+        private fun currentChallengeFromState(challengeId: Long): Challenge? {
+            return state.value.activeChallenges.firstOrNull { it.id == challengeId }
+                ?: state.value.archivedChallenges.firstOrNull { it.id == challengeId }
+                ?: state.value.selectedChallenge?.takeIf { it.id == challengeId }
+        }
+
         private suspend fun currentProgressEntry(entryId: Long): ChallengeProgressEntry? {
-            return state.value.progressEntries.firstOrNull { it.id == entryId }
+            return currentProgressEntryFromState(entryId)
                 ?: state.value.selectedChallengeId?.let { challengeId ->
                     repository.getProgressEntries(challengeId).firstOrNull { it.id == entryId }
                 }
+        }
+
+        private fun currentProgressEntryFromState(entryId: Long): ChallengeProgressEntry? {
+            return state.value.progressEntries.firstOrNull { it.id == entryId }
         }
 
         private fun canEditProgress(

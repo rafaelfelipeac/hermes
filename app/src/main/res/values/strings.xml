@@ -120,6 +120,7 @@
     <string name="activity_action_create_challenge_progress_entry">You logged challenge progress.</string>
     <string name="activity_action_update_challenge_progress_entry">You updated challenge progress.</string>
     <string name="activity_action_delete_challenge_progress_entry">You deleted challenge progress.</string>
+    <string name="activity_action_restore_challenge">You restored a challenge.</string>
     <string name="activity_action_restore_challenge_progress_entry">You restored challenge progress.</string>
     <string name="activity_action_create_challenge_named">You created the challenge %1$s.</string>
     <string name="activity_action_update_challenge_named">You updated the challenge %1$s.</string>
@@ -129,6 +130,7 @@
     <string name="activity_action_create_challenge_progress_entry_named">You logged progress for %1$s.</string>
     <string name="activity_action_update_challenge_progress_entry_named">You updated progress for %1$s.</string>
     <string name="activity_action_delete_challenge_progress_entry_named">You deleted progress for %1$s.</string>
+    <string name="activity_action_restore_challenge_named">You restored the challenge %1$s.</string>
     <string name="activity_action_restore_challenge_progress_entry_named">You restored progress for %1$s.</string>
     <string name="activity_subtitle_challenge_dates">%1$s to %2$s.</string>
     <string name="activity_subtitle_challenge_progress">%1$s on %2$s.</string>
