@@ -16,6 +16,7 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateB
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuantity
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -50,7 +51,6 @@ class ChallengesViewModelTest {
             val viewModel = createViewModel(repository)
 
             viewModel.beginCreateChallenge()
-            viewModel.updateEditorUnit("km")
             viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(10_000L, Locale.getDefault()))
 
             assertFalse(viewModel.saveEditorChallenge())
@@ -111,8 +111,20 @@ class ChallengesViewModelTest {
     @Test
     fun addProgressEntry_logsFreshRecoveryCalculation() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val challenge = sampleChallenge()
-            val firstEntry = sampleProgressEntry(quantity = 500L, entryDate = LocalDate.of(2026, 8, 1))
+            val challenge =
+                Challenge(
+                    id = 1L,
+                    title = "August distance",
+                    targetType = ChallengeTargetType.TOTAL,
+                    targetQuantity = 20L,
+                    startDate = LocalDate.of(2026, 8, 1),
+                    endDate = LocalDate.of(2026, 8, 2),
+                    lifecycle = ChallengeLifecycle.ACTIVE,
+                    archivedAt = null,
+                    createdAt = Instant.parse("2026-08-01T12:00:00Z"),
+                    updatedAt = Instant.parse("2026-08-01T12:00:00Z"),
+                )
+            val firstEntry = sampleProgressEntry(quantity = 5L, entryDate = LocalDate.of(2026, 8, 1))
             val repository = FakeChallengeRepository(listOf(challenge), listOf(firstEntry))
             val logger = RecordingUserActionLogger()
             val viewModel = createViewModel(repository, logger)
@@ -123,8 +135,8 @@ class ChallengesViewModelTest {
             assertTrue(
                 viewModel.addProgressEntry(
                     challengeId = challenge.id,
-                    quantityText = ChallengeQuantity.format(9_500L, Locale.getDefault()),
-                    entryDate = TODAY,
+                    quantityText = ChallengeQuantity.format(15L, Locale.getDefault()),
+                    entryDate = LocalDate.of(2026, 8, 2),
                 ),
             )
             runCurrent()
@@ -174,8 +186,8 @@ class ChallengesViewModelTest {
         return Challenge(
             id = 1L,
             title = "August distance",
+            targetType = ChallengeTargetType.DAILY,
             targetQuantity = 10_000L,
-            unit = "km",
             startDate = LocalDate.of(2026, 8, 1),
             endDate = LocalDate.of(2026, 8, 10),
             lifecycle = lifecycle,
@@ -241,6 +253,8 @@ class ChallengesViewModelTest {
 
         override fun observeProgressEntries(challengeId: Long): Flow<List<ChallengeProgressEntry>> =
             entries.map { items -> items.filter { it.challengeId == challengeId } }
+
+        override fun observeAllProgressEntries(): Flow<List<ChallengeProgressEntry>> = entries
 
         override suspend fun getActiveChallenges(): List<Challenge> =
             challenges.value.filter { challenge ->

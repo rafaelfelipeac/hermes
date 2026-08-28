@@ -830,4 +830,20 @@
     <string name="trophies_desc_category_presence_unlocked">You finished %1$d weeks that included at least one completed workout from this category.</string>
     <string name="trophies_desc_category_planning_locked">Unlock by adding, moving or organizing workouts in this category %1$d times.</string>
     <string name="trophies_desc_category_planning_unlocked">You added, moved or organized workouts in this category %1$d times.</string>
+    <string name="activity_subtitle_challenge_target">%1$s target of %2$s.</string>
+    <string name="challenge_target_type_daily">Daily</string>
+    <string name="challenge_target_type_total">Total</string>
+    <string name="challenges_history_view_all">View all history</string>
+    <string name="challenges_field_progress_date">Progress date</string>
+    <string name="challenges_overall_progress_label">Overall progress</string>
+    <string name="challenges_progress_value">%1$s / %2$s</string>
+    <string name="challenges_today_label">Today</string>
+    <string name="challenges_today_value_daily">%1$s completed, %2$s target, %3$s remaining</string>
+    <string name="challenges_today_value_total">%1$s today</string>
+    <string name="challenges_required_pace_label">Required pace</string>
+    <string name="challenges_debt_label">Carried debt</string>
+    <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
+    <string name="challenges_daily_preview">%1$s × %2$s days = %3$s</string>
+    <string name="challenges_total_preview">Total target: %1$s</string>
+    <string name="challenges_actions_menu">More actions</string>
 </resources>

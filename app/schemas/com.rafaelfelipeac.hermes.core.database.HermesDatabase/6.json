@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "88c8d4689894a74e8612cac3005363ae",
+    "identityHash": "e24b43d8da3eddf89938ba13f10c2e9b",
     "entities": [
       {
         "tableName": "workouts",
@@ -175,7 +175,7 @@
       },
       {
         "tableName": "challenges",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `targetQuantity` INTEGER NOT NULL, `unit` TEXT NOT NULL, `startDate` TEXT NOT NULL, `endDate` TEXT NOT NULL, `lifecycle` TEXT NOT NULL, `archivedAt` INTEGER, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `title` TEXT NOT NULL, `description` TEXT, `targetType` TEXT NOT NULL, `targetQuantity` INTEGER NOT NULL, `startDate` TEXT NOT NULL, `endDate` TEXT NOT NULL, `lifecycle` TEXT NOT NULL, `archivedAt` INTEGER, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -195,15 +195,15 @@
             "affinity": "TEXT"
           },
           {
-            "fieldPath": "targetQuantity",
-            "columnName": "targetQuantity",
-            "affinity": "INTEGER",
+            "fieldPath": "targetType",
+            "columnName": "targetType",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "unit",
-            "columnName": "unit",
-            "affinity": "TEXT",
+            "fieldPath": "targetQuantity",
+            "columnName": "targetQuantity",
+            "affinity": "INTEGER",
             "notNull": true
           },
           {
@@ -522,7 +522,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '88c8d4689894a74e8612cac3005363ae')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e24b43d8da3eddf89938ba13f10c2e9b')"
     ]
   }
 }

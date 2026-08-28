@@ -827,4 +827,20 @@
     <string name="trophies_desc_challenge_completions_unlocked">आपने चुनौती लक्ष्यों को %1$d बार पूरा या पार किया है।</string>
     <string name="trophies_desc_challenge_recoveries_locked">चुनौती के ऋण से %1$d बार उबरकर इसे अनलॉक करें।</string>
     <string name="trophies_desc_challenge_recoveries_unlocked">आपने चुनौती के ऋण से %1$d बार उबर लिया है।</string>
+    <string name="activity_subtitle_challenge_target">लक्ष्य %1$s का %2$s.</string>
+    <string name="challenge_target_type_daily">दैनिक</string>
+    <string name="challenge_target_type_total">कुल</string>
+    <string name="challenges_history_view_all">पूरा इतिहास देखें</string>
+    <string name="challenges_field_progress_date">प्रगति तिथि</string>
+    <string name="challenges_overall_progress_label">कुल प्रगति</string>
+    <string name="challenges_progress_value">%1$s / %2$s</string>
+    <string name="challenges_today_label">आज</string>
+    <string name="challenges_today_value_daily">%1$s पूरा, लक्ष्य %2$s, शेष %3$s</string>
+    <string name="challenges_today_value_total">आज %1$s</string>
+    <string name="challenges_required_pace_label">आवश्यक गति</string>
+    <string name="challenges_debt_label">संचित ऋण</string>
+    <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
+    <string name="challenges_daily_preview">%1$s × %2$s दिन = %3$s</string>
+    <string name="challenges_total_preview">कुल लक्ष्य: %1$s</string>
+    <string name="challenges_actions_menu">और कार्रवाइयाँ</string>
 </resources>

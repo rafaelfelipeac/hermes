@@ -37,6 +37,7 @@ object UserActionMetadataKeys {
     const val CHALLENGE_ID = "challenge_id"
     const val CHALLENGE_TITLE = "challenge_title"
     const val CHALLENGE_DESCRIPTION = "challenge_description"
+    const val CHALLENGE_TARGET_TYPE = "challenge_target_type"
     const val CHALLENGE_UNIT = "challenge_unit"
     const val CHALLENGE_TARGET_QUANTITY = "challenge_target_quantity"
     const val CHALLENGE_START_DATE = "challenge_start_date"

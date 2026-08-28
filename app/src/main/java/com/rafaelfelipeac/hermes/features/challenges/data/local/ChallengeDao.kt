@@ -28,6 +28,11 @@ interface ChallengeDao {
     )
     fun observeProgressEntries(challengeId: Long): Flow<List<ChallengeProgressEntryEntity>>
 
+    @Query(
+        "SELECT * FROM challenge_progress_entries ORDER BY challengeId ASC, entryDate DESC, occurredAt DESC, id DESC",
+    )
+    fun observeAllProgressEntries(): Flow<List<ChallengeProgressEntryEntity>>
+
     @Query("SELECT * FROM challenges WHERE lifecycle = 'ACTIVE' ORDER BY updatedAt DESC, id DESC")
     suspend fun getActiveChallenges(): List<ChallengeEntity>
 

@@ -12,8 +12,8 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
@@ -61,6 +61,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOM
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.USE_PACE_CALCULATOR
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
@@ -614,7 +615,7 @@ class TrophyEngineTest {
                         actionType = CREATE_CHALLENGE,
                         challengeId = challengeId,
                         title = "Pull-ups",
-                        unit = "reps",
+                        targetType = ChallengeTargetType.TOTAL,
                         targetQuantity = 2_000L,
                         startDate = day1,
                         endDate = day2,
@@ -655,7 +656,7 @@ class TrophyEngineTest {
                         actionType = CREATE_CHALLENGE,
                         challengeId = challengeId,
                         title = "Pull-ups",
-                        unit = "reps",
+                        targetType = ChallengeTargetType.TOTAL,
                         targetQuantity = 2_000L,
                         startDate = day1,
                         endDate = day2,
@@ -702,7 +703,7 @@ class TrophyEngineTest {
                         actionType = CREATE_CHALLENGE,
                         challengeId = challengeId,
                         title = "Pull-ups",
-                        unit = "reps",
+                        targetType = ChallengeTargetType.TOTAL,
                         targetQuantity = 2_000L,
                         startDate = day1,
                         endDate = day2,
@@ -731,7 +732,7 @@ class TrophyEngineTest {
                         actionType = DELETE_CHALLENGE,
                         challengeId = challengeId,
                         title = "Pull-ups",
-                        unit = "reps",
+                        targetType = ChallengeTargetType.TOTAL,
                         targetQuantity = 2_000L,
                         startDate = day1,
                         endDate = day2,
@@ -741,7 +742,7 @@ class TrophyEngineTest {
                         id = 5L,
                         challengeId = challengeId,
                         title = "Pull-ups",
-                        unit = "reps",
+                        targetType = ChallengeTargetType.TOTAL,
                         targetQuantity = 2_000L,
                         startDate = day1,
                         endDate = day2,
@@ -833,7 +834,7 @@ class TrophyEngineTest {
         actionType: UserActionType,
         challengeId: Long,
         title: String,
-        unit: String,
+        targetType: ChallengeTargetType,
         targetQuantity: Long,
         startDate: LocalDate,
         endDate: LocalDate,
@@ -848,7 +849,7 @@ class TrophyEngineTest {
                 metadataJson(
                     CHALLENGE_ID to challengeId.toString(),
                     CHALLENGE_TITLE to title,
-                    CHALLENGE_UNIT to unit,
+                    CHALLENGE_TARGET_TYPE to targetType.name,
                     CHALLENGE_TARGET_QUANTITY to targetQuantity.toString(),
                     CHALLENGE_START_DATE to startDate.toString(),
                     CHALLENGE_END_DATE to endDate.toString(),
@@ -887,7 +888,7 @@ class TrophyEngineTest {
         id: Long,
         challengeId: Long,
         title: String,
-        unit: String,
+        targetType: ChallengeTargetType,
         targetQuantity: Long,
         startDate: LocalDate,
         endDate: LocalDate,
@@ -902,7 +903,7 @@ class TrophyEngineTest {
                 metadataJson(
                     CHALLENGE_ID to challengeId.toString(),
                     CHALLENGE_TITLE to title,
-                    CHALLENGE_UNIT to unit,
+                    CHALLENGE_TARGET_TYPE to targetType.name,
                     CHALLENGE_TARGET_QUANTITY to targetQuantity.toString(),
                     CHALLENGE_START_DATE to startDate.toString(),
                     CHALLENGE_END_DATE to endDate.toString(),

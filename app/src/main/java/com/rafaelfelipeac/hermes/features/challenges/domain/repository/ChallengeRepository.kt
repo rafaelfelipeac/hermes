@@ -17,6 +17,8 @@ interface ChallengeRepository {
 
     fun observeProgressEntries(challengeId: Long): Flow<List<ChallengeProgressEntry>>
 
+    fun observeAllProgressEntries(): Flow<List<ChallengeProgressEntry>>
+
     suspend fun getActiveChallenges(): List<Challenge>
 
     suspend fun getArchivedChallenges(): List<Challenge>

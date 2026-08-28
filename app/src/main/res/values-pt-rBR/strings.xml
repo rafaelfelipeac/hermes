@@ -826,4 +826,20 @@
     <string name="trophies_desc_challenge_completions_unlocked">Você concluiu ou ultrapassou metas de desafio %1$d vezes.</string>
     <string name="trophies_desc_challenge_recoveries_locked">Desbloqueie recuperando-se da dívida de desafios %1$d vezes.</string>
     <string name="trophies_desc_challenge_recoveries_unlocked">Você se recuperou da dívida de desafios %1$d vezes.</string>
+    <string name="activity_subtitle_challenge_target">Meta %1$s de %2$s.</string>
+    <string name="challenge_target_type_daily">Diária</string>
+    <string name="challenge_target_type_total">Total</string>
+    <string name="challenges_history_view_all">Ver todo o histórico</string>
+    <string name="challenges_field_progress_date">Data do progresso</string>
+    <string name="challenges_overall_progress_label">Progresso total</string>
+    <string name="challenges_progress_value">%1$s / %2$s</string>
+    <string name="challenges_today_label">Hoje</string>
+    <string name="challenges_today_value_daily">%1$s concluído, meta %2$s, faltam %3$s</string>
+    <string name="challenges_today_value_total">%1$s hoje</string>
+    <string name="challenges_required_pace_label">Ritmo necessário</string>
+    <string name="challenges_debt_label">Dívida acumulada</string>
+    <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
+    <string name="challenges_daily_preview">%1$s × %2$s dias = %3$s</string>
+    <string name="challenges_total_preview">Meta total: %1$s</string>
+    <string name="challenges_actions_menu">Mais ações</string>
 </resources>

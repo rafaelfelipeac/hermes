@@ -1,4 +1,4 @@
-@file:Suppress("LongParameterList")
+@file:Suppress("LongParameterList", "NestedBlockDepth")
 
 package com.rafaelfelipeac.hermes.features.backup.data
 
@@ -31,6 +31,7 @@ import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeDao
 import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeEntity
 import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeProgressEntryEntity
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
@@ -83,8 +84,8 @@ class BackupRepositoryImpl
                                     id = challenge.id,
                                     title = challenge.title,
                                     description = challenge.description,
+                                    targetType = challenge.targetType.name,
                                     targetQuantity = challenge.targetQuantity,
-                                    unit = challenge.unit,
                                     startDate = challenge.startDate.toString(),
                                     endDate = challenge.endDate.toString(),
                                     lifecycle = challenge.lifecycle.name,
@@ -253,7 +254,10 @@ class BackupRepositoryImpl
             val personalRecordEntriesById = snapshot.personalRecordEntries.associateBy { it.id }
 
             snapshot.challenges.forEach { challenge ->
-                if (challenge.title.isBlank() || challenge.unit.isBlank()) {
+                if (challenge.title.isBlank()) {
+                    return ImportBackupError.INVALID_FIELD_VALUE
+                }
+                if (runCatching { ChallengeTargetType.valueOf(challenge.targetType) }.isFailure) {
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
                 if (challenge.targetQuantity <= 0L) {
@@ -267,6 +271,12 @@ class BackupRepositoryImpl
                     val endDate = LocalDate.parse(challenge.endDate)
                     if (startDate.isAfter(endDate)) {
                         return ImportBackupError.INVALID_FIELD_VALUE
+                    }
+                    if (challenge.targetType == ChallengeTargetType.DAILY.name) {
+                        val periodDays = java.time.temporal.ChronoUnit.DAYS.between(startDate, endDate) + 1
+                        if (runCatching { Math.multiplyExact(challenge.targetQuantity, periodDays) }.isFailure) {
+                            return ImportBackupError.INVALID_FIELD_VALUE
+                        }
                     }
                     Instant.parse(challenge.createdAt)
                     Instant.parse(challenge.updatedAt)
@@ -493,8 +503,8 @@ private fun BackupChallengeRecord.toEntity(): ChallengeEntity {
         id = id,
         title = title,
         description = description,
+        targetType = ChallengeTargetType.valueOf(targetType),
         targetQuantity = targetQuantity,
-        unit = unit,
         startDate = LocalDate.parse(startDate),
         endDate = LocalDate.parse(endDate),
         lifecycle = ChallengeLifecycle.valueOf(lifecycle),

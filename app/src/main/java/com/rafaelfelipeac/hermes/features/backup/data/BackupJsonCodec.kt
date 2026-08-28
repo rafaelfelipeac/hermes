@@ -112,8 +112,8 @@ internal object BackupJsonCodec {
                 put(KEY_ID, record.id)
                 put(KEY_TITLE, record.title)
                 record.description?.let { put(KEY_DESCRIPTION, it) }
+                put(KEY_TARGET_TYPE, record.targetType)
                 put(KEY_TARGET_QUANTITY, record.targetQuantity)
-                put(KEY_UNIT, record.unit)
                 put(KEY_CREATED_AT, record.createdAt)
                 put(KEY_UPDATED_AT, record.updatedAt)
                 put(KEY_LIFECYCLE, record.lifecycle)

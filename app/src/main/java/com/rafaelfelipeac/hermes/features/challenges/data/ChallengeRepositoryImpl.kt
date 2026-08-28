@@ -37,6 +37,10 @@ class ChallengeRepositoryImpl
             return challengeDao.observeProgressEntries(challengeId).map { entities -> entities.map { it.toDomain() } }
         }
 
+        override fun observeAllProgressEntries(): Flow<List<ChallengeProgressEntry>> {
+            return challengeDao.observeAllProgressEntries().map { entities -> entities.map { it.toDomain() } }
+        }
+
         override suspend fun getActiveChallenges(): List<Challenge> {
             return challengeDao.getActiveChallenges().map { it.toDomain() }
         }
@@ -140,8 +144,8 @@ private fun ChallengeEntity.toDomain(): Challenge {
         id = id,
         title = title,
         description = description,
+        targetType = targetType,
         targetQuantity = targetQuantity,
-        unit = unit,
         startDate = startDate,
         endDate = endDate,
         lifecycle = lifecycle,
@@ -168,8 +172,8 @@ private fun Challenge.toEntity(): ChallengeEntity {
         id = id,
         title = title,
         description = description,
+        targetType = targetType,
         targetQuantity = targetQuantity,
-        unit = unit,
         startDate = startDate,
         endDate = endDate,
         lifecycle = lifecycle,

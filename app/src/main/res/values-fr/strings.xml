@@ -827,4 +827,20 @@
     <string name="trophies_desc_challenge_completions_unlocked">Vous avez terminé ou dépassé des objectifs de défi %1$d fois.</string>
     <string name="trophies_desc_challenge_recoveries_locked">Débloquez en vous remettant de la dette d’un défi %1$d fois.</string>
     <string name="trophies_desc_challenge_recoveries_unlocked">Vous vous êtes remis de la dette d’un défi %1$d fois.</string>
+    <string name="activity_subtitle_challenge_target">Objectif %1$s de %2$s.</string>
+    <string name="challenge_target_type_daily">Quotidien</string>
+    <string name="challenge_target_type_total">Total</string>
+    <string name="challenges_history_view_all">Voir tout l’historique</string>
+    <string name="challenges_field_progress_date">Date de progression</string>
+    <string name="challenges_overall_progress_label">Progression globale</string>
+    <string name="challenges_progress_value">%1$s / %2$s</string>
+    <string name="challenges_today_label">Aujourd’hui</string>
+    <string name="challenges_today_value_daily">%1$s effectués, objectif %2$s, %3$s restants</string>
+    <string name="challenges_today_value_total">%1$s aujourd’hui</string>
+    <string name="challenges_required_pace_label">Rythme requis</string>
+    <string name="challenges_debt_label">Dette reportée</string>
+    <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
+    <string name="challenges_daily_preview">%1$s × %2$s jours = %3$s</string>
+    <string name="challenges_total_preview">Objectif total : %1$s</string>
+    <string name="challenges_actions_menu">Plus d’actions</string>
 </resources>

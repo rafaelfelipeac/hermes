@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import java.time.LocalDate
 
 private const val CHALLENGE_TABLE_NAME = "challenges"
@@ -20,8 +21,8 @@ data class ChallengeEntity(
     val id: Long = 0L,
     val title: String,
     val description: String?,
+    val targetType: ChallengeTargetType,
     val targetQuantity: Long,
-    val unit: String,
     val startDate: LocalDate,
     val endDate: LocalDate,
     val lifecycle: ChallengeLifecycle,

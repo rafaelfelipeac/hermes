@@ -25,6 +25,7 @@ Keep backup import stable across app releases by versioning the JSON schema expl
 - `schemaVersion = 4` adds `settings.distanceUnit`, `settings.paceUnit`, `settings.weightUnit`, `personalRecordFamilies`, and `personalRecordEntries`.
 - `schemaVersion = 1`, `2`, and `3` backups continue to import with empty personal-record collections and default unit preferences when those fields are absent from the older schema.
 - `schemaVersion = 5` adds `challenges` and `challengeProgressEntries`.
+- `schemaVersion = 5` challenge records include stable target types, integer target quantities, and no unit field; progress records keep integer quantities, ISO dates, and timestamps.
 - `schemaVersion = 1`, `2`, `3`, and `4` backups continue to import with empty challenge collections when those fields are absent from the older schema.
 
 ## Rules for future schema changes

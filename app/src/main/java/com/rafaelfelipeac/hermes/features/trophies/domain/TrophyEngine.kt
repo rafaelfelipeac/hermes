@@ -22,8 +22,8 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
@@ -54,6 +54,7 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyDefinition
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyMetric
@@ -314,6 +315,8 @@ class TrophyEngine(
                 ) {
                     val isCompletedNow = isChallengeCompleted(challengeId)
                     val hasCompletion = activeChallengeCompletionById.containsKey(challengeId)
+                    val recoveredNow = currentChallengeResult(challengeId)?.recoveredCompletionAt != null
+                    val hasRecovery = activeChallengeRecoveryById.containsKey(challengeId)
                     when {
                         hasCompletion && !isCompletedNow -> {
                             removeChallengeMilestone(challengeCompletionMilestones, challengeId)
@@ -324,14 +327,25 @@ class TrophyEngine(
                         }
 
                         !hasCompletion && isCompletedNow -> {
-                            val recovered = currentChallengeResult(challengeId)?.recoveredCompletionAt != null
                             val completionMilestone = ChallengeMilestone(challengeId = challengeId, timestamp = timestamp)
                             challengeCompletionMilestones += completionMilestone
                             activeChallengeCompletionById[challengeId] = completionMilestone
-                            if (recovered) {
+                            if (recoveredNow) {
                                 val recoveryMilestone = ChallengeMilestone(challengeId = challengeId, timestamp = timestamp)
                                 challengeRecoveryMilestones += recoveryMilestone
                                 activeChallengeRecoveryById[challengeId] = recoveryMilestone
+                            }
+                        }
+
+                        hasCompletion && isCompletedNow -> {
+                            if (recoveredNow && !hasRecovery) {
+                                val recoveryMilestone = ChallengeMilestone(challengeId = challengeId, timestamp = timestamp)
+                                challengeRecoveryMilestones += recoveryMilestone
+                                activeChallengeRecoveryById[challengeId] = recoveryMilestone
+                            }
+                            if (!recoveredNow && hasRecovery) {
+                                removeChallengeMilestone(challengeRecoveryMilestones, challengeId)
+                                activeChallengeRecoveryById.remove(challengeId)
                             }
                         }
                     }
@@ -344,7 +358,11 @@ class TrophyEngine(
                 ): Challenge? {
                     val challengeId = action.challengeId ?: return null
                     val title = action.metadata[CHALLENGE_TITLE]?.takeIf { it.isNotBlank() } ?: return null
-                    val unit = action.metadata[CHALLENGE_UNIT]?.takeIf { it.isNotBlank() } ?: return null
+                    val targetType =
+                        action.metadata[CHALLENGE_TARGET_TYPE]
+                            ?.takeIf { it.isNotBlank() }
+                            ?.let { runCatching { ChallengeTargetType.valueOf(it) }.getOrNull() }
+                            ?: ChallengeTargetType.DAILY
                     val targetQuantity = action.metadata[CHALLENGE_TARGET_QUANTITY]?.toLongOrNull() ?: return null
                     val startDate = action.metadata[CHALLENGE_START_DATE]?.let(LocalDate::parse) ?: return null
                     val endDate = action.metadata[CHALLENGE_END_DATE]?.let(LocalDate::parse) ?: return null
@@ -364,8 +382,8 @@ class TrophyEngine(
                         description =
                             action.metadata[com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_DESCRIPTION]
                                 ?.takeIf { it.isNotBlank() },
+                        targetType = targetType,
                         targetQuantity = targetQuantity,
-                        unit = unit,
                         startDate = startDate,
                         endDate = endDate,
                         lifecycle = lifecycle,

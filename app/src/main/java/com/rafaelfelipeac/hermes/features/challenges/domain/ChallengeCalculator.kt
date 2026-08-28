@@ -8,18 +8,21 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateB
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuantity
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeStatus
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 class ChallengeCalculator {
+    @Suppress("LongMethod")
     fun calculate(
         challenge: Challenge,
         progressEntries: List<ChallengeProgressEntry>,
         today: LocalDate,
     ): ChallengeCalculationResult {
         val bounds = ChallengeDateBounds(challenge.startDate, challenge.endDate)
+        val totalDays = bounds.inclusiveDays.coerceAtLeast(1L)
         val orderedEntries =
             progressEntries
                 .sortedWith(compareBy<ChallengeProgressEntry>({ it.entryDate }, { it.occurredAt }, { it.id }))
@@ -28,69 +31,103 @@ class ChallengeCalculator {
             orderedEntries.fold(0L) { accumulator, entry ->
                 ChallengeQuantity.add(accumulator, entry.quantity)
             }
+        val plannedTotal = plannedTotal(challenge, totalDays)
+        val elapsedDays = elapsedDays(bounds, today)
+        val priorElapsedDays = elapsedDays(bounds, today, includeToday = false)
+        val expectedTotal = expectedTotal(challenge, totalDays, elapsedDays)
+        val expectedBeforeToday = expectedTotal(challenge, totalDays, priorElapsedDays)
+        val completedBeforeToday = completedBeforeToday(orderedEntries, today)
 
-        val expectedTotal = expectedTotal(challenge.targetQuantity, bounds, today)
         val remainingTotal =
-            if (completedTotal >= challenge.targetQuantity) {
+            if (completedTotal >= plannedTotal) {
                 0L
             } else {
-                ChallengeQuantity.subtract(challenge.targetQuantity, completedTotal)
+                ChallengeQuantity.subtract(plannedTotal, completedTotal)
             }
         val carriedDebt =
-            if (completedTotal >= expectedTotal) {
+            if (completedBeforeToday >= expectedBeforeToday) {
                 0L
             } else {
-                ChallengeQuantity.subtract(expectedTotal, completedTotal)
+                ChallengeQuantity.subtract(expectedBeforeToday, completedBeforeToday)
             }
         val todayProgress = orderedEntries.filter { it.entryDate == today }.sumOf { it.quantity }
-        val requiredPace = requiredPace(challenge.targetQuantity, completedTotal, bounds, today)
-        val firstCompletionAt = firstCompletionAt(challenge.targetQuantity, orderedEntries)
+        val todayTarget =
+            when (challenge.targetType) {
+                ChallengeTargetType.DAILY -> challenge.targetQuantity
+                ChallengeTargetType.TOTAL -> null
+            }
+        val todayRemaining =
+            todayTarget?.let { target ->
+                if (today.isBefore(bounds.startDate) || today.isAfter(bounds.endDate)) {
+                    target
+                } else {
+                    (target - todayProgress).coerceAtLeast(0L)
+                }
+            }
+        val requiredPace = requiredPace(plannedTotal, completedTotal, bounds, today)
+        val firstCompletionAt = firstCompletionAt(plannedTotal, orderedEntries)
         val recoveredCompletionAt =
-            if (firstCompletionAt != null && isRecoveredCompletion(bounds, orderedEntries, challenge.targetQuantity)) {
+            if (
+                firstCompletionAt != null &&
+                isRecoveredCompletion(bounds, orderedEntries, plannedTotal, challenge.targetType)
+            ) {
                 firstCompletionAt
             } else {
                 null
             }
 
         return ChallengeCalculationResult(
-            status = statusFor(challenge, today, completedTotal, expectedTotal),
+            status = statusFor(challenge, today, completedTotal, plannedTotal, expectedTotal),
+            plannedTotal = plannedTotal,
             expectedTotal = expectedTotal,
             completedTotal = completedTotal,
             remainingTotal = remainingTotal,
             carriedDebt = carriedDebt,
             todayProgress = todayProgress,
+            todayTarget = todayTarget,
+            todayRemaining = todayRemaining,
             requiredPace = requiredPace,
-            visualProgress = ChallengeQuantity.cappedProgress(completedTotal, challenge.targetQuantity),
+            visualProgress = ChallengeQuantity.cappedProgress(completedTotal, plannedTotal),
             firstCompletionAt = firstCompletionAt,
             recoveredCompletionAt = recoveredCompletionAt,
         )
     }
 
-    private fun expectedTotal(
-        targetQuantity: Long,
-        bounds: ChallengeDateBounds,
-        today: LocalDate,
+    private fun plannedTotal(
+        challenge: Challenge,
+        totalDays: Long,
     ): Long {
-        val totalDays = bounds.inclusiveDays.coerceAtLeast(1L)
-        val elapsedDays =
-            when {
-                today.isBefore(bounds.startDate) -> 0L
-                today.isAfter(bounds.endDate) -> totalDays
-                else -> ChronoUnit.DAYS.between(bounds.startDate, today) + 1
-            }
+        return when (challenge.targetType) {
+            ChallengeTargetType.DAILY -> ChallengeQuantity.multiply(challenge.targetQuantity, totalDays)
+            ChallengeTargetType.TOTAL -> challenge.targetQuantity
+        }
+    }
 
-        return ((targetQuantity * elapsedDays) / totalDays)
+    private fun expectedTotal(
+        challenge: Challenge,
+        totalDays: Long,
+        elapsedDays: Long,
+    ): Long {
+        return when (challenge.targetType) {
+            ChallengeTargetType.DAILY -> ChallengeQuantity.multiply(challenge.targetQuantity, elapsedDays)
+            ChallengeTargetType.TOTAL ->
+                ChallengeQuantity.multiplyAndDivideFloor(
+                    challenge.targetQuantity,
+                    elapsedDays,
+                    totalDays,
+                )
+        }
     }
 
     private fun requiredPace(
-        targetQuantity: Long,
+        plannedTotal: Long,
         completedTotal: Long,
         bounds: ChallengeDateBounds,
         today: LocalDate,
     ): Long {
         if (today.isAfter(bounds.endDate)) return 0L
 
-        val remaining = (targetQuantity - completedTotal).coerceAtLeast(0L)
+        val remaining = (plannedTotal - completedTotal).coerceAtLeast(0L)
         val effectiveToday =
             when {
                 today.isBefore(bounds.startDate) -> bounds.startDate
@@ -109,11 +146,12 @@ class ChallengeCalculator {
         challenge: Challenge,
         today: LocalDate,
         completedTotal: Long,
+        plannedTotal: Long,
         expectedTotal: Long,
     ): ChallengeStatus {
-        if (completedTotal <= 0L) return ChallengeStatus.NOT_STARTED
-        if (completedTotal > challenge.targetQuantity) return ChallengeStatus.EXCEEDED
-        if (completedTotal == challenge.targetQuantity) return ChallengeStatus.COMPLETED
+        if (today.isBefore(challenge.startDate)) return ChallengeStatus.NOT_STARTED
+        if (completedTotal > plannedTotal) return ChallengeStatus.EXCEEDED
+        if (completedTotal == plannedTotal) return ChallengeStatus.COMPLETED
         if (today.isAfter(challenge.endDate)) return ChallengeStatus.EXPIRED_INCOMPLETE
         return when {
             completedTotal > expectedTotal -> ChallengeStatus.AHEAD
@@ -123,13 +161,13 @@ class ChallengeCalculator {
     }
 
     private fun firstCompletionAt(
-        targetQuantity: Long,
+        plannedTotal: Long,
         entries: List<ChallengeProgressEntry>,
     ): Instant? {
         var total = 0L
         for (entry in entries) {
             total = ChallengeQuantity.add(total, entry.quantity)
-            if (total >= targetQuantity) {
+            if (total >= plannedTotal) {
                 return entry.occurredAt
             }
         }
@@ -139,16 +177,17 @@ class ChallengeCalculator {
     private fun isRecoveredCompletion(
         bounds: ChallengeDateBounds,
         entries: List<ChallengeProgressEntry>,
-        targetQuantity: Long,
+        plannedTotal: Long,
+        targetType: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType,
     ): Boolean {
-        var total = 0L
-        var firstCompletionDate: LocalDate? = null
         val progressByDate = entries.groupBy { it.entryDate }
         val orderedDates = progressByDate.keys.sorted()
+        var total = 0L
+        var firstCompletionDate: LocalDate? = null
 
         orderedDates.forEach { date ->
             total = ChallengeQuantity.add(total, progressByDate.getValue(date).sumOf { it.quantity })
-            if (total >= targetQuantity && firstCompletionDate == null) {
+            if (total >= plannedTotal && firstCompletionDate == null) {
                 firstCompletionDate = date
             }
         }
@@ -158,7 +197,7 @@ class ChallengeCalculator {
         orderedDates.forEach { date ->
             if (date.isAfter(completionDate)) return@forEach
             runningTotal = ChallengeQuantity.add(runningTotal, progressByDate.getValue(date).sumOf { it.quantity })
-            val scheduled = expectedForDate(bounds, targetQuantity, date)
+            val scheduled = expectedForDate(bounds, plannedTotal, date, targetType)
             if (date.isBefore(completionDate) && runningTotal < scheduled) {
                 return true
             }
@@ -169,17 +208,41 @@ class ChallengeCalculator {
 
     private fun expectedForDate(
         bounds: ChallengeDateBounds,
-        targetQuantity: Long,
+        plannedTotal: Long,
         date: LocalDate,
+        targetType: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType,
     ): Long {
         val totalDays = bounds.inclusiveDays.coerceAtLeast(1L)
-        val elapsedDays =
-            when {
-                date.isBefore(bounds.startDate) -> 0L
-                date.isAfter(bounds.endDate) -> totalDays
-                else -> ChronoUnit.DAYS.between(bounds.startDate, date) + 1
-            }
-        return (targetQuantity * elapsedDays) / totalDays
+        val elapsedDays = elapsedDays(bounds, date)
+        return when (targetType) {
+            ChallengeTargetType.DAILY -> ChallengeQuantity.multiply(plannedTotal / totalDays, elapsedDays)
+            ChallengeTargetType.TOTAL ->
+                ChallengeQuantity.multiplyAndDivideFloor(
+                    plannedTotal,
+                    elapsedDays,
+                    totalDays,
+                )
+        }
+    }
+
+    private fun completedBeforeToday(
+        entries: List<ChallengeProgressEntry>,
+        today: LocalDate,
+    ): Long {
+        return entries.filter { it.entryDate.isBefore(today) }.sumOf { it.quantity }
+    }
+
+    private fun elapsedDays(
+        bounds: ChallengeDateBounds,
+        date: LocalDate,
+        includeToday: Boolean = true,
+    ): Long {
+        return when {
+            date.isBefore(bounds.startDate) -> 0L
+            date.isAfter(bounds.endDate) -> bounds.inclusiveDays.coerceAtLeast(1L)
+            includeToday -> ChronoUnit.DAYS.between(bounds.startDate, date) + 1
+            else -> ChronoUnit.DAYS.between(bounds.startDate, date)
+        }.coerceIn(0L, bounds.inclusiveDays.coerceAtLeast(1L))
     }
 }
 

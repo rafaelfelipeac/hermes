@@ -519,3 +519,6 @@ Recent learnings:
 - Validation-driven Compose flows need a synchronous accept/reject boundary before dismissal so validation errors stay visible.
 - Challenge lifecycle and `archivedAt` should stay outside the general editor to preserve the persistence invariant used by backup validation.
 - Activity metadata is replay input. Progress updates need the challenge-specific quantity and date keys in addition to the display fields.
+- Daily-first challenges work best when the UI exposes the per-day obligation directly and leaves total-goal math to the calculator. That keeps the quick-add chips, debt summary, and required pace consistent with the user’s mental model without reintroducing unit-specific screens.
+- The backup schema for Challenges should stay integer-only at the boundary even when the calculator carries more nuance internally. Keeping `targetType`, integer quantities, and ISO dates in the payload makes older decoders easier to reason about and keeps replay checks deterministic.
+- Nested challenge dialogs should follow the same Hermes back behavior as other feature shells: system back closes the modal first, then the nested route. Tests that rely on toolbar back alone can miss that behavior and become brittle around dialog overlays.

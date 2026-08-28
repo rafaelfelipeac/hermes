@@ -46,6 +46,7 @@ Project-level conventions for Codex and similar agents.
 
 ## General
 - Keep changes minimal and consistent with existing patterns in the touched files.
+- For new screens and feature shells, follow the established Hermes base for navigation, spacing, layout, surfaces, cards, dialogs, icons, and back behavior. Reuse the patterns already used by nearby screens instead of creating a new visual system or custom shell unless the task explicitly requires one.
 - Avoid mass formatting changes unless explicitly requested.
 - Do not define new data classes/enums/sealed classes inside ViewModels; place them in dedicated files in the feature package.
 

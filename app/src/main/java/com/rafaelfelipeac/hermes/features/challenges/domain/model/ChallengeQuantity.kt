@@ -1,18 +1,13 @@
-@file:Suppress("ReturnCount")
-
 package com.rafaelfelipeac.hermes.features.challenges.domain.model
 
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
+import java.text.ParsePosition
 import java.util.Locale
-import kotlin.math.min
 
 object ChallengeQuantity {
-    const val SCALE = 1_000L
-
+    @Suppress("ReturnCount")
     fun parseLocalized(
         raw: String,
         locale: Locale,
@@ -20,57 +15,53 @@ object ChallengeQuantity {
         val trimmed = raw.trim()
         if (trimmed.isEmpty()) return null
 
-        val symbols = DecimalFormatSymbols.getInstance(locale)
-        val normalized =
-            buildString(trimmed.length) {
-                trimmed.forEach { character ->
-                    when (character) {
-                        symbols.groupingSeparator,
-                        '\u00A0',
-                        ' ',
-                        -> Unit
+        val formatter = NumberFormat.getNumberInstance(locale)
+        val position = ParsePosition(0)
+        val parsed = formatter.parse(trimmed, position) ?: return null
+        if (position.index != trimmed.length) return null
 
-                        symbols.decimalSeparator -> append('.')
-                        else -> append(character)
+        val decimal = parsed.toString().toBigDecimalOrNull() ?: return null
+        if (decimal.signum() <= 0 || decimal.stripTrailingZeros().scale() > 0) return null
+        return try {
+            decimal.longValueExact()
+        } catch (_: ArithmeticException) {
+            null
+        }
+    }
+
+    fun format(
+        value: Long,
+        locale: Locale,
+    ): String {
+        val formatter = NumberFormat.getIntegerInstance(locale)
+        formatter.isGroupingUsed = false
+        return formatter.format(value)
+    }
+
+    fun quickAddValues(baseValue: Long): List<ChallengeQuickAddValue> {
+        val byQuantity = linkedMapOf<Long, Int>()
+
+        listOf(25 to BigDecimal("0.25"), 50 to BigDecimal("0.50"), 100 to BigDecimal("1.00"))
+            .forEach { (percentage, fraction) ->
+                val quantity =
+                    BigDecimal.valueOf(baseValue)
+                        .multiply(fraction)
+                        .setScale(0, RoundingMode.HALF_UP)
+                        .longValueExact()
+
+                if (quantity > 0L) {
+                    val existingPercentage = byQuantity[quantity]
+                    if (existingPercentage == null || percentage > existingPercentage) {
+                        byQuantity[quantity] = percentage
                     }
                 }
             }
 
-        val value = normalized.toBigDecimalOrNull() ?: return null
-        if (value <= BigDecimal.ZERO) return null
-        if (value.scale() > 3) return null
-
-        return value
-            .movePointRight(3)
-            .setScale(0, RoundingMode.UNNECESSARY)
-            .longValueExact()
-    }
-
-    fun format(
-        scaledValue: Long,
-        locale: Locale,
-    ): String {
-        val formatter = NumberFormat.getNumberInstance(locale) as DecimalFormat
-        formatter.isGroupingUsed = false
-        formatter.maximumFractionDigits = 3
-        formatter.minimumFractionDigits = 0
-        formatter.roundingMode = RoundingMode.HALF_UP
-
-        val decimal = BigDecimal.valueOf(scaledValue, 3).stripTrailingZeros()
-        return formatter.format(decimal)
-    }
-
-    fun quickAddValues(baseValue: Long): List<Long> {
-        val candidates =
-            listOf(0.25, 0.5, 1.0)
-                .map { fraction ->
-                    BigDecimal.valueOf(baseValue)
-                        .multiply(BigDecimal.valueOf(fraction))
-                        .setScale(0, RoundingMode.HALF_UP)
-                        .longValueExact()
-                }
-
-        return candidates.filter { it > 0 }.distinct()
+        return byQuantity.entries
+            .sortedBy { it.value }
+            .map { (quantity, percentage) ->
+                ChallengeQuickAddValue(percentage = percentage, quantity = quantity)
+            }
     }
 
     fun add(
@@ -94,6 +85,15 @@ object ChallengeQuantity {
         return Math.multiplyExact(value, multiplier)
     }
 
+    fun multiplyAndDivideFloor(
+        numerator: Long,
+        multiplier: Long,
+        denominator: Long,
+    ): Long {
+        require(denominator > 0)
+        return Math.multiplyExact(numerator, multiplier) / denominator
+    }
+
     fun ceilDiv(
         numerator: Long,
         denominator: Long,
@@ -108,6 +108,6 @@ object ChallengeQuantity {
         target: Long,
     ): Double {
         if (target <= 0) return 0.0
-        return min(1.0, completed.toDouble() / target.toDouble())
+        return minOf(1.0, completed.toDouble() / target.toDouble())
     }
 }

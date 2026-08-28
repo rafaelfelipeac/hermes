@@ -1,6 +1,13 @@
 @file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 
-@file:Suppress("LongMethod", "MaxLineLength", "TooManyFunctions", "ArgumentListWrapping", "ReturnCount")
+@file:Suppress(
+    "ArgumentListWrapping",
+    "LargeClass",
+    "LongMethod",
+    "MaxLineLength",
+    "TooManyFunctions",
+    "ReturnCount",
+)
 
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
@@ -28,8 +35,8 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_RECOVERED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CHALLENGE
@@ -49,6 +56,7 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEdito
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuantity
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeUiState
 import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -130,8 +138,9 @@ class ChallengesViewModel
                 combine(
                     repository.observeActiveChallenges(),
                     repository.observeArchivedChallenges(),
-                ) { active, archived ->
-                    active to archived
+                    repository.observeAllProgressEntries(),
+                ) { active, archived, allProgressEntries ->
+                    Triple(active, archived, allProgressEntries)
                 },
                 combine(selectedChallengeFlow, selectedProgressEntriesFlow) { selectedChallenge, progressEntries ->
                     selectedChallenge to progressEntries
@@ -139,20 +148,28 @@ class ChallengesViewModel
                 editorState,
                 todayFlow,
             ) { challengeLists, selectedState, editor, today ->
-                val (active, archived) = challengeLists
+                val (active, archived, allProgressEntries) = challengeLists
                 val (selectedChallenge, progressEntries) = selectedState
-                val calculation =
-                    selectedChallenge?.let {
-                        calculator.calculate(
-                            challenge = it,
-                            progressEntries = progressEntries,
-                            today = today,
-                        )
+                val allChallenges = active + archived
+                val progressEntriesByChallengeId = allProgressEntries.groupBy { it.challengeId }
+                val calculations =
+                    allChallenges.associate { challenge ->
+                        val calculation =
+                            calculator.calculate(
+                                challenge = challenge,
+                                progressEntries = progressEntriesByChallengeId[challenge.id].orEmpty(),
+                                today = today,
+                            )
+                        challenge.id to calculation
                     }
+                val calculation =
+                    selectedChallenge?.let { calculations[it.id] }
 
                 ChallengeUiState(
                     activeChallenges = active,
                     archivedChallenges = archived,
+                    challengeCalculations = calculations,
+                    allProgressEntries = allProgressEntries,
                     selectedChallengeId = selectedChallenge?.id,
                     selectedChallenge = selectedChallenge,
                     progressEntries = progressEntries,
@@ -181,8 +198,8 @@ class ChallengesViewModel
                         challengeId = challenge.id,
                         title = challenge.title,
                         description = challenge.description.orEmpty(),
+                        targetType = challenge.targetType,
                         targetQuantityText = ChallengeQuantity.format(challenge.targetQuantity, Locale.getDefault()),
-                        unit = challenge.unit,
                         startDate = challenge.startDate,
                         endDate = challenge.endDate,
                         lifecycle = challenge.lifecycle,
@@ -200,12 +217,12 @@ class ChallengesViewModel
             updateEditor { copy(description = description, isDirty = true, validationMessage = null) }
         }
 
-        fun updateEditorTargetQuantity(targetQuantityText: String) {
-            updateEditor { copy(targetQuantityText = targetQuantityText, isDirty = true, validationMessage = null) }
+        fun updateEditorTargetType(targetType: ChallengeTargetType) {
+            updateEditor { copy(targetType = targetType, isDirty = true, validationMessage = null) }
         }
 
-        fun updateEditorUnit(unit: String) {
-            updateEditor { copy(unit = unit, isDirty = true, validationMessage = null) }
+        fun updateEditorTargetQuantity(targetQuantityText: String) {
+            updateEditor { copy(targetQuantityText = targetQuantityText, isDirty = true, validationMessage = null) }
         }
 
         fun updateEditorStartDate(date: LocalDate?) {
@@ -216,24 +233,18 @@ class ChallengesViewModel
             updateEditor { copy(endDate = date, isDirty = true, validationMessage = null) }
         }
 
+        @Suppress("CyclomaticComplexMethod", "ComplexCondition")
         fun saveEditorChallenge(): Boolean {
             val editor = editorState.value
             val title = editor.title.trim()
             val description = editor.description.trim()
-            val unit = editor.unit.trim()
             val startDate = editor.startDate
             val endDate = editor.endDate
-            val targetQuantity =
-                ChallengeQuantity.parseLocalized(editor.targetQuantityText, Locale.getDefault())
+            val targetQuantity = ChallengeQuantity.parseLocalized(editor.targetQuantityText, Locale.getDefault())
 
             when {
                 title.isBlank() -> {
                     setEditorValidation(R.string.challenge_validation_title_required)
-                    return false
-                }
-
-                unit.isBlank() -> {
-                    setEditorValidation(R.string.challenge_validation_unit_required)
                     return false
                 }
 
@@ -251,6 +262,19 @@ class ChallengesViewModel
                     setEditorValidation(R.string.challenge_validation_date_range_invalid)
                     return false
                 }
+
+                editor.challengeId != null -> {
+                    val existingEntries = state.value.allProgressEntries.filter { it.challengeId == editor.challengeId }
+                    val earliestEntryDate = existingEntries.minOfOrNull { it.entryDate }
+                    val latestEntryDate = existingEntries.maxOfOrNull { it.entryDate }
+                    if (
+                        (earliestEntryDate != null && startDate > earliestEntryDate) ||
+                        (latestEntryDate != null && endDate < latestEntryDate)
+                    ) {
+                        setEditorValidation(R.string.challenge_validation_date_range_invalid)
+                        return false
+                    }
+                }
             }
 
             clearValidationMessage()
@@ -264,8 +288,8 @@ class ChallengesViewModel
                             id = existing?.id ?: 0L,
                             title = title,
                             description = description.takeIf { it.isNotBlank() },
+                            targetType = editor.targetType,
                             targetQuantity = targetQuantity,
-                            unit = unit,
                             startDate = startDate,
                             endDate = endDate,
                             lifecycle = existing?.lifecycle ?: ChallengeLifecycle.ACTIVE,
@@ -296,8 +320,9 @@ class ChallengesViewModel
                                     challengeId = existing.id,
                                 ) +
                                     mapOf(
-                                        CHALLENGE_OLD_VALUE to existing.targetQuantity.toString(),
+                                        CHALLENGE_TARGET_TYPE to existing.targetType.name,
                                         CHALLENGE_NEW_VALUE to challenge.targetQuantity.toString(),
+                                        CHALLENGE_OLD_VALUE to existing.targetQuantity.toString(),
                                         CHALLENGE_OLD_DATE to existing.endDate.toString(),
                                         CHALLENGE_NEW_DATE to challenge.endDate.toString(),
                                         CHALLENGE_OLD_STATUS to existing.lifecycle.name,
@@ -404,6 +429,7 @@ class ChallengesViewModel
             viewModelScope.launch {
                 actionMutex.withLock {
                     val currentChallenge = repository.getChallenge(challengeId) ?: return@withLock
+                    if (currentChallenge.lifecycle != ChallengeLifecycle.ACTIVE) return@withLock
                     val wasCompleted = completionState(challengeId)
                     val now = Instant.now(clock)
                     val entry =
@@ -467,6 +493,7 @@ class ChallengesViewModel
                 actionMutex.withLock {
                     val latestEntry = currentProgressEntry(entryId) ?: return@withLock
                     val currentChallenge = repository.getChallenge(latestEntry.challengeId) ?: return@withLock
+                    if (currentChallenge.lifecycle != ChallengeLifecycle.ACTIVE) return@withLock
                     val wasCompleted = completionState(currentChallenge.id)
                     val now = Instant.now(clock)
                     repository.updateProgressEntry(
@@ -503,6 +530,8 @@ class ChallengesViewModel
             viewModelScope.launch {
                 actionMutex.withLock {
                     val entry = currentProgressEntry(entryId) ?: return@withLock
+                    val challenge = repository.getChallenge(entry.challengeId) ?: return@withLock
+                    if (challenge.lifecycle != ChallengeLifecycle.ACTIVE) return@withLock
                     val wasCompleted = completionState(entry.challengeId)
                     repository.deleteProgressEntry(entryId)
                     setUndoAction(
@@ -616,7 +645,10 @@ class ChallengesViewModel
             entryDate: LocalDate,
         ): Boolean {
             val today = LocalDate.now(clock)
-            return entryDate <= today && !entryDate.isBefore(challenge.startDate) && !entryDate.isAfter(challenge.endDate)
+            return challenge.lifecycle == ChallengeLifecycle.ACTIVE &&
+                entryDate <= today &&
+                !entryDate.isBefore(challenge.startDate) &&
+                !entryDate.isAfter(challenge.endDate)
         }
 
         private fun challengeMetadata(
@@ -627,7 +659,7 @@ class ChallengesViewModel
                 put(CHALLENGE_ID, challengeId.toString())
                 put(CHALLENGE_TITLE, challenge.title)
                 challenge.description?.let { put(CHALLENGE_DESCRIPTION, it) }
-                put(CHALLENGE_UNIT, challenge.unit)
+                put(CHALLENGE_TARGET_TYPE, challenge.targetType.name)
                 put(CHALLENGE_TARGET_QUANTITY, challenge.targetQuantity.toString())
                 put(CHALLENGE_START_DATE, challenge.startDate.toString())
                 put(CHALLENGE_END_DATE, challenge.endDate.toString())
@@ -688,8 +720,8 @@ class ChallengesViewModel
                 challengeId = null,
                 title = EMPTY,
                 description = EMPTY,
+                targetType = ChallengeTargetType.DAILY,
                 targetQuantityText = EMPTY,
-                unit = EMPTY,
                 startDate = today,
                 endDate = today.plusDays(29),
                 lifecycle = ChallengeLifecycle.ACTIVE,

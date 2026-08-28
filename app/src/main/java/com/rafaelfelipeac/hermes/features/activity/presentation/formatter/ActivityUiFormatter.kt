@@ -13,6 +13,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuantity
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.personalrecords.presentation.formatPersonalRecordValue
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
@@ -653,6 +654,7 @@ class ActivityUiFormatter(
                     ?: metadata[UserActionMetadataKeys.NEW_VALUE],
                 currentLocale,
             )
+        val targetType = challengeTargetTypeLabel(metadata)
         val oldQuantity =
             formatChallengeQuantity(
                 metadata[UserActionMetadataKeys.CHALLENGE_OLD_VALUE]
@@ -677,6 +679,15 @@ class ActivityUiFormatter(
             -> {
                 val details =
                     buildList {
+                        if (targetType != null || !targetQuantity.isNullOrBlank()) {
+                            add(
+                                stringProvider.get(
+                                    R.string.activity_subtitle_challenge_target,
+                                    targetType.orEmpty(),
+                                    targetQuantity.orEmpty(),
+                                ),
+                            )
+                        }
                         if (!oldQuantity.isNullOrBlank() || !targetQuantity.isNullOrBlank()) {
                             add(
                                 stringProvider.get(
@@ -746,9 +757,22 @@ class ActivityUiFormatter(
     private fun challengeLabel(metadata: Map<String, String>): String {
         return metadata[UserActionMetadataKeys.CHALLENGE_TITLE]
             ?.takeIf { it.isNotBlank() }
-            ?: metadata[UserActionMetadataKeys.CHALLENGE_UNIT]
+            ?: metadata[UserActionMetadataKeys.CHALLENGE_TARGET_TYPE]
                 ?.takeIf { it.isNotBlank() }
             ?: stringProvider.get(R.string.activity_value_unknown)
+    }
+
+    private fun challengeTargetTypeLabel(metadata: Map<String, String>): String? {
+        val targetType =
+            metadata[UserActionMetadataKeys.CHALLENGE_TARGET_TYPE]
+                ?.takeIf { it.isNotBlank() }
+                ?.let { runCatching { ChallengeTargetType.valueOf(it) }.getOrNull() }
+                ?: ChallengeTargetType.DAILY
+
+        return when (targetType) {
+            ChallengeTargetType.DAILY -> stringProvider.get(R.string.challenge_target_type_daily)
+            ChallengeTargetType.TOTAL -> stringProvider.get(R.string.challenge_target_type_total)
+        }
     }
 
     private fun formatChallengeQuantity(

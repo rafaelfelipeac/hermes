@@ -1,6 +1,5 @@
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -10,6 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEditorState
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
@@ -25,13 +25,12 @@ class ChallengesEditorRouteTest {
         val saveLabel = context.getString(R.string.save_changes)
 
         composeRule.setContent {
-            ChallengesEditorRoute(
-                modifier = Modifier,
+            ChallengesEditorDialog(
                 editorState =
                     ChallengeEditorState(
                         title = "August distance",
+                        targetType = ChallengeTargetType.DAILY,
                         targetQuantityText = "10",
-                        unit = "km",
                         startDate = LocalDate.of(2026, 8, 1),
                         endDate = LocalDate.of(2026, 8, 31),
                         lifecycle = ChallengeLifecycle.ACTIVE,
@@ -39,8 +38,8 @@ class ChallengesEditorRouteTest {
                 validationMessage = null,
                 onTitleChange = {},
                 onDescriptionChange = {},
+                onTargetTypeChange = {},
                 onTargetQuantityChange = {},
-                onUnitChange = {},
                 onStartDateChange = {},
                 onEndDateChange = {},
                 onSave = {},
@@ -50,6 +49,6 @@ class ChallengesEditorRouteTest {
 
         composeRule.onNodeWithText(startDateLabel).performClick()
 
-        composeRule.onAllNodesWithText(saveLabel).assertCountEquals(2)
+        composeRule.onAllNodesWithText(saveLabel).assertCountEquals(1)
     }
 }

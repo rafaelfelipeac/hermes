@@ -19,6 +19,7 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -30,6 +31,7 @@ import kotlinx.serialization.json.longOrNull
 import java.time.Instant
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
+import java.time.temporal.ChronoUnit
 
 internal object BackupV5Decoder {
     fun decode(root: JsonObject): BackupDecodeResult {
@@ -104,10 +106,23 @@ internal object BackupV5Decoder {
 
         val challengeIds = challenges.map { it.id }.toSet()
         challenges.forEach { challenge ->
+            if (runCatching { ChallengeTargetType.valueOf(challenge.targetType) }.isFailure) {
+                return Failure(INVALID_FIELD_VALUE)
+            }
             if (challenge.targetQuantity <= 0L) return Failure(INVALID_FIELD_VALUE)
             if (challenge.startDate > challenge.endDate) return Failure(INVALID_FIELD_VALUE)
             if (runCatching { ChallengeLifecycle.valueOf(challenge.lifecycle) }.isFailure) {
                 return Failure(INVALID_FIELD_VALUE)
+            }
+            if (challenge.targetType == ChallengeTargetType.DAILY.name) {
+                val periodDays =
+                    ChronoUnit.DAYS.between(
+                        LocalDate.parse(challenge.startDate),
+                        LocalDate.parse(challenge.endDate),
+                    ) + 1
+                if (runCatching { Math.multiplyExact(challenge.targetQuantity, periodDays) }.isFailure) {
+                    return Failure(INVALID_FIELD_VALUE)
+                }
             }
             if (challenge.lifecycle == ChallengeLifecycle.ACTIVE.name && challenge.archivedAt != null) {
                 return Failure(INVALID_FIELD_VALUE)
@@ -169,8 +184,8 @@ internal object BackupV5Decoder {
             id = obj.longOrNull(KEY_ID) ?: return null,
             title = obj.stringOrNull(KEY_TITLE) ?: return null,
             description = obj.stringOrNull(KEY_DESCRIPTION),
+            targetType = obj.stringOrNull(KEY_TARGET_TYPE) ?: return null,
             targetQuantity = obj.longOrNull(KEY_TARGET_QUANTITY) ?: return null,
-            unit = obj.stringOrNull(KEY_UNIT) ?: return null,
             startDate = obj.stringOrNull(KEY_START_DATE) ?: return null,
             endDate = obj.stringOrNull(KEY_END_DATE) ?: return null,
             lifecycle = obj.stringOrNull(KEY_LIFECYCLE) ?: return null,
