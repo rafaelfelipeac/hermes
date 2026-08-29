@@ -126,12 +126,14 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Mode développeur</string>
     <string name="settings_developer_data_title">Données</string>
-    <string name="settings_developer_data_body">Remplace les données locales par des entraînements, événements, records personnels et un historique d’activité de démonstration.</string>
+    <string name="settings_developer_data_body">Remplace les données locales par des entraînements, événements, records personnels, défis et un historique d’activité de démonstration.</string>
     <string name="settings_developer_trophies_title">Trophées</string>
     <string name="settings_developer_trophies_body">Remplace l’historique local pour prévisualiser les états des trophées.</string>
     <string name="settings_seed_demo_data">Remplacer par des données de démo</string>
+    <string name="settings_seed_challenge_demo_data">Remplacer par des données de démo des défis</string>
     <string name="settings_demo_data_created">Données de démo créées</string>
-    <string name="settings_clear_database_confirm_message">Cela supprime les entraînements, événements, catégories et l’historique d’activité de la base de données locale.</string>
+    <string name="settings_challenge_demo_data_created">Données de démo des défis créées</string>
+    <string name="settings_clear_database_confirm_message">Cela supprime les entraînements, événements, catégories, défis, progression des défis et l’historique d’activité de la base de données locale.</string>
     <string name="settings_clear_database_confirm_title">Vider la base de données ?</string>
     <string name="settings_database_cleared">Base de données vidée</string>
     <string name="settings_clear_database">Vider la base de données</string>
@@ -830,7 +832,6 @@
     <string name="activity_subtitle_challenge_target">Objectif %1$s de %2$s.</string>
     <string name="challenge_target_type_daily">Quotidien</string>
     <string name="challenge_target_type_total">Total</string>
-    <string name="challenges_history_view_all">Voir tout l’historique</string>
     <string name="challenges_field_progress_date">Date de progression</string>
     <string name="challenges_overall_progress_label">Progression globale</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>

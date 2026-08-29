@@ -39,7 +39,6 @@ import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -80,6 +79,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap.Companion.Butt
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -115,18 +116,22 @@ import java.util.Locale
 
 private const val CHALLENGES_ROUTE_LIST = "list"
 private const val CHALLENGES_ROUTE_DETAIL = "detail"
-private const val CHALLENGES_ROUTE_HISTORY = "history"
-private const val CHALLENGES_TAG_ROOT = "challenges_root"
+internal const val CHALLENGES_TAG_ROOT = "challenges_root"
 private const val CHALLENGES_TAG_ACTIVE_LIST = "challenges_active_list"
 private const val CHALLENGES_TAG_ARCHIVED_LIST = "challenges_archived_list"
-private const val CHALLENGES_TAG_DETAIL = "challenges_detail"
-private const val CHALLENGES_TAG_HISTORY = "challenges_history"
+internal const val CHALLENGES_TAG_DETAIL = "challenges_detail"
 private const val CHALLENGES_TAG_HEADER_BACK = "challenges_header_back"
 private const val CHALLENGES_TAG_CREATE_FAB = "challenges_create_fab"
-private const val CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB = "challenges_detail_add_progress_fab"
+internal const val CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB = "challenges_detail_add_progress_fab"
 private const val CHALLENGES_TAG_DETAIL_HISTORY = "challenges_detail_history"
+internal const val CHALLENGES_TAG_ACTIVE_CARD_PROGRESS = "challenges_active_card_progress"
+internal const val CHALLENGES_TAG_ACTIVE_EMPTY_STATE = "challenges_active_empty_state"
+internal const val CHALLENGES_TAG_ARCHIVED_EMPTY_STATE = "challenges_archived_empty_state"
+internal const val CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX = "challenges_detail_history_group_"
 private const val CHALLENGES_TAG_EDITOR = "challenges_editor"
 internal const val CHALLENGES_TAG_ADD_PROGRESS_BUTTON = "challenges_add_progress_button"
+private val ChallengeProgressAheadColor = Color(0xFF2E7D32)
+private val ChallengeProgressBehindColor = Color(0xFFC62828)
 
 private enum class ChallengeListTab {
     ACTIVE,
@@ -168,9 +173,6 @@ fun ChallengesScreen(
                 viewModel.selectChallenge(null)
                 selectedTab = detailOriginTab
             }
-            CHALLENGES_ROUTE_HISTORY -> {
-                route = CHALLENGES_ROUTE_DETAIL
-            }
         }
     }
 
@@ -194,10 +196,6 @@ fun ChallengesScreen(
         editorChallengeId = selected.id
         viewModel.beginEditChallenge(selected.id)
         showEditorDialog = true
-    }
-
-    val openHistory = {
-        route = CHALLENGES_ROUTE_HISTORY
     }
 
     val addProgressDefaultDate =
@@ -296,6 +294,35 @@ fun ChallengesScreen(
         ) {
             ChallengesHeader(
                 onBack = onInternalBack,
+                trailingContent =
+                    if (route == CHALLENGES_ROUTE_DETAIL && state.selectedChallenge != null) {
+                        {
+                            val selectedChallenge = state.selectedChallenge!!
+                            ChallengeOverflowMenu(
+                                onEdit =
+                                    if (selectedChallenge.lifecycle == ChallengeLifecycle.ACTIVE) {
+                                        openEditChallenge
+                                    } else {
+                                        null
+                                    },
+                                onArchive =
+                                    if (selectedChallenge.lifecycle == ChallengeLifecycle.ACTIVE) {
+                                        { viewModel.archiveChallenge(selectedChallenge.id) }
+                                    } else {
+                                        null
+                                    },
+                                onReactivate =
+                                    if (selectedChallenge.lifecycle == ChallengeLifecycle.ARCHIVED) {
+                                        { viewModel.reactivateChallenge(selectedChallenge.id) }
+                                    } else {
+                                        null
+                                    },
+                                onDelete = { showDeleteDialogForChallengeId = selectedChallenge.id },
+                            )
+                        }
+                    } else {
+                        null
+                    },
             )
 
             when (route) {
@@ -319,31 +346,7 @@ fun ChallengesScreen(
                     ChallengesDetailRoute(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                         state = state,
-                        onEdit = openEditChallenge,
-                        onOpenHistory = openHistory,
-                        onArchive = { challengeId -> viewModel.archiveChallenge(challengeId) },
-                        onReactivate = { challengeId -> viewModel.reactivateChallenge(challengeId) },
-                        onDelete = { challengeId -> showDeleteDialogForChallengeId = challengeId },
                         onQuickAdd = addQuickProgress,
-                        onRequestAddProgress = openAddProgressDialog,
-                        onRequestEditProgress = { entry ->
-                            progressDialogChallengeId = entry.challengeId
-                            progressDialogEntryId = entry.id
-                            progressDialogQuantity = ChallengeQuantity.format(entry.quantity, Locale.getDefault())
-                            progressDialogDate = entry.entryDate
-                            progressDialogIsEdit = true
-                            showProgressDialog = true
-                        },
-                        onDeleteProgress = { entryId -> showDeleteProgressDialogForEntryId = entryId },
-                    )
-                }
-
-                CHALLENGES_ROUTE_HISTORY -> {
-                    ChallengesHistoryRoute(
-                        modifier = Modifier.weight(1f).fillMaxWidth(),
-                        state = state,
-                        onEditChallenge = openEditChallenge,
-                        onDeleteChallenge = { challengeId -> showDeleteDialogForChallengeId = challengeId },
                         onRequestEditProgress = { entry ->
                             progressDialogChallengeId = entry.challengeId
                             progressDialogEntryId = entry.id
@@ -486,7 +489,10 @@ fun ChallengesScreen(
 }
 
 @Composable
-private fun ChallengesHeader(onBack: () -> Unit) {
+private fun ChallengesHeader(
+    onBack: () -> Unit,
+    trailingContent: (@Composable () -> Unit)? = null,
+) {
     Row(
         modifier =
             Modifier
@@ -517,6 +523,8 @@ private fun ChallengesHeader(onBack: () -> Unit) {
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f),
         )
+
+        trailingContent?.invoke()
     }
 }
 
@@ -549,13 +557,16 @@ private fun ChallengesListRoute(
                     remember(state.activeChallenges) {
                         state.activeChallenges.sortedByDescending { it.updatedAt }
                     }
-                Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = contentModifier.padding(horizontal = SpacingXl),
+                    contentAlignment = Alignment.Center,
+                ) {
                     if (activeChallenges.isEmpty()) {
                         EmptyStateCard(
                             icon = Icons.Outlined.Flag,
                             title = stringResource(R.string.challenges_empty_active_title),
                             body = stringResource(R.string.challenges_empty_active_body),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_EMPTY_STATE),
                             actionContent = null,
                         )
                     } else {
@@ -587,13 +598,16 @@ private fun ChallengesListRoute(
                     remember(state.archivedChallenges) {
                         state.archivedChallenges.sortedByDescending { it.updatedAt }
                     }
-                Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = contentModifier.padding(horizontal = SpacingXl),
+                    contentAlignment = Alignment.Center,
+                ) {
                     if (archivedChallenges.isEmpty()) {
                         EmptyStateCard(
                             icon = Icons.Outlined.Archive,
                             title = stringResource(R.string.challenges_empty_archived_title),
                             body = stringResource(R.string.challenges_empty_archived_body),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.testTag(CHALLENGES_TAG_ARCHIVED_EMPTY_STATE),
                         )
                     } else {
                         LazyColumn(
@@ -626,13 +640,7 @@ private fun ChallengesListRoute(
 private fun ChallengesDetailRoute(
     modifier: Modifier,
     state: ChallengeUiState,
-    onEdit: () -> Unit,
-    onOpenHistory: () -> Unit,
-    onArchive: (Long) -> Unit,
-    onReactivate: (Long) -> Unit,
-    onDelete: (Long) -> Unit,
     onQuickAdd: (ChallengeQuickAddValue) -> Unit,
-    onRequestAddProgress: () -> Unit,
     onRequestEditProgress: (ChallengeProgressEntry) -> Unit,
     onDeleteProgress: (Long) -> Unit,
 ) {
@@ -653,52 +661,28 @@ private fun ChallengesDetailRoute(
         return
     }
 
-    val latestEntries =
-        remember(state.progressEntries) {
-            state.progressEntries.sortedWith(
-                compareByDescending<ChallengeProgressEntry>({ it.entryDate })
-                    .thenByDescending { it.occurredAt }
-                    .thenByDescending { it.id },
-            ).take(3)
-        }
+    val groupedProgressEntries = remember(state.progressEntries) { groupProgressByDate(state.progressEntries) }
     val quickAdds =
         if (challenge.lifecycle == ChallengeLifecycle.ACTIVE && challenge.targetType == ChallengeTargetType.DAILY) {
             ChallengeQuantity.quickAddValues(challenge.targetQuantity)
         } else {
             emptyList()
         }
-    val latestValidDate =
-        challenge.endDate.coerceAtMost(LocalDate.now()).takeIf { !it.isBefore(challenge.startDate) }
-
     LazyColumn(
         modifier = modifier.fillMaxSize().testTag(CHALLENGES_TAG_DETAIL),
         contentPadding =
             PaddingValues(
                 start = SpacingXl,
-                top = SpacingMd,
+                top = SpacingSm,
                 end = SpacingXl,
                 bottom = SpacingXl,
             ),
-        verticalArrangement = Arrangement.spacedBy(SpacingMd),
+        verticalArrangement = Arrangement.spacedBy(SpacingSm),
     ) {
         item {
             ChallengeDetailSummaryCard(
                 challenge = challenge,
                 calculation = calculation,
-                onEdit = if (challenge.lifecycle == ChallengeLifecycle.ACTIVE) onEdit else null,
-                onArchive =
-                    if (challenge.lifecycle == ChallengeLifecycle.ACTIVE) {
-                        { onArchive(challenge.id) }
-                    } else {
-                        null
-                    },
-                onReactivate =
-                    if (challenge.lifecycle == ChallengeLifecycle.ARCHIVED) {
-                        { onReactivate(challenge.id) }
-                    } else {
-                        null
-                    },
-                onDelete = { onDelete(challenge.id) },
             )
         }
 
@@ -707,11 +691,9 @@ private fun ChallengesDetailRoute(
                 ChallengeQuickAddCard(
                     calculation = calculation,
                     quickAdds = quickAdds,
-                    isCustomAddEnabled = latestValidDate != null,
                     onQuickAdd = { quickAdd ->
                         onQuickAdd(quickAdd)
                     },
-                    onCustomAddClick = onRequestAddProgress,
                 )
             }
         }
@@ -727,15 +709,10 @@ private fun ChallengesDetailRoute(
                     modifier = Modifier.testTag(CHALLENGES_TAG_DETAIL_HISTORY),
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = onOpenHistory) {
-                    Icon(imageVector = Icons.Outlined.History, contentDescription = null)
-                    Spacer(modifier = Modifier.size(SpacingSm))
-                    Text(text = stringResource(R.string.challenges_history_view_all))
-                }
             }
         }
 
-        if (latestEntries.isEmpty()) {
+        if (groupedProgressEntries.isEmpty()) {
             item {
                 EmptyStateCard(
                     icon = Icons.Outlined.History,
@@ -745,12 +722,12 @@ private fun ChallengesDetailRoute(
                 )
             }
         } else {
-            items(latestEntries, key = { it.id }) { entry ->
-                ChallengeProgressEntryRow(
-                    entry = entry,
+            items(groupedProgressEntries, key = { it.date }) { group ->
+                ChallengeProgressHistoryCard(
+                    group = group,
                     isEditable = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
-                    onEdit = { onRequestEditProgress(entry) },
-                    onDelete = { onDeleteProgress(entry.id) },
+                    onRequestEditProgress = onRequestEditProgress,
+                    onDeleteProgress = onDeleteProgress,
                 )
             }
         }
@@ -758,83 +735,39 @@ private fun ChallengesDetailRoute(
 }
 
 @Composable
-private fun ChallengesHistoryRoute(
-    modifier: Modifier,
-    state: ChallengeUiState,
-    onEditChallenge: () -> Unit,
-    onDeleteChallenge: (Long) -> Unit,
+private fun ChallengeProgressHistoryCard(
+    group: ChallengeProgressDateGroup,
+    isEditable: Boolean,
     onRequestEditProgress: (ChallengeProgressEntry) -> Unit,
     onDeleteProgress: (Long) -> Unit,
 ) {
-    val challenge = state.selectedChallenge
-    val calculation = state.calculation
-    if (challenge == null || calculation == null) {
-        Box(
-            modifier = modifier.fillMaxSize().padding(SpacingXl).testTag(CHALLENGES_TAG_HISTORY),
-            contentAlignment = Alignment.Center,
-        ) {
-            EmptyStateCard(
-                icon = Icons.Outlined.History,
-                title = stringResource(R.string.challenges_empty_detail_title),
-                body = stringResource(R.string.challenges_empty_detail_body),
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        return
-    }
-
-    val groupedProgressEntries = remember(state.progressEntries) { groupProgressByDate(state.progressEntries) }
-
-    LazyColumn(
-        modifier = modifier.fillMaxSize().testTag(CHALLENGES_TAG_HISTORY),
-        contentPadding =
-            PaddingValues(
-                start = SpacingXl,
-                top = SpacingMd,
-                end = SpacingXl,
-                bottom = SpacingXl,
-            ),
-        verticalArrangement = Arrangement.spacedBy(SpacingMd),
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(challengeHistoryGroupTag(group.date)),
+        shape = shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
     ) {
-        item {
-            ChallengeDetailSummaryCard(
-                challenge = challenge,
-                calculation = calculation,
-                onEdit = if (challenge.lifecycle == ChallengeLifecycle.ACTIVE) onEditChallenge else null,
-                onArchive = null,
-                onReactivate = null,
-                onDelete = { onDeleteChallenge(challenge.id) },
+        Column(
+            modifier = Modifier.padding(SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingXs),
+        ) {
+            Text(
+                text = formatWorkoutDate(group.date, Locale.getDefault()),
+                style = typography.titleSmall,
+                color = colorScheme.onSurface,
             )
-        }
-
-        items(groupedProgressEntries, key = { it.date }) { group ->
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = shapes.medium,
-                colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-                border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
-            ) {
-                Column(
-                    modifier = Modifier.padding(SpacingLg),
-                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                ) {
-                    Text(
-                        text = formatWorkoutDate(group.date, Locale.getDefault()),
-                        style = typography.titleSmall,
-                        color = colorScheme.onSurface,
-                    )
-                    group.entries.forEachIndexed { index, entry ->
-                        if (index > 0) {
-                            HorizontalDivider()
-                        }
-                        ChallengeProgressEntryRow(
-                            entry = entry,
-                            isEditable = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
-                            onEdit = { onRequestEditProgress(entry) },
-                            onDelete = { onDeleteProgress(entry.id) },
-                        )
-                    }
+            group.entries.forEachIndexed { index, entry ->
+                if (index > 0) {
+                    HorizontalDivider()
                 }
+                ChallengeProgressEntryRow(
+                    entry = entry,
+                    isEditable = isEditable,
+                    onEdit = { onRequestEditProgress(entry) },
+                    onDelete = { onDeleteProgress(entry.id) },
+                )
             }
         }
     }
@@ -1011,10 +944,6 @@ internal fun ChallengesEditorDialog(
 private fun ChallengeDetailSummaryCard(
     challenge: Challenge,
     calculation: ChallengeCalculationResult,
-    onEdit: (() -> Unit)?,
-    onArchive: (() -> Unit)?,
-    onReactivate: (() -> Unit)?,
-    onDelete: (() -> Unit)?,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -1023,14 +952,14 @@ private fun ChallengeDetailSummaryCard(
         border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
     ) {
         Column(
-            modifier = Modifier.padding(SpacingLg),
-            verticalArrangement = Arrangement.spacedBy(SpacingMd),
+            modifier = Modifier.padding(SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
             Row(verticalAlignment = Alignment.Top) {
                 Surface(
                     shape = shapes.small,
                     color = colorScheme.primaryContainer,
-                    modifier = Modifier.size(SpacingLg + SpacingLg),
+                    modifier = Modifier.size(SpacingMd + SpacingMd),
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         Icon(
@@ -1042,9 +971,9 @@ private fun ChallengeDetailSummaryCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.size(SpacingMd))
+                Spacer(modifier = Modifier.size(SpacingSm))
 
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
                     Text(
                         text = challenge.title,
                         style = typography.titleMedium,
@@ -1056,17 +985,11 @@ private fun ChallengeDetailSummaryCard(
                     }
                 }
 
-                ChallengeOverflowMenu(
-                    onEdit = onEdit,
-                    onArchive = onArchive,
-                    onReactivate = onReactivate,
-                    onDelete = onDelete,
-                )
             }
 
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                verticalArrangement = Arrangement.spacedBy(SpacingXs),
             ) {
                 TitleChip(
                     label = challengeTargetTypeLabel(challenge.targetType),
@@ -1087,19 +1010,23 @@ private fun ChallengeDetailSummaryCard(
                 )
                 TitleChip(
                     label = challengeStatusLabel(calculation.status),
-                    containerColor = colorScheme.surfaceVariant,
-                    contentColor = colorScheme.onSurfaceVariant,
+                    containerColor = challengeProgressContainerColor(calculation.status),
+                    contentColor = challengeProgressColor(calculation.status),
                 )
             }
 
             LinearProgressIndicator(
                 progress = { calculation.visualProgress.toFloat() },
+                color = challengeProgressColor(calculation.status),
+                trackColor = colorScheme.surfaceVariant,
+                strokeCap = Butt,
+                drawStopIndicator = {},
                 modifier = Modifier.fillMaxWidth(),
             )
 
             FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                verticalArrangement = Arrangement.spacedBy(SpacingXs),
             ) {
                 SummaryMetricCard(
                     label = stringResource(R.string.challenges_overall_progress_label),
@@ -1140,7 +1067,7 @@ private fun ChallengeDetailSummaryCard(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Column(
-                        modifier = Modifier.padding(SpacingMd),
+                        modifier = Modifier.padding(SpacingSm),
                         verticalArrangement = Arrangement.spacedBy(SpacingXs),
                     ) {
                         Text(
@@ -1164,9 +1091,7 @@ private fun ChallengeDetailSummaryCard(
 private fun ChallengeQuickAddCard(
     calculation: ChallengeCalculationResult,
     quickAdds: List<ChallengeQuickAddValue>,
-    isCustomAddEnabled: Boolean,
     onQuickAdd: (ChallengeQuickAddValue) -> Unit,
-    onCustomAddClick: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -1175,8 +1100,8 @@ private fun ChallengeQuickAddCard(
         border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
     ) {
         Column(
-            modifier = Modifier.padding(SpacingLg),
-            verticalArrangement = Arrangement.spacedBy(SpacingMd),
+            modifier = Modifier.padding(SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
             Text(
                 text = stringResource(R.string.challenges_add_progress),
@@ -1218,15 +1143,6 @@ private fun ChallengeQuickAddCard(
                             )
                         },
                     )
-                }
-                Button(
-                    onClick = onCustomAddClick,
-                    enabled = isCustomAddEnabled,
-                    modifier = Modifier.testTag(CHALLENGES_TAG_ADD_PROGRESS_BUTTON),
-                ) {
-                    Icon(imageVector = Icons.Filled.Add, contentDescription = null)
-                    Spacer(modifier = Modifier.size(SpacingSm))
-                    Text(text = stringResource(R.string.challenges_add_progress))
                 }
             }
         }
@@ -1321,23 +1237,33 @@ private fun ChallengeCard(
                 Text(text = description, color = colorScheme.onSurfaceVariant)
             }
 
-            calculation?.let {
+            calculation?.let { calculationResult ->
+                if (challenge.lifecycle == ChallengeLifecycle.ACTIVE) {
+                    LinearProgressIndicator(
+                        progress = { calculationResult.visualProgress.toFloat() },
+                        color = challengeProgressColor(calculationResult.status),
+                        trackColor = colorScheme.surfaceVariant,
+                        strokeCap = Butt,
+                        drawStopIndicator = {},
+                        modifier = Modifier.fillMaxWidth().testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
+                    )
+                }
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(SpacingSm),
                     verticalArrangement = Arrangement.spacedBy(SpacingSm),
                 ) {
                     TitleChip(
-                        label = challengeStatusLabel(it.status),
-                        containerColor = colorScheme.surfaceVariant,
-                        contentColor = colorScheme.onSurfaceVariant,
+                        label = challengeStatusLabel(calculationResult.status),
+                        containerColor = challengeProgressContainerColor(calculationResult.status),
+                        contentColor = challengeProgressColor(calculationResult.status),
                     )
                     TitleChip(
                         label =
                             stringResource(
                                 R.string.challenges_progress_value,
-                                ChallengeQuantity.format(it.completedTotal, Locale.getDefault()),
-                                ChallengeQuantity.format(it.plannedTotal, Locale.getDefault()),
-                            ),
+                                ChallengeQuantity.format(calculationResult.completedTotal, Locale.getDefault()),
+                                ChallengeQuantity.format(calculationResult.plannedTotal, Locale.getDefault()),
+                        ),
                         containerColor = colorScheme.surfaceVariant,
                         contentColor = colorScheme.onSurfaceVariant,
                     )
@@ -1425,7 +1351,7 @@ private fun SummaryMetricCard(
 ) {
     Surface(color = colorScheme.surfaceVariant, shape = shapes.medium) {
         Column(
-            modifier = Modifier.padding(SpacingMd),
+            modifier = Modifier.padding(SpacingSm),
             verticalArrangement = Arrangement.spacedBy(SpacingXs),
         ) {
             Text(text = label, style = typography.labelLarge, color = colorScheme.onSurfaceVariant)
@@ -1448,7 +1374,7 @@ private fun ChallengeDialogDateField(
             label = { Text(text = label) },
             modifier = Modifier.fillMaxWidth(),
         )
-        Box(modifier = Modifier.fillMaxSize().clickable(onClick = onClick))
+        Box(modifier = Modifier.matchParentSize().clickable(onClick = onClick))
     }
 }
 
@@ -1564,6 +1490,8 @@ private fun groupProgressByDate(entries: List<ChallengeProgressEntry>): List<Cha
         }
 }
 
+private fun challengeHistoryGroupTag(date: LocalDate): String = "$CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX$date"
+
 @Composable
 private fun challengeTargetTypeLabel(targetType: ChallengeTargetType): String {
     return when (targetType) {
@@ -1585,4 +1513,26 @@ private fun challengeStatusLabel(status: ChallengeStatus): String {
             ChallengeStatus.BEHIND -> R.string.challenges_status_behind
         },
     )
+}
+
+@Composable
+private fun challengeProgressColor(status: ChallengeStatus): Color {
+    return when (status) {
+        ChallengeStatus.AHEAD,
+        ChallengeStatus.ON_TRACK,
+        ChallengeStatus.COMPLETED,
+        ChallengeStatus.EXCEEDED,
+            -> ChallengeProgressAheadColor
+
+        ChallengeStatus.BEHIND,
+        ChallengeStatus.EXPIRED_INCOMPLETE,
+            -> ChallengeProgressBehindColor
+
+        ChallengeStatus.NOT_STARTED -> colorScheme.primary
+    }
+}
+
+@Composable
+private fun challengeProgressContainerColor(status: ChallengeStatus): Color {
+    return challengeProgressColor(status).copy(alpha = 0.16f)
 }

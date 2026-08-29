@@ -126,12 +126,14 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">डेवलपर मोड</string>
     <string name="settings_developer_data_title">डेटा</string>
-    <string name="settings_developer_data_body">लोकल डेटा को डेमो वर्कआउट, इवेंट, व्यक्तिगत रिकॉर्ड और गतिविधि इतिहास से बदलता है।</string>
+    <string name="settings_developer_data_body">लोकल डेटा को डेमो वर्कआउट, इवेंट, व्यक्तिगत रिकॉर्ड, चैलेंज और गतिविधि इतिहास से बदलता है।</string>
     <string name="settings_developer_trophies_title">ट्रॉफियां</string>
     <string name="settings_developer_trophies_body">ट्रॉफी स्टेट देखने के लिए लोकल हिस्ट्री को बदल देता है।</string>
     <string name="settings_seed_demo_data">डेमो डेटा से बदलें</string>
+    <string name="settings_seed_challenge_demo_data">चैलेंज डेमो डेटा से बदलें</string>
     <string name="settings_demo_data_created">डेमो डेटा बन गया</string>
-    <string name="settings_clear_database_confirm_message">यह लोकल डेटाबेस से वर्कआउट, इवेंट, कैटेगरी और गतिविधि इतिहास हटाता है।</string>
+    <string name="settings_challenge_demo_data_created">चैलेंज डेमो डेटा बन गया</string>
+    <string name="settings_clear_database_confirm_message">यह लोकल डेटाबेस से वर्कआउट, इवेंट, कैटेगरी, चैलेंज, चैलेंज प्रोग्रेस और गतिविधि इतिहास हटाता है।</string>
     <string name="settings_clear_database_confirm_title">डेटाबेस साफ करें?</string>
     <string name="settings_database_cleared">डेटाबेस साफ हो गया</string>
     <string name="settings_clear_database">डेटाबेस साफ करें</string>
@@ -830,7 +832,6 @@
     <string name="activity_subtitle_challenge_target">लक्ष्य %1$s का %2$s.</string>
     <string name="challenge_target_type_daily">दैनिक</string>
     <string name="challenge_target_type_total">कुल</string>
-    <string name="challenges_history_view_all">पूरा इतिहास देखें</string>
     <string name="challenges_field_progress_date">प्रगति तिथि</string>
     <string name="challenges_overall_progress_label">कुल प्रगति</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>

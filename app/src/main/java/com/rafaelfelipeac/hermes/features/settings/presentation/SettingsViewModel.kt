@@ -76,6 +76,8 @@ class SettingsViewModel
     ) : ViewModel() {
         private val demoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val demoSeedCompletedEvents: SharedFlow<Unit> = demoSeedEvents.asSharedFlow()
+        private val challengeDemoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val challengeDemoSeedCompletedEvents: SharedFlow<Unit> = challengeDemoSeedEvents.asSharedFlow()
         private val mixedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val mixedTrophiesSeedCompletedEvents: SharedFlow<Unit> = mixedTrophiesSeedEvents.asSharedFlow()
         private val lockedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -293,6 +295,14 @@ class SettingsViewModel
                 if (demoDataSeeder.seed()) {
                     logDemoSeedMutation()
                     demoSeedEvents.emit(Unit)
+                }
+            }
+
+        fun seedChallengeDemoData() =
+            viewModelScope.launch {
+                if (demoDataSeeder.seedChallenges()) {
+                    logDemoSeedMutation()
+                    challengeDemoSeedEvents.emit(Unit)
                 }
             }
 

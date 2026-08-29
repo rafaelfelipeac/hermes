@@ -236,12 +236,14 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Developer mode</string>
     <string name="settings_developer_data_title">Data</string>
-    <string name="settings_developer_data_body">Replaces local data with demo workouts, events, personal records and Activity history.</string>
+    <string name="settings_developer_data_body">Replaces local data with demo workouts, events, personal records, challenges and Activity history.</string>
     <string name="settings_developer_trophies_title">Trophies</string>
     <string name="settings_developer_trophies_body">Replaces local history to preview trophy states.</string>
     <string name="settings_seed_demo_data">Replace with demo data</string>
+    <string name="settings_seed_challenge_demo_data">Replace with challenge demo data</string>
     <string name="settings_demo_data_created">Demo data created</string>
-    <string name="settings_clear_database_confirm_message">This deletes workouts, events, categories and Activity history from the local database.</string>
+    <string name="settings_challenge_demo_data_created">Challenge demo data created</string>
+    <string name="settings_clear_database_confirm_message">This deletes workouts, events, categories, challenges, challenge progress and Activity history from the local database.</string>
     <string name="settings_clear_database_confirm_title">Clear database?</string>
     <string name="settings_database_cleared">Database cleared</string>
     <string name="settings_clear_database">Clear database</string>
@@ -833,7 +835,6 @@
     <string name="activity_subtitle_challenge_target">%1$s target of %2$s.</string>
     <string name="challenge_target_type_daily">Daily</string>
     <string name="challenge_target_type_total">Total</string>
-    <string name="challenges_history_view_all">View all history</string>
     <string name="challenges_field_progress_date">Progress date</string>
     <string name="challenges_overall_progress_label">Overall progress</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>

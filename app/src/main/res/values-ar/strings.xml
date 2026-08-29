@@ -146,12 +146,14 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">وضع المطوّر</string>
     <string name="settings_developer_data_title">البيانات</string>
-    <string name="settings_developer_data_body">يستبدل البيانات المحلية بتمارين وفعاليات وأرقام شخصية وسجل نشاط تجريبي.</string>
+    <string name="settings_developer_data_body">يستبدل البيانات المحلية بتمارين وفعاليات وأرقام شخصية وتحديات وسجل نشاط تجريبي.</string>
     <string name="settings_developer_trophies_title">الكؤوس</string>
     <string name="settings_developer_trophies_body">يستبدل السجل المحلي لمعاينة حالات الكؤوس.</string>
     <string name="settings_seed_demo_data">استبدال ببيانات تجريبية</string>
+    <string name="settings_seed_challenge_demo_data">استبدال ببيانات تجريبية للتحديات</string>
     <string name="settings_demo_data_created">تم إنشاء البيانات التجريبية</string>
-    <string name="settings_clear_database_confirm_message">سيحذف هذا التمارين والفعاليات والفئات وسجل النشاط من قاعدة البيانات المحلية.</string>
+    <string name="settings_challenge_demo_data_created">تم إنشاء بيانات التحديات التجريبية</string>
+    <string name="settings_clear_database_confirm_message">سيحذف هذا التمارين والفعاليات والفئات والتحديات وتقدم التحديات وسجل النشاط من قاعدة البيانات المحلية.</string>
     <string name="settings_clear_database_confirm_title">مسح قاعدة البيانات؟</string>
     <string name="settings_database_cleared">تم مسح قاعدة البيانات</string>
     <string name="settings_clear_database">مسح قاعدة البيانات</string>
@@ -866,7 +868,6 @@
     <string name="activity_subtitle_challenge_target">هدف %1$s من %2$s.</string>
     <string name="challenge_target_type_daily">يومي</string>
     <string name="challenge_target_type_total">إجمالي</string>
-    <string name="challenges_history_view_all">عرض السجل الكامل</string>
     <string name="challenges_field_progress_date">تاريخ التقدّم</string>
     <string name="challenges_overall_progress_label">التقدّم الكلي</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>

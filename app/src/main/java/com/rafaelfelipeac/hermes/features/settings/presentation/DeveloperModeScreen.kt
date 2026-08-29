@@ -52,6 +52,11 @@ internal fun DeveloperModeScreen(
                     )
 
                     SettingsActionButton(
+                        label = stringResource(R.string.settings_seed_challenge_demo_data),
+                        onClick = { pendingDeveloperAction = DeveloperSeedAction.CHALLENGE_DEMO_DATA },
+                    )
+
+                    SettingsActionButton(
                         label = stringResource(R.string.settings_clear_database),
                         onClick = { pendingDeveloperAction = DeveloperSeedAction.CLEAR_DATABASE },
                     )
@@ -116,6 +121,7 @@ internal fun DeveloperModeScreen(
                         onClick = {
                             when (action) {
                                 DeveloperSeedAction.DEMO_DATA -> viewModel.seedDemoData()
+                                DeveloperSeedAction.CHALLENGE_DEMO_DATA -> viewModel.seedChallengeDemoData()
                                 DeveloperSeedAction.MIXED_TROPHIES -> viewModel.seedMixedTrophies()
                                 DeveloperSeedAction.LOCKED_TROPHIES -> viewModel.seedLockedTrophies()
                                 DeveloperSeedAction.UNLOCKED_TROPHIES -> viewModel.seedCompletedTrophies()
@@ -139,6 +145,7 @@ internal fun DeveloperModeScreen(
 
 private enum class DeveloperSeedAction {
     DEMO_DATA,
+    CHALLENGE_DEMO_DATA,
     MIXED_TROPHIES,
     LOCKED_TROPHIES,
     UNLOCKED_TROPHIES,

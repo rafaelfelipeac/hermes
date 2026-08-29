@@ -126,12 +126,14 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">Modo desarrollador</string>
     <string name="settings_developer_data_title">Datos</string>
-    <string name="settings_developer_data_body">Reemplaza los datos locales con entrenamientos, eventos, récords personales e historial de Actividad de demostración.</string>
+    <string name="settings_developer_data_body">Reemplaza los datos locales con entrenamientos, eventos, récords personales, desafíos e historial de Actividad de demostración.</string>
     <string name="settings_developer_trophies_title">Trofeos</string>
     <string name="settings_developer_trophies_body">Reemplaza el historial local para previsualizar estados de trofeos.</string>
     <string name="settings_seed_demo_data">Reemplazar con datos de demo</string>
+    <string name="settings_seed_challenge_demo_data">Reemplazar con datos de demo de desafíos</string>
     <string name="settings_demo_data_created">Datos de demo creados</string>
-    <string name="settings_clear_database_confirm_message">Esto elimina entrenamientos, eventos, categorías y el historial de Actividad de la base de datos local.</string>
+    <string name="settings_challenge_demo_data_created">Datos de demo de desafíos creados</string>
+    <string name="settings_clear_database_confirm_message">Esto elimina entrenamientos, eventos, categorías, desafíos, progreso de desafíos e historial de Actividad de la base de datos local.</string>
     <string name="settings_clear_database_confirm_title">¿Borrar base de datos?</string>
     <string name="settings_database_cleared">Base de datos borrada</string>
     <string name="settings_clear_database">Borrar base de datos</string>
@@ -829,7 +831,6 @@
     <string name="activity_subtitle_challenge_target">Objetivo %1$s de %2$s.</string>
     <string name="challenge_target_type_daily">Diario</string>
     <string name="challenge_target_type_total">Total</string>
-    <string name="challenges_history_view_all">Ver todo el historial</string>
     <string name="challenges_field_progress_date">Fecha del progreso</string>
     <string name="challenges_overall_progress_label">Progreso total</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>

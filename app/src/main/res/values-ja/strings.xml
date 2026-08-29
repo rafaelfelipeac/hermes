@@ -122,12 +122,14 @@
     <!-- Demo data (debug) -->
     <string name="settings_developer_title">開発者モード</string>
     <string name="settings_developer_data_title">データ</string>
-    <string name="settings_developer_data_body">ローカルデータをデモ用のワークアウト、イベント、自己ベスト、アクティビティ履歴に置き換えます。</string>
+    <string name="settings_developer_data_body">ローカルデータをデモ用のワークアウト、イベント、自己ベスト、チャレンジ、アクティビティ履歴に置き換えます。</string>
     <string name="settings_developer_trophies_title">トロフィー</string>
     <string name="settings_developer_trophies_body">ローカル履歴を置き換えてトロフィー状態を確認します。</string>
     <string name="settings_seed_demo_data">デモデータに置き換える</string>
+    <string name="settings_seed_challenge_demo_data">チャレンジのデモデータに置き換える</string>
     <string name="settings_demo_data_created">デモデータを作成しました</string>
-    <string name="settings_clear_database_confirm_message">ローカルデータベースからワークアウト、イベント、カテゴリ、アクティビティ履歴を削除します。</string>
+    <string name="settings_challenge_demo_data_created">チャレンジのデモデータを作成しました</string>
+    <string name="settings_clear_database_confirm_message">ローカルデータベースからワークアウト、イベント、カテゴリ、チャレンジ、チャレンジの進捗、アクティビティ履歴を削除します。</string>
     <string name="settings_clear_database_confirm_title">データベースをクリアしますか？</string>
     <string name="settings_database_cleared">データベースをクリアしました</string>
     <string name="settings_clear_database">データベースをクリア</string>
@@ -826,7 +828,6 @@
     <string name="activity_subtitle_challenge_target">%1$s の目標 %2$s。</string>
     <string name="challenge_target_type_daily">毎日</string>
     <string name="challenge_target_type_total">合計</string>
-    <string name="challenges_history_view_all">履歴をすべて表示</string>
     <string name="challenges_field_progress_date">進捗日</string>
     <string name="challenges_overall_progress_label">全体の進捗</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>

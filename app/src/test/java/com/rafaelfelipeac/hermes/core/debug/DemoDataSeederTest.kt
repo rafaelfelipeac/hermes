@@ -5,6 +5,7 @@ import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
@@ -38,6 +39,7 @@ class DemoDataSeederTest {
             val workoutDao = mockk<WorkoutDao>(relaxed = true)
             val userActionDao = mockk<UserActionDao>(relaxed = true)
             val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val settingsRepository = FakeSettingsRepository()
             coEvery { categorySeeder.ensureSeeded() } returns Unit
@@ -48,6 +50,7 @@ class DemoDataSeederTest {
                     personalRecordDao = personalRecordDao,
                     stringProvider = FakeStringProvider,
                     categorySeeder = categorySeeder,
+                    challengeRepository = challengeRepository,
                     settingsRepository = settingsRepository,
                 )
 
@@ -58,6 +61,8 @@ class DemoDataSeederTest {
             coVerify(exactly = 1) { userActionDao.deleteAll() }
             coVerify(exactly = 1) { personalRecordDao.deleteAllEntries() }
             coVerify(exactly = 1) { personalRecordDao.deleteAllFamilies() }
+            coVerify(exactly = 1) { challengeRepository.deleteAllProgressEntries() }
+            coVerify(exactly = 1) { challengeRepository.deleteAllChallenges() }
             coVerify(exactly = 1) { categorySeeder.ensureSeeded() }
         }
 
@@ -67,6 +72,7 @@ class DemoDataSeederTest {
             val workoutDao = mockk<WorkoutDao>(relaxed = true)
             val userActionDao = mockk<UserActionDao>(relaxed = true)
             val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val settingsRepository = FakeSettingsRepository()
             val capturedWorkouts = mutableListOf<WorkoutEntity>()
@@ -89,6 +95,7 @@ class DemoDataSeederTest {
                     personalRecordDao = personalRecordDao,
                     stringProvider = FakeStringProvider,
                     categorySeeder = categorySeeder,
+                    challengeRepository = challengeRepository,
                     settingsRepository = settingsRepository,
                 )
 
@@ -132,6 +139,7 @@ class DemoDataSeederTest {
             val workoutDao = mockk<WorkoutDao>(relaxed = true)
             val userActionDao = mockk<UserActionDao>(relaxed = true)
             val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val capturedActions = mutableListOf<UserActionEntity>()
             var nextFamilyId = 1L
@@ -148,6 +156,7 @@ class DemoDataSeederTest {
                     personalRecordDao = personalRecordDao,
                     stringProvider = FakeStringProvider,
                     categorySeeder = categorySeeder,
+                    challengeRepository = challengeRepository,
                     settingsRepository = FakeSettingsRepository(),
                 )
 

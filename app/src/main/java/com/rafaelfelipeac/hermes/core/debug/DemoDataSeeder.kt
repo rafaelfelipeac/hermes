@@ -57,6 +57,11 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.STRENGTH_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWIM_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
+import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
@@ -87,6 +92,7 @@ import java.time.DayOfWeek.SUNDAY
 import java.time.DayOfWeek.THURSDAY
 import java.time.DayOfWeek.TUESDAY
 import java.time.DayOfWeek.WEDNESDAY
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
@@ -136,6 +142,7 @@ class DemoDataSeeder
         private val personalRecordDao: PersonalRecordDao,
         private val stringProvider: StringProvider,
         private val categorySeeder: CategorySeeder,
+        private val challengeRepository: ChallengeRepository,
         private val settingsRepository: SettingsRepository,
     ) {
         suspend fun clearDatabase(): Boolean {
@@ -145,6 +152,8 @@ class DemoDataSeeder
             userActionDao.deleteAll()
             personalRecordDao.deleteAllEntries()
             personalRecordDao.deleteAllFamilies()
+            challengeRepository.deleteAllProgressEntries()
+            challengeRepository.deleteAllChallenges()
             categorySeeder.ensureSeeded()
             settingsRepository.setLastSeenTrophyCelebrationToken(null)
 
@@ -172,6 +181,8 @@ class DemoDataSeeder
             userActionDao.deleteAll()
             personalRecordDao.deleteAllEntries()
             personalRecordDao.deleteAllFamilies()
+            challengeRepository.deleteAllProgressEntries()
+            challengeRepository.deleteAllChallenges()
             settingsRepository.setLastSeenTrophyCelebrationToken(null)
 
             val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -194,6 +205,8 @@ class DemoDataSeeder
             userActionDao.deleteAll()
             personalRecordDao.deleteAllEntries()
             personalRecordDao.deleteAllFamilies()
+            challengeRepository.deleteAllProgressEntries()
+            challengeRepository.deleteAllChallenges()
 
             val today = LocalDate.now()
             val currentWeekStart = today.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -227,7 +240,15 @@ class DemoDataSeeder
                 olderWeekStarts = activityHistoryWeekStarts,
                 nextWeekStart = nextWeekStart,
             )
+            seedChallengeDemoData(today)
 
+            return true
+        }
+
+        suspend fun seedChallenges(): Boolean {
+            if (!BuildConfig.DEBUG) return false
+
+            seedChallengeDemoData(LocalDate.now())
             return true
         }
 
@@ -789,6 +810,115 @@ class DemoDataSeeder
                 olderWeekStarts = olderWeekStarts,
                 nextWeekStart = nextWeekStart,
             ).forEach { userActionDao.insert(it) }
+        }
+
+        private suspend fun seedChallengeDemoData(today: LocalDate) {
+            val zoneId = ZoneId.systemDefault()
+            val now = Instant.now()
+
+            challengeRepository.deleteAllProgressEntries()
+            challengeRepository.deleteAllChallenges()
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        title = stringProvider.get(R.string.mock_workout_type_cardio),
+                        description = null,
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 120L,
+                        startDate = today.minusDays(10),
+                        endDate = today.plusDays(10),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        24L to today.minusDays(8),
+                        30L to today.minusDays(5),
+                        36L to today.minusDays(2),
+                    ),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        title = stringProvider.get(R.string.mock_workout_type_strength),
+                        description = null,
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 240L,
+                        startDate = today.minusDays(14),
+                        endDate = today.plusDays(7),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        20L to today.minusDays(12),
+                        25L to today.minusDays(8),
+                        30L to today.minusDays(4),
+                        15L to today.minusDays(1),
+                    ),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        title = stringProvider.get(R.string.mock_workout_type_mobility),
+                        description = null,
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 45L,
+                        startDate = today.minusDays(20),
+                        endDate = today.minusDays(3),
+                        lifecycle = ChallengeLifecycle.ARCHIVED,
+                        archivedAt = now,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        15L to today.minusDays(18),
+                        15L to today.minusDays(12),
+                        15L to today.minusDays(6),
+                    ),
+                zoneId = zoneId,
+            )
+        }
+
+        private suspend fun seedChallengeScenario(
+            challenge: Challenge,
+            entries: List<Pair<Long, LocalDate>>,
+            zoneId: ZoneId,
+        ) {
+            val challengeId = challengeRepository.insertChallenge(challenge)
+            val baseInstant = challenge.createdAt
+
+            entries.forEachIndexed { index, (quantity, entryDate) ->
+                val occurredAt =
+                    entryDate
+                        .atStartOfDay(zoneId)
+                        .plusHours(8 + index.toLong())
+                        .toInstant()
+                challengeRepository.insertProgressEntry(
+                    ChallengeProgressEntry(
+                        id = 0L,
+                        challengeId = challengeId,
+                        quantity = quantity,
+                        entryDate = entryDate,
+                        occurredAt = occurredAt,
+                        createdAt = baseInstant,
+                        updatedAt = baseInstant,
+                    ),
+                )
+            }
         }
 
         private fun buildActivityHistoryActions(

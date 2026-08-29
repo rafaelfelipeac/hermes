@@ -2,10 +2,14 @@ package com.rafaelfelipeac.hermes.features.challenges.presentation
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
@@ -22,19 +26,21 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlin.math.abs
 
 class ChallengesScreenTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun listShellShowsHermesBackButtonFabAndEmptyState() {
+    fun listShellShowsHermesBackButtonFabAndCenteredEmptyStates() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         var backCalls = 0
         val viewModel = createViewModel()
@@ -60,6 +66,13 @@ class ChallengesScreenTest {
         composeRule
             .onNodeWithText(context.getString(R.string.challenges_empty_active_title))
             .assertIsDisplayed()
+        assertEmptyStateCentered(CHALLENGES_TAG_ACTIVE_EMPTY_STATE)
+
+        composeRule.onNodeWithText(context.getString(R.string.challenges_archived_title)).performClick()
+        composeRule
+            .onNodeWithText(context.getString(R.string.challenges_empty_archived_title))
+            .assertIsDisplayed()
+        assertEmptyStateCentered(CHALLENGES_TAG_ARCHIVED_EMPTY_STATE)
 
         composeRule
             .onNodeWithContentDescription(context.getString(R.string.trophies_back))
@@ -71,7 +84,7 @@ class ChallengesScreenTest {
     }
 
     @Test
-    fun tabsSwitchBetweenActiveAndArchivedLists() {
+    fun activeCardsShowProgressBarsAndArchivedCardsDoNot() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val challenge =
             sampleChallenge(
@@ -104,11 +117,64 @@ class ChallengesScreenTest {
             }
         }
 
+        composeRule.onNodeWithText(challenge.title).assertIsDisplayed()
+        composeRule.onAllNodes(hasTestTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS), useUnmergedTree = true).assertCountEquals(1)
+
+        composeRule.onNodeWithText(context.getString(R.string.challenges_archived_title)).performClick()
+        composeRule.onNodeWithText(archivedChallenge.title).assertIsDisplayed()
+        composeRule.onAllNodes(hasTestTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS), useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test
+    fun detailScreenKeepsToolbarActionsQuickAddChipsAndInlineHistory() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val challenge =
+            sampleChallenge(
+                id = 20L,
+                title = "August target",
+                lifecycle = ChallengeLifecycle.ACTIVE,
+            )
+        val progressEntries =
+            listOf(
+                sampleProgressEntry(
+                    id = 200L,
+                    challengeId = challenge.id,
+                    quantity = 34L,
+                    entryDate = LocalDate.of(2026, 8, 28),
+                ),
+                sampleProgressEntry(
+                    id = 201L,
+                    challengeId = challenge.id,
+                    quantity = 23L,
+                    entryDate = LocalDate.of(2026, 8, 28),
+                ),
+                sampleProgressEntry(
+                    id = 202L,
+                    challengeId = challenge.id,
+                    quantity = 12L,
+                    entryDate = LocalDate.of(2026, 8, 27),
+                ),
+                sampleProgressEntry(
+                    id = 203L,
+                    challengeId = challenge.id,
+                    quantity = 6L,
+                    entryDate = LocalDate.of(2026, 8, 27),
+                ),
+            )
+        val viewModel = createViewModel(listOf(challenge), progressEntries)
+
+        composeRule.setContent {
+            HermesTheme {
+                ChallengesScreen(
+                    onBack = {},
+                    viewModel = viewModel,
+                )
+            }
+        }
+
         composeRule.onNodeWithText(challenge.title).performClick()
-        composeRule
-            .onNodeWithContentDescription(context.getString(R.string.challenges_add_progress))
-            .assertIsDisplayed()
-        composeRule.onNodeWithText(context.getString(R.string.challenges_history_view_all)).assertIsDisplayed()
+        composeRule.onNodeWithTag(CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB).assertIsDisplayed()
+        composeRule.onAllNodes(hasTestTag(CHALLENGES_TAG_ADD_PROGRESS_BUTTON), useUnmergedTree = true).assertCountEquals(0)
         composeRule
             .onNodeWithText(
                 context.getString(
@@ -118,16 +184,60 @@ class ChallengesScreenTest {
                 ),
             )
             .assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                context.getString(
+                    R.string.challenges_quick_add_with_quantity,
+                    100,
+                    "10",
+                ),
+            )
+            .assertIsDisplayed()
 
         composeRule
-            .onNodeWithContentDescription(context.getString(R.string.trophies_back))
+            .onNodeWithContentDescription(context.getString(R.string.challenges_actions_menu))
             .performClick()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_edit)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_archive)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_delete)).assertIsDisplayed()
 
-        composeRule.onNodeWithText(context.getString(R.string.challenges_active_title)).assertIsDisplayed()
-        composeRule.onNodeWithText(challenge.title).assertIsDisplayed()
+        composeRule.onNodeWithTag(historyGroupTag(LocalDate.of(2026, 8, 28))).assertIsDisplayed()
+        composeRule.onNodeWithTag(historyGroupTag(LocalDate.of(2026, 8, 27))).assertIsDisplayed()
+        composeRule.onNodeWithTag(historyGroupTag(LocalDate.of(2026, 8, 27))).performScrollTo()
+        composeRule.onNodeWithText("34").assertIsDisplayed()
+        composeRule.onNodeWithText("23").assertIsDisplayed()
+        composeRule.onNodeWithText("12").assertIsDisplayed()
+        composeRule.onNodeWithText("6").assertIsDisplayed()
+    }
+
+    @Test
+    fun archivedDetailToolbarShowsReactivateAndDelete() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val challenge =
+            sampleChallenge(
+                id = 20L,
+                title = "August target",
+                lifecycle = ChallengeLifecycle.ARCHIVED,
+                archivedAt = Instant.parse("2026-08-03T10:00:00Z"),
+            )
+        val viewModel = createViewModel(listOf(challenge))
+
+        composeRule.setContent {
+            HermesTheme {
+                ChallengesScreen(
+                    onBack = {},
+                    viewModel = viewModel,
+                )
+            }
+        }
 
         composeRule.onNodeWithText(context.getString(R.string.challenges_archived_title)).performClick()
-        composeRule.onNodeWithText(archivedChallenge.title).assertIsDisplayed()
+        composeRule.onNodeWithText(challenge.title).performClick()
+        composeRule
+            .onNodeWithContentDescription(context.getString(R.string.challenges_actions_menu))
+            .performClick()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_reactivate)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_delete)).assertIsDisplayed()
     }
 
     @Test
@@ -135,7 +245,7 @@ class ChallengesScreenTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val challenge =
             sampleChallenge(
-                id = 20L,
+                id = 30L,
                 title = "August target",
                 lifecycle = ChallengeLifecycle.ACTIVE,
             )
@@ -161,8 +271,8 @@ class ChallengesScreenTest {
             it.onBackPressedDispatcher.onBackPressed()
         }
 
-        composeRule.onNodeWithContentDescription(context.getString(R.string.challenges_add_progress))
-            .assertIsDisplayed()
+        composeRule.onNodeWithTag(CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB).assertIsDisplayed()
+        composeRule.onAllNodes(hasTestTag(CHALLENGES_TAG_ADD_PROGRESS_BUTTON), useUnmergedTree = true).assertCountEquals(0)
     }
 
     private fun createViewModel(
@@ -214,6 +324,18 @@ class ChallengesScreenTest {
             createdAt = Instant.parse("2026-08-02T09:00:00Z"),
             updatedAt = Instant.parse("2026-08-02T09:00:00Z"),
         )
+    }
+
+    private fun historyGroupTag(date: LocalDate): String = "$CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX$date"
+
+    private fun assertEmptyStateCentered(emptyStateTag: String) {
+        val rootBounds = composeRule.onNodeWithTag(CHALLENGES_TAG_ROOT).fetchSemanticsNode().boundsInRoot
+        val emptyStateBounds = composeRule.onNodeWithTag(emptyStateTag).fetchSemanticsNode().boundsInRoot
+        val rootCenterY = (rootBounds.top + rootBounds.bottom) / 2f
+        val emptyStateCenterY = (emptyStateBounds.top + emptyStateBounds.bottom) / 2f
+        val allowableDrift = (rootBounds.bottom - rootBounds.top) * 0.15f
+
+        assertTrue(abs(emptyStateCenterY - rootCenterY) <= allowableDrift)
     }
 
     private object NoOpUserActionLogger : UserActionLogger {
