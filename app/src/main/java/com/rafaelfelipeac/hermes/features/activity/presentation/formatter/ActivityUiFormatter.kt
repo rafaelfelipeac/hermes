@@ -672,6 +672,13 @@ class ActivityUiFormatter(
         val oldStatus = metadata[UserActionMetadataKeys.CHALLENGE_OLD_STATUS]
         val newStatus = metadata[UserActionMetadataKeys.CHALLENGE_NEW_STATUS]
         val recovered = metadata[UserActionMetadataKeys.CHALLENGE_RECOVERED]?.toBooleanStrictOrNull() == true
+        val oldCategory = metadata[UserActionMetadataKeys.OLD_CATEGORY_NAME]?.takeIf { it.isNotBlank() }
+        val newCategory = metadata[UserActionMetadataKeys.NEW_CATEGORY_NAME]?.takeIf { it.isNotBlank() }
+        val category =
+            metadata[UserActionMetadataKeys.CHALLENGE_CATEGORY_NAME]
+                ?.takeIf { it.isNotBlank() }
+                ?: newCategory
+                ?: oldCategory
 
         return when (actionType) {
             UserActionType.CREATE_CHALLENGE,
@@ -705,6 +712,30 @@ class ActivityUiFormatter(
                                     endDate.orEmpty(),
                                 ),
                             )
+                        }
+                        if (oldCategory.isNullOrBlank() || newCategory.isNullOrBlank() || oldCategory == newCategory) {
+                            category
+                                ?.let(::quoteValue)
+                                ?.let { quotedCategory ->
+                                    add(
+                                        stringProvider.get(
+                                            R.string.activity_subtitle_challenge_category,
+                                            quotedCategory,
+                                        ),
+                                    )
+                                }
+                        } else {
+                            val oldQuoted = quoteValue(oldCategory)
+                            val newQuoted = quoteValue(newCategory)
+                            if (oldQuoted != null && newQuoted != null) {
+                                add(
+                                    stringProvider.get(
+                                        R.string.activity_subtitle_challenge_category_change,
+                                        oldQuoted,
+                                        newQuoted,
+                                    ),
+                                )
+                            }
                         }
                     }
 

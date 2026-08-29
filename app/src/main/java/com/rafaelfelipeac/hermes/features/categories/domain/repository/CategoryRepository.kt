@@ -38,5 +38,10 @@ interface CategoryRepository {
         sortOrder: Int,
     )
 
+    suspend fun reassignCategory(
+        categoryId: Long,
+        newCategoryId: Long?,
+    ) = Unit
+
     suspend fun deleteCategory(id: Long)
 }

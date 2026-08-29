@@ -5,6 +5,7 @@ import java.time.LocalDate
 
 data class Challenge(
     val id: Long,
+    val categoryId: Long? = null,
     val title: String,
     val description: String? = null,
     val targetType: ChallengeTargetType,

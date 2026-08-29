@@ -14,11 +14,13 @@ private const val CHALLENGE_TABLE_NAME = "challenges"
     indices = [
         Index(value = ["lifecycle"]),
         Index(value = ["updatedAt"]),
+        Index(value = ["categoryId"]),
     ],
 )
 data class ChallengeEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0L,
+    val categoryId: Long?,
     val title: String,
     val description: String?,
     val targetType: ChallengeTargetType,

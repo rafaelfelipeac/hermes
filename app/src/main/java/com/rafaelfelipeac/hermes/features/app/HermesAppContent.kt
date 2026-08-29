@@ -320,7 +320,7 @@ fun HermesAppContent() {
                     item(
                         icon = {
                             Icon(
-                                it.icon,
+                                if (it == currentDestination) it.selectedIcon else it.unselectedIcon,
                                 contentDescription = stringResource(it.labelRes),
                             )
                         },

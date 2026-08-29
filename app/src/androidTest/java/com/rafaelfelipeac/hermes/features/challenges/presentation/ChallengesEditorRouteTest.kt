@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEditorState
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
@@ -35,6 +36,7 @@ class ChallengesEditorRouteTest {
                         endDate = LocalDate.of(2026, 8, 31),
                         lifecycle = ChallengeLifecycle.ACTIVE,
                     ),
+                categories = emptyList(),
                 validationMessage = null,
                 onTitleChange = {},
                 onDescriptionChange = {},
@@ -42,6 +44,7 @@ class ChallengesEditorRouteTest {
                 onTargetQuantityChange = {},
                 onStartDateChange = {},
                 onEndDateChange = {},
+                onCategoryChange = {},
                 onSave = {},
                 onCancel = {},
             )

@@ -1,8 +1,11 @@
 package com.rafaelfelipeac.hermes.features.challenges.domain.model
 
+import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
+
 data class ChallengeUiState(
     val activeChallenges: List<Challenge> = emptyList(),
     val archivedChallenges: List<Challenge> = emptyList(),
+    val categories: List<Category> = emptyList(),
     val challengeCalculations: Map<Long, ChallengeCalculationResult> = emptyMap(),
     val allProgressEntries: List<ChallengeProgressEntry> = emptyList(),
     val selectedChallengeId: Long? = null,

@@ -283,6 +283,8 @@
     <string name="activity_subtitle_week">Semaine du %1$s.</string>
     <string name="activity_subtitle_workout_category">Catégorie %1$s.</string>
     <string name="activity_subtitle_workout_category_change">Catégorie de %1$s à %2$s.</string>
+    <string name="activity_subtitle_challenge_category">Catégorie %1$s.</string>
+    <string name="activity_subtitle_challenge_category_change">Catégorie de %1$s à %2$s.</string>
     <string name="activity_action_change_distance_unit">Vous avez modifié l’unité de distance.</string>
     <string name="activity_action_change_pace_unit">Vous avez modifié l’unité d’allure.</string>
     <string name="activity_action_change_weight_unit">Vous avez modifié l’unité de poids.</string>
@@ -404,6 +406,7 @@
 
     <!-- Categories -->
     <string name="workout_dialog_add_workout_category">Catégorie</string>
+    <string name="challenges_field_category">Catégorie</string>
     <string name="workout_dialog_manage_categories">Gérer les catégories</string>
     <string name="category_uncategorized">Sans catégorie</string>
     <string name="categories_category_run">Course</string>

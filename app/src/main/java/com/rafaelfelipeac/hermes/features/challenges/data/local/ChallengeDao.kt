@@ -76,6 +76,12 @@ interface ChallengeDao {
         updatedAt: Long,
     )
 
+    @Query("UPDATE challenges SET categoryId = :newCategoryId WHERE categoryId = :categoryId")
+    suspend fun reassignCategory(
+        categoryId: Long,
+        newCategoryId: Long?,
+    )
+
     @Query("DELETE FROM challenges WHERE id = :id")
     suspend fun deleteChallenge(id: Long)
 

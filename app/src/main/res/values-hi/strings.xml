@@ -283,6 +283,8 @@
     <string name="activity_subtitle_week">%1$s का सप्ताह.</string>
     <string name="activity_subtitle_workout_category">श्रेणी %1$s।</string>
     <string name="activity_subtitle_workout_category_change">श्रेणी %1$s से %2$s।</string>
+    <string name="activity_subtitle_challenge_category">श्रेणी %1$s।</string>
+    <string name="activity_subtitle_challenge_category_change">श्रेणी %1$s से %2$s।</string>
     <string name="activity_action_change_distance_unit">आपने दूरी की इकाई बदली।</string>
     <string name="activity_action_change_pace_unit">आपने गति की इकाई बदली।</string>
     <string name="activity_action_change_weight_unit">आपने वज़न की इकाई बदली।</string>
@@ -404,6 +406,7 @@
 
     <!-- Categories -->
     <string name="workout_dialog_add_workout_category">श्रेणी</string>
+    <string name="challenges_field_category">श्रेणी</string>
     <string name="workout_dialog_manage_categories">श्रेणियाँ प्रबंधित करें</string>
     <string name="category_uncategorized">बिना श्रेणी</string>
     <string name="categories_category_run">दौड़</string>

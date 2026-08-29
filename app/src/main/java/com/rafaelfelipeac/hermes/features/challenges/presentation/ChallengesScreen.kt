@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -101,6 +103,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEditorState
@@ -111,6 +114,8 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuick
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeStatus
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeUiState
+import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
+import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import java.time.LocalDate
 import java.util.Locale
 
@@ -151,6 +156,10 @@ fun ChallengesScreen(
     var route by rememberSaveable { mutableStateOf(CHALLENGES_ROUTE_LIST) }
     var selectedTab by rememberSaveable { mutableStateOf(ChallengeListTab.ACTIVE) }
     var detailOriginTab by rememberSaveable { mutableStateOf(ChallengeListTab.ACTIVE) }
+    val pagerState = rememberPagerState(
+        initialPage = selectedTab.ordinal,
+        pageCount = { ChallengeListTab.entries.size },
+    )
     var showEditorDialog by rememberSaveable { mutableStateOf(false) }
     var editorChallengeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var showProgressDialog by rememberSaveable { mutableStateOf(false) }
@@ -244,6 +253,18 @@ fun ChallengesScreen(
         }
     }
 
+    LaunchedEffect(route, selectedTab) {
+        if (route == CHALLENGES_ROUTE_LIST && pagerState.currentPage != selectedTab.ordinal) {
+            pagerState.animateScrollToPage(selectedTab.ordinal)
+        }
+    }
+
+    LaunchedEffect(route, pagerState.currentPage) {
+        if (route == CHALLENGES_ROUTE_LIST) {
+            selectedTab = ChallengeListTab.entries[pagerState.currentPage]
+        }
+    }
+
     Scaffold(
         modifier = modifier.fillMaxSize().testTag(CHALLENGES_TAG_ROOT),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -330,6 +351,7 @@ fun ChallengesScreen(
                     ChallengesListRoute(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                         selectedTab = selectedTab,
+                        pagerState = pagerState,
                         state = state,
                         onSelectedTabChange = { tab ->
                             selectedTab = tab
@@ -365,9 +387,11 @@ fun ChallengesScreen(
     if (showEditorDialog) {
         ChallengesEditorDialog(
             editorState = state.editorState,
+            categories = state.categories,
             validationMessage = state.editorState.validationMessage,
             onTitleChange = viewModel::updateEditorTitle,
             onDescriptionChange = viewModel::updateEditorDescription,
+            onCategoryChange = viewModel::updateEditorCategory,
             onTargetTypeChange = viewModel::updateEditorTargetType,
             onTargetQuantityChange = viewModel::updateEditorTargetQuantity,
             onStartDateChange = viewModel::updateEditorStartDate,
@@ -532,6 +556,7 @@ private fun ChallengesHeader(
 private fun ChallengesListRoute(
     modifier: Modifier,
     selectedTab: ChallengeListTab,
+    pagerState: androidx.compose.foundation.pager.PagerState,
     state: ChallengeUiState,
     onSelectedTabChange: (ChallengeListTab) -> Unit,
     onChallengeClick: (Challenge) -> Unit,
@@ -541,92 +566,102 @@ private fun ChallengesListRoute(
             Tab(
                 selected = selectedTab == ChallengeListTab.ACTIVE,
                 onClick = { onSelectedTabChange(ChallengeListTab.ACTIVE) },
+                selectedContentColor = colorScheme.primary,
+                unselectedContentColor = colorScheme.onSurfaceVariant,
                 text = { Text(text = stringResource(R.string.challenges_active_title)) },
             )
             Tab(
                 selected = selectedTab == ChallengeListTab.ARCHIVED,
                 onClick = { onSelectedTabChange(ChallengeListTab.ARCHIVED) },
+                selectedContentColor = colorScheme.primary,
+                unselectedContentColor = colorScheme.onSurfaceVariant,
                 text = { Text(text = stringResource(R.string.challenges_archived_title)) },
             )
         }
 
-        val contentModifier = Modifier.weight(1f).fillMaxWidth()
-        when (selectedTab) {
-            ChallengeListTab.ACTIVE -> {
-                val activeChallenges =
-                    remember(state.activeChallenges) {
-                        state.activeChallenges.sortedByDescending { it.updatedAt }
-                    }
-                Box(
-                    modifier = contentModifier.padding(horizontal = SpacingXl),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (activeChallenges.isEmpty()) {
-                        EmptyStateCard(
-                            icon = Icons.Outlined.Flag,
-                            title = stringResource(R.string.challenges_empty_active_title),
-                            body = stringResource(R.string.challenges_empty_active_body),
-                            modifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_EMPTY_STATE),
-                            actionContent = null,
-                        )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize().testTag(CHALLENGES_TAG_ACTIVE_LIST),
-                            contentPadding =
-                                PaddingValues(
-                                    start = SpacingXl,
-                                    top = SpacingMd,
-                                    end = SpacingXl,
-                                    bottom = SpacingXl,
-                                ),
-                            verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                        ) {
-                            items(activeChallenges, key = { it.id }) { challenge ->
-                                ChallengeCard(
-                                    challenge = challenge,
-                                    calculation = state.challengeCalculations[challenge.id],
-                                    onClick = { onChallengeClick(challenge) },
-                                )
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+        ) { page ->
+            when (ChallengeListTab.entries[page]) {
+                ChallengeListTab.ACTIVE -> {
+                    val activeChallenges =
+                        remember(state.activeChallenges) {
+                            state.activeChallenges.sortedByDescending { it.updatedAt }
+                        }
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = SpacingXl),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (activeChallenges.isEmpty()) {
+                            EmptyStateCard(
+                                icon = Icons.Outlined.Flag,
+                                title = stringResource(R.string.challenges_empty_active_title),
+                                body = stringResource(R.string.challenges_empty_active_body),
+                                modifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_EMPTY_STATE),
+                                actionContent = null,
+                            )
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize().testTag(CHALLENGES_TAG_ACTIVE_LIST),
+                                contentPadding =
+                                    PaddingValues(
+                                        start = SpacingXl,
+                                        top = SpacingMd,
+                                        end = SpacingXl,
+                                        bottom = SpacingXl,
+                                    ),
+                                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+                            ) {
+                                items(activeChallenges, key = { it.id }) { challenge ->
+                                    ChallengeCard(
+                                        challenge = challenge,
+                                        category = state.categories.firstOrNull { it.id == challenge.categoryId },
+                                        calculation = state.challengeCalculations[challenge.id],
+                                        onClick = { onChallengeClick(challenge) },
+                                    )
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            ChallengeListTab.ARCHIVED -> {
-                val archivedChallenges =
-                    remember(state.archivedChallenges) {
-                        state.archivedChallenges.sortedByDescending { it.updatedAt }
-                    }
-                Box(
-                    modifier = contentModifier.padding(horizontal = SpacingXl),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (archivedChallenges.isEmpty()) {
-                        EmptyStateCard(
-                            icon = Icons.Outlined.Archive,
-                            title = stringResource(R.string.challenges_empty_archived_title),
-                            body = stringResource(R.string.challenges_empty_archived_body),
-                            modifier = Modifier.testTag(CHALLENGES_TAG_ARCHIVED_EMPTY_STATE),
-                        )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize().testTag(CHALLENGES_TAG_ARCHIVED_LIST),
-                            contentPadding =
-                                PaddingValues(
-                                    start = SpacingXl,
-                                    top = SpacingMd,
-                                    end = SpacingXl,
-                                    bottom = SpacingXl,
-                                ),
-                            verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                        ) {
-                            items(archivedChallenges, key = { it.id }) { challenge ->
-                                ChallengeCard(
-                                    challenge = challenge,
-                                    calculation = state.challengeCalculations[challenge.id],
-                                    onClick = { onChallengeClick(challenge) },
-                                )
+                ChallengeListTab.ARCHIVED -> {
+                    val archivedChallenges =
+                        remember(state.archivedChallenges) {
+                            state.archivedChallenges.sortedByDescending { it.updatedAt }
+                        }
+                    Box(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = SpacingXl),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        if (archivedChallenges.isEmpty()) {
+                            EmptyStateCard(
+                                icon = Icons.Outlined.Archive,
+                                title = stringResource(R.string.challenges_empty_archived_title),
+                                body = stringResource(R.string.challenges_empty_archived_body),
+                                modifier = Modifier.testTag(CHALLENGES_TAG_ARCHIVED_EMPTY_STATE),
+                            )
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize().testTag(CHALLENGES_TAG_ARCHIVED_LIST),
+                                contentPadding =
+                                    PaddingValues(
+                                        start = SpacingXl,
+                                        top = SpacingMd,
+                                        end = SpacingXl,
+                                        bottom = SpacingXl,
+                                    ),
+                                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+                            ) {
+                                items(archivedChallenges, key = { it.id }) { challenge ->
+                                    ChallengeCard(
+                                        challenge = challenge,
+                                        category = state.categories.firstOrNull { it.id == challenge.categoryId },
+                                        calculation = state.challengeCalculations[challenge.id],
+                                        onClick = { onChallengeClick(challenge) },
+                                    )
+                                }
                             }
                         }
                     }
@@ -662,9 +697,15 @@ private fun ChallengesDetailRoute(
     }
 
     val groupedProgressEntries = remember(state.progressEntries) { groupProgressByDate(state.progressEntries) }
+    val category = state.categories.firstOrNull { it.id == challenge.categoryId }
+    val quickAddBase =
+        when (challenge.targetType) {
+            ChallengeTargetType.DAILY -> challenge.targetQuantity
+            ChallengeTargetType.TOTAL -> calculation.requiredPace
+        }
     val quickAdds =
-        if (challenge.lifecycle == ChallengeLifecycle.ACTIVE && challenge.targetType == ChallengeTargetType.DAILY) {
-            ChallengeQuantity.quickAddValues(challenge.targetQuantity)
+        if (challenge.lifecycle == ChallengeLifecycle.ACTIVE && quickAddBase > 0L) {
+            ChallengeQuantity.quickAddValues(quickAddBase)
         } else {
             emptyList()
         }
@@ -673,15 +714,16 @@ private fun ChallengesDetailRoute(
         contentPadding =
             PaddingValues(
                 start = SpacingXl,
-                top = SpacingSm,
+                top = SpacingXs,
                 end = SpacingXl,
                 bottom = SpacingXl,
             ),
-        verticalArrangement = Arrangement.spacedBy(SpacingSm),
+        verticalArrangement = Arrangement.spacedBy(SpacingXs),
     ) {
         item {
             ChallengeDetailSummaryCard(
                 challenge = challenge,
+                category = category,
                 calculation = calculation,
             )
         }
@@ -718,7 +760,7 @@ private fun ChallengesDetailRoute(
                     icon = Icons.Outlined.History,
                     title = stringResource(R.string.challenges_empty_detail_title),
                     body = stringResource(R.string.challenges_empty_detail_body),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().padding(top = SpacingSm),
                 )
             }
         } else {
@@ -765,7 +807,7 @@ private fun ChallengeProgressHistoryCard(
                 ChallengeProgressEntryRow(
                     entry = entry,
                     isEditable = isEditable,
-                    onEdit = { onRequestEditProgress(entry) },
+                    onClick = { onRequestEditProgress(entry) },
                     onDelete = { onDeleteProgress(entry.id) },
                 )
             }
@@ -776,9 +818,11 @@ private fun ChallengeProgressHistoryCard(
 @Composable
 internal fun ChallengesEditorDialog(
     editorState: ChallengeEditorState,
+    categories: List<Category>,
     validationMessage: String?,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
+    onCategoryChange: (Long?) -> Unit,
     onTargetTypeChange: (ChallengeTargetType) -> Unit,
     onTargetQuantityChange: (String) -> Unit,
     onStartDateChange: (LocalDate?) -> Unit,
@@ -789,9 +833,14 @@ internal fun ChallengesEditorDialog(
     val dialogKey = editorState.challengeId ?: -1L
     var showStartDatePicker by rememberSaveable(dialogKey) { mutableStateOf(false) }
     var showEndDatePicker by rememberSaveable(dialogKey) { mutableStateOf(false) }
+    var showCategoryMenu by rememberSaveable(dialogKey) { mutableStateOf(false) }
     val currentLocale = Locale.getDefault()
     val startDate = editorState.startDate
     val endDate = editorState.endDate
+    val visibleCategories =
+        remember(categories, editorState.categoryId) {
+            categories.filter { !it.isHidden || it.id == editorState.categoryId }
+        }
     val inclusiveDays =
         startDate?.let { start ->
             endDate?.let { end ->
@@ -846,6 +895,43 @@ internal fun ChallengesEditorDialog(
                         label = { Text(text = stringResource(R.string.challenges_field_description)) },
                         keyboardOptions = DefaultTextFieldKeyboardOptions,
                     )
+
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = categoryLabelFor(editorState.categoryId, visibleCategories),
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            label = { Text(text = stringResource(R.string.challenges_field_category)) },
+                        )
+                        Box(
+                            modifier =
+                                Modifier
+                                    .matchParentSize()
+                                    .clickable { showCategoryMenu = true },
+                        )
+                        DropdownMenu(
+                            expanded = showCategoryMenu,
+                            onDismissRequest = { showCategoryMenu = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(R.string.category_uncategorized)) },
+                                onClick = {
+                                    onCategoryChange(null)
+                                    showCategoryMenu = false
+                                },
+                            )
+                            visibleCategories.forEach { category ->
+                                DropdownMenuItem(
+                                    text = { Text(text = category.name) },
+                                    onClick = {
+                                        onCategoryChange(category.id)
+                                        showCategoryMenu = false
+                                    },
+                                )
+                            }
+                        }
+                    }
 
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         ChallengeTargetType.entries.forEachIndexed { index, option ->
@@ -943,8 +1029,11 @@ internal fun ChallengesEditorDialog(
 @Composable
 private fun ChallengeDetailSummaryCard(
     challenge: Challenge,
+    category: Category?,
     calculation: ChallengeCalculationResult,
 ) {
+    val flagColors = challengeFlagColors(category)
+    val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = shapes.medium,
@@ -952,20 +1041,20 @@ private fun ChallengeDetailSummaryCard(
         border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
     ) {
         Column(
-            modifier = Modifier.padding(SpacingMd),
-            verticalArrangement = Arrangement.spacedBy(SpacingSm),
+            modifier = Modifier.padding(SpacingSm),
+            verticalArrangement = Arrangement.spacedBy(SpacingXs),
         ) {
             Row(verticalAlignment = Alignment.Top) {
                 Surface(
                     shape = shapes.small,
-                    color = colorScheme.primaryContainer,
+                    color = flagColors.container,
                     modifier = Modifier.size(SpacingMd + SpacingMd),
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         Icon(
                             imageVector = Icons.Outlined.Flag,
                             contentDescription = null,
-                            tint = colorScheme.onPrimaryContainer,
+                            tint = flagColors.content,
                             modifier = Modifier.size(SmallIconSize),
                         )
                     }
@@ -984,7 +1073,6 @@ private fun ChallengeDetailSummaryCard(
                         Text(text = description, color = colorScheme.onSurfaceVariant)
                     }
                 }
-
             }
 
             FlowRow(
@@ -1008,6 +1096,13 @@ private fun ChallengeDetailSummaryCard(
                     containerColor = colorScheme.surfaceVariant,
                     contentColor = colorScheme.onSurfaceVariant,
                 )
+                category?.let {
+                    TitleChip(
+                        label = it.name,
+                        containerColor = categoryAccent?.copy(alpha = 0.16f) ?: colorScheme.surfaceVariant,
+                        contentColor = categoryAccent ?: colorScheme.onSurfaceVariant,
+                    )
+                }
                 TitleChip(
                     label = challengeStatusLabel(calculation.status),
                     containerColor = challengeProgressContainerColor(calculation.status),
@@ -1020,6 +1115,7 @@ private fun ChallengeDetailSummaryCard(
                 color = challengeProgressColor(calculation.status),
                 trackColor = colorScheme.surfaceVariant,
                 strokeCap = Butt,
+                gapSize = Zero,
                 drawStopIndicator = {},
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -1100,8 +1196,8 @@ private fun ChallengeQuickAddCard(
         border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
     ) {
         Column(
-            modifier = Modifier.padding(SpacingMd),
-            verticalArrangement = Arrangement.spacedBy(SpacingSm),
+            modifier = Modifier.padding(SpacingSm),
+            verticalArrangement = Arrangement.spacedBy(SpacingXs),
         ) {
             Text(
                 text = stringResource(R.string.challenges_add_progress),
@@ -1153,11 +1249,14 @@ private fun ChallengeQuickAddCard(
 private fun ChallengeProgressEntryRow(
     entry: ChallengeProgressEntry,
     isEditable: Boolean,
-    onEdit: (() -> Unit)?,
+    onClick: (() -> Unit)?,
     onDelete: (() -> Unit)?,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .then(if (isEditable && onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
@@ -1170,11 +1269,6 @@ private fun ChallengeProgressEntryRow(
         }
 
         if (isEditable) {
-            if (onEdit != null) {
-                IconButton(onClick = onEdit) {
-                    Icon(imageVector = Icons.Filled.Edit, contentDescription = null)
-                }
-            }
             if (onDelete != null) {
                 IconButton(onClick = onDelete) {
                     Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
@@ -1187,9 +1281,12 @@ private fun ChallengeProgressEntryRow(
 @Composable
 private fun ChallengeCard(
     challenge: Challenge,
+    category: Category?,
     calculation: ChallengeCalculationResult?,
     onClick: () -> Unit,
 ) {
+    val flagColors = challengeFlagColors(category)
+    val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -1198,20 +1295,20 @@ private fun ChallengeCard(
         border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
     ) {
         Column(
-            modifier = Modifier.padding(SpacingLg),
-            verticalArrangement = Arrangement.spacedBy(SpacingMd),
+            modifier = Modifier.padding(SpacingSm),
+            verticalArrangement = Arrangement.spacedBy(SpacingXs),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
                     shape = shapes.small,
-                    color = colorScheme.primaryContainer,
+                    color = flagColors.container,
                     modifier = Modifier.size(SpacingLg + SpacingLg),
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         Icon(
                             imageVector = Icons.Outlined.Flag,
                             contentDescription = null,
-                            tint = colorScheme.onPrimaryContainer,
+                            tint = flagColors.content,
                             modifier = Modifier.size(SmallIconSize),
                         )
                     }
@@ -1237,6 +1334,14 @@ private fun ChallengeCard(
                 Text(text = description, color = colorScheme.onSurfaceVariant)
             }
 
+            category?.let {
+                TitleChip(
+                    label = it.name,
+                    containerColor = categoryAccent?.copy(alpha = 0.16f) ?: colorScheme.surfaceVariant,
+                    contentColor = categoryAccent ?: colorScheme.onSurfaceVariant,
+                )
+            }
+
             calculation?.let { calculationResult ->
                 if (challenge.lifecycle == ChallengeLifecycle.ACTIVE) {
                     LinearProgressIndicator(
@@ -1244,6 +1349,7 @@ private fun ChallengeCard(
                         color = challengeProgressColor(calculationResult.status),
                         trackColor = colorScheme.surfaceVariant,
                         strokeCap = Butt,
+                        gapSize = Zero,
                         drawStopIndicator = {},
                         modifier = Modifier.fillMaxWidth().testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
                     )
@@ -1536,3 +1642,29 @@ private fun challengeProgressColor(status: ChallengeStatus): Color {
 private fun challengeProgressContainerColor(status: ChallengeStatus): Color {
     return challengeProgressColor(status).copy(alpha = 0.16f)
 }
+
+@Composable
+private fun categoryLabelFor(
+    categoryId: Long?,
+    categories: List<Category>,
+): String {
+    return if (categoryId == null) {
+        stringResource(R.string.category_uncategorized)
+    } else {
+        categories.firstOrNull { it.id == categoryId }?.name ?: stringResource(R.string.category_uncategorized)
+    }
+}
+
+@Composable
+private fun challengeFlagColors(category: Category?): ChallengeFlagColors {
+    val accent = category?.colorId?.let(::categoryAccentColor) ?: colorScheme.primary
+    return ChallengeFlagColors(
+        container = accent.copy(alpha = 0.16f),
+        content = accent,
+    )
+}
+
+private data class ChallengeFlagColors(
+    val container: Color,
+    val content: Color,
+)

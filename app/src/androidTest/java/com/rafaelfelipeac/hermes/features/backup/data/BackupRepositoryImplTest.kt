@@ -106,7 +106,7 @@ class BackupRepositoryImplTest {
             assertTrue(decoded is com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Success)
             val snapshot =
                 (decoded as com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Success).snapshot
-            assertEquals(BackupJsonCodec.SCHEMA_VERSION_V5, snapshot.schemaVersion)
+            assertEquals(BackupJsonCodec.SCHEMA_VERSION_V6, snapshot.schemaVersion)
             assertEquals(1, snapshot.personalRecordFamilies.size)
             assertEquals(1, snapshot.personalRecordEntries.size)
             assertEquals(WeekStartDay.WEDNESDAY.name, snapshot.settings?.weekStartDay)

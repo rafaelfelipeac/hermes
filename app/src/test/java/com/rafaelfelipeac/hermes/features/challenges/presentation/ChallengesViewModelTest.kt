@@ -11,6 +11,8 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_RECOVERED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY
+import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
+import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateBounds
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
@@ -170,9 +172,11 @@ class ChallengesViewModelTest {
     private fun createViewModel(
         repository: FakeChallengeRepository,
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
+        categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
     ): ChallengesViewModel {
         return ChallengesViewModel(
             repository = repository,
+            categoryRepository = categoryRepository,
             userActionLogger = logger,
             stringProvider = FakeStringProvider,
             clock = FIXED_CLOCK,
@@ -339,6 +343,48 @@ class ChallengesViewModelTest {
         override suspend fun deleteAllProgressEntries() {
             entries.value = emptyList()
         }
+    }
+
+    private class FakeCategoryRepository(
+        initialCategories: List<Category> = emptyList(),
+    ) : CategoryRepository {
+        private val categories = MutableStateFlow(initialCategories)
+
+        override fun observeCategories(): Flow<List<Category>> = categories
+
+        override suspend fun getCategories(): List<Category> = categories.value
+
+        override suspend fun getCategory(id: Long): Category? = categories.value.firstOrNull { it.id == id }
+
+        override suspend fun getCount(): Int = categories.value.size
+
+        override suspend fun insertCategory(category: Category): Long = error("Not used")
+
+        override suspend fun insertCategories(categories: List<Category>): List<Long> = error("Not used")
+
+        override suspend fun updateCategory(category: Category) = Unit
+
+        override suspend fun updateCategoryName(
+            id: Long,
+            name: String,
+        ) = Unit
+
+        override suspend fun updateCategoryColor(
+            id: Long,
+            colorId: String,
+        ) = Unit
+
+        override suspend fun updateCategoryVisibility(
+            id: Long,
+            isHidden: Boolean,
+        ) = Unit
+
+        override suspend fun updateCategorySortOrder(
+            id: Long,
+            sortOrder: Int,
+        ) = Unit
+
+        override suspend fun deleteCategory(id: Long) = Unit
     }
 
     private companion object {

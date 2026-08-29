@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.backup.domain.model
 
 data class BackupChallengeRecord(
     val id: Long,
+    val categoryId: Long?,
     val title: String,
     val description: String?,
     val targetType: String,

@@ -17,6 +17,8 @@ import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
+import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
@@ -280,8 +282,10 @@ class ChallengesScreenTest {
         progressEntries: List<ChallengeProgressEntry> = emptyList(),
     ): ChallengesViewModel {
         val repository = FakeChallengeRepository(challenges, progressEntries)
+        val categoryRepository = FakeCategoryRepository()
         return ChallengesViewModel(
             repository = repository,
+            categoryRepository = categoryRepository,
             userActionLogger = NoOpUserActionLogger,
             stringProvider = AndroidStringProviderAdapter(ApplicationProvider.getApplicationContext()),
             clock = Clock.fixed(Instant.parse("2026-08-28T12:00:00Z"), ZoneOffset.UTC),
@@ -460,5 +464,45 @@ class ChallengesScreenTest {
         override suspend fun deleteAllProgressEntries() {
             progressEntries.value = emptyList()
         }
+    }
+
+    private class FakeCategoryRepository : CategoryRepository {
+        private val categories = MutableStateFlow(emptyList<Category>())
+
+        override fun observeCategories(): Flow<List<Category>> = categories
+
+        override suspend fun getCategories(): List<Category> = categories.value
+
+        override suspend fun getCategory(id: Long): Category? = null
+
+        override suspend fun getCount(): Int = 0
+
+        override suspend fun insertCategory(category: Category): Long = 0L
+
+        override suspend fun insertCategories(categories: List<Category>): List<Long> = emptyList()
+
+        override suspend fun updateCategory(category: Category) = Unit
+
+        override suspend fun updateCategoryName(
+            id: Long,
+            name: String,
+        ) = Unit
+
+        override suspend fun updateCategoryColor(
+            id: Long,
+            colorId: String,
+        ) = Unit
+
+        override suspend fun updateCategoryVisibility(
+            id: Long,
+            isHidden: Boolean,
+        ) = Unit
+
+        override suspend fun updateCategorySortOrder(
+            id: Long,
+            sortOrder: Int,
+        ) = Unit
+
+        override suspend fun deleteCategory(id: Long) = Unit
     }
 }

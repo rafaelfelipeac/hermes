@@ -77,6 +77,13 @@ class ChallengeRepositoryImpl
             challengeDao.updateChallenge(challenge.toEntity())
         }
 
+        override suspend fun reassignCategory(
+            categoryId: Long,
+            newCategoryId: Long?,
+        ) {
+            challengeDao.reassignCategory(categoryId, newCategoryId)
+        }
+
         override suspend fun archiveChallenge(
             id: Long,
             archivedAt: Instant,
@@ -142,6 +149,7 @@ class ChallengeRepositoryImpl
 private fun ChallengeEntity.toDomain(): Challenge {
     return Challenge(
         id = id,
+        categoryId = categoryId,
         title = title,
         description = description,
         targetType = targetType,
@@ -170,6 +178,7 @@ private fun ChallengeProgressEntryEntity.toDomain(): ChallengeProgressEntry {
 private fun Challenge.toEntity(): ChallengeEntity {
     return ChallengeEntity(
         id = id,
+        categoryId = categoryId,
         title = title,
         description = description,
         targetType = targetType,

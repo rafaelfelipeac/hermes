@@ -40,6 +40,8 @@ object UserActionMetadataKeys {
     const val CHALLENGE_TARGET_TYPE = "challenge_target_type"
     const val CHALLENGE_UNIT = "challenge_unit"
     const val CHALLENGE_TARGET_QUANTITY = "challenge_target_quantity"
+    const val CHALLENGE_CATEGORY_ID = "challenge_category_id"
+    const val CHALLENGE_CATEGORY_NAME = "challenge_category_name"
     const val CHALLENGE_START_DATE = "challenge_start_date"
     const val CHALLENGE_END_DATE = "challenge_end_date"
     const val CHALLENGE_LIFECYCLE = "challenge_lifecycle"

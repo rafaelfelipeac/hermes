@@ -30,7 +30,8 @@ internal object BackupJsonCodec {
     internal const val SCHEMA_VERSION_V3 = 3
     internal const val SCHEMA_VERSION_V4 = 4
     internal const val SCHEMA_VERSION_V5 = 5
-    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V5
+    internal const val SCHEMA_VERSION_V6 = 6
+    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V6
 
     private val json =
         Json {
@@ -102,6 +103,7 @@ internal object BackupJsonCodec {
             SCHEMA_VERSION_V3 -> BackupV3Decoder.decode(root)
             SCHEMA_VERSION_V4 -> BackupV4Decoder.decode(root)
             SCHEMA_VERSION_V5 -> BackupV5Decoder.decode(root)
+            SCHEMA_VERSION_V6 -> BackupV6Decoder.decode(root)
             else -> Failure(UNSUPPORTED_SCHEMA_VERSION)
         }
     }
@@ -110,6 +112,7 @@ internal object BackupJsonCodec {
         add(
             buildJsonObject {
                 put(KEY_ID, record.id)
+                record.categoryId?.let { put(KEY_CATEGORY_ID, it) }
                 put(KEY_TITLE, record.title)
                 record.description?.let { put(KEY_DESCRIPTION, it) }
                 put(KEY_TARGET_TYPE, record.targetType)

@@ -22,15 +22,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material.icons.outlined.EmojiEvents
+import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Leaderboard
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -226,7 +226,7 @@ private fun BrowseHome(
         BrowseDestinationCard(
             title = stringResource(R.string.challenges_title),
             subtitle = stringResource(R.string.browse_challenges_subtitle),
-            icon = Icons.Filled.Flag,
+            icon = Icons.Outlined.Flag,
             onClick = { onNavigateTo(BrowseDestination.CHALLENGES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "challenges"),
         )
@@ -253,7 +253,7 @@ private fun BrowseHome(
         BrowseDestinationCard(
             title = stringResource(R.string.trophies_activities_action),
             subtitle = stringResource(R.string.browse_activities_subtitle),
-            icon = Icons.Default.History,
+            icon = Icons.Outlined.History,
             onClick = { onNavigateTo(BrowseDestination.ACTIVITIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "activities"),
         )
@@ -272,7 +272,7 @@ private fun BrowseHome(
         BrowseDestinationCard(
             title = stringResource(R.string.settings_title),
             subtitle = stringResource(R.string.browse_settings_subtitle),
-            icon = Icons.Default.Settings,
+            icon = Icons.Outlined.Settings,
             onClick = { onNavigateTo(BrowseDestination.SETTINGS) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "settings"),
         )

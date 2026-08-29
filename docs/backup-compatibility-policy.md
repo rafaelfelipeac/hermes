@@ -9,13 +9,14 @@ Keep backup import stable across app releases by versioning the JSON schema expl
 - Unknown future schemas must fail fast with a friendly import error.
 
 ## Current policy
-- Current supported schema(s): `1`, `2`, `3`, `4`, `5`
+- Current supported schema(s): `1`, `2`, `3`, `4`, `5`, `6`
 - Decoder routing:
   - `schemaVersion = 1` -> `BackupV1Decoder`
   - `schemaVersion = 2` -> `BackupV2Decoder`
   - `schemaVersion = 3` -> `BackupV3Decoder`
   - `schemaVersion = 4` -> `BackupV4Decoder`
   - `schemaVersion = 5` -> `BackupV5Decoder`
+  - `schemaVersion = 6` -> `BackupV6Decoder`
   - Any other value -> unsupported schema error
 
 ## Current schema notes
@@ -27,6 +28,10 @@ Keep backup import stable across app releases by versioning the JSON schema expl
 - `schemaVersion = 5` adds `challenges` and `challengeProgressEntries`.
 - `schemaVersion = 5` challenge records include stable target types, integer target quantities, and no unit field; progress records keep integer quantities, ISO dates, and timestamps.
 - `schemaVersion = 1`, `2`, `3`, and `4` backups continue to import with empty challenge collections when those fields are absent from the older schema.
+- `schemaVersion = 6` adds nullable `categoryId` to challenge records.
+- `schemaVersion = 5` backups import challenge categories as `null`.
+- `schemaVersion = 6` validates challenge category references against the category list.
+- `schemaVersion = 1`, `2`, `3`, `4`, and `5` backups continue to import with uncategorized challenges when `categoryId` is absent.
 
 ## Rules for future schema changes
 1. Add a new decoder (`BackupV2Decoder`, etc.) instead of rewriting old decoders.
@@ -43,6 +48,7 @@ Keep backup import stable across app releases by versioning the JSON schema expl
   - missing required sections failing gracefully
   - `v4` round-trip coverage for personal records and unit preferences
   - `v5` round-trip coverage for challenges and challenge progress entries
+  - `v6` round-trip coverage for challenge category assignments
 
 ## Notes
 - Replace-mode import remains transactional in the repository layer.

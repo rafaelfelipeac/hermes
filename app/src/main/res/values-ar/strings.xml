@@ -303,6 +303,8 @@
     <string name="activity_subtitle_week">أسبوع %1$s.</string>
     <string name="activity_subtitle_workout_category">الفئة %1$s.</string>
     <string name="activity_subtitle_workout_category_change">الفئة من %1$s إلى %2$s.</string>
+    <string name="activity_subtitle_challenge_category">الفئة %1$s.</string>
+    <string name="activity_subtitle_challenge_category_change">الفئة من %1$s إلى %2$s.</string>
     <string name="activity_action_change_distance_unit">غيّرت وحدة المسافة.</string>
     <string name="activity_action_change_pace_unit">غيّرت وحدة الوتيرة.</string>
     <string name="activity_action_change_weight_unit">غيّرت وحدة الوزن.</string>
@@ -432,6 +434,7 @@
 
     <!-- Categories -->
     <string name="workout_dialog_add_workout_category">الفئة</string>
+    <string name="challenges_field_category">الفئة</string>
     <string name="workout_dialog_manage_categories">إدارة الفئات</string>
     <string name="category_uncategorized">بدون تصنيف</string>
     <string name="categories_category_run">ركض</string>

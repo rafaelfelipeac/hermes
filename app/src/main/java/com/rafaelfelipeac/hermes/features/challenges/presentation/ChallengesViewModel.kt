@@ -18,6 +18,8 @@ import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ARCHIVED_AT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_END_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_FIRST_COMPLETION_AT
@@ -29,6 +31,10 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_OLD_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_OLD_STATUS
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_OLD_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_ENTRY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY
@@ -59,6 +65,7 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuant
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeUiState
 import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
+import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -88,6 +95,7 @@ class ChallengesViewModel
     @Inject
     constructor(
         private val repository: ChallengeRepository,
+        private val categoryRepository: CategoryRepository,
         private val userActionLogger: UserActionLogger,
         private val stringProvider: StringProvider,
         private val clock: Clock,
@@ -142,12 +150,13 @@ class ChallengesViewModel
                 ) { active, archived, allProgressEntries ->
                     Triple(active, archived, allProgressEntries)
                 },
+                categoryRepository.observeCategories(),
                 combine(selectedChallengeFlow, selectedProgressEntriesFlow) { selectedChallenge, progressEntries ->
                     selectedChallenge to progressEntries
                 },
                 editorState,
                 todayFlow,
-            ) { challengeLists, selectedState, editor, today ->
+            ) { challengeLists, categories, selectedState, editor, today ->
                 val (active, archived, allProgressEntries) = challengeLists
                 val (selectedChallenge, progressEntries) = selectedState
                 val allChallenges = active + archived
@@ -168,6 +177,7 @@ class ChallengesViewModel
                 ChallengeUiState(
                     activeChallenges = active,
                     archivedChallenges = archived,
+                    categories = categories,
                     challengeCalculations = calculations,
                     allProgressEntries = allProgressEntries,
                     selectedChallengeId = selectedChallenge?.id,
@@ -196,6 +206,7 @@ class ChallengesViewModel
                 editorState.value =
                     ChallengeEditorState(
                         challengeId = challenge.id,
+                        categoryId = challenge.categoryId,
                         title = challenge.title,
                         description = challenge.description.orEmpty(),
                         targetType = challenge.targetType,
@@ -215,6 +226,10 @@ class ChallengesViewModel
 
         fun updateEditorDescription(description: String) {
             updateEditor { copy(description = description, isDirty = true, validationMessage = null) }
+        }
+
+        fun updateEditorCategory(categoryId: Long?) {
+            updateEditor { copy(categoryId = categoryId, isDirty = true, validationMessage = null) }
         }
 
         fun updateEditorTargetType(targetType: ChallengeTargetType) {
@@ -286,6 +301,7 @@ class ChallengesViewModel
                     val challenge =
                         Challenge(
                             id = existing?.id ?: 0L,
+                            categoryId = editor.categoryId,
                             title = title,
                             description = description.takeIf { it.isNotBlank() },
                             targetType = editor.targetType,
@@ -327,6 +343,10 @@ class ChallengesViewModel
                                         CHALLENGE_NEW_DATE to challenge.endDate.toString(),
                                         CHALLENGE_OLD_STATUS to existing.lifecycle.name,
                                         CHALLENGE_NEW_STATUS to challenge.lifecycle.name,
+                                        OLD_CATEGORY_ID to (existing.categoryId?.toString().orEmpty()),
+                                        NEW_CATEGORY_ID to (challenge.categoryId?.toString().orEmpty()),
+                                        OLD_CATEGORY_NAME to categoryLabel(existing.categoryId),
+                                        NEW_CATEGORY_NAME to categoryLabel(challenge.categoryId),
                                     ) +
                                     completionMetadata(wasCompleted, isCompleted),
                         )
@@ -658,6 +678,8 @@ class ChallengesViewModel
             return buildMap {
                 put(CHALLENGE_ID, challengeId.toString())
                 put(CHALLENGE_TITLE, challenge.title)
+                put(CHALLENGE_CATEGORY_ID, challenge.categoryId?.toString().orEmpty())
+                put(CHALLENGE_CATEGORY_NAME, categoryLabel(challenge.categoryId))
                 challenge.description?.let { put(CHALLENGE_DESCRIPTION, it) }
                 put(CHALLENGE_TARGET_TYPE, challenge.targetType.name)
                 put(CHALLENGE_TARGET_QUANTITY, challenge.targetQuantity.toString())
@@ -666,6 +688,12 @@ class ChallengesViewModel
                 put(CHALLENGE_LIFECYCLE, challenge.lifecycle.name)
                 challenge.archivedAt?.let { put(CHALLENGE_ARCHIVED_AT, it.toString()) }
             }
+        }
+
+        private fun categoryLabel(categoryId: Long?): String {
+            return categoryId?.let { id ->
+                state.value.categories.firstOrNull { it.id == id }?.name
+            }.orEmpty()
         }
 
         private suspend fun completionState(challengeId: Long): Boolean? {
@@ -718,6 +746,7 @@ class ChallengesViewModel
         private fun defaultEditorState(today: LocalDate): ChallengeEditorState {
             return ChallengeEditorState(
                 challengeId = null,
+                categoryId = null,
                 title = EMPTY,
                 description = EMPTY,
                 targetType = ChallengeTargetType.DAILY,

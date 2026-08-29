@@ -34,7 +34,10 @@ import java.time.format.DateTimeParseException
 import java.time.temporal.ChronoUnit
 
 internal object BackupV5Decoder {
-    fun decode(root: JsonObject): BackupDecodeResult {
+    fun decode(
+        root: JsonObject,
+        schemaVersion: Int = BackupJsonCodec.SCHEMA_VERSION_V5,
+    ): BackupDecodeResult {
         val exportedAt =
             root.stringOrNull(KEY_EXPORTED_AT)
                 ?: return Failure(INVALID_FIELD_VALUE)
@@ -105,6 +108,7 @@ internal object BackupV5Decoder {
                 }
 
         val challengeIds = challenges.map { it.id }.toSet()
+        val categoryIds = categories.map { it.id }.toSet()
         challenges.forEach { challenge ->
             if (runCatching { ChallengeTargetType.valueOf(challenge.targetType) }.isFailure) {
                 return Failure(INVALID_FIELD_VALUE)
@@ -129,6 +133,9 @@ internal object BackupV5Decoder {
             }
             if (challenge.lifecycle == ChallengeLifecycle.ARCHIVED.name && challenge.archivedAt == null) {
                 return Failure(INVALID_FIELD_VALUE)
+            }
+            if (challenge.categoryId != null && challenge.categoryId !in categoryIds) {
+                return Failure(INVALID_REFERENCE)
             }
             try {
                 Instant.parse(challenge.createdAt)
@@ -162,7 +169,7 @@ internal object BackupV5Decoder {
         return Success(
             snapshot =
                 BackupSnapshot(
-                    schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V5,
+                    schemaVersion = schemaVersion,
                     exportedAt = exportedAt,
                     appVersion = root.stringOrNull(KEY_APP_VERSION),
                     challenges = challenges,
@@ -182,6 +189,7 @@ internal object BackupV5Decoder {
 
         return BackupChallengeRecord(
             id = obj.longOrNull(KEY_ID) ?: return null,
+            categoryId = obj.longOrNull(KEY_CATEGORY_ID),
             title = obj.stringOrNull(KEY_TITLE) ?: return null,
             description = obj.stringOrNull(KEY_DESCRIPTION),
             targetType = obj.stringOrNull(KEY_TARGET_TYPE) ?: return null,

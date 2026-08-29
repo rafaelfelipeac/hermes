@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class ChallengeEditorState(
     val challengeId: Long? = null,
+    val categoryId: Long? = null,
     val title: String = "",
     val description: String = "",
     val targetType: ChallengeTargetType = ChallengeTargetType.DAILY,

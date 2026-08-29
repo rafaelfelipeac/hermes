@@ -15,6 +15,7 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
@@ -30,6 +31,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
 
 private const val EMPTY_STRING = ""
@@ -47,6 +49,7 @@ class CategoriesScreenTest {
                 repository = repository,
                 workoutRepository = FakeWeeklyTrainingRepository(),
                 personalRecordsRepository = FakePersonalRecordsRepository(),
+                challengeRepository = FakeChallengeRepository(),
                 categorySeeder = CategorySeeder(repository, FakeStringProvider()),
                 userActionLogger = FakeUserActionLogger(),
             )
@@ -94,6 +97,7 @@ class CategoriesScreenTest {
                 repository = repository,
                 workoutRepository = workoutRepository,
                 personalRecordsRepository = FakePersonalRecordsRepository(),
+                challengeRepository = FakeChallengeRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -149,6 +153,7 @@ class CategoriesScreenTest {
                 repository = repository,
                 workoutRepository = workoutRepository,
                 personalRecordsRepository = FakePersonalRecordsRepository(),
+                challengeRepository = FakeChallengeRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -197,6 +202,7 @@ class CategoriesScreenTest {
                 repository = repository,
                 workoutRepository = workoutRepository,
                 personalRecordsRepository = FakePersonalRecordsRepository(),
+                challengeRepository = FakeChallengeRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -315,6 +321,66 @@ class CategoriesScreenTest {
         }
 
         fun restoreDefaultsCalls(): Int = insertCategoryCalls + insertCategoriesCalls
+    }
+
+    private class FakeChallengeRepository : ChallengeRepository {
+        override fun observeActiveChallenges(): Flow<List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge>> = emptyFlow()
+
+        override fun observeArchivedChallenges(): Flow<List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge>> = emptyFlow()
+
+        override fun observeChallenge(id: Long): Flow<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge?> = emptyFlow()
+
+        override fun observeProgressEntries(challengeId: Long): Flow<List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry>> = emptyFlow()
+
+        override fun observeAllProgressEntries(): Flow<List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry>> = emptyFlow()
+
+        override suspend fun getActiveChallenges(): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge> = emptyList()
+
+        override suspend fun getArchivedChallenges(): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge> = emptyList()
+
+        override suspend fun getChallenge(id: Long): com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge? = null
+
+        override suspend fun getChallengeDateBounds(id: Long): com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateBounds? = null
+
+        override suspend fun getProgressEntries(challengeId: Long): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry> = emptyList()
+
+        override suspend fun getAllChallenges(): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge> = emptyList()
+
+        override suspend fun getAllProgressEntries(): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry> = emptyList()
+
+        override suspend fun insertChallenge(challenge: com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge): Long = 0L
+
+        override suspend fun updateChallenge(challenge: com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge) = Unit
+
+        override suspend fun reassignCategory(
+            categoryId: Long,
+            newCategoryId: Long?,
+        ) = Unit
+
+        override suspend fun archiveChallenge(
+            id: Long,
+            archivedAt: Instant,
+        ) = Unit
+
+        override suspend fun reactivateChallenge(id: Long) = Unit
+
+        override suspend fun deleteChallenge(id: Long) = Unit
+
+        override suspend fun insertProgressEntry(entry: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry): Long = 0L
+
+        override suspend fun restoreProgressEntry(entry: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry): Long = 0L
+
+        override suspend fun updateProgressEntry(entry: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry) = Unit
+
+        override suspend fun deleteProgressEntry(id: Long) = Unit
+
+        override suspend fun replaceChallenges(challenges: List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge>) = Unit
+
+        override suspend fun replaceProgressEntries(entries: List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry>) = Unit
+
+        override suspend fun deleteAllChallenges() = Unit
+
+        override suspend fun deleteAllProgressEntries() = Unit
     }
 
     private class FakeWeeklyTrainingRepository : WeeklyTrainingRepository {

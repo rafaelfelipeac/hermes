@@ -37,6 +37,11 @@ interface ChallengeRepository {
 
     suspend fun updateChallenge(challenge: Challenge)
 
+    suspend fun reassignCategory(
+        categoryId: Long,
+        newCategoryId: Long?,
+    ) = Unit
+
     suspend fun archiveChallenge(
         id: Long,
         archivedAt: Instant,
