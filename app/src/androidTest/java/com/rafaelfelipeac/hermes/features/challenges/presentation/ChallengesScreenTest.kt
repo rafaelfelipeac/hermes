@@ -176,7 +176,6 @@ class ChallengesScreenTest {
 
         composeRule.onNodeWithText(challenge.title).performClick()
         composeRule.onNodeWithTag(CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB).assertIsDisplayed()
-        composeRule.onAllNodes(hasTestTag(CHALLENGES_TAG_ADD_PROGRESS_BUTTON), useUnmergedTree = true).assertCountEquals(0)
         composeRule
             .onNodeWithText(
                 context.getString(
@@ -274,7 +273,6 @@ class ChallengesScreenTest {
         }
 
         composeRule.onNodeWithTag(CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB).assertIsDisplayed()
-        composeRule.onAllNodes(hasTestTag(CHALLENGES_TAG_ADD_PROGRESS_BUTTON), useUnmergedTree = true).assertCountEquals(0)
     }
 
     private fun createViewModel(
@@ -337,7 +335,7 @@ class ChallengesScreenTest {
         val emptyStateBounds = composeRule.onNodeWithTag(emptyStateTag).fetchSemanticsNode().boundsInRoot
         val rootCenterY = (rootBounds.top + rootBounds.bottom) / 2f
         val emptyStateCenterY = (emptyStateBounds.top + emptyStateBounds.bottom) / 2f
-        val allowableDrift = (rootBounds.bottom - rootBounds.top) * 0.15f
+        val allowableDrift = (rootBounds.bottom - rootBounds.top) * 0.10f
 
         assertTrue(abs(emptyStateCenterY - rootCenterY) <= allowableDrift)
     }

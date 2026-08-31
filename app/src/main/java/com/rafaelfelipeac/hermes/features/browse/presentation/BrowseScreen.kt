@@ -26,10 +26,10 @@ import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material.icons.outlined.EmojiEvents
-import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Leaderboard
+import androidx.compose.material.icons.outlined.TrackChanges
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -69,6 +69,7 @@ import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupE
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
 import com.rafaelfelipeac.hermes.features.challenges.presentation.ChallengesScreen
+import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorDraft
 import com.rafaelfelipeac.hermes.features.pacecalculator.presentation.PaceCalculatorRoute
 import com.rafaelfelipeac.hermes.features.personalrecords.presentation.PersonalRecordsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.DeveloperModeScreen
@@ -93,7 +94,7 @@ private const val EXPORT_DESTINATION_SAVE_AS = "save_as"
 private const val EXPORT_DESTINATION_FOLDER = "folder"
 
 @Composable
-fun BrowseScreen(
+internal fun BrowseScreen(
     modifier: Modifier = Modifier,
     route: BrowseDestination = BrowseDestination.ROOT,
     settingsState: SettingsState,
@@ -102,8 +103,11 @@ fun BrowseScreen(
     onRequestedActivityConsumed: () -> Unit = {},
     requestedTrophyStableId: String? = null,
     onRequestedTrophyConsumed: () -> Unit = {},
+    pendingChallengeDraft: ChallengeEditorDraft? = null,
+    onChallengeDraftConsumed: () -> Unit = {},
     onNavigateTo: (BrowseDestination) -> Unit,
     onBack: () -> Unit,
+    onManageChallengeCategories: (ChallengeEditorDraft) -> Unit = {},
 ) {
     when (route) {
         BrowseDestination.ROOT ->
@@ -130,6 +134,9 @@ fun BrowseScreen(
             ChallengesScreen(
                 modifier = modifier,
                 onBack = onBack,
+                pendingChallengeDraft = pendingChallengeDraft,
+                onChallengeDraftConsumed = onChallengeDraftConsumed,
+                onManageCategories = onManageChallengeCategories,
             )
 
         BrowseDestination.PACE_CALCULATOR ->
@@ -226,7 +233,7 @@ private fun BrowseHome(
         BrowseDestinationCard(
             title = stringResource(R.string.challenges_title),
             subtitle = stringResource(R.string.browse_challenges_subtitle),
-            icon = Icons.Outlined.Flag,
+            icon = Icons.Outlined.TrackChanges,
             onClick = { onNavigateTo(BrowseDestination.CHALLENGES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "challenges"),
         )

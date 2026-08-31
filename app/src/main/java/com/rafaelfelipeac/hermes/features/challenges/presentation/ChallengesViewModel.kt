@@ -228,6 +228,10 @@ class ChallengesViewModel
             updateEditor { copy(description = description, isDirty = true, validationMessage = null) }
         }
 
+        fun restoreEditorState(state: ChallengeEditorState) {
+            editorState.value = state
+        }
+
         fun updateEditorCategory(categoryId: Long?) {
             updateEditor { copy(categoryId = categoryId, isDirty = true, validationMessage = null) }
         }

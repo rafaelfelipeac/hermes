@@ -837,12 +837,17 @@
     <string name="challenge_target_type_total">Gesamt</string>
     <string name="challenges_field_progress_date">Fortschrittsdatum</string>
     <string name="challenges_overall_progress_label">Gesamtfortschritt</string>
+    <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
     <string name="challenges_today_label">Heute</string>
-    <string name="challenges_today_value_daily">%1$s erledigt, Ziel %2$s, %3$s übrig</string>
-    <string name="challenges_today_value_total">%1$s heute</string>
+    <string name="challenges_today_value_daily">Heute erledigt: %1$s, übrig: %2$s</string>
+    <string name="challenges_today_value_total">Heute erledigt: %1$s, heute noch nötig: %2$s</string>
     <string name="challenges_required_pace_label">Erforderliches Tempo</string>
+    <string name="challenges_required_pace_value">Erforderliches Tempo · %1$s</string>
     <string name="challenges_debt_label">Aufgelaufene Schuld</string>
+    <string name="challenges_debt_value">Aufgelaufene Schuld · %1$s</string>
+    <string name="challenges_history_empty_title">Noch kein Fortschritt.</string>
+    <string name="challenges_history_empty_body">Füge Fortschritt hinzu, um diesen Challenge zu verfolgen.</string>
     <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s Tage = %3$s</string>
     <string name="challenges_total_preview">Gesamtziel: %1$s</string>

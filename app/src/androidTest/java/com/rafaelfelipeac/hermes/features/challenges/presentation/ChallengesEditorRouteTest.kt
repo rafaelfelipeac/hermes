@@ -45,6 +45,7 @@ class ChallengesEditorRouteTest {
                 onStartDateChange = {},
                 onEndDateChange = {},
                 onCategoryChange = {},
+                onManageCategories = {},
                 onSave = {},
                 onCancel = {},
             )
@@ -52,6 +53,6 @@ class ChallengesEditorRouteTest {
 
         composeRule.onNodeWithText(startDateLabel).performClick()
 
-        composeRule.onAllNodesWithText(saveLabel).assertCountEquals(1)
+        composeRule.onAllNodesWithText(saveLabel).assertCountEquals(2)
     }
 }

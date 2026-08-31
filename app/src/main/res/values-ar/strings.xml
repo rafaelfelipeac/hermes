@@ -873,12 +873,17 @@
     <string name="challenge_target_type_total">إجمالي</string>
     <string name="challenges_field_progress_date">تاريخ التقدّم</string>
     <string name="challenges_overall_progress_label">التقدّم الكلي</string>
+    <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
     <string name="challenges_today_label">اليوم</string>
-    <string name="challenges_today_value_daily">أُنجز %1$s، الهدف %2$s، المتبقي %3$s</string>
-    <string name="challenges_today_value_total">%1$s اليوم</string>
+    <string name="challenges_today_value_daily">أُنجز اليوم: %1$s، المتبقي: %2$s</string>
+    <string name="challenges_today_value_total">أُنجز اليوم: %1$s، المطلوب اليوم: %2$s</string>
     <string name="challenges_required_pace_label">الوتيرة المطلوبة</string>
+    <string name="challenges_required_pace_value">الوتيرة المطلوبة · %1$s</string>
     <string name="challenges_debt_label">الدَّين المتراكم</string>
+    <string name="challenges_debt_value">الدَّين المتراكم · %1$s</string>
+    <string name="challenges_history_empty_title">لا يوجد تقدّم بعد.</string>
+    <string name="challenges_history_empty_body">أضف تقدّمًا لبدء تتبّع هذا التحدّي.</string>
     <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s يومًا = %3$s</string>
     <string name="challenges_total_preview">الهدف الإجمالي: %1$s</string>

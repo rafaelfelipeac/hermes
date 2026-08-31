@@ -43,6 +43,7 @@ object Dimens {
     val ReleaseNotesBottomPadding = 24.dp
     val ProgressSummaryCardMinHeight = 92.dp
     val ProgressReadoutBarHeight = 10.dp
+    val ChallengeProgressBarHeight = 6.dp
     val ProgressTrendBarHeight = 96.dp
     val ProgressTrendBarMinWidth = 28.dp
     val ProgressTrendAxisWidth = 34.dp

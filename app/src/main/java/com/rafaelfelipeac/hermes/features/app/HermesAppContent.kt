@@ -39,6 +39,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophySnackbarFabClearance
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.browse.presentation.BrowseDestination
 import com.rafaelfelipeac.hermes.features.browse.presentation.BrowseScreen
+import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorDraft
 import com.rafaelfelipeac.hermes.features.events.presentation.EventsScreen
 import com.rafaelfelipeac.hermes.features.events.presentation.model.EventDialogDraft
 import com.rafaelfelipeac.hermes.features.progress.presentation.ProgressNextFocusUi
@@ -66,6 +67,9 @@ fun HermesAppContent() {
     }
     var pendingEventDraft by rememberSaveable(stateSaver = EventDialogDraft.Saver) {
         mutableStateOf<EventDialogDraft?>(null)
+    }
+    var pendingChallengeDraft by rememberSaveable(stateSaver = ChallengeEditorDraft.Saver) {
+        mutableStateOf<ChallengeEditorDraft?>(null)
     }
     var pendingRequestedWorkoutId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedWorkoutDate by rememberSaveable { mutableStateOf<String?>(null) }
@@ -150,6 +154,7 @@ fun HermesAppContent() {
     }
     val openCategoriesBrowse: (WorkoutDialogDraft) -> Unit = { draft ->
         pendingEventDraft = null
+        pendingChallengeDraft = null
         pendingWorkoutDraft = draft
         pendingRequestedWorkoutId = null
         pendingRequestedWorkoutDate = null
@@ -160,7 +165,19 @@ fun HermesAppContent() {
     }
     val openEventCategories: (EventDialogDraft) -> Unit = { draft ->
         pendingWorkoutDraft = null
+        pendingChallengeDraft = null
         pendingEventDraft = draft
+        pendingRequestedWorkoutId = null
+        pendingRequestedWorkoutDate = null
+        pendingRequestedTrophyStableId = null
+        pendingRequestedEventId = null
+        pendingRequestedActivityId = null
+        navigateToBrowse(BrowseDestination.CATEGORIES)
+    }
+    val openChallengeCategories: (ChallengeEditorDraft) -> Unit = { draft ->
+        pendingWorkoutDraft = null
+        pendingEventDraft = null
+        pendingChallengeDraft = draft
         pendingRequestedWorkoutId = null
         pendingRequestedWorkoutDate = null
         pendingRequestedTrophyStableId = null
@@ -182,7 +199,10 @@ fun HermesAppContent() {
                 }
 
             else ->
-                if (browseOriginTab != null) {
+                if (browseParentDestination != BrowseDestination.ROOT) {
+                    currentBrowseDestination = browseParentDestination
+                    browseParentDestination = BrowseDestination.ROOT
+                } else if (browseOriginTab != null) {
                     currentDestination = browseOriginTab!!
                     resetBrowseNavigation()
                 } else {
@@ -264,6 +284,8 @@ fun HermesAppContent() {
                                 pendingRequestedTrophyStableId = null
                                 pendingCelebrationTrophyStableId = null
                             },
+                            pendingChallengeDraft = pendingChallengeDraft,
+                            onChallengeDraftConsumed = { pendingChallengeDraft = null },
                             onNavigateTo = { destination ->
                                 when (destination) {
                                     BrowseDestination.ROOT -> {
@@ -277,6 +299,7 @@ fun HermesAppContent() {
                                 }
                             },
                             onBack = onBrowseBack,
+                            onManageChallengeCategories = openChallengeCategories,
                         )
                 }
             }

@@ -833,12 +833,17 @@
     <string name="challenge_target_type_total">合計</string>
     <string name="challenges_field_progress_date">進捗日</string>
     <string name="challenges_overall_progress_label">全体の進捗</string>
+    <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
     <string name="challenges_today_label">今日</string>
-    <string name="challenges_today_value_daily">完了 %1$s、目標 %2$s、残り %3$s</string>
-    <string name="challenges_today_value_total">本日 %1$s</string>
+    <string name="challenges_today_value_daily">今日の完了: %1$s、残り: %2$s</string>
+    <string name="challenges_today_value_total">今日の完了: %1$s、今日必要: %2$s</string>
     <string name="challenges_required_pace_label">必要ペース</string>
+    <string name="challenges_required_pace_value">必要ペース · %1$s</string>
     <string name="challenges_debt_label">繰り越し負債</string>
+    <string name="challenges_debt_value">繰り越し負債 · %1$s</string>
+    <string name="challenges_history_empty_title">まだ進捗がありません。</string>
+    <string name="challenges_history_empty_body">このチャレンジの記録を始めるには進捗を追加してください。</string>
     <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s 日 = %3$s</string>
     <string name="challenges_total_preview">合計目標: %1$s</string>
