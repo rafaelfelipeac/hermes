@@ -862,7 +862,7 @@
     <string name="challenges_history_empty_title">Ainda não há progresso.</string>
     <string name="challenges_history_empty_body">Adicione progresso para começar a acompanhar este desafio.</string>
     <string name="challenges_quick_add_title">Adição rápida</string>
-    <string name="challenges_quick_add_button">Adicionar %1$s</string>
+    <string name="challenges_quick_add_button">+ %1$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s dias = %3$s</string>
     <string name="challenges_total_preview">Meta total: %1$s</string>
     <string name="challenges_actions_menu">Mais ações</string>

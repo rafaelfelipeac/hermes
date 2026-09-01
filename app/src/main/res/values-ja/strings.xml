@@ -859,7 +859,7 @@
     <string name="challenges_history_empty_title">まだ進捗がありません。</string>
     <string name="challenges_history_empty_body">このチャレンジの記録を始めるには進捗を追加してください。</string>
     <string name="challenges_quick_add_title">クイック追加</string>
-    <string name="challenges_quick_add_button">%1$sを追加</string>
+    <string name="challenges_quick_add_button">+ %1$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s 日 = %3$s</string>
     <string name="challenges_total_preview">合計目標: %1$s</string>
     <string name="challenges_actions_menu">その他の操作</string>

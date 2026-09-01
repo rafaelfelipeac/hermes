@@ -863,7 +863,7 @@
     <string name="challenges_history_empty_title">Noch kein Fortschritt.</string>
     <string name="challenges_history_empty_body">Füge Fortschritt hinzu, um diesen Challenge zu verfolgen.</string>
     <string name="challenges_quick_add_title">Schnell hinzufügen</string>
-    <string name="challenges_quick_add_button">%1$s hinzufügen</string>
+    <string name="challenges_quick_add_button">+ %1$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s Tage = %3$s</string>
     <string name="challenges_total_preview">Gesamtziel: %1$s</string>
     <string name="challenges_actions_menu">Weitere Aktionen</string>

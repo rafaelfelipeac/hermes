@@ -866,7 +866,7 @@
     <string name="challenges_history_empty_title">No progress yet.</string>
     <string name="challenges_history_empty_body">Add progress to start tracking this challenge.</string>
     <string name="challenges_quick_add_title">Quick add</string>
-    <string name="challenges_quick_add_button">Add %1$s</string>
+    <string name="challenges_quick_add_button">+ %1$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s days = %3$s</string>
     <string name="challenges_total_preview">Total target: %1$s</string>
     <string name="challenges_actions_menu">More actions</string>
