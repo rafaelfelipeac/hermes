@@ -39,27 +39,18 @@ object ChallengeQuantity {
     }
 
     fun quickAddValues(baseValue: Long): List<ChallengeQuickAddValue> {
-        val byQuantity = linkedMapOf<Long, Int>()
+        var minimumQuantity = 1L
 
-        listOf(25 to BigDecimal("0.25"), 50 to BigDecimal("0.50"), 100 to BigDecimal("1.00"))
-            .forEach { (percentage, fraction) ->
-                val quantity =
+        return listOf(25 to BigDecimal("0.25"), 50 to BigDecimal("0.50"), 100 to BigDecimal("1.00"))
+            .map { (percentage, fraction) ->
+                val roundedQuantity =
                     BigDecimal.valueOf(baseValue)
                         .multiply(fraction)
                         .setScale(0, RoundingMode.HALF_UP)
                         .longValueExact()
-
-                if (quantity > 0L) {
-                    val existingPercentage = byQuantity[quantity]
-                    if (existingPercentage == null || percentage > existingPercentage) {
-                        byQuantity[quantity] = percentage
-                    }
-                }
-            }
-
-        return byQuantity.entries
-            .sortedBy { it.value }
-            .map { (quantity, percentage) ->
+                        .coerceAtLeast(1L)
+                val quantity = roundedQuantity.coerceAtLeast(minimumQuantity)
+                minimumQuantity = Math.addExact(quantity, 1L)
                 ChallengeQuickAddValue(percentage = percentage, quantity = quantity)
             }
     }

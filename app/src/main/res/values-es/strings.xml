@@ -767,9 +767,6 @@
     <string name="challenges_status_ahead">Por delante del ritmo</string>
     <string name="challenges_status_on_track">En ritmo</string>
     <string name="challenges_status_behind">Por detrás del ritmo</string>
-    <string name="challenges_quick_add_25">25%</string>
-    <string name="challenges_quick_add_50">50%</string>
-    <string name="challenges_quick_add_100">100%</string>
     <string name="challenges_empty_active_title">Todavía no hay desafíos.</string>
     <string name="challenges_empty_active_body">Crea un desafío para seguir el progreso a lo largo del tiempo.</string>
     <string name="challenges_empty_archived_title">No hay desafíos archivados.</string>
@@ -812,6 +809,11 @@
     <string name="activity_action_restore_challenge_progress_entry_named">Has restaurado el progreso de %1$s.</string>
     <string name="activity_subtitle_challenge_dates">%1$s a %2$s.</string>
     <string name="activity_subtitle_challenge_progress">%1$s el %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_added">Añadido %1$s el %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_updated">Cambiado de %1$s el %2$s a %3$s el %4$s.</string>
+    <string name="activity_subtitle_challenge_progress_updated_current">Actualizado %1$s el %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_deleted">Eliminado %1$s el %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_restored">Restaurado %1$s el %2$s.</string>
     <string name="activity_subtitle_challenge_recovered">Recuperado.</string>
     <string name="trophies_share_desc_challenge_creations">He creado %1$d desafíos.</string>
     <string name="trophies_share_desc_challenge_completions">He completado o superado objetivos de desafío %1$d veces.</string>
@@ -838,17 +840,21 @@
     <string name="challenges_overall_progress_label">Progreso total</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
+    <string name="challenges_progress_percent">%1$d%%</string>
+    <string name="challenges_progress_value_with_percent">%1$s · %2$s</string>
     <string name="challenges_today_label">Hoy</string>
+    <string name="challenges_today_completed_label">Completado hoy</string>
+    <string name="challenges_today_remaining_label">Pendiente hoy</string>
     <string name="challenges_today_value_daily">Completado hoy: %1$s, quedan: %2$s</string>
     <string name="challenges_today_value_total">Completado hoy: %1$s, necesario hoy: %2$s</string>
     <string name="challenges_required_pace_label">Ritmo requerido</string>
-    <string name="challenges_required_pace_value">Ritmo requerido · %1$s</string>
     <string name="challenges_debt_label">Deuda acumulada</string>
-    <string name="challenges_debt_value">Deuda acumulada · %1$s</string>
     <string name="challenges_history_empty_title">Aún no hay progreso.</string>
     <string name="challenges_history_empty_body">Añade progreso para empezar a seguir este desafío.</string>
-    <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
+    <string name="challenges_quick_add_title">Añadir rápido</string>
+    <string name="challenges_quick_add_button">Añadir %1$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s días = %3$s</string>
     <string name="challenges_total_preview">Objetivo total: %1$s</string>
     <string name="challenges_actions_menu">Más opciones</string>
+    <string name="challenges_progress_entry_actions_menu">Acciones de la entrada de progreso</string>
 </resources>

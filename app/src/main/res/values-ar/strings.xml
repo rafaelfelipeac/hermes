@@ -804,9 +804,6 @@
     <string name="challenges_status_ahead">متقدم عن المعدل</string>
     <string name="challenges_status_on_track">على المسار</string>
     <string name="challenges_status_behind">متأخر عن المعدل</string>
-    <string name="challenges_quick_add_25">25%</string>
-    <string name="challenges_quick_add_50">50%</string>
-    <string name="challenges_quick_add_100">100%</string>
     <string name="challenges_empty_active_title">لا توجد تحديات بعد.</string>
     <string name="challenges_empty_active_body">أنشئ تحديًا لتتبّع التقدّم بمرور الوقت.</string>
     <string name="challenges_empty_archived_title">لا توجد تحديات مؤرشفة.</string>
@@ -849,6 +846,11 @@
     <string name="activity_action_restore_challenge_progress_entry_named">لقد استعدت تقدّم %1$s.</string>
     <string name="activity_subtitle_challenge_dates">%1$s إلى %2$s.</string>
     <string name="activity_subtitle_challenge_progress">%1$s في %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_added">تمت إضافة %1$s في %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_updated">تم التغيير من %1$s في %2$s إلى %3$s في %4$s.</string>
+    <string name="activity_subtitle_challenge_progress_updated_current">تم تحديث %1$s في %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_deleted">تم حذف %1$s في %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_restored">تمت استعادة %1$s في %2$s.</string>
     <string name="activity_subtitle_challenge_recovered">تم التعافي.</string>
     <string name="trophies_share_desc_challenge_creations">أنشأت %1$d من التحديات.</string>
     <string name="trophies_share_desc_challenge_completions">أكملت أو تجاوزت أهداف التحديات %1$d مرات.</string>
@@ -875,17 +877,21 @@
     <string name="challenges_overall_progress_label">التقدّم الكلي</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
+    <string name="challenges_progress_percent">%1$d%%</string>
+    <string name="challenges_progress_value_with_percent">%1$s · %2$s</string>
     <string name="challenges_today_label">اليوم</string>
+    <string name="challenges_today_completed_label">أُنجز اليوم</string>
+    <string name="challenges_today_remaining_label">المتبقي اليوم</string>
     <string name="challenges_today_value_daily">أُنجز اليوم: %1$s، المتبقي: %2$s</string>
     <string name="challenges_today_value_total">أُنجز اليوم: %1$s، المطلوب اليوم: %2$s</string>
     <string name="challenges_required_pace_label">الوتيرة المطلوبة</string>
-    <string name="challenges_required_pace_value">الوتيرة المطلوبة · %1$s</string>
     <string name="challenges_debt_label">الدَّين المتراكم</string>
-    <string name="challenges_debt_value">الدَّين المتراكم · %1$s</string>
     <string name="challenges_history_empty_title">لا يوجد تقدّم بعد.</string>
     <string name="challenges_history_empty_body">أضف تقدّمًا لبدء تتبّع هذا التحدّي.</string>
-    <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
+    <string name="challenges_quick_add_title">إضافة سريعة</string>
+    <string name="challenges_quick_add_button">إضافة %1$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s يومًا = %3$s</string>
     <string name="challenges_total_preview">الهدف الإجمالي: %1$s</string>
     <string name="challenges_actions_menu">المزيد من الإجراءات</string>
+    <string name="challenges_progress_entry_actions_menu">إجراءات إدخال التقدّم</string>
 </resources>

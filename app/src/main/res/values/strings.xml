@@ -89,9 +89,6 @@
     <string name="challenges_status_ahead">Ahead of pace</string>
     <string name="challenges_status_on_track">On track</string>
     <string name="challenges_status_behind">Behind pace</string>
-    <string name="challenges_quick_add_25">25%</string>
-    <string name="challenges_quick_add_50">50%</string>
-    <string name="challenges_quick_add_100">100%</string>
     <string name="challenges_empty_active_title">No challenges yet.</string>
     <string name="challenges_empty_active_body">Create a challenge to track progress over time.</string>
     <string name="challenges_empty_archived_title">No archived challenges.</string>
@@ -134,6 +131,11 @@
     <string name="activity_action_restore_challenge_progress_entry_named">You restored progress for %1$s.</string>
     <string name="activity_subtitle_challenge_dates">%1$s to %2$s.</string>
     <string name="activity_subtitle_challenge_progress">%1$s on %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_added">Added %1$s on %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_updated">Changed %1$s on %2$s to %3$s on %4$s.</string>
+    <string name="activity_subtitle_challenge_progress_updated_current">Updated %1$s on %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_deleted">Deleted %1$s on %2$s.</string>
+    <string name="activity_subtitle_challenge_progress_restored">Restored %1$s on %2$s.</string>
     <string name="activity_subtitle_challenge_recovered">Recovered.</string>
 
     <!-- Training week: actions -->
@@ -842,17 +844,21 @@
     <string name="challenges_overall_progress_label">Overall progress</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
+    <string name="challenges_progress_percent">%1$d%%</string>
+    <string name="challenges_progress_value_with_percent">%1$s · %2$s</string>
     <string name="challenges_today_label">Today</string>
+    <string name="challenges_today_completed_label">Completed today</string>
+    <string name="challenges_today_remaining_label">Remaining today</string>
     <string name="challenges_today_value_daily">Completed today: %1$s, remaining: %2$s</string>
     <string name="challenges_today_value_total">Completed today: %1$s, needed today: %2$s</string>
     <string name="challenges_required_pace_label">Required pace</string>
-    <string name="challenges_required_pace_value">Required pace · %1$s</string>
     <string name="challenges_debt_label">Carried debt</string>
-    <string name="challenges_debt_value">Carried debt · %1$s</string>
     <string name="challenges_history_empty_title">No progress yet.</string>
     <string name="challenges_history_empty_body">Add progress to start tracking this challenge.</string>
-    <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
+    <string name="challenges_quick_add_title">Quick add</string>
+    <string name="challenges_quick_add_button">Add %1$s</string>
     <string name="challenges_daily_preview">%1$s × %2$s days = %3$s</string>
     <string name="challenges_total_preview">Total target: %1$s</string>
     <string name="challenges_actions_menu">More actions</string>
+    <string name="challenges_progress_entry_actions_menu">Progress entry actions</string>
 </resources>

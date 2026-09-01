@@ -29,6 +29,34 @@ class ActivityUiFormatterTest {
                         "You added a $firstArg PR result."
                     R.string.activity_action_restore_challenge_named ->
                         "You restored the challenge $firstArg."
+                    R.string.activity_action_create_challenge_progress_entry_named ->
+                        "You logged progress for $firstArg."
+                    R.string.activity_action_update_challenge_progress_entry_named ->
+                        "You updated progress for $firstArg."
+                    R.string.activity_action_delete_challenge_progress_entry_named ->
+                        "You deleted progress for $firstArg."
+                    R.string.activity_action_restore_challenge_progress_entry_named ->
+                        "You restored progress for $firstArg."
+                    R.string.activity_subtitle_challenge_progress_added ->
+                        "Added ${args[0]} on ${args[1]}."
+                    R.string.activity_subtitle_challenge_progress_updated ->
+                        "Changed ${args[0]} on ${args[1]} to ${args[2]} on ${args[3]}."
+                    R.string.activity_subtitle_challenge_progress_updated_current ->
+                        "Updated ${args[0]} on ${args[1]}."
+                    R.string.activity_subtitle_challenge_progress_deleted ->
+                        "Deleted ${args[0]} on ${args[1]}."
+                    R.string.activity_subtitle_challenge_progress_restored ->
+                        "Restored ${args[0]} on ${args[1]}."
+                    R.string.activity_subtitle_challenge_target ->
+                        "${args[0]} target of ${args[1]}."
+                    R.string.activity_subtitle_challenge_category ->
+                        "Category ${args[0]}."
+                    R.string.activity_subtitle_challenge_dates ->
+                        "${args[0]} to ${args[1]}."
+                    R.string.activity_subtitle_challenge_recovered -> "Recovered."
+                    R.string.challenge_target_type_daily -> "Daily"
+                    R.string.challenge_target_type_total -> "Total"
+                    R.string.activity_value_unknown -> "Unknown"
                     R.string.activity_subtitle_separator -> "•"
                     R.string.activity_week_date_pattern -> "MMM d, uuuu"
                     R.string.settings_unit_kilometers -> "km"
@@ -184,6 +212,89 @@ class ActivityUiFormatterTest {
         )
     }
 
+    @Test
+    fun challengeProgressCreateSubtitle_usesProgressContextWithoutRepeatingChallengeTitle() {
+        val record = challengeProgressRecord(UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY)
+        val expected =
+            listOf(
+                "Added 3 on Aug 31, 2026.",
+                "Daily target of 10.",
+                "Category \"Strength\".",
+                "Aug 1, 2026 to Aug 31, 2026.",
+                "Recovered.",
+            ).joinToString(" • ")
+
+        assertEquals(
+            expected,
+            formatter.buildSubtitle(record, challengeProgressMetadata(), Locale.US),
+        )
+    }
+
+    @Test
+    fun challengeProgressUpdateSubtitle_usesOldAndNewProgressValues() {
+        val record = challengeProgressRecord(UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY)
+        val expected =
+            listOf(
+                "Changed 3 on Aug 30, 2026 to 5 on Aug 31, 2026.",
+                "Daily target of 10.",
+                "Category \"Strength\".",
+                "Aug 1, 2026 to Aug 31, 2026.",
+            ).joinToString(" • ")
+
+        assertEquals(
+            expected,
+            formatter.buildSubtitle(
+                record,
+                challengeProgressMetadata() +
+                    mapOf(
+                        UserActionMetadataKeys.CHALLENGE_OLD_VALUE to "3",
+                        UserActionMetadataKeys.CHALLENGE_NEW_VALUE to "5",
+                        UserActionMetadataKeys.CHALLENGE_OLD_DATE to "2026-08-30",
+                        UserActionMetadataKeys.CHALLENGE_NEW_DATE to "2026-08-31",
+                        UserActionMetadataKeys.CHALLENGE_RECOVERED to "false",
+                    ),
+                Locale.US,
+            ),
+        )
+    }
+
+    @Test
+    fun challengeProgressDeleteAndRestoreSubtitles_areActionSpecific() {
+        assertEquals(
+            "Deleted 3 on Aug 31, 2026. • Daily target of 10. • Category \"Strength\". • Aug 1, 2026 to Aug 31, 2026.",
+            formatter.buildSubtitle(
+                challengeProgressRecord(UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY),
+                challengeProgressMetadata() + mapOf(UserActionMetadataKeys.CHALLENGE_RECOVERED to "false"),
+                Locale.US,
+            ),
+        )
+        assertEquals(
+            "Restored 3 on Aug 31, 2026. • Daily target of 10. • Category \"Strength\". • Aug 1, 2026 to Aug 31, 2026.",
+            formatter.buildSubtitle(
+                challengeProgressRecord(UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY),
+                challengeProgressMetadata() + mapOf(UserActionMetadataKeys.CHALLENGE_RECOVERED to "false"),
+                Locale.US,
+            ),
+        )
+    }
+
+    @Test
+    fun challengeProgressCreateSubtitle_handlesMissingOptionalMetadata() {
+        val record = challengeProgressRecord(UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY)
+
+        assertEquals(
+            "Added 3 on Aug 31, 2026.",
+            formatter.buildSubtitle(
+                record,
+                mapOf(
+                    UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY to "3",
+                    UserActionMetadataKeys.CHALLENGE_PROGRESS_DATE to "2026-08-31",
+                ),
+                Locale.US,
+            ),
+        )
+    }
+
     private fun personalRecordEntryRecord(): UserActionRecord {
         return UserActionRecord(
             id = 1L,
@@ -192,6 +303,31 @@ class ActivityUiFormatterTest {
             entityId = 42L,
             metadata = null,
             timestamp = 0L,
+        )
+    }
+
+    private fun challengeProgressRecord(actionType: UserActionType): UserActionRecord {
+        return UserActionRecord(
+            id = 1L,
+            actionType = actionType.name,
+            entityType = UserActionEntityType.CHALLENGE.name,
+            entityId = 42L,
+            metadata = null,
+            timestamp = 0L,
+        )
+    }
+
+    private fun challengeProgressMetadata(): Map<String, String> {
+        return mapOf(
+            UserActionMetadataKeys.CHALLENGE_TITLE to "Strength",
+            UserActionMetadataKeys.CHALLENGE_TARGET_TYPE to "DAILY",
+            UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY to "10",
+            UserActionMetadataKeys.CHALLENGE_CATEGORY_NAME to "Strength",
+            UserActionMetadataKeys.CHALLENGE_START_DATE to "2026-08-01",
+            UserActionMetadataKeys.CHALLENGE_END_DATE to "2026-08-31",
+            UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY to "3",
+            UserActionMetadataKeys.CHALLENGE_PROGRESS_DATE to "2026-08-31",
+            UserActionMetadataKeys.CHALLENGE_RECOVERED to "true",
         )
     }
 }

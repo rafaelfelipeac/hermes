@@ -85,13 +85,13 @@ class TrophyViewModel
 
             internal val familyOrder =
                 listOf(
-                    TrophyFamilyUi.CHALLENGES,
                     TrophyFamilyUi.FOLLOW_THROUGH,
                     TrophyFamilyUi.CONSISTENCY,
                     TrophyFamilyUi.ADAPTABILITY,
                     TrophyFamilyUi.MOMENTUM,
                     TrophyFamilyUi.BUILDER,
                     TrophyFamilyUi.RACE_EVENTS,
+                    TrophyFamilyUi.CHALLENGES,
                     TrophyFamilyUi.PERSONAL_RECORDS,
                     TrophyFamilyUi.CATEGORIES,
                 )

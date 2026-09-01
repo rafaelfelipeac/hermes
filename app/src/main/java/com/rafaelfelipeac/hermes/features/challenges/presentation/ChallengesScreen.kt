@@ -25,13 +25,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -40,10 +39,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.outlined.Archive
-import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material.icons.outlined.TrackChanges
+import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DatePicker
@@ -51,6 +49,7 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -82,15 +81,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
+import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
 import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
@@ -101,11 +102,13 @@ import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeProgressBarHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
+import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
+import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEditorState
@@ -116,12 +119,12 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuick
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeStatus
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeUiState
-import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorDraft
 import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorOrigin
-import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 import java.util.Locale
+import kotlin.math.roundToInt
 
 private const val CHALLENGES_ROUTE_LIST = "list"
 private const val CHALLENGES_ROUTE_DETAIL = "detail"
@@ -132,12 +135,14 @@ internal const val CHALLENGES_TAG_DETAIL = "challenges_detail"
 private const val CHALLENGES_TAG_HEADER_BACK = "challenges_header_back"
 private const val CHALLENGES_TAG_CREATE_FAB = "challenges_create_fab"
 internal const val CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB = "challenges_detail_add_progress_fab"
+internal const val CHALLENGES_TAG_DETAIL_QUICK_ADD = "challenges_detail_quick_add"
 private const val CHALLENGES_TAG_DETAIL_HISTORY = "challenges_detail_history"
 internal const val CHALLENGES_TAG_ACTIVE_CARD_PROGRESS = "challenges_active_card_progress"
 internal const val CHALLENGES_TAG_ACTIVE_EMPTY_STATE = "challenges_active_empty_state"
 internal const val CHALLENGES_TAG_ARCHIVED_EMPTY_STATE = "challenges_archived_empty_state"
 internal const val CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX = "challenges_detail_history_group_"
 private const val CHALLENGES_TAG_EDITOR = "challenges_editor"
+private const val CHALLENGE_TAG_CONTAINER_ALPHA = 0.16f
 private val ChallengeProgressAheadColor = Color(0xFF2E7D32)
 private val ChallengeProgressBehindColor = Color(0xFFC62828)
 
@@ -162,10 +167,11 @@ internal fun ChallengesScreen(
     var route by rememberSaveable { mutableStateOf(CHALLENGES_ROUTE_LIST) }
     var selectedTab by rememberSaveable { mutableStateOf(ChallengeListTab.ACTIVE) }
     var detailOriginTab by rememberSaveable { mutableStateOf(ChallengeListTab.ACTIVE) }
-    val pagerState = rememberPagerState(
-        initialPage = selectedTab.ordinal,
-        pageCount = { ChallengeListTab.entries.size },
-    )
+    val pagerState =
+        rememberPagerState(
+            initialPage = selectedTab.ordinal,
+            pageCount = { ChallengeListTab.entries.size },
+        )
     var showEditorDialog by rememberSaveable { mutableStateOf(false) }
     var editorChallengeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var showProgressDialog by rememberSaveable { mutableStateOf(false) }
@@ -746,7 +752,7 @@ private fun ChallengesDetailRoute(
     val quickAddBase =
         when (challenge.targetType) {
             ChallengeTargetType.DAILY -> challenge.targetQuantity
-            ChallengeTargetType.TOTAL -> calculation.requiredPace
+            ChallengeTargetType.TOTAL -> initialAveragePace(challenge)
         }
     val quickAdds =
         if (challenge.lifecycle == ChallengeLifecycle.ACTIVE && addProgressDefaultDate != null && quickAddBase > 0L) {
@@ -776,10 +782,16 @@ private fun ChallengesDetailRoute(
         item {
             ChallengeTodayCard(
                 calculation = calculation,
-                isActive = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
-                quickAdds = quickAdds,
-                onQuickAdd = onQuickAdd,
             )
+        }
+
+        if (quickAdds.isNotEmpty()) {
+            item {
+                ChallengeQuickAddCard(
+                    quickAdds = quickAdds,
+                    onQuickAdd = onQuickAdd,
+                )
+            }
         }
 
         item {
@@ -826,9 +838,10 @@ private fun ChallengeProgressHistoryCard(
     onDeleteProgress: (Long) -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag(challengeHistoryGroupTag(group.date)),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .testTag(challengeHistoryGroupTag(group.date)),
         shape = shapes.medium,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
         border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
@@ -849,7 +862,7 @@ private fun ChallengeProgressHistoryCard(
                 ChallengeProgressEntryRow(
                     entry = entry,
                     isEditable = isEditable,
-                    onClick = { onRequestEditProgress(entry) },
+                    onEdit = { onRequestEditProgress(entry) },
                     onDelete = { onDeleteProgress(entry.id) },
                 )
             }
@@ -1057,7 +1070,6 @@ private fun ChallengeDetailSummaryCard(
     category: Category?,
     calculation: ChallengeCalculationResult,
 ) {
-    val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = shapes.medium,
@@ -1068,81 +1080,18 @@ private fun ChallengeDetailSummaryCard(
             modifier = Modifier.padding(SpacingMd),
             verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
-            Text(
-                text = challenge.title,
-                style = typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
+            ChallengeSummaryContent(
+                challenge = challenge,
+                category = category,
+                calculation = calculation,
+                showProgressBar = true,
             )
-            challenge.description?.takeIf { it.isNotBlank() }?.let { description ->
-                Text(text = description, color = colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
-            }
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
-                verticalArrangement = Arrangement.spacedBy(SpacingXs),
-            ) {
-                TitleChip(
-                    label = challengeTargetTypeLabel(challenge.targetType),
-                    containerColor = colorScheme.surfaceVariant,
-                    contentColor = colorScheme.onSurfaceVariant,
-                )
-                category?.let {
-                    TitleChip(
-                        label = it.name,
-                        containerColor = categoryAccent?.copy(alpha = 0.16f) ?: colorScheme.surfaceVariant,
-                        contentColor = categoryAccent ?: colorScheme.onSurfaceVariant,
-                    )
-                }
-                TitleChip(
-                    label = challengeStatusLabel(calculation.status),
-                    containerColor = challengeProgressContainerColor(calculation.status),
-                    contentColor = challengeProgressColor(calculation.status),
-                )
-            }
-
-            Text(
-                text =
-                    stringResource(
-                        R.string.challenges_date_range,
-                        formatWorkoutDate(challenge.startDate, Locale.getDefault()),
-                        formatWorkoutDate(challenge.endDate, Locale.getDefault()),
-                    ),
-                style = typography.bodySmall,
-                color = colorScheme.onSurfaceVariant,
-            )
-
-            ChallengeProgressBar(
-                progress = calculation.visualProgress,
-                color = challengeProgressColor(calculation.status),
-            )
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
-                verticalArrangement = Arrangement.spacedBy(SpacingXs),
-            ) {
-                TitleChip(
-                    label =
-                        stringResource(
-                            R.string.challenges_progress_value,
-                            ChallengeQuantity.format(calculation.completedTotal, Locale.getDefault()),
-                            ChallengeQuantity.format(calculation.plannedTotal, Locale.getDefault()),
-                        ),
-                    containerColor = colorScheme.surfaceVariant,
-                    contentColor = colorScheme.onSurfaceVariant,
-                )
-            }
         }
     }
 }
 
 @Composable
-private fun ChallengeTodayCard(
-    calculation: ChallengeCalculationResult,
-    isActive: Boolean,
-    quickAdds: List<ChallengeQuickAddValue>,
-    onQuickAdd: (ChallengeQuickAddValue) -> Unit,
-) {
+private fun ChallengeTodayCard(calculation: ChallengeCalculationResult) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = shapes.medium,
@@ -1170,55 +1119,91 @@ private fun ChallengeTodayCard(
                             stringResource(
                                 R.string.challenges_today_value_total,
                                 ChallengeQuantity.format(calculation.todayProgress, Locale.getDefault()),
-                                ChallengeQuantity.format((calculation.requiredPace - calculation.todayProgress).coerceAtLeast(0L), Locale.getDefault()),
+                                ChallengeQuantity.format(calculation.todayRemaining ?: 0L, Locale.getDefault()),
                             )
                     },
-                style = typography.titleSmall,
+                style = typography.bodyMedium,
                 color = colorScheme.onSurfaceVariant,
             )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
-            ) {
-                TitleChip(
-                    label =
-                        stringResource(
-                            R.string.challenges_required_pace_value,
-                            ChallengeQuantity.format(calculation.requiredPace, Locale.getDefault()),
-                        ),
-                    containerColor = colorScheme.surfaceVariant,
-                    contentColor = colorScheme.onSurfaceVariant,
-                )
-                if (calculation.carriedDebt > 0L) {
-                    TitleChip(
-                        label =
-                            stringResource(
-                                R.string.challenges_debt_value,
-                                ChallengeQuantity.format(calculation.carriedDebt, Locale.getDefault()),
+            Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
+                    ChallengeTodayMetricCard(
+                        modifier = Modifier.weight(1f),
+                        label = stringResource(R.string.challenges_today_completed_label),
+                        value = ChallengeQuantity.format(calculation.todayProgress, Locale.getDefault()),
+                        containerColor = colorScheme.surfaceVariant,
+                        contentColor = colorScheme.onSurfaceVariant,
+                    )
+                    ChallengeTodayMetricCard(
+                        modifier = Modifier.weight(1f),
+                        label = stringResource(R.string.challenges_today_remaining_label),
+                        value =
+                            ChallengeQuantity.format(
+                                calculation.todayRemaining ?: 0L,
+                                Locale.getDefault(),
                             ),
+                        containerColor = colorScheme.surfaceVariant,
+                        contentColor = colorScheme.onSurfaceVariant,
+                    )
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
+                    ChallengeTodayMetricCard(
+                        modifier = Modifier.weight(1f),
+                        label = stringResource(R.string.challenges_required_pace_label),
+                        value = ChallengeQuantity.format(calculation.requiredPace, Locale.getDefault()),
+                        containerColor = colorScheme.primaryContainer,
+                        contentColor = colorScheme.onPrimaryContainer,
+                    )
+                    ChallengeTodayMetricCard(
+                        modifier = Modifier.weight(1f),
+                        label = stringResource(R.string.challenges_debt_label),
+                        value = ChallengeQuantity.format(calculation.carriedDebt, Locale.getDefault()),
                         containerColor = colorScheme.secondaryContainer,
                         contentColor = colorScheme.onSecondaryContainer,
                     )
                 }
             }
-            if (isActive && quickAdds.isNotEmpty()) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                ) {
-                    quickAdds.forEach { quickAdd ->
-                        AssistChip(
-                            onClick = { onQuickAdd(quickAdd) },
-                            label = {
-                                Text(
-                                    text =
-                                        stringResource(
-                                            R.string.challenges_quick_add_with_quantity,
-                                            quickAdd.percentage,
-                                            ChallengeQuantity.format(quickAdd.quantity, Locale.getDefault()),
-                                        ),
-                                )
-                            },
+        }
+    }
+}
+
+@Composable
+private fun ChallengeQuickAddCard(
+    quickAdds: List<ChallengeQuickAddValue>,
+    onQuickAdd: (ChallengeQuickAddValue) -> Unit,
+) {
+    Card(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .testTag(CHALLENGES_TAG_DETAIL_QUICK_ADD),
+        shape = shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
+    ) {
+        Column(
+            modifier = Modifier.padding(SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingSm),
+        ) {
+            Text(
+                text = stringResource(R.string.challenges_quick_add_title),
+                style = typography.titleMedium,
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                quickAdds.forEach { quickAdd ->
+                    FilledTonalButton(
+                        onClick = { onQuickAdd(quickAdd) },
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            text =
+                                stringResource(
+                                    R.string.challenges_quick_add_button,
+                                    ChallengeQuantity.format(quickAdd.quantity, Locale.getDefault()),
+                                ),
                         )
                     }
                 }
@@ -1228,26 +1213,91 @@ private fun ChallengeTodayCard(
 }
 
 @Composable
+private fun ChallengeTodayMetricCard(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    containerColor: Color,
+    contentColor: Color,
+) {
+    Card(
+        modifier = modifier,
+        shape = shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = containerColor, contentColor = contentColor),
+    ) {
+        Column(
+            modifier = Modifier.padding(SpacingMd),
+            verticalArrangement = Arrangement.spacedBy(SpacingXs),
+        ) {
+            Text(
+                text = label,
+                style = typography.labelSmall,
+                color = contentColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = value,
+                style = typography.titleMedium,
+                color = contentColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
 private fun ChallengeProgressEntryRow(
     entry: ChallengeProgressEntry,
     isEditable: Boolean,
-    onClick: (() -> Unit)?,
+    onEdit: (() -> Unit)?,
     onDelete: (() -> Unit)?,
 ) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+
     Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .then(if (isEditable && onClick != null) Modifier.clickable(onClick = onClick) else Modifier),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
             Text(text = ChallengeQuantity.format(entry.quantity, Locale.getDefault()))
         }
 
-        if (isEditable && onDelete != null) {
-            IconButton(onClick = onDelete) {
-                Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
+        if (isEditable && (onEdit != null || onDelete != null)) {
+            Box {
+                IconButton(onClick = { expanded = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = stringResource(R.string.challenges_progress_entry_actions_menu),
+                    )
+                }
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    onEdit?.let {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.challenges_edit)) },
+                            onClick = {
+                                expanded = false
+                                it()
+                            },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Filled.Edit, contentDescription = null)
+                            },
+                        )
+                    }
+                    onDelete?.let {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(R.string.challenges_delete)) },
+                            onClick = {
+                                expanded = false
+                                it()
+                            },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Filled.Delete, contentDescription = null)
+                            },
+                        )
+                    }
+                }
             }
         }
     }
@@ -1260,7 +1310,6 @@ private fun ChallengeCard(
     calculation: ChallengeCalculationResult?,
     onClick: () -> Unit,
 ) {
-    val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -1272,81 +1321,122 @@ private fun ChallengeCard(
             modifier = Modifier.padding(SpacingMd),
             verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
-            Text(
-                text = challenge.title,
-                style = typography.titleMedium,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
+            ChallengeSummaryContent(
+                challenge = challenge,
+                category = category,
+                calculation = calculation,
+                showProgressBar = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
+                progressBarModifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
             )
-            challenge.description?.takeIf { it.isNotBlank() }?.let { description ->
-                Text(
-                    text = description,
-                    color = colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
-            }
-
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(SpacingXs),
-                verticalArrangement = Arrangement.spacedBy(SpacingXs),
-            ) {
-                TitleChip(
-                    label = challengeTargetTypeLabel(challenge.targetType),
-                    containerColor = colorScheme.surfaceVariant,
-                    contentColor = colorScheme.onSurfaceVariant,
-                )
-                category?.let {
-                    TitleChip(
-                        label = it.name,
-                        containerColor = categoryAccent?.copy(alpha = 0.16f) ?: colorScheme.surfaceVariant,
-                        contentColor = categoryAccent ?: colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            Text(
-                text =
-                    stringResource(
-                        R.string.challenges_date_range,
-                        formatWorkoutDate(challenge.startDate, Locale.getDefault()),
-                        formatWorkoutDate(challenge.endDate, Locale.getDefault()),
-                    ),
-                style = typography.bodySmall,
-                color = colorScheme.onSurfaceVariant,
-            )
-
-            calculation?.let { calculationResult ->
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(SpacingXs),
-                    verticalArrangement = Arrangement.spacedBy(SpacingXs),
-                ) {
-                    TitleChip(
-                        label = challengeStatusLabel(calculationResult.status),
-                        containerColor = challengeProgressContainerColor(calculationResult.status),
-                        contentColor = challengeProgressColor(calculationResult.status),
-                    )
-                    TitleChip(
-                        label =
-                            stringResource(
-                                R.string.challenges_progress_value,
-                                ChallengeQuantity.format(calculationResult.completedTotal, Locale.getDefault()),
-                                ChallengeQuantity.format(calculationResult.plannedTotal, Locale.getDefault()),
-                            ),
-                        containerColor = colorScheme.surfaceVariant,
-                        contentColor = colorScheme.onSurfaceVariant,
-                    )
-                }
-                if (challenge.lifecycle == ChallengeLifecycle.ACTIVE) {
-                    ChallengeProgressBar(
-                        progress = calculationResult.visualProgress,
-                        color = challengeProgressColor(calculationResult.status),
-                        modifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
-                    )
-                }
-            }
         }
     }
+}
+
+@Composable
+private fun ChallengeSummaryContent(
+    challenge: Challenge,
+    category: Category?,
+    calculation: ChallengeCalculationResult?,
+    showProgressBar: Boolean,
+    progressBarModifier: Modifier = Modifier,
+) {
+    val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
+
+    Text(
+        text = challenge.title,
+        style = typography.titleMedium,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
+    )
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+        verticalArrangement = Arrangement.spacedBy(SpacingXs),
+    ) {
+        TitleChip(
+            label = challengeTargetTypeLabel(challenge.targetType),
+            containerColor = colorScheme.surfaceVariant,
+            contentColor = colorScheme.onSurfaceVariant,
+        )
+        category?.let {
+            TitleChip(
+                label = it.name,
+                containerColor = categoryAccent ?: colorScheme.surfaceVariant,
+                contentColor = categoryAccent?.let { accent -> contentColorForBackground(accent) } ?: colorScheme.onSurfaceVariant,
+            )
+        }
+        calculation?.let { calculationResult ->
+            TitleChip(
+                label = challengeStatusLabel(calculationResult.status),
+                containerColor = challengeProgressContainerColor(calculationResult.status),
+                contentColor = challengeProgressColor(calculationResult.status),
+            )
+        }
+    }
+
+    challenge.description?.takeIf { it.isNotBlank() }?.let { description ->
+        Text(
+            text = description,
+            color = colorScheme.onSurfaceVariant,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+
+    Text(
+        text =
+            stringResource(
+                R.string.challenges_date_range,
+                formatWorkoutDate(challenge.startDate, Locale.getDefault()),
+                formatWorkoutDate(challenge.endDate, Locale.getDefault()),
+            ),
+        style = typography.bodySmall,
+        color = colorScheme.onSurfaceVariant,
+    )
+
+    calculation?.let { calculationResult ->
+        if (showProgressBar) {
+            ChallengeProgressBar(
+                progress = calculationResult.visualProgress,
+                color = challengeProgressColor(calculationResult.status),
+                modifier = progressBarModifier,
+            )
+        }
+
+        Text(
+            text =
+                challengeProgressLabel(calculationResult),
+            modifier = Modifier.fillMaxWidth(),
+            style = typography.labelLarge,
+            color = colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.End,
+        )
+    }
+}
+
+@Composable
+private fun challengeProgressLabel(calculation: ChallengeCalculationResult): String {
+    val locale = Locale.getDefault()
+    val progressValue =
+        stringResource(
+            R.string.challenges_progress_value,
+            ChallengeQuantity.format(calculation.completedTotal, locale),
+            ChallengeQuantity.format(calculation.plannedTotal, locale),
+        )
+    val progressPercent =
+        stringResource(
+            R.string.challenges_progress_percent,
+            challengeProgressPercent(calculation),
+        )
+    return stringResource(
+        R.string.challenges_progress_value_with_percent,
+        progressValue,
+        progressPercent,
+    )
+}
+
+private fun challengeProgressPercent(calculation: ChallengeCalculationResult): Int {
+    if (calculation.plannedTotal <= 0L) return 0
+    return ((calculation.completedTotal.toDouble() / calculation.plannedTotal.toDouble()) * 100.0).roundToInt()
 }
 
 @Composable
@@ -1577,6 +1667,11 @@ private fun groupProgressByDate(entries: List<ChallengeProgressEntry>): List<Cha
 
 private fun challengeHistoryGroupTag(date: LocalDate): String = "$CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX$date"
 
+private fun initialAveragePace(challenge: Challenge): Long {
+    val totalDays = (ChronoUnit.DAYS.between(challenge.startDate, challenge.endDate) + 1).coerceAtLeast(1L)
+    return ChallengeQuantity.ceilDiv(challenge.targetQuantity, totalDays)
+}
+
 @Composable
 private fun challengeTargetTypeLabel(targetType: ChallengeTargetType): String {
     return when (targetType) {
@@ -1607,11 +1702,11 @@ private fun challengeProgressColor(status: ChallengeStatus): Color {
         ChallengeStatus.ON_TRACK,
         ChallengeStatus.COMPLETED,
         ChallengeStatus.EXCEEDED,
-            -> ChallengeProgressAheadColor
+        -> ChallengeProgressAheadColor
 
         ChallengeStatus.BEHIND,
         ChallengeStatus.EXPIRED_INCOMPLETE,
-            -> ChallengeProgressBehindColor
+        -> ChallengeProgressBehindColor
 
         ChallengeStatus.NOT_STARTED -> colorScheme.primary
     }
@@ -1619,5 +1714,5 @@ private fun challengeProgressColor(status: ChallengeStatus): Color {
 
 @Composable
 private fun challengeProgressContainerColor(status: ChallengeStatus): Color {
-    return challengeProgressColor(status).copy(alpha = 0.16f)
+    return challengeProgressColor(status).copy(alpha = CHALLENGE_TAG_CONTAINER_ALPHA)
 }

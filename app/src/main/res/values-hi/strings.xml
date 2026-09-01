@@ -768,9 +768,6 @@
     <string name="challenges_status_ahead">गति से आगे</string>
     <string name="challenges_status_on_track">सही गति पर</string>
     <string name="challenges_status_behind">गति से पीछे</string>
-    <string name="challenges_quick_add_25">25%</string>
-    <string name="challenges_quick_add_50">50%</string>
-    <string name="challenges_quick_add_100">100%</string>
     <string name="challenges_empty_active_title">अभी कोई चुनौती नहीं है।</string>
     <string name="challenges_empty_active_body">समय के साथ प्रगति ट्रैक करने के लिए एक चुनौती बनाएँ।</string>
     <string name="challenges_empty_archived_title">कोई संग्रहीत चुनौती नहीं है।</string>
@@ -813,6 +810,11 @@
     <string name="activity_action_restore_challenge_progress_entry_named">आपने %1$s की प्रगति पुनर्स्थापित की।</string>
     <string name="activity_subtitle_challenge_dates">%1$s से %2$s तक।</string>
     <string name="activity_subtitle_challenge_progress">%1$s को %2$s पर।</string>
+    <string name="activity_subtitle_challenge_progress_added">%2$s पर %1$s जोड़ा।</string>
+    <string name="activity_subtitle_challenge_progress_updated">%2$s पर %1$s से %4$s पर %3$s में बदला।</string>
+    <string name="activity_subtitle_challenge_progress_updated_current">%2$s पर %1$s अपडेट किया।</string>
+    <string name="activity_subtitle_challenge_progress_deleted">%2$s पर %1$s हटाया।</string>
+    <string name="activity_subtitle_challenge_progress_restored">%2$s पर %1$s बहाल किया।</string>
     <string name="activity_subtitle_challenge_recovered">वापस पटरी पर।</string>
     <string name="trophies_share_desc_challenge_creations">मैंने %1$d चुनौतियाँ बनाई हैं।</string>
     <string name="trophies_share_desc_challenge_completions">मैंने चुनौती लक्ष्यों को %1$d बार पूरा किया या पार किया है।</string>
@@ -839,17 +841,21 @@
     <string name="challenges_overall_progress_label">कुल प्रगति</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
+    <string name="challenges_progress_percent">%1$d%%</string>
+    <string name="challenges_progress_value_with_percent">%1$s · %2$s</string>
     <string name="challenges_today_label">आज</string>
+    <string name="challenges_today_completed_label">आज पूरा</string>
+    <string name="challenges_today_remaining_label">आज शेष</string>
     <string name="challenges_today_value_daily">आज पूरा: %1$s, शेष: %2$s</string>
     <string name="challenges_today_value_total">आज पूरा: %1$s, आज चाहिए: %2$s</string>
     <string name="challenges_required_pace_label">आवश्यक गति</string>
-    <string name="challenges_required_pace_value">आवश्यक गति · %1$s</string>
     <string name="challenges_debt_label">संचित ऋण</string>
-    <string name="challenges_debt_value">संचित ऋण · %1$s</string>
     <string name="challenges_history_empty_title">अभी कोई प्रगति नहीं है।</string>
     <string name="challenges_history_empty_body">इस चुनौती को ट्रैक करना शुरू करने के लिए प्रगति जोड़ें।</string>
-    <string name="challenges_quick_add_with_quantity">%1$d%% · %2$s</string>
+    <string name="challenges_quick_add_title">त्वरित जोड़</string>
+    <string name="challenges_quick_add_button">%1$s जोड़ें</string>
     <string name="challenges_daily_preview">%1$s × %2$s दिन = %3$s</string>
     <string name="challenges_total_preview">कुल लक्ष्य: %1$s</string>
     <string name="challenges_actions_menu">और कार्रवाइयाँ</string>
+    <string name="challenges_progress_entry_actions_menu">प्रगति प्रविष्टि की कार्रवाइयाँ</string>
 </resources>
