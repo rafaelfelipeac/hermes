@@ -39,8 +39,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.outlined.Archive
@@ -68,7 +68,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -80,8 +79,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -101,14 +100,15 @@ import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
+import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
 import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeProgressBarHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeCompletionIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeProgressBarHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -356,7 +356,7 @@ internal fun ChallengesScreen(
         },
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
-                Snackbar(snackbarData = data)
+                HermesSnackbar(snackbarData = data)
             }
         },
     ) { padding ->
@@ -1014,16 +1014,22 @@ private fun ChallengeCompletionConfetti(
                     spread = CHALLENGE_CONFETTI_SPREAD,
                     colors = palette,
                     position = Position.Relative(CHALLENGE_CONFETTI_CENTER_X, CHALLENGE_CONFETTI_CENTER_Y),
-                    emitter = Emitter(duration = CHALLENGE_CONFETTI_EMITTER_DURATION_MS, TimeUnit.MILLISECONDS)
-                        .max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
+                    emitter =
+                        Emitter(
+                            duration = CHALLENGE_CONFETTI_EMITTER_DURATION_MS,
+                            TimeUnit.MILLISECONDS,
+                        ).max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
                 ),
                 Party(
                     angle = CHALLENGE_CONFETTI_RIGHT_ANGLE,
                     spread = CHALLENGE_CONFETTI_SPREAD,
                     colors = palette,
                     position = Position.Relative(CHALLENGE_CONFETTI_CENTER_X, CHALLENGE_CONFETTI_CENTER_Y),
-                    emitter = Emitter(duration = CHALLENGE_CONFETTI_EMITTER_DURATION_MS, TimeUnit.MILLISECONDS)
-                        .max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
+                    emitter =
+                        Emitter(
+                            duration = CHALLENGE_CONFETTI_EMITTER_DURATION_MS,
+                            TimeUnit.MILLISECONDS,
+                        ).max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
                 ),
             )
         kotlinx.coroutines.delay(CHALLENGE_CONFETTI_VISIBLE_DURATION_MS)

@@ -823,8 +823,9 @@ class DemoDataSeeder
                 challenge =
                     Challenge(
                         id = 0L,
+                        categoryId = RUN_ID,
                         title = stringProvider.get(R.string.mock_workout_type_cardio),
-                        description = null,
+                        description = stringProvider.get(R.string.mock_workout_description_long_run),
                         targetType = ChallengeTargetType.TOTAL,
                         targetQuantity = 120L,
                         startDate = today.minusDays(10),
@@ -836,9 +837,13 @@ class DemoDataSeeder
                     ),
                 entries =
                     listOf(
+                        12L to today.minusDays(9),
                         24L to today.minusDays(8),
+                        18L to today.minusDays(8),
                         30L to today.minusDays(5),
-                        36L to today.minusDays(2),
+                        16L to today.minusDays(3),
+                        18L to today.minusDays(2),
+                        10L to today,
                     ),
                 zoneId = zoneId,
             )
@@ -847,8 +852,9 @@ class DemoDataSeeder
                 challenge =
                     Challenge(
                         id = 0L,
+                        categoryId = STRENGTH_ID,
                         title = stringProvider.get(R.string.mock_workout_type_strength),
-                        description = null,
+                        description = stringProvider.get(R.string.mock_workout_description_strength),
                         targetType = ChallengeTargetType.TOTAL,
                         targetQuantity = 240L,
                         startDate = today.minusDays(14),
@@ -861,9 +867,12 @@ class DemoDataSeeder
                 entries =
                     listOf(
                         20L to today.minusDays(12),
+                        20L to today.minusDays(12),
                         25L to today.minusDays(8),
                         30L to today.minusDays(4),
-                        15L to today.minusDays(1),
+                        45L to today.minusDays(2),
+                        35L to today.minusDays(1),
+                        20L to today,
                     ),
                 zoneId = zoneId,
             )
@@ -872,8 +881,85 @@ class DemoDataSeeder
                 challenge =
                     Challenge(
                         id = 0L,
+                        categoryId = CYCLING_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_hiits),
+                        description = stringProvider.get(R.string.mock_workout_description_hiits),
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 180L,
+                        startDate = today.minusDays(21),
+                        endDate = today.plusDays(2),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        30L to today.minusDays(18),
+                        45L to today.minusDays(11),
+                        50L to today.minusDays(5),
+                        40L to today.minusDays(1),
+                        25L to today,
+                    ),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = SWIM_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_yoga),
+                        description = stringProvider.get(R.string.mock_workout_description_yoga),
+                        targetType = ChallengeTargetType.DAILY,
+                        targetQuantity = 1L,
+                        startDate = today,
+                        endDate = today.plusDays(13),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries = emptyList(),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = STRENGTH_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_core),
+                        description = stringProvider.get(R.string.mock_workout_description_core),
+                        targetType = ChallengeTargetType.DAILY,
+                        targetQuantity = 10L,
+                        startDate = today.minusDays(244),
+                        endDate = today.plusDays(120),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        10L to today.minusDays(20),
+                        10L to today.minusDays(19),
+                        5L to today.minusDays(12),
+                        15L to today.minusDays(12),
+                        10L to today.minusDays(6),
+                        8L to today.minusDays(2),
+                        12L to today.minusDays(1),
+                    ),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = MOBILITY_ID,
                         title = stringProvider.get(R.string.mock_workout_type_mobility),
-                        description = null,
+                        description = stringProvider.get(R.string.mock_workout_description_mobility),
                         targetType = ChallengeTargetType.TOTAL,
                         targetQuantity = 45L,
                         startDate = today.minusDays(20),
@@ -885,8 +971,10 @@ class DemoDataSeeder
                     ),
                 entries =
                     listOf(
+                        5L to today.minusDays(19),
                         15L to today.minusDays(18),
                         15L to today.minusDays(12),
+                        10L to today.minusDays(12),
                         15L to today.minusDays(6),
                     ),
                 zoneId = zoneId,

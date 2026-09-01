@@ -2,13 +2,16 @@ package com.rafaelfelipeac.hermes.features.activity.presentation
 
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
@@ -126,7 +129,8 @@ internal fun weekStartDateForAction(
 
 private fun UserActionRecord.isCompletionAction(): Boolean {
     val actionType = actionType.toUserActionTypeOrNull() ?: return false
-    return actionType in completionActions
+    return actionType in completionActions ||
+        actionType in challengeProgressActions && isChallengeCompletionTransition()
 }
 
 private fun UserActionRecord.isPlanningAction(): Boolean {
@@ -231,3 +235,16 @@ private val challengeActions =
         UserActionType.RESTORE_CHALLENGE,
         UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
     )
+
+private val challengeProgressActions =
+    setOf(
+        UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
+    )
+
+private fun UserActionRecord.isChallengeCompletionTransition(): Boolean {
+    val metadata = UserActionMetadataSerializer.fromJson(metadata)
+    return metadata[WAS_COMPLETED] == false.toString() &&
+        metadata[IS_COMPLETED] == true.toString()
+}

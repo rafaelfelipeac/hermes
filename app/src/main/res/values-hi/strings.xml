@@ -397,7 +397,7 @@
     <string name="browse_settings_subtitle">इकाइयाँ, रूप-रंग, भाषा और ऐप का व्यवहार अनुकूलित करें।</string>
     <string name="browse_developer_subtitle">केवल डेवलपर के लिए उपलब्ध जाँच और टूल देखें।</string>
     <string name="activity_day_unplanned">निर्धारित नहीं</string>
-    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_subtitle_separator">\n</string>
     <string name="activity_time_pattern">HH:mm</string>
     <string name="activity_week_date_pattern">d MMM yyyy</string>
     <string name="activity_value_system">सिस्टम</string>
@@ -793,6 +793,7 @@
     <string name="activity_action_archive_challenge">आपने एक चुनौती संग्रहीत की।</string>
     <string name="activity_action_reactivate_challenge">आपने एक चुनौती फिर से सक्रिय की।</string>
     <string name="activity_action_delete_challenge">आपने एक चुनौती हटाई।</string>
+    <string name="activity_action_complete_challenge">आपने एक चुनौती पूरी की।</string>
     <string name="activity_action_create_challenge_progress_entry">आपने चुनौती प्रगति दर्ज की।</string>
     <string name="activity_action_update_challenge_progress_entry">आपने चुनौती प्रगति अपडेट की।</string>
     <string name="activity_action_delete_challenge_progress_entry">आपने चुनौती प्रगति हटाई।</string>
@@ -803,6 +804,7 @@
     <string name="activity_action_archive_challenge_named">आपने %1$s चुनौती संग्रहीत की।</string>
     <string name="activity_action_reactivate_challenge_named">आपने %1$s चुनौती फिर से सक्रिय की।</string>
     <string name="activity_action_delete_challenge_named">आपने %1$s चुनौती हटाई।</string>
+    <string name="activity_action_complete_challenge_named">आपने %1$s चुनौती पूरी की।</string>
     <string name="activity_action_create_challenge_progress_entry_named">आपने %1$s के लिए प्रगति दर्ज की।</string>
     <string name="activity_action_update_challenge_progress_entry_named">आपने %1$s की प्रगति अपडेट की।</string>
     <string name="activity_action_delete_challenge_progress_entry_named">आपने %1$s की प्रगति हटाई।</string>
@@ -834,7 +836,11 @@
     <string name="trophies_desc_challenge_completions_unlocked">आपने चुनौती लक्ष्यों को %1$d बार पूरा या पार किया है।</string>
     <string name="trophies_desc_challenge_recoveries_locked">चुनौती के ऋण से %1$d बार उबरकर इसे अनलॉक करें।</string>
     <string name="trophies_desc_challenge_recoveries_unlocked">आपने चुनौती के ऋण से %1$d बार उबर लिया है।</string>
-    <string name="activity_subtitle_challenge_target">लक्ष्य %1$s का %2$s.</string>
+    <string name="activity_subtitle_challenge_target_daily">लक्ष्य: प्रति दिन %1$s।</string>
+    <string name="activity_subtitle_challenge_target_total">लक्ष्य: कुल %1$s।</string>
+    <string name="activity_subtitle_challenge_target_change">लक्ष्य %1$s से %2$s में बदला।</string>
+    <string name="activity_subtitle_challenge_target_value_daily">प्रति दिन %1$s</string>
+    <string name="activity_subtitle_challenge_target_value_total">कुल %1$s</string>
     <string name="challenge_target_type_daily">दैनिक</string>
     <string name="challenge_target_type_total">कुल</string>
     <string name="challenges_field_progress_date">प्रगति तिथि</string>

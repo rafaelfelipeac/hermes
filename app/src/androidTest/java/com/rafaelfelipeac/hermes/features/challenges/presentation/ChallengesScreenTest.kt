@@ -320,6 +320,9 @@ class ChallengesScreenTest {
             .performClick()
         composeRule.onNodeWithText(context.getString(R.string.challenges_delete)).performClick()
         composeRule.onNodeWithText(context.getString(R.string.challenges_delete_progress_title)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_delete_confirm)).performClick()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_undo_deleted_progress_entry)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.weekly_training_undo_action)).assertIsDisplayed()
     }
 
     @Test

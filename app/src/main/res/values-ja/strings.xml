@@ -393,7 +393,7 @@
     <string name="browse_settings_subtitle">単位、外観、言語、アプリの動作をカスタマイズします。</string>
     <string name="browse_developer_subtitle">開発者向けの診断情報とツールを確認します。</string>
     <string name="activity_day_unplanned">未定</string>
-    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_subtitle_separator">\n</string>
     <string name="activity_time_pattern">HH:mm</string>
     <string name="activity_week_date_pattern">yyyy/MM/dd</string>
     <string name="activity_value_system">システム</string>
@@ -789,6 +789,7 @@
     <string name="activity_action_archive_challenge">チャレンジをアーカイブしました。</string>
     <string name="activity_action_reactivate_challenge">チャレンジを再有効化しました。</string>
     <string name="activity_action_delete_challenge">チャレンジを削除しました。</string>
+    <string name="activity_action_complete_challenge">チャレンジを完了しました。</string>
     <string name="activity_action_create_challenge_progress_entry">チャレンジの進捗を記録しました。</string>
     <string name="activity_action_update_challenge_progress_entry">チャレンジの進捗を更新しました。</string>
     <string name="activity_action_delete_challenge_progress_entry">チャレンジの進捗を削除しました。</string>
@@ -799,6 +800,7 @@
     <string name="activity_action_archive_challenge_named">%1$s というチャレンジをアーカイブしました。</string>
     <string name="activity_action_reactivate_challenge_named">%1$s というチャレンジを再有効化しました。</string>
     <string name="activity_action_delete_challenge_named">%1$s というチャレンジを削除しました。</string>
+    <string name="activity_action_complete_challenge_named">%1$s というチャレンジを完了しました。</string>
     <string name="activity_action_create_challenge_progress_entry_named">%1$s の進捗を記録しました。</string>
     <string name="activity_action_update_challenge_progress_entry_named">%1$s の進捗を更新しました。</string>
     <string name="activity_action_delete_challenge_progress_entry_named">%1$s の進捗を削除しました。</string>
@@ -830,7 +832,11 @@
     <string name="trophies_desc_challenge_completions_unlocked">チャレンジ目標を %1$d 回達成または超過しました。</string>
     <string name="trophies_desc_challenge_recoveries_locked">チャレンジの負債から %1$d 回回復すると解除されます。</string>
     <string name="trophies_desc_challenge_recoveries_unlocked">チャレンジの負債から %1$d 回回復しました。</string>
-    <string name="activity_subtitle_challenge_target">%1$s の目標 %2$s。</string>
+    <string name="activity_subtitle_challenge_target_daily">目標: 1日あたり%1$s。</string>
+    <string name="activity_subtitle_challenge_target_total">目標: 合計%1$s。</string>
+    <string name="activity_subtitle_challenge_target_change">目標を%1$sから%2$sに変更しました。</string>
+    <string name="activity_subtitle_challenge_target_value_daily">1日あたり%1$s</string>
+    <string name="activity_subtitle_challenge_target_value_total">合計%1$s</string>
     <string name="challenge_target_type_daily">毎日</string>
     <string name="challenge_target_type_total">合計</string>
     <string name="challenges_field_progress_date">進捗日</string>

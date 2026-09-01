@@ -114,6 +114,7 @@
     <string name="activity_action_archive_challenge">You archived a challenge.</string>
     <string name="activity_action_reactivate_challenge">You reactivated a challenge.</string>
     <string name="activity_action_delete_challenge">You deleted a challenge.</string>
+    <string name="activity_action_complete_challenge">You completed a challenge.</string>
     <string name="activity_action_create_challenge_progress_entry">You logged challenge progress.</string>
     <string name="activity_action_update_challenge_progress_entry">You updated challenge progress.</string>
     <string name="activity_action_delete_challenge_progress_entry">You deleted challenge progress.</string>
@@ -124,6 +125,7 @@
     <string name="activity_action_archive_challenge_named">You archived the challenge %1$s.</string>
     <string name="activity_action_reactivate_challenge_named">You reactivated the challenge %1$s.</string>
     <string name="activity_action_delete_challenge_named">You deleted the challenge %1$s.</string>
+    <string name="activity_action_complete_challenge_named">You completed the challenge %1$s.</string>
     <string name="activity_action_create_challenge_progress_entry_named">You logged progress for %1$s.</string>
     <string name="activity_action_update_challenge_progress_entry_named">You updated progress for %1$s.</string>
     <string name="activity_action_delete_challenge_progress_entry_named">You deleted progress for %1$s.</string>
@@ -532,7 +534,7 @@
     <string name="browse_section_progress">Progress</string>
     <string name="browse_section_app_data">App and data</string>
     <string name="activity_day_unplanned">To be defined</string>
-    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_subtitle_separator">\n</string>
     <string name="activity_time_pattern">HH:mm</string>
     <string name="activity_week_date_pattern">MMM d, yyyy</string>
     <string name="activity_value_system">System</string>
@@ -837,7 +839,11 @@
     <string name="trophies_desc_category_presence_unlocked">You finished %1$d weeks that included at least one completed workout from this category.</string>
     <string name="trophies_desc_category_planning_locked">Unlock by adding, moving or organizing workouts in this category %1$d times.</string>
     <string name="trophies_desc_category_planning_unlocked">You added, moved or organized workouts in this category %1$d times.</string>
-    <string name="activity_subtitle_challenge_target">%1$s target of %2$s.</string>
+    <string name="activity_subtitle_challenge_target_daily">Target: %1$s per day.</string>
+    <string name="activity_subtitle_challenge_target_total">Target: %1$s total.</string>
+    <string name="activity_subtitle_challenge_target_change">Target changed from %1$s to %2$s.</string>
+    <string name="activity_subtitle_challenge_target_value_daily">%1$s per day</string>
+    <string name="activity_subtitle_challenge_target_value_total">%1$s total</string>
     <string name="challenge_target_type_daily">Daily</string>
     <string name="challenge_target_type_total">Total</string>
     <string name="challenges_field_progress_date">Progress date</string>

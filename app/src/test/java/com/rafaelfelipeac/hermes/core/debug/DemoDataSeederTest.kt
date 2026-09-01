@@ -5,6 +5,10 @@ import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
@@ -79,6 +83,8 @@ class DemoDataSeederTest {
             val capturedFamilies = mutableListOf<PersonalRecordFamilyEntity>()
             val capturedEntries = mutableListOf<PersonalRecordEntryEntity>()
             val capturedActions = mutableListOf<UserActionEntity>()
+            val capturedChallenges = mutableListOf<Challenge>()
+            val capturedChallengeProgress = mutableListOf<ChallengeProgressEntry>()
             coEvery { categorySeeder.ensureSeeded() } returns Unit
             coEvery { workoutDao.insert(capture(capturedWorkouts)) } returns 1L
             coEvery { personalRecordDao.insertFamily(capture(capturedFamilies)) } answers {
@@ -88,6 +94,12 @@ class DemoDataSeederTest {
                 capturedEntries.size.toLong()
             }
             coEvery { userActionDao.insert(capture(capturedActions)) } returns 1L
+            coEvery { challengeRepository.insertChallenge(capture(capturedChallenges)) } answers {
+                capturedChallenges.size.toLong()
+            }
+            coEvery { challengeRepository.insertProgressEntry(capture(capturedChallengeProgress)) } answers {
+                capturedChallengeProgress.size.toLong()
+            }
             val seeder =
                 DemoDataSeeder(
                     workoutDao = workoutDao,
@@ -127,6 +139,30 @@ class DemoDataSeederTest {
             assertEquals(
                 4,
                 capturedActions.count { it.actionType == UserActionType.USE_PACE_CALCULATOR.name },
+            )
+            assertEquals(6, capturedChallenges.size)
+            assertEquals(31, capturedChallengeProgress.size)
+            assertEquals(
+                setOf(ChallengeTargetType.DAILY, ChallengeTargetType.TOTAL),
+                capturedChallenges.map { it.targetType }.toSet(),
+            )
+            assertEquals(
+                setOf(ChallengeLifecycle.ACTIVE, ChallengeLifecycle.ARCHIVED),
+                capturedChallenges.map { it.lifecycle }.toSet(),
+            )
+            assertTrue(capturedChallenges.all { it.categoryId != null })
+            assertTrue(capturedChallenges.any { it.description?.isNotBlank() == true })
+            assertTrue(
+                capturedChallengeProgress
+                    .groupBy { it.challengeId to it.entryDate }
+                    .values
+                    .any { entries -> entries.size > 1 },
+            )
+            assertTrue(
+                capturedChallengeProgress
+                    .groupBy { it.challengeId }
+                    .values
+                    .any { entries -> entries.map { it.entryDate }.toSet().size >= 5 },
             )
             coVerify(exactly = 1) {
                 personalRecordDao.updateFamily(match { it.manualCurrentEntryId != null })

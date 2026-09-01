@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -34,6 +32,7 @@ import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.BROWSE
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.EVENTS
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.HOME
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.PROGRESS
+import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophySnackbarFabClearance
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
@@ -326,12 +325,7 @@ fun HermesAppContent() {
                         ),
                 hostState = snackbarHostState,
             ) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = colorScheme.surfaceVariant,
-                    contentColor = colorScheme.onSurfaceVariant,
-                    actionColor = colorScheme.primary,
-                )
+                HermesSnackbar(snackbarData = data)
             }
         }
     }

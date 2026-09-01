@@ -31,10 +31,6 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_OLD_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_OLD_STATUS
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_OLD_VALUE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_ENTRY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY
@@ -44,6 +40,12 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.ARCHIVE_CHALLENGE
@@ -56,6 +58,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CH
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY
+import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEditorState
@@ -65,7 +68,6 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuant
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeUiState
 import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
-import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -340,7 +342,8 @@ class ChallengesViewModel
                                     challengeId = existing.id,
                                 ) +
                                     mapOf(
-                                        CHALLENGE_TARGET_TYPE to existing.targetType.name,
+                                        OLD_TYPE to existing.targetType.name,
+                                        NEW_TYPE to challenge.targetType.name,
                                         CHALLENGE_NEW_VALUE to challenge.targetQuantity.toString(),
                                         CHALLENGE_OLD_VALUE to existing.targetQuantity.toString(),
                                         CHALLENGE_OLD_DATE to existing.endDate.toString(),
@@ -381,6 +384,8 @@ class ChallengesViewModel
                             ) +
                                 mapOf(
                                     CHALLENGE_ARCHIVED_AT to archivedAt.toString(),
+                                    CHALLENGE_OLD_STATUS to ChallengeLifecycle.ACTIVE.name,
+                                    CHALLENGE_NEW_STATUS to ChallengeLifecycle.ARCHIVED.name,
                                 ) +
                                 completionMetadata(wasCompleted, wasCompleted),
                     )
@@ -402,6 +407,10 @@ class ChallengesViewModel
                         entityId = challengeId,
                         metadata =
                             challengeMetadata(challenge.copy(lifecycle = ChallengeLifecycle.ACTIVE, archivedAt = null), challengeId) +
+                                mapOf(
+                                    CHALLENGE_OLD_STATUS to ChallengeLifecycle.ARCHIVED.name,
+                                    CHALLENGE_NEW_STATUS to ChallengeLifecycle.ACTIVE.name,
+                                ) +
                                 completionMetadata(wasCompleted, isCompleted),
                     )
                 }
@@ -568,12 +577,12 @@ class ChallengesViewModel
                         entityType = CHALLENGE,
                         entityId = entryId,
                         metadata =
-                            mapOf(
-                                CHALLENGE_ID to entry.challengeId.toString(),
-                                CHALLENGE_PROGRESS_ENTRY_ID to entryId.toString(),
-                                CHALLENGE_PROGRESS_QUANTITY to entry.quantity.toString(),
-                                CHALLENGE_PROGRESS_DATE to entry.entryDate.toString(),
-                            ) +
+                            challengeMetadata(challenge, challenge.id) +
+                                mapOf(
+                                    CHALLENGE_PROGRESS_ENTRY_ID to entryId.toString(),
+                                    CHALLENGE_PROGRESS_QUANTITY to entry.quantity.toString(),
+                                    CHALLENGE_PROGRESS_DATE to entry.entryDate.toString(),
+                                ) +
                                 completionMetadata(wasCompleted, isCompleted),
                     )
                 }
@@ -606,6 +615,7 @@ class ChallengesViewModel
                         }
 
                         is PendingChallengeUndoAction.DeleteProgressEntry -> {
+                            val challenge = repository.getChallenge(action.entry.challengeId)
                             val wasCompleted = completionState(action.entry.challengeId)
                             repository.restoreProgressEntry(action.entry)
                             val isCompleted = completionState(action.entry.challengeId)
@@ -614,12 +624,15 @@ class ChallengesViewModel
                                 entityType = CHALLENGE,
                                 entityId = action.entry.id,
                                 metadata =
-                                    mapOf(
-                                        CHALLENGE_ID to action.entry.challengeId.toString(),
-                                        CHALLENGE_PROGRESS_ENTRY_ID to action.entry.id.toString(),
-                                        CHALLENGE_PROGRESS_QUANTITY to action.entry.quantity.toString(),
-                                        CHALLENGE_PROGRESS_DATE to action.entry.entryDate.toString(),
+                                    (
+                                        challenge?.let { challengeMetadata(it, it.id) }
+                                            ?: mapOf(CHALLENGE_ID to action.entry.challengeId.toString())
                                     ) +
+                                        mapOf(
+                                            CHALLENGE_PROGRESS_ENTRY_ID to action.entry.id.toString(),
+                                            CHALLENGE_PROGRESS_QUANTITY to action.entry.quantity.toString(),
+                                            CHALLENGE_PROGRESS_DATE to action.entry.entryDate.toString(),
+                                        ) +
                                         completionMetadata(wasCompleted, isCompleted),
                             )
                         }

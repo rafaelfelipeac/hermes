@@ -397,7 +397,7 @@
     <string name="browse_settings_subtitle">Personnalisez les unités, l’apparence, la langue et le comportement de l’application.</string>
     <string name="browse_developer_subtitle">Consultez les diagnostics et outils réservés au développement.</string>
     <string name="activity_day_unplanned">À définir</string>
-    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_subtitle_separator">\n</string>
     <string name="activity_time_pattern">HH:mm</string>
     <string name="activity_week_date_pattern">d MMM yyyy</string>
     <string name="activity_value_system">Système</string>
@@ -793,6 +793,7 @@
     <string name="activity_action_archive_challenge">Vous avez archivé un défi.</string>
     <string name="activity_action_reactivate_challenge">Vous avez réactivé un défi.</string>
     <string name="activity_action_delete_challenge">Vous avez supprimé un défi.</string>
+    <string name="activity_action_complete_challenge">Vous avez terminé un défi.</string>
     <string name="activity_action_create_challenge_progress_entry">Vous avez enregistré la progression du défi.</string>
     <string name="activity_action_update_challenge_progress_entry">Vous avez modifié la progression du défi.</string>
     <string name="activity_action_delete_challenge_progress_entry">Vous avez supprimé la progression du défi.</string>
@@ -803,6 +804,7 @@
     <string name="activity_action_archive_challenge_named">Vous avez archivé le défi %1$s.</string>
     <string name="activity_action_reactivate_challenge_named">Vous avez réactivé le défi %1$s.</string>
     <string name="activity_action_delete_challenge_named">Vous avez supprimé le défi %1$s.</string>
+    <string name="activity_action_complete_challenge_named">Vous avez terminé le défi %1$s.</string>
     <string name="activity_action_create_challenge_progress_entry_named">Vous avez enregistré une progression pour %1$s.</string>
     <string name="activity_action_update_challenge_progress_entry_named">Vous avez modifié la progression de %1$s.</string>
     <string name="activity_action_delete_challenge_progress_entry_named">Vous avez supprimé la progression de %1$s.</string>
@@ -834,7 +836,11 @@
     <string name="trophies_desc_challenge_completions_unlocked">Vous avez terminé ou dépassé des objectifs de défi %1$d fois.</string>
     <string name="trophies_desc_challenge_recoveries_locked">Débloquez en vous remettant de la dette d’un défi %1$d fois.</string>
     <string name="trophies_desc_challenge_recoveries_unlocked">Vous vous êtes remis de la dette d’un défi %1$d fois.</string>
-    <string name="activity_subtitle_challenge_target">Objectif %1$s de %2$s.</string>
+    <string name="activity_subtitle_challenge_target_daily">Objectif : %1$s par jour.</string>
+    <string name="activity_subtitle_challenge_target_total">Objectif : %1$s au total.</string>
+    <string name="activity_subtitle_challenge_target_change">Objectif modifié de %1$s à %2$s.</string>
+    <string name="activity_subtitle_challenge_target_value_daily">%1$s par jour</string>
+    <string name="activity_subtitle_challenge_target_value_total">%1$s au total</string>
     <string name="challenge_target_type_daily">Quotidien</string>
     <string name="challenge_target_type_total">Total</string>
     <string name="challenges_field_progress_date">Date de progression</string>

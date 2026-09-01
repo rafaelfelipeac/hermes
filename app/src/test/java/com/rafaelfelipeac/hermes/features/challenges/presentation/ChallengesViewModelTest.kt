@@ -6,10 +6,17 @@ import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_FIRST_COMPLETION_AT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_NEW_STATUS
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_OLD_STATUS
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_RECOVERED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.ARCHIVE_CHALLENGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REACTIVATE_CHALLENGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
@@ -166,6 +173,74 @@ class ChallengesViewModelTest {
 
             assertEquals(RESTORE_CHALLENGE, logger.actions.last().actionType)
             assertEquals(challenge, repository.challenges.value.single())
+            stateJob.cancel()
+        }
+
+    @Test
+    fun archiveChallenge_logsRealLifecycleTransition() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge()
+            val repository = FakeChallengeRepository(listOf(challenge))
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository, logger)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            runCurrent()
+
+            viewModel.archiveChallenge(challenge.id)
+            runCurrent()
+
+            val action = logger.actions.single()
+            assertEquals(ARCHIVE_CHALLENGE, action.actionType)
+            assertEquals(ChallengeLifecycle.ACTIVE.name, action.metadata?.get(CHALLENGE_OLD_STATUS))
+            assertEquals(ChallengeLifecycle.ARCHIVED.name, action.metadata?.get(CHALLENGE_NEW_STATUS))
+            stateJob.cancel()
+        }
+
+    @Test
+    fun reactivateChallenge_logsRealLifecycleTransition() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val archived =
+                sampleChallenge(
+                    lifecycle = ChallengeLifecycle.ARCHIVED,
+                    archivedAt = Instant.parse("2026-08-02T12:00:00Z"),
+                )
+            val repository = FakeChallengeRepository(listOf(archived))
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository, logger)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            runCurrent()
+
+            viewModel.reactivateChallenge(archived.id)
+            runCurrent()
+
+            val action = logger.actions.single()
+            assertEquals(REACTIVATE_CHALLENGE, action.actionType)
+            assertEquals(ChallengeLifecycle.ARCHIVED.name, action.metadata?.get(CHALLENGE_OLD_STATUS))
+            assertEquals(ChallengeLifecycle.ACTIVE.name, action.metadata?.get(CHALLENGE_NEW_STATUS))
+            stateJob.cancel()
+        }
+
+    @Test
+    fun deleteAndRestoreProgressEntry_logChallengeTitleMetadata() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge()
+            val entry = sampleProgressEntry(quantity = 2_000L)
+            val repository = FakeChallengeRepository(listOf(challenge), listOf(entry))
+            val logger = RecordingUserActionLogger()
+            val viewModel = createViewModel(repository, logger)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            viewModel.selectChallenge(challenge.id)
+            runCurrent()
+
+            viewModel.deleteProgressEntry(entry.id)
+            runCurrent()
+            viewModel.restoreUndo()
+            runCurrent()
+
+            val deleteAction = logger.actions.first { it.actionType == DELETE_CHALLENGE_PROGRESS_ENTRY }
+            val restoreAction = logger.actions.first { it.actionType == RESTORE_CHALLENGE_PROGRESS_ENTRY }
+            assertEquals(challenge.title, deleteAction.metadata?.get(CHALLENGE_TITLE))
+            assertEquals(challenge.title, restoreAction.metadata?.get(CHALLENGE_TITLE))
             stateJob.cancel()
         }
 

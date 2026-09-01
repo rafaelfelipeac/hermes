@@ -425,7 +425,7 @@
     <string name="browse_settings_subtitle">خصّص الوحدات والمظهر واللغة وسلوك التطبيق.</string>
     <string name="browse_developer_subtitle">راجع أدوات التشخيص والأدوات المخصصة للمطورين.</string>
     <string name="activity_day_unplanned">قيد التحديد</string>
-    <string name="activity_subtitle_separator"> • </string>
+    <string name="activity_subtitle_separator">\n</string>
     <string name="activity_time_pattern">HH:mm</string>
     <string name="activity_week_date_pattern">d MMM yyyy</string>
     <string name="activity_value_system">النظام</string>
@@ -829,6 +829,7 @@
     <string name="activity_action_archive_challenge">لقد أرشفت تحديًا.</string>
     <string name="activity_action_reactivate_challenge">لقد أعدت تفعيل تحدٍّ.</string>
     <string name="activity_action_delete_challenge">لقد حذفت تحديًا.</string>
+    <string name="activity_action_complete_challenge">لقد أكملت تحديًا.</string>
     <string name="activity_action_create_challenge_progress_entry">لقد سجّلت تقدّم التحدي.</string>
     <string name="activity_action_update_challenge_progress_entry">لقد حدّثت تقدّم التحدي.</string>
     <string name="activity_action_delete_challenge_progress_entry">لقد حذفت تقدّم التحدي.</string>
@@ -839,6 +840,7 @@
     <string name="activity_action_archive_challenge_named">لقد أرشفت التحدي %1$s.</string>
     <string name="activity_action_reactivate_challenge_named">لقد أعدت تفعيل التحدي %1$s.</string>
     <string name="activity_action_delete_challenge_named">لقد حذفت التحدي %1$s.</string>
+    <string name="activity_action_complete_challenge_named">لقد أكملت التحدي %1$s.</string>
     <string name="activity_action_create_challenge_progress_entry_named">لقد سجّلت تقدّمًا لـ %1$s.</string>
     <string name="activity_action_update_challenge_progress_entry_named">لقد حدّثت تقدّم %1$s.</string>
     <string name="activity_action_delete_challenge_progress_entry_named">لقد حذفت تقدّم %1$s.</string>
@@ -870,7 +872,11 @@
     <string name="trophies_desc_challenge_completions_unlocked">أكملت أهداف التحديات أو تجاوزتها %1$d مرات.</string>
     <string name="trophies_desc_challenge_recoveries_locked">افتحها بالتعافي من دين التحديات %1$d مرات.</string>
     <string name="trophies_desc_challenge_recoveries_unlocked">تعافيت من دين التحديات %1$d مرات.</string>
-    <string name="activity_subtitle_challenge_target">هدف %1$s من %2$s.</string>
+    <string name="activity_subtitle_challenge_target_daily">الهدف: %1$s يوميًا.</string>
+    <string name="activity_subtitle_challenge_target_total">الهدف: %1$s إجمالًا.</string>
+    <string name="activity_subtitle_challenge_target_change">تم تغيير الهدف من %1$s إلى %2$s.</string>
+    <string name="activity_subtitle_challenge_target_value_daily">%1$s يوميًا</string>
+    <string name="activity_subtitle_challenge_target_value_total">%1$s إجمالًا</string>
     <string name="challenge_target_type_daily">يومي</string>
     <string name="challenge_target_type_total">إجمالي</string>
     <string name="challenges_field_progress_date">تاريخ التقدّم</string>
