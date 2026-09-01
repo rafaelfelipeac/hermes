@@ -837,7 +837,11 @@
     <string name="challenges_overall_progress_label">全体の進捗</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
-    <string name="challenges_progress_percent">%1$d%%</string>
+    <string name="challenges_progress_percent">%1$s%%</string>
+    <string name="challenges_history_day_completed">完了 %1$s</string>
+    <string name="challenges_completion_title">チャレンジ達成！</string>
+    <string name="challenges_completion_exceeded_title">チャレンジを超過達成！</string>
+    <string name="challenges_completion_summary">%1$s / %2$s を達成しました。</string>
     <string name="challenges_progress_value_with_percent">%1$s · %2$s</string>
     <string name="challenges_today_label">今日</string>
     <string name="challenges_today_completed_label">今日の完了</string>

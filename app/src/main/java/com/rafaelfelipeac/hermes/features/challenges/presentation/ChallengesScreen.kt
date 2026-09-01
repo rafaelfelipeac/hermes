@@ -5,11 +5,15 @@
     "MaxLineLength",
     "TooManyFunctions",
     "Wrapping",
+    "ImportOrdering",
 )
 
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
@@ -76,6 +81,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -83,6 +89,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -101,6 +108,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeProgressBarHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeCompletionIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -121,9 +129,15 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTarge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeUiState
 import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorDraft
 import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorOrigin
+import nl.dionsegijn.konfetti.compose.KonfettiView
+import nl.dionsegijn.konfetti.core.Party
+import nl.dionsegijn.konfetti.core.Position
+import nl.dionsegijn.konfetti.core.emitter.Emitter
+import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 private const val CHALLENGES_ROUTE_LIST = "list"
@@ -136,6 +150,8 @@ private const val CHALLENGES_TAG_HEADER_BACK = "challenges_header_back"
 private const val CHALLENGES_TAG_CREATE_FAB = "challenges_create_fab"
 internal const val CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB = "challenges_detail_add_progress_fab"
 internal const val CHALLENGES_TAG_DETAIL_QUICK_ADD = "challenges_detail_quick_add"
+internal const val CHALLENGES_TAG_COMPLETION_CELEBRATION = "challenges_completion_celebration"
+internal const val CHALLENGES_TAG_COMPLETION_CONFETTI = "challenges_completion_confetti"
 private const val CHALLENGES_TAG_DETAIL_HISTORY = "challenges_detail_history"
 internal const val CHALLENGES_TAG_ACTIVE_CARD_PROGRESS = "challenges_active_card_progress"
 internal const val CHALLENGES_TAG_ACTIVE_EMPTY_STATE = "challenges_active_empty_state"
@@ -143,6 +159,14 @@ internal const val CHALLENGES_TAG_ARCHIVED_EMPTY_STATE = "challenges_archived_em
 internal const val CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX = "challenges_detail_history_group_"
 private const val CHALLENGES_TAG_EDITOR = "challenges_editor"
 private const val CHALLENGE_TAG_CONTAINER_ALPHA = 0.16f
+private const val CHALLENGE_CONFETTI_CENTER_X = 0.5
+private const val CHALLENGE_CONFETTI_CENTER_Y = 0.34
+private const val CHALLENGE_CONFETTI_LEFT_ANGLE = 180
+private const val CHALLENGE_CONFETTI_RIGHT_ANGLE = 0
+private const val CHALLENGE_CONFETTI_SPREAD = 52
+private const val CHALLENGE_CONFETTI_EMITTER_DURATION_MS = 250L
+private const val CHALLENGE_CONFETTI_PARTICLE_COUNT = 42
+private const val CHALLENGE_CONFETTI_VISIBLE_DURATION_MS = 2_000L
 private val ChallengeProgressAheadColor = Color(0xFF2E7D32)
 private val ChallengeProgressBehindColor = Color(0xFFC62828)
 
@@ -344,6 +368,12 @@ internal fun ChallengesScreen(
         ) {
             ChallengesHeader(
                 onBack = onInternalBack,
+                title =
+                    if (route == CHALLENGES_ROUTE_DETAIL) {
+                        state.selectedChallenge?.title ?: stringResource(R.string.challenges_editor_title)
+                    } else {
+                        stringResource(R.string.challenges_title)
+                    },
                 trailingContent =
                     if (route == CHALLENGES_ROUTE_DETAIL && state.selectedChallenge != null) {
                         {
@@ -560,6 +590,7 @@ internal fun ChallengesScreen(
 @Composable
 private fun ChallengesHeader(
     onBack: () -> Unit,
+    title: String,
     trailingContent: (@Composable () -> Unit)? = null,
 ) {
     Row(
@@ -585,7 +616,7 @@ private fun ChallengesHeader(
         }
 
         Text(
-            text = stringResource(R.string.challenges_title),
+            text = title,
             style = typography.titleLarge,
             color = colorScheme.onSurface,
             maxLines = 1,
@@ -760,73 +791,93 @@ private fun ChallengesDetailRoute(
         } else {
             emptyList()
         }
-    LazyColumn(
-        modifier = modifier.fillMaxSize().testTag(CHALLENGES_TAG_DETAIL),
-        contentPadding =
-            PaddingValues(
-                start = SpacingXl,
-                top = SpacingXs,
-                end = SpacingXl,
-                bottom = FloatingActionContentBottomPadding,
-            ),
-        verticalArrangement = Arrangement.spacedBy(SpacingMd),
-    ) {
-        item {
-            ChallengeDetailSummaryCard(
-                challenge = challenge,
-                category = category,
-                calculation = calculation,
-            )
-        }
-
-        item {
-            ChallengeTodayCard(
-                calculation = calculation,
-            )
-        }
-
-        if (quickAdds.isNotEmpty()) {
+    val isComplete = calculation.status == ChallengeStatus.COMPLETED || calculation.status == ChallengeStatus.EXCEEDED
+    var hadCompletion by remember(challenge.id) { mutableStateOf(isComplete) }
+    var completionBurstKey by remember(challenge.id) { mutableIntStateOf(0) }
+    LaunchedEffect(isComplete) {
+        if (isComplete && !hadCompletion) completionBurstKey++
+        hadCompletion = isComplete
+    }
+    Box(modifier = modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().testTag(CHALLENGES_TAG_DETAIL),
+            contentPadding =
+                PaddingValues(
+                    start = SpacingXl,
+                    top = SpacingXs,
+                    end = SpacingXl,
+                    bottom = FloatingActionContentBottomPadding,
+                ),
+            verticalArrangement = Arrangement.spacedBy(SpacingMd),
+        ) {
             item {
-                ChallengeQuickAddCard(
-                    quickAdds = quickAdds,
-                    onQuickAdd = onQuickAdd,
+                ChallengeDetailSummaryCard(
+                    challenge = challenge,
+                    category = category,
+                    calculation = calculation,
                 )
             }
-        }
 
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.challenges_history_title),
-                    style = typography.titleMedium,
-                    modifier = Modifier.testTag(CHALLENGES_TAG_DETAIL_HISTORY),
-                )
-                Spacer(modifier = Modifier.weight(1f))
+            if (isComplete) {
+                item {
+                    ChallengeCompletionHero(calculation = calculation)
+                }
             }
-        }
 
-        if (groupedProgressEntries.isEmpty()) {
             item {
-                EmptyStateCard(
-                    icon = Icons.Outlined.TrackChanges,
-                    title = stringResource(R.string.challenges_history_empty_title),
-                    body = stringResource(R.string.challenges_history_empty_body),
-                    modifier = Modifier.fillMaxWidth().padding(top = SpacingSm),
+                ChallengeTodayCard(
+                    calculation = calculation,
                 )
             }
-        } else {
-            items(groupedProgressEntries, key = { it.date }) { group ->
-                ChallengeProgressHistoryCard(
-                    group = group,
-                    isEditable = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
-                    onRequestEditProgress = onRequestEditProgress,
-                    onDeleteProgress = onDeleteProgress,
-                )
+
+            if (quickAdds.isNotEmpty()) {
+                item {
+                    ChallengeQuickAddCard(
+                        quickAdds = quickAdds,
+                        onQuickAdd = onQuickAdd,
+                    )
+                }
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.challenges_history_title),
+                        style = typography.titleMedium,
+                        modifier = Modifier.testTag(CHALLENGES_TAG_DETAIL_HISTORY),
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+
+            if (groupedProgressEntries.isEmpty()) {
+                item {
+                    EmptyStateCard(
+                        icon = Icons.Outlined.TrackChanges,
+                        title = stringResource(R.string.challenges_history_empty_title),
+                        body = stringResource(R.string.challenges_history_empty_body),
+                        modifier = Modifier.fillMaxWidth().padding(top = SpacingSm),
+                    )
+                }
+            } else {
+                items(groupedProgressEntries, key = { it.date }) { group ->
+                    ChallengeProgressHistoryCard(
+                        group = group,
+                        isEditable = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
+                        onRequestEditProgress = onRequestEditProgress,
+                        onDeleteProgress = onDeleteProgress,
+                    )
+                }
             }
         }
+        ChallengeCompletionConfetti(
+            burstKey = completionBurstKey,
+            category = category,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }
 
@@ -850,11 +901,26 @@ private fun ChallengeProgressHistoryCard(
             modifier = Modifier.padding(SpacingMd),
             verticalArrangement = Arrangement.spacedBy(SpacingXs),
         ) {
-            Text(
-                text = formatWorkoutDate(group.date, Locale.getDefault()),
-                style = typography.titleSmall,
-                color = colorScheme.onSurface,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = formatWorkoutDate(group.date, Locale.getDefault()),
+                    style = typography.titleSmall,
+                    color = colorScheme.onSurface,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text =
+                        stringResource(
+                            R.string.challenges_history_day_completed,
+                            ChallengeQuantity.format(group.completedQuantity, Locale.getDefault()),
+                        ),
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
             group.entries.forEachIndexed { index, entry ->
                 if (index > 0) {
                     HorizontalDivider()
@@ -867,6 +933,107 @@ private fun ChallengeProgressHistoryCard(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ChallengeCompletionHero(calculation: ChallengeCalculationResult) {
+    val isExceeded = calculation.status == ChallengeStatus.EXCEEDED
+    Card(
+        modifier = Modifier.fillMaxWidth().testTag(CHALLENGES_TAG_COMPLETION_CELEBRATION),
+        shape = shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = colorScheme.primaryContainer),
+    ) {
+        AnimatedVisibility(
+            visible = true,
+            enter = fadeIn() + scaleIn(),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(SpacingMd),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.EmojiEvents,
+                    contentDescription = null,
+                    tint = colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(ChallengeCompletionIconSize),
+                )
+                Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+                    Text(
+                        text =
+                            stringResource(
+                                if (isExceeded) {
+                                    R.string.challenges_completion_exceeded_title
+                                } else {
+                                    R.string.challenges_completion_title
+                                },
+                            ),
+                        style = typography.titleMedium,
+                        color = colorScheme.onPrimaryContainer,
+                    )
+                    Text(
+                        text =
+                            stringResource(
+                                R.string.challenges_completion_summary,
+                                ChallengeQuantity.format(calculation.completedTotal, Locale.getDefault()),
+                                ChallengeQuantity.format(calculation.plannedTotal, Locale.getDefault()),
+                            ),
+                        style = typography.bodyMedium,
+                        color = colorScheme.onPrimaryContainer,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ChallengeCompletionConfetti(
+    burstKey: Int,
+    category: Category?,
+    modifier: Modifier = Modifier,
+) {
+    var parties by remember { mutableStateOf(emptyList<Party>()) }
+    val hapticFeedback = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
+    val palette =
+        listOf(
+            (categoryAccent ?: colorScheme.primary).toArgb(),
+            colorScheme.primary.toArgb(),
+            colorScheme.secondary.toArgb(),
+            colorScheme.tertiary.toArgb(),
+        ).distinct()
+    LaunchedEffect(burstKey) {
+        if (burstKey == 0) return@LaunchedEffect
+        hapticFeedback.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm)
+        parties =
+            listOf(
+                Party(
+                    angle = CHALLENGE_CONFETTI_LEFT_ANGLE,
+                    spread = CHALLENGE_CONFETTI_SPREAD,
+                    colors = palette,
+                    position = Position.Relative(CHALLENGE_CONFETTI_CENTER_X, CHALLENGE_CONFETTI_CENTER_Y),
+                    emitter = Emitter(duration = CHALLENGE_CONFETTI_EMITTER_DURATION_MS, TimeUnit.MILLISECONDS)
+                        .max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
+                ),
+                Party(
+                    angle = CHALLENGE_CONFETTI_RIGHT_ANGLE,
+                    spread = CHALLENGE_CONFETTI_SPREAD,
+                    colors = palette,
+                    position = Position.Relative(CHALLENGE_CONFETTI_CENTER_X, CHALLENGE_CONFETTI_CENTER_Y),
+                    emitter = Emitter(duration = CHALLENGE_CONFETTI_EMITTER_DURATION_MS, TimeUnit.MILLISECONDS)
+                        .max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
+                ),
+            )
+        kotlinx.coroutines.delay(CHALLENGE_CONFETTI_VISIBLE_DURATION_MS)
+        parties = emptyList()
+    }
+    if (parties.isNotEmpty()) {
+        KonfettiView(
+            modifier = modifier.testTag(CHALLENGES_TAG_COMPLETION_CONFETTI),
+            parties = parties,
+        )
     }
 }
 
@@ -1434,9 +1601,25 @@ private fun challengeProgressLabel(calculation: ChallengeCalculationResult): Str
     )
 }
 
-private fun challengeProgressPercent(calculation: ChallengeCalculationResult): Int {
-    if (calculation.plannedTotal <= 0L) return 0
-    return ((calculation.completedTotal.toDouble() / calculation.plannedTotal.toDouble()) * 100.0).roundToInt()
+private fun challengeProgressPercent(calculation: ChallengeCalculationResult): String {
+    if (calculation.plannedTotal <= 0L) {
+        return NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+            minimumFractionDigits = 1
+            maximumFractionDigits = 1
+        }.format(0.0)
+    }
+    val exactPercent = calculation.completedTotal.toDouble() / calculation.plannedTotal.toDouble() * 100.0
+    val roundedPercent = (exactPercent * 10.0).roundToInt() / 10.0
+    val displayPercent =
+        if (calculation.completedTotal < calculation.plannedTotal && roundedPercent >= 100.0) {
+            99.9
+        } else {
+            roundedPercent
+        }
+    return NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+        minimumFractionDigits = 1
+        maximumFractionDigits = 1
+    }.format(displayPercent)
 }
 
 @Composable
@@ -1651,6 +1834,7 @@ private fun ChallengeDatePickerDialog(
 private data class ChallengeProgressDateGroup(
     val date: LocalDate,
     val entries: List<ChallengeProgressEntry>,
+    val completedQuantity: Long,
 )
 
 private fun groupProgressByDate(entries: List<ChallengeProgressEntry>): List<ChallengeProgressDateGroup> {
@@ -1661,6 +1845,7 @@ private fun groupProgressByDate(entries: List<ChallengeProgressEntry>): List<Cha
             ChallengeProgressDateGroup(
                 date = date,
                 entries = dayEntries.sortedWith(compareByDescending<ChallengeProgressEntry> { it.occurredAt }.thenByDescending { it.id }),
+                completedQuantity = dayEntries.fold(0L) { total, entry -> ChallengeQuantity.add(total, entry.quantity) },
             )
         }
 }

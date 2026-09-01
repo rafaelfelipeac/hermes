@@ -840,7 +840,11 @@
     <string name="challenges_overall_progress_label">Progreso total</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
-    <string name="challenges_progress_percent">%1$d%%</string>
+    <string name="challenges_progress_percent">%1$s%%</string>
+    <string name="challenges_history_day_completed">%1$s completados</string>
+    <string name="challenges_completion_title">¡Desafío completado!</string>
+    <string name="challenges_completion_exceeded_title">¡Desafío superado!</string>
+    <string name="challenges_completion_summary">Has alcanzado %1$s de %2$s.</string>
     <string name="challenges_progress_value_with_percent">%1$s · %2$s</string>
     <string name="challenges_today_label">Hoy</string>
     <string name="challenges_today_completed_label">Completado hoy</string>

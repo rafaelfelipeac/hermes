@@ -25,6 +25,7 @@ hilt = "2.57.2"
 junit = "4.13.2"
 mockk = "1.13.12"
 turbine = "1.1.0"
+konfetti = "2.0.5"
 
 # Tooling
 detekt = "1.23.7"
@@ -61,6 +62,7 @@ kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+konfetti-compose = { group = "nl.dionsegijn", name = "konfetti-compose", version.ref = "konfetti" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
 # Tooling

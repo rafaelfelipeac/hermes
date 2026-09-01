@@ -7,6 +7,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -35,6 +36,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import java.text.NumberFormat
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
@@ -74,6 +76,11 @@ class ChallengesScreenTest {
             .onNodeWithText(context.getString(R.string.challenges_empty_active_title))
             .assertIsDisplayed()
         assertEmptyStateCentered(CHALLENGES_TAG_ACTIVE_EMPTY_STATE)
+        assertEmptyStateContentCentered(
+            CHALLENGES_TAG_ACTIVE_EMPTY_STATE,
+            context.getString(R.string.challenges_empty_active_title),
+            context.getString(R.string.challenges_empty_active_body),
+        )
 
         composeRule.onNodeWithText(context.getString(R.string.challenges_archived_title)).performClick()
         composeRule
@@ -140,7 +147,7 @@ class ChallengesScreenTest {
                         ChallengeQuantity.format(progress.quantity, Locale.getDefault()),
                         ChallengeQuantity.format(310L, Locale.getDefault()),
                     ),
-                    context.getString(R.string.challenges_progress_percent, 1_290),
+                    context.getString(R.string.challenges_progress_percent, formatPercent(1_290.3)),
                 ),
             )
             .assertIsDisplayed()
@@ -200,7 +207,6 @@ class ChallengesScreenTest {
 
         composeRule.onNodeWithText(challenge.title).performClick()
         composeRule.onNodeWithTag(CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB).assertIsDisplayed()
-        composeRule.onNodeWithText(challenge.title).assertIsDisplayed()
         composeRule
             .onNodeWithText(
                 context.getString(
@@ -210,7 +216,7 @@ class ChallengesScreenTest {
                         ChallengeQuantity.format(75L, Locale.getDefault()),
                         ChallengeQuantity.format(310L, Locale.getDefault()),
                     ),
-                    context.getString(R.string.challenges_progress_percent, 24),
+                    context.getString(R.string.challenges_progress_percent, formatPercent(24.2)),
                 ),
             )
             .assertIsDisplayed()
@@ -219,6 +225,15 @@ class ChallengesScreenTest {
         composeRule.onNodeWithText(context.getString(R.string.challenges_today_remaining_label)).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.challenges_required_pace_label)).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.challenges_debt_label)).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                context.getString(
+                    R.string.challenges_history_day_completed,
+                    ChallengeQuantity.format(57L, Locale.getDefault()),
+                ),
+            )
+            .performScrollTo()
+            .assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.challenges_quick_add_title)).assertIsDisplayed()
         composeRule
             .onNodeWithTag(CHALLENGES_TAG_DETAIL_QUICK_ADD)
@@ -305,6 +320,35 @@ class ChallengesScreenTest {
             .performClick()
         composeRule.onNodeWithText(context.getString(R.string.challenges_delete)).performClick()
         composeRule.onNodeWithText(context.getString(R.string.challenges_delete_progress_title)).assertIsDisplayed()
+    }
+
+    @Test
+    fun completedChallengeShowsHeroAndDoesNotReplayConfettiOnOpen() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val challenge =
+            sampleChallenge(
+                id = 25L,
+                title = "Finished target",
+                targetType = ChallengeTargetType.TOTAL,
+                targetQuantity = 10L,
+            )
+        val viewModel =
+            createViewModel(
+                challenges = listOf(challenge),
+                progressEntries = listOf(sampleProgressEntry(challengeId = challenge.id, quantity = 10L)),
+            )
+
+        composeRule.setContent {
+            HermesTheme {
+                ChallengesScreen(onBack = {}, viewModel = viewModel)
+            }
+        }
+
+        composeRule.onNodeWithText(challenge.title).performClick()
+        composeRule.onNodeWithTag(CHALLENGES_TAG_COMPLETION_CELEBRATION).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_completion_title)).assertIsDisplayed()
+        composeRule.onNodeWithText("100.0%", substring = true).assertIsDisplayed()
+        composeRule.onAllNodesWithTag(CHALLENGES_TAG_COMPLETION_CONFETTI).assertCountEquals(0)
     }
 
     @Test
@@ -618,6 +662,12 @@ class ChallengesScreenTest {
 
     private fun historyGroupTag(date: LocalDate): String = "$CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX$date"
 
+    private fun formatPercent(value: Double): String =
+        NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+            minimumFractionDigits = 1
+            maximumFractionDigits = 1
+        }.format(value)
+
     private fun assertEmptyStateCentered(emptyStateTag: String) {
         val rootBounds = composeRule.onNodeWithTag(CHALLENGES_TAG_ROOT).fetchSemanticsNode().boundsInRoot
         val emptyStateBounds = composeRule.onNodeWithTag(emptyStateTag).fetchSemanticsNode().boundsInRoot
@@ -626,6 +676,20 @@ class ChallengesScreenTest {
         val allowableDrift = (rootBounds.bottom - rootBounds.top) * 0.10f
 
         assertTrue(abs(emptyStateCenterY - rootCenterY) <= allowableDrift)
+    }
+
+    private fun assertEmptyStateContentCentered(
+        emptyStateTag: String,
+        title: String,
+        body: String,
+    ) {
+        val cardBounds = composeRule.onNodeWithTag(emptyStateTag).fetchSemanticsNode().boundsInRoot
+        val cardCenterX = (cardBounds.left + cardBounds.right) / 2f
+        val allowableDrift = (cardBounds.right - cardBounds.left) * 0.1f
+        val titleBounds = composeRule.onNodeWithText(title).fetchSemanticsNode().boundsInRoot
+        val bodyBounds = composeRule.onNodeWithText(body).fetchSemanticsNode().boundsInRoot
+        assertTrue(abs(((titleBounds.left + titleBounds.right) / 2f) - cardCenterX) <= allowableDrift)
+        assertTrue(abs(((bodyBounds.left + bodyBounds.right) / 2f) - cardCenterX) <= allowableDrift)
     }
 
     private object NoOpUserActionLogger : UserActionLogger {

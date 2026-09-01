@@ -877,7 +877,11 @@
     <string name="challenges_overall_progress_label">التقدّم الكلي</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
-    <string name="challenges_progress_percent">%1$d%%</string>
+    <string name="challenges_progress_percent">%1$s%%</string>
+    <string name="challenges_history_day_completed">تم إنجاز %1$s</string>
+    <string name="challenges_completion_title">اكتمل التحدي!</string>
+    <string name="challenges_completion_exceeded_title">تم تجاوز التحدي!</string>
+    <string name="challenges_completion_summary">لقد أنجزت %1$s من أصل %2$s.</string>
     <string name="challenges_progress_value_with_percent">%1$s · %2$s</string>
     <string name="challenges_today_label">اليوم</string>
     <string name="challenges_today_completed_label">أُنجز اليوم</string>

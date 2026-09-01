@@ -21,6 +21,7 @@ object Dimens {
     val EmptyStateCardPadding = 24.dp
     val EmptyStateIconContainerSize = 52.dp
     val EmptyStateIconSize = 24.dp
+    val ChallengeCompletionIconSize = 40.dp
 
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp

@@ -45,7 +45,7 @@ fun EmptyStateCard(
         colors = CardDefaults.cardColors(containerColor = containerColor),
     ) {
         Column(
-            modifier = Modifier.padding(EmptyStateCardPadding),
+            modifier = Modifier.fillMaxWidth().padding(EmptyStateCardPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(SpacingMd),
         ) {

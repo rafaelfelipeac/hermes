@@ -841,7 +841,11 @@
     <string name="challenges_overall_progress_label">कुल प्रगति</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
-    <string name="challenges_progress_percent">%1$d%%</string>
+    <string name="challenges_progress_percent">%1$s%%</string>
+    <string name="challenges_history_day_completed">%1$s पूरे किए गए</string>
+    <string name="challenges_completion_title">चुनौती पूरी हुई!</string>
+    <string name="challenges_completion_exceeded_title">चुनौती लक्ष्य से आगे!</string>
+    <string name="challenges_completion_summary">आपने %2$s में से %1$s पूरे किए।</string>
     <string name="challenges_progress_value_with_percent">%1$s · %2$s</string>
     <string name="challenges_today_label">आज</string>
     <string name="challenges_today_completed_label">आज पूरा</string>
