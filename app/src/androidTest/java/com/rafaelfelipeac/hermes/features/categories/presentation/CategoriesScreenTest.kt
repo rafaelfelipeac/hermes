@@ -15,6 +15,9 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateBounds
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
 import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
@@ -324,33 +327,33 @@ class CategoriesScreenTest {
     }
 
     private class FakeChallengeRepository : ChallengeRepository {
-        override fun observeActiveChallenges(): Flow<List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge>> = emptyFlow()
+        override fun observeActiveChallenges(): Flow<List<Challenge>> = emptyFlow()
 
-        override fun observeArchivedChallenges(): Flow<List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge>> = emptyFlow()
+        override fun observeArchivedChallenges(): Flow<List<Challenge>> = emptyFlow()
 
-        override fun observeChallenge(id: Long): Flow<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge?> = emptyFlow()
+        override fun observeChallenge(id: Long): Flow<Challenge?> = emptyFlow()
 
-        override fun observeProgressEntries(challengeId: Long): Flow<List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry>> = emptyFlow()
+        override fun observeProgressEntries(challengeId: Long): Flow<List<ChallengeProgressEntry>> = emptyFlow()
 
-        override fun observeAllProgressEntries(): Flow<List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry>> = emptyFlow()
+        override fun observeAllProgressEntries(): Flow<List<ChallengeProgressEntry>> = emptyFlow()
 
-        override suspend fun getActiveChallenges(): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge> = emptyList()
+        override suspend fun getActiveChallenges(): List<Challenge> = emptyList()
 
-        override suspend fun getArchivedChallenges(): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge> = emptyList()
+        override suspend fun getArchivedChallenges(): List<Challenge> = emptyList()
 
-        override suspend fun getChallenge(id: Long): com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge? = null
+        override suspend fun getChallenge(id: Long): Challenge? = null
 
-        override suspend fun getChallengeDateBounds(id: Long): com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateBounds? = null
+        override suspend fun getChallengeDateBounds(id: Long): ChallengeDateBounds? = null
 
-        override suspend fun getProgressEntries(challengeId: Long): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry> = emptyList()
+        override suspend fun getProgressEntries(challengeId: Long): List<ChallengeProgressEntry> = emptyList()
 
-        override suspend fun getAllChallenges(): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge> = emptyList()
+        override suspend fun getAllChallenges(): List<Challenge> = emptyList()
 
-        override suspend fun getAllProgressEntries(): List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry> = emptyList()
+        override suspend fun getAllProgressEntries(): List<ChallengeProgressEntry> = emptyList()
 
-        override suspend fun insertChallenge(challenge: com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge): Long = 0L
+        override suspend fun insertChallenge(challenge: Challenge): Long = 0L
 
-        override suspend fun updateChallenge(challenge: com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge) = Unit
+        override suspend fun updateChallenge(challenge: Challenge) = Unit
 
         override suspend fun reassignCategory(
             categoryId: Long,
@@ -366,17 +369,17 @@ class CategoriesScreenTest {
 
         override suspend fun deleteChallenge(id: Long) = Unit
 
-        override suspend fun insertProgressEntry(entry: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry): Long = 0L
+        override suspend fun insertProgressEntry(entry: ChallengeProgressEntry): Long = 0L
 
-        override suspend fun restoreProgressEntry(entry: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry): Long = 0L
+        override suspend fun restoreProgressEntry(entry: ChallengeProgressEntry): Long = 0L
 
-        override suspend fun updateProgressEntry(entry: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry) = Unit
+        override suspend fun updateProgressEntry(entry: ChallengeProgressEntry) = Unit
 
         override suspend fun deleteProgressEntry(id: Long) = Unit
 
-        override suspend fun replaceChallenges(challenges: List<com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge>) = Unit
+        override suspend fun replaceChallenges(challenges: List<Challenge>) = Unit
 
-        override suspend fun replaceProgressEntries(entries: List<com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry>) = Unit
+        override suspend fun replaceProgressEntries(entries: List<ChallengeProgressEntry>) = Unit
 
         override suspend fun deleteAllChallenges() = Unit
 
