@@ -1,6 +1,8 @@
 package com.rafaelfelipeac.hermes.features.backup.data
 
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeProgressEntryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeError
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordEntryRecord
@@ -14,6 +16,72 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class BackupJsonCodecTest {
+    @Test
+    fun encodeDecode_v5RoundTrip_preservesUncategorizedChallenge() {
+        val restored = roundTripChallengeSnapshot(schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V5, categoryId = null)
+
+        assertEquals(null, restored.challenges.single().categoryId)
+        assertEquals(1L, restored.challengeProgressEntries.single().challengeId)
+    }
+
+    @Test
+    fun encodeDecode_v6RoundTrip_preservesChallengeCategoryAssignment() {
+        val restored = roundTripChallengeSnapshot(schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V6, categoryId = 7L)
+
+        assertEquals(7L, restored.challenges.single().categoryId)
+        assertEquals(1L, restored.challengeProgressEntries.single().challengeId)
+    }
+
+    @Test
+    fun encodeDecode_v6RoundTrip_preservesUncategorizedChallenge() {
+        val restored = roundTripChallengeSnapshot(schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V6, categoryId = null)
+
+        assertEquals(null, restored.challenges.single().categoryId)
+    }
+
+    @Test
+    fun decode_v5DailyChallengeWithMalformedDate_returnsInvalidFieldValue() {
+        val raw =
+            """
+            {
+              "schemaVersion": 5,
+              "exportedAt": "2026-09-02T12:00:00Z",
+              "challenges": [{
+                "id": 1,
+                "title": "Invalid dates",
+                "targetType": "DAILY",
+                "targetQuantity": 1,
+                "startDate": "not-a-date",
+                "endDate": "2026-09-03",
+                "lifecycle": "ACTIVE",
+                "archivedAt": null,
+                "createdAt": "2026-09-02T12:00:00Z",
+                "updatedAt": "2026-09-02T12:00:00Z"
+              }],
+              "challengeProgressEntries": [],
+              "workouts": [],
+              "categories": [],
+              "personalRecordFamilies": [],
+              "personalRecordEntries": [],
+              "userActions": []
+            }
+            """.trimIndent()
+
+        val result = BackupJsonCodec.decode(raw)
+
+        assertEquals(BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE), result)
+    }
+
+    @Test
+    fun decode_v6ChallengeWithMalformedCategoryId_returnsInvalidFieldValue() {
+        val encoded = BackupJsonCodec.encode(challengeSnapshot(BackupJsonCodec.SCHEMA_VERSION_V6, categoryId = 7L))
+        val malformed = encoded.replace(Regex("\"categoryId\"\\s*:\\s*7"), "\"categoryId\": \"run\"")
+
+        val result = BackupJsonCodec.decode(malformed)
+
+        assertEquals(BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE), result)
+    }
+
     @Test
     @Suppress("LongMethod")
     fun encodeDecode_roundTrip_preservesCoreFields() {
@@ -130,6 +198,72 @@ class BackupJsonCodecTest {
         assertEquals(snapshot.settings?.distanceUnit, restored.settings?.distanceUnit)
         assertEquals(snapshot.settings?.paceUnit, restored.settings?.paceUnit)
         assertEquals(snapshot.settings?.weightUnit, restored.settings?.weightUnit)
+    }
+
+    private fun roundTripChallengeSnapshot(
+        schemaVersion: Int,
+        categoryId: Long?,
+    ): BackupSnapshot {
+        val decoded = BackupJsonCodec.decode(BackupJsonCodec.encode(challengeSnapshot(schemaVersion, categoryId)))
+
+        assertTrue(decoded is BackupDecodeResult.Success)
+        return (decoded as BackupDecodeResult.Success).snapshot
+    }
+
+    private fun challengeSnapshot(
+        schemaVersion: Int,
+        categoryId: Long?,
+    ): BackupSnapshot {
+        return BackupSnapshot(
+            schemaVersion = schemaVersion,
+            exportedAt = "2026-09-02T12:00:00Z",
+            challenges =
+                listOf(
+                    BackupChallengeRecord(
+                        id = 1L,
+                        categoryId = categoryId,
+                        title = "September consistency",
+                        description = null,
+                        targetType = "TOTAL",
+                        targetQuantity = 30L,
+                        startDate = "2026-09-01",
+                        endDate = "2026-09-30",
+                        lifecycle = "ACTIVE",
+                        archivedAt = null,
+                        createdAt = "2026-09-01T12:00:00Z",
+                        updatedAt = "2026-09-02T12:00:00Z",
+                    ),
+                ),
+            challengeProgressEntries =
+                listOf(
+                    BackupChallengeProgressEntryRecord(
+                        id = 10L,
+                        challengeId = 1L,
+                        quantity = 3L,
+                        entryDate = "2026-09-02",
+                        occurredAt = "2026-09-02T12:00:00Z",
+                        createdAt = "2026-09-02T12:00:00Z",
+                        updatedAt = "2026-09-02T12:00:00Z",
+                    ),
+                ),
+            workouts = emptyList(),
+            categories =
+                categoryId?.let {
+                    listOf(
+                        BackupCategoryRecord(
+                            id = it,
+                            name = "Run",
+                            colorId = "COLOR_RUN",
+                            sortOrder = 0,
+                            isHidden = false,
+                            isSystem = true,
+                        ),
+                    )
+                }.orEmpty(),
+            personalRecordFamilies = emptyList(),
+            personalRecordEntries = emptyList(),
+            userActions = emptyList(),
+        )
     }
 
     @Test

@@ -2,6 +2,8 @@ package com.rafaelfelipeac.hermes.features.challenges.presentation.model
 
 import androidx.compose.runtime.saveable.listSaver
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEditorState
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.challenges.presentation.ChallengeListTab
 import java.time.LocalDate
 
@@ -49,11 +51,11 @@ internal data class ChallengeEditorDraft(
                                         categoryId = restored[3] as Long?,
                                         title = restored[4] as String,
                                         description = restored[5] as String,
-                                        targetType = com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType.valueOf(restored[6] as String),
+                                        targetType = ChallengeTargetType.valueOf(restored[6] as String),
                                         targetQuantityText = restored[7] as String,
                                         startDate = (restored[8] as Long?)?.let(LocalDate::ofEpochDay),
                                         endDate = (restored[9] as Long?)?.let(LocalDate::ofEpochDay),
-                                        lifecycle = com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle.valueOf(restored[10] as String),
+                                        lifecycle = ChallengeLifecycle.valueOf(restored[10] as String),
                                         isDirty = restored[11] as Boolean,
                                         validationMessage = restored[12] as String?,
                                     ),

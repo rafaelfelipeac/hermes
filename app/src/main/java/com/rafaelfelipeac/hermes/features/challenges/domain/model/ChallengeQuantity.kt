@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.challenges.domain.model
 
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.math.RoundingMode
 import java.text.NumberFormat
 import java.text.ParsePosition
@@ -50,7 +51,7 @@ object ChallengeQuantity {
                         .longValueExact()
                         .coerceAtLeast(1L)
                 val quantity = roundedQuantity.coerceAtLeast(minimumQuantity)
-                minimumQuantity = Math.addExact(quantity, 1L)
+                minimumQuantity = if (quantity == Long.MAX_VALUE) Long.MAX_VALUE else quantity + 1L
                 ChallengeQuickAddValue(percentage = percentage, quantity = quantity)
             }
     }
@@ -81,8 +82,13 @@ object ChallengeQuantity {
         multiplier: Long,
         denominator: Long,
     ): Long {
+        require(numerator >= 0)
         require(denominator > 0)
-        return Math.multiplyExact(numerator, multiplier) / denominator
+        require(multiplier in 0..denominator)
+        return BigInteger.valueOf(numerator)
+            .multiply(BigInteger.valueOf(multiplier))
+            .divide(BigInteger.valueOf(denominator))
+            .toLong()
     }
 
     fun ceilDiv(

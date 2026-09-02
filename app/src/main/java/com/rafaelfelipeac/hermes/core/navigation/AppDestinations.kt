@@ -2,9 +2,9 @@ package com.rafaelfelipeac.hermes.core.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.GridView
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.QueryStats
 import androidx.compose.material.icons.outlined.Flag
 import androidx.compose.material.icons.outlined.GridView

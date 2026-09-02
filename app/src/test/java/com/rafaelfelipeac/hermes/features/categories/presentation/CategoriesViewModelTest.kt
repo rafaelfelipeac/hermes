@@ -287,6 +287,7 @@ class CategoriesViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { personalRecordsRepository.reassignCategory(2L, null) }
+            coVerify(exactly = 1) { challengeRepository.reassignCategory(2L, null) }
             val action = logger.actions.last()
             assertEquals(DELETE_CATEGORY, action.actionType)
             assertEquals(2L, action.entityId)

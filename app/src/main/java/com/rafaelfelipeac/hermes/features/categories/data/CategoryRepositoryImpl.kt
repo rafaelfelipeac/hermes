@@ -72,13 +72,6 @@ class CategoryRepositoryImpl
             categoryDao.updateSortOrder(id, sortOrder)
         }
 
-        override suspend fun reassignCategory(
-            categoryId: Long,
-            newCategoryId: Long?,
-        ) {
-            categoryDao.reassignCategory(categoryId, newCategoryId)
-        }
-
         override suspend fun deleteCategory(id: Long) {
             categoryDao.deleteById(id)
         }

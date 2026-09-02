@@ -30,7 +30,8 @@ Keep backup import stable across app releases by versioning the JSON schema expl
 - `schemaVersion = 1`, `2`, `3`, and `4` backups continue to import with empty challenge collections when those fields are absent from the older schema.
 - `schemaVersion = 6` adds nullable `categoryId` to challenge records.
 - `schemaVersion = 5` backups import challenge categories as `null`.
-- `schemaVersion = 6` validates challenge category references against the category list.
+- `schemaVersion = 6` requires the `categoryId` member and accepts either `null` or an integer reference present in the category list; missing or malformed values fail as invalid fields.
+- Challenge dates and daily target totals are validated during decode so malformed dates and numeric overflow return a structured invalid-field error instead of escaping the import flow.
 - `schemaVersion = 1`, `2`, `3`, `4`, and `5` backups continue to import with uncategorized challenges when `categoryId` is absent.
 
 ## Rules for future schema changes

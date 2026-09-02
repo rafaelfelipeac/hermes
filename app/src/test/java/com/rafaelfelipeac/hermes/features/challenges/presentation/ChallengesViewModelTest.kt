@@ -68,6 +68,44 @@ class ChallengesViewModelTest {
         }
 
     @Test
+    fun overflowingDailyTarget_returnsFalseAndDoesNotPersist() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeChallengeRepository()
+            val viewModel = createViewModel(repository)
+
+            viewModel.beginCreateChallenge()
+            viewModel.updateEditorTitle("Too large")
+            viewModel.updateEditorTargetQuantity(Long.MAX_VALUE.toString())
+
+            assertFalse(viewModel.saveEditorChallenge())
+            runCurrent()
+            assertTrue(repository.challenges.value.isEmpty())
+        }
+
+    @Test
+    fun overflowingProgressTotal_returnsFalseAndDoesNotPersist() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge(targetType = ChallengeTargetType.TOTAL, targetQuantity = Long.MAX_VALUE)
+            val existingEntry = sampleProgressEntry(quantity = Long.MAX_VALUE)
+            val repository = FakeChallengeRepository(listOf(challenge), listOf(existingEntry))
+            val viewModel = createViewModel(repository)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            viewModel.selectChallenge(challenge.id)
+            runCurrent()
+
+            assertFalse(
+                viewModel.addProgressEntry(
+                    challengeId = challenge.id,
+                    quantityText = "1",
+                    entryDate = TODAY,
+                ),
+            )
+            runCurrent()
+            assertEquals(listOf(existingEntry), repository.getProgressEntries(challenge.id))
+            stateJob.cancel()
+        }
+
+    @Test
     fun editingArchivedChallenge_preservesLifecycleInvariant() =
         runTest(mainDispatcherRule.testDispatcher) {
             val archivedAt = Instant.parse("2026-08-02T12:00:00Z")
@@ -261,12 +299,14 @@ class ChallengesViewModelTest {
     private fun sampleChallenge(
         lifecycle: ChallengeLifecycle = ChallengeLifecycle.ACTIVE,
         archivedAt: Instant? = null,
+        targetType: ChallengeTargetType = ChallengeTargetType.DAILY,
+        targetQuantity: Long = 10_000L,
     ): Challenge {
         return Challenge(
             id = 1L,
             title = "August distance",
-            targetType = ChallengeTargetType.DAILY,
-            targetQuantity = 10_000L,
+            targetType = targetType,
+            targetQuantity = targetQuantity,
             startDate = LocalDate.of(2026, 8, 1),
             endDate = LocalDate.of(2026, 8, 10),
             lifecycle = lifecycle,

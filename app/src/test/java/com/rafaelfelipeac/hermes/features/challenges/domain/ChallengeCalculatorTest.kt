@@ -57,6 +57,17 @@ class ChallengeCalculatorTest {
     }
 
     @Test
+    fun quantityMath_handlesLongBoundaryWithoutIntermediateOverflow() {
+        val quickAdds = ChallengeQuantity.quickAddValues(Long.MAX_VALUE)
+
+        assertEquals(Long.MAX_VALUE, quickAdds.last().quantity)
+        assertEquals(
+            6_148_914_691_236_517_204L,
+            ChallengeQuantity.multiplyAndDivideFloor(Long.MAX_VALUE, 2L, 3L),
+        )
+    }
+
+    @Test
     fun calculator_countsTodayProgressTowardDailyCarriedDebt() {
         val challenge =
             challenge(

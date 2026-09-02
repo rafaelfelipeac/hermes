@@ -15,6 +15,7 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRe
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArrayBuilder
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.intOrNull
@@ -47,7 +48,7 @@ internal object BackupJsonCodec {
             snapshot.appVersion?.let { put(KEY_APP_VERSION, it) }
 
             putJsonArray(KEY_CHALLENGES) {
-                snapshot.challenges.forEach { addChallenge(it) }
+                snapshot.challenges.forEach { addChallenge(it, snapshot.schemaVersion) }
             }
 
             putJsonArray(KEY_CHALLENGE_PROGRESS_ENTRIES) {
@@ -108,11 +109,20 @@ internal object BackupJsonCodec {
         }
     }
 
-    private fun JsonArrayBuilder.addChallenge(record: BackupChallengeRecord) {
+    private fun JsonArrayBuilder.addChallenge(
+        record: BackupChallengeRecord,
+        schemaVersion: Int,
+    ) {
         add(
             buildJsonObject {
                 put(KEY_ID, record.id)
-                record.categoryId?.let { put(KEY_CATEGORY_ID, it) }
+                if (schemaVersion >= SCHEMA_VERSION_V6) {
+                    if (record.categoryId == null) {
+                        put(KEY_CATEGORY_ID, JsonNull)
+                    } else {
+                        put(KEY_CATEGORY_ID, record.categoryId)
+                    }
+                }
                 put(KEY_TITLE, record.title)
                 record.description?.let { put(KEY_DESCRIPTION, it) }
                 put(KEY_TARGET_TYPE, record.targetType)

@@ -89,6 +89,7 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.Locale
 import javax.inject.Inject
 
@@ -284,6 +285,11 @@ class ChallengesViewModel
                     return false
                 }
 
+                !isPlannedTargetSafe(editor.targetType, targetQuantity, startDate, endDate) -> {
+                    setEditorValidation(R.string.challenge_validation_quantity_required)
+                    return false
+                }
+
                 editor.challengeId != null -> {
                     val existingEntries = state.value.allProgressEntries.filter { it.challengeId == editor.challengeId }
                     val earliestEntryDate = existingEntries.minOfOrNull { it.entryDate }
@@ -457,6 +463,10 @@ class ChallengesViewModel
                 setEditorValidation(R.string.challenge_validation_quantity_required)
                 return false
             }
+            if (!isProgressTotalSafe(challengeId, quantity)) {
+                setEditorValidation(R.string.challenge_validation_quantity_required)
+                return false
+            }
 
             clearValidationMessage()
             viewModelScope.launch {
@@ -517,6 +527,10 @@ class ChallengesViewModel
 
             val quantity = ChallengeQuantity.parseLocalized(quantityText, Locale.getDefault())
             if (quantity == null) {
+                setEditorValidation(R.string.challenge_validation_quantity_required)
+                return false
+            }
+            if (!isProgressTotalSafe(currentEntry.challengeId, quantity, replacedEntryId = entryId)) {
                 setEditorValidation(R.string.challenge_validation_quantity_required)
                 return false
             }
@@ -686,6 +700,33 @@ class ChallengesViewModel
                 entryDate <= today &&
                 !entryDate.isBefore(challenge.startDate) &&
                 !entryDate.isAfter(challenge.endDate)
+        }
+
+        private fun isPlannedTargetSafe(
+            targetType: ChallengeTargetType,
+            targetQuantity: Long,
+            startDate: LocalDate,
+            endDate: LocalDate,
+        ): Boolean {
+            if (targetType == ChallengeTargetType.TOTAL) return true
+
+            val inclusiveDays = ChronoUnit.DAYS.between(startDate, endDate) + 1L
+            return runCatching { ChallengeQuantity.multiply(targetQuantity, inclusiveDays) }.isSuccess
+        }
+
+        private fun isProgressTotalSafe(
+            challengeId: Long,
+            quantity: Long,
+            replacedEntryId: Long? = null,
+        ): Boolean {
+            return runCatching {
+                val existingTotal =
+                    state.value.allProgressEntries
+                        .asSequence()
+                        .filter { it.challengeId == challengeId && it.id != replacedEntryId }
+                        .fold(0L) { total, entry -> ChallengeQuantity.add(total, entry.quantity) }
+                ChallengeQuantity.add(existingTotal, quantity)
+            }.isSuccess
         }
 
         private fun challengeMetadata(

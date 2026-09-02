@@ -101,9 +101,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.os.ConfigurationCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
+import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
 import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
@@ -2019,18 +2019,6 @@ private fun buildFamilyGroups(
         }
 
     return categoryGroups + uncategorizedGroup
-}
-
-@Composable
-private fun categoryLabelFor(
-    categoryId: Long?,
-    categories: List<Category>,
-): String {
-    return if (categoryId == null) {
-        stringResource(R.string.category_uncategorized)
-    } else {
-        categories.firstOrNull { it.id == categoryId }?.name ?: stringResource(R.string.category_uncategorized)
-    }
 }
 
 @Composable

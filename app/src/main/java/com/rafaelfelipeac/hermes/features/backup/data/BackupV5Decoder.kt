@@ -24,6 +24,7 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifec
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
@@ -73,7 +74,7 @@ internal object BackupV5Decoder {
                 ?: return Failure(root.requiredArrayError(KEY_USER_ACTIONS))
 
         val challenges =
-            challengesJson.mapOrNull(::decodeChallenge)
+            challengesJson.mapOrNull { decodeChallenge(it, schemaVersion) }
                 ?: return Failure(INVALID_FIELD_VALUE)
 
         val challengeProgressEntries =
@@ -116,19 +117,24 @@ internal object BackupV5Decoder {
                 return Failure(INVALID_FIELD_VALUE)
             }
             if (challenge.targetQuantity <= 0L) return Failure(INVALID_FIELD_VALUE)
-            if (challenge.startDate > challenge.endDate) return Failure(INVALID_FIELD_VALUE)
             if (runCatching { ChallengeLifecycle.valueOf(challenge.lifecycle) }.isFailure) {
                 return Failure(INVALID_FIELD_VALUE)
             }
-            if (challenge.targetType == ChallengeTargetType.DAILY.name) {
-                val periodDays =
-                    ChronoUnit.DAYS.between(
-                        LocalDate.parse(challenge.startDate),
-                        LocalDate.parse(challenge.endDate),
-                    ) + 1
-                if (runCatching { Math.multiplyExact(challenge.targetQuantity, periodDays) }.isFailure) {
-                    return Failure(INVALID_FIELD_VALUE)
+            try {
+                val startDate = LocalDate.parse(challenge.startDate)
+                val endDate = LocalDate.parse(challenge.endDate)
+                if (startDate.isAfter(endDate)) return Failure(INVALID_FIELD_VALUE)
+                if (challenge.targetType == ChallengeTargetType.DAILY.name) {
+                    val periodDays = ChronoUnit.DAYS.between(startDate, endDate) + 1
+                    Math.multiplyExact(challenge.targetQuantity, periodDays)
                 }
+                Instant.parse(challenge.createdAt)
+                Instant.parse(challenge.updatedAt)
+                challenge.archivedAt?.let(Instant::parse)
+            } catch (_: DateTimeParseException) {
+                return Failure(INVALID_FIELD_VALUE)
+            } catch (_: ArithmeticException) {
+                return Failure(INVALID_FIELD_VALUE)
             }
             if (challenge.lifecycle == ChallengeLifecycle.ACTIVE.name && challenge.archivedAt != null) {
                 return Failure(INVALID_FIELD_VALUE)
@@ -146,13 +152,6 @@ internal object BackupV5Decoder {
                     ),
                 )
                 return Failure(INVALID_REFERENCE)
-            }
-            try {
-                Instant.parse(challenge.createdAt)
-                Instant.parse(challenge.updatedAt)
-                challenge.archivedAt?.let(Instant::parse)
-            } catch (_: DateTimeParseException) {
-                return Failure(INVALID_FIELD_VALUE)
             }
         }
 
@@ -204,12 +203,22 @@ internal object BackupV5Decoder {
         )
     }
 
-    private fun decodeChallenge(element: JsonElement): BackupChallengeRecord? {
+    private fun decodeChallenge(
+        element: JsonElement,
+        schemaVersion: Int,
+    ): BackupChallengeRecord? {
         val obj = element as? JsonObject ?: return null
+        val categoryId =
+            when {
+                schemaVersion < BackupJsonCodec.SCHEMA_VERSION_V6 -> null
+                !obj.containsKey(KEY_CATEGORY_ID) -> return null
+                obj[KEY_CATEGORY_ID] is JsonNull -> null
+                else -> obj.longOrNull(KEY_CATEGORY_ID) ?: return null
+            }
 
         return BackupChallengeRecord(
             id = obj.longOrNull(KEY_ID) ?: return null,
-            categoryId = obj.longOrNull(KEY_CATEGORY_ID),
+            categoryId = categoryId,
             title = obj.stringOrNull(KEY_TITLE) ?: return null,
             description = obj.stringOrNull(KEY_DESCRIPTION),
             targetType = obj.stringOrNull(KEY_TARGET_TYPE) ?: return null,

@@ -28,12 +28,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 
-internal data class CategoryPickerOption(
-    val id: Long,
-    val name: String,
-    val colorId: String,
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CategoryPickerField(
@@ -95,7 +89,9 @@ internal fun CategoryPickerField(
                         TitleChip(
                             label = category.name,
                             containerColor = accent ?: colorScheme.surfaceVariant,
-                            contentColor = accent?.let { contentColorForBackground(it) } ?: colorScheme.onSurfaceVariant,
+                            contentColor =
+                                accent?.let { contentColorForBackground(it) }
+                                    ?: colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )

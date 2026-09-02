@@ -350,7 +350,11 @@ class ChallengesScreenTest {
         composeRule.onNodeWithText(challenge.title).performClick()
         composeRule.onNodeWithTag(CHALLENGES_TAG_COMPLETION_CELEBRATION).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.challenges_completion_title)).assertIsDisplayed()
-        composeRule.onNodeWithText("100.0%", substring = true).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                context.getString(R.string.challenges_progress_percent, formatPercent(100.0)),
+                substring = true,
+            ).assertIsDisplayed()
         composeRule.onAllNodesWithTag(CHALLENGES_TAG_COMPLETION_CONFETTI).assertCountEquals(0)
     }
 
