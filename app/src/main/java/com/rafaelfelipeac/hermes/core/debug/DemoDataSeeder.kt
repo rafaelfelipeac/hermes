@@ -11,6 +11,13 @@ import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_END_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_LIFECYCLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
@@ -717,6 +724,27 @@ class DemoDataSeeder
                     )
             }
 
+            repeat(COMPLETED_TROPHY_CHALLENGE_CREATIONS) { index ->
+                val challengeId = COMPLETED_TROPHY_CHALLENGE_ID_START + index
+                val createdDate = finalWeek.minusDays((COMPLETED_TROPHY_CHALLENGE_CREATIONS - index).toLong())
+
+                actions +=
+                    createChallengeAction(
+                        challengeId = challengeId,
+                        title = "$COMPLETED_TROPHY_CHALLENGE_TITLE_PREFIX ${index + 1}",
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 100L + index,
+                        startDate = createdDate,
+                        endDate = createdDate.plusDays(13),
+                        timestamp =
+                            createdDate
+                                .atStartOfDay(zoneId)
+                                .plusHours(10)
+                                .toInstant()
+                                .toEpochMilli(),
+                    )
+            }
+
             val personalRecordSeed = personalRecordSeeds().first()
             val personalRecordDate = finalWeek.plusDays(6)
             repeat(COMPLETED_TROPHY_PERSONAL_RECORD_FAMILIES) { index ->
@@ -812,6 +840,7 @@ class DemoDataSeeder
             ).forEach { userActionDao.insert(it) }
         }
 
+        @Suppress("LongMethod")
         private suspend fun seedChallengeDemoData(today: LocalDate) {
             val zoneId = ZoneId.systemDefault()
             val now = Instant.now()
@@ -1653,6 +1682,33 @@ class DemoDataSeeder
             )
         }
 
+        private fun createChallengeAction(
+            challengeId: Long,
+            title: String,
+            targetType: ChallengeTargetType,
+            targetQuantity: Long,
+            startDate: LocalDate,
+            endDate: LocalDate,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.CREATE_CHALLENGE,
+                entityType = UserActionEntityType.CHALLENGE,
+                entityId = challengeId,
+                metadata =
+                    mapOf(
+                        CHALLENGE_ID to challengeId.toString(),
+                        CHALLENGE_TITLE to title,
+                        CHALLENGE_TARGET_TYPE to targetType.name,
+                        CHALLENGE_TARGET_QUANTITY to targetQuantity.toString(),
+                        CHALLENGE_START_DATE to startDate.toString(),
+                        CHALLENGE_END_DATE to endDate.toString(),
+                        CHALLENGE_LIFECYCLE to ChallengeLifecycle.ACTIVE.name,
+                    ),
+                timestamp = timestamp,
+            )
+        }
+
         private fun createNonWorkoutAction(
             weekStartDate: LocalDate,
             dayOfWeek: DayOfWeek,
@@ -1995,10 +2051,13 @@ private const val COMPLETED_TROPHY_COPIED_WEEKS = 3
 private const val COMPLETED_TROPHY_CATEGORY_ACTIONS = 10
 private const val COMPLETED_TROPHY_BACKUP_SUCCESSES = 5
 private const val COMPLETED_TROPHY_PROTECTED_TIME_BLOCKS = 20
+private const val COMPLETED_TROPHY_CHALLENGE_CREATIONS = 15
 private const val COMPLETED_TROPHY_ENTITY_ID_START = 50_000L
 private const val COMPLETED_TROPHY_PERSONAL_RECORD_FAMILIES = 15
 private const val COMPLETED_TROPHY_PERSONAL_RECORD_ENTRIES = 50
 private const val COMPLETED_TROPHY_PACE_CALCULATIONS = 10
+private const val COMPLETED_TROPHY_CHALLENGE_ID_START = 55_000L
+private const val COMPLETED_TROPHY_CHALLENGE_TITLE_PREFIX = "Demo challenge"
 private const val COMPLETED_TROPHY_PERSONAL_RECORD_FAMILY_ID_START = 60_000L
 private const val COMPLETED_TROPHY_PERSONAL_RECORD_ENTRY_ID_START = 70_000L
 private const val DEMO_PERSONAL_RECORD_ENTRY_HOUR = 12L

@@ -3,6 +3,15 @@ package com.rafaelfelipeac.hermes.core.debug
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_END_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_LIFECYCLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
@@ -71,6 +80,7 @@ class DemoDataSeederTest {
         }
 
     @Test
+    @Suppress("LongMethod")
     fun seed_createsVariedProgressWeeks() =
         runTest {
             val workoutDao = mockk<WorkoutDao>(relaxed = true)
@@ -170,6 +180,7 @@ class DemoDataSeederTest {
         }
 
     @Test
+    @Suppress("LongMethod")
     fun seedCompletedTrophies_includesPersonalRecordAndPaceMilestones() =
         runTest {
             val workoutDao = mockk<WorkoutDao>(relaxed = true)
@@ -213,6 +224,28 @@ class DemoDataSeederTest {
                 capturedActions.count {
                     it.actionType == UserActionType.USE_PACE_CALCULATOR.name
                 } >= 10,
+            )
+            val challengeCreationActions =
+                capturedActions.filter {
+                    it.actionType == UserActionType.CREATE_CHALLENGE.name &&
+                        it.entityType == UserActionEntityType.CHALLENGE.name
+                }
+            assertTrue(challengeCreationActions.size >= 15)
+            assertEquals(
+                challengeCreationActions.size,
+                challengeCreationActions.mapNotNull { it.entityId }.toSet().size,
+            )
+            assertTrue(
+                challengeCreationActions.all { action ->
+                    val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
+                    metadata[CHALLENGE_ID] == action.entityId.toString() &&
+                        metadata[CHALLENGE_TITLE]?.isNotBlank() == true &&
+                        metadata[CHALLENGE_TARGET_TYPE] == ChallengeTargetType.TOTAL.name &&
+                        metadata[CHALLENGE_TARGET_QUANTITY]?.toLongOrNull() != null &&
+                        metadata[CHALLENGE_START_DATE]?.isNotBlank() == true &&
+                        metadata[CHALLENGE_END_DATE]?.isNotBlank() == true &&
+                        metadata[CHALLENGE_LIFECYCLE] == ChallengeLifecycle.ACTIVE.name
+                },
             )
         }
 

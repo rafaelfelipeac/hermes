@@ -25,6 +25,8 @@ internal fun TrophyFamily.toUi(): TrophyFamilyUi {
 fun trophyNameRes(trophyId: TrophyId): Int {
     return when (trophyId) {
         TrophyId.CHALLENGE_ACCEPTED -> R.string.trophies_name_challenge_accepted
+        TrophyId.CHALLENGE_GOAL_SETTER -> R.string.trophies_name_challenge_goal_setter
+        TrophyId.CHALLENGE_GOAL_ARCHITECT -> R.string.trophies_name_challenge_goal_architect
         TrophyId.FIRST_CHALLENGE_WIN -> R.string.trophies_name_first_challenge_win
         TrophyId.CHALLENGE_MOMENTUM -> R.string.trophies_name_challenge_momentum
         TrophyId.CHALLENGE_VETERAN -> R.string.trophies_name_challenge_veteran
@@ -84,6 +86,8 @@ internal fun trophyDescriptionRes(
 ): Int {
     return when (trophyId) {
         TrophyId.CHALLENGE_ACCEPTED,
+        TrophyId.CHALLENGE_GOAL_SETTER,
+        TrophyId.CHALLENGE_GOAL_ARCHITECT,
         ->
             if (isUnlocked) {
                 R.string.trophies_desc_challenge_creations_unlocked
@@ -265,6 +269,8 @@ internal fun trophyDescriptionRes(
 internal fun trophyShareDescriptionRes(trophyId: TrophyId): Int {
     return when (trophyId) {
         TrophyId.CHALLENGE_ACCEPTED,
+        TrophyId.CHALLENGE_GOAL_SETTER,
+        TrophyId.CHALLENGE_GOAL_ARCHITECT,
         -> R.string.trophies_share_desc_challenge_creations
         TrophyId.FIRST_CHALLENGE_WIN,
         TrophyId.CHALLENGE_MOMENTUM,

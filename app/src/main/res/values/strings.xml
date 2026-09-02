@@ -744,6 +744,8 @@
     <string name="trophies_family_categories_desc">For the categories that make your shelf feel personal.</string>
     <string name="trophies_name_full_time">Full-Time</string>
     <string name="trophies_name_challenge_accepted">Challenge Accepted</string>
+    <string name="trophies_name_challenge_goal_setter">Challenge Accepted: Goal Setter</string>
+    <string name="trophies_name_challenge_goal_architect">Challenge Accepted: Goal Architect</string>
     <string name="trophies_name_first_challenge_win">First Challenge Win</string>
     <string name="trophies_name_challenge_momentum">Challenge Momentum</string>
     <string name="trophies_name_challenge_veteran">Challenge Veteran</string>

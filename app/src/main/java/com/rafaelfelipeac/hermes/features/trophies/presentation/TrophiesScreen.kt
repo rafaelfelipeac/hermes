@@ -1036,6 +1036,8 @@ private fun trophyShareDescription(trophy: TrophyCardUi): String {
     val categoryName = trophy.categoryName.orEmpty()
     return when (trophy.trophyId) {
         TrophyId.CHALLENGE_ACCEPTED,
+        TrophyId.CHALLENGE_GOAL_SETTER,
+        TrophyId.CHALLENGE_GOAL_ARCHITECT,
         -> stringResource(R.string.trophies_share_desc_challenge_creations, trophy.target)
         TrophyId.FIRST_CHALLENGE_WIN,
         TrophyId.CHALLENGE_MOMENTUM,
@@ -1079,7 +1081,10 @@ private fun trophyFamilyAccentColor(family: TrophyFamilyUi): Color {
 
 internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector.ImageVector {
     return when (trophyId) {
-        TrophyId.CHALLENGE_ACCEPTED -> Icons.Outlined.AddTask
+        TrophyId.CHALLENGE_ACCEPTED,
+        TrophyId.CHALLENGE_GOAL_SETTER,
+        TrophyId.CHALLENGE_GOAL_ARCHITECT,
+        -> Icons.Outlined.AddTask
         TrophyId.FIRST_CHALLENGE_WIN,
         TrophyId.CHALLENGE_MOMENTUM,
         TrophyId.CHALLENGE_VETERAN,

@@ -820,6 +820,8 @@
     <string name="trophies_family_challenges">チャレンジ</string>
     <string name="trophies_family_challenges_desc">自分で設定し、完了し、立て直す目標のために。</string>
     <string name="trophies_name_challenge_accepted">チャレンジ受諾</string>
+    <string name="trophies_name_challenge_goal_setter">チャレンジ受諾: 目標設定者</string>
+    <string name="trophies_name_challenge_goal_architect">チャレンジ受諾: 目標設計者</string>
     <string name="trophies_name_first_challenge_win">最初のチャレンジ勝利</string>
     <string name="trophies_name_challenge_momentum">チャレンジの勢い</string>
     <string name="trophies_name_challenge_veteran">チャレンジのベテラン</string>

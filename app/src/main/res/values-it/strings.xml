@@ -824,6 +824,8 @@
     <string name="trophies_family_challenges">Sfide</string>
     <string name="trophies_family_challenges_desc">Per gli obiettivi che imposti, completi e recuperi.</string>
     <string name="trophies_name_challenge_accepted">Sfida accettata</string>
+    <string name="trophies_name_challenge_goal_setter">Sfida accettata: Creatore di obiettivi</string>
+    <string name="trophies_name_challenge_goal_architect">Sfida accettata: Architetto di obiettivi</string>
     <string name="trophies_name_first_challenge_win">Prima vittoria nella sfida</string>
     <string name="trophies_name_challenge_momentum">Slancio delle sfide</string>
     <string name="trophies_name_challenge_veteran">Veterano delle sfide</string>

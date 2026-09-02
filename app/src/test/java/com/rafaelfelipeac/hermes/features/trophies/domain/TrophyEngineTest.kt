@@ -63,7 +63,9 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.USE_PACE_C
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyFamily
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
+import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyMetric
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -74,6 +76,26 @@ import java.time.LocalDate
 
 class TrophyEngineTest {
     private val engine = TrophyEngine()
+
+    @Test
+    fun challengeCreationTrophies_defineThreeOrderedLevels() {
+        val definitions =
+            TrophyDefinitions.supportedV1.filter {
+                it.family == TrophyFamily.CHALLENGES && it.metric == TrophyMetric.CHALLENGE_CREATIONS
+            }
+
+        assertEquals(
+            listOf(
+                TrophyId.CHALLENGE_ACCEPTED,
+                TrophyId.CHALLENGE_GOAL_SETTER,
+                TrophyId.CHALLENGE_GOAL_ARCHITECT,
+            ),
+            definitions.map { it.id },
+        )
+        assertEquals(listOf(1, 5, 15), definitions.map { it.target })
+        assertEquals(listOf(10, 20, 30), definitions.map { it.sortOrder })
+        assertEquals(listOf(1, 2, 3), definitions.map { it.badgeRank })
+    }
 
     @Test
     fun fullTimeAndInForm_useDistinctWeeksAndBestStreak() {
@@ -753,6 +775,65 @@ class TrophyEngineTest {
 
         assertEquals(1, afterRestore.require(TrophyId.FIRST_CHALLENGE_WIN).currentValue)
         assertEquals(1, afterRestore.require(TrophyId.BACK_ON_TRACK).currentValue)
+    }
+
+    @Test
+    fun challengeCreationTrophies_unlockAtFirstFifthAndFifteenthCreation() {
+        val startDate = LocalDate.of(2026, 8, 1)
+        val actions =
+            List(15) { index ->
+                challengeAction(
+                    id = index + 1L,
+                    actionType = CREATE_CHALLENGE,
+                    challengeId = 800L + index,
+                    title = "Challenge ${index + 1}",
+                    targetType = ChallengeTargetType.TOTAL,
+                    targetQuantity = 100L + index,
+                    startDate = startDate.plusDays(index.toLong()),
+                    endDate = startDate.plusDays(index.toLong() + 13),
+                    timestamp = (index + 1L) * 10L,
+                )
+            }
+
+        val progress = engine.compute(actions)
+
+        assertEquals(15, progress.require(TrophyId.CHALLENGE_ACCEPTED).currentValue)
+        assertEquals(15, progress.require(TrophyId.CHALLENGE_GOAL_SETTER).currentValue)
+        assertEquals(15, progress.require(TrophyId.CHALLENGE_GOAL_ARCHITECT).currentValue)
+        assertEquals(10L, progress.require(TrophyId.CHALLENGE_ACCEPTED).unlockedAt)
+        assertEquals(50L, progress.require(TrophyId.CHALLENGE_GOAL_SETTER).unlockedAt)
+        assertEquals(150L, progress.require(TrophyId.CHALLENGE_GOAL_ARCHITECT).unlockedAt)
+        assertTrue(progress.require(TrophyId.CHALLENGE_ACCEPTED).isUnlocked)
+        assertTrue(progress.require(TrophyId.CHALLENGE_GOAL_SETTER).isUnlocked)
+        assertTrue(progress.require(TrophyId.CHALLENGE_GOAL_ARCHITECT).isUnlocked)
+    }
+
+    @Test
+    fun challengeCreationTrophies_keepHigherLevelsLockedBelowThresholds() {
+        val startDate = LocalDate.of(2026, 8, 1)
+        val actions =
+            List(4) { index ->
+                challengeAction(
+                    id = index + 1L,
+                    actionType = CREATE_CHALLENGE,
+                    challengeId = 900L + index,
+                    title = "Challenge ${index + 1}",
+                    targetType = ChallengeTargetType.TOTAL,
+                    targetQuantity = 100L + index,
+                    startDate = startDate.plusDays(index.toLong()),
+                    endDate = startDate.plusDays(index.toLong() + 13),
+                    timestamp = (index + 1L) * 10L,
+                )
+            }
+
+        val progress = engine.compute(actions)
+
+        assertEquals(4, progress.require(TrophyId.CHALLENGE_GOAL_SETTER).currentValue)
+        assertEquals(4, progress.require(TrophyId.CHALLENGE_GOAL_ARCHITECT).currentValue)
+        assertFalse(progress.require(TrophyId.CHALLENGE_GOAL_SETTER).isUnlocked)
+        assertFalse(progress.require(TrophyId.CHALLENGE_GOAL_ARCHITECT).isUnlocked)
+        assertNull(progress.require(TrophyId.CHALLENGE_GOAL_SETTER).unlockedAt)
+        assertNull(progress.require(TrophyId.CHALLENGE_GOAL_ARCHITECT).unlockedAt)
     }
 
     private fun List<TrophyProgress>.require(trophyId: TrophyId) = first { it.definition.id == trophyId }

@@ -824,6 +824,8 @@
     <string name="trophies_family_challenges">Herausforderungen</string>
     <string name="trophies_family_challenges_desc">Für die Ziele, die du setzt, abschließt und wieder einholst.</string>
     <string name="trophies_name_challenge_accepted">Herausforderung angenommen</string>
+    <string name="trophies_name_challenge_goal_setter">Herausforderung angenommen: Zielsetzer</string>
+    <string name="trophies_name_challenge_goal_architect">Herausforderung angenommen: Zielarchitekt</string>
     <string name="trophies_name_first_challenge_win">Erster Erfolg bei einer Herausforderung</string>
     <string name="trophies_name_challenge_momentum">Herausforderungs-Schwung</string>
     <string name="trophies_name_challenge_veteran">Herausforderungs-Veteran</string>

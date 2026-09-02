@@ -860,6 +860,8 @@
     <string name="trophies_family_challenges">التحديات</string>
     <string name="trophies_family_challenges_desc">للأهداف التي تضعها، وتُنهيها، وتتجاوز عثراتها.</string>
     <string name="trophies_name_challenge_accepted">تحدٍّ مقبول</string>
+    <string name="trophies_name_challenge_goal_setter">تحدٍّ مقبول: واضع الأهداف</string>
+    <string name="trophies_name_challenge_goal_architect">تحدٍّ مقبول: مهندس الأهداف</string>
     <string name="trophies_name_first_challenge_win">أول انتصار في تحدٍّ</string>
     <string name="trophies_name_challenge_momentum">زخم التحديات</string>
     <string name="trophies_name_challenge_veteran">مخضرم التحديات</string>

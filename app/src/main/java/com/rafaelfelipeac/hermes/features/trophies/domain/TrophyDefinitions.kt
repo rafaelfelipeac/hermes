@@ -17,11 +17,27 @@ object TrophyDefinitions {
                 badgeRank = 1,
             ),
             definition(
+                id = TrophyId.CHALLENGE_GOAL_SETTER,
+                family = TrophyFamily.CHALLENGES,
+                metric = TrophyMetric.CHALLENGE_CREATIONS,
+                target = 5,
+                sortOrder = 20,
+                badgeRank = 2,
+            ),
+            definition(
+                id = TrophyId.CHALLENGE_GOAL_ARCHITECT,
+                family = TrophyFamily.CHALLENGES,
+                metric = TrophyMetric.CHALLENGE_CREATIONS,
+                target = 15,
+                sortOrder = 30,
+                badgeRank = 3,
+            ),
+            definition(
                 id = TrophyId.FIRST_CHALLENGE_WIN,
                 family = TrophyFamily.CHALLENGES,
                 metric = TrophyMetric.CHALLENGE_COMPLETIONS,
                 target = 1,
-                sortOrder = 20,
+                sortOrder = 40,
                 badgeRank = 1,
             ),
             definition(
@@ -29,7 +45,7 @@ object TrophyDefinitions {
                 family = TrophyFamily.CHALLENGES,
                 metric = TrophyMetric.CHALLENGE_COMPLETIONS,
                 target = 5,
-                sortOrder = 30,
+                sortOrder = 50,
                 badgeRank = 2,
             ),
             definition(
@@ -37,7 +53,7 @@ object TrophyDefinitions {
                 family = TrophyFamily.CHALLENGES,
                 metric = TrophyMetric.CHALLENGE_COMPLETIONS,
                 target = 15,
-                sortOrder = 40,
+                sortOrder = 60,
                 badgeRank = 3,
             ),
             definition(
@@ -45,7 +61,7 @@ object TrophyDefinitions {
                 family = TrophyFamily.CHALLENGES,
                 metric = TrophyMetric.CHALLENGE_RECOVERIES,
                 target = 1,
-                sortOrder = 50,
+                sortOrder = 70,
                 badgeRank = 1,
             ),
             definition(
@@ -53,7 +69,7 @@ object TrophyDefinitions {
                 family = TrophyFamily.CHALLENGES,
                 metric = TrophyMetric.CHALLENGE_RECOVERIES,
                 target = 5,
-                sortOrder = 60,
+                sortOrder = 80,
                 badgeRank = 2,
             ),
             definition(
@@ -61,7 +77,7 @@ object TrophyDefinitions {
                 family = TrophyFamily.CHALLENGES,
                 metric = TrophyMetric.CHALLENGE_RECOVERIES,
                 target = 15,
-                sortOrder = 70,
+                sortOrder = 90,
                 badgeRank = 3,
             ),
             definition(

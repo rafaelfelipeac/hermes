@@ -2,6 +2,8 @@ package com.rafaelfelipeac.hermes.features.trophies.domain.model
 
 enum class TrophyId {
     CHALLENGE_ACCEPTED,
+    CHALLENGE_GOAL_SETTER,
+    CHALLENGE_GOAL_ARCHITECT,
     FIRST_CHALLENGE_WIN,
     CHALLENGE_MOMENTUM,
     CHALLENGE_VETERAN,

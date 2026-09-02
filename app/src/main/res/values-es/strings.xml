@@ -823,6 +823,8 @@
     <string name="trophies_family_challenges">Desafíos</string>
     <string name="trophies_family_challenges_desc">Para los objetivos que planteas, terminas y recuperas.</string>
     <string name="trophies_name_challenge_accepted">Desafío aceptado</string>
+    <string name="trophies_name_challenge_goal_setter">Desafío aceptado: Creador de metas</string>
+    <string name="trophies_name_challenge_goal_architect">Desafío aceptado: Arquitecto de metas</string>
     <string name="trophies_name_first_challenge_win">Primera victoria en desafío</string>
     <string name="trophies_name_challenge_momentum">Impulso de desafío</string>
     <string name="trophies_name_challenge_veteran">Veterano de desafíos</string>

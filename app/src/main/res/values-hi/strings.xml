@@ -824,6 +824,8 @@
     <string name="trophies_family_challenges">चुनौतियाँ</string>
     <string name="trophies_family_challenges_desc">उन लक्ष्यों के लिए जिन्हें आप तय करते हैं, पूरा करते हैं और वापस पकड़ते हैं।</string>
     <string name="trophies_name_challenge_accepted">चुनौती स्वीकार की</string>
+    <string name="trophies_name_challenge_goal_setter">चुनौती स्वीकार की: लक्ष्य निर्माता</string>
+    <string name="trophies_name_challenge_goal_architect">चुनौती स्वीकार की: लक्ष्य वास्तुकार</string>
     <string name="trophies_name_first_challenge_win">पहली चुनौती जीत</string>
     <string name="trophies_name_challenge_momentum">चुनौती की गति</string>
     <string name="trophies_name_challenge_veteran">चुनौती अनुभवी</string>
