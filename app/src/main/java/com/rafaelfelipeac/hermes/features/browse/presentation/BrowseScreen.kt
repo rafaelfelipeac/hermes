@@ -5,6 +5,7 @@ package com.rafaelfelipeac.hermes.features.browse.presentation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
@@ -29,8 +30,8 @@ import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Leaderboard
-import androidx.compose.material.icons.outlined.TrackChanges
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.TrackChanges
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -65,6 +66,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
+import com.rafaelfelipeac.hermes.features.backup.BACKUP_IMPORT_LOG_TAG
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
@@ -92,6 +94,9 @@ private const val FILE_SAFE_TIME_SEPARATOR = "-"
 private const val EXPORT_WRITE_FAILED = "export_write_failed"
 private const val EXPORT_DESTINATION_SAVE_AS = "save_as"
 private const val EXPORT_DESTINATION_FOLDER = "folder"
+private const val LOG_BACKUP_DOCUMENT_READ_FAILED = "Could not read the selected backup document."
+private const val LOG_BACKUP_DOCUMENT_STREAM_UNAVAILABLE =
+    "The selected backup document did not provide a readable stream."
 
 @Composable
 internal fun BrowseScreen(
@@ -654,7 +659,15 @@ private suspend fun readTextFromUri(
 ): String? {
     return withContext(Dispatchers.IO) {
         runCatching {
-            context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+            val inputStream = context.contentResolver.openInputStream(uri)
+            if (inputStream == null) {
+                Log.e(BACKUP_IMPORT_LOG_TAG, LOG_BACKUP_DOCUMENT_STREAM_UNAVAILABLE)
+                null
+            } else {
+                inputStream.bufferedReader().use { it.readText() }
+            }
+        }.onFailure { throwable ->
+            Log.e(BACKUP_IMPORT_LOG_TAG, LOG_BACKUP_DOCUMENT_READ_FAILED, throwable)
         }.getOrNull()
     }
 }

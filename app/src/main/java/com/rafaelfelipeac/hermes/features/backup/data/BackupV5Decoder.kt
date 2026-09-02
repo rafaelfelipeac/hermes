@@ -2,6 +2,8 @@
 
 package com.rafaelfelipeac.hermes.features.backup.data
 
+import android.util.Log
+import com.rafaelfelipeac.hermes.features.backup.BACKUP_IMPORT_LOG_TAG
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeProgressEntryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeRecord
@@ -135,6 +137,14 @@ internal object BackupV5Decoder {
                 return Failure(INVALID_FIELD_VALUE)
             }
             if (challenge.categoryId != null && challenge.categoryId !in categoryIds) {
+                Log.e(
+                    BACKUP_IMPORT_LOG_TAG,
+                    LOG_MISSING_CHALLENGE_CATEGORY_FORMAT.format(
+                        challenge.id,
+                        challenge.categoryId,
+                        categoryIds.size,
+                    ),
+                )
                 return Failure(INVALID_REFERENCE)
             }
             try {
@@ -148,7 +158,17 @@ internal object BackupV5Decoder {
 
         challengeProgressEntries.forEach { entry ->
             if (entry.quantity <= 0L) return Failure(INVALID_FIELD_VALUE)
-            if (entry.challengeId !in challengeIds) return Failure(INVALID_REFERENCE)
+            if (entry.challengeId !in challengeIds) {
+                Log.e(
+                    BACKUP_IMPORT_LOG_TAG,
+                    LOG_MISSING_PROGRESS_CHALLENGE_FORMAT.format(
+                        entry.id,
+                        entry.challengeId,
+                        challengeIds.size,
+                    ),
+                )
+                return Failure(INVALID_REFERENCE)
+            }
 
             val challenge = challenges.first { it.id == entry.challengeId }
             try {
@@ -340,3 +360,8 @@ internal object BackupV5Decoder {
         return mapped
     }
 }
+
+private const val LOG_MISSING_CHALLENGE_CATEGORY_FORMAT =
+    "Invalid reference; relation=challenge.category, challengeId=%d, categoryId=%d, availableCategories=%d"
+private const val LOG_MISSING_PROGRESS_CHALLENGE_FORMAT =
+    "Invalid reference; relation=challengeProgress.challenge, entryId=%d, challengeId=%d, availableChallenges=%d"

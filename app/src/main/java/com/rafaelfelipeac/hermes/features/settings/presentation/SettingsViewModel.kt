@@ -33,6 +33,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BAC
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SEED_DEMO_DATA
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_BACKUP_FOLDER
+import com.rafaelfelipeac.hermes.features.backup.BACKUP_IMPORT_LOG_TAG
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
@@ -419,7 +420,7 @@ class SettingsViewModel
                 }.onFailure { throwable ->
                     metadata[FAILURE_REASON] = throwable.toSideEffectFailureReason()
                     Log.w(
-                        SETTINGS_VIEW_MODEL_LOG_TAG,
+                        BACKUP_IMPORT_LOG_TAG,
                         LOG_IMPORT_TIMESTAMP_SIDE_EFFECT_FAILED,
                         throwable,
                     )

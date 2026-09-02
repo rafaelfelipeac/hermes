@@ -182,7 +182,7 @@ class DemoDataSeeder
         suspend fun seedLockedTrophies(): Boolean {
             if (!BuildConfig.DEBUG) return false
 
-            categorySeeder.ensureSeeded()
+            categorySeeder.restoreDefaults()
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
@@ -206,7 +206,7 @@ class DemoDataSeeder
         suspend fun seed(): Boolean {
             if (!BuildConfig.DEBUG) return false
 
-            categorySeeder.ensureSeeded()
+            categorySeeder.restoreDefaults()
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
@@ -255,6 +255,7 @@ class DemoDataSeeder
         suspend fun seedChallenges(): Boolean {
             if (!BuildConfig.DEBUG) return false
 
+            categorySeeder.restoreDefaults()
             seedChallengeDemoData(LocalDate.now())
             return true
         }
