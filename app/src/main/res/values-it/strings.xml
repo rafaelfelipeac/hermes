@@ -207,10 +207,10 @@
     <string name="settings_release_notes_fixed">Corretto</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Record personali con serie personalizzabili, cronologia dei risultati e selezione automatica o manuale del risultato migliore</item>
-        <item>Calcolatore del passo per calcolare passo, tempo o distanza con distanze predefinite comuni</item>
-        <item>Preferenze per le unità di distanza, passo e peso nelle Impostazioni</item>
-        <item>Supporto dei record personali nella cronologia Attività, nei trofei, nei dati demo e nel backup/ripristino</item>
+        <item>Sfide con obiettivi giornalieri o totali, intervalli di date flessibili e categorie facoltative</item>
+        <item>Indicazioni in tempo reale con l’obiettivo di oggi, il debito accumulato e i progressi necessari per recuperarlo</item>
+        <item>Aggiornamenti rapidi dei progressi, cronologia per data, modifica, archiviazione e festeggiamenti al completamento</item>
+        <item>Supporto delle sfide nella cronologia Attività, nei trofei, nei dati demo e nel backup/ripristino</item>
     </string-array>
     <string name="settings_back">Indietro</string>
     <string name="settings_feedback_title">Feedback</string>

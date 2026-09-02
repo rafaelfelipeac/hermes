@@ -207,10 +207,10 @@
     <string name="settings_release_notes_fixed">Corrigé</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Records personnels avec séries personnalisables, historique des résultats et sélection automatique ou manuelle du meilleur résultat</item>
-        <item>Calculateur d’allure pour déterminer l’allure, le temps ou la distance avec des distances prédéfinies courantes</item>
-        <item>Préférences d’unités de distance, d’allure et de poids dans les Paramètres</item>
-        <item>Prise en charge des records personnels dans l’historique d’Activité, les trophées, les données de démonstration et la sauvegarde/restauration</item>
+        <item>Défis avec objectifs quotidiens ou globaux, plages de dates flexibles et catégories facultatives</item>
+        <item>Conseils d’allure en temps réel avec l’objectif du jour, le retard accumulé et la progression nécessaire pour le rattraper</item>
+        <item>Mises à jour rapides de la progression, historique daté, modification, archivage et célébrations de fin</item>
+        <item>Prise en charge des défis dans l’historique d’Activité, les trophées, les données de démonstration et la sauvegarde/restauration</item>
     </string-array>
     <string name="settings_back">Retour</string>
     <string name="settings_feedback_title">Commentaires</string>

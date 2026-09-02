@@ -321,10 +321,10 @@
     <string name="settings_release_notes_fixed">Fixed</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Personal Records with customizable series, result history and automatic or manual best-result selection</item>
-        <item>Pace calculator for solving pace, time or distance with common distance presets</item>
-        <item>Distance, pace and weight unit preferences in Settings</item>
-        <item>Personal Record support across Activity history, trophies, demo data and backup/restore</item>
+        <item>Challenges with daily or total goals, flexible date ranges and optional categories</item>
+        <item>Live pacing guidance with today’s target, carried debt and progress needed to recover</item>
+        <item>Quick progress updates, dated history, editing, archiving and completion celebrations</item>
+        <item>Challenge support across Activity history, trophies, demo data and backup/restore</item>
     </string-array>
     <string name="settings_back">Back</string>
     <string name="settings_feedback_title">Feedback</string>

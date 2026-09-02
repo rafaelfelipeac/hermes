@@ -208,10 +208,10 @@
     <string name="settings_release_notes_fixed">Corrigido</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Recordes pessoais com séries personalizáveis, histórico de resultados e seleção automática ou manual do melhor resultado</item>
-        <item>Calculadora de ritmo para calcular ritmo, tempo ou distância com distâncias predefinidas comuns</item>
-        <item>Preferências de unidades de distância, ritmo e peso nas Configurações</item>
-        <item>Compatibilidade dos recordes pessoais com o histórico de Atividades, troféus, dados de demonstração e backup/restauração</item>
+        <item>Desafios com metas diárias ou totais, períodos flexíveis e categorias opcionais</item>
+        <item>Orientação de ritmo em tempo real com a meta de hoje, dívida acumulada e progresso necessário para recuperá-la</item>
+        <item>Atualizações rápidas de progresso, histórico por data, edição, arquivamento e celebrações de conclusão</item>
+        <item>Compatibilidade dos desafios com o histórico de Atividades, troféus, dados de demonstração e backup/restauração</item>
     </string-array>
     <string name="settings_back">Voltar</string>
     <string name="settings_feedback_title">Feedback</string>
