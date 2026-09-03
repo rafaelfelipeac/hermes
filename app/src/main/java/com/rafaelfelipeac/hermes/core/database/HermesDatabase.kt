@@ -8,6 +8,9 @@ import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
+import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeDao
+import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeEntity
+import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeProgressEntryEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
@@ -19,6 +22,8 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntit
         WorkoutEntity::class,
         UserActionEntity::class,
         CategoryEntity::class,
+        ChallengeEntity::class,
+        ChallengeProgressEntryEntity::class,
         PersonalRecordFamilyEntity::class,
         PersonalRecordEntryEntity::class,
     ],
@@ -32,9 +37,11 @@ abstract class HermesDatabase : RoomDatabase() {
 
     abstract fun categoryDao(): CategoryDao
 
+    abstract fun challengeDao(): ChallengeDao
+
     abstract fun personalRecordDao(): PersonalRecordDao
 
     companion object {
-        private const val DATABASE_VERSION = 5
+        private const val DATABASE_VERSION = 7
     }
 }

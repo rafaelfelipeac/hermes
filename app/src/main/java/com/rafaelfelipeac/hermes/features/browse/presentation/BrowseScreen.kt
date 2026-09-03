@@ -5,6 +5,7 @@ package com.rafaelfelipeac.hermes.features.browse.presentation
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
@@ -22,14 +23,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Category
 import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material.icons.outlined.EmojiEvents
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Leaderboard
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.TrackChanges
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -64,9 +66,12 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
+import com.rafaelfelipeac.hermes.features.backup.BACKUP_IMPORT_LOG_TAG
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
+import com.rafaelfelipeac.hermes.features.challenges.presentation.ChallengesScreen
+import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorDraft
 import com.rafaelfelipeac.hermes.features.pacecalculator.presentation.PaceCalculatorRoute
 import com.rafaelfelipeac.hermes.features.personalrecords.presentation.PersonalRecordsScreen
 import com.rafaelfelipeac.hermes.features.settings.presentation.DeveloperModeScreen
@@ -89,9 +94,12 @@ private const val FILE_SAFE_TIME_SEPARATOR = "-"
 private const val EXPORT_WRITE_FAILED = "export_write_failed"
 private const val EXPORT_DESTINATION_SAVE_AS = "save_as"
 private const val EXPORT_DESTINATION_FOLDER = "folder"
+private const val LOG_BACKUP_DOCUMENT_READ_FAILED = "Could not read the selected backup document."
+private const val LOG_BACKUP_DOCUMENT_STREAM_UNAVAILABLE =
+    "The selected backup document did not provide a readable stream."
 
 @Composable
-fun BrowseScreen(
+internal fun BrowseScreen(
     modifier: Modifier = Modifier,
     route: BrowseDestination = BrowseDestination.ROOT,
     settingsState: SettingsState,
@@ -100,8 +108,11 @@ fun BrowseScreen(
     onRequestedActivityConsumed: () -> Unit = {},
     requestedTrophyStableId: String? = null,
     onRequestedTrophyConsumed: () -> Unit = {},
+    pendingChallengeDraft: ChallengeEditorDraft? = null,
+    onChallengeDraftConsumed: () -> Unit = {},
     onNavigateTo: (BrowseDestination) -> Unit,
     onBack: () -> Unit,
+    onManageChallengeCategories: (ChallengeEditorDraft) -> Unit = {},
 ) {
     when (route) {
         BrowseDestination.ROOT ->
@@ -122,6 +133,15 @@ fun BrowseScreen(
                 settingsDistanceUnit = settingsState.distanceUnit,
                 settingsWeightUnit = settingsState.weightUnit,
                 onBack = onBack,
+            )
+
+        BrowseDestination.CHALLENGES ->
+            ChallengesScreen(
+                modifier = modifier,
+                onBack = onBack,
+                pendingChallengeDraft = pendingChallengeDraft,
+                onChallengeDraftConsumed = onChallengeDraftConsumed,
+                onManageCategories = onManageChallengeCategories,
             )
 
         BrowseDestination.PACE_CALCULATOR ->
@@ -216,6 +236,14 @@ private fun BrowseHome(
         )
 
         BrowseDestinationCard(
+            title = stringResource(R.string.challenges_title),
+            subtitle = stringResource(R.string.browse_challenges_subtitle),
+            icon = Icons.Outlined.TrackChanges,
+            onClick = { onNavigateTo(BrowseDestination.CHALLENGES) },
+            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "challenges"),
+        )
+
+        BrowseDestinationCard(
             title = stringResource(R.string.pace_calculator_title),
             subtitle = stringResource(R.string.browse_pace_calculator_subtitle),
             icon = Icons.Outlined.Calculate,
@@ -237,7 +265,7 @@ private fun BrowseHome(
         BrowseDestinationCard(
             title = stringResource(R.string.trophies_activities_action),
             subtitle = stringResource(R.string.browse_activities_subtitle),
-            icon = Icons.Default.History,
+            icon = Icons.Outlined.History,
             onClick = { onNavigateTo(BrowseDestination.ACTIVITIES) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "activities"),
         )
@@ -256,7 +284,7 @@ private fun BrowseHome(
         BrowseDestinationCard(
             title = stringResource(R.string.settings_title),
             subtitle = stringResource(R.string.browse_settings_subtitle),
-            icon = Icons.Default.Settings,
+            icon = Icons.Outlined.Settings,
             onClick = { onNavigateTo(BrowseDestination.SETTINGS) },
             modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "settings"),
         )
@@ -631,7 +659,15 @@ private suspend fun readTextFromUri(
 ): String? {
     return withContext(Dispatchers.IO) {
         runCatching {
-            context.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
+            val inputStream = context.contentResolver.openInputStream(uri)
+            if (inputStream == null) {
+                Log.e(BACKUP_IMPORT_LOG_TAG, LOG_BACKUP_DOCUMENT_STREAM_UNAVAILABLE)
+                null
+            } else {
+                inputStream.bufferedReader().use { it.readText() }
+            }
+        }.onFailure { throwable ->
+            Log.e(BACKUP_IMPORT_LOG_TAG, LOG_BACKUP_DOCUMENT_READ_FAILED, throwable)
         }.getOrNull()
     }
 }

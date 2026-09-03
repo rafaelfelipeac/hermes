@@ -5,6 +5,7 @@ enum class ActivityPrimaryFilter {
     COMPLETIONS,
     PLANNING,
     CATEGORIES,
+    CHALLENGES,
     CATEGORY,
     SETTINGS,
     WEEK,

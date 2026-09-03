@@ -3,8 +3,22 @@ package com.rafaelfelipeac.hermes.core.debug
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_END_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_LIFECYCLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
+import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
@@ -23,6 +37,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.WORKOUT
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifyOrder
 import io.mockk.mockk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +53,7 @@ class DemoDataSeederTest {
             val workoutDao = mockk<WorkoutDao>(relaxed = true)
             val userActionDao = mockk<UserActionDao>(relaxed = true)
             val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val settingsRepository = FakeSettingsRepository()
             coEvery { categorySeeder.ensureSeeded() } returns Unit
@@ -48,6 +64,7 @@ class DemoDataSeederTest {
                     personalRecordDao = personalRecordDao,
                     stringProvider = FakeStringProvider,
                     categorySeeder = categorySeeder,
+                    challengeRepository = challengeRepository,
                     settingsRepository = settingsRepository,
                 )
 
@@ -58,22 +75,28 @@ class DemoDataSeederTest {
             coVerify(exactly = 1) { userActionDao.deleteAll() }
             coVerify(exactly = 1) { personalRecordDao.deleteAllEntries() }
             coVerify(exactly = 1) { personalRecordDao.deleteAllFamilies() }
+            coVerify(exactly = 1) { challengeRepository.deleteAllProgressEntries() }
+            coVerify(exactly = 1) { challengeRepository.deleteAllChallenges() }
             coVerify(exactly = 1) { categorySeeder.ensureSeeded() }
         }
 
     @Test
+    @Suppress("LongMethod")
     fun seed_createsVariedProgressWeeks() =
         runTest {
             val workoutDao = mockk<WorkoutDao>(relaxed = true)
             val userActionDao = mockk<UserActionDao>(relaxed = true)
             val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val settingsRepository = FakeSettingsRepository()
             val capturedWorkouts = mutableListOf<WorkoutEntity>()
             val capturedFamilies = mutableListOf<PersonalRecordFamilyEntity>()
             val capturedEntries = mutableListOf<PersonalRecordEntryEntity>()
             val capturedActions = mutableListOf<UserActionEntity>()
-            coEvery { categorySeeder.ensureSeeded() } returns Unit
+            val capturedChallenges = mutableListOf<Challenge>()
+            val capturedChallengeProgress = mutableListOf<ChallengeProgressEntry>()
+            coEvery { categorySeeder.restoreDefaults() } returns 0
             coEvery { workoutDao.insert(capture(capturedWorkouts)) } returns 1L
             coEvery { personalRecordDao.insertFamily(capture(capturedFamilies)) } answers {
                 capturedFamilies.size.toLong()
@@ -82,6 +105,12 @@ class DemoDataSeederTest {
                 capturedEntries.size.toLong()
             }
             coEvery { userActionDao.insert(capture(capturedActions)) } returns 1L
+            coEvery { challengeRepository.insertChallenge(capture(capturedChallenges)) } answers {
+                capturedChallenges.size.toLong()
+            }
+            coEvery { challengeRepository.insertProgressEntry(capture(capturedChallengeProgress)) } answers {
+                capturedChallengeProgress.size.toLong()
+            }
             val seeder =
                 DemoDataSeeder(
                     workoutDao = workoutDao,
@@ -89,6 +118,7 @@ class DemoDataSeederTest {
                     personalRecordDao = personalRecordDao,
                     stringProvider = FakeStringProvider,
                     categorySeeder = categorySeeder,
+                    challengeRepository = challengeRepository,
                     settingsRepository = settingsRepository,
                 )
 
@@ -121,22 +151,120 @@ class DemoDataSeederTest {
                 4,
                 capturedActions.count { it.actionType == UserActionType.USE_PACE_CALCULATOR.name },
             )
+            assertEquals(6, capturedChallenges.size)
+            assertEquals(31, capturedChallengeProgress.size)
+            assertEquals(
+                setOf(ChallengeTargetType.DAILY, ChallengeTargetType.TOTAL),
+                capturedChallenges.map { it.targetType }.toSet(),
+            )
+            assertEquals(
+                setOf(ChallengeLifecycle.ACTIVE, ChallengeLifecycle.ARCHIVED),
+                capturedChallenges.map { it.lifecycle }.toSet(),
+            )
+            assertTrue(capturedChallenges.all { it.categoryId != null })
+            assertTrue(capturedChallenges.any { it.description?.isNotBlank() == true })
+            assertTrue(
+                capturedChallengeProgress
+                    .groupBy { it.challengeId to it.entryDate }
+                    .values
+                    .any { entries -> entries.size > 1 },
+            )
+            assertTrue(
+                capturedChallengeProgress
+                    .groupBy { it.challengeId }
+                    .values
+                    .any { entries -> entries.map { it.entryDate }.toSet().size >= 5 },
+            )
+            coVerify(exactly = 1) { categorySeeder.restoreDefaults() }
+            coVerify(exactly = 0) { categorySeeder.ensureSeeded() }
+            coVerifyOrder {
+                categorySeeder.restoreDefaults()
+                workoutDao.deleteAll()
+            }
             coVerify(exactly = 1) {
                 personalRecordDao.updateFamily(match { it.manualCurrentEntryId != null })
             }
         }
 
     @Test
+    fun seedLockedTrophies_restoresDefaultsBeforeCreatingWorkouts() =
+        runTest {
+            val workoutDao = mockk<WorkoutDao>(relaxed = true)
+            val userActionDao = mockk<UserActionDao>(relaxed = true)
+            val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            coEvery { categorySeeder.restoreDefaults() } returns 0
+            coEvery { workoutDao.insert(any()) } returns 1L
+            val seeder =
+                DemoDataSeeder(
+                    workoutDao = workoutDao,
+                    userActionDao = userActionDao,
+                    personalRecordDao = personalRecordDao,
+                    stringProvider = FakeStringProvider,
+                    categorySeeder = categorySeeder,
+                    challengeRepository = challengeRepository,
+                    settingsRepository = FakeSettingsRepository(),
+                )
+
+            val didSeed = seeder.seedLockedTrophies()
+
+            assertTrue(didSeed)
+            coVerify(exactly = 1) { categorySeeder.restoreDefaults() }
+            coVerify(exactly = 0) { categorySeeder.ensureSeeded() }
+            coVerifyOrder {
+                categorySeeder.restoreDefaults()
+                workoutDao.deleteAll()
+                workoutDao.insert(any())
+            }
+        }
+
+    @Test
+    fun seedChallenges_restoresDefaultsBeforeCreatingChallenges() =
+        runTest {
+            val workoutDao = mockk<WorkoutDao>(relaxed = true)
+            val userActionDao = mockk<UserActionDao>(relaxed = true)
+            val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            coEvery { categorySeeder.restoreDefaults() } returns 0
+            coEvery { challengeRepository.insertChallenge(any()) } returns 1L
+            coEvery { challengeRepository.insertProgressEntry(any()) } returns 1L
+            val seeder =
+                DemoDataSeeder(
+                    workoutDao = workoutDao,
+                    userActionDao = userActionDao,
+                    personalRecordDao = personalRecordDao,
+                    stringProvider = FakeStringProvider,
+                    categorySeeder = categorySeeder,
+                    challengeRepository = challengeRepository,
+                    settingsRepository = FakeSettingsRepository(),
+                )
+
+            val didSeed = seeder.seedChallenges()
+
+            assertTrue(didSeed)
+            coVerify(exactly = 1) { categorySeeder.restoreDefaults() }
+            coVerify(exactly = 0) { categorySeeder.ensureSeeded() }
+            coVerifyOrder {
+                categorySeeder.restoreDefaults()
+                challengeRepository.insertChallenge(any())
+            }
+        }
+
+    @Test
+    @Suppress("LongMethod")
     fun seedCompletedTrophies_includesPersonalRecordAndPaceMilestones() =
         runTest {
             val workoutDao = mockk<WorkoutDao>(relaxed = true)
             val userActionDao = mockk<UserActionDao>(relaxed = true)
             val personalRecordDao = mockk<PersonalRecordDao>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val capturedActions = mutableListOf<UserActionEntity>()
             var nextFamilyId = 1L
             var nextEntryId = 1L
-            coEvery { categorySeeder.ensureSeeded() } returns Unit
+            coEvery { categorySeeder.restoreDefaults() } returns 0
             coEvery { workoutDao.insert(any()) } returns 1L
             coEvery { personalRecordDao.insertFamily(any()) } answers { nextFamilyId++ }
             coEvery { personalRecordDao.insertEntry(any()) } answers { nextEntryId++ }
@@ -148,6 +276,7 @@ class DemoDataSeederTest {
                     personalRecordDao = personalRecordDao,
                     stringProvider = FakeStringProvider,
                     categorySeeder = categorySeeder,
+                    challengeRepository = challengeRepository,
                     settingsRepository = FakeSettingsRepository(),
                 )
 
@@ -168,6 +297,30 @@ class DemoDataSeederTest {
                 capturedActions.count {
                     it.actionType == UserActionType.USE_PACE_CALCULATOR.name
                 } >= 10,
+            )
+            val challengeCreationActions =
+                capturedActions.filter {
+                    it.actionType == UserActionType.CREATE_CHALLENGE.name &&
+                        it.entityType == UserActionEntityType.CHALLENGE.name
+                }
+            assertTrue(challengeCreationActions.size >= 15)
+            assertEquals(
+                challengeCreationActions.size,
+                challengeCreationActions.mapNotNull { it.entityId }.toSet().size,
+            )
+            coVerify(exactly = 1) { categorySeeder.restoreDefaults() }
+            coVerify(exactly = 0) { categorySeeder.ensureSeeded() }
+            assertTrue(
+                challengeCreationActions.all { action ->
+                    val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
+                    metadata[CHALLENGE_ID] == action.entityId.toString() &&
+                        metadata[CHALLENGE_TITLE]?.isNotBlank() == true &&
+                        metadata[CHALLENGE_TARGET_TYPE] == ChallengeTargetType.TOTAL.name &&
+                        metadata[CHALLENGE_TARGET_QUANTITY]?.toLongOrNull() != null &&
+                        metadata[CHALLENGE_START_DATE]?.isNotBlank() == true &&
+                        metadata[CHALLENGE_END_DATE]?.isNotBlank() == true &&
+                        metadata[CHALLENGE_LIFECYCLE] == ChallengeLifecycle.ACTIVE.name
+                },
             )
         }
 

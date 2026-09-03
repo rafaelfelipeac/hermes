@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
+import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
@@ -50,6 +51,7 @@ class BackupRepositoryImplTest {
             repository =
                 BackupRepositoryImpl(
                     database = database,
+                    challengeDao = database.challengeDao(),
                     workoutDao = database.workoutDao(),
                     categoryDao = database.categoryDao(),
                     userActionDao = database.userActionDao(),
@@ -64,7 +66,7 @@ class BackupRepositoryImplTest {
     }
 
     @Test
-    fun exportBackupJson_writesPersonalRecordsAndUnitPreferencesInV4() =
+    fun exportBackupJson_writesPersonalRecordsAndUnitPreferencesInV5() =
         runTest {
             settingsRepository.setDistanceUnit(DistanceUnit.MILES)
             settingsRepository.setPaceUnit(PaceUnit.MIN_PER_MI)
@@ -105,7 +107,7 @@ class BackupRepositoryImplTest {
             assertTrue(decoded is com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Success)
             val snapshot =
                 (decoded as com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult.Success).snapshot
-            assertEquals(BackupJsonCodec.SCHEMA_VERSION_V4, snapshot.schemaVersion)
+            assertEquals(BackupJsonCodec.SCHEMA_VERSION_V6, snapshot.schemaVersion)
             assertEquals(1, snapshot.personalRecordFamilies.size)
             assertEquals(1, snapshot.personalRecordEntries.size)
             assertEquals(WeekStartDay.WEDNESDAY.name, snapshot.settings?.weekStartDay)
@@ -190,6 +192,70 @@ class BackupRepositoryImplTest {
             assertEquals(WeightUnit.KILOGRAMS, settingsRepository.weightUnit.first())
             assertTrue(database.personalRecordDao().getFamilies().isEmpty())
             assertTrue(database.personalRecordDao().getEntries().isEmpty())
+        }
+
+    @Test
+    fun importBackupJson_rejectsChallengeProgressAggregateOverflowBeforeWriting() =
+        runTest {
+            val raw =
+                """
+                {
+                  "$KEY_SCHEMA_VERSION": ${BackupJsonCodec.SCHEMA_VERSION_V6},
+                  "$KEY_EXPORTED_AT": "$EXPORTED_AT",
+                  "$KEY_WORKOUTS": [],
+                  "$KEY_CATEGORIES": [],
+                  "$KEY_USER_ACTIONS": [],
+                  "$KEY_PERSONAL_RECORD_FAMILIES": [],
+                  "$KEY_PERSONAL_RECORD_ENTRIES": [],
+                  "$KEY_CHALLENGES": [
+                    {
+                      "$KEY_ID": 1,
+                      "$KEY_CATEGORY_ID": null,
+                      "$KEY_TITLE": "Overflow target",
+                      "$KEY_DESCRIPTION": null,
+                      "$KEY_TARGET_TYPE": "TOTAL",
+                      "$KEY_TARGET_QUANTITY": $LONG_MAX_VALUE,
+                      "$KEY_START_DATE": "2026-08-01",
+                      "$KEY_END_DATE": "2026-08-02",
+                      "$KEY_LIFECYCLE": "ACTIVE",
+                      "$KEY_ARCHIVED_AT": null,
+                      "$KEY_CREATED_AT": "2026-08-01T10:00:00Z",
+                      "$KEY_UPDATED_AT": "2026-08-01T10:00:00Z"
+                    }
+                  ],
+                  "$KEY_CHALLENGE_PROGRESS_ENTRIES": [
+                    {
+                      "$KEY_ID": 1,
+                      "$KEY_CHALLENGE_ID": 1,
+                      "$KEY_VALUE": $LONG_MAX_VALUE,
+                      "$KEY_ENTRY_DATE": "2026-08-01",
+                      "$KEY_OCCURRED_AT": "2026-08-01T11:00:00Z",
+                      "$KEY_CREATED_AT": "2026-08-01T11:00:00Z",
+                      "$KEY_UPDATED_AT": "2026-08-01T11:00:00Z"
+                    },
+                    {
+                      "$KEY_ID": 2,
+                      "$KEY_CHALLENGE_ID": 1,
+                      "$KEY_VALUE": 1,
+                      "$KEY_ENTRY_DATE": "2026-08-02",
+                      "$KEY_OCCURRED_AT": "2026-08-02T11:00:00Z",
+                      "$KEY_CREATED_AT": "2026-08-02T11:00:00Z",
+                      "$KEY_UPDATED_AT": "2026-08-02T11:00:00Z"
+                    }
+                  ],
+                  "$KEY_SETTINGS": {
+                    "$KEY_THEME_MODE": "$THEME_MODE_SYSTEM",
+                    "$KEY_LANGUAGE_TAG": "$LANGUAGE_TAG_ENGLISH",
+                    "$KEY_SLOT_MODE_POLICY": "$SLOT_MODE_POLICY_AUTO_WHEN_MULTIPLE"
+                  }
+                }
+                """.trimIndent()
+
+            val result = repository.importBackupJson(raw)
+
+            assertEquals(ImportBackupResult.Failure(ImportBackupError.INVALID_FIELD_VALUE), result)
+            assertTrue(database.challengeDao().getAllChallenges().isEmpty())
+            assertTrue(database.challengeDao().getAllProgressEntries().isEmpty())
         }
 }
 
@@ -280,3 +346,4 @@ private const val TEST_APP_VERSION = "1.5.0"
 private const val THEME_MODE_SYSTEM = "SYSTEM"
 private const val LANGUAGE_TAG_ENGLISH = "en"
 private const val SLOT_MODE_POLICY_AUTO_WHEN_MULTIPLE = "AUTO_WHEN_MULTIPLE"
+private const val LONG_MAX_VALUE = Long.MAX_VALUE

@@ -8,6 +8,8 @@ import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGES_COUNT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_ENTRIES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_CONFIGURED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.FAILURE_REASON
@@ -31,6 +33,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BAC
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SEED_DEMO_DATA
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_BACKUP_FOLDER
+import com.rafaelfelipeac.hermes.features.backup.BACKUP_IMPORT_LOG_TAG
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
@@ -74,6 +77,8 @@ class SettingsViewModel
     ) : ViewModel() {
         private val demoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val demoSeedCompletedEvents: SharedFlow<Unit> = demoSeedEvents.asSharedFlow()
+        private val challengeDemoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+        val challengeDemoSeedCompletedEvents: SharedFlow<Unit> = challengeDemoSeedEvents.asSharedFlow()
         private val mixedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val mixedTrophiesSeedCompletedEvents: SharedFlow<Unit> = mixedTrophiesSeedEvents.asSharedFlow()
         private val lockedTrophiesSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -294,6 +299,14 @@ class SettingsViewModel
                 }
             }
 
+        fun seedChallengeDemoData() =
+            viewModelScope.launch {
+                if (demoDataSeeder.seedChallenges()) {
+                    logDemoSeedMutation()
+                    challengeDemoSeedEvents.emit(Unit)
+                }
+            }
+
         fun seedCompletedTrophies() =
             viewModelScope.launch {
                 if (demoDataSeeder.seedCompletedTrophies()) {
@@ -353,6 +366,8 @@ class SettingsViewModel
                     backupRepository.getDataStats()
                 }.onSuccess { stats ->
                     metadata[SCHEMA_VERSION] = stats.schemaVersion.toString()
+                    metadata[CHALLENGES_COUNT] = stats.challengesCount.toString()
+                    metadata[CHALLENGE_PROGRESS_ENTRIES_COUNT] = stats.challengeProgressEntriesCount.toString()
                     metadata[WORKOUTS_COUNT] = stats.workoutsCount.toString()
                     metadata[CATEGORIES_COUNT] = stats.categoriesCount.toString()
                     metadata[USER_ACTIONS_COUNT] = stats.userActionsCount.toString()
@@ -394,6 +409,8 @@ class SettingsViewModel
             if (result is ImportBackupResult.Success) {
                 metadata[RESULT] = RESULT_SUCCESS
                 metadata[SCHEMA_VERSION] = result.schemaVersion.toString()
+                metadata[CHALLENGES_COUNT] = result.challengesCount.toString()
+                metadata[CHALLENGE_PROGRESS_ENTRIES_COUNT] = result.challengeProgressEntriesCount.toString()
                 metadata[WORKOUTS_COUNT] = result.workoutsCount.toString()
                 metadata[CATEGORIES_COUNT] = result.categoriesCount.toString()
                 metadata[USER_ACTIONS_COUNT] = result.userActionsCount.toString()
@@ -403,7 +420,7 @@ class SettingsViewModel
                 }.onFailure { throwable ->
                     metadata[FAILURE_REASON] = throwable.toSideEffectFailureReason()
                     Log.w(
-                        SETTINGS_VIEW_MODEL_LOG_TAG,
+                        BACKUP_IMPORT_LOG_TAG,
                         LOG_IMPORT_TIMESTAMP_SIDE_EFFECT_FAILED,
                         throwable,
                     )

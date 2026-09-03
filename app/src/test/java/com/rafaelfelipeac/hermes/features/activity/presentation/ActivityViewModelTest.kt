@@ -689,7 +689,7 @@ class ActivityViewModelTest {
                 R.string.activity_subtitle_workout_category to "Category %1\$s.",
                 R.string.activity_subtitle_workout_category_change to "Category from %1\$s to %2\$s.",
                 R.string.activity_subtitle_week to "Week of %1\$s.",
-                R.string.activity_subtitle_separator to " • ",
+                R.string.activity_subtitle_separator to "\n",
                 R.string.activity_time_pattern to "HH:mm",
                 R.string.activity_week_date_pattern to "MMM d, yyyy",
                 R.string.activity_value_system to "System",

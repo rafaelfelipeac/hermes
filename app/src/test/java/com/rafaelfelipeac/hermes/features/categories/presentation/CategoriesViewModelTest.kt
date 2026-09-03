@@ -20,6 +20,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNC
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
@@ -49,6 +50,7 @@ class CategoriesViewModelTest {
             val logger = FakeUserActionLogger()
             val repository = mockk<CategoryRepository>(relaxed = true)
             val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val categoriesFlow =
                 MutableStateFlow(
@@ -67,6 +69,7 @@ class CategoriesViewModelTest {
                     repository = repository,
                     workoutRepository = workoutRepository,
                     personalRecordsRepository = personalRecordsRepository,
+                    challengeRepository = challengeRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -88,6 +91,7 @@ class CategoriesViewModelTest {
             val logger = FakeUserActionLogger()
             val repository = mockk<CategoryRepository>(relaxed = true)
             val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val categoriesFlow =
                 MutableStateFlow(
@@ -102,6 +106,7 @@ class CategoriesViewModelTest {
                     repository = repository,
                     workoutRepository = workoutRepository,
                     personalRecordsRepository = personalRecordsRepository,
+                    challengeRepository = challengeRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -128,6 +133,7 @@ class CategoriesViewModelTest {
             val logger = FakeUserActionLogger()
             val repository = mockk<CategoryRepository>(relaxed = true)
             val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val categoriesFlow =
                 MutableStateFlow(
@@ -144,6 +150,7 @@ class CategoriesViewModelTest {
                     repository = repository,
                     workoutRepository = workoutRepository,
                     personalRecordsRepository = personalRecordsRepository,
+                    challengeRepository = challengeRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -170,6 +177,7 @@ class CategoriesViewModelTest {
             val logger = FakeUserActionLogger()
             val repository = mockk<CategoryRepository>(relaxed = true)
             val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val categoriesFlow =
                 MutableStateFlow(
@@ -186,6 +194,7 @@ class CategoriesViewModelTest {
                     repository = repository,
                     workoutRepository = workoutRepository,
                     personalRecordsRepository = personalRecordsRepository,
+                    challengeRepository = challengeRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -212,6 +221,7 @@ class CategoriesViewModelTest {
             val logger = FakeUserActionLogger()
             val repository = mockk<CategoryRepository>(relaxed = true)
             val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val categoriesFlow =
                 MutableStateFlow(
@@ -229,6 +239,7 @@ class CategoriesViewModelTest {
                     repository = repository,
                     workoutRepository = workoutRepository,
                     personalRecordsRepository = personalRecordsRepository,
+                    challengeRepository = challengeRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -249,6 +260,7 @@ class CategoriesViewModelTest {
             val logger = FakeUserActionLogger()
             val repository = mockk<CategoryRepository>(relaxed = true)
             val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val categoriesFlow =
                 MutableStateFlow(
@@ -265,6 +277,7 @@ class CategoriesViewModelTest {
                     repository = repository,
                     workoutRepository = workoutRepository,
                     personalRecordsRepository = personalRecordsRepository,
+                    challengeRepository = challengeRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -274,6 +287,7 @@ class CategoriesViewModelTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) { personalRecordsRepository.reassignCategory(2L, null) }
+            coVerify(exactly = 1) { challengeRepository.reassignCategory(2L, null) }
             val action = logger.actions.last()
             assertEquals(DELETE_CATEGORY, action.actionType)
             assertEquals(2L, action.entityId)
@@ -286,6 +300,7 @@ class CategoriesViewModelTest {
             val logger = FakeUserActionLogger()
             val repository = mockk<CategoryRepository>(relaxed = true)
             val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val categoriesFlow = MutableStateFlow(emptyList<Category>())
 
@@ -300,6 +315,7 @@ class CategoriesViewModelTest {
                     repository = repository,
                     workoutRepository = workoutRepository,
                     personalRecordsRepository = personalRecordsRepository,
+                    challengeRepository = challengeRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )
@@ -320,6 +336,7 @@ class CategoriesViewModelTest {
             val logger = FakeUserActionLogger()
             val repository = mockk<CategoryRepository>(relaxed = true)
             val workoutRepository = mockk<WeeklyTrainingRepository>(relaxed = true)
+            val challengeRepository = mockk<ChallengeRepository>(relaxed = true)
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val categoriesFlow = MutableStateFlow(emptyList<Category>())
 
@@ -334,6 +351,7 @@ class CategoriesViewModelTest {
                     repository = repository,
                     workoutRepository = workoutRepository,
                     personalRecordsRepository = personalRecordsRepository,
+                    challengeRepository = challengeRepository,
                     categorySeeder = categorySeeder,
                     userActionLogger = logger,
                 )

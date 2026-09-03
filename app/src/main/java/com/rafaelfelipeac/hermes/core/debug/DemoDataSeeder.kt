@@ -11,6 +11,13 @@ import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_END_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ID
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_LIFECYCLE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
@@ -57,6 +64,11 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.STRENGTH_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.SWIM_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
+import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
@@ -87,6 +99,7 @@ import java.time.DayOfWeek.SUNDAY
 import java.time.DayOfWeek.THURSDAY
 import java.time.DayOfWeek.TUESDAY
 import java.time.DayOfWeek.WEDNESDAY
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.TemporalAdjusters
@@ -136,6 +149,7 @@ class DemoDataSeeder
         private val personalRecordDao: PersonalRecordDao,
         private val stringProvider: StringProvider,
         private val categorySeeder: CategorySeeder,
+        private val challengeRepository: ChallengeRepository,
         private val settingsRepository: SettingsRepository,
     ) {
         suspend fun clearDatabase(): Boolean {
@@ -145,6 +159,8 @@ class DemoDataSeeder
             userActionDao.deleteAll()
             personalRecordDao.deleteAllEntries()
             personalRecordDao.deleteAllFamilies()
+            challengeRepository.deleteAllProgressEntries()
+            challengeRepository.deleteAllChallenges()
             categorySeeder.ensureSeeded()
             settingsRepository.setLastSeenTrophyCelebrationToken(null)
 
@@ -166,12 +182,14 @@ class DemoDataSeeder
         suspend fun seedLockedTrophies(): Boolean {
             if (!BuildConfig.DEBUG) return false
 
-            categorySeeder.ensureSeeded()
+            categorySeeder.restoreDefaults()
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
             personalRecordDao.deleteAllEntries()
             personalRecordDao.deleteAllFamilies()
+            challengeRepository.deleteAllProgressEntries()
+            challengeRepository.deleteAllChallenges()
             settingsRepository.setLastSeenTrophyCelebrationToken(null)
 
             val currentWeekStart = LocalDate.now().with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -188,12 +206,14 @@ class DemoDataSeeder
         suspend fun seed(): Boolean {
             if (!BuildConfig.DEBUG) return false
 
-            categorySeeder.ensureSeeded()
+            categorySeeder.restoreDefaults()
 
             workoutDao.deleteAll()
             userActionDao.deleteAll()
             personalRecordDao.deleteAllEntries()
             personalRecordDao.deleteAllFamilies()
+            challengeRepository.deleteAllProgressEntries()
+            challengeRepository.deleteAllChallenges()
 
             val today = LocalDate.now()
             val currentWeekStart = today.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -227,7 +247,16 @@ class DemoDataSeeder
                 olderWeekStarts = activityHistoryWeekStarts,
                 nextWeekStart = nextWeekStart,
             )
+            seedChallengeDemoData(today)
 
+            return true
+        }
+
+        suspend fun seedChallenges(): Boolean {
+            if (!BuildConfig.DEBUG) return false
+
+            categorySeeder.restoreDefaults()
+            seedChallengeDemoData(LocalDate.now())
             return true
         }
 
@@ -696,6 +725,27 @@ class DemoDataSeeder
                     )
             }
 
+            repeat(COMPLETED_TROPHY_CHALLENGE_CREATIONS) { index ->
+                val challengeId = COMPLETED_TROPHY_CHALLENGE_ID_START + index
+                val createdDate = finalWeek.minusDays((COMPLETED_TROPHY_CHALLENGE_CREATIONS - index).toLong())
+
+                actions +=
+                    createChallengeAction(
+                        challengeId = challengeId,
+                        title = "$COMPLETED_TROPHY_CHALLENGE_TITLE_PREFIX ${index + 1}",
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 100L + index,
+                        startDate = createdDate,
+                        endDate = createdDate.plusDays(13),
+                        timestamp =
+                            createdDate
+                                .atStartOfDay(zoneId)
+                                .plusHours(10)
+                                .toInstant()
+                                .toEpochMilli(),
+                    )
+            }
+
             val personalRecordSeed = personalRecordSeeds().first()
             val personalRecordDate = finalWeek.plusDays(6)
             repeat(COMPLETED_TROPHY_PERSONAL_RECORD_FAMILIES) { index ->
@@ -789,6 +839,204 @@ class DemoDataSeeder
                 olderWeekStarts = olderWeekStarts,
                 nextWeekStart = nextWeekStart,
             ).forEach { userActionDao.insert(it) }
+        }
+
+        @Suppress("LongMethod")
+        private suspend fun seedChallengeDemoData(today: LocalDate) {
+            val zoneId = ZoneId.systemDefault()
+            val now = Instant.now()
+
+            challengeRepository.deleteAllProgressEntries()
+            challengeRepository.deleteAllChallenges()
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = RUN_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_cardio),
+                        description = stringProvider.get(R.string.mock_workout_description_long_run),
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 120L,
+                        startDate = today.minusDays(10),
+                        endDate = today.plusDays(10),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        12L to today.minusDays(9),
+                        24L to today.minusDays(8),
+                        18L to today.minusDays(8),
+                        30L to today.minusDays(5),
+                        16L to today.minusDays(3),
+                        18L to today.minusDays(2),
+                        10L to today,
+                    ),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = STRENGTH_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_strength),
+                        description = stringProvider.get(R.string.mock_workout_description_strength),
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 240L,
+                        startDate = today.minusDays(14),
+                        endDate = today.plusDays(7),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        20L to today.minusDays(12),
+                        20L to today.minusDays(12),
+                        25L to today.minusDays(8),
+                        30L to today.minusDays(4),
+                        45L to today.minusDays(2),
+                        35L to today.minusDays(1),
+                        20L to today,
+                    ),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = CYCLING_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_hiits),
+                        description = stringProvider.get(R.string.mock_workout_description_hiits),
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 180L,
+                        startDate = today.minusDays(21),
+                        endDate = today.plusDays(2),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        30L to today.minusDays(18),
+                        45L to today.minusDays(11),
+                        50L to today.minusDays(5),
+                        40L to today.minusDays(1),
+                        25L to today,
+                    ),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = SWIM_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_yoga),
+                        description = stringProvider.get(R.string.mock_workout_description_yoga),
+                        targetType = ChallengeTargetType.DAILY,
+                        targetQuantity = 1L,
+                        startDate = today,
+                        endDate = today.plusDays(13),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries = emptyList(),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = STRENGTH_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_core),
+                        description = stringProvider.get(R.string.mock_workout_description_core),
+                        targetType = ChallengeTargetType.DAILY,
+                        targetQuantity = 10L,
+                        startDate = today.minusDays(244),
+                        endDate = today.plusDays(120),
+                        lifecycle = ChallengeLifecycle.ACTIVE,
+                        archivedAt = null,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        10L to today.minusDays(20),
+                        10L to today.minusDays(19),
+                        5L to today.minusDays(12),
+                        15L to today.minusDays(12),
+                        10L to today.minusDays(6),
+                        8L to today.minusDays(2),
+                        12L to today.minusDays(1),
+                    ),
+                zoneId = zoneId,
+            )
+
+            seedChallengeScenario(
+                challenge =
+                    Challenge(
+                        id = 0L,
+                        categoryId = MOBILITY_ID,
+                        title = stringProvider.get(R.string.mock_workout_type_mobility),
+                        description = stringProvider.get(R.string.mock_workout_description_mobility),
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 45L,
+                        startDate = today.minusDays(20),
+                        endDate = today.minusDays(3),
+                        lifecycle = ChallengeLifecycle.ARCHIVED,
+                        archivedAt = now,
+                        createdAt = now,
+                        updatedAt = now,
+                    ),
+                entries =
+                    listOf(
+                        5L to today.minusDays(19),
+                        15L to today.minusDays(18),
+                        15L to today.minusDays(12),
+                        10L to today.minusDays(12),
+                        15L to today.minusDays(6),
+                    ),
+                zoneId = zoneId,
+            )
+        }
+
+        private suspend fun seedChallengeScenario(
+            challenge: Challenge,
+            entries: List<Pair<Long, LocalDate>>,
+            zoneId: ZoneId,
+        ) {
+            val challengeId = challengeRepository.insertChallenge(challenge)
+            val baseInstant = challenge.createdAt
+
+            entries.forEachIndexed { index, (quantity, entryDate) ->
+                val occurredAt =
+                    entryDate
+                        .atStartOfDay(zoneId)
+                        .plusHours(8 + index.toLong())
+                        .toInstant()
+                challengeRepository.insertProgressEntry(
+                    ChallengeProgressEntry(
+                        id = 0L,
+                        challengeId = challengeId,
+                        quantity = quantity,
+                        entryDate = entryDate,
+                        occurredAt = occurredAt,
+                        createdAt = baseInstant,
+                        updatedAt = baseInstant,
+                    ),
+                )
+            }
         }
 
         private fun buildActivityHistoryActions(
@@ -1435,6 +1683,33 @@ class DemoDataSeeder
             )
         }
 
+        private fun createChallengeAction(
+            challengeId: Long,
+            title: String,
+            targetType: ChallengeTargetType,
+            targetQuantity: Long,
+            startDate: LocalDate,
+            endDate: LocalDate,
+            timestamp: Long,
+        ): UserActionEntity {
+            return action(
+                type = UserActionType.CREATE_CHALLENGE,
+                entityType = UserActionEntityType.CHALLENGE,
+                entityId = challengeId,
+                metadata =
+                    mapOf(
+                        CHALLENGE_ID to challengeId.toString(),
+                        CHALLENGE_TITLE to title,
+                        CHALLENGE_TARGET_TYPE to targetType.name,
+                        CHALLENGE_TARGET_QUANTITY to targetQuantity.toString(),
+                        CHALLENGE_START_DATE to startDate.toString(),
+                        CHALLENGE_END_DATE to endDate.toString(),
+                        CHALLENGE_LIFECYCLE to ChallengeLifecycle.ACTIVE.name,
+                    ),
+                timestamp = timestamp,
+            )
+        }
+
         private fun createNonWorkoutAction(
             weekStartDate: LocalDate,
             dayOfWeek: DayOfWeek,
@@ -1777,10 +2052,13 @@ private const val COMPLETED_TROPHY_COPIED_WEEKS = 3
 private const val COMPLETED_TROPHY_CATEGORY_ACTIONS = 10
 private const val COMPLETED_TROPHY_BACKUP_SUCCESSES = 5
 private const val COMPLETED_TROPHY_PROTECTED_TIME_BLOCKS = 20
+private const val COMPLETED_TROPHY_CHALLENGE_CREATIONS = 15
 private const val COMPLETED_TROPHY_ENTITY_ID_START = 50_000L
 private const val COMPLETED_TROPHY_PERSONAL_RECORD_FAMILIES = 15
 private const val COMPLETED_TROPHY_PERSONAL_RECORD_ENTRIES = 50
 private const val COMPLETED_TROPHY_PACE_CALCULATIONS = 10
+private const val COMPLETED_TROPHY_CHALLENGE_ID_START = 55_000L
+private const val COMPLETED_TROPHY_CHALLENGE_TITLE_PREFIX = "Demo challenge"
 private const val COMPLETED_TROPHY_PERSONAL_RECORD_FAMILY_ID_START = 60_000L
 private const val COMPLETED_TROPHY_PERSONAL_RECORD_ENTRY_ID_START = 70_000L
 private const val DEMO_PERSONAL_RECORD_ENTRY_HOUR = 12L

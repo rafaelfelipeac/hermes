@@ -40,7 +40,6 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -69,6 +68,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
+import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
@@ -266,12 +266,7 @@ fun EventsScreen(
     Scaffold(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
-                Snackbar(
-                    snackbarData = data,
-                    containerColor = colorScheme.surfaceVariant,
-                    contentColor = colorScheme.onSurfaceVariant,
-                    actionColor = colorScheme.primary,
-                )
+                HermesSnackbar(snackbarData = data)
             }
         },
         floatingActionButton = {

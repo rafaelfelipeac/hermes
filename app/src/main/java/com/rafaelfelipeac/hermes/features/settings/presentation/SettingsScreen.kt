@@ -92,6 +92,7 @@ fun SettingsScreen(
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
     val demoDataCreatedMessage = stringResource(R.string.settings_demo_data_created)
+    val challengeDemoDataCreatedMessage = stringResource(R.string.settings_challenge_demo_data_created)
     val mixedTrophiesCreatedMessage = stringResource(R.string.settings_mixed_trophies_created)
     val lockedTrophiesCreatedMessage = stringResource(R.string.settings_locked_trophies_created)
     val completedTrophiesCreatedMessage = stringResource(R.string.settings_completed_trophies_created)
@@ -125,6 +126,16 @@ fun SettingsScreen(
             Toast.makeText(
                 context,
                 demoDataCreatedMessage,
+                Toast.LENGTH_SHORT,
+            ).show()
+        }
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.challengeDemoSeedCompletedEvents.collect {
+            Toast.makeText(
+                context,
+                challengeDemoDataCreatedMessage,
                 Toast.LENGTH_SHORT,
             ).show()
         }
@@ -526,17 +537,17 @@ private fun SettingsVersionCard(
     hasReleaseNotes: Boolean,
     onClick: () -> Unit,
 ) {
-    val clickModifier =
-        if (hasReleaseNotes) {
-            Modifier.clickable(onClick = onClick)
-        } else {
-            Modifier
-        }
-
     SettingsCard(
         modifier =
-            clickModifier
-                .testTag(SETTINGS_APP_VERSION_CARD_TAG),
+            Modifier
+                .testTag(SETTINGS_APP_VERSION_CARD_TAG)
+                .then(
+                    if (hasReleaseNotes) {
+                        Modifier.clickable(onClick = onClick)
+                    } else {
+                        Modifier
+                    },
+                ),
     ) {
         Column(
             modifier =

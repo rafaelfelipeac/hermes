@@ -2,13 +2,16 @@ package com.rafaelfelipeac.hermes.features.activity.presentation
 
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataSerializer
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
@@ -38,6 +41,7 @@ internal fun filterActions(
             ActivityPrimaryFilter.COMPLETIONS -> action.isCompletionAction()
             ActivityPrimaryFilter.PLANNING -> action.isPlanningAction()
             ActivityPrimaryFilter.CATEGORIES -> action.isCategoryAction()
+            ActivityPrimaryFilter.CHALLENGES -> action.isChallengeAction()
             ActivityPrimaryFilter.CATEGORY -> {
                 val selectedCategoryName = context.categoryId?.let(categoryNameById::get)
                 val categoryIds = categoryIdsForAction(action, formatter)
@@ -125,7 +129,8 @@ internal fun weekStartDateForAction(
 
 private fun UserActionRecord.isCompletionAction(): Boolean {
     val actionType = actionType.toUserActionTypeOrNull() ?: return false
-    return actionType in completionActions
+    return actionType in completionActions ||
+        actionType in challengeProgressActions && isChallengeCompletionTransition()
 }
 
 private fun UserActionRecord.isPlanningAction(): Boolean {
@@ -140,6 +145,11 @@ private fun UserActionRecord.isCategoryAction(): Boolean {
 private fun UserActionRecord.isSettingsAction(): Boolean {
     val entityType = entityType.toUserActionEntityTypeOrNull()
     return entityType == UserActionEntityType.SETTINGS || entityType == UserActionEntityType.APP
+}
+
+private fun UserActionRecord.isChallengeAction(): Boolean {
+    val actionType = actionType.toUserActionTypeOrNull() ?: return false
+    return actionType in challengeActions
 }
 
 private val completionActions =
@@ -211,3 +221,30 @@ private val planningActions =
         UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY,
         UserActionType.USE_PACE_CALCULATOR,
     )
+
+private val challengeActions =
+    setOf(
+        UserActionType.CREATE_CHALLENGE,
+        UserActionType.UPDATE_CHALLENGE,
+        UserActionType.ARCHIVE_CHALLENGE,
+        UserActionType.REACTIVATE_CHALLENGE,
+        UserActionType.DELETE_CHALLENGE,
+        UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.DELETE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.RESTORE_CHALLENGE,
+        UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
+    )
+
+private val challengeProgressActions =
+    setOf(
+        UserActionType.CREATE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY,
+        UserActionType.RESTORE_CHALLENGE_PROGRESS_ENTRY,
+    )
+
+private fun UserActionRecord.isChallengeCompletionTransition(): Boolean {
+    val metadata = UserActionMetadataSerializer.fromJson(metadata)
+    return metadata[WAS_COMPLETED] == false.toString() &&
+        metadata[IS_COMPLETED] == true.toString()
+}

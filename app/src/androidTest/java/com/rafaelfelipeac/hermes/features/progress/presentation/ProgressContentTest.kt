@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 import com.rafaelfelipeac.hermes.features.trophies.presentation.FeaturedTrophyMode
@@ -84,8 +85,8 @@ class ProgressContentTest {
         }
 
         composeRule.onNodeWithText("Long run").assertIsDisplayed().performClick()
-        composeRule.onNodeWithText("Race Ready").assertIsDisplayed().performClick()
-        composeRule.onNodeWithText("You completed an event.").assertIsDisplayed().performClick()
+        composeRule.onNodeWithText("Race Ready").performScrollTo().assertIsDisplayed().performClick()
+        composeRule.onNodeWithText("You completed an event.").performScrollTo().assertIsDisplayed().performClick()
 
         composeRule.runOnIdle {
             assertTrue(openedEvent)

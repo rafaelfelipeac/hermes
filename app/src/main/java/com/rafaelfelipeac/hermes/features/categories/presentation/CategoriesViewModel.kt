@@ -23,6 +23,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNC
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,6 +42,7 @@ class CategoriesViewModel
         private val repository: CategoryRepository,
         private val workoutRepository: WeeklyTrainingRepository,
         private val personalRecordsRepository: PersonalRecordsRepository,
+        private val challengeRepository: ChallengeRepository,
         private val categorySeeder: CategorySeeder,
         private val userActionLogger: UserActionLogger,
     ) : ViewModel() {
@@ -176,6 +178,7 @@ class CategoriesViewModel
             viewModelScope.launch {
                 workoutRepository.reassignCategory(categoryId, UNCATEGORIZED_ID)
                 personalRecordsRepository.reassignCategory(categoryId, null)
+                challengeRepository.reassignCategory(categoryId, null)
                 repository.deleteCategory(categoryId)
 
                 userActionLogger.log(

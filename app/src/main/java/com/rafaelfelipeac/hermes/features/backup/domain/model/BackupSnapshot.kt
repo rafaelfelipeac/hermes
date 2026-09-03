@@ -4,6 +4,8 @@ data class BackupSnapshot(
     val schemaVersion: Int,
     val exportedAt: String,
     val appVersion: String? = null,
+    val challenges: List<BackupChallengeRecord> = emptyList(),
+    val challengeProgressEntries: List<BackupChallengeProgressEntryRecord> = emptyList(),
     val workouts: List<BackupWorkoutRecord>,
     val categories: List<BackupCategoryRecord>,
     val personalRecordFamilies: List<BackupPersonalRecordFamilyRecord>,

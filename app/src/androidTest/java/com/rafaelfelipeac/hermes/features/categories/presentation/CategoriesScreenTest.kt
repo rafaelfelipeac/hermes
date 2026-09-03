@@ -15,6 +15,10 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateBounds
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
+import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
@@ -30,6 +34,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
 
 private const val EMPTY_STRING = ""
@@ -47,6 +52,7 @@ class CategoriesScreenTest {
                 repository = repository,
                 workoutRepository = FakeWeeklyTrainingRepository(),
                 personalRecordsRepository = FakePersonalRecordsRepository(),
+                challengeRepository = FakeChallengeRepository(),
                 categorySeeder = CategorySeeder(repository, FakeStringProvider()),
                 userActionLogger = FakeUserActionLogger(),
             )
@@ -94,6 +100,7 @@ class CategoriesScreenTest {
                 repository = repository,
                 workoutRepository = workoutRepository,
                 personalRecordsRepository = FakePersonalRecordsRepository(),
+                challengeRepository = FakeChallengeRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -149,6 +156,7 @@ class CategoriesScreenTest {
                 repository = repository,
                 workoutRepository = workoutRepository,
                 personalRecordsRepository = FakePersonalRecordsRepository(),
+                challengeRepository = FakeChallengeRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -197,6 +205,7 @@ class CategoriesScreenTest {
                 repository = repository,
                 workoutRepository = workoutRepository,
                 personalRecordsRepository = FakePersonalRecordsRepository(),
+                challengeRepository = FakeChallengeRepository(),
                 categorySeeder = categorySeeder,
                 userActionLogger = logger,
             )
@@ -315,6 +324,66 @@ class CategoriesScreenTest {
         }
 
         fun restoreDefaultsCalls(): Int = insertCategoryCalls + insertCategoriesCalls
+    }
+
+    private class FakeChallengeRepository : ChallengeRepository {
+        override fun observeActiveChallenges(): Flow<List<Challenge>> = emptyFlow()
+
+        override fun observeArchivedChallenges(): Flow<List<Challenge>> = emptyFlow()
+
+        override fun observeChallenge(id: Long): Flow<Challenge?> = emptyFlow()
+
+        override fun observeProgressEntries(challengeId: Long): Flow<List<ChallengeProgressEntry>> = emptyFlow()
+
+        override fun observeAllProgressEntries(): Flow<List<ChallengeProgressEntry>> = emptyFlow()
+
+        override suspend fun getActiveChallenges(): List<Challenge> = emptyList()
+
+        override suspend fun getArchivedChallenges(): List<Challenge> = emptyList()
+
+        override suspend fun getChallenge(id: Long): Challenge? = null
+
+        override suspend fun getChallengeDateBounds(id: Long): ChallengeDateBounds? = null
+
+        override suspend fun getProgressEntries(challengeId: Long): List<ChallengeProgressEntry> = emptyList()
+
+        override suspend fun getAllChallenges(): List<Challenge> = emptyList()
+
+        override suspend fun getAllProgressEntries(): List<ChallengeProgressEntry> = emptyList()
+
+        override suspend fun insertChallenge(challenge: Challenge): Long = 0L
+
+        override suspend fun updateChallenge(challenge: Challenge) = Unit
+
+        override suspend fun reassignCategory(
+            categoryId: Long,
+            newCategoryId: Long?,
+        ) = Unit
+
+        override suspend fun archiveChallenge(
+            id: Long,
+            archivedAt: Instant,
+        ) = Unit
+
+        override suspend fun reactivateChallenge(id: Long) = Unit
+
+        override suspend fun deleteChallenge(id: Long) = Unit
+
+        override suspend fun insertProgressEntry(entry: ChallengeProgressEntry): Long = 0L
+
+        override suspend fun restoreProgressEntry(entry: ChallengeProgressEntry): Long = 0L
+
+        override suspend fun updateProgressEntry(entry: ChallengeProgressEntry) = Unit
+
+        override suspend fun deleteProgressEntry(id: Long) = Unit
+
+        override suspend fun replaceChallenges(challenges: List<Challenge>) = Unit
+
+        override suspend fun replaceProgressEntries(entries: List<ChallengeProgressEntry>) = Unit
+
+        override suspend fun deleteAllChallenges() = Unit
+
+        override suspend fun deleteAllProgressEntries() = Unit
     }
 
     private class FakeWeeklyTrainingRepository : WeeklyTrainingRepository {

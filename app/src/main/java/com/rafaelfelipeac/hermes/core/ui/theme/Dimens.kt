@@ -21,6 +21,7 @@ object Dimens {
     val EmptyStateCardPadding = 24.dp
     val EmptyStateIconContainerSize = 52.dp
     val EmptyStateIconSize = 24.dp
+    val ChallengeCompletionIconSize = 40.dp
 
     val SwipeThreshold = 72.dp
     val AddMenuBottomPadding = 88.dp
@@ -43,6 +44,7 @@ object Dimens {
     val ReleaseNotesBottomPadding = 24.dp
     val ProgressSummaryCardMinHeight = 92.dp
     val ProgressReadoutBarHeight = 10.dp
+    val ChallengeProgressBarHeight = 6.dp
     val ProgressTrendBarHeight = 96.dp
     val ProgressTrendBarMinWidth = 28.dp
     val ProgressTrendAxisWidth = 34.dp

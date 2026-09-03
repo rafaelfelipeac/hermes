@@ -101,6 +101,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.os.ConfigurationCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
+import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
@@ -1325,7 +1327,6 @@ internal fun PersonalRecordFamilyEditorDialog(
     var comparisonRule by rememberSaveable(initialFamily?.id) {
         mutableStateOf(initialFamily?.comparisonRule ?: metricType.defaultComparisonRule())
     }
-    var categoryMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var metricMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var comparisonMenuExpanded by rememberSaveable { mutableStateOf(false) }
     var didInitializeMetricRule by rememberSaveable(initialFamily?.id) { mutableStateOf(false) }
@@ -1371,50 +1372,21 @@ internal fun PersonalRecordFamilyEditorDialog(
 
                 Spacer(modifier = Modifier.height(SpacingLg))
 
-                ExposedDropdownMenuBox(
-                    expanded = categoryMenuExpanded,
-                    onExpandedChange = { categoryMenuExpanded = !categoryMenuExpanded },
-                ) {
-                    OutlinedTextField(
-                        readOnly = true,
-                        value = categoryLabelFor(categoryId, categories),
-                        onValueChange = {},
-                        label = { Text(text = stringResource(R.string.personal_records_family_category)) },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = categoryMenuExpanded)
+                CategoryPickerField(
+                    label = stringResource(R.string.personal_records_family_category),
+                    categories =
+                        remember(categories) {
+                            categories.map { category ->
+                                CategoryPickerOption(
+                                    id = category.id,
+                                    name = category.name,
+                                    colorId = category.colorId,
+                                )
+                            }
                         },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                    )
-
-                    DropdownMenu(
-                        expanded = categoryMenuExpanded,
-                        onDismissRequest = { categoryMenuExpanded = false },
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text(text = stringResource(R.string.category_uncategorized)) },
-                            onClick = {
-                                categoryId = null
-                                categoryMenuExpanded = false
-                            },
-                        )
-                        categories.forEach { category ->
-                            val accent = categoryAccentColor(category.colorId)
-                            DropdownMenuItem(
-                                text = {
-                                    TitleChip(
-                                        label = category.name,
-                                        containerColor = accent,
-                                        contentColor = contentColorForBackground(accent),
-                                    )
-                                },
-                                onClick = {
-                                    categoryId = category.id
-                                    categoryMenuExpanded = false
-                                },
-                            )
-                        }
-                    }
-                }
+                    selectedCategoryId = categoryId,
+                    onCategorySelected = { categoryId = it },
+                )
 
                 Spacer(modifier = Modifier.height(SpacingLg))
 
@@ -2047,18 +2019,6 @@ private fun buildFamilyGroups(
         }
 
     return categoryGroups + uncategorizedGroup
-}
-
-@Composable
-private fun categoryLabelFor(
-    categoryId: Long?,
-    categories: List<Category>,
-): String {
-    return if (categoryId == null) {
-        stringResource(R.string.category_uncategorized)
-    } else {
-        categories.firstOrNull { it.id == categoryId }?.name ?: stringResource(R.string.category_uncategorized)
-    }
 }
 
 @Composable
