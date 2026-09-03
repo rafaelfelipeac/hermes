@@ -204,10 +204,10 @@
     <string name="settings_release_notes_fixed">修正</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>カスタマイズ可能なシリーズ、結果履歴、ベスト結果の自動または手動選択に対応した自己ベスト</item>
-        <item>一般的な距離プリセットからペース、時間、距離を計算できるペース計算機</item>
-        <item>設定で距離、ペース、重量の単位を選択可能</item>
-        <item>アクティビティ履歴、トロフィー、デモデータ、バックアップと復元で自己ベストに対応</item>
+        <item>日々または合計の目標、柔軟な期間、任意のカテゴリーを設定できるチャレンジ</item>
+        <item>今日の目標、繰り越した遅れ、取り戻すために必要な進捗を示すリアルタイムのペースガイド</item>
+        <item>素早い進捗更新、日付別の履歴、編集、アーカイブ、完了時のお祝い</item>
+        <item>アクティビティ履歴、トロフィー、デモデータ、バックアップと復元でチャレンジに対応</item>
     </string-array>
     <string name="settings_back">戻る</string>
     <string name="settings_feedback_title">フィードバック</string>

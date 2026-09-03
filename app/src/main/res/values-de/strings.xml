@@ -208,10 +208,10 @@
     <string name="settings_release_notes_fixed">Behoben</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Persönliche Rekorde mit anpassbaren Serien, Ergebnisverlauf und automatischer oder manueller Auswahl des besten Ergebnisses</item>
-        <item>Tempo-Rechner zum Berechnen von Tempo, Zeit oder Distanz mit gängigen Distanzvorgaben</item>
-        <item>Einstellungen für Distanz-, Tempo- und Gewichtseinheiten</item>
-        <item>Persönliche Rekorde in Aktivitätsverlauf, Trophäen, Demodaten und Sicherung/Wiederherstellung integriert</item>
+        <item>Challenges mit Tages- oder Gesamtzielen, flexiblen Zeiträumen und optionalen Kategorien</item>
+        <item>Live-Tempoempfehlungen mit dem heutigen Ziel, aufgelaufenem Rückstand und dem nötigen Fortschritt zum Aufholen</item>
+        <item>Schnelle Fortschrittsupdates, datierter Verlauf, Bearbeitung, Archivierung und Abschlussfeiern</item>
+        <item>Challenges in Aktivitätsverlauf, Trophäen, Demodaten und Sicherung/Wiederherstellung integriert</item>
     </string-array>
     <string name="settings_back">Zurück</string>
     <string name="settings_feedback_title">Feedback</string>

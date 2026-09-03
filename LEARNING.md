@@ -560,3 +560,4 @@ Recent learnings:
 - Backup import validation needs to validate aggregate quantities, not only each individual row. A set of individually valid progress entries can still overflow the calculator's representable total and should fail before replace-mode import writes anything.
 - Trophy replay should treat Activity metadata as untrusted historical input. Malformed challenge dates should skip the affected replay action instead of crashing recomputation for every trophy.
 - Saveable Compose state should store primitive representations for temporal values. Persisting a nullable epoch day keeps progress dialogs alive across recreation without adding custom savers or widening UI state ownership.
+- Release notes for a broad feature should separate the core workflow, live guidance, interaction details, and cross-feature integrations. This keeps Challenges understandable to users without exposing database, backup-schema, or navigation implementation details.

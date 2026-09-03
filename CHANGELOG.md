@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.12.0]
+### Added
+- Challenges with daily or total goals, flexible date ranges and optional categories
+- Live pacing guidance with today’s target, carried debt and progress needed to recover
+- Quick progress updates, dated history, editing, archiving and completion celebrations
+- Challenge support across Activity history, trophies, demo data and backup/restore
+
 ## [v1.11.0]
 ### Added
 - Personal Records with customizable series, result history and automatic or manual best-result selection

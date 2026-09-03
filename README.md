@@ -44,6 +44,7 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 - Personal Records with customizable series, result history and best-result tracking
 - Pace calculator for pace, time and distance
 - Configurable distance, pace and weight units
+- Challenges with daily or total goals, pacing guidance, progress history and completion celebrations
 - Mark days or sessions as:
   - **Training**
   - **Rest day**
