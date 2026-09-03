@@ -27,12 +27,12 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
@@ -165,7 +165,7 @@ fun CategoriesScreen(
                         modifier = Modifier.fillMaxSize(),
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.HelpOutline,
+                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
                             contentDescription = stringResource(R.string.categories_help_icon),
                             tint = actionIconTint,
                             modifier = Modifier.size(HelpIconGlyphSize),

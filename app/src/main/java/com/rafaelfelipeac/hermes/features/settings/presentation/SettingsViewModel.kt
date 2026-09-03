@@ -338,11 +338,6 @@ class SettingsViewModel
                 }
             }
 
-        fun syncLocalizedCategories() =
-            viewModelScope.launch {
-                categorySeeder.syncLocalizedNames()
-            }
-
         suspend fun exportBackupJson(appVersion: String): Result<String> {
             return backupRepository.exportBackupJson(appVersion)
         }

@@ -44,7 +44,7 @@ private fun Class<*>.findDeclaredField(name: String) =
     generateSequence(this) { it.superclass }.firstNotNullOfOrNull { clazz ->
         runCatching {
             clazz.getDeclaredField(
-                name
+                name,
             )
         }.getOrNull()
     }

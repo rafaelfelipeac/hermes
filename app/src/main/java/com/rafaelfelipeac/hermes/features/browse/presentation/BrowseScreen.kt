@@ -84,7 +84,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-internal const val BROWSE_ROOT_TAG = "browse_root"
 private const val BROWSE_CARD_TAG_PREFIX = "browse_card_"
 private const val BACKUP_MIME_TYPE = "application/json"
 private const val BACKUP_EXTENSION = ".json"

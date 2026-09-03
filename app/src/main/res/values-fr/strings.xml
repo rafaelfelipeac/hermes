@@ -7,7 +7,6 @@
 
     <!-- Navigation -->
     <string name="weekly_training_nav_label">Accueil</string>
-    <string name="activity_nav_label">Activité</string>
     <string name="progress_nav_label">Progression</string>
     <string name="browse_nav_label">Explorer</string>
     <string name="browse_title">Explorer</string>
@@ -18,20 +17,9 @@
     <string name="progress_title">Progression</string>
     <string name="progress_empty_title">Pas encore de progression.</string>
     <string name="progress_empty">Planifiez quelques séances pour voir votre progression ici.</string>
-    <string name="progress_section_at_a_glance">En un coup d’œil</string>
-    <string name="progress_section_this_week">Cette semaine</string>
     <string name="progress_section_weekly_trend">Progression hebdomadaire</string>
-    <string name="progress_section_categories">Répartition par catégorie</string>
-    <string name="progress_section_trophy">Trophée en vedette</string>
     <string name="progress_section_recent_activity">Activité récente</string>
-    <string name="progress_section_upcoming">À venir</string>
     <string name="progress_view_all_activity">Tout voir</string>
-    <string name="progress_card_this_week">Cette semaine</string>
-    <string name="progress_card_consistency">Semaines complètes</string>
-    <string name="progress_card_top_category">Catégorie principale</string>
-    <string name="progress_card_upcoming_days">Jours</string>
-    <string name="progress_last_8_weeks">8 dernières semaines</string>
-    <string name="progress_completed_of_planned">%1$d sur %2$d terminés</string>
     <string name="progress_section_weekly_readout">Bilan hebdomadaire</string>
     <string name="progress_readout_on_track">Dans le rythme</string>
     <string name="progress_readout_completed">%1$d élément planifié terminé sur %2$d</string>
@@ -50,9 +38,7 @@
     <string name="progress_support_next_focus">Prochain objectif</string>
     <string name="progress_support_upcoming_event">Événement à venir</string>
     <string name="progress_support_trophy">Trophée</string>
-    <string name="progress_no_support_cards">Continuez à planifier pour afficher plus de détails.</string>
     <string name="progress_recent_activity_caption">Dernières modifications de votre historique d’entraînement.</string>
-    <string name="progress_no_trophy_highlight">Continuez à enregistrer pour afficher un trophée en vedette.</string>
     <string name="progress_trophy_recent_unlock">Récemment débloqué</string>
     <string name="progress_trophy_nearest">Trophée le plus proche</string>
     <string name="progress_days_until">dans %1$d jours</string>
@@ -204,7 +190,6 @@
     <string name="settings_release_notes_available">Notes de version</string>
     <string name="settings_release_notes_title">Nouveautés de %1$s</string>
     <string name="settings_release_notes_added">Ajouté</string>
-    <string name="settings_release_notes_fixed">Corrigé</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
         <item>Défis avec objectifs quotidiens ou globaux, plages de dates flexibles et catégories facultatives</item>
@@ -305,13 +290,6 @@
     <string name="personal_records_comparison_manual">Manuel</string>
     <string name="personal_records_title">Records personnels</string>
     <string name="personal_records_summary_title">Aperçu</string>
-    <string name="personal_records_summary_families">Séries de RP : %1$d</string>
-    <plurals name="personal_records_summary_entries">
-        <item quantity="one">%1$d résultat</item>
-        <item quantity="other">%1$d résultats</item>
-    </plurals>
-    <string name="personal_records_summary_last_update">Dernière mise à jour : %1$s</string>
-    <string name="personal_records_summary_last_update_none">Pas encore de mise à jour.</string>
     <string name="personal_records_new_family">Nouvelle série de RP</string>
     <string name="personal_records_add_result">Ajouter un résultat</string>
     <string name="personal_records_empty_title">Aucune série de RP pour le moment.</string>
@@ -320,8 +298,6 @@
         <item quantity="one">%1$d résultat</item>
         <item quantity="other">%1$d résultats</item>
     </plurals>
-    <string name="personal_records_no_results">Pas encore de résultat.</string>
-    <string name="personal_records_back_to_shelf">Retour aux séries</string>
     <string name="personal_records_current_best">Meilleur actuel</string>
     <string name="personal_records_set_current">Définir comme RP actuel</string>
     <string name="personal_records_current_selected">RP actuel</string>
@@ -332,7 +308,6 @@
     <string name="personal_records_family_title">Titre de la série</string>
     <string name="personal_records_family_category">Catégorie</string>
     <string name="personal_records_family_metric_type">Métrique</string>
-    <string name="personal_records_family_default_unit">Unité par défaut</string>
     <string name="personal_records_family_comparison_rule">Règle de comparaison</string>
     <string name="personal_records_create">Créer la série</string>
     <string name="personal_records_add_result_title">Ajouter un résultat de RP</string>
@@ -462,7 +437,6 @@
     <string name="weekly_training_delete_sick">Supprimer</string>
     <string name="weekly_training_delete_sick_title">Supprimer l’événement de maladie ?</string>
     <string name="weekly_training_delete_sick_message">Voulez-vous vraiment supprimer cet événement de maladie ?</string>
-    <string name="settings_data_title">Données</string>
     <string name="settings_backup_title">Sauvegarde</string>
     <string name="settings_backup_help_title">Gardez vos données en sécurité</string>
     <string name="settings_backup_help_message">Créez un fichier de sauvegarde pour conserver une copie sûre de vos entraînements, de votre historique d’activité et de vos réglages.\n\nSi besoin, vous pouvez restaurer cette sauvegarde à tout moment.\n\nL’importation remplacera ce qui se trouve actuellement dans l’app.</string>
@@ -541,9 +515,7 @@
     <string name="activity_action_incomplete_sick">Vous avez marqué un événement de maladie comme incomplet.</string>
     <string name="activity_action_convert_workout_to_sick">Vous avez converti l’entraînement %1$s en événement de maladie.</string>
     <string name="activity_action_convert_sick_to_workout">Vous avez converti un événement de maladie en entraînement.</string>
-    <string name="trophies_nav_label">Trophées</string>
     <string name="trophies_title">Trophées</string>
-    <string name="trophies_subtitle">Une étagère calme de moments d\'entraînement, de choix d\'organisation et de retours réguliers.</string>
     <string name="trophies_empty_title">Votre étagère prend encore forme.</string>
     <string name="trophies_empty_body">Les trophées apparaissent à mesure que vous planifiez, terminez et réorganisez vos semaines.</string>
     <string name="trophies_view_all">Voir tout</string>
@@ -558,7 +530,6 @@
     <string name="trophies_detail_share">Partager le trophée</string>
     <string name="trophies_share_chooser">Partager le trophée</string>
     <string name="trophies_share_title">J’ai débloqué le trophée %1$s dans Hermes.</string>
-    <string name="trophies_share_category">Catégorie\u00a0: %1$s.</string>
     <string name="trophies_share_cta">Planifiez votre semaine d’entraînement avec Hermes\u00a0: %1$s</string>
     <string name="trophies_share_desc_complete_weeks">J’ai terminé tous les entraînements prévus sur %1$d semaines différentes.</string>
     <string name="trophies_share_desc_workout_completions">J’ai marqué %1$d séances comme terminées.</string>
@@ -577,19 +548,12 @@
     <string name="trophies_share_desc_category_presence">J’ai terminé %1$d semaines qui incluaient au moins une séance terminée dans \"%2$s\".</string>
     <string name="trophies_share_desc_category_planning">J’ai ajouté, déplacé ou organisé des séances dans \"%2$s\" %1$d fois.</string>
     <string name="trophies_family_follow_through">Jusqu\'au bout</string>
-    <string name="trophies_family_follow_through_desc">Pour le travail prévu qui a bien été accompli.</string>
     <string name="trophies_family_consistency">Régularité</string>
-    <string name="trophies_family_consistency_desc">Pour les semaines où vous êtes revenu encore et encore.</string>
     <string name="trophies_family_adaptability">Adaptabilité</string>
-    <string name="trophies_family_adaptability_desc">Pour les plans qui ont changé mais ont tout de même tenu.</string>
     <string name="trophies_family_momentum">Élan</string>
-    <string name="trophies_family_momentum_desc">Pour les routines que vous avez poursuivies.</string>
     <string name="trophies_family_builder">Construction</string>
-    <string name="trophies_family_builder_desc">Pour la structure que vous avez construite autour de votre entraînement.</string>
     <string name="trophies_family_race_events">Événements de course</string>
-    <string name="trophies_family_race_events_desc">Pour les courses et événements que vous avez planifiés et terminés.</string>
     <string name="trophies_family_categories">Catégories</string>
-    <string name="trophies_family_categories_desc">Pour les catégories qui rendent votre étagère plus personnelle.</string>
     <string name="trophies_name_full_time">Temps Plein</string>
     <string name="trophies_name_match_fitness">Forme du Match</string>
     <string name="trophies_name_in_form">En Forme</string>
@@ -725,7 +689,6 @@
     <string name="personal_records_unit_rep_singular">répétition</string>
     <string name="personal_records_unit_rep_plural">répétitions</string>
     <string name="trophies_family_personal_records">Records Personnels</string>
-    <string name="trophies_family_personal_records_desc">Pour les séries et résultats que vous continuez à créer dans Records Personnels.</string>
     <string name="trophies_name_first_benchmark">Premier Repère</string>
     <string name="trophies_name_benchmark_builder">Bâtisseur de Repères</string>
     <string name="trophies_name_record_library">Bibliothèque de Records</string>
@@ -754,13 +717,9 @@
     <string name="challenges_field_title">Titre</string>
     <string name="challenges_field_description">Description</string>
     <string name="challenges_field_target_quantity">Quantité cible</string>
-    <string name="challenges_field_unit">Unité</string>
     <string name="challenges_field_start_date">Date de début</string>
     <string name="challenges_field_end_date">Date de fin</string>
     <string name="challenges_field_progress_quantity">Quantité de progression</string>
-    <string name="challenges_lifecycle_active">Actif</string>
-    <string name="challenges_lifecycle_archived">Archivé</string>
-    <string name="challenges_summary_line">Objectif de %1$s %2$s</string>
     <string name="challenges_status_not_started">Pas commencé</string>
     <string name="challenges_status_exceeded">Terminé et dépassé</string>
     <string name="challenges_status_completed">Terminé</string>
@@ -783,7 +742,6 @@
     <string name="challenges_undo_deleted_challenge">Défi supprimé.</string>
     <string name="challenges_undo_deleted_progress_entry">Entrée de progression supprimée.</string>
     <string name="challenge_validation_title_required">Saisissez un titre de défi.</string>
-    <string name="challenge_validation_unit_required">Saisissez une unité.</string>
     <string name="challenge_validation_quantity_required">Saisissez une quantité valide.</string>
     <string name="challenge_validation_dates_required">Choisissez les deux dates.</string>
     <string name="challenge_validation_date_range_invalid">La date de début doit être antérieure ou égale à la date de fin.</string>
@@ -811,7 +769,6 @@
     <string name="activity_action_restore_challenge_named">Vous avez restauré le défi %1$s.</string>
     <string name="activity_action_restore_challenge_progress_entry_named">Vous avez restauré la progression de %1$s.</string>
     <string name="activity_subtitle_challenge_dates">Du %1$s au %2$s.</string>
-    <string name="activity_subtitle_challenge_progress">%1$s le %2$s.</string>
     <string name="activity_subtitle_challenge_progress_added">%1$s ajouté le %2$s.</string>
     <string name="activity_subtitle_challenge_progress_updated">Passé de %1$s le %2$s à %3$s le %4$s.</string>
     <string name="activity_subtitle_challenge_progress_updated_current">%1$s mis à jour le %2$s.</string>
@@ -822,7 +779,6 @@
     <string name="trophies_share_desc_challenge_completions">J’ai terminé ou dépassé les objectifs de défi %1$d fois.</string>
     <string name="trophies_share_desc_challenge_recoveries">Je suis revenu de la dette d’un défi %1$d fois.</string>
     <string name="trophies_family_challenges">Défis</string>
-    <string name="trophies_family_challenges_desc">Pour les objectifs que vous fixez, terminez et récupérez.</string>
     <string name="trophies_name_challenge_accepted">Défi accepté</string>
     <string name="trophies_name_challenge_goal_setter">Défi accepté : créateur d’objectifs</string>
     <string name="trophies_name_challenge_goal_architect">Défi accepté : architecte d’objectifs</string>
@@ -846,7 +802,6 @@
     <string name="challenge_target_type_daily">Quotidien</string>
     <string name="challenge_target_type_total">Total</string>
     <string name="challenges_field_progress_date">Date de progression</string>
-    <string name="challenges_overall_progress_label">Progression globale</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
     <string name="challenges_progress_percent">%1$s%%</string>

@@ -13,6 +13,5 @@ data class ChallengeUiState(
     val progressEntries: List<ChallengeProgressEntry> = emptyList(),
     val calculation: ChallengeCalculationResult? = null,
     val editorState: ChallengeEditorState = ChallengeEditorState(),
-    val isLoading: Boolean = false,
     val validationMessage: String? = null,
 )

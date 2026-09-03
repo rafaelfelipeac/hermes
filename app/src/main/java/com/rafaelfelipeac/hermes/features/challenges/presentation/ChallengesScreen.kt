@@ -323,8 +323,8 @@ internal fun ChallengesScreen(
         modifier = modifier.fillMaxSize().testTag(CHALLENGES_TAG_ROOT),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         floatingActionButton = {
-            when (route) {
-                CHALLENGES_ROUTE_LIST if selectedTab == ChallengeListTab.ACTIVE -> {
+            when {
+                route == CHALLENGES_ROUTE_LIST && selectedTab == ChallengeListTab.ACTIVE -> {
                     FloatingActionButton(
                         onClick = openCreateChallenge,
                         containerColor = colorScheme.primaryContainer,
@@ -338,8 +338,9 @@ internal fun ChallengesScreen(
                     }
                 }
 
-                CHALLENGES_ROUTE_DETAIL if state.selectedChallenge?.lifecycle == ChallengeLifecycle.ACTIVE &&
-                        addProgressDefaultDate != null -> {
+                route == CHALLENGES_ROUTE_DETAIL &&
+                    state.selectedChallenge?.lifecycle == ChallengeLifecycle.ACTIVE &&
+                    addProgressDefaultDate != null -> {
                     FloatingActionButton(
                         onClick = openAddProgressDialog,
                         containerColor = colorScheme.primaryContainer,
@@ -510,13 +511,16 @@ internal fun ChallengesScreen(
                     val saved =
                         if (progressDialogIsEdit) {
                             progressDialogEntryId?.let { entryId ->
-                                viewModel.updateProgressEntry(entryId, progressDialogQuantity,
-                                    progressDialogDate
+                                viewModel.updateProgressEntry(
+                                    entryId, progressDialogQuantity,
+                                    progressDialogDate,
                                 )
                             } ?: false
                         } else {
-                            viewModel.addProgressEntry(challengeId, progressDialogQuantity,
-                                progressDialogDate
+                            viewModel.addProgressEntry(
+                                challengeId,
+                                progressDialogQuantity,
+                                progressDialogDate,
                             )
                         }
                     if (saved) {

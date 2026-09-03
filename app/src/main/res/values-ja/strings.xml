@@ -7,7 +7,6 @@
 
     <!-- Navigation -->
     <string name="weekly_training_nav_label">ホーム</string>
-    <string name="activity_nav_label">アクティビティ</string>
     <string name="progress_nav_label">進捗</string>
     <string name="browse_nav_label">ブラウズ</string>
     <string name="browse_title">ブラウズ</string>
@@ -18,20 +17,9 @@
     <string name="progress_title">進捗</string>
     <string name="progress_empty_title">まだ進捗はありません。</string>
     <string name="progress_empty">いくつかのワークアウトを計画すると、ここに進捗が表示されます。</string>
-    <string name="progress_section_at_a_glance">ひと目でわかる概要</string>
-    <string name="progress_section_this_week">今週</string>
     <string name="progress_section_weekly_trend">週ごとの完了状況</string>
-    <string name="progress_section_categories">カテゴリー内訳</string>
-    <string name="progress_section_trophy">トロフィーの注目</string>
     <string name="progress_section_recent_activity">最近のアクティビティ</string>
-    <string name="progress_section_upcoming">次の予定</string>
     <string name="progress_view_all_activity">すべて表示</string>
-    <string name="progress_card_this_week">今週</string>
-    <string name="progress_card_consistency">完了した週</string>
-    <string name="progress_card_top_category">主要カテゴリー</string>
-    <string name="progress_card_upcoming_days">日</string>
-    <string name="progress_last_8_weeks">直近8週間</string>
-    <string name="progress_completed_of_planned">%1$d / %2$d 完了</string>
     <string name="progress_section_weekly_readout">週間の読み取り</string>
     <string name="progress_readout_on_track">順調</string>
     <string name="progress_readout_completed">計画済み項目 %1$d/%2$d 件完了</string>
@@ -50,9 +38,7 @@
     <string name="progress_support_next_focus">次のフォーカス</string>
     <string name="progress_support_upcoming_event">今後のイベント</string>
     <string name="progress_support_trophy">トロフィー</string>
-    <string name="progress_no_support_cards">詳細を表示するには、計画を続けましょう。</string>
     <string name="progress_recent_activity_caption">トレーニング履歴からの最新の変更。</string>
-    <string name="progress_no_trophy_highlight">記録を続けると、トロフィーの注目が表示されます。</string>
     <string name="progress_trophy_recent_unlock">最近アンロック</string>
     <string name="progress_trophy_nearest">次に近いトロフィー</string>
     <string name="progress_days_until">あと%1$d日</string>
@@ -201,7 +187,6 @@
     <string name="settings_release_notes_available">リリースノート</string>
     <string name="settings_release_notes_title">%1$s の新機能</string>
     <string name="settings_release_notes_added">追加</string>
-    <string name="settings_release_notes_fixed">修正</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
         <item>日々または合計の目標、柔軟な期間、任意のカテゴリーを設定できるチャレンジ</item>
@@ -301,13 +286,6 @@
     <string name="personal_records_comparison_manual">手動</string>
     <string name="personal_records_title">パーソナル記録</string>
     <string name="personal_records_summary_title">概要</string>
-    <string name="personal_records_summary_families">PRシリーズ: %1$d</string>
-    <plurals name="personal_records_summary_entries">
-        <item quantity="one">%1$d件の記録</item>
-        <item quantity="other">%1$d件の記録</item>
-    </plurals>
-    <string name="personal_records_summary_last_update">最終更新: %1$s</string>
-    <string name="personal_records_summary_last_update_none">まだ更新はありません。</string>
     <string name="personal_records_new_family">新しいPRシリーズ</string>
     <string name="personal_records_add_result">結果を追加</string>
     <string name="personal_records_empty_title">まだPRシリーズがありません。</string>
@@ -316,8 +294,6 @@
         <item quantity="one">%1$d件の記録</item>
         <item quantity="other">%1$d件の記録</item>
     </plurals>
-    <string name="personal_records_no_results">まだ結果がありません。</string>
-    <string name="personal_records_back_to_shelf">シリーズ一覧に戻る</string>
     <string name="personal_records_current_best">現在のベスト</string>
     <string name="personal_records_set_current">現在の自己記録に設定</string>
     <string name="personal_records_current_selected">現在の自己記録</string>
@@ -328,7 +304,6 @@
     <string name="personal_records_family_title">シリーズのタイトル</string>
     <string name="personal_records_family_category">カテゴリ</string>
     <string name="personal_records_family_metric_type">指標</string>
-    <string name="personal_records_family_default_unit">既定の単位</string>
     <string name="personal_records_family_comparison_rule">比較ルール</string>
     <string name="personal_records_create">シリーズを作成</string>
     <string name="personal_records_add_result_title">PR結果を追加</string>
@@ -458,7 +433,6 @@
     <string name="weekly_training_delete_sick">削除</string>
     <string name="weekly_training_delete_sick_title">体調不良の予定を削除しますか？</string>
     <string name="weekly_training_delete_sick_message">この体調不良の予定を削除してもよろしいですか？</string>
-    <string name="settings_data_title">データ</string>
     <string name="settings_backup_title">バックアップ</string>
     <string name="settings_backup_help_title">データを安全に保つ</string>
     <string name="settings_backup_help_message">バックアップファイルを作成して、ワークアウト、アクティビティ履歴、設定の安全なコピーを保存できます。\n\n必要なときは、いつでもそのバックアップから復元できます。\n\nインポートすると、現在アプリ内にある内容は置き換えられます。</string>
@@ -537,9 +511,7 @@
     <string name="activity_action_incomplete_sick">体調不良の予定を未完了にしました。</string>
     <string name="activity_action_convert_workout_to_sick">ワークアウト %1$s を体調不良の予定に変換しました。</string>
     <string name="activity_action_convert_sick_to_workout">体調不良の予定をワークアウトに変換しました。</string>
-    <string name="trophies_nav_label">トロフィー</string>
     <string name="trophies_title">トロフィー</string>
-    <string name="trophies_subtitle">トレーニングの節目、計画の工夫、そして戻ってきた積み重ねを静かに並べる棚です。</string>
     <string name="trophies_empty_title">あなたの棚はまだ形になっている途中です。</string>
     <string name="trophies_empty_body">トロフィーは、週を計画し、完了し、組み替えていく中で現れます。</string>
     <string name="trophies_view_all">すべて見る</string>
@@ -554,7 +526,6 @@
     <string name="trophies_detail_share">トロフィーを共有</string>
     <string name="trophies_share_chooser">トロフィーを共有</string>
     <string name="trophies_share_title">Hermesでトロフィー「%1$s」を解除しました。</string>
-    <string name="trophies_share_category">カテゴリ: "%1$s".</string>
     <string name="trophies_share_cta">Hermesでトレーニング週を計画する: %1$s</string>
     <string name="trophies_share_desc_complete_weeks">%1$d 週分で予定したすべてのワークアウトを完了しました。</string>
     <string name="trophies_share_desc_workout_completions">%1$d 件のワークアウトを完了済みにしました。</string>
@@ -573,19 +544,12 @@
     <string name="trophies_share_desc_category_presence">%1$d 週で、\"%2$s\"の完了済みワークアウトを少なくとも 1 件含めてやり切りました。</string>
     <string name="trophies_share_desc_category_planning">\"%2$s\"でワークアウトを %1$d 回追加、移動、整理しました。</string>
     <string name="trophies_family_follow_through">やり切る</string>
-    <string name="trophies_family_follow_through_desc">計画したことをやり切った週のために。</string>
     <string name="trophies_family_consistency">継続</string>
-    <string name="trophies_family_consistency_desc">何度も戻ってきた週のために。</string>
     <string name="trophies_family_adaptability">柔軟さ</string>
-    <string name="trophies_family_adaptability_desc">変化してもまとまった計画のために。</string>
     <string name="trophies_family_momentum">勢い</string>
-    <string name="trophies_family_momentum_desc">引き継いで続けた流れのために。</string>
     <string name="trophies_family_builder">組み立て</string>
-    <string name="trophies_family_builder_desc">自分のトレーニング環境を整えたことに対して。</string>
     <string name="trophies_family_race_events">レースイベント</string>
-    <string name="trophies_family_race_events_desc">計画して完了したレースやイベントのため。</string>
     <string name="trophies_family_categories">カテゴリ</string>
-    <string name="trophies_family_categories_desc">棚を自分らしくするカテゴリのために。</string>
     <string name="trophies_name_full_time">フルタイム</string>
     <string name="trophies_name_match_fitness">試合勘</string>
     <string name="trophies_name_in_form">好調</string>
@@ -721,7 +685,6 @@
     <string name="personal_records_unit_rep_singular">回</string>
     <string name="personal_records_unit_rep_plural">回</string>
     <string name="trophies_family_personal_records">自己ベスト</string>
-    <string name="trophies_family_personal_records_desc">自己ベストで積み重ねるシリーズと結果のためのトロフィーです。</string>
     <string name="trophies_name_first_benchmark">最初の基準</string>
     <string name="trophies_name_benchmark_builder">基準の積み重ね</string>
     <string name="trophies_name_record_library">記録ライブラリ</string>
@@ -750,13 +713,9 @@
     <string name="challenges_field_title">タイトル</string>
     <string name="challenges_field_description">説明</string>
     <string name="challenges_field_target_quantity">目標数量</string>
-    <string name="challenges_field_unit">単位</string>
     <string name="challenges_field_start_date">開始日</string>
     <string name="challenges_field_end_date">終了日</string>
     <string name="challenges_field_progress_quantity">進捗数量</string>
-    <string name="challenges_lifecycle_active">有効</string>
-    <string name="challenges_lifecycle_archived">アーカイブ済み</string>
-    <string name="challenges_summary_line">%1$s %2$s を目標</string>
     <string name="challenges_status_not_started">未開始</string>
     <string name="challenges_status_exceeded">完了・超過</string>
     <string name="challenges_status_completed">完了</string>
@@ -779,7 +738,6 @@
     <string name="challenges_undo_deleted_challenge">チャレンジを削除しました。</string>
     <string name="challenges_undo_deleted_progress_entry">進捗エントリを削除しました。</string>
     <string name="challenge_validation_title_required">チャレンジのタイトルを入力してください。</string>
-    <string name="challenge_validation_unit_required">単位を入力してください。</string>
     <string name="challenge_validation_quantity_required">有効な数量を入力してください。</string>
     <string name="challenge_validation_dates_required">両方の日付を選択してください。</string>
     <string name="challenge_validation_date_range_invalid">開始日は終了日と同じか、それ以前である必要があります。</string>
@@ -807,7 +765,6 @@
     <string name="activity_action_restore_challenge_named">%1$s というチャレンジを復元しました。</string>
     <string name="activity_action_restore_challenge_progress_entry_named">%1$s の進捗を復元しました。</string>
     <string name="activity_subtitle_challenge_dates">%1$s から %2$s まで。</string>
-    <string name="activity_subtitle_challenge_progress">%2$s に %1$s。</string>
     <string name="activity_subtitle_challenge_progress_added">%2$s に %1$s を追加。</string>
     <string name="activity_subtitle_challenge_progress_updated">%2$s の %1$s から %4$s の %3$s に変更。</string>
     <string name="activity_subtitle_challenge_progress_updated_current">%2$s の %1$s を更新。</string>
@@ -818,7 +775,6 @@
     <string name="trophies_share_desc_challenge_completions">チャレンジ目標を %1$d 回達成または超過しました。</string>
     <string name="trophies_share_desc_challenge_recoveries">チャレンジの負債から %1$d 回回復しました。</string>
     <string name="trophies_family_challenges">チャレンジ</string>
-    <string name="trophies_family_challenges_desc">自分で設定し、完了し、立て直す目標のために。</string>
     <string name="trophies_name_challenge_accepted">チャレンジ受諾</string>
     <string name="trophies_name_challenge_goal_setter">チャレンジ受諾: 目標設定者</string>
     <string name="trophies_name_challenge_goal_architect">チャレンジ受諾: 目標設計者</string>
@@ -842,7 +798,6 @@
     <string name="challenge_target_type_daily">毎日</string>
     <string name="challenge_target_type_total">合計</string>
     <string name="challenges_field_progress_date">進捗日</string>
-    <string name="challenges_overall_progress_label">全体の進捗</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
     <string name="challenges_progress_percent">%1$s%%</string>

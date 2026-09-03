@@ -7,7 +7,6 @@
 
     <!-- Navigation -->
     <string name="weekly_training_nav_label">الرئيسية</string>
-    <string name="activity_nav_label">النشاط</string>
     <string name="progress_nav_label">التقدم</string>
     <string name="browse_nav_label">تصفح</string>
     <string name="browse_title">تصفح</string>
@@ -18,20 +17,9 @@
     <string name="progress_title">التقدم</string>
     <string name="progress_empty_title">لا يوجد تقدم بعد.</string>
     <string name="progress_empty">خطط لبعض التمارين لتظهر لك حالتك هنا.</string>
-    <string name="progress_section_at_a_glance">نظرة سريعة</string>
-    <string name="progress_section_this_week">هذا الأسبوع</string>
     <string name="progress_section_weekly_trend">الإنجاز الأسبوعي</string>
-    <string name="progress_section_categories">توزيع الفئات</string>
-    <string name="progress_section_trophy">أبرز الكؤوس</string>
     <string name="progress_section_recent_activity">النشاط الأخير</string>
-    <string name="progress_section_upcoming">القادم</string>
     <string name="progress_view_all_activity">عرض الكل</string>
-    <string name="progress_card_this_week">هذا الأسبوع</string>
-    <string name="progress_card_consistency">أسابيع مكتملة</string>
-    <string name="progress_card_top_category">الفئة الأبرز</string>
-    <string name="progress_card_upcoming_days">الأيام</string>
-    <string name="progress_last_8_weeks">آخر 8 أسابيع</string>
-    <string name="progress_completed_of_planned">%1$d من %2$d مكتمل</string>
     <string name="progress_section_weekly_readout">قراءة أسبوعية</string>
     <string name="progress_readout_on_track">على المسار</string>
     <string name="progress_readout_completed">اكتمل %1$d من أصل %2$d عنصر مخطط</string>
@@ -54,9 +42,7 @@
     <string name="progress_support_next_focus">التركيز التالي</string>
     <string name="progress_support_upcoming_event">حدث قادم</string>
     <string name="progress_support_trophy">كأس</string>
-    <string name="progress_no_support_cards">واصل التخطيط لإظهار المزيد من التفاصيل.</string>
     <string name="progress_recent_activity_caption">أحدث التغييرات من سجل تدريبك.</string>
-    <string name="progress_no_trophy_highlight">واصل التسجيل لإظهار أبرز الكؤوس.</string>
     <string name="progress_trophy_recent_unlock">مفتوح حديثًا</string>
     <string name="progress_trophy_nearest">أقرب كأس</string>
     <string name="progress_days_until">بعد %1$d أيام</string>
@@ -225,7 +211,6 @@
     <string name="settings_release_notes_available">ملاحظات الإصدار</string>
     <string name="settings_release_notes_title">الجديد في %1$s</string>
     <string name="settings_release_notes_added">تمت الإضافة</string>
-    <string name="settings_release_notes_fixed">تم الإصلاح</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
         <item>تحديات بأهداف يومية أو إجمالية ونطاقات زمنية مرنة وفئات اختيارية</item>
@@ -325,17 +310,6 @@
     <string name="personal_records_comparison_manual">يدوي</string>
     <string name="personal_records_title">السجلات الشخصية</string>
     <string name="personal_records_summary_title">نظرة عامة</string>
-    <string name="personal_records_summary_families">سلاسل PR: %1$d</string>
-    <plurals name="personal_records_summary_entries">
-        <item quantity="zero">لا سجلات</item>
-        <item quantity="one">سجل واحد</item>
-        <item quantity="two">سجلان</item>
-        <item quantity="few">%1$d سجلات</item>
-        <item quantity="many">%1$d سجلاً</item>
-        <item quantity="other">%1$d سجل</item>
-    </plurals>
-    <string name="personal_records_summary_last_update">آخر تحديث: %1$s</string>
-    <string name="personal_records_summary_last_update_none">لا توجد تحديثات بعد.</string>
     <string name="personal_records_new_family">سلسلة PR جديدة</string>
     <string name="personal_records_add_result">إضافة نتيجة</string>
     <string name="personal_records_empty_title">لا توجد سلاسل PR بعد.</string>
@@ -348,8 +322,6 @@
         <item quantity="many">%1$d سجلاً</item>
         <item quantity="other">%1$d سجل</item>
     </plurals>
-    <string name="personal_records_no_results">لا توجد نتيجة بعد.</string>
-    <string name="personal_records_back_to_shelf">العودة إلى السلاسل</string>
     <string name="personal_records_current_best">أفضل نتيجة حالية</string>
     <string name="personal_records_set_current">تعيين كرقم شخصي حالي</string>
     <string name="personal_records_current_selected">الرقم الشخصي الحالي</string>
@@ -360,7 +332,6 @@
     <string name="personal_records_family_title">عنوان السلسلة</string>
     <string name="personal_records_family_category">الفئة</string>
     <string name="personal_records_family_metric_type">المقياس</string>
-    <string name="personal_records_family_default_unit">الوحدة الافتراضية</string>
     <string name="personal_records_family_comparison_rule">قاعدة المقارنة</string>
     <string name="personal_records_create">إنشاء سلسلة</string>
     <string name="personal_records_add_result_title">إضافة نتيجة PR</string>
@@ -490,7 +461,6 @@
     <string name="weekly_training_delete_sick">حذف</string>
     <string name="weekly_training_delete_sick_title">حذف حدث مرض؟</string>
     <string name="weekly_training_delete_sick_message">هل أنت متأكد أنك تريد حذف حدث المرض هذا؟</string>
-    <string name="settings_data_title">البيانات</string>
     <string name="settings_backup_title">النسخ الاحتياطي</string>
     <string name="settings_backup_help_title">حافظ على بياناتك بأمان</string>
     <string name="settings_backup_help_message">أنشئ ملف نسخ احتياطي للاحتفاظ بنسخة آمنة من تمارينك وسجل النشاط والإعدادات.\n\nعند الحاجة، يمكنك الاستعادة من هذا النسخ الاحتياطي في أي وقت.\n\nسيستبدل الاستيراد ما هو موجود حاليًا في التطبيق.</string>
@@ -569,9 +539,7 @@
     <string name="activity_action_incomplete_sick">لقد وضعت علامة غير مكتمل على حدث مرض.</string>
     <string name="activity_action_convert_workout_to_sick">لقد حوّلت التمرين %1$s إلى حدث مرض.</string>
     <string name="activity_action_convert_sick_to_workout">لقد حوّلت حدث مرض إلى تمرين.</string>
-    <string name="trophies_nav_label">الكؤوس</string>
     <string name="trophies_title">الكؤوس</string>
-    <string name="trophies_subtitle">رف هادئ للحظات التدريب، وقرارات التخطيط، والعودة المستمرة.</string>
     <string name="trophies_empty_title">رفك ما زال يتشكل.</string>
     <string name="trophies_empty_body">تظهر الكؤوس مع تخطيطك لأسابيعك، وإكمالها، وإعادة تشكيلها.</string>
     <string name="trophies_view_all">عرض الكل</string>
@@ -586,7 +554,6 @@
     <string name="trophies_detail_share">مشاركة الكأس</string>
     <string name="trophies_share_chooser">مشاركة الكأس</string>
     <string name="trophies_share_title">فتحت كأس %1$s في Hermes.</string>
-    <string name="trophies_share_category">الفئة: %1$s.</string>
     <string name="trophies_share_cta">خطط لأسبوع تدريبك مع Hermes: %1$s</string>
     <string name="trophies_share_desc_complete_weeks">لقد أنهيت كل التمارين المخطط لها خلال %1$d أسابيع مختلفة.</string>
     <string name="trophies_share_desc_workout_completions">لقد علّمت %1$d تمرينًا كمكتمل.</string>
@@ -605,19 +572,12 @@
     <string name="trophies_share_desc_category_presence">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل في \"%2$s\".</string>
     <string name="trophies_share_desc_category_planning">لقد أضفت تمارين في \"%2$s\" أو نقلتها أو نظّمتها %1$d مرات.</string>
     <string name="trophies_family_follow_through">الالتزام</string>
-    <string name="trophies_family_follow_through_desc">للعمل المخطط له الذي تم إنجازه.</string>
     <string name="trophies_family_consistency">الاستمرارية</string>
-    <string name="trophies_family_consistency_desc">للأسابيع التي واصلت فيها العودة.</string>
     <string name="trophies_family_adaptability">المرونة</string>
-    <string name="trophies_family_adaptability_desc">للخطط التي تغيّرت لكنها تماسكَت.</string>
     <string name="trophies_family_momentum">الزخم</string>
-    <string name="trophies_family_momentum_desc">للروتين الذي واصلت البناء عليه.</string>
     <string name="trophies_family_builder">البناء</string>
-    <string name="trophies_family_builder_desc">لبناء النظام حول تدريبك.</string>
     <string name="trophies_family_race_events">فعاليات السباق</string>
-    <string name="trophies_family_race_events_desc">للسابقات والفعاليات التي خططت لها وأكملتها.</string>
     <string name="trophies_family_categories">الفئات</string>
-    <string name="trophies_family_categories_desc">للفئات التي تجعل هذا الرف أكثر شخصية.</string>
     <string name="trophies_name_full_time">دوام كامل</string>
     <string name="trophies_name_match_fitness">جاهزية المباراة</string>
     <string name="trophies_name_in_form">في حالة جيدة</string>
@@ -761,7 +721,6 @@
     <string name="personal_records_unit_rep_singular">تكرار</string>
     <string name="personal_records_unit_rep_plural">تكرارات</string>
     <string name="trophies_family_personal_records">الأرقام الشخصية</string>
-    <string name="trophies_family_personal_records_desc">للسلاسل والنتائج التي تواصل إنشاءها في الأرقام الشخصية.</string>
     <string name="trophies_name_first_benchmark">المعيار الأول</string>
     <string name="trophies_name_benchmark_builder">باني المعايير</string>
     <string name="trophies_name_record_library">مكتبة الأرقام</string>
@@ -790,13 +749,9 @@
     <string name="challenges_field_title">العنوان</string>
     <string name="challenges_field_description">الوصف</string>
     <string name="challenges_field_target_quantity">الكمية المستهدفة</string>
-    <string name="challenges_field_unit">الوحدة</string>
     <string name="challenges_field_start_date">تاريخ البدء</string>
     <string name="challenges_field_end_date">تاريخ الانتهاء</string>
     <string name="challenges_field_progress_quantity">كمية التقدّم</string>
-    <string name="challenges_lifecycle_active">نشط</string>
-    <string name="challenges_lifecycle_archived">مؤرشف</string>
-    <string name="challenges_summary_line">هدف %1$s %2$s</string>
     <string name="challenges_status_not_started">لم يبدأ</string>
     <string name="challenges_status_exceeded">مكتمل ومتجاوز</string>
     <string name="challenges_status_completed">مكتمل</string>
@@ -819,7 +774,6 @@
     <string name="challenges_undo_deleted_challenge">تم حذف التحدي.</string>
     <string name="challenges_undo_deleted_progress_entry">تم حذف إدخال التقدّم.</string>
     <string name="challenge_validation_title_required">أدخل عنوانًا للتحدي.</string>
-    <string name="challenge_validation_unit_required">أدخل وحدة.</string>
     <string name="challenge_validation_quantity_required">أدخل كمية صالحة.</string>
     <string name="challenge_validation_dates_required">اختر كلا التاريخين.</string>
     <string name="challenge_validation_date_range_invalid">يجب أن يكون تاريخ البدء في نفس يوم تاريخ الانتهاء أو قبله.</string>
@@ -847,7 +801,6 @@
     <string name="activity_action_restore_challenge_named">لقد استعدت التحدي %1$s.</string>
     <string name="activity_action_restore_challenge_progress_entry_named">لقد استعدت تقدّم %1$s.</string>
     <string name="activity_subtitle_challenge_dates">%1$s إلى %2$s.</string>
-    <string name="activity_subtitle_challenge_progress">%1$s في %2$s.</string>
     <string name="activity_subtitle_challenge_progress_added">تمت إضافة %1$s في %2$s.</string>
     <string name="activity_subtitle_challenge_progress_updated">تم التغيير من %1$s في %2$s إلى %3$s في %4$s.</string>
     <string name="activity_subtitle_challenge_progress_updated_current">تم تحديث %1$s في %2$s.</string>
@@ -858,7 +811,6 @@
     <string name="trophies_share_desc_challenge_completions">أكملت أو تجاوزت أهداف التحديات %1$d مرات.</string>
     <string name="trophies_share_desc_challenge_recoveries">تعافيت من دين التحديات %1$d مرات.</string>
     <string name="trophies_family_challenges">التحديات</string>
-    <string name="trophies_family_challenges_desc">للأهداف التي تضعها، وتُنهيها، وتتجاوز عثراتها.</string>
     <string name="trophies_name_challenge_accepted">تحدٍّ مقبول</string>
     <string name="trophies_name_challenge_goal_setter">تحدٍّ مقبول: واضع الأهداف</string>
     <string name="trophies_name_challenge_goal_architect">تحدٍّ مقبول: مهندس الأهداف</string>
@@ -882,7 +834,6 @@
     <string name="challenge_target_type_daily">يومي</string>
     <string name="challenge_target_type_total">إجمالي</string>
     <string name="challenges_field_progress_date">تاريخ التقدّم</string>
-    <string name="challenges_overall_progress_label">التقدّم الكلي</string>
     <string name="challenges_date_range">%1$s – %2$s</string>
     <string name="challenges_progress_value">%1$s / %2$s</string>
     <string name="challenges_progress_percent">%1$s%%</string>

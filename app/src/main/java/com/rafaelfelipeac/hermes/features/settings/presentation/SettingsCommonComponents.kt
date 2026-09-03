@@ -19,8 +19,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -168,7 +168,7 @@ internal fun SettingsDetailScreen(
                                 .clickable(onClick = onHelpClick),
                     ) {
                         Icon(
-                            imageVector = Icons.Outlined.HelpOutline,
+                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
                             contentDescription = resolvedHelpContentDescription,
                             modifier = Modifier.size(HelpIconGlyphSize),
                         )

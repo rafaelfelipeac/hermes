@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
@@ -86,7 +86,7 @@ internal fun SectionHeader(
                             .clickable(onClick = onHelpClick),
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.HelpOutline,
+                        imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
                         contentDescription = stringResource(R.string.weekly_training_tbd_help_icon),
                         modifier = Modifier.size(HelpIconGlyphSize),
                     )

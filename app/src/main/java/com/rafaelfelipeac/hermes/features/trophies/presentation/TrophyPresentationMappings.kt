@@ -353,21 +353,6 @@ internal fun familyTitleRes(family: TrophyFamilyUi): Int {
     }
 }
 
-@StringRes
-internal fun familyDescriptionRes(family: TrophyFamilyUi): Int {
-    return when (family) {
-        TrophyFamilyUi.CHALLENGES -> R.string.trophies_family_challenges_desc
-        TrophyFamilyUi.FOLLOW_THROUGH -> R.string.trophies_family_follow_through_desc
-        TrophyFamilyUi.CONSISTENCY -> R.string.trophies_family_consistency_desc
-        TrophyFamilyUi.ADAPTABILITY -> R.string.trophies_family_adaptability_desc
-        TrophyFamilyUi.MOMENTUM -> R.string.trophies_family_momentum_desc
-        TrophyFamilyUi.BUILDER -> R.string.trophies_family_builder_desc
-        TrophyFamilyUi.RACE_EVENTS -> R.string.trophies_family_race_events_desc
-        TrophyFamilyUi.PERSONAL_RECORDS -> R.string.trophies_family_personal_records_desc
-        TrophyFamilyUi.CATEGORIES -> R.string.trophies_family_categories_desc
-    }
-}
-
 internal fun celebrationToken(trophy: TrophyCardUi): String {
     return "${trophy.stableId}:${trophy.unlockedAt ?: 0L}"
 }

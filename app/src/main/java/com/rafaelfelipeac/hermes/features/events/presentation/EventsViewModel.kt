@@ -204,19 +204,21 @@ class EventsViewModel
                         original.order ?: 0
                     }
 
-                repository.updateWorkoutSchedule(
-                    workoutId = eventId,
-                    weekStartDate = storageWeekStart,
-                    dayOfWeek = dayOfWeek,
-                    timeSlot = null,
-                    order = nextOrder,
-                )
-                original?.let { previous ->
-                    normalizeRaceEventSourceBucket(
-                        movedEventId = eventId,
-                        weekStartDate = previous.weekStartDate,
-                        dayOfWeek = previous.dayOfWeek,
+                if (dateChanged) {
+                    repository.updateWorkoutSchedule(
+                        workoutId = eventId,
+                        weekStartDate = storageWeekStart,
+                        dayOfWeek = dayOfWeek,
+                        timeSlot = null,
+                        order = nextOrder,
                     )
+                    original?.let { previous ->
+                        normalizeRaceEventSourceBucket(
+                            movedEventId = eventId,
+                            weekStartDate = previous.weekStartDate,
+                            dayOfWeek = previous.dayOfWeek,
+                        )
+                    }
                 }
                 repository.updateWorkoutDetails(
                     workoutId = eventId,
@@ -226,7 +228,11 @@ class EventsViewModel
                     categoryId = normalizedCategoryId,
                 )
                 val actionType =
-                    RACE_EVENT.toMoveActionType()
+                    if (dateChanged) {
+                        RACE_EVENT.toMoveActionType()
+                    } else {
+                        RACE_EVENT.toUpdateActionType()
+                    }
 
                 userActionLogger.log(
                     actionType = actionType,
