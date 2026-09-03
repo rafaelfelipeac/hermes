@@ -3,14 +3,20 @@ package com.rafaelfelipeac.hermes.features.pacecalculator.presentation
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode.PACE
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode.TIME
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 class PaceCalculatorInputTest {
     @Test
     fun parsePaceCalculatorDecimal_acceptsDotAndComma() {
-        assertEquals(1.609, parsePaceCalculatorDecimal("1.609")!!, TOLERANCE)
-        assertEquals(1.609, parsePaceCalculatorDecimal("1,609")!!, TOLERANCE)
+        val dotValue = parsePaceCalculatorDecimal("1.609")
+        val commaValue = parsePaceCalculatorDecimal("1,609")
+
+        assertNotNull(dotValue)
+        assertNotNull(commaValue)
+        assertEquals(1.609, dotValue ?: Double.NaN, TOLERANCE)
+        assertEquals(1.609, commaValue ?: Double.NaN, TOLERANCE)
     }
 
     @Test
@@ -24,7 +30,9 @@ class PaceCalculatorInputTest {
                 ),
             )
 
-        assertEquals(298.322, result.paceSecondsPerUnit!!, 0.01)
+        val paceSecondsPerUnit = result.paceSecondsPerUnit
+        assertNotNull(paceSecondsPerUnit)
+        assertEquals(298.322, paceSecondsPerUnit ?: Double.NaN, 0.01)
     }
 
     @Test

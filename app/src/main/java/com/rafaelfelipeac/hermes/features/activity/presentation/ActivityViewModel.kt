@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.activity.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
@@ -302,10 +303,6 @@ class ActivityViewModel
                 selectedWeekStartDate in availableWeekStartDates -> selectedWeekStartDate
                 else -> availableWeekStartDates.firstOrNull()
             }
-        }
-
-        private companion object {
-            const val STATE_SHARING_TIMEOUT_MS = 5_000L
         }
     }
 

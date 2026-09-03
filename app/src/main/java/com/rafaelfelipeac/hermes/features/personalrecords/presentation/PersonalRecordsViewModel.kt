@@ -4,6 +4,7 @@ package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_NAME
@@ -346,9 +347,5 @@ class PersonalRecordsViewModel
         private suspend fun categoryById(categoryId: Long?): Category? {
             if (categoryId == null) return null
             return categoryRepository.getCategory(categoryId)
-        }
-
-        companion object {
-            private const val STATE_SHARING_TIMEOUT_MS = 5_000L
         }
     }

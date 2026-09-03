@@ -136,7 +136,8 @@ class DemoDataSeederTest {
                     }
 
             assertTrue(plannedCountsByWeek.values.toSet().size >= 3)
-            assertTrue(plannedCountsByWeek.values.maxOrNull()!! > plannedCountsByWeek.values.minOrNull()!!)
+            val plannedCounts = plannedCountsByWeek.values.sorted()
+            assertTrue(plannedCounts.last() > plannedCounts.first())
             assertEquals(PersonalRecordMetricType.entries.toSet(), capturedFamilies.map { it.metricType }.toSet())
             assertEquals(18, capturedEntries.size)
             assertEquals(

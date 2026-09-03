@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.trophies.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
@@ -81,8 +82,6 @@ class TrophyViewModel
         }
 
         companion object {
-            private const val STATE_SHARING_TIMEOUT_MS = 5_000L
-
             internal val familyOrder =
                 listOf(
                     TrophyFamilyUi.FOLLOW_THROUGH,

@@ -102,6 +102,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.core.os.ConfigurationCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.time.DurationParts
+import com.rafaelfelipeac.hermes.core.time.durationPartsToSeconds
+import com.rafaelfelipeac.hermes.core.time.secondsToDurationParts
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
@@ -1293,19 +1297,7 @@ private fun TimeWheelColumn(
     }
 }
 
-private data class TimeParts(
-    val hours: Int = 0,
-    val minutes: Int = 0,
-    val seconds: Int = 0,
-)
-
-private fun secondsToTimeParts(totalSeconds: Long): TimeParts {
-    val safeSeconds = totalSeconds.coerceAtLeast(0L)
-    val hours = (safeSeconds / 3600L).toInt()
-    val minutes = ((safeSeconds % 3600L) / 60L).toInt()
-    val seconds = (safeSeconds % 60L).toInt()
-    return TimeParts(hours = hours, minutes = minutes, seconds = seconds)
-}
+private fun secondsToTimeParts(totalSeconds: Long) = secondsToDurationParts(totalSeconds)
 
 @Composable
 internal fun PersonalRecordFamilyEditorDialog(
@@ -1550,7 +1542,7 @@ internal fun PersonalRecordEntryEditorDialog(
     val initialDialogFamilyId = initialEntry?.familyId ?: initialFamilyId ?: families.firstOrNull()?.id
     val dialogKey = initialEntry?.id ?: initialDialogFamilyId ?: -1L
     var familyId by rememberSaveable(dialogKey) { mutableStateOf(initialDialogFamilyId) }
-    var valueText by rememberSaveable(dialogKey) { mutableStateOf("") }
+    var valueText by rememberSaveable(dialogKey) { mutableStateOf(EMPTY) }
     var note by rememberSaveable(dialogKey) {
         mutableStateOf(initialEntry?.note.orEmpty().capitalizedFirstCharacter())
     }
@@ -1585,7 +1577,7 @@ internal fun PersonalRecordEntryEditorDialog(
                         PersonalRecordValueNormalizer.normalize(currentEntry.value, currentEntry.unit).toLong(),
                     )
 
-                else -> TimeParts()
+                else -> DurationParts()
             }
         }
     var timeHours by rememberSaveable(dialogKey) { mutableIntStateOf(initialTimeParts.hours) }
@@ -1611,7 +1603,7 @@ internal fun PersonalRecordEntryEditorDialog(
                     timeHours = parts.hours
                     timeMinutes = parts.minutes
                     timeSeconds = parts.seconds
-                    valueText = ""
+                    valueText = EMPTY
                 } else {
                     valueText = formatEditablePersonalRecordValue(initialEntry.value)
                 }
@@ -1621,7 +1613,7 @@ internal fun PersonalRecordEntryEditorDialog(
 
         hasLoadedInitialState = true
         recordDate = today
-        note = ""
+        note = EMPTY
         customUnitLabel = currentEntry?.customUnitLabel.orEmpty()
 
         when (family.metricType) {
@@ -1632,11 +1624,11 @@ internal fun PersonalRecordEntryEditorDialog(
                         secondsToTimeParts(
                             PersonalRecordValueNormalizer.normalize(it.value, it.unit).toLong(),
                         )
-                    } ?: TimeParts()
+                    } ?: DurationParts()
                 timeHours = parts.hours
                 timeMinutes = parts.minutes
                 timeSeconds = parts.seconds
-                valueText = ""
+                valueText = EMPTY
             }
 
             DISTANCE -> {
@@ -1908,7 +1900,11 @@ internal fun PersonalRecordEntryEditorDialog(
                         val resolvedFamilyId = familyId ?: return@TextButton
                         val resolvedValue =
                             if (isTimeMetric) {
-                                (timeHours * 3600 + timeMinutes * 60 + timeSeconds).toDouble()
+                                durationPartsToSeconds(
+                                    hours = timeHours.toLong(),
+                                    minutes = timeMinutes.toLong(),
+                                    seconds = timeSeconds.toLong(),
+                                ).toDouble()
                             } else {
                                 parsePersonalRecordValue(valueText) ?: return@TextButton
                             }

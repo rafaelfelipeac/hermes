@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.events.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
@@ -479,7 +480,6 @@ class EventsViewModel
         }
 
         private companion object {
-            const val STATE_SHARING_TIMEOUT_MS = 5_000L
             const val UNDO_TIMEOUT_MS = 4_000L
         }
     }

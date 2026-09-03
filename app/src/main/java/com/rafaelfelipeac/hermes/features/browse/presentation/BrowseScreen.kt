@@ -85,6 +85,15 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val BROWSE_CARD_TAG_PREFIX = "browse_card_"
+private const val BROWSE_CARD_CATEGORIES_TAG = BROWSE_CARD_TAG_PREFIX + "categories"
+private const val BROWSE_CARD_PERSONAL_RECORDS_TAG = BROWSE_CARD_TAG_PREFIX + "personal_records"
+private const val BROWSE_CARD_CHALLENGES_TAG = BROWSE_CARD_TAG_PREFIX + "challenges"
+private const val BROWSE_CARD_PACE_CALCULATOR_TAG = BROWSE_CARD_TAG_PREFIX + "pace_calculator"
+private const val BROWSE_CARD_TROPHIES_TAG = BROWSE_CARD_TAG_PREFIX + "trophies"
+private const val BROWSE_CARD_ACTIVITIES_TAG = BROWSE_CARD_TAG_PREFIX + "activities"
+private const val BROWSE_CARD_BACKUP_TAG = BROWSE_CARD_TAG_PREFIX + "backup"
+private const val BROWSE_CARD_SETTINGS_TAG = BROWSE_CARD_TAG_PREFIX + "settings"
+private const val BROWSE_CARD_DEVELOPER_TAG = BROWSE_CARD_TAG_PREFIX + "developer"
 private const val BACKUP_MIME_TYPE = "application/json"
 private const val BACKUP_EXTENSION = ".json"
 private const val BACKUP_FILE_NAME_PREFIX = "hermes-backup-"
@@ -223,7 +232,7 @@ private fun BrowseHome(
             subtitle = stringResource(R.string.browse_categories_subtitle),
             icon = Icons.Outlined.Category,
             onClick = { onNavigateTo(BrowseDestination.CATEGORIES) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "categories"),
+            modifier = Modifier.testTag(BROWSE_CARD_CATEGORIES_TAG),
         )
 
         BrowseDestinationCard(
@@ -231,7 +240,7 @@ private fun BrowseHome(
             subtitle = stringResource(R.string.browse_personal_records_subtitle),
             icon = Icons.Outlined.Leaderboard,
             onClick = { onNavigateTo(BrowseDestination.PERSONAL_RECORDS) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "personal_records"),
+            modifier = Modifier.testTag(BROWSE_CARD_PERSONAL_RECORDS_TAG),
         )
 
         BrowseDestinationCard(
@@ -239,7 +248,7 @@ private fun BrowseHome(
             subtitle = stringResource(R.string.browse_challenges_subtitle),
             icon = Icons.Outlined.TrackChanges,
             onClick = { onNavigateTo(BrowseDestination.CHALLENGES) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "challenges"),
+            modifier = Modifier.testTag(BROWSE_CARD_CHALLENGES_TAG),
         )
 
         BrowseDestinationCard(
@@ -247,7 +256,7 @@ private fun BrowseHome(
             subtitle = stringResource(R.string.browse_pace_calculator_subtitle),
             icon = Icons.Outlined.Calculate,
             onClick = { onNavigateTo(BrowseDestination.PACE_CALCULATOR) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "pace_calculator"),
+            modifier = Modifier.testTag(BROWSE_CARD_PACE_CALCULATOR_TAG),
         )
 
         HorizontalDivider()
@@ -258,7 +267,7 @@ private fun BrowseHome(
             subtitle = stringResource(R.string.browse_trophies_subtitle),
             icon = Icons.Outlined.EmojiEvents,
             onClick = { onNavigateTo(BrowseDestination.TROPHIES) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "trophies"),
+            modifier = Modifier.testTag(BROWSE_CARD_TROPHIES_TAG),
         )
 
         BrowseDestinationCard(
@@ -266,7 +275,7 @@ private fun BrowseHome(
             subtitle = stringResource(R.string.browse_activities_subtitle),
             icon = Icons.Outlined.History,
             onClick = { onNavigateTo(BrowseDestination.ACTIVITIES) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "activities"),
+            modifier = Modifier.testTag(BROWSE_CARD_ACTIVITIES_TAG),
         )
 
         HorizontalDivider()
@@ -277,7 +286,7 @@ private fun BrowseHome(
             subtitle = stringResource(R.string.browse_backup_import_subtitle),
             icon = Icons.Outlined.Inventory2,
             onClick = { onNavigateTo(BrowseDestination.BACKUP) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "backup"),
+            modifier = Modifier.testTag(BROWSE_CARD_BACKUP_TAG),
         )
 
         BrowseDestinationCard(
@@ -285,7 +294,7 @@ private fun BrowseHome(
             subtitle = stringResource(R.string.browse_settings_subtitle),
             icon = Icons.Outlined.Settings,
             onClick = { onNavigateTo(BrowseDestination.SETTINGS) },
-            modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "settings"),
+            modifier = Modifier.testTag(BROWSE_CARD_SETTINGS_TAG),
         )
 
         if (BuildConfig.DEBUG) {
@@ -294,7 +303,7 @@ private fun BrowseHome(
                 subtitle = stringResource(R.string.browse_developer_subtitle),
                 icon = Icons.Outlined.Construction,
                 onClick = { onNavigateTo(BrowseDestination.DEVELOPER) },
-                modifier = Modifier.testTag(BROWSE_CARD_TAG_PREFIX + "developer"),
+                modifier = Modifier.testTag(BROWSE_CARD_DEVELOPER_TAG),
             )
         }
     }

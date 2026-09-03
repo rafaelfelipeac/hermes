@@ -50,7 +50,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.measurement.MeasurementConstants.METERS_PER_KILOMETER
+import com.rafaelfelipeac.hermes.core.measurement.MeasurementConstants.METERS_PER_MILE
 import com.rafaelfelipeac.hermes.core.strings.formatElapsedTime
+import com.rafaelfelipeac.hermes.core.time.secondsToDurationParts
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -624,7 +627,7 @@ private fun paceDistancePresets(distanceUnit: DistanceUnit): List<PaceDistancePr
     return when (distanceUnit) {
         KILOMETERS ->
             listOf(
-                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_1_km), 1_000.0),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_1_km), METERS_PER_KILOMETER),
                 PaceDistancePreset(stringResource(R.string.pace_calculator_preset_5k), 5_000.0),
                 PaceDistancePreset(stringResource(R.string.pace_calculator_preset_10k), 10_000.0),
                 PaceDistancePreset(stringResource(R.string.pace_calculator_preset_15k), 15_000.0),
@@ -634,7 +637,7 @@ private fun paceDistancePresets(distanceUnit: DistanceUnit): List<PaceDistancePr
 
         MILES ->
             listOf(
-                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_1_mile), 1_609.344),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_1_mile), METERS_PER_MILE),
                 PaceDistancePreset(stringResource(R.string.pace_calculator_preset_5_miles), 8_046.72),
                 PaceDistancePreset(stringResource(R.string.pace_calculator_preset_10_miles), 16_093.44),
                 halfMarathon,
@@ -660,8 +663,7 @@ private fun formatPaceSeconds(
     unitLabel: String,
 ): String {
     val totalSeconds = paceSecondsPerUnit.roundToLong()
-    val minutes = totalSeconds / 60
-    val seconds = totalSeconds % 60
+    val (_, minutes, seconds) = secondsToDurationParts(totalSeconds)
     return "%d:%02d %s".format(minutes, seconds, unitLabel)
 }
 

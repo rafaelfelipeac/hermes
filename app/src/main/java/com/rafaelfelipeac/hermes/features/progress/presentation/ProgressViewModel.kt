@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.progress.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
@@ -188,7 +189,6 @@ class ProgressViewModel
         }
 
         private companion object {
-            const val STATE_SHARING_TIMEOUT_MS = 5_000L
             const val RECENT_ACTIVITY_LIMIT = 5
         }
     }

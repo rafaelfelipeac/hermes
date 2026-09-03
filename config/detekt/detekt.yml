@@ -33,6 +33,10 @@ naming:
       - Composable
       - Preview
 
+potential-bugs:
+  UnsafeCallOnNullableType:
+    active: true
+
 style:
   MagicNumber:
     active: false

@@ -95,6 +95,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
@@ -202,7 +203,7 @@ internal fun ChallengesScreen(
     var showProgressDialog by rememberSaveable { mutableStateOf(false) }
     var progressDialogChallengeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var progressDialogEntryId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var progressDialogQuantity by rememberSaveable { mutableStateOf("") }
+    var progressDialogQuantity by rememberSaveable { mutableStateOf(EMPTY) }
     var progressDialogDateEpochDay by rememberSaveable { mutableStateOf<Long?>(null) }
     var progressDialogIsEdit by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialogForChallengeId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -271,7 +272,7 @@ internal fun ChallengesScreen(
         val defaultDate = addProgressDefaultDate ?: return@openAddProgressDialog
         progressDialogChallengeId = challenge.id
         progressDialogEntryId = null
-        progressDialogQuantity = ""
+        progressDialogQuantity = EMPTY
         progressDialogDateEpochDay = defaultDate.toEpochDay()
         progressDialogIsEdit = false
         showProgressDialog = true
@@ -376,9 +377,8 @@ internal fun ChallengesScreen(
                         stringResource(R.string.challenges_title)
                     },
                 trailingContent =
-                    if (route == CHALLENGES_ROUTE_DETAIL && state.selectedChallenge != null) {
+                    state.selectedChallenge?.takeIf { route == CHALLENGES_ROUTE_DETAIL }?.let { selectedChallenge ->
                         {
-                            val selectedChallenge = state.selectedChallenge!!
                             ChallengeOverflowMenu(
                                 onEdit =
                                     if (selectedChallenge.lifecycle == ChallengeLifecycle.ACTIVE) {
@@ -401,7 +401,7 @@ internal fun ChallengesScreen(
                                 onDelete = { showDeleteDialogForChallengeId = selectedChallenge.id },
                             )
                         }
-                    } else {
+                    } ?: run {
                         null
                     },
             )
@@ -534,8 +534,7 @@ internal fun ChallengesScreen(
         }
     }
 
-    if (showDeleteDialogForChallengeId != null) {
-        val challengeId = showDeleteDialogForChallengeId!!
+    showDeleteDialogForChallengeId?.let { challengeId ->
         val challenge =
             state.activeChallenges.firstOrNull { it.id == challengeId }
                 ?: state.archivedChallenges.firstOrNull { it.id == challengeId }
@@ -573,8 +572,7 @@ internal fun ChallengesScreen(
         )
     }
 
-    if (showDeleteProgressDialogForEntryId != null) {
-        val entryId = showDeleteProgressDialogForEntryId!!
+    showDeleteProgressDialogForEntryId?.let { entryId ->
         AlertDialog(
             onDismissRequest = { showDeleteProgressDialogForEntryId = null },
             title = { Text(text = stringResource(R.string.challenges_delete_progress_title)) },

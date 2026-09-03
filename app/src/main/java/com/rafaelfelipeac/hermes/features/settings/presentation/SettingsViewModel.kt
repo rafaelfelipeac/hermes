@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
+import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGES_COUNT
@@ -137,7 +138,7 @@ class SettingsViewModel
                 }
             }.stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(SETTINGS_STATE_SHARING_TIMEOUT_MS),
+                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue =
                     SettingsState(
                         themeMode = repository.initialThemeMode(),
@@ -507,7 +508,6 @@ class SettingsViewModel
         }
 
         private companion object {
-            const val SETTINGS_STATE_SHARING_TIMEOUT_MS = 5_000L
             const val RESULT_SUCCESS = "success"
             const val RESULT_FAILURE = "failure"
             const val UNKNOWN_FAILURE_REASON = "unknown"

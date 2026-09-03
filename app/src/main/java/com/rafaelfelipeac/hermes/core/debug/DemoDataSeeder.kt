@@ -7,6 +7,10 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.AppConstants.UNSUPPORTED_USER_ACTION_ENTITY_TYPE
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.TimeConstants.HOURS_PER_DAY
+import com.rafaelfelipeac.hermes.core.time.TimeConstants.MILLIS_PER_SECOND
+import com.rafaelfelipeac.hermes.core.time.TimeConstants.MINUTES_PER_HOUR
+import com.rafaelfelipeac.hermes.core.time.TimeConstants.SECONDS_PER_MINUTE
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionEntity
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
@@ -1046,7 +1050,7 @@ class DemoDataSeeder
         ): List<UserActionEntity> {
             val zoneId = ZoneId.systemDefault()
             val now = System.currentTimeMillis()
-            val dayMillis = 24 * 60 * 60 * 1000L
+            val dayMillis = HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE * MILLIS_PER_SECOND
 
             return buildHistoricTrophyActions(
                 olderWeekStarts = olderWeekStarts,

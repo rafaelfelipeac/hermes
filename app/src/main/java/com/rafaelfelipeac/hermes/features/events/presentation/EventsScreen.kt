@@ -66,6 +66,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
@@ -128,8 +129,8 @@ fun EventsScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     var isDialogVisible by rememberSaveable { mutableStateOf(false) }
     var editingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var draftTitle by rememberSaveable { mutableStateOf("") }
-    var draftDescription by rememberSaveable { mutableStateOf("") }
+    var draftTitle by rememberSaveable { mutableStateOf(EMPTY) }
+    var draftDescription by rememberSaveable { mutableStateOf(EMPTY) }
     var draftCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var draftDate by rememberSaveable { mutableStateOf<LocalDate?>(null) }
     var deletingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -273,8 +274,8 @@ fun EventsScreen(
             FloatingActionButton(
                 onClick = {
                     editingEventId = null
-                    draftTitle = ""
-                    draftDescription = ""
+                    draftTitle = EMPTY
+                    draftDescription = EMPTY
                     draftCategoryId = null
                     draftDate = null
                     isDialogVisible = true

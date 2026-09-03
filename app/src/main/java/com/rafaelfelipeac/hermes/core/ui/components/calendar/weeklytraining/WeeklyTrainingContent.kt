@@ -75,12 +75,13 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.Work
 import kotlinx.coroutines.delay
 import java.time.DayOfWeek
 import java.time.LocalDate
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val NO_INDEX = -1
 private const val FIRST_LIST_INDEX = 0
 private const val SECTION_LIST_ITEM_SPAN = 2
 private const val WEEK_CHANGE_STEP = 1L
-private const val AUTO_SCROLL_FRAME_DELAY_MS = 16L
+private val AutoScrollFrameDelay = 16.milliseconds
 internal const val WEEKLY_TRAINING_CONTENT_TAG = "weekly-training-content"
 private const val SECTION_ITEM_KEY_PREFIX = "section-"
 private const val DIVIDER_ITEM_KEY_PREFIX = "divider-"
@@ -215,7 +216,7 @@ fun WeeklyTrainingContent(
                     listState.scrollBy(autoScrollStep.scrollDelta)
                 }
             }
-            delay(AUTO_SCROLL_FRAME_DELAY_MS)
+            delay(AutoScrollFrameDelay)
         }
     }
 

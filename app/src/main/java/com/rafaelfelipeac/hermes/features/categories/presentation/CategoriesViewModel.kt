@@ -5,6 +5,7 @@ package com.rafaelfelipeac.hermes.features.categories.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
@@ -230,9 +231,5 @@ class CategoriesViewModel
                     metadata = mapOf(CATEGORY_NAME to current.name),
                 )
             }
-        }
-
-        private companion object {
-            const val STATE_SHARING_TIMEOUT_MS = 5_000L
         }
     }

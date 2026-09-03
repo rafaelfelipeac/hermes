@@ -186,28 +186,17 @@ fun HermesAppContent() {
         navigateToBrowse(BrowseDestination.CATEGORIES)
     }
     val onBrowseBack = {
-        when (currentBrowseDestination) {
-            BrowseDestination.ACTIVITIES ->
-                if (browseParentDestination != BrowseDestination.ROOT) {
-                    currentBrowseDestination = browseParentDestination
-                    browseParentDestination = BrowseDestination.ROOT
-                } else if (browseOriginTab != null) {
-                    currentDestination = browseOriginTab!!
-                    resetBrowseNavigation()
-                } else {
-                    currentBrowseDestination = BrowseDestination.ROOT
-                }
-
-            else ->
-                if (browseParentDestination != BrowseDestination.ROOT) {
-                    currentBrowseDestination = browseParentDestination
-                    browseParentDestination = BrowseDestination.ROOT
-                } else if (browseOriginTab != null) {
-                    currentDestination = browseOriginTab!!
-                    resetBrowseNavigation()
-                } else {
-                    currentBrowseDestination = BrowseDestination.ROOT
-                }
+        if (browseParentDestination != BrowseDestination.ROOT) {
+            currentBrowseDestination = browseParentDestination
+            browseParentDestination = BrowseDestination.ROOT
+        } else {
+            val originTab = browseOriginTab
+            if (originTab != null) {
+                currentDestination = originTab
+                resetBrowseNavigation()
+            } else {
+                currentBrowseDestination = BrowseDestination.ROOT
+            }
         }
     }
 

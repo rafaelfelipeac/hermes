@@ -5,6 +5,20 @@ import org.junit.Test
 
 class ElapsedTimeFormatterTest {
     @Test
+    fun formatElapsedTime_clampsNegativeDurationsToZero() {
+        assertEquals("0:00", formatElapsedTime(-1L))
+    }
+
+    @Test
+    fun formatElapsedTime_handlesMinuteAndHourBoundaries() {
+        assertEquals("0:00", formatElapsedTime(0L))
+        assertEquals("0:59", formatElapsedTime(59L))
+        assertEquals("1:00", formatElapsedTime(60L))
+        assertEquals("59:59", formatElapsedTime(3_599L))
+        assertEquals("1:00:00", formatElapsedTime(3_600L))
+    }
+
+    @Test
     fun formatElapsedTime_usesMinutesAndPaddedSecondsBelowOneHour() {
         assertEquals("5:09", formatElapsedTime(309L))
         assertEquals("55:19", formatElapsedTime(3_319L))
