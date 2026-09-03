@@ -364,8 +364,8 @@ class TrophyEngine(
                             ?.let { runCatching { ChallengeTargetType.valueOf(it) }.getOrNull() }
                             ?: ChallengeTargetType.DAILY
                     val targetQuantity = action.metadata[CHALLENGE_TARGET_QUANTITY]?.toLongOrNull() ?: return null
-                    val startDate = action.metadata[CHALLENGE_START_DATE]?.let(LocalDate::parse) ?: return null
-                    val endDate = action.metadata[CHALLENGE_END_DATE]?.let(LocalDate::parse) ?: return null
+                    val startDate = action.metadata[CHALLENGE_START_DATE]?.toLocalDateOrNull() ?: return null
+                    val endDate = action.metadata[CHALLENGE_END_DATE]?.toLocalDateOrNull() ?: return null
                     val lifecycle =
                         action.metadata[CHALLENGE_LIFECYCLE]
                             ?.let {
@@ -479,7 +479,7 @@ class TrophyEngine(
                             val challengeId = action.challengeId ?: return@forEach
                             val quantity = action.metadata[CHALLENGE_PROGRESS_QUANTITY]?.toLongOrNull() ?: return@forEach
                             val entryDate =
-                                action.metadata[CHALLENGE_PROGRESS_DATE]?.let(LocalDate::parse) ?: return@forEach
+                                action.metadata[CHALLENGE_PROGRESS_DATE]?.toLocalDateOrNull() ?: return@forEach
                             val entry =
                                 ChallengeProgressEntry(
                                     id = action.record.entityId ?: return@forEach,
@@ -498,7 +498,7 @@ class TrophyEngine(
                             val entryId = action.challengeProgressEntryId ?: action.record.entityId ?: return@forEach
                             val quantity = action.metadata[CHALLENGE_PROGRESS_QUANTITY]?.toLongOrNull() ?: return@forEach
                             val entryDate =
-                                action.metadata[CHALLENGE_PROGRESS_DATE]?.let(LocalDate::parse) ?: return@forEach
+                                action.metadata[CHALLENGE_PROGRESS_DATE]?.toLocalDateOrNull() ?: return@forEach
                             val challengeId = action.challengeId
                             val currentEntry =
                                 challengeId?.let { challengeEntriesById[it]?.get(entryId) }

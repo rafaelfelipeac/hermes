@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithTag
@@ -13,9 +14,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
@@ -596,6 +599,42 @@ class ChallengesScreenTest {
         }
 
         composeRule.onNodeWithTag(CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB).assertIsDisplayed()
+    }
+
+    @Test
+    fun progressDialogRestoresOpenStateQuantityAndDateAfterRecreation() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val challenge =
+            sampleChallenge(
+                id = 31L,
+                title = "August target",
+                lifecycle = ChallengeLifecycle.ACTIVE,
+            )
+        val viewModel = createViewModel(listOf(challenge))
+        val restorationTester = StateRestorationTester(composeRule)
+
+        restorationTester.setContent {
+            HermesTheme {
+                ChallengesScreen(
+                    onBack = {},
+                    viewModel = viewModel,
+                )
+            }
+        }
+
+        composeRule.onNodeWithText(challenge.title).performClick()
+        composeRule.onNodeWithTag(CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB).performClick()
+        composeRule
+            .onNodeWithText(context.getString(R.string.challenges_field_progress_quantity))
+            .performTextInput("42")
+
+        restorationTester.emulateSavedInstanceStateRestore()
+
+        composeRule.onNodeWithText(context.getString(R.string.challenges_add_progress)).assertIsDisplayed()
+        composeRule.onNodeWithText("42").assertIsDisplayed()
+        composeRule
+            .onNodeWithText(formatWorkoutDate(LocalDate.of(2026, 8, 28), Locale.getDefault()))
+            .assertIsDisplayed()
     }
 
     private fun createViewModel(

@@ -202,7 +202,7 @@ internal fun ChallengesScreen(
     var progressDialogChallengeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var progressDialogEntryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var progressDialogQuantity by rememberSaveable { mutableStateOf("") }
-    var progressDialogDate by remember { mutableStateOf<LocalDate?>(null) }
+    var progressDialogDateEpochDay by rememberSaveable { mutableStateOf<Long?>(null) }
     var progressDialogIsEdit by rememberSaveable { mutableStateOf(false) }
     var showDeleteDialogForChallengeId by rememberSaveable { mutableStateOf<Long?>(null) }
     var showDeleteProgressDialogForEntryId by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -271,7 +271,7 @@ internal fun ChallengesScreen(
         progressDialogChallengeId = challenge.id
         progressDialogEntryId = null
         progressDialogQuantity = ""
-        progressDialogDate = defaultDate
+        progressDialogDateEpochDay = defaultDate.toEpochDay()
         progressDialogIsEdit = false
         showProgressDialog = true
     }
@@ -432,7 +432,7 @@ internal fun ChallengesScreen(
                             progressDialogChallengeId = entry.challengeId
                             progressDialogEntryId = entry.id
                             progressDialogQuantity = ChallengeQuantity.format(entry.quantity, Locale.getDefault())
-                            progressDialogDate = entry.entryDate
+                            progressDialogDateEpochDay = entry.entryDate.toEpochDay()
                             progressDialogIsEdit = true
                             showProgressDialog = true
                         },
@@ -484,6 +484,7 @@ internal fun ChallengesScreen(
         )
     }
 
+    val progressDialogDate = progressDialogDateEpochDay?.let(LocalDate::ofEpochDay)
     if (showProgressDialog && progressDialogDate != null) {
         val challengeId = progressDialogChallengeId ?: state.selectedChallenge?.id
         if (challengeId != null) {
@@ -497,12 +498,13 @@ internal fun ChallengesScreen(
                 date = progressDialogDate!!,
                 quantity = progressDialogQuantity,
                 validationMessage = state.editorState.validationMessage,
-                onDateChange = { progressDialogDate = it },
+                onDateChange = { progressDialogDateEpochDay = it.toEpochDay() },
                 onQuantityChange = { progressDialogQuantity = it },
                 onDismiss = {
                     showProgressDialog = false
                     progressDialogChallengeId = null
                     progressDialogEntryId = null
+                    progressDialogDateEpochDay = null
                 },
                 onConfirm = {
                     val saved =
@@ -517,6 +519,7 @@ internal fun ChallengesScreen(
                         showProgressDialog = false
                         progressDialogChallengeId = null
                         progressDialogEntryId = null
+                        progressDialogDateEpochDay = null
                     }
                 },
             )

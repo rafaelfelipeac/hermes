@@ -323,6 +323,7 @@ class BackupRepositoryImpl
                 }
             }
 
+            val challengeProgressTotals = mutableMapOf<Long, Long>()
             snapshot.challengeProgressEntries.forEach { entry ->
                 if (entry.challengeId !in challengeIds) {
                     return ImportBackupError.INVALID_REFERENCE
@@ -330,6 +331,13 @@ class BackupRepositoryImpl
                 if (entry.quantity <= 0L) {
                     return ImportBackupError.INVALID_FIELD_VALUE
                 }
+                val currentTotal = challengeProgressTotals[entry.challengeId] ?: 0L
+                challengeProgressTotals[entry.challengeId] =
+                    try {
+                        Math.addExact(currentTotal, entry.quantity)
+                    } catch (_: ArithmeticException) {
+                        return ImportBackupError.INVALID_FIELD_VALUE
+                    }
                 try {
                     val entryDate = LocalDate.parse(entry.entryDate)
                     Instant.parse(entry.occurredAt)

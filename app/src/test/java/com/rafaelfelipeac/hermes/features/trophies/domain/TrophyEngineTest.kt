@@ -836,6 +836,67 @@ class TrophyEngineTest {
         assertNull(progress.require(TrophyId.CHALLENGE_GOAL_ARCHITECT).unlockedAt)
     }
 
+    @Test
+    fun challengeTrophies_ignoreMalformedChallengeDates() {
+        val progress =
+            engine.compute(
+                listOf(
+                    malformedChallengeAction(
+                        id = 1L,
+                        challengeId = 700L,
+                        startDate = "not-a-date",
+                        endDate = "2026-08-02",
+                        timestamp = 10L,
+                    ),
+                    challengeProgressAction(
+                        id = 2L,
+                        actionType = CREATE_CHALLENGE_PROGRESS_ENTRY,
+                        challengeId = 700L,
+                        entryId = 1L,
+                        quantity = 100L,
+                        entryDate = LocalDate.of(2026, 8, 2),
+                        timestamp = 20L,
+                    ),
+                ),
+            )
+
+        assertEquals(0, progress.require(TrophyId.CHALLENGE_ACCEPTED).currentValue)
+        assertEquals(0, progress.require(TrophyId.FIRST_CHALLENGE_WIN).currentValue)
+        assertFalse(progress.require(TrophyId.FIRST_CHALLENGE_WIN).isUnlocked)
+    }
+
+    @Test
+    fun challengeTrophies_ignoreMalformedProgressDates() {
+        val progress =
+            engine.compute(
+                listOf(
+                    challengeAction(
+                        id = 1L,
+                        actionType = CREATE_CHALLENGE,
+                        challengeId = 701L,
+                        title = "Pull-ups",
+                        targetType = ChallengeTargetType.TOTAL,
+                        targetQuantity = 100L,
+                        startDate = LocalDate.of(2026, 8, 1),
+                        endDate = LocalDate.of(2026, 8, 2),
+                        timestamp = 10L,
+                    ),
+                    malformedChallengeProgressAction(
+                        id = 2L,
+                        challengeId = 701L,
+                        entryId = 1L,
+                        quantity = 100L,
+                        entryDate = "not-a-date",
+                        timestamp = 20L,
+                    ),
+                ),
+            )
+
+        assertEquals(1, progress.require(TrophyId.CHALLENGE_ACCEPTED).currentValue)
+        assertEquals(0, progress.require(TrophyId.FIRST_CHALLENGE_WIN).currentValue)
+        assertFalse(progress.require(TrophyId.FIRST_CHALLENGE_WIN).isUnlocked)
+    }
+
     private fun List<TrophyProgress>.require(trophyId: TrophyId) = first { it.definition.id == trophyId }
 
     private fun weekAction(
@@ -960,6 +1021,56 @@ class TrophyEngineTest {
                     CHALLENGE_PROGRESS_ENTRY_ID to entryId.toString(),
                     CHALLENGE_PROGRESS_QUANTITY to quantity.toString(),
                     CHALLENGE_PROGRESS_DATE to entryDate.toString(),
+                ),
+            timestamp = timestamp,
+        )
+    }
+
+    private fun malformedChallengeAction(
+        id: Long,
+        challengeId: Long,
+        startDate: String,
+        endDate: String,
+        timestamp: Long,
+    ): UserActionRecord {
+        return UserActionRecord(
+            id = id,
+            actionType = CREATE_CHALLENGE.name,
+            entityType = com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CHALLENGE.name,
+            entityId = challengeId,
+            metadata =
+                metadataJson(
+                    CHALLENGE_ID to challengeId.toString(),
+                    CHALLENGE_TITLE to "Pull-ups",
+                    CHALLENGE_TARGET_TYPE to ChallengeTargetType.TOTAL.name,
+                    CHALLENGE_TARGET_QUANTITY to "100",
+                    CHALLENGE_START_DATE to startDate,
+                    CHALLENGE_END_DATE to endDate,
+                    CHALLENGE_LIFECYCLE to ChallengeLifecycle.ACTIVE.name,
+                ),
+            timestamp = timestamp,
+        )
+    }
+
+    private fun malformedChallengeProgressAction(
+        id: Long,
+        challengeId: Long,
+        entryId: Long,
+        quantity: Long,
+        entryDate: String,
+        timestamp: Long,
+    ): UserActionRecord {
+        return UserActionRecord(
+            id = id,
+            actionType = CREATE_CHALLENGE_PROGRESS_ENTRY.name,
+            entityType = com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CHALLENGE.name,
+            entityId = entryId,
+            metadata =
+                metadataJson(
+                    CHALLENGE_ID to challengeId.toString(),
+                    CHALLENGE_PROGRESS_ENTRY_ID to entryId.toString(),
+                    CHALLENGE_PROGRESS_QUANTITY to quantity.toString(),
+                    CHALLENGE_PROGRESS_DATE to entryDate,
                 ),
             timestamp = timestamp,
         )

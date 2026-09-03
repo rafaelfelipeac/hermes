@@ -180,7 +180,7 @@ class ChallengeCalculator {
         bounds: ChallengeDateBounds,
         entries: List<ChallengeProgressEntry>,
         plannedTotal: Long,
-        targetType: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType,
+        targetType: ChallengeTargetType,
     ): Boolean {
         val progressByDate = entries.groupBy { it.entryDate }
         val orderedDates = progressByDate.keys.sorted()
@@ -188,7 +188,7 @@ class ChallengeCalculator {
         var firstCompletionDate: LocalDate? = null
 
         orderedDates.forEach { date ->
-            total = ChallengeQuantity.add(total, progressByDate.getValue(date).sumOf { it.quantity })
+            total = ChallengeQuantity.add(total, progressByDate.quantityFor(date))
             if (total >= plannedTotal && firstCompletionDate == null) {
                 firstCompletionDate = date
             }
@@ -198,7 +198,14 @@ class ChallengeCalculator {
         var runningTotal = 0L
         orderedDates.forEach { date ->
             if (date.isAfter(completionDate)) return@forEach
-            runningTotal = ChallengeQuantity.add(runningTotal, progressByDate.getValue(date).sumOf { it.quantity })
+            val previousDate = date.minusDays(1)
+            if (!previousDate.isBefore(bounds.startDate)) {
+                val scheduledBeforeEntryDate = expectedForDate(bounds, plannedTotal, previousDate, targetType)
+                if (previousDate.isBefore(completionDate) && runningTotal < scheduledBeforeEntryDate) {
+                    return true
+                }
+            }
+            runningTotal = ChallengeQuantity.add(runningTotal, progressByDate.quantityFor(date))
             val scheduled = expectedForDate(bounds, plannedTotal, date, targetType)
             if (date.isBefore(completionDate) && runningTotal < scheduled) {
                 return true
@@ -212,7 +219,7 @@ class ChallengeCalculator {
         bounds: ChallengeDateBounds,
         plannedTotal: Long,
         date: LocalDate,
-        targetType: com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType,
+        targetType: ChallengeTargetType,
     ): Long {
         val totalDays = bounds.inclusiveDays.coerceAtLeast(1L)
         val elapsedDays = elapsedDays(bounds, date)
@@ -224,6 +231,12 @@ class ChallengeCalculator {
                     elapsedDays,
                     totalDays,
                 )
+        }
+    }
+
+    private fun Map<LocalDate, List<ChallengeProgressEntry>>.quantityFor(date: LocalDate): Long {
+        return getValue(date).fold(0L) { accumulator, entry ->
+            ChallengeQuantity.add(accumulator, entry.quantity)
         }
     }
 

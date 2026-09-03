@@ -206,6 +206,50 @@ class ChallengeCalculatorTest {
         assertEquals(0L, result.todayRemaining)
     }
 
+    @Test
+    fun calculator_marksDailyCompletionAsRecoveredWhenWholeEntryDayWasMissed() {
+        val challenge =
+            challenge(
+                targetType = ChallengeTargetType.DAILY,
+                targetQuantity = 10L,
+                startDate = LocalDate.of(2026, 8, 1),
+                endDate = LocalDate.of(2026, 8, 3),
+            )
+        val entries =
+            listOf(
+                progressEntry(1L, 1L, 10L, LocalDate.of(2026, 8, 1), "2026-08-01T08:00:00Z"),
+                progressEntry(2L, 1L, 20L, LocalDate.of(2026, 8, 3), "2026-08-03T08:00:00Z"),
+            )
+
+        val result = ChallengeCalculator().calculate(challenge, entries, LocalDate.of(2026, 8, 3))
+
+        assertEquals(ChallengeStatus.COMPLETED, result.status)
+        assertEquals(Instant.parse("2026-08-03T08:00:00Z"), result.firstCompletionAt)
+        assertEquals(Instant.parse("2026-08-03T08:00:00Z"), result.recoveredCompletionAt)
+    }
+
+    @Test
+    fun calculator_marksTotalCompletionAsRecoveredWhenWholeEntryDayWasMissed() {
+        val challenge =
+            challenge(
+                targetType = ChallengeTargetType.TOTAL,
+                targetQuantity = 100L,
+                startDate = LocalDate.of(2026, 8, 1),
+                endDate = LocalDate.of(2026, 8, 4),
+            )
+        val entries =
+            listOf(
+                progressEntry(1L, 1L, 25L, LocalDate.of(2026, 8, 1), "2026-08-01T08:00:00Z"),
+                progressEntry(2L, 1L, 75L, LocalDate.of(2026, 8, 4), "2026-08-04T08:00:00Z"),
+            )
+
+        val result = ChallengeCalculator().calculate(challenge, entries, LocalDate.of(2026, 8, 4))
+
+        assertEquals(ChallengeStatus.COMPLETED, result.status)
+        assertEquals(Instant.parse("2026-08-04T08:00:00Z"), result.firstCompletionAt)
+        assertEquals(Instant.parse("2026-08-04T08:00:00Z"), result.recoveredCompletionAt)
+    }
+
     private fun challenge(
         targetType: ChallengeTargetType,
         targetQuantity: Long,
