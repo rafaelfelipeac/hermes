@@ -57,7 +57,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.documentfile.provider.DocumentFile
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R

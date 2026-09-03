@@ -11,7 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.core.ui.preview.HermesAppPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.HermesAppPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
