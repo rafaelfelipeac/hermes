@@ -18,18 +18,18 @@ espressoCore = "3.7.0"
 junitVersion = "1.3.0"
 
 # KotlinX
-coroutines = "1.10.2"
-kotlinxSerialization = "1.8.1"
+coroutines = "1.11.0"
+kotlinxSerialization = "1.11.0"
 
 # Google / other
 hilt = "2.60.1"
 junit = "4.13.2"
-mockk = "1.13.12"
-turbine = "1.1.0"
+mockk = "1.14.11"
+turbine = "1.2.1"
 konfetti = "2.0.5"
 
 # Tooling
-detekt = "1.23.7"
+detekt = "1.23.8"
 ktlintGradle = "12.1.1"
 desugarJdkLibs = "2.1.5"
 javapoet = "1.13.0"
