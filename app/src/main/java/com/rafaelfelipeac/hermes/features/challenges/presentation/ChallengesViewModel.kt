@@ -92,6 +92,7 @@ import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ChallengesViewModel
@@ -115,7 +116,7 @@ class ChallengesViewModel
             flow {
                 while (true) {
                     emit(LocalDate.now(clock))
-                    delay(delayUntilNextMidnight(clock))
+                    delay(delayUntilNextMidnight(clock).milliseconds)
                 }
             }
 
@@ -789,7 +790,7 @@ class ChallengesViewModel
             clearUndoTimeout()
             undoTimeoutJob =
                 viewModelScope.launch {
-                    delay(UNDO_TIMEOUT_MS)
+                    delay(UNDO_TIMEOUT_MS.milliseconds)
                     if (undoState.value?.id == undoId) {
                         undoState.value = null
                     }

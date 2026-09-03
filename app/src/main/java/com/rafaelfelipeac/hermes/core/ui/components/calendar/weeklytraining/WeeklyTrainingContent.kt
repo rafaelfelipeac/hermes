@@ -627,9 +627,9 @@ private fun WorkoutUi.shouldDeemphasize(focusedCategoryId: Long?): Boolean {
 
 @Composable
 private fun SlotSectionCard(
+    modifier: Modifier = Modifier,
     title: String,
     isDropTarget: Boolean = false,
-    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Surface(

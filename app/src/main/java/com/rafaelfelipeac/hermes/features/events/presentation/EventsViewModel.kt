@@ -56,6 +56,7 @@ import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.mapper.toUi as toWorkoutUi
 
 @HiltViewModel
@@ -200,24 +201,22 @@ class EventsViewModel
                     if (dateChanged) {
                         nextRaceEventOrder(storageWeekStart, dayOfWeek, eventId)
                     } else {
-                        original?.order ?: 0
+                        original.order ?: 0
                     }
 
-                if (dateChanged) {
-                    repository.updateWorkoutSchedule(
-                        workoutId = eventId,
-                        weekStartDate = storageWeekStart,
-                        dayOfWeek = dayOfWeek,
-                        timeSlot = null,
-                        order = nextOrder,
+                repository.updateWorkoutSchedule(
+                    workoutId = eventId,
+                    weekStartDate = storageWeekStart,
+                    dayOfWeek = dayOfWeek,
+                    timeSlot = null,
+                    order = nextOrder,
+                )
+                original?.let { previous ->
+                    normalizeRaceEventSourceBucket(
+                        movedEventId = eventId,
+                        weekStartDate = previous.weekStartDate,
+                        dayOfWeek = previous.dayOfWeek,
                     )
-                    original?.let { previous ->
-                        normalizeRaceEventSourceBucket(
-                            movedEventId = eventId,
-                            weekStartDate = previous.weekStartDate,
-                            dayOfWeek = previous.dayOfWeek,
-                        )
-                    }
                 }
                 repository.updateWorkoutDetails(
                     workoutId = eventId,
@@ -227,11 +226,7 @@ class EventsViewModel
                     categoryId = normalizedCategoryId,
                 )
                 val actionType =
-                    if (dateChanged) {
-                        RACE_EVENT.toMoveActionType()
-                    } else {
-                        RACE_EVENT.toUpdateActionType()
-                    }
+                    RACE_EVENT.toMoveActionType()
 
                 userActionLogger.log(
                     actionType = actionType,
@@ -297,9 +292,9 @@ class EventsViewModel
                 userActionLogger.log(
                     actionType =
                         if (isCompleted) {
-                            com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
+                            UserActionType.COMPLETE_RACE_EVENT
                         } else {
-                            com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
+                            UserActionType.INCOMPLETE_RACE_EVENT
                         },
                     entityType = RACE_EVENT.toUserActionEntityType(),
                     entityId = eventId,
@@ -464,7 +459,7 @@ class EventsViewModel
             undoTimeoutJob?.cancel()
             undoTimeoutJob =
                 viewModelScope.launch {
-                    delay(UNDO_TIMEOUT_MS)
+                    delay(UNDO_TIMEOUT_MS.milliseconds)
 
                     if (undoState.value?.id == undoId) {
                         undoState.value = null

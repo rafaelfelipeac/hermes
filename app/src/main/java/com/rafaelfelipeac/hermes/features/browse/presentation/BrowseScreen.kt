@@ -312,11 +312,11 @@ private fun BrowseSectionTitle(text: String) {
 
 @Composable
 private fun BrowseDestinationCard(
+    modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Card(
         onClick = onClick,

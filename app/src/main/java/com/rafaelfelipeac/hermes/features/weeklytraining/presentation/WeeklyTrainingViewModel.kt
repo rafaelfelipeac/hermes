@@ -585,8 +585,8 @@ class WeeklyTrainingViewModel
                             shouldCelebrateAllWorkoutsCompleted(
                                 currentWorkouts = optimisticWorkouts,
                                 workoutId = workout.id,
-                                previousIsCompleted = originalEffective.isCompleted,
-                                newIsCompleted = isCompleted,
+                                previousIsCompleted = false,
+                                newIsCompleted = true,
                             )
                         ) {
                             UndoMessage.CompletedWeek

@@ -96,6 +96,7 @@ internal fun TrophyBadge(
         }
     val badgeDiameter = size * tierStyle.badgeScale
     val badgeOffset = (size - badgeDiameter) / 2
+
     Box(
         modifier =
             modifier

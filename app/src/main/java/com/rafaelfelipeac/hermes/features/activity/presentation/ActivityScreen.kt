@@ -162,6 +162,7 @@ internal fun ActivityHeader(onBack: () -> Unit) {
 
 @Composable
 internal fun ActivityContent(
+    modifier: Modifier = Modifier,
     sections: List<ActivitySectionUi>,
     currentLocale: Locale,
     requestedActivityId: Long? = null,
@@ -172,7 +173,6 @@ internal fun ActivityContent(
     onCategorySelected: (Long) -> Unit = {},
     onWeekSelected: (LocalDate) -> Unit = {},
     onClearFilters: () -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     val dayPattern = stringResource(R.string.activity_week_date_pattern)
     val dayFormatter =

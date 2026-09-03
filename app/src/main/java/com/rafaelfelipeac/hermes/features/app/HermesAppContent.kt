@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -62,17 +63,17 @@ fun HermesAppContent() {
     var browseOriginTab by rememberSaveable { mutableStateOf<AppDestinations?>(null) }
     var browseParentDestination by rememberSaveable { mutableStateOf(BrowseDestination.ROOT) }
     var pendingWorkoutDraft by rememberSaveable(stateSaver = WorkoutDialogDraft.Saver) {
-        mutableStateOf<WorkoutDialogDraft?>(null)
+        mutableStateOf(null)
     }
     var pendingEventDraft by rememberSaveable(stateSaver = EventDialogDraft.Saver) {
-        mutableStateOf<EventDialogDraft?>(null)
+        mutableStateOf(null)
     }
     var pendingChallengeDraft by rememberSaveable(stateSaver = ChallengeEditorDraft.Saver) {
-        mutableStateOf<ChallengeEditorDraft?>(null)
+        mutableStateOf(null)
     }
     var pendingRequestedWorkoutId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedWorkoutDate by rememberSaveable { mutableStateOf<String?>(null) }
-    var pendingRequestedWorkoutRequestKey by rememberSaveable { mutableStateOf(0L) }
+    var pendingRequestedWorkoutRequestKey by rememberSaveable { mutableLongStateOf(0L) }
     var pendingRequestedEventId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedActivityId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -127,7 +128,7 @@ fun HermesAppContent() {
     val openProgressWorkout: (ProgressNextFocusUi) -> Unit = { workout ->
         pendingWorkoutDraft = null
         pendingRequestedWorkoutId = workout.id
-        pendingRequestedWorkoutDate = workout.date?.toString()
+        pendingRequestedWorkoutDate = workout.date.toString()
         pendingRequestedWorkoutRequestKey += 1L
         pendingRequestedTrophyStableId = null
         pendingRequestedEventId = null

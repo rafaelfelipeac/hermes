@@ -17,7 +17,7 @@ internal fun selectFeaturedTrophy(cards: List<TrophyCardUi>): FeaturedTrophyUi? 
         cards
             .filter { !it.isUnlocked }
             .minWithOrNull(
-                compareBy<TrophyCardUi>(
+                compareBy(
                     { (it.target - it.currentValue).coerceAtLeast(0) },
                     { it.family.sortIndex() },
                     { it.stableId },

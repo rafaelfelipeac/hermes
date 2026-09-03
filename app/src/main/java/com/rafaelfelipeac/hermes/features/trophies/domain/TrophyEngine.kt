@@ -416,15 +416,6 @@ class TrophyEngine(
                     return true
                 }
 
-                fun restoreDeletedProgressEntry(entryId: Long): Boolean {
-                    val entry =
-                        deletedProgressEntryStacksById[entryId]
-                            ?.removeLastIfPresent()
-                            ?: return false
-                    challengeEntriesById.getOrPut(entry.challengeId, ::linkedMapOf)[entry.id] = entry
-                    return true
-                }
-
                 parsedActions.forEach { action ->
                     val categoryIds = resolveCategoryIds(action, categoryAliasesById)
                     val affectedChallengeIds = linkedSetOf<Long>()

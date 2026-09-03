@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -99,12 +100,12 @@ internal fun SettingsSection(
 
 @Composable
 internal fun SettingsDetailScreen(
+    modifier: Modifier = Modifier,
     title: String,
     onBack: () -> Unit,
     onHelpClick: (() -> Unit)? = null,
     helpContentDescription: String? = null,
     contentInsideCard: Boolean = true,
-    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     val scrollState = rememberScrollState()
@@ -268,10 +269,10 @@ internal fun SettingsActionButton(
 
 @Composable
 internal fun SettingsNavigationRow(
+    modifier: Modifier = Modifier,
     label: String,
     detail: String? = null,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     Row(
         modifier =
@@ -309,7 +310,7 @@ internal fun SettingsNavigationRow(
 
 @Composable
 internal fun SettingsInfoRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     title: String,
     body: String,
     onClick: () -> Unit,

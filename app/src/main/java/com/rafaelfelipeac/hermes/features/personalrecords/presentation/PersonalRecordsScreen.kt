@@ -36,6 +36,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -1587,9 +1588,9 @@ internal fun PersonalRecordEntryEditorDialog(
                 else -> TimeParts()
             }
         }
-    var timeHours by rememberSaveable(dialogKey) { mutableStateOf(initialTimeParts.hours) }
-    var timeMinutes by rememberSaveable(dialogKey) { mutableStateOf(initialTimeParts.minutes) }
-    var timeSeconds by rememberSaveable(dialogKey) { mutableStateOf(initialTimeParts.seconds) }
+    var timeHours by rememberSaveable(dialogKey) { mutableIntStateOf(initialTimeParts.hours) }
+    var timeMinutes by rememberSaveable(dialogKey) { mutableIntStateOf(initialTimeParts.minutes) }
+    var timeSeconds by rememberSaveable(dialogKey) { mutableIntStateOf(initialTimeParts.seconds) }
     var hasLoadedInitialState by rememberSaveable(dialogKey) { mutableStateOf(false) }
 
     LaunchedEffect(familyId) {
@@ -1738,7 +1739,7 @@ internal fun PersonalRecordEntryEditorDialog(
                 Spacer(modifier = Modifier.height(SpacingLg))
 
                 if (isTimeMetric) {
-                    key(selectedFamily?.id ?: -1L, isTimeMetric) {
+                    key(selectedFamily.id, true) {
                         PersonalRecordTimePicker(
                             hours = timeHours,
                             minutes = timeMinutes,
@@ -1759,7 +1760,7 @@ internal fun PersonalRecordEntryEditorDialog(
                             label = { Text(text = stringResource(R.string.personal_records_entry_value)) },
                             singleLine = true,
                             keyboardOptions =
-                                androidx.compose.foundation.text.KeyboardOptions(
+                                KeyboardOptions(
                                     keyboardType = KeyboardType.Decimal,
                                 ),
                             modifier =
@@ -1793,7 +1794,7 @@ internal fun PersonalRecordEntryEditorDialog(
                                     expanded = unitMenuExpanded,
                                     onDismissRequest = { unitMenuExpanded = false },
                                 ) {
-                                    selectedFamily?.metricType?.supportedUnits().orEmpty().forEach { option ->
+                                    selectedFamily.metricType.supportedUnits().forEach { option ->
                                         DropdownMenuItem(
                                             text = {
                                                 Column(verticalArrangement = Arrangement.spacedBy(SpacingXxs)) {

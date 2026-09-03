@@ -657,9 +657,9 @@ private fun ProgressSupportingProgress(
 
 @Composable
 private fun ProgressSupportBlock(
+    modifier: Modifier = Modifier,
     content: ProgressSupportCardContent,
     onClick: (() -> Unit)? = null,
-    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier =
@@ -710,7 +710,7 @@ private fun ProgressSupportBlock(
 
 @Composable
 private fun ProgressRecentActivity(
-    items: List<com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi>,
+    items: List<ActivityItemUi>,
     onOpenActivityItem: (ActivityItemUi) -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingSm)) {

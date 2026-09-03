@@ -481,10 +481,6 @@ class SettingsViewModel
             }
         }
 
-        suspend fun currentBackupFolderUri(): String? {
-            return repository.backupFolderUri.first()
-        }
-
         suspend fun hasBackupData(): Boolean {
             return backupRepository.hasAnyData() || hasNonDefaultSettings()
         }

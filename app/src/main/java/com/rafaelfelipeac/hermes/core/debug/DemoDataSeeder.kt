@@ -431,13 +431,13 @@ class DemoDataSeeder
             currentWeekStart: LocalDate,
             nextWeekStart: LocalDate,
         ): List<WorkoutEntity> {
-            return historyWeekStarts.mapIndexed { index, weekStart ->
+            return historyWeekStarts.flatMapIndexed { index, weekStart ->
                 buildWeekSchedule(
                     weekStartDate = weekStart,
                     completionProfile = completionProfileForHistoryWeek(index),
                     plan = historyWeekPlanForIndex(index),
                 )
-            }.flatten() +
+            } +
                 buildWeekSchedule(currentWeekStart, CompletionProfile.SOME) +
                 buildWeekSchedule(nextWeekStart, CompletionProfile.NONE) +
                 buildDemoRaceEvents(currentWeekStart, nextWeekStart)

@@ -258,8 +258,8 @@ private fun formatWeekRange(
     val startMonth = start.month.getDisplayName(SHORT, locale)
     val endMonth = end.month.getDisplayName(SHORT, locale)
 
-    return when {
-        start.year == end.year && start.month == end.month ->
+    return when (start.year) {
+        end.year if start.month == end.month ->
             String.format(
                 locale,
                 SAME_MONTH_RANGE_FORMAT,
@@ -268,7 +268,7 @@ private fun formatWeekRange(
                 startMonth,
                 start.year,
             )
-        start.year == end.year ->
+        end.year ->
             String.format(
                 locale,
                 SAME_YEAR_RANGE_FORMAT,
@@ -278,17 +278,16 @@ private fun formatWeekRange(
                 endMonth,
                 start.year,
             )
-        else ->
-            String.format(
-                locale,
-                CROSS_YEAR_RANGE_FORMAT,
-                startDay,
-                startMonth,
-                start.year,
-                endDay,
-                endMonth,
-                end.year,
-            )
+        else -> String.format(
+            locale,
+            CROSS_YEAR_RANGE_FORMAT,
+            startDay,
+            startMonth,
+            start.year,
+            endDay,
+            endMonth,
+            end.year,
+        )
     }
 }
 

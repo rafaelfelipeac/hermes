@@ -41,6 +41,10 @@ internal fun DatePickerState.applyWeekStartDayOverride(weekStartDay: WeekStartDa
 }
 
 private fun Class<*>.findDeclaredField(name: String) =
-    generateSequence(this) { it.superclass }
-        .mapNotNull { clazz -> runCatching { clazz.getDeclaredField(name) }.getOrNull() }
-        .firstOrNull()
+    generateSequence(this) { it.superclass }.firstNotNullOfOrNull { clazz ->
+        runCatching {
+            clazz.getDeclaredField(
+                name
+            )
+        }.getOrNull()
+    }

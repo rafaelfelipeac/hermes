@@ -139,6 +139,7 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 private const val CHALLENGES_ROUTE_LIST = "list"
 private const val CHALLENGES_ROUTE_DETAIL = "detail"
@@ -322,8 +323,8 @@ internal fun ChallengesScreen(
         modifier = modifier.fillMaxSize().testTag(CHALLENGES_TAG_ROOT),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         floatingActionButton = {
-            when {
-                route == CHALLENGES_ROUTE_LIST && selectedTab == ChallengeListTab.ACTIVE -> {
+            when (route) {
+                CHALLENGES_ROUTE_LIST if selectedTab == ChallengeListTab.ACTIVE -> {
                     FloatingActionButton(
                         onClick = openCreateChallenge,
                         containerColor = colorScheme.primaryContainer,
@@ -337,9 +338,8 @@ internal fun ChallengesScreen(
                     }
                 }
 
-                route == CHALLENGES_ROUTE_DETAIL &&
-                    state.selectedChallenge?.lifecycle == ChallengeLifecycle.ACTIVE &&
-                    addProgressDefaultDate != null -> {
+                CHALLENGES_ROUTE_DETAIL if state.selectedChallenge?.lifecycle == ChallengeLifecycle.ACTIVE &&
+                        addProgressDefaultDate != null -> {
                     FloatingActionButton(
                         onClick = openAddProgressDialog,
                         containerColor = colorScheme.primaryContainer,
@@ -495,7 +495,7 @@ internal fun ChallengesScreen(
                     } else {
                         stringResource(R.string.challenges_add_progress)
                     },
-                date = progressDialogDate!!,
+                date = progressDialogDate,
                 quantity = progressDialogQuantity,
                 validationMessage = state.editorState.validationMessage,
                 onDateChange = { progressDialogDateEpochDay = it.toEpochDay() },
@@ -510,10 +510,14 @@ internal fun ChallengesScreen(
                     val saved =
                         if (progressDialogIsEdit) {
                             progressDialogEntryId?.let { entryId ->
-                                viewModel.updateProgressEntry(entryId, progressDialogQuantity, progressDialogDate!!)
+                                viewModel.updateProgressEntry(entryId, progressDialogQuantity,
+                                    progressDialogDate
+                                )
                             } ?: false
                         } else {
-                            viewModel.addProgressEntry(challengeId, progressDialogQuantity, progressDialogDate!!)
+                            viewModel.addProgressEntry(challengeId, progressDialogQuantity,
+                                progressDialogDate
+                            )
                         }
                     if (saved) {
                         showProgressDialog = false
@@ -1035,7 +1039,7 @@ private fun ChallengeCompletionConfetti(
                         ).max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
                 ),
             )
-        kotlinx.coroutines.delay(CHALLENGE_CONFETTI_VISIBLE_DURATION_MS)
+        kotlinx.coroutines.delay(CHALLENGE_CONFETTI_VISIBLE_DURATION_MS.milliseconds)
         parties = emptyList()
     }
     if (parties.isNotEmpty()) {
@@ -1502,7 +1506,7 @@ private fun ChallengeCard(
                 category = category,
                 calculation = calculation,
                 showProgressBar = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
-                progressBarModifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
+                modifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
             )
         }
     }
@@ -1510,11 +1514,11 @@ private fun ChallengeCard(
 
 @Composable
 private fun ChallengeSummaryContent(
+    modifier: Modifier = Modifier,
     challenge: Challenge,
     category: Category?,
     calculation: ChallengeCalculationResult?,
     showProgressBar: Boolean,
-    progressBarModifier: Modifier = Modifier,
 ) {
     val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
 
@@ -1574,7 +1578,7 @@ private fun ChallengeSummaryContent(
             ChallengeProgressBar(
                 progress = calculationResult.visualProgress,
                 color = challengeProgressColor(calculationResult.status),
-                modifier = progressBarModifier,
+                modifier = modifier,
             )
         }
 
@@ -1673,9 +1677,9 @@ private fun ChallengeOverflowMenu(
                 contentDescription = stringResource(R.string.challenges_actions_menu),
             )
         }
-        androidx.compose.material3.DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             if (onEdit != null) {
-                androidx.compose.material3.DropdownMenuItem(
+                DropdownMenuItem(
                     text = { Text(text = stringResource(R.string.challenges_edit)) },
                     onClick = {
                         expanded = false
@@ -1687,7 +1691,7 @@ private fun ChallengeOverflowMenu(
                 )
             }
             if (onArchive != null) {
-                androidx.compose.material3.DropdownMenuItem(
+                DropdownMenuItem(
                     text = { Text(text = stringResource(R.string.challenges_archive)) },
                     onClick = {
                         expanded = false
@@ -1699,7 +1703,7 @@ private fun ChallengeOverflowMenu(
                 )
             }
             if (onReactivate != null) {
-                androidx.compose.material3.DropdownMenuItem(
+                DropdownMenuItem(
                     text = { Text(text = stringResource(R.string.challenges_reactivate)) },
                     onClick = {
                         expanded = false
@@ -1711,7 +1715,7 @@ private fun ChallengeOverflowMenu(
                 )
             }
             if (onDelete != null) {
-                androidx.compose.material3.DropdownMenuItem(
+                DropdownMenuItem(
                     text = { Text(text = stringResource(R.string.challenges_delete)) },
                     onClick = {
                         expanded = false
