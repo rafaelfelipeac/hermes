@@ -11,9 +11,6 @@
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +34,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.outlined.TrackChanges
@@ -79,7 +75,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -97,7 +92,6 @@ import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeCompletionIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeProgressBarHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -119,16 +113,10 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTarge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeUiState
 import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorDraft
 import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorOrigin
-import nl.dionsegijn.konfetti.compose.KonfettiView
-import nl.dionsegijn.konfetti.core.Party
-import nl.dionsegijn.konfetti.core.Position
-import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
-import kotlin.time.Duration.Companion.milliseconds
 
 private const val CHALLENGES_ROUTE_LIST = "list"
 private const val CHALLENGES_ROUTE_DETAIL = "detail"
@@ -147,14 +135,6 @@ internal const val CHALLENGES_TAG_ACTIVE_CARD_PROGRESS = "challenges_active_card
 internal const val CHALLENGES_TAG_ACTIVE_EMPTY_STATE = "challenges_active_empty_state"
 internal const val CHALLENGES_TAG_ARCHIVED_EMPTY_STATE = "challenges_archived_empty_state"
 private const val CHALLENGES_TAG_EDITOR = "challenges_editor"
-private const val CHALLENGE_CONFETTI_CENTER_X = 0.5
-private const val CHALLENGE_CONFETTI_CENTER_Y = 0.34
-private const val CHALLENGE_CONFETTI_LEFT_ANGLE = 180
-private const val CHALLENGE_CONFETTI_RIGHT_ANGLE = 0
-private const val CHALLENGE_CONFETTI_SPREAD = 52
-private const val CHALLENGE_CONFETTI_EMITTER_DURATION_MS = 250L
-private const val CHALLENGE_CONFETTI_PARTICLE_COUNT = 42
-private const val CHALLENGE_CONFETTI_VISIBLE_DURATION_MS = 2_000L
 
 internal enum class ChallengeListTab {
     ACTIVE,
@@ -707,114 +687,6 @@ private fun ChallengesDetailRoute(
             burstKey = completionBurstKey,
             category = category,
             modifier = Modifier.fillMaxSize(),
-        )
-    }
-}
-
-@Composable
-private fun ChallengeCompletionHero(calculation: ChallengeCalculationResult) {
-    val isExceeded = calculation.status == ChallengeStatus.EXCEEDED
-    val currentLocale = currentLocale()
-    Card(
-        modifier = Modifier.fillMaxWidth().testTag(CHALLENGES_TAG_COMPLETION_CELEBRATION),
-        shape = shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = colorScheme.primaryContainer),
-    ) {
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn() + scaleIn(),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(SpacingMd),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SpacingMd),
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.EmojiEvents,
-                    contentDescription = null,
-                    tint = colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(ChallengeCompletionIconSize),
-                )
-                Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
-                    Text(
-                        text =
-                            stringResource(
-                                if (isExceeded) {
-                                    R.string.challenges_completion_exceeded_title
-                                } else {
-                                    R.string.challenges_completion_title
-                                },
-                            ),
-                        style = typography.titleMedium,
-                        color = colorScheme.onPrimaryContainer,
-                    )
-                    Text(
-                        text =
-                            stringResource(
-                                R.string.challenges_completion_summary,
-                                ChallengeQuantity.format(calculation.completedTotal, currentLocale),
-                                ChallengeQuantity.format(calculation.plannedTotal, currentLocale),
-                            ),
-                        style = typography.bodyMedium,
-                        color = colorScheme.onPrimaryContainer,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ChallengeCompletionConfetti(
-    burstKey: Int,
-    category: Category?,
-    modifier: Modifier = Modifier,
-) {
-    var parties by remember { mutableStateOf(emptyList<Party>()) }
-    val hapticFeedback = androidx.compose.ui.platform.LocalHapticFeedback.current
-    val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
-    val palette =
-        listOf(
-            (categoryAccent ?: colorScheme.primary).toArgb(),
-            colorScheme.primary.toArgb(),
-            colorScheme.secondary.toArgb(),
-            colorScheme.tertiary.toArgb(),
-        ).distinct()
-    LaunchedEffect(burstKey) {
-        if (burstKey == 0) return@LaunchedEffect
-        hapticFeedback.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.Confirm)
-        parties =
-            listOf(
-                Party(
-                    angle = CHALLENGE_CONFETTI_LEFT_ANGLE,
-                    spread = CHALLENGE_CONFETTI_SPREAD,
-                    colors = palette,
-                    position = Position.Relative(CHALLENGE_CONFETTI_CENTER_X, CHALLENGE_CONFETTI_CENTER_Y),
-                    emitter =
-                        Emitter(
-                            duration = CHALLENGE_CONFETTI_EMITTER_DURATION_MS,
-                            TimeUnit.MILLISECONDS,
-                        ).max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
-                ),
-                Party(
-                    angle = CHALLENGE_CONFETTI_RIGHT_ANGLE,
-                    spread = CHALLENGE_CONFETTI_SPREAD,
-                    colors = palette,
-                    position = Position.Relative(CHALLENGE_CONFETTI_CENTER_X, CHALLENGE_CONFETTI_CENTER_Y),
-                    emitter =
-                        Emitter(
-                            duration = CHALLENGE_CONFETTI_EMITTER_DURATION_MS,
-                            TimeUnit.MILLISECONDS,
-                        ).max(CHALLENGE_CONFETTI_PARTICLE_COUNT),
-                ),
-            )
-        kotlinx.coroutines.delay(CHALLENGE_CONFETTI_VISIBLE_DURATION_MS.milliseconds)
-        parties = emptyList()
-    }
-    if (parties.isNotEmpty()) {
-        KonfettiView(
-            modifier = modifier.testTag(CHALLENGES_TAG_COMPLETION_CONFETTI),
-            parties = parties,
         )
     }
 }
