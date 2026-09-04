@@ -81,7 +81,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -94,6 +93,7 @@ import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -994,7 +994,7 @@ private fun trophyConditionLabel(trophy: TrophyCardUi): String {
 
 @Composable
 private fun unlockedDateLabel(unlockedAt: Long): String {
-    val currentLocale = LocalConfiguration.current.locales.get(0) ?: Locale.getDefault()
+    val currentLocale = currentLocale()
     return stringResource(
         R.string.trophies_unlocked_on,
         DateFormat.getDateInstance(DateFormat.MEDIUM, currentLocale).format(Date(unlockedAt)),
@@ -1003,7 +1003,7 @@ private fun unlockedDateLabel(unlockedAt: Long): String {
 
 @Composable
 private fun unlockedDateCompactLabel(unlockedAt: Long): String {
-    val currentLocale = LocalConfiguration.current.locales.get(0) ?: Locale.getDefault()
+    val currentLocale = currentLocale()
     return DateFormat.getDateInstance(DateFormat.SHORT, currentLocale).format(Date(unlockedAt))
 }
 

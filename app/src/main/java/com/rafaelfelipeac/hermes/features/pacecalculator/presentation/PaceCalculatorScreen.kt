@@ -54,6 +54,7 @@ import com.rafaelfelipeac.hermes.core.measurement.MeasurementConstants.METERS_PE
 import com.rafaelfelipeac.hermes.core.measurement.MeasurementConstants.METERS_PER_MILE
 import com.rafaelfelipeac.hermes.core.strings.formatElapsedTime
 import com.rafaelfelipeac.hermes.core.time.secondsToDurationParts
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -117,6 +118,7 @@ fun PaceCalculatorScreen(
 ) {
     BackHandler(onBack = onBack)
 
+    val currentLocale = currentLocale()
     var mode by rememberSaveable { mutableStateOf(PaceCalculatorMode.PACE) }
     var distanceText by rememberSaveable { mutableStateOf(EMPTY) }
     var timeHoursText by rememberSaveable { mutableStateOf(DEFAULT_NUMBER_TEXT) }
@@ -244,7 +246,7 @@ fun PaceCalculatorScreen(
                     selectedPresetMeters = selectedPresetMeters,
                     onPresetSelected = { preset ->
                         selectedPresetMeters = preset.valueMeters
-                        distanceText = formatDistanceInput(preset.valueMeters, settingsDistanceUnit)
+                        distanceText = formatDistanceInput(preset.valueMeters, settingsDistanceUnit, currentLocale)
                     },
                     onCustomSelected = { selectedPresetMeters = null },
                 )
@@ -576,8 +578,10 @@ private fun PaceCalculatorResultUi.labels(
     mode: PaceCalculatorMode,
     settingsDistanceUnit: DistanceUnit,
     settingsPaceUnit: PaceUnit,
-): PaceCalculatorResultLabels =
-    when (mode) {
+): PaceCalculatorResultLabels {
+    val currentLocale = currentLocale()
+
+    return when (mode) {
         PaceCalculatorMode.PACE ->
             PaceCalculatorResultLabels(
                 primary =
@@ -598,6 +602,7 @@ private fun PaceCalculatorResultUi.labels(
                             distanceMeters = it,
                             distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
                             unitLabel = distanceUnitLabel(settingsDistanceUnit),
+                            locale = currentLocale,
                         )
                     }.orEmpty(),
             )
@@ -609,11 +614,13 @@ private fun PaceCalculatorResultUi.labels(
                             distanceMeters = it,
                             distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
                             unitLabel = distanceUnitLabel(settingsDistanceUnit),
+                            locale = currentLocale,
                         )
                     }.orEmpty(),
                 secondary = timeSeconds?.let(::formatElapsedTime).orEmpty(),
             )
     }
+}
 
 private data class PaceDistancePreset(
     val label: String,
@@ -650,9 +657,10 @@ private fun formatDistance(
     distanceMeters: Double,
     distanceUnitMeters: Double,
     unitLabel: String,
+    locale: Locale,
 ): String {
     val value = distanceMeters / distanceUnitMeters
-    val formatter = NumberFormat.getNumberInstance(Locale.getDefault())
+    val formatter = NumberFormat.getNumberInstance(locale)
     formatter.minimumFractionDigits = if (value % 1.0 == 0.0) 0 else 1
     formatter.maximumFractionDigits = 2
     return "${formatter.format(value)} $unitLabel"
@@ -710,6 +718,7 @@ private fun paceUnitMeters(unit: PaceUnit): Double {
 private fun formatDistanceInput(
     meters: Double,
     distanceUnit: DistanceUnit,
+    locale: Locale,
 ): String {
-    return NumberFormat.getNumberInstance(Locale.getDefault()).format(meters / distanceUnitMeters(distanceUnit))
+    return NumberFormat.getNumberInstance(locale).format(meters / distanceUnitMeters(distanceUnit))
 }

@@ -41,13 +41,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.relativeDateText
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -70,8 +70,7 @@ fun ActivityScreen(
     onRequestedActivityConsumed: () -> Unit = {},
     viewModel: ActivityViewModel = hiltViewModel(),
 ) {
-    val configuration = LocalConfiguration.current
-    val currentLocale = configuration.locales.get(0) ?: Locale.getDefault()
+    val currentLocale = currentLocale()
 
     BackHandler(onBack = onBack)
 

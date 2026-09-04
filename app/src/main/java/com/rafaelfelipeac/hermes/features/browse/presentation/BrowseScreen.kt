@@ -410,9 +410,7 @@ private fun BrowseBackupScreen(
                 )
                 pendingSaveAsDestinationConfigured = false
 
-                message?.let {
-                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
             }
         }
 

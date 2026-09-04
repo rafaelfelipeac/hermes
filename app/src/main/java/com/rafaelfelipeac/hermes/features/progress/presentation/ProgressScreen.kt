@@ -37,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -45,6 +44,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.relativeDaysUntilText
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressActivityContentGap
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressCategoryColorDotSize
@@ -84,8 +84,7 @@ fun ProgressScreen(
     viewModel: ProgressViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
-    val configuration = LocalConfiguration.current
-    val locale = configuration.locales.get(0) ?: Locale.getDefault()
+    val locale = currentLocale()
 
     ProgressContent(
         state = state,

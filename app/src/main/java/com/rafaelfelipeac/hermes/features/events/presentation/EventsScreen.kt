@@ -73,6 +73,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
@@ -546,6 +547,7 @@ private fun EventCard(
 ) {
     val eventDate = event.eventDate()
     val categoryAccent = event.categoryColorId?.let(::categoryAccentColor)?.let(::baseCategoryColor)
+    val currentLocale = currentLocale()
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val colors = eventCardColors(event = event, categoryAccent = categoryAccent, isDarkTheme = isDarkTheme)
     val categoryChipBase =
@@ -566,7 +568,7 @@ private fun EventCard(
         }
     val categoryChipContent = Color.White
     val countdown = countdownLabel(eventDate)
-    val dateLabel = formatDate(eventDate)
+    val dateLabel = formatDate(eventDate, currentLocale)
     val categoryLabel = event.categoryName ?: stringResource(R.string.category_uncategorized)
     val frameColor = if (event.isCompleted) colors.background else categoryAccent
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -822,7 +824,10 @@ private fun countdownLabel(eventDate: LocalDate): String {
     }
 }
 
-private fun formatDate(date: LocalDate): String {
-    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
+private fun formatDate(
+    date: LocalDate,
+    locale: Locale,
+): String {
+    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
     return formatter.format(date)
 }

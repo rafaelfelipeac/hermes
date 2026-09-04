@@ -89,7 +89,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -99,7 +98,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.core.os.ConfigurationCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
@@ -117,6 +115,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
 import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
@@ -412,8 +411,7 @@ fun PersonalRecordsContent(
     modifier: Modifier = Modifier,
 ) {
     var isAddMenuVisible by rememberSaveable { mutableStateOf(false) }
-    val configuration = LocalConfiguration.current
-    val currentLocale = ConfigurationCompat.getLocales(configuration)[0] ?: Locale.getDefault()
+    val currentLocale = currentLocale()
     val selectedFamily = state.families.firstOrNull { it.id == selectedFamilyId }
     val contentTitle =
         selectedFamily?.title ?: stringResource(R.string.personal_records_title)
@@ -924,7 +922,7 @@ private fun PersonalRecordDetail(
                             currentLocale = currentLocale,
                             onClick = { onEditEntry(entry) },
                             isManualSelection = family.comparisonRule == MANUAL,
-                            isCurrent = currentBest?.id == entry.id,
+                            isCurrent = currentBest.id == entry.id,
                             category = category,
                             onSetCurrent = { onSetManualCurrentEntry(family.id, entry.id) },
                         )
@@ -1556,6 +1554,7 @@ internal fun PersonalRecordEntryEditorDialog(
     val isTimeMetric = selectedFamily?.metricType == TIME
     val isDistanceOrWeightMetric = selectedFamily?.metricType == DISTANCE || selectedFamily?.metricType == WEIGHT
     val today = remember { LocalDate.now() }
+    val currentLocale = currentLocale()
     val currentEntry =
         remember(familyId, entries, initialEntry?.id, isEdit) {
             if (isEdit) {
@@ -1842,7 +1841,7 @@ internal fun PersonalRecordEntryEditorDialog(
                             .testTag(PERSONAL_RECORDS_ENTRY_DATE_FIELD_TAG),
                 ) {
                     OutlinedTextField(
-                        value = formatWorkoutDate(recordDate, Locale.getDefault()),
+                        value = formatWorkoutDate(recordDate, currentLocale),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(text = stringResource(R.string.personal_records_entry_date)) },
@@ -1947,9 +1946,9 @@ internal fun PersonalRecordEntryEditorDialog(
                 }
             }
         val datePickerState =
-            remember(selectedDateMillis, selectableDates) {
+            remember(selectedDateMillis, selectableDates, currentLocale) {
                 DatePickerState(
-                    locale = Locale.getDefault(),
+                    locale = currentLocale,
                     initialSelectedDateMillis = selectedDateMillis.coerceAtMost(maximumSelectableDateMillis),
                     selectableDates = selectableDates,
                 )

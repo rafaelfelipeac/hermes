@@ -44,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Normal
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.WeeklyCalendarHeaderPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.IndicatorSize
@@ -84,6 +85,7 @@ fun WeeklyCalendarHeader(
     onWeekChanged: (LocalDate) -> Unit,
 ) {
     val weekEndDate = weekStartDate.plusDays((WEEK_DAY_COUNT - 1).toLong())
+    val currentLocale = currentLocale()
     val swipeThreshold = with(LocalDensity.current) { SwipeThreshold.toPx() }
     var dragAmount by remember { mutableFloatStateOf(0f) }
 
@@ -125,7 +127,7 @@ fun WeeklyCalendarHeader(
                 )
             }
 
-            Text(text = formatWeekRange(weekStartDate, weekEndDate))
+            Text(text = formatWeekRange(weekStartDate, weekEndDate, currentLocale))
 
             IconButton(
                 onClick = { onWeekChanged(selectedDate.plusWeeks(WEEK_CHANGE_STEP)) },
@@ -175,10 +177,11 @@ private fun DayIndicator(
     isSelected: Boolean,
     indicator: WorkoutDayIndicator?,
 ) {
+    val currentLocale = currentLocale()
     val label =
-        date.dayOfWeek.getDisplayName(SHORT, Locale.getDefault())
+        date.dayOfWeek.getDisplayName(SHORT, currentLocale)
             .take(1)
-            .uppercase(Locale.getDefault())
+            .uppercase(currentLocale)
     val isDarkTheme = isDarkBackground(colorScheme.background)
     val indicatorColor =
         indicator?.let {
@@ -251,8 +254,8 @@ private fun DayIndicator(
 private fun formatWeekRange(
     start: LocalDate,
     end: LocalDate,
+    locale: Locale,
 ): String {
-    val locale = Locale.getDefault()
     val startDay = start.dayOfMonth
     val endDay = end.dayOfMonth
     val startMonth = start.month.getDisplayName(SHORT, locale)

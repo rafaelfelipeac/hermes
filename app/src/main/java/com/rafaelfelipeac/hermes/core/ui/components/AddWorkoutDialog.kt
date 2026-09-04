@@ -31,15 +31,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.core.os.ConfigurationCompat
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewData
 import com.rafaelfelipeac.hermes.core.ui.preview.AddWorkoutDialogPreviewProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
@@ -50,7 +49,6 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNC
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import java.time.LocalDate
-import java.util.Locale
 
 internal const val ADD_WORKOUT_DIALOG_TITLE_FIELD_TAG = "add_workout_dialog_title_field"
 internal const val ADD_WORKOUT_DIALOG_DESCRIPTION_FIELD_TAG = "add_workout_dialog_description_field"
@@ -69,9 +67,7 @@ fun AddWorkoutDialog(
     initialType: String = EMPTY,
     initialDescription: String = EMPTY,
 ) {
-    val configuration = LocalConfiguration.current
-    val currentLocale =
-        ConfigurationCompat.getLocales(configuration).get(0) ?: Locale.getDefault()
+    val currentLocale = currentLocale()
     var type by rememberSaveable(initialType) { mutableStateOf(initialType.capitalizedFirstCharacter()) }
     var description by rememberSaveable(initialDescription) {
         mutableStateOf(initialDescription.capitalizedFirstCharacter())

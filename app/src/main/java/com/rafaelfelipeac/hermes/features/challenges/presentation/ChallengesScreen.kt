@@ -96,6 +96,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
@@ -189,6 +190,7 @@ internal fun ChallengesScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val undoState by viewModel.undoUiState.collectAsState()
+    val currentLocale = currentLocale()
     val snackbarHostState = remember { SnackbarHostState() }
     var route by rememberSaveable { mutableStateOf(CHALLENGES_ROUTE_LIST) }
     var selectedTab by rememberSaveable { mutableStateOf(ChallengeListTab.ACTIVE) }
@@ -283,7 +285,7 @@ internal fun ChallengesScreen(
         val date = addProgressDefaultDate ?: return@addQuickProgress
         viewModel.addProgressEntry(
             challenge.id,
-            ChallengeQuantity.format(quickAdd.quantity, Locale.getDefault()),
+            ChallengeQuantity.format(quickAdd.quantity, currentLocale),
             date,
         )
     }
@@ -432,7 +434,7 @@ internal fun ChallengesScreen(
                         onRequestEditProgress = { entry ->
                             progressDialogChallengeId = entry.challengeId
                             progressDialogEntryId = entry.id
-                            progressDialogQuantity = ChallengeQuantity.format(entry.quantity, Locale.getDefault())
+                            progressDialogQuantity = ChallengeQuantity.format(entry.quantity, currentLocale)
                             progressDialogDateEpochDay = entry.entryDate.toEpochDay()
                             progressDialogIsEdit = true
                             showProgressDialog = true
@@ -897,6 +899,8 @@ private fun ChallengeProgressHistoryCard(
     onRequestEditProgress: (ChallengeProgressEntry) -> Unit,
     onDeleteProgress: (Long) -> Unit,
 ) {
+    val currentLocale = currentLocale()
+
     Card(
         modifier =
             Modifier
@@ -915,7 +919,7 @@ private fun ChallengeProgressHistoryCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = formatWorkoutDate(group.date, Locale.getDefault()),
+                    text = formatWorkoutDate(group.date, currentLocale),
                     style = typography.titleSmall,
                     color = colorScheme.onSurface,
                 )
@@ -924,7 +928,7 @@ private fun ChallengeProgressHistoryCard(
                     text =
                         stringResource(
                             R.string.challenges_history_day_completed,
-                            ChallengeQuantity.format(group.completedQuantity, Locale.getDefault()),
+                            ChallengeQuantity.format(group.completedQuantity, currentLocale),
                         ),
                     style = typography.bodySmall,
                     color = colorScheme.onSurfaceVariant,
@@ -948,6 +952,7 @@ private fun ChallengeProgressHistoryCard(
 @Composable
 private fun ChallengeCompletionHero(calculation: ChallengeCalculationResult) {
     val isExceeded = calculation.status == ChallengeStatus.EXCEEDED
+    val currentLocale = currentLocale()
     Card(
         modifier = Modifier.fillMaxWidth().testTag(CHALLENGES_TAG_COMPLETION_CELEBRATION),
         shape = shapes.medium,
@@ -985,8 +990,8 @@ private fun ChallengeCompletionHero(calculation: ChallengeCalculationResult) {
                         text =
                             stringResource(
                                 R.string.challenges_completion_summary,
-                                ChallengeQuantity.format(calculation.completedTotal, Locale.getDefault()),
-                                ChallengeQuantity.format(calculation.plannedTotal, Locale.getDefault()),
+                                ChallengeQuantity.format(calculation.completedTotal, currentLocale),
+                                ChallengeQuantity.format(calculation.plannedTotal, currentLocale),
                             ),
                         style = typography.bodyMedium,
                         color = colorScheme.onPrimaryContainer,
@@ -1071,7 +1076,7 @@ internal fun ChallengesEditorDialog(
     val dialogKey = editorState.challengeId ?: -1L
     var showStartDatePicker by rememberSaveable(dialogKey) { mutableStateOf(false) }
     var showEndDatePicker by rememberSaveable(dialogKey) { mutableStateOf(false) }
-    val currentLocale = Locale.getDefault()
+    val currentLocale = currentLocale()
     val startDate = editorState.startDate
     val endDate = editorState.endDate
     val visibleCategories =
@@ -1252,6 +1257,8 @@ private fun ChallengeDetailSummaryCard(
     category: Category?,
     calculation: ChallengeCalculationResult,
 ) {
+    val currentLocale = currentLocale()
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = shapes.medium,
@@ -1283,8 +1290,10 @@ private fun ChallengeTodayCard(calculation: ChallengeCalculationResult) {
         Column(
             modifier = Modifier.padding(SpacingMd),
             verticalArrangement = Arrangement.spacedBy(SpacingSm),
-        ) {
-            Text(
+) {
+    val currentLocale = currentLocale()
+
+    Text(
                 text = stringResource(R.string.challenges_today_label),
                 style = typography.titleMedium,
             )
@@ -1294,14 +1303,14 @@ private fun ChallengeTodayCard(calculation: ChallengeCalculationResult) {
                         calculation.todayTarget != null ->
                             stringResource(
                                 R.string.challenges_today_value_daily,
-                                ChallengeQuantity.format(calculation.todayProgress, Locale.getDefault()),
-                                ChallengeQuantity.format(calculation.todayRemaining ?: 0L, Locale.getDefault()),
+                                ChallengeQuantity.format(calculation.todayProgress, currentLocale),
+                                ChallengeQuantity.format(calculation.todayRemaining ?: 0L, currentLocale),
                             )
                         else ->
                             stringResource(
                                 R.string.challenges_today_value_total,
-                                ChallengeQuantity.format(calculation.todayProgress, Locale.getDefault()),
-                                ChallengeQuantity.format(calculation.todayRemaining ?: 0L, Locale.getDefault()),
+                                ChallengeQuantity.format(calculation.todayProgress, currentLocale),
+                                ChallengeQuantity.format(calculation.todayRemaining ?: 0L, currentLocale),
                             )
                     },
                 style = typography.bodyMedium,
@@ -1312,7 +1321,7 @@ private fun ChallengeTodayCard(calculation: ChallengeCalculationResult) {
                     ChallengeTodayMetricCard(
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.challenges_today_completed_label),
-                        value = ChallengeQuantity.format(calculation.todayProgress, Locale.getDefault()),
+                        value = ChallengeQuantity.format(calculation.todayProgress, currentLocale),
                         containerColor = colorScheme.surfaceVariant,
                         contentColor = colorScheme.onSurfaceVariant,
                     )
@@ -1322,7 +1331,7 @@ private fun ChallengeTodayCard(calculation: ChallengeCalculationResult) {
                         value =
                             ChallengeQuantity.format(
                                 calculation.todayRemaining ?: 0L,
-                                Locale.getDefault(),
+                                currentLocale,
                             ),
                         containerColor = colorScheme.surfaceVariant,
                         contentColor = colorScheme.onSurfaceVariant,
@@ -1332,14 +1341,14 @@ private fun ChallengeTodayCard(calculation: ChallengeCalculationResult) {
                     ChallengeTodayMetricCard(
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.challenges_required_pace_label),
-                        value = ChallengeQuantity.format(calculation.requiredPace, Locale.getDefault()),
+                        value = ChallengeQuantity.format(calculation.requiredPace, currentLocale),
                         containerColor = colorScheme.primaryContainer,
                         contentColor = colorScheme.onPrimaryContainer,
                     )
                     ChallengeTodayMetricCard(
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.challenges_debt_label),
-                        value = ChallengeQuantity.format(calculation.carriedDebt, Locale.getDefault()),
+                        value = ChallengeQuantity.format(calculation.carriedDebt, currentLocale),
                         containerColor = colorScheme.secondaryContainer,
                         contentColor = colorScheme.onSecondaryContainer,
                     )
@@ -1354,6 +1363,8 @@ private fun ChallengeQuickAddCard(
     quickAdds: List<ChallengeQuickAddValue>,
     onQuickAdd: (ChallengeQuickAddValue) -> Unit,
 ) {
+    val currentLocale = currentLocale()
+
     Card(
         modifier =
             Modifier
@@ -1384,7 +1395,7 @@ private fun ChallengeQuickAddCard(
                             text =
                                 stringResource(
                                     R.string.challenges_quick_add_button,
-                                    ChallengeQuantity.format(quickAdd.quantity, Locale.getDefault()),
+                                    ChallengeQuantity.format(quickAdd.quantity, currentLocale),
                                 ),
                         )
                     }
@@ -1437,13 +1448,14 @@ private fun ChallengeProgressEntryRow(
     onDelete: (() -> Unit)?,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
+    val currentLocale = currentLocale()
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
-            Text(text = ChallengeQuantity.format(entry.quantity, Locale.getDefault()))
+            Text(text = ChallengeQuantity.format(entry.quantity, currentLocale))
         }
 
         if (isEditable && (onEdit != null || onDelete != null)) {
@@ -1523,6 +1535,7 @@ private fun ChallengeSummaryContent(
     showProgressBar: Boolean,
 ) {
     val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
+    val currentLocale = currentLocale()
 
     Text(
         text = challenge.title,
@@ -1568,8 +1581,8 @@ private fun ChallengeSummaryContent(
         text =
             stringResource(
                 R.string.challenges_date_range,
-                formatWorkoutDate(challenge.startDate, Locale.getDefault()),
-                formatWorkoutDate(challenge.endDate, Locale.getDefault()),
+                formatWorkoutDate(challenge.startDate, currentLocale),
+                formatWorkoutDate(challenge.endDate, currentLocale),
             ),
         style = typography.bodySmall,
         color = colorScheme.onSurfaceVariant,
@@ -1597,7 +1610,7 @@ private fun ChallengeSummaryContent(
 
 @Composable
 private fun challengeProgressLabel(calculation: ChallengeCalculationResult): String {
-    val locale = Locale.getDefault()
+    val locale = currentLocale()
     val progressValue =
         stringResource(
             R.string.challenges_progress_value,
@@ -1607,7 +1620,7 @@ private fun challengeProgressLabel(calculation: ChallengeCalculationResult): Str
     val progressPercent =
         stringResource(
             R.string.challenges_progress_percent,
-            challengeProgressPercent(calculation),
+            challengeProgressPercent(calculation, locale),
         )
     return stringResource(
         R.string.challenges_progress_value_with_percent,
@@ -1616,9 +1629,12 @@ private fun challengeProgressLabel(calculation: ChallengeCalculationResult): Str
     )
 }
 
-private fun challengeProgressPercent(calculation: ChallengeCalculationResult): String {
+private fun challengeProgressPercent(
+    calculation: ChallengeCalculationResult,
+    locale: Locale,
+): String {
     if (calculation.plannedTotal <= 0L) {
-        return NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+        return NumberFormat.getNumberInstance(locale).apply {
             minimumFractionDigits = 1
             maximumFractionDigits = 1
         }.format(0.0)
@@ -1631,7 +1647,7 @@ private fun challengeProgressPercent(calculation: ChallengeCalculationResult): S
         } else {
             roundedPercent
         }
-    return NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+    return NumberFormat.getNumberInstance(locale).apply {
         minimumFractionDigits = 1
         maximumFractionDigits = 1
     }.format(displayPercent)
@@ -1739,9 +1755,11 @@ private fun ChallengeDialogDateField(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val currentLocale = currentLocale()
+
     Box(modifier = modifier.fillMaxWidth()) {
         OutlinedTextField(
-            value = date?.let { formatWorkoutDate(it, Locale.getDefault()) }.orEmpty(),
+            value = date?.let { formatWorkoutDate(it, currentLocale) }.orEmpty(),
             onValueChange = {},
             readOnly = true,
             label = { Text(text = label) },
@@ -1816,10 +1834,11 @@ private fun ChallengeDatePickerDialog(
     onDismiss: () -> Unit,
 ) {
     val selectedDateMillis = remember(date) { date.toUtcEpochMillis() }
+    val currentLocale = currentLocale()
     val datePickerState =
-        remember(selectedDateMillis) {
+        remember(selectedDateMillis, currentLocale) {
             DatePickerState(
-                locale = Locale.getDefault(),
+                locale = currentLocale,
                 initialSelectedDateMillis = selectedDateMillis,
             )
         }

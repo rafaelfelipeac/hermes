@@ -628,6 +628,7 @@ class WeeklyTrainingViewModel
             workoutDate: LocalDate? = null,
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workoutId }
+            val originalWorkout = original ?: return@launch
             val normalizedCategoryId =
                 resolveCategoryId(
                     eventType = eventType,
@@ -642,17 +643,16 @@ class WeeklyTrainingViewModel
                     original = original,
                 )
             val oldCategoryId =
-                original?.takeIf {
+                originalWorkout.takeIf {
                     it.eventType == EventType.WORKOUT || it.eventType == EventType.RACE_EVENT
                 }?.categoryId
             val originalWorkoutDate =
-                original?.dayOfWeek?.let { dayOfWeek ->
-                    original.weekStartDate.plusDays((dayOfWeek.value - 1).toLong())
+                originalWorkout.dayOfWeek?.let { dayOfWeek ->
+                    originalWorkout.weekStartDate.plusDays((dayOfWeek.value - 1).toLong())
                 }
             val targetWorkoutDate = workoutDate ?: originalWorkoutDate
             val dateChanged =
                 eventType == EventType.WORKOUT &&
-                    original != null &&
                     targetWorkoutDate != null &&
                     targetWorkoutDate != originalWorkoutDate
 
@@ -735,11 +735,10 @@ class WeeklyTrainingViewModel
                 val entityType =
                     when {
                         eventType != EventType.WORKOUT -> eventType.toUserActionEntityType()
-                        else -> original?.eventType?.toUserActionEntityType() ?: WORKOUT
+                        else -> originalWorkout.eventType.toUserActionEntityType()
                     }
                 val actionType =
                     when {
-                        original == null -> UPDATE_WORKOUT
                         original.eventType != eventType ->
                             when (eventType) {
                                 EventType.WORKOUT -> CONVERT_REST_DAY_TO_WORKOUT
@@ -780,6 +779,7 @@ class WeeklyTrainingViewModel
             eventDate: LocalDate,
         ) = viewModelScope.launch {
             val original = state.value.workouts.firstOrNull { it.id == workoutId }
+            val originalWorkout = original ?: return@launch
             val normalizedCategoryId =
                 resolveCategoryId(
                     eventType = EventType.RACE_EVENT,
@@ -796,7 +796,7 @@ class WeeklyTrainingViewModel
             val storageWeekStart = canonicalStorageWeekStart(eventDate)
             val dayOfWeek = eventDate.dayOfWeek
             val dateChanged =
-                original?.weekStartDate != storageWeekStart || original?.dayOfWeek != dayOfWeek
+                originalWorkout.weekStartDate != storageWeekStart || originalWorkout.dayOfWeek != dayOfWeek
             val nextOrder =
                 if (dateChanged) {
                     repository.getWorkoutsForWeek(storageWeekStart)
@@ -806,7 +806,7 @@ class WeeklyTrainingViewModel
                                 workout.timeSlot == null
                         }
                 } else {
-                    original?.order ?: 0
+                    originalWorkout.order
                 }
 
             if (dateChanged) {
@@ -817,14 +817,12 @@ class WeeklyTrainingViewModel
                     timeSlot = null,
                     order = nextOrder,
                 )
-                original?.let { previous ->
-                    normalizeRaceEventSourceBucket(
-                        repository = repository,
-                        movedEventId = workoutId,
-                        weekStartDate = previous.weekStartDate,
-                        dayOfWeek = previous.dayOfWeek,
-                    )
-                }
+                normalizeRaceEventSourceBucket(
+                    repository = repository,
+                    movedEventId = workoutId,
+                    weekStartDate = originalWorkout.weekStartDate,
+                    dayOfWeek = originalWorkout.dayOfWeek,
+                )
             }
             repository.updateWorkoutDetails(
                 workoutId = workoutId,
@@ -847,21 +845,21 @@ class WeeklyTrainingViewModel
                 metadata =
                     mutableMapOf(
                         WEEK_START_DATE to storageWeekStart.toString(),
-                        OLD_WEEK_START_DATE to (original?.weekStartDate?.toString() ?: storageWeekStart.toString()),
+                        OLD_WEEK_START_DATE to originalWorkout.weekStartDate.toString(),
                         NEW_WEEK_START_DATE to storageWeekStart.toString(),
-                        OLD_DAY_OF_WEEK to (original?.dayOfWeek?.value?.toString() ?: dayOfWeek.value.toString()),
+                        OLD_DAY_OF_WEEK to (originalWorkout.dayOfWeek?.value?.toString() ?: dayOfWeek.value.toString()),
                         NEW_DAY_OF_WEEK to dayOfWeek.value.toString(),
-                        OLD_ORDER to (original?.order?.toString() ?: nextOrder.toString()),
+                        OLD_ORDER to originalWorkout.order.toString(),
                         NEW_ORDER to nextOrder.toString(),
-                        OLD_TYPE to (original?.type ?: EMPTY),
+                        OLD_TYPE to originalWorkout.type,
                         NEW_TYPE to type,
-                        OLD_DESCRIPTION to (original?.description ?: EMPTY),
+                        OLD_DESCRIPTION to originalWorkout.description,
                         NEW_DESCRIPTION to description,
                     ).apply {
                         putWorkoutCategoryMetadata(
                             categoryId = normalizedCategoryId,
                             categoryName = newCategoryName,
-                            oldCategoryId = original?.categoryId,
+                            oldCategoryId = originalWorkout.categoryId,
                             newCategoryId = normalizedCategoryId,
                             oldCategoryName = oldCategoryName,
                             newCategoryName = newCategoryName,

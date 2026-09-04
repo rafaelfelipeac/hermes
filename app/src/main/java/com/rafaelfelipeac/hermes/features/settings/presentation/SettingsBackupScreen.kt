@@ -15,17 +15,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.core.os.ConfigurationCompat
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.Locale
 
 @Composable
 internal fun SettingsBackupScreen(
@@ -146,7 +144,7 @@ private fun backupFolderLabel(rawUri: String?): String {
 private fun formatBackupTimestamp(rawTimestamp: String?): String? {
     if (rawTimestamp.isNullOrBlank()) return null
 
-    val locale = ConfigurationCompat.getLocales(LocalConfiguration.current).get(0) ?: Locale.getDefault()
+    val locale = currentLocale()
     val zoneId = ZoneId.systemDefault()
     val formatter =
         DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)

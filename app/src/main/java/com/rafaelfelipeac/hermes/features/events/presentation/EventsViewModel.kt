@@ -2,7 +2,6 @@ package com.rafaelfelipeac.hermes.features.events.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
@@ -182,6 +181,7 @@ class EventsViewModel
             eventDate: LocalDate,
         ) {
             val original = state.value.events.firstOrNull { it.id == eventId }
+            val originalEvent = original ?: return
             val currentCategories = state.value.categories
             val normalizedCategoryId =
                 if (currentCategories.any { it.id == categoryId }) {
@@ -193,7 +193,7 @@ class EventsViewModel
             val storageWeekStart = canonicalStorageWeekStart(eventDate)
             val dayOfWeek = eventDate.dayOfWeek
             val dateChanged =
-                original?.weekStartDate != storageWeekStart || original?.dayOfWeek != dayOfWeek
+                originalEvent.weekStartDate != storageWeekStart || originalEvent.dayOfWeek != dayOfWeek
 
             if (dateChanged && eventDate.isBefore(LocalDate.now())) return
 
@@ -202,7 +202,7 @@ class EventsViewModel
                     if (dateChanged) {
                         nextRaceEventOrder(storageWeekStart, dayOfWeek, eventId)
                     } else {
-                        original.order ?: 0
+                        originalEvent.order
                     }
 
                 if (dateChanged) {
@@ -213,13 +213,11 @@ class EventsViewModel
                         timeSlot = null,
                         order = nextOrder,
                     )
-                    original?.let { previous ->
-                        normalizeRaceEventSourceBucket(
-                            movedEventId = eventId,
-                            weekStartDate = previous.weekStartDate,
-                            dayOfWeek = previous.dayOfWeek,
-                        )
-                    }
+                    normalizeRaceEventSourceBucket(
+                        movedEventId = eventId,
+                        weekStartDate = originalEvent.weekStartDate,
+                        dayOfWeek = originalEvent.dayOfWeek,
+                    )
                 }
                 repository.updateWorkoutDetails(
                     workoutId = eventId,
@@ -242,23 +240,24 @@ class EventsViewModel
                     metadata =
                         mutableMapOf(
                             WEEK_START_DATE to storageWeekStart.toString(),
-                            OLD_WEEK_START_DATE to (original?.weekStartDate?.toString() ?: storageWeekStart.toString()),
+                            OLD_WEEK_START_DATE to originalEvent.weekStartDate.toString(),
                             NEW_WEEK_START_DATE to storageWeekStart.toString(),
-                            OLD_DAY_OF_WEEK to (original?.dayOfWeek?.value?.toString() ?: dayOfWeek.value.toString()),
+                            OLD_DAY_OF_WEEK to
+                                (originalEvent.dayOfWeek?.value?.toString() ?: dayOfWeek.value.toString()),
                             NEW_DAY_OF_WEEK to dayOfWeek.value.toString(),
-                            OLD_ORDER to (original?.order?.toString() ?: nextOrder.toString()),
+                            OLD_ORDER to originalEvent.order.toString(),
                             NEW_ORDER to nextOrder.toString(),
-                            OLD_TYPE to (original?.type ?: EMPTY),
+                            OLD_TYPE to originalEvent.type,
                             NEW_TYPE to title,
-                            OLD_DESCRIPTION to (original?.description ?: EMPTY),
+                            OLD_DESCRIPTION to originalEvent.description,
                             NEW_DESCRIPTION to description,
                         ).apply {
-                            original?.categoryId?.let { put(OLD_CATEGORY_ID, it.toString()) }
+                            originalEvent.categoryId?.let { put(OLD_CATEGORY_ID, it.toString()) }
                             normalizedCategoryId?.let {
                                 put(CATEGORY_ID, it.toString())
                                 put(NEW_CATEGORY_ID, it.toString())
                             }
-                            original?.categoryName?.takeIf { it.isNotBlank() }?.let {
+                            originalEvent.categoryName?.takeIf { it.isNotBlank() }?.let {
                                 put(OLD_CATEGORY_NAME, it)
                             }
                             categoryName?.takeIf { it.isNotBlank() }?.let {

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
@@ -117,6 +118,7 @@ sealed class SectionKey(val key: String) {
 
 @Composable
 internal fun SectionKey.title(date: LocalDate? = null): String {
+    val currentLocale = currentLocale()
     return when (this) {
         SectionKey.ToBeDefined -> stringResource(R.string.weekly_training_section_to_be_defined)
         is SectionKey.Day ->
@@ -124,7 +126,7 @@ internal fun SectionKey.title(date: LocalDate? = null): String {
                 stringResource(
                     R.string.weekly_training_section_day_with_date,
                     stringResource(dayOfWeek.labelRes()),
-                    formatSectionDate(date),
+                    formatSectionDate(date, currentLocale),
                 )
             } else {
                 stringResource(dayOfWeek.labelRes())
@@ -151,7 +153,10 @@ private fun DayOfWeek.labelRes(): Int {
     }
 }
 
-private fun formatSectionDate(date: LocalDate): String {
-    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
+private fun formatSectionDate(
+    date: LocalDate,
+    locale: Locale,
+): String {
+    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
     return date.format(formatter)
 }
