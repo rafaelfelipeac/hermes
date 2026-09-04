@@ -681,34 +681,6 @@ private fun ChallengesDetailRoute(
 }
 
 @Composable
-private fun ChallengeDetailSummaryCard(
-    challenge: Challenge,
-    category: Category?,
-    calculation: ChallengeCalculationResult,
-) {
-    val currentLocale = currentLocale()
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(SpacingMd),
-            verticalArrangement = Arrangement.spacedBy(SpacingSm),
-        ) {
-            ChallengeSummaryContent(
-                challenge = challenge,
-                category = category,
-                calculation = calculation,
-                showProgressBar = true,
-            )
-        }
-    }
-}
-
-@Composable
 internal fun ChallengeProgressEntryRow(
     entry: ChallengeProgressEntry,
     isEditable: Boolean,
@@ -795,7 +767,7 @@ internal fun ChallengeCard(
 }
 
 @Composable
-private fun ChallengeSummaryContent(
+internal fun ChallengeSummaryContent(
     modifier: Modifier = Modifier,
     challenge: Challenge,
     category: Category?,
