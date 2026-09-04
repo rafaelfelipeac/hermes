@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.progress.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
@@ -31,6 +32,7 @@ import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
+@Suppress("LongParameterList")
 class ProgressViewModel
     @Inject
     constructor(
@@ -39,6 +41,7 @@ class ProgressViewModel
         userActionRepository: UserActionRepository,
         settingsRepository: SettingsRepository,
         stringProvider: StringProvider,
+        private val localeProvider: LocaleProvider,
         clock: Clock,
     ) : ViewModel() {
         private val trophyEngine = TrophyEngine()
@@ -179,7 +182,7 @@ class ProgressViewModel
 
         private fun AppLanguage.toLocale(): Locale {
             return if (this == AppLanguage.SYSTEM) {
-                Locale.getDefault()
+                localeProvider.current()
             } else {
                 Locale.forLanguageTag(tag)
             }

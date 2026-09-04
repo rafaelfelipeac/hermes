@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ARCHIVED_AT
@@ -101,6 +102,7 @@ class ChallengesViewModel
         private val categoryRepository: CategoryRepository,
         private val userActionLogger: UserActionLogger,
         private val stringProvider: StringProvider,
+        private val localeProvider: LocaleProvider,
         private val clock: Clock,
     ) : ViewModel() {
         private val calculator = ChallengeCalculator()
@@ -211,7 +213,7 @@ class ChallengesViewModel
                         title = challenge.title,
                         description = challenge.description.orEmpty(),
                         targetType = challenge.targetType,
-                        targetQuantityText = ChallengeQuantity.format(challenge.targetQuantity, Locale.getDefault()),
+                        targetQuantityText = ChallengeQuantity.format(challenge.targetQuantity, challengeQuantityLocale()),
                         startDate = challenge.startDate,
                         endDate = challenge.endDate,
                         lifecycle = challenge.lifecycle,
@@ -260,7 +262,7 @@ class ChallengesViewModel
             val description = editor.description.trim()
             val startDate = editor.startDate
             val endDate = editor.endDate
-            val targetQuantity = ChallengeQuantity.parseLocalized(editor.targetQuantityText, Locale.getDefault())
+            val targetQuantity = ChallengeQuantity.parseLocalized(editor.targetQuantityText, challengeQuantityLocale())
 
             when {
                 title.isBlank() -> {
@@ -354,10 +356,10 @@ class ChallengesViewModel
                                         CHALLENGE_NEW_DATE to challenge.endDate.toString(),
                                         CHALLENGE_OLD_STATUS to existing.lifecycle.name,
                                         CHALLENGE_NEW_STATUS to challenge.lifecycle.name,
-                                        OLD_CATEGORY_ID to (existing.categoryId?.toString().orEmpty()),
-                                        NEW_CATEGORY_ID to (challenge.categoryId?.toString().orEmpty()),
-                                        OLD_CATEGORY_NAME to categoryLabel(existing.categoryId),
-                                        NEW_CATEGORY_NAME to categoryLabel(challenge.categoryId),
+                                    ) +
+                                    categoryChangeMetadata(
+                                        oldCategoryId = existing.categoryId,
+                                        newCategoryId = challenge.categoryId,
                                     ) +
                                     completionMetadata(wasCompleted, isCompleted),
                         )
@@ -456,7 +458,7 @@ class ChallengesViewModel
                 return false
             }
 
-            val quantity = ChallengeQuantity.parseLocalized(quantityText, Locale.getDefault())
+            val quantity = ChallengeQuantity.parseLocalized(quantityText, challengeQuantityLocale())
             if (quantity == null) {
                 setEditorValidation(R.string.challenge_validation_quantity_required)
                 return false
@@ -523,7 +525,7 @@ class ChallengesViewModel
                 return false
             }
 
-            val quantity = ChallengeQuantity.parseLocalized(quantityText, Locale.getDefault())
+            val quantity = ChallengeQuantity.parseLocalized(quantityText, challengeQuantityLocale())
             if (quantity == null) {
                 setEditorValidation(R.string.challenge_validation_quantity_required)
                 return false
@@ -751,6 +753,20 @@ class ChallengesViewModel
                 state.value.categories.firstOrNull { it.id == id }?.name
             }.orEmpty()
         }
+
+        private fun categoryChangeMetadata(
+            oldCategoryId: Long?,
+            newCategoryId: Long?,
+        ): Map<String, String> {
+            return mapOf(
+                OLD_CATEGORY_ID to oldCategoryId?.toString().orEmpty(),
+                NEW_CATEGORY_ID to newCategoryId?.toString().orEmpty(),
+                OLD_CATEGORY_NAME to categoryLabel(oldCategoryId),
+                NEW_CATEGORY_NAME to categoryLabel(newCategoryId),
+            )
+        }
+
+        private fun challengeQuantityLocale(): Locale = localeProvider.current()
 
         private suspend fun completionState(challengeId: Long): Boolean? {
             val challenge = repository.getChallenge(challengeId) ?: return null

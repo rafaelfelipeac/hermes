@@ -20,6 +20,10 @@ interface StringProvider {
     ): String
 }
 
+interface LocaleProvider {
+    fun current(): Locale
+}
+
 @Singleton
 class AndroidStringProvider
     @Inject
@@ -51,4 +55,11 @@ class AndroidStringProvider
             val localizedContext = context.createConfigurationContext(localized)
             return localizedContext.getString(id, *args)
         }
+    }
+
+@Singleton
+class AndroidLocaleProvider
+    @Inject
+    constructor() : LocaleProvider {
+        override fun current(): Locale = Locale.getDefault()
     }

@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.progress.presentation
 
 import app.cash.turbine.test
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
@@ -41,6 +42,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters.previousOrSame
+import java.util.Locale
 
 private val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T00:00:00Z"), ZoneOffset.UTC)
 
@@ -201,8 +203,13 @@ class ProgressViewModelTest {
             userActionRepository = FakeUserActionRepository(actions),
             settingsRepository = FakeSettingsRepository(),
             stringProvider = FakeStringProvider(),
+            localeProvider = FakeLocaleProvider,
             clock = TEST_CLOCK,
         )
+    }
+
+    private object FakeLocaleProvider : LocaleProvider {
+        override fun current(): Locale = Locale.ENGLISH
     }
 
     private fun workout(

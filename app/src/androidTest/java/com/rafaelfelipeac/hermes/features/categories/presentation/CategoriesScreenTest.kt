@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
@@ -36,8 +37,6 @@ import org.junit.Test
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.LocalDate
-
-private const val EMPTY_STRING = ""
 
 class CategoriesScreenTest {
     @get:Rule
@@ -465,12 +464,12 @@ class CategoriesScreenTest {
         override fun get(
             id: Int,
             vararg args: Any,
-        ): String = EMPTY_STRING
+        ): String = EMPTY
 
         override fun getForLanguage(
             languageTag: String?,
             id: Int,
             vararg args: Any,
-        ): String = EMPTY_STRING
+        ): String = EMPTY
     }
 }

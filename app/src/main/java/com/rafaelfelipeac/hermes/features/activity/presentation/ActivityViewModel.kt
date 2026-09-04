@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
@@ -39,8 +40,9 @@ class ActivityViewModel
         repository: UserActionRepository,
         categoryRepository: CategoryRepository,
         private val stringProvider: StringProvider,
+        localeProvider: LocaleProvider,
     ) : ViewModel() {
-        private val locale = MutableStateFlow(Locale.getDefault())
+        private val locale = MutableStateFlow(localeProvider.current())
         private val selectedPrimaryFilter = MutableStateFlow(ActivityPrimaryFilter.ALL)
         private val selectedCategoryId = MutableStateFlow<Long?>(null)
         private val selectedWeekStartDate = MutableStateFlow<LocalDate?>(null)

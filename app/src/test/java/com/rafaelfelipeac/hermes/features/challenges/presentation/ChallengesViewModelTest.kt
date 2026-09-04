@@ -2,6 +2,7 @@
 
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
@@ -60,7 +61,7 @@ class ChallengesViewModelTest {
             val viewModel = createViewModel(repository)
 
             viewModel.beginCreateChallenge()
-            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(10_000L, Locale.getDefault()))
+            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(10_000L, TEST_LOCALE))
 
             assertFalse(viewModel.saveEditorChallenge())
             runCurrent()
@@ -142,7 +143,7 @@ class ChallengesViewModelTest {
             assertTrue(
                 viewModel.updateProgressEntry(
                     entryId = entry.id,
-                    quantityText = ChallengeQuantity.format(updatedQuantity, Locale.getDefault()),
+                    quantityText = ChallengeQuantity.format(updatedQuantity, TEST_LOCALE),
                     entryDate = TODAY,
                 ),
             )
@@ -182,7 +183,7 @@ class ChallengesViewModelTest {
             assertTrue(
                 viewModel.addProgressEntry(
                     challengeId = challenge.id,
-                    quantityText = ChallengeQuantity.format(15L, Locale.getDefault()),
+                    quantityText = ChallengeQuantity.format(15L, TEST_LOCALE),
                     entryDate = LocalDate.of(2026, 8, 2),
                 ),
             )
@@ -292,8 +293,13 @@ class ChallengesViewModelTest {
             categoryRepository = categoryRepository,
             userActionLogger = logger,
             stringProvider = FakeStringProvider,
+            localeProvider = FakeLocaleProvider,
             clock = FIXED_CLOCK,
         )
+    }
+
+    private object FakeLocaleProvider : LocaleProvider {
+        override fun current(): Locale = TEST_LOCALE
     }
 
     private fun sampleChallenge(
@@ -503,6 +509,7 @@ class ChallengesViewModelTest {
     }
 
     private companion object {
+        val TEST_LOCALE: Locale = Locale.getDefault()
         val TODAY: LocalDate = LocalDate.of(2026, 8, 3)
         val FIXED_CLOCK: Clock = Clock.fixed(Instant.parse("2026-08-03T12:00:00Z"), ZoneOffset.UTC)
     }

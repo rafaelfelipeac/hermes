@@ -8,6 +8,7 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventsTestViewportHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventsTestViewportWidth
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
@@ -19,13 +20,13 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 class EventsContentTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    private val testLocale = Locale.getDefault()
 
     @Test
     fun eventsContent_placesEventsInRowMajorChronologicalOrder() {
@@ -73,8 +74,7 @@ class EventsContentTest {
     fun eventsContent_keepsCardsEqualHeightWithAndWithoutDescription() {
         val longDescription = "Maratona de São Paulo"
         val longDescriptionDate = LocalDate.now().plusDays(28)
-        val longDescriptionDateLabel =
-            longDescriptionDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault()))
+        val longDescriptionDateLabel = formatWorkoutDate(longDescriptionDate, testLocale)
 
         composeRule.setContent {
             EventsContent(

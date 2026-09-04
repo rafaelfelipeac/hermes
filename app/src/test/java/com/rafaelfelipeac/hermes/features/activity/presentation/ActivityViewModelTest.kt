@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.activity.presentation
 import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
@@ -747,7 +748,12 @@ class ActivityViewModelTest {
             repository = repository,
             categoryRepository = FakeCategoryRepository(categories),
             stringProvider = FakeStringProvider(),
+            localeProvider = FakeLocaleProvider,
         )
+    }
+
+    private object FakeLocaleProvider : LocaleProvider {
+        override fun current() = ENGLISH
     }
 
     private fun category(

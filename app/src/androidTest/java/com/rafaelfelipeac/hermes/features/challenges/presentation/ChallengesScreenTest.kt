@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
@@ -50,6 +51,8 @@ import kotlin.math.abs
 class ChallengesScreenTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    private val testLocale = Locale.getDefault()
 
     @Test
     fun listShellShowsHermesBackButtonFabAndCenteredEmptyStates() {
@@ -147,8 +150,8 @@ class ChallengesScreenTest {
                     R.string.challenges_progress_value_with_percent,
                     context.getString(
                         R.string.challenges_progress_value,
-                        ChallengeQuantity.format(progress.quantity, Locale.getDefault()),
-                        ChallengeQuantity.format(310L, Locale.getDefault()),
+                        ChallengeQuantity.format(progress.quantity, testLocale),
+                        ChallengeQuantity.format(310L, testLocale),
                     ),
                     context.getString(R.string.challenges_progress_percent, formatPercent(1_290.3)),
                 ),
@@ -216,8 +219,8 @@ class ChallengesScreenTest {
                     R.string.challenges_progress_value_with_percent,
                     context.getString(
                         R.string.challenges_progress_value,
-                        ChallengeQuantity.format(75L, Locale.getDefault()),
-                        ChallengeQuantity.format(310L, Locale.getDefault()),
+                        ChallengeQuantity.format(75L, testLocale),
+                        ChallengeQuantity.format(310L, testLocale),
                     ),
                     context.getString(R.string.challenges_progress_percent, formatPercent(24.2)),
                 ),
@@ -232,7 +235,7 @@ class ChallengesScreenTest {
             .onNodeWithText(
                 context.getString(
                     R.string.challenges_history_day_completed,
-                    ChallengeQuantity.format(57L, Locale.getDefault()),
+                    ChallengeQuantity.format(57L, testLocale),
                 ),
             )
             .performScrollTo()
@@ -633,7 +636,7 @@ class ChallengesScreenTest {
         composeRule.onNodeWithText(context.getString(R.string.challenges_add_progress)).assertIsDisplayed()
         composeRule.onNodeWithText("42").assertIsDisplayed()
         composeRule
-            .onNodeWithText(formatWorkoutDate(LocalDate.of(2026, 8, 28), Locale.getDefault()))
+            .onNodeWithText(formatWorkoutDate(LocalDate.of(2026, 8, 28), testLocale))
             .assertIsDisplayed()
     }
 
@@ -649,8 +652,15 @@ class ChallengesScreenTest {
             categoryRepository = categoryRepository,
             userActionLogger = NoOpUserActionLogger,
             stringProvider = AndroidStringProviderAdapter(ApplicationProvider.getApplicationContext()),
+            localeProvider = TestLocaleProvider(testLocale),
             clock = Clock.fixed(Instant.parse("2026-08-28T12:00:00Z"), ZoneOffset.UTC),
         )
+    }
+
+    private class TestLocaleProvider(
+        private val locale: Locale,
+    ) : LocaleProvider {
+        override fun current(): Locale = locale
     }
 
     private fun sampleChallenge(
@@ -709,7 +719,7 @@ class ChallengesScreenTest {
     private fun historyGroupTag(date: LocalDate): String = "$CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX$date"
 
     private fun formatPercent(value: Double): String =
-        NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+        NumberFormat.getNumberInstance(testLocale).apply {
             minimumFractionDigits = 1
             maximumFractionDigits = 1
         }.format(value)
