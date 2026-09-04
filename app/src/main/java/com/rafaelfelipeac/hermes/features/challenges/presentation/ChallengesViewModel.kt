@@ -14,7 +14,6 @@ package com.rafaelfelipeac.hermes.features.challenges.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
@@ -89,7 +88,6 @@ import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -107,7 +105,7 @@ class ChallengesViewModel
     ) : ViewModel() {
         private val calculator = ChallengeCalculator()
         private val actionMutex = Mutex()
-        private val editorState = MutableStateFlow(defaultEditorState(today = LocalDate.now(clock)))
+        private val editorState = MutableStateFlow(defaultChallengeEditorState(today = LocalDate.now(clock)))
         private val selectedChallengeId = MutableStateFlow<Long?>(null)
         private val undoState = MutableStateFlow<ChallengeUndoState?>(null)
         private var undoTimeoutJob: Job? = null
@@ -200,7 +198,7 @@ class ChallengesViewModel
         }
 
         fun beginCreateChallenge() {
-            editorState.value = defaultEditorState(today = LocalDate.now(clock))
+            editorState.value = defaultChallengeEditorState(today = LocalDate.now(clock))
         }
 
         fun beginEditChallenge(challengeId: Long) {
@@ -285,7 +283,7 @@ class ChallengesViewModel
                     return false
                 }
 
-                !isPlannedTargetSafe(editor.targetType, targetQuantity, startDate, endDate) -> {
+                !isPlannedChallengeTargetSafe(editor.targetType, targetQuantity, startDate, endDate) -> {
                     setEditorValidation(R.string.challenge_validation_quantity_required)
                     return false
                 }
@@ -365,7 +363,7 @@ class ChallengesViewModel
                         )
                     }
 
-                    editorState.value = defaultEditorState(today = LocalDate.now(clock))
+                    editorState.value = defaultChallengeEditorState(today = LocalDate.now(clock))
                 }
             }
             return true
@@ -453,7 +451,7 @@ class ChallengesViewModel
             entryDate: LocalDate,
         ): Boolean {
             val challenge = currentChallengeFromState(challengeId) ?: return false
-            if (!canEditProgress(challenge, entryDate)) {
+            if (!canEditChallengeProgress(challenge, entryDate, today = LocalDate.now(clock))) {
                 setEditorValidation(R.string.challenge_validation_progress_date_invalid)
                 return false
             }
@@ -463,7 +461,7 @@ class ChallengesViewModel
                 setEditorValidation(R.string.challenge_validation_quantity_required)
                 return false
             }
-            if (!isProgressTotalSafe(challengeId, quantity)) {
+            if (!isChallengeProgressTotalSafe(state.value.allProgressEntries, challengeId, quantity)) {
                 setEditorValidation(R.string.challenge_validation_quantity_required)
                 return false
             }
@@ -520,7 +518,7 @@ class ChallengesViewModel
         ): Boolean {
             val currentEntry = currentProgressEntryFromState(entryId) ?: return false
             val challenge = currentChallengeFromState(currentEntry.challengeId) ?: return false
-            if (!canEditProgress(challenge, entryDate)) {
+            if (!canEditChallengeProgress(challenge, entryDate, today = LocalDate.now(clock))) {
                 setEditorValidation(R.string.challenge_validation_progress_date_invalid)
                 return false
             }
@@ -530,7 +528,13 @@ class ChallengesViewModel
                 setEditorValidation(R.string.challenge_validation_quantity_required)
                 return false
             }
-            if (!isProgressTotalSafe(currentEntry.challengeId, quantity, replacedEntryId = entryId)) {
+            if (!isChallengeProgressTotalSafe(
+                    entries = state.value.allProgressEntries,
+                    challengeId = currentEntry.challengeId,
+                    quantity = quantity,
+                    replacedEntryId = entryId,
+                )
+            ) {
                 setEditorValidation(R.string.challenge_validation_quantity_required)
                 return false
             }
@@ -691,44 +695,6 @@ class ChallengesViewModel
             return state.value.progressEntries.firstOrNull { it.id == entryId }
         }
 
-        private fun canEditProgress(
-            challenge: Challenge,
-            entryDate: LocalDate,
-        ): Boolean {
-            val today = LocalDate.now(clock)
-            return challenge.lifecycle == ChallengeLifecycle.ACTIVE &&
-                entryDate <= today &&
-                !entryDate.isBefore(challenge.startDate) &&
-                !entryDate.isAfter(challenge.endDate)
-        }
-
-        private fun isPlannedTargetSafe(
-            targetType: ChallengeTargetType,
-            targetQuantity: Long,
-            startDate: LocalDate,
-            endDate: LocalDate,
-        ): Boolean {
-            if (targetType == ChallengeTargetType.TOTAL) return true
-
-            val inclusiveDays = ChronoUnit.DAYS.between(startDate, endDate) + 1L
-            return runCatching { ChallengeQuantity.multiply(targetQuantity, inclusiveDays) }.isSuccess
-        }
-
-        private fun isProgressTotalSafe(
-            challengeId: Long,
-            quantity: Long,
-            replacedEntryId: Long? = null,
-        ): Boolean {
-            return runCatching {
-                val existingTotal =
-                    state.value.allProgressEntries
-                        .asSequence()
-                        .filter { it.challengeId == challengeId && it.id != replacedEntryId }
-                        .fold(0L) { total, entry -> ChallengeQuantity.add(total, entry.quantity) }
-                ChallengeQuantity.add(existingTotal, quantity)
-            }.isSuccess
-        }
-
         private fun challengeMetadata(
             challenge: Challenge,
             challengeId: Long,
@@ -813,22 +779,6 @@ class ChallengesViewModel
         private fun clearUndoTimeout() {
             undoTimeoutJob?.cancel()
             undoTimeoutJob = null
-        }
-
-        private fun defaultEditorState(today: LocalDate): ChallengeEditorState {
-            return ChallengeEditorState(
-                challengeId = null,
-                categoryId = null,
-                title = EMPTY,
-                description = EMPTY,
-                targetType = ChallengeTargetType.DAILY,
-                targetQuantityText = EMPTY,
-                startDate = today,
-                endDate = today.plusDays(29),
-                lifecycle = ChallengeLifecycle.ACTIVE,
-                isDirty = false,
-                validationMessage = null,
-            )
         }
 
         private fun delayUntilNextMidnight(clock: Clock): Long {

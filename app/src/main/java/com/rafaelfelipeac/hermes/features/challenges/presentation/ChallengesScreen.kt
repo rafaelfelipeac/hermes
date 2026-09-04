@@ -16,7 +16,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,37 +32,30 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.TrackChanges
 import androidx.compose.material.icons.outlined.Unarchive
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
@@ -72,7 +64,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -101,13 +92,10 @@ import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
-import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
 import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
 import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
-import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
-import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeCompletionIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeProgressBarHeight
@@ -137,7 +125,6 @@ import nl.dionsegijn.konfetti.core.Position
 import nl.dionsegijn.konfetti.core.emitter.Emitter
 import java.text.NumberFormat
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
@@ -146,22 +133,20 @@ import kotlin.time.Duration.Companion.milliseconds
 private const val CHALLENGES_ROUTE_LIST = "list"
 private const val CHALLENGES_ROUTE_DETAIL = "detail"
 internal const val CHALLENGES_TAG_ROOT = "challenges_root"
-private const val CHALLENGES_TAG_ACTIVE_LIST = "challenges_active_list"
-private const val CHALLENGES_TAG_ARCHIVED_LIST = "challenges_archived_list"
+internal const val CHALLENGES_TAG_ACTIVE_LIST = "challenges_active_list"
+internal const val CHALLENGES_TAG_ARCHIVED_LIST = "challenges_archived_list"
 internal const val CHALLENGES_TAG_DETAIL = "challenges_detail"
-private const val CHALLENGES_TAG_HEADER_BACK = "challenges_header_back"
+internal const val CHALLENGES_TAG_HEADER_BACK = "challenges_header_back"
 private const val CHALLENGES_TAG_CREATE_FAB = "challenges_create_fab"
 internal const val CHALLENGES_TAG_DETAIL_ADD_PROGRESS_FAB = "challenges_detail_add_progress_fab"
 internal const val CHALLENGES_TAG_DETAIL_QUICK_ADD = "challenges_detail_quick_add"
 internal const val CHALLENGES_TAG_COMPLETION_CELEBRATION = "challenges_completion_celebration"
 internal const val CHALLENGES_TAG_COMPLETION_CONFETTI = "challenges_completion_confetti"
-private const val CHALLENGES_TAG_DETAIL_HISTORY = "challenges_detail_history"
+internal const val CHALLENGES_TAG_DETAIL_HISTORY = "challenges_detail_history"
 internal const val CHALLENGES_TAG_ACTIVE_CARD_PROGRESS = "challenges_active_card_progress"
 internal const val CHALLENGES_TAG_ACTIVE_EMPTY_STATE = "challenges_active_empty_state"
 internal const val CHALLENGES_TAG_ARCHIVED_EMPTY_STATE = "challenges_archived_empty_state"
-internal const val CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX = "challenges_detail_history_group_"
 private const val CHALLENGES_TAG_EDITOR = "challenges_editor"
-private const val CHALLENGE_TAG_CONTAINER_ALPHA = 0.16f
 private const val CHALLENGE_CONFETTI_CENTER_X = 0.5
 private const val CHALLENGE_CONFETTI_CENTER_Y = 0.34
 private const val CHALLENGE_CONFETTI_LEFT_ANGLE = 180
@@ -170,8 +155,6 @@ private const val CHALLENGE_CONFETTI_SPREAD = 52
 private const val CHALLENGE_CONFETTI_EMITTER_DURATION_MS = 250L
 private const val CHALLENGE_CONFETTI_PARTICLE_COUNT = 42
 private const val CHALLENGE_CONFETTI_VISIBLE_DURATION_MS = 2_000L
-private val ChallengeProgressAheadColor = Color(0xFF2E7D32)
-private val ChallengeProgressBehindColor = Color(0xFFC62828)
 
 internal enum class ChallengeListTab {
     ACTIVE,
@@ -599,170 +582,6 @@ internal fun ChallengesScreen(
 }
 
 @Composable
-private fun ChallengesHeader(
-    onBack: () -> Unit,
-    title: String,
-    trailingContent: (@Composable () -> Unit)? = null,
-) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = SpacingSm,
-                    end = SpacingXl,
-                    top = SpacingSm,
-                    bottom = SpacingSm,
-                ),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconButton(
-            onClick = onBack,
-            modifier = Modifier.testTag(CHALLENGES_TAG_HEADER_BACK),
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = stringResource(R.string.trophies_back),
-            )
-        }
-
-        Text(
-            text = title,
-            style = typography.titleLarge,
-            color = colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
-
-        trailingContent?.invoke()
-    }
-}
-
-@Composable
-private fun ChallengesListRoute(
-    modifier: Modifier,
-    selectedTab: ChallengeListTab,
-    pagerState: androidx.compose.foundation.pager.PagerState,
-    state: ChallengeUiState,
-    onSelectedTabChange: (ChallengeListTab) -> Unit,
-    onChallengeClick: (Challenge) -> Unit,
-) {
-    val activeChallenges =
-        remember(state.activeChallenges) {
-            state.activeChallenges.sortedByDescending { it.updatedAt }
-        }
-    val archivedChallenges =
-        remember(state.archivedChallenges) {
-            state.archivedChallenges.sortedByDescending { it.updatedAt }
-        }
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            PrimaryTabRow(selectedTabIndex = selectedTab.ordinal) {
-                Tab(
-                    selected = selectedTab == ChallengeListTab.ACTIVE,
-                    onClick = { onSelectedTabChange(ChallengeListTab.ACTIVE) },
-                    selectedContentColor = colorScheme.primary,
-                    unselectedContentColor = colorScheme.onSurfaceVariant,
-                    text = { Text(text = stringResource(R.string.challenges_active_title)) },
-                )
-                Tab(
-                    selected = selectedTab == ChallengeListTab.ARCHIVED,
-                    onClick = { onSelectedTabChange(ChallengeListTab.ARCHIVED) },
-                    selectedContentColor = colorScheme.primary,
-                    unselectedContentColor = colorScheme.onSurfaceVariant,
-                    text = { Text(text = stringResource(R.string.challenges_archived_title)) },
-                )
-            }
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-            ) { page ->
-                when (ChallengeListTab.entries[page]) {
-                    ChallengeListTab.ACTIVE -> {
-                        if (activeChallenges.isNotEmpty()) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize().testTag(CHALLENGES_TAG_ACTIVE_LIST),
-                                contentPadding =
-                                    PaddingValues(
-                                        start = SpacingXl,
-                                        top = SpacingMd,
-                                        end = SpacingXl,
-                                        bottom = FloatingActionContentBottomPadding,
-                                    ),
-                                verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                            ) {
-                                items(activeChallenges, key = { it.id }) { challenge ->
-                                    ChallengeCard(
-                                        challenge = challenge,
-                                        category = state.categories.firstOrNull { it.id == challenge.categoryId },
-                                        calculation = state.challengeCalculations[challenge.id],
-                                        onClick = { onChallengeClick(challenge) },
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    ChallengeListTab.ARCHIVED -> {
-                        if (archivedChallenges.isNotEmpty()) {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize().testTag(CHALLENGES_TAG_ARCHIVED_LIST),
-                                contentPadding =
-                                    PaddingValues(
-                                        start = SpacingXl,
-                                        top = SpacingMd,
-                                        end = SpacingXl,
-                                        bottom = FloatingActionContentBottomPadding,
-                                    ),
-                                verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                            ) {
-                                items(archivedChallenges, key = { it.id }) { challenge ->
-                                    ChallengeCard(
-                                        challenge = challenge,
-                                        category = state.categories.firstOrNull { it.id == challenge.categoryId },
-                                        calculation = state.challengeCalculations[challenge.id],
-                                        onClick = { onChallengeClick(challenge) },
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (selectedTab == ChallengeListTab.ACTIVE && activeChallenges.isEmpty()) {
-            EmptyStateCard(
-                icon = Icons.Outlined.TrackChanges,
-                title = stringResource(R.string.challenges_empty_active_title),
-                body = stringResource(R.string.challenges_empty_active_body),
-                modifier =
-                    Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = SpacingXl)
-                        .testTag(CHALLENGES_TAG_ACTIVE_EMPTY_STATE),
-                actionContent = null,
-            )
-        }
-
-        if (selectedTab == ChallengeListTab.ARCHIVED && archivedChallenges.isEmpty()) {
-            EmptyStateCard(
-                icon = Icons.Outlined.Archive,
-                title = stringResource(R.string.challenges_empty_archived_title),
-                body = stringResource(R.string.challenges_empty_archived_body),
-                modifier =
-                    Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = SpacingXl)
-                        .testTag(CHALLENGES_TAG_ARCHIVED_EMPTY_STATE),
-            )
-        }
-    }
-}
-
-@Composable
 private fun ChallengesDetailRoute(
     modifier: Modifier,
     state: ChallengeUiState,
@@ -889,63 +708,6 @@ private fun ChallengesDetailRoute(
             category = category,
             modifier = Modifier.fillMaxSize(),
         )
-    }
-}
-
-@Composable
-private fun ChallengeProgressHistoryCard(
-    group: ChallengeProgressDateGroup,
-    isEditable: Boolean,
-    onRequestEditProgress: (ChallengeProgressEntry) -> Unit,
-    onDeleteProgress: (Long) -> Unit,
-) {
-    val currentLocale = currentLocale()
-
-    Card(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .testTag(challengeHistoryGroupTag(group.date)),
-        shape = shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(SpacingMd),
-            verticalArrangement = Arrangement.spacedBy(SpacingXs),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = formatWorkoutDate(group.date, currentLocale),
-                    style = typography.titleSmall,
-                    color = colorScheme.onSurface,
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Text(
-                    text =
-                        stringResource(
-                            R.string.challenges_history_day_completed,
-                            ChallengeQuantity.format(group.completedQuantity, currentLocale),
-                        ),
-                    style = typography.bodySmall,
-                    color = colorScheme.onSurfaceVariant,
-                )
-            }
-            group.entries.forEachIndexed { index, entry ->
-                if (index > 0) {
-                    HorizontalDivider()
-                }
-                ChallengeProgressEntryRow(
-                    entry = entry,
-                    isEditable = isEditable,
-                    onEdit = { onRequestEditProgress(entry) },
-                    onDelete = { onDeleteProgress(entry.id) },
-                )
-            }
-        }
     }
 }
 
@@ -1441,7 +1203,7 @@ private fun ChallengeTodayMetricCard(
 }
 
 @Composable
-private fun ChallengeProgressEntryRow(
+internal fun ChallengeProgressEntryRow(
     entry: ChallengeProgressEntry,
     isEditable: Boolean,
     onEdit: (() -> Unit)?,
@@ -1498,7 +1260,7 @@ private fun ChallengeProgressEntryRow(
 }
 
 @Composable
-private fun ChallengeCard(
+internal fun ChallengeCard(
     challenge: Challenge,
     category: Category?,
     calculation: ChallengeCalculationResult?,
@@ -1746,192 +1508,4 @@ private fun ChallengeOverflowMenu(
             }
         }
     }
-}
-
-@Composable
-private fun ChallengeDialogDateField(
-    label: String,
-    date: LocalDate?,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val currentLocale = currentLocale()
-
-    Box(modifier = modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            value = date?.let { formatWorkoutDate(it, currentLocale) }.orEmpty(),
-            onValueChange = {},
-            readOnly = true,
-            label = { Text(text = label) },
-            modifier = Modifier.fillMaxWidth(),
-        )
-        Box(modifier = Modifier.matchParentSize().clickable(onClick = onClick))
-    }
-}
-
-@Composable
-private fun ChallengeProgressDialog(
-    title: String,
-    date: LocalDate,
-    quantity: String,
-    validationMessage: String?,
-    onDateChange: (LocalDate) -> Unit,
-    onQuantityChange: (String) -> Unit,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-) {
-    var showDatePicker by rememberSaveable { mutableStateOf(false) }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = title) },
-        text = {
-            KeyboardAwareDialogForm {
-                Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
-                    validationMessage?.let { message ->
-                        Text(text = message, color = colorScheme.error)
-                    }
-                    OutlinedTextField(
-                        value = quantity,
-                        onValueChange = onQuantityChange,
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(text = stringResource(R.string.challenges_field_progress_quantity)) },
-                        keyboardOptions = DefaultTextFieldKeyboardOptions,
-                    )
-                    ChallengeDialogDateField(
-                        label = stringResource(R.string.challenges_field_progress_date),
-                        date = date,
-                        onClick = { showDatePicker = true },
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(text = stringResource(R.string.save_changes))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.add_workout_cancel))
-            }
-        },
-    )
-
-    if (showDatePicker) {
-        ChallengeDatePickerDialog(
-            date = date,
-            onDateSelected = onDateChange,
-            onDismiss = { showDatePicker = false },
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ChallengeDatePickerDialog(
-    date: LocalDate,
-    onDateSelected: (LocalDate) -> Unit,
-    onDismiss: () -> Unit,
-) {
-    val selectedDateMillis = remember(date) { date.toUtcEpochMillis() }
-    val currentLocale = currentLocale()
-    val datePickerState =
-        remember(selectedDateMillis, currentLocale) {
-            DatePickerState(
-                locale = currentLocale,
-                initialSelectedDateMillis = selectedDateMillis,
-            )
-        }
-
-    HermesDatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    datePickerState.selectedDateMillis?.let { onDateSelected(it.toUtcLocalDate()) }
-                    onDismiss()
-                },
-            ) {
-                Text(text = stringResource(R.string.save_changes))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.add_workout_cancel))
-            }
-        },
-    ) {
-        DatePicker(state = datePickerState)
-    }
-}
-
-private data class ChallengeProgressDateGroup(
-    val date: LocalDate,
-    val entries: List<ChallengeProgressEntry>,
-    val completedQuantity: Long,
-)
-
-private fun groupProgressByDate(entries: List<ChallengeProgressEntry>): List<ChallengeProgressDateGroup> {
-    return entries
-        .groupBy { it.entryDate }
-        .toSortedMap(compareByDescending { it })
-        .map { (date, dayEntries) ->
-            ChallengeProgressDateGroup(
-                date = date,
-                entries = dayEntries.sortedWith(compareByDescending<ChallengeProgressEntry> { it.occurredAt }.thenByDescending { it.id }),
-                completedQuantity = dayEntries.fold(0L) { total, entry -> ChallengeQuantity.add(total, entry.quantity) },
-            )
-        }
-}
-
-private fun challengeHistoryGroupTag(date: LocalDate): String = "$CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX$date"
-
-private fun initialAveragePace(challenge: Challenge): Long {
-    val totalDays = (ChronoUnit.DAYS.between(challenge.startDate, challenge.endDate) + 1).coerceAtLeast(1L)
-    return ChallengeQuantity.ceilDiv(challenge.targetQuantity, totalDays)
-}
-
-@Composable
-private fun challengeTargetTypeLabel(targetType: ChallengeTargetType): String {
-    return when (targetType) {
-        ChallengeTargetType.DAILY -> stringResource(R.string.challenge_target_type_daily)
-        ChallengeTargetType.TOTAL -> stringResource(R.string.challenge_target_type_total)
-    }
-}
-
-@Composable
-private fun challengeStatusLabel(status: ChallengeStatus): String {
-    return stringResource(
-        when (status) {
-            ChallengeStatus.NOT_STARTED -> R.string.challenges_status_not_started
-            ChallengeStatus.EXCEEDED -> R.string.challenges_status_exceeded
-            ChallengeStatus.COMPLETED -> R.string.challenges_status_completed
-            ChallengeStatus.EXPIRED_INCOMPLETE -> R.string.challenges_status_expired
-            ChallengeStatus.AHEAD -> R.string.challenges_status_ahead
-            ChallengeStatus.ON_TRACK -> R.string.challenges_status_on_track
-            ChallengeStatus.BEHIND -> R.string.challenges_status_behind
-        },
-    )
-}
-
-@Composable
-private fun challengeProgressColor(status: ChallengeStatus): Color {
-    return when (status) {
-        ChallengeStatus.AHEAD,
-        ChallengeStatus.ON_TRACK,
-        ChallengeStatus.COMPLETED,
-        ChallengeStatus.EXCEEDED,
-        -> ChallengeProgressAheadColor
-
-        ChallengeStatus.BEHIND,
-        ChallengeStatus.EXPIRED_INCOMPLETE,
-        -> ChallengeProgressBehindColor
-
-        ChallengeStatus.NOT_STARTED -> colorScheme.primary
-    }
-}
-
-@Composable
-private fun challengeProgressContainerColor(status: ChallengeStatus): Color {
-    return challengeProgressColor(status).copy(alpha = CHALLENGE_TAG_CONTAINER_ALPHA)
 }
