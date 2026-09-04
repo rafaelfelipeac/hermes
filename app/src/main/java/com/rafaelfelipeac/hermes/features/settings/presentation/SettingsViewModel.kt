@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
-import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
+import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGES_COUNT
@@ -54,12 +54,10 @@ import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRep
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.Instant
 import javax.inject.Inject
@@ -136,9 +134,8 @@ class SettingsViewModel
                 combine(baseState, repository.backupFolderUri) { base, backupFolderUri ->
                     base.copy(backupFolderUri = backupFolderUri)
                 }
-            }.stateIn(
+            }.stateInWhileSubscribed(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue =
                     SettingsState(
                         themeMode = repository.initialThemeMode(),

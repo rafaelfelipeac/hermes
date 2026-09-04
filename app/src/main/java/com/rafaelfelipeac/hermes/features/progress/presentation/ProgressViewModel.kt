@@ -2,7 +2,7 @@ package com.rafaelfelipeac.hermes.features.progress.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
+import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
@@ -21,11 +21,9 @@ import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyFamilyUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekStart
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
@@ -113,9 +111,8 @@ class ProgressViewModel
                     today = today,
                     currentWeekStart = currentWeekStart,
                 )
-            }.stateIn(
+            }.stateInWhileSubscribed(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue = ProgressState(),
             )
 

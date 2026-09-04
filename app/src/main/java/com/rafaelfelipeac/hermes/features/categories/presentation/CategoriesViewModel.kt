@@ -5,7 +5,7 @@ package com.rafaelfelipeac.hermes.features.categories.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
-import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
+import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
@@ -29,10 +29,8 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.Pers
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,11 +51,10 @@ class CategoriesViewModel
                 .map { categories ->
                     CategoriesState(categories = categories.map { it.toUi() })
                 }
-                .stateIn(
-                    scope = viewModelScope,
-                    started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
-                    initialValue = CategoriesState(categories = emptyList()),
-                )
+                .stateInWhileSubscribed(
+                scope = viewModelScope,
+                initialValue = CategoriesState(categories = emptyList()),
+            )
 
         init {
             viewModelScope.launch {

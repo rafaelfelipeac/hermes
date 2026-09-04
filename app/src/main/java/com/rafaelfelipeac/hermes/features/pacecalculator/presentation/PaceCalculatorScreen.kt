@@ -66,8 +66,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.MILES
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
-import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_KM
-import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_MI
+import com.rafaelfelipeac.hermes.features.settings.domain.model.meters
 import com.rafaelfelipeac.hermes.features.settings.presentation.distanceUnitLabel
 import com.rafaelfelipeac.hermes.features.settings.presentation.paceUnitLabel
 import java.text.NumberFormat
@@ -90,6 +89,13 @@ internal const val PACE_CALCULATOR_MODE_TIME_TAG = "pace_calculator_mode_time"
 internal const val PACE_CALCULATOR_MODE_DISTANCE_TAG = "pace_calculator_mode_distance"
 internal const val PACE_CALCULATOR_RESULT_TAG = "pace_calculator_result"
 private const val DEFAULT_NUMBER_TEXT = "0"
+private const val FIVE_K_METERS = 5_000.0
+private const val TEN_K_METERS = 10_000.0
+private const val FIFTEEN_K_METERS = 15_000.0
+private const val HALF_MARATHON_METERS = 21_097.5
+private const val MARATHON_METERS = 42_195.0
+private const val FIVE_MILES = 5.0
+private const val TEN_MILES = 10.0
 
 @Composable
 fun PaceCalculatorRoute(
@@ -128,8 +134,8 @@ fun PaceCalculatorScreen(
     var paceSecondsText by rememberSaveable { mutableStateOf(DEFAULT_NUMBER_TEXT) }
     var selectedPresetMeters by rememberSaveable { mutableStateOf<Double?>(null) }
     var hasLoggedValidCalculation by rememberSaveable { mutableStateOf(false) }
-    val paceUnitMeters = paceUnitMeters(settingsPaceUnit)
-    val distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit)
+    val paceUnitMeters = settingsPaceUnit.meters()
+    val distanceUnitMeters = settingsDistanceUnit.meters()
     val result =
         remember(
             mode,
@@ -600,7 +606,7 @@ private fun PaceCalculatorResultUi.labels(
                     distanceMeters?.let {
                         formatDistance(
                             distanceMeters = it,
-                            distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
+                            distanceUnitMeters = settingsDistanceUnit.meters(),
                             unitLabel = distanceUnitLabel(settingsDistanceUnit),
                             locale = currentLocale,
                         )
@@ -612,7 +618,7 @@ private fun PaceCalculatorResultUi.labels(
                     distanceMeters?.let {
                         formatDistance(
                             distanceMeters = it,
-                            distanceUnitMeters = distanceUnitMeters(settingsDistanceUnit),
+                            distanceUnitMeters = settingsDistanceUnit.meters(),
                             unitLabel = distanceUnitLabel(settingsDistanceUnit),
                             locale = currentLocale,
                         )
@@ -629,15 +635,19 @@ private data class PaceDistancePreset(
 
 @Composable
 private fun paceDistancePresets(distanceUnit: DistanceUnit): List<PaceDistancePreset> {
-    val halfMarathon = PaceDistancePreset(stringResource(R.string.pace_calculator_preset_half_marathon), 21_097.5)
-    val marathon = PaceDistancePreset(stringResource(R.string.pace_calculator_preset_marathon), 42_195.0)
+    val halfMarathon =
+        PaceDistancePreset(
+            stringResource(R.string.pace_calculator_preset_half_marathon),
+            HALF_MARATHON_METERS,
+        )
+    val marathon = PaceDistancePreset(stringResource(R.string.pace_calculator_preset_marathon), MARATHON_METERS)
     return when (distanceUnit) {
         KILOMETERS ->
             listOf(
                 PaceDistancePreset(stringResource(R.string.pace_calculator_preset_1_km), METERS_PER_KILOMETER),
-                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_5k), 5_000.0),
-                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_10k), 10_000.0),
-                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_15k), 15_000.0),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_5k), FIVE_K_METERS),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_10k), TEN_K_METERS),
+                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_15k), FIFTEEN_K_METERS),
                 halfMarathon,
                 marathon,
             )
@@ -645,8 +655,14 @@ private fun paceDistancePresets(distanceUnit: DistanceUnit): List<PaceDistancePr
         MILES ->
             listOf(
                 PaceDistancePreset(stringResource(R.string.pace_calculator_preset_1_mile), METERS_PER_MILE),
-                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_5_miles), 8_046.72),
-                PaceDistancePreset(stringResource(R.string.pace_calculator_preset_10_miles), 16_093.44),
+                PaceDistancePreset(
+                    stringResource(R.string.pace_calculator_preset_5_miles),
+                    FIVE_MILES * METERS_PER_MILE,
+                ),
+                PaceDistancePreset(
+                    stringResource(R.string.pace_calculator_preset_10_miles),
+                    TEN_MILES * METERS_PER_MILE,
+                ),
                 halfMarathon,
                 marathon,
             )
@@ -701,24 +717,10 @@ private fun paceCalculatorModeTestTag(mode: PaceCalculatorMode): String {
     }
 }
 
-private fun distanceUnitMeters(unit: DistanceUnit): Double {
-    return when (unit) {
-        KILOMETERS -> 1_000.0
-        MILES -> 1_609.344
-    }
-}
-
-private fun paceUnitMeters(unit: PaceUnit): Double {
-    return when (unit) {
-        MIN_PER_KM -> 1_000.0
-        MIN_PER_MI -> 1_609.344
-    }
-}
-
 private fun formatDistanceInput(
     meters: Double,
     distanceUnit: DistanceUnit,
     locale: Locale,
 ): String {
-    return NumberFormat.getNumberInstance(locale).format(meters / distanceUnitMeters(distanceUnit))
+    return NumberFormat.getNumberInstance(locale).format(meters / distanceUnit.meters())
 }

@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
@@ -39,9 +40,6 @@ import java.time.DayOfWeek.THURSDAY
 import java.time.DayOfWeek.TUESDAY
 import java.time.DayOfWeek.WEDNESDAY
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.Locale
 
 private const val SECTION_KEY_TBD = "tbd"
 
@@ -126,7 +124,7 @@ internal fun SectionKey.title(date: LocalDate? = null): String {
                 stringResource(
                     R.string.weekly_training_section_day_with_date,
                     stringResource(dayOfWeek.labelRes()),
-                    formatSectionDate(date, currentLocale),
+                    formatWorkoutDate(date, currentLocale),
                 )
             } else {
                 stringResource(dayOfWeek.labelRes())
@@ -151,12 +149,4 @@ private fun DayOfWeek.labelRes(): Int {
         SATURDAY -> R.string.day_saturday
         SUNDAY -> R.string.day_sunday
     }
-}
-
-private fun formatSectionDate(
-    date: LocalDate,
-    locale: Locale,
-): String {
-    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-    return date.format(formatter)
 }

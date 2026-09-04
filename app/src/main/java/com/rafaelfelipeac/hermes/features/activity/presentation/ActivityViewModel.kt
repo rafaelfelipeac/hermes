@@ -3,7 +3,7 @@ package com.rafaelfelipeac.hermes.features.activity.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.flow.FlowConstants.STATE_SHARING_TIMEOUT_MS
+import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
@@ -22,11 +22,9 @@ import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryR
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -108,9 +106,8 @@ class ActivityViewModel
                             isAnyFilterActive = primaryFilter != ActivityPrimaryFilter.ALL,
                         ),
                 )
-            }.stateIn(
+            }.stateInWhileSubscribed(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(STATE_SHARING_TIMEOUT_MS),
                 initialValue = ActivityState(),
             )
 

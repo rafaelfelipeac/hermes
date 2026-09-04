@@ -73,6 +73,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
+import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
 import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
@@ -104,10 +105,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.undoSnackbarMessage
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 
 private const val TYPE_CHIP_ALPHA = 0.18f
 private const val EVENT_GRID_COLUMNS = 2
@@ -568,7 +566,7 @@ private fun EventCard(
         }
     val categoryChipContent = Color.White
     val countdown = countdownLabel(eventDate)
-    val dateLabel = formatDate(eventDate, currentLocale)
+    val dateLabel = formatWorkoutDate(eventDate, currentLocale)
     val categoryLabel = event.categoryName ?: stringResource(R.string.category_uncategorized)
     val frameColor = if (event.isCompleted) colors.background else categoryAccent
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -822,12 +820,4 @@ private fun countdownLabel(eventDate: LocalDate): String {
                 kotlin.math.abs(days).toInt(),
             )
     }
-}
-
-private fun formatDate(
-    date: LocalDate,
-    locale: Locale,
-): String {
-    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
-    return formatter.format(date)
 }
