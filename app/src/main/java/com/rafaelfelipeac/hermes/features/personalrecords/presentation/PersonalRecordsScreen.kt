@@ -26,17 +26,11 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
@@ -46,89 +40,56 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Leaderboard
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerState
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
-import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
-import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
-import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
-import com.rafaelfelipeac.hermes.core.ui.components.HermesDatePickerDialog
-import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
-import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
-import com.rafaelfelipeac.hermes.core.ui.components.toUtcEpochMillis
-import com.rafaelfelipeac.hermes.core.ui.components.toUtcLocalDate
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillHorizontalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddActionPillMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelColumnMinWidth
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelContentPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelHeight
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordTimeWheelItemHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_DARK
 import com.rafaelfelipeac.hermes.core.ui.theme.INDICATOR_EXTRA_BLEND_LIGHT
@@ -137,7 +98,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordBestSelector
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordHistoryOrderer
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.defaultComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.defaultUnit
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.HIGHER_IS_BETTER
@@ -163,13 +123,9 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.REP
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.SECOND
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.WATT
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.supportedUnits
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
-import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.util.Locale
-import kotlin.math.abs
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM as CUSTOM_UNIT
 
 internal const val PERSONAL_RECORDS_ROOT_TAG = "personal_records_root"
@@ -298,35 +254,12 @@ fun PersonalRecordsScreen(
 
     deletingFamily?.let { family ->
         val entryCount = state.entries.count { it.familyId == family.id }
-
-        AlertDialog(
-            onDismissRequest = { deletingFamily = null },
-            title = {
-                Text(text = stringResource(R.string.personal_records_delete_family_title))
-            },
-            text = {
-                Text(
-                    text =
-                        stringResource(
-                            R.string.personal_records_delete_family_message,
-                            entryCount,
-                        ),
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteFamily(family.id)
-                        deletingFamily = null
-                    },
-                ) {
-                    Text(text = stringResource(R.string.personal_records_delete_family_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { deletingFamily = null }) {
-                    Text(text = stringResource(R.string.add_workout_cancel))
-                }
+        PersonalRecordDeleteFamilyDialog(
+            entryCount = entryCount,
+            onDismiss = { deletingFamily = null },
+            onConfirm = {
+                viewModel.deleteFamily(family.id)
+                deletingFamily = null
             },
         )
     }
@@ -364,28 +297,11 @@ fun PersonalRecordsScreen(
     }
 
     deletingEntry?.let { entry ->
-        AlertDialog(
-            onDismissRequest = { deletingEntry = null },
-            title = {
-                Text(text = stringResource(R.string.personal_records_delete_result_title))
-            },
-            text = {
-                Text(text = stringResource(R.string.personal_records_delete_result_message))
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        viewModel.deleteEntry(entry.id)
-                        deletingEntry = null
-                    },
-                ) {
-                    Text(text = stringResource(R.string.personal_records_delete_result_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { deletingEntry = null }) {
-                    Text(text = stringResource(R.string.add_workout_cancel))
-                }
+        PersonalRecordDeleteEntryDialog(
+            onDismiss = { deletingEntry = null },
+            onConfirm = {
+                viewModel.deleteEntry(entry.id)
+                deletingEntry = null
             },
         )
     }
@@ -1098,820 +1014,6 @@ private fun PersonalRecordCategoryChip(category: Category?) {
     )
 }
 
-@Composable
-private fun PersonalRecordTimePicker(
-    hours: Int,
-    minutes: Int,
-    seconds: Int,
-    onHoursChange: (Int) -> Unit,
-    onMinutesChange: (Int) -> Unit,
-    onSecondsChange: (Int) -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(SpacingSm),
-    ) {
-        TimeWheelColumn(
-            label = stringResource(R.string.personal_records_unit_hour),
-            values = 0..23,
-            selectedValue = hours,
-            onSelectedValueChange = onHoursChange,
-            modifier = Modifier.weight(1f),
-        )
-        TimeWheelColumn(
-            label = stringResource(R.string.personal_records_unit_minute),
-            values = 0..59,
-            selectedValue = minutes,
-            onSelectedValueChange = onMinutesChange,
-            modifier = Modifier.weight(1f),
-        )
-        TimeWheelColumn(
-            label = stringResource(R.string.personal_records_unit_second),
-            values = 0..59,
-            selectedValue = seconds,
-            onSelectedValueChange = onSecondsChange,
-            modifier = Modifier.weight(1f),
-        )
-    }
-}
-
-@Composable
-private fun TimeWheelColumn(
-    label: String,
-    values: IntRange,
-    selectedValue: Int,
-    onSelectedValueChange: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val entries = remember(values) { values.toList() }
-    val repeatCount = 31
-    val wheelEntries =
-        remember(entries) {
-            buildList(entries.size * repeatCount) {
-                repeat(repeatCount) {
-                    addAll(entries)
-                }
-            }
-        }
-    val centerBlockStart = remember(entries) { (repeatCount / 2) * entries.size }
-    val initialIndex =
-        remember(selectedValue, entries, centerBlockStart) {
-            val selectedIndex = entries.indexOf(selectedValue.coerceIn(values.first, values.last)).coerceAtLeast(0)
-            centerBlockStart + selectedIndex
-        }
-    val listState =
-        rememberLazyListState(
-            initialFirstVisibleItemIndex = initialIndex,
-        )
-    var centeredIndex by remember { mutableIntStateOf(initialIndex) }
-    var lastHapticValue by remember(entries, selectedValue) { mutableIntStateOf(entries[initialIndex % entries.size]) }
-    val coroutineScope = rememberCoroutineScope()
-    val hapticFeedback = LocalHapticFeedback.current
-
-    LaunchedEffect(listState, wheelEntries) {
-        snapshotFlow { listState.layoutInfo }
-            .collect { layoutInfo ->
-                val visible = layoutInfo.visibleItemsInfo
-                if (visible.isEmpty()) return@collect
-
-                val viewportCenter = (layoutInfo.viewportStartOffset + layoutInfo.viewportEndOffset) / 2
-                val nearest =
-                    visible.minByOrNull { itemInfo ->
-                        abs((itemInfo.offset + (itemInfo.size / 2)) - viewportCenter)
-                    } ?: return@collect
-
-                centeredIndex = nearest.index.coerceIn(0, wheelEntries.lastIndex)
-                val candidate = wheelEntries[centeredIndex]
-
-                if (candidate != selectedValue) {
-                    onSelectedValueChange(candidate)
-                }
-
-                if (candidate != lastHapticValue) {
-                    hapticFeedback.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    lastHapticValue = candidate
-                }
-
-                val edgeBuffer = entries.size * 2
-                if (centeredIndex < edgeBuffer || centeredIndex > wheelEntries.lastIndex - edgeBuffer) {
-                    val candidateIndexInBlock = entries.indexOf(candidate).coerceAtLeast(0)
-                    val recenterIndex = centerBlockStart + candidateIndexInBlock
-                    if (recenterIndex != centeredIndex) {
-                        centeredIndex = recenterIndex
-                        coroutineScope.launch {
-                            listState.scrollToItem(recenterIndex)
-                        }
-                    }
-                }
-            }
-    }
-
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpacingXs),
-    ) {
-        Text(
-            text = label,
-            style = typography.labelMedium,
-            color = colorScheme.onSurfaceVariant,
-        )
-
-        Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .widthIn(min = PersonalRecordTimeWheelColumnMinWidth)
-                    .height(PersonalRecordTimeWheelHeight),
-        ) {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(vertical = PersonalRecordTimeWheelContentPadding),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                itemsIndexed(wheelEntries) { index, value ->
-                    val selected = index == centeredIndex
-                    val distanceFromCenter = abs(index - centeredIndex).coerceAtMost(4)
-                    val itemAlpha =
-                        when (distanceFromCenter) {
-                            0 -> 1f
-                            1 -> 0.82f
-                            2 -> 0.58f
-                            3 -> 0.38f
-                            else -> 0.22f
-                        }
-                    Surface(
-                        onClick = {
-                            onSelectedValueChange(value)
-                            coroutineScope.launch {
-                                listState.animateScrollToItem(index)
-                            }
-                        },
-                        shape = shapes.small,
-                        color =
-                            if (selected) {
-                                colorScheme.primaryContainer
-                            } else {
-                                colorScheme.surfaceVariant
-                            },
-                        contentColor =
-                            if (selected) {
-                                colorScheme.onPrimaryContainer
-                            } else {
-                                colorScheme.onSurfaceVariant
-                            },
-                        tonalElevation = if (selected) ElevationSm else Zero,
-                        shadowElevation = if (selected) ElevationSm else Zero,
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .height(PersonalRecordTimeWheelItemHeight)
-                                .alpha(itemAlpha),
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                text = value.toString().padStart(2, '0'),
-                                style =
-                                    if (selected) {
-                                        typography.titleMedium
-                                    } else {
-                                        typography.bodyLarge
-                                    },
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-internal fun PersonalRecordFamilyEditorDialog(
-    categories: List<Category>,
-    initialFamily: PersonalRecordFamily? = null,
-    onDismiss: () -> Unit,
-    onSave: (
-        categoryId: Long?,
-        title: String,
-        metricType: PersonalRecordMetricType,
-        comparisonRule: PersonalRecordComparisonRule,
-    ) -> Unit,
-) {
-    val isEdit = initialFamily != null
-    var title by rememberSaveable(initialFamily?.id) {
-        mutableStateOf(initialFamily?.title.orEmpty().capitalizedFirstCharacter())
-    }
-    var categoryId by rememberSaveable(initialFamily?.id) { mutableStateOf(initialFamily?.categoryId) }
-    var metricType by rememberSaveable(initialFamily?.id) { mutableStateOf(initialFamily?.metricType ?: DISTANCE) }
-    var comparisonRule by rememberSaveable(initialFamily?.id) {
-        mutableStateOf(initialFamily?.comparisonRule ?: metricType.defaultComparisonRule())
-    }
-    var metricMenuExpanded by rememberSaveable { mutableStateOf(false) }
-    var comparisonMenuExpanded by rememberSaveable { mutableStateOf(false) }
-    var didInitializeMetricRule by rememberSaveable(initialFamily?.id) { mutableStateOf(false) }
-
-    LaunchedEffect(metricType) {
-        if (didInitializeMetricRule) {
-            comparisonRule = comparisonRuleAfterMetricSelection(metricType)
-        } else {
-            didInitializeMetricRule = true
-        }
-    }
-
-    AlertDialog(
-        modifier =
-            Modifier.testTag(
-                if (isEdit) {
-                    PERSONAL_RECORDS_EDIT_FAMILY_DIALOG_TAG
-                } else {
-                    PERSONAL_RECORDS_CREATE_FAMILY_DIALOG_TAG
-                },
-            ),
-        onDismissRequest = onDismiss,
-        title =
-            {
-                Text(
-                    text =
-                        if (isEdit) {
-                            stringResource(R.string.personal_records_edit_family_title)
-                        } else {
-                            stringResource(R.string.personal_records_new_family_title)
-                        },
-                )
-            },
-        text = {
-            KeyboardAwareDialogForm {
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it.capitalizedFirstCharacter() },
-                    label = { Text(text = stringResource(R.string.personal_records_family_title)) },
-                    keyboardOptions = DefaultTextFieldKeyboardOptions,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-
-                Spacer(modifier = Modifier.height(SpacingLg))
-
-                CategoryPickerField(
-                    label = stringResource(R.string.personal_records_family_category),
-                    categories =
-                        remember(categories) {
-                            categories.map { category ->
-                                CategoryPickerOption(
-                                    id = category.id,
-                                    name = category.name,
-                                    colorId = category.colorId,
-                                )
-                            }
-                        },
-                    selectedCategoryId = categoryId,
-                    onCategorySelected = { categoryId = it },
-                )
-
-                Spacer(modifier = Modifier.height(SpacingLg))
-
-                if (isEdit) {
-                    OutlinedTextField(
-                        readOnly = true,
-                        value = metricLabel(metricType),
-                        onValueChange = {},
-                        label = { Text(text = stringResource(R.string.personal_records_family_metric_type)) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                } else {
-                    ExposedDropdownMenuBox(
-                        expanded = metricMenuExpanded,
-                        onExpandedChange = { metricMenuExpanded = !metricMenuExpanded },
-                    ) {
-                        OutlinedTextField(
-                            readOnly = true,
-                            value = metricLabel(metricType),
-                            onValueChange = {},
-                            label = {
-                                Text(
-                                    text = stringResource(R.string.personal_records_family_metric_type),
-                                )
-                            },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = metricMenuExpanded)
-                            },
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .menuAnchor(
-                                        ExposedDropdownMenuAnchorType.PrimaryNotEditable,
-                                    ),
-                        )
-
-                        DropdownMenu(
-                            expanded = metricMenuExpanded,
-                            onDismissRequest = { metricMenuExpanded = false },
-                        ) {
-                            PersonalRecordMetricType.entries.forEachIndexed { index, option ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Column(verticalArrangement = Arrangement.spacedBy(SpacingXxs)) {
-                                            Text(text = metricLabel(option))
-                                            Text(
-                                                text = metricDescription(option),
-                                                style = typography.bodySmall,
-                                                color = colorScheme.onSurfaceVariant,
-                                            )
-                                        }
-                                    },
-                                    onClick = {
-                                        metricType = option
-                                        metricMenuExpanded = false
-                                    },
-                                )
-                                if (index != PersonalRecordMetricType.entries.lastIndex) {
-                                    HorizontalDivider(
-                                        modifier = Modifier.padding(vertical = SpacingXs),
-                                        color = colorScheme.outlineVariant,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Text(
-                    text = metricDescription(metricType),
-                    style = typography.bodySmall,
-                    color = colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = SpacingXs),
-                )
-
-                Spacer(modifier = Modifier.height(SpacingLg))
-
-                ExposedDropdownMenuBox(
-                    expanded = comparisonMenuExpanded,
-                    onExpandedChange = { comparisonMenuExpanded = !comparisonMenuExpanded },
-                ) {
-                    OutlinedTextField(
-                        readOnly = true,
-                        value = comparisonLabel(comparisonRule),
-                        onValueChange = {},
-                        label = { Text(text = stringResource(R.string.personal_records_family_comparison_rule)) },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = comparisonMenuExpanded)
-                        },
-                        modifier = Modifier.fillMaxWidth().menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                    )
-
-                    DropdownMenu(
-                        expanded = comparisonMenuExpanded,
-                        onDismissRequest = { comparisonMenuExpanded = false },
-                    ) {
-                        listOf(HIGHER_IS_BETTER, LOWER_IS_BETTER, MANUAL).forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(text = comparisonLabel(option)) },
-                                onClick = {
-                                    comparisonRule = option
-                                    comparisonMenuExpanded = false
-                                },
-                            )
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                enabled = title.isNotBlank(),
-                onClick = {
-                    onSave(
-                        categoryId,
-                        title.trim(),
-                        metricType,
-                        comparisonRule,
-                    )
-                },
-            ) {
-                Text(
-                    text =
-                        if (isEdit) {
-                            stringResource(R.string.save_changes)
-                        } else {
-                            stringResource(R.string.personal_records_create)
-                        },
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = stringResource(R.string.add_workout_cancel))
-            }
-        },
-    )
-}
-
-@Composable
-internal fun PersonalRecordEntryEditorDialog(
-    families: List<PersonalRecordFamily>,
-    entries: List<PersonalRecordEntry>,
-    initialFamilyId: Long?,
-    settingsDistanceUnit: DistanceUnit,
-    settingsWeightUnit: WeightUnit,
-    initialEntry: PersonalRecordEntry? = null,
-    isEdit: Boolean = false,
-    onDismiss: () -> Unit,
-    onSave: (
-        familyId: Long,
-        value: Double,
-        unit: PersonalRecordUnit,
-        recordDate: LocalDate,
-        note: String?,
-        customUnitLabel: String?,
-    ) -> Unit,
-    onDeleteRequested: (() -> Unit)? = null,
-) {
-    val initialDialogFamilyId = initialEntry?.familyId ?: initialFamilyId ?: families.firstOrNull()?.id
-    val dialogKey = initialEntry?.id ?: initialDialogFamilyId ?: -1L
-    var familyId by rememberSaveable(dialogKey) { mutableStateOf(initialDialogFamilyId) }
-    var valueText by rememberSaveable(dialogKey) { mutableStateOf(EMPTY) }
-    var note by rememberSaveable(dialogKey) {
-        mutableStateOf(initialEntry?.note.orEmpty().capitalizedFirstCharacter())
-    }
-    var customUnitLabel by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.customUnitLabel.orEmpty()) }
-    var familyMenuExpanded by rememberSaveable { mutableStateOf(false) }
-    var unitMenuExpanded by rememberSaveable { mutableStateOf(false) }
-    var showDatePicker by rememberSaveable { mutableStateOf(false) }
-    var recordDate by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.recordDate ?: LocalDate.now()) }
-    var selectedUnit by rememberSaveable(dialogKey) { mutableStateOf(initialEntry?.unit ?: KILOMETER) }
-    val selectedFamily = families.firstOrNull { it.id == familyId }
-    val isTimeMetric = selectedFamily?.metricType == TIME
-    val isDistanceOrWeightMetric = selectedFamily?.metricType == DISTANCE || selectedFamily?.metricType == WEIGHT
-    val today = remember { LocalDate.now() }
-    val currentLocale = currentLocale()
-    val currentEntry =
-        remember(familyId, entries, initialEntry?.id, isEdit) {
-            if (isEdit) {
-                initialEntry
-            } else {
-                selectedFamily?.let { PersonalRecordBestSelector.selectBest(it, entries) }
-            }
-        }
-    val initialDefaults =
-        remember(initialEntry?.id, selectedFamily?.id, currentEntry?.id, isEdit) {
-            personalRecordEntryEditorDefaults(
-                family = selectedFamily,
-                entries = entries,
-                initialEntry = initialEntry,
-                isEdit = isEdit,
-                settingsDistanceUnit = settingsDistanceUnit,
-                settingsWeightUnit = settingsWeightUnit,
-            )
-        }
-    var timeHours by rememberSaveable(dialogKey) { mutableIntStateOf(initialDefaults.time.hours) }
-    var timeMinutes by rememberSaveable(dialogKey) { mutableIntStateOf(initialDefaults.time.minutes) }
-    var timeSeconds by rememberSaveable(dialogKey) { mutableIntStateOf(initialDefaults.time.seconds) }
-    var hasLoadedInitialState by rememberSaveable(dialogKey) { mutableStateOf(false) }
-
-    LaunchedEffect(familyId) {
-        selectedFamily ?: return@LaunchedEffect
-        if (isEdit && hasLoadedInitialState) return@LaunchedEffect
-        hasLoadedInitialState = true
-        selectedUnit = initialDefaults.unit
-        valueText = initialDefaults.valueText
-        timeHours = initialDefaults.time.hours
-        timeMinutes = initialDefaults.time.minutes
-        timeSeconds = initialDefaults.time.seconds
-        customUnitLabel = initialDefaults.customUnitLabel
-        recordDate = if (isEdit) initialEntry?.recordDate ?: today else today
-        note = if (isEdit) initialEntry?.note.orEmpty().capitalizedFirstCharacter() else EMPTY
-    }
-
-    val canSave =
-        canSavePersonalRecordEntry(
-            family = selectedFamily,
-            valueText = valueText,
-            selectedUnit = selectedUnit,
-            customUnitLabel = customUnitLabel,
-            recordDate = recordDate,
-            today = today,
-        )
-    AlertDialog(
-        modifier =
-            Modifier.testTag(
-                if (isEdit) {
-                    PERSONAL_RECORDS_EDIT_ENTRY_DIALOG_TAG
-                } else {
-                    PERSONAL_RECORDS_ADD_ENTRY_DIALOG_TAG
-                },
-            ),
-        onDismissRequest = onDismiss,
-        title =
-            {
-                Text(
-                    text =
-                        if (isEdit) {
-                            stringResource(R.string.personal_records_edit_result_title)
-                        } else {
-                            stringResource(R.string.personal_records_add_result_title)
-                        },
-                )
-            },
-        text = {
-            KeyboardAwareDialogForm {
-                ExposedDropdownMenuBox(
-                    expanded = familyMenuExpanded,
-                    onExpandedChange = {
-                        if (!isEdit) {
-                            familyMenuExpanded = !familyMenuExpanded
-                        }
-                    },
-                ) {
-                    OutlinedTextField(
-                        enabled = !isEdit,
-                        readOnly = true,
-                        value = familyLabelFor(selectedFamily, entries),
-                        onValueChange = {},
-                        label = { Text(text = stringResource(R.string.personal_records_entry_family)) },
-                        trailingIcon = {
-                            if (!isEdit) {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = familyMenuExpanded)
-                            }
-                        },
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .testTag(PERSONAL_RECORDS_ENTRY_FAMILY_FIELD_TAG)
-                                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                    )
-
-                    DropdownMenu(
-                        expanded = familyMenuExpanded,
-                        onDismissRequest = { familyMenuExpanded = false },
-                    ) {
-                        families.forEach { option ->
-                            DropdownMenuItem(
-                                text = { Text(text = familyLabelFor(option, entries)) },
-                                onClick = {
-                                    familyId = option.id
-                                    familyMenuExpanded = false
-                                },
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(SpacingLg))
-
-                if (isTimeMetric) {
-                    key(selectedFamily.id, true) {
-                        PersonalRecordTimePicker(
-                            hours = timeHours,
-                            minutes = timeMinutes,
-                            seconds = timeSeconds,
-                            onHoursChange = { timeHours = it },
-                            onMinutesChange = { timeMinutes = it },
-                            onSecondsChange = { timeSeconds = it },
-                        )
-                    }
-                } else {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                    ) {
-                        OutlinedTextField(
-                            value = valueText,
-                            onValueChange = { valueText = it },
-                            label = { Text(text = stringResource(R.string.personal_records_entry_value)) },
-                            singleLine = true,
-                            keyboardOptions =
-                                KeyboardOptions(
-                                    keyboardType = KeyboardType.Decimal,
-                                ),
-                            modifier =
-                                Modifier
-                                    .fillMaxWidth()
-                                    .testTag(PERSONAL_RECORDS_ENTRY_VALUE_FIELD_TAG),
-                        )
-
-                        if (isDistanceOrWeightMetric) {
-                            ExposedDropdownMenuBox(
-                                expanded = unitMenuExpanded,
-                                onExpandedChange = { unitMenuExpanded = !unitMenuExpanded },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                OutlinedTextField(
-                                    readOnly = true,
-                                    value = unitChoiceLabelFor(selectedUnit),
-                                    onValueChange = {},
-                                    label = { Text(text = stringResource(R.string.personal_records_entry_unit)) },
-                                    singleLine = true,
-                                    trailingIcon = {
-                                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitMenuExpanded)
-                                    },
-                                    modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable),
-                                )
-
-                                DropdownMenu(
-                                    expanded = unitMenuExpanded,
-                                    onDismissRequest = { unitMenuExpanded = false },
-                                ) {
-                                    selectedFamily.metricType.supportedUnits().forEach { option ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                Column(verticalArrangement = Arrangement.spacedBy(SpacingXxs)) {
-                                                    Text(text = unitChoiceLabelFor(option))
-                                                    Text(
-                                                        text = unitValueLabelFor(option),
-                                                        style = typography.bodySmall,
-                                                        color = colorScheme.onSurfaceVariant,
-                                                    )
-                                                }
-                                            },
-                                            onClick = {
-                                                val previousUnit = selectedUnit
-                                                selectedUnit = option
-                                                unitMenuExpanded = false
-                                                valueText =
-                                                    convertPersonalRecordEditorValue(
-                                                        valueText = valueText,
-                                                        fromUnit = previousUnit,
-                                                        toUnit = option,
-                                                    )
-                                            },
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                if (!isTimeMetric && selectedUnit == CUSTOM_UNIT) {
-                    Spacer(modifier = Modifier.height(SpacingLg))
-
-                    OutlinedTextField(
-                        value = customUnitLabel,
-                        onValueChange = { customUnitLabel = it },
-                        label = { Text(text = stringResource(R.string.personal_records_entry_custom_unit_label)) },
-                        keyboardOptions = DefaultTextFieldKeyboardOptions,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(SpacingLg))
-
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .testTag(PERSONAL_RECORDS_ENTRY_DATE_FIELD_TAG),
-                ) {
-                    OutlinedTextField(
-                        value = formatWorkoutDate(recordDate, currentLocale),
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(text = stringResource(R.string.personal_records_entry_date)) },
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-
-                    Box(
-                        modifier =
-                            Modifier
-                                .matchParentSize()
-                                .clickable(
-                                    indication = null,
-                                    interactionSource = remember { MutableInteractionSource() },
-                                ) {
-                                    showDatePicker = true
-                                },
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(SpacingLg))
-
-                OutlinedTextField(
-                    value = note,
-                    onValueChange = { note = it.capitalizedFirstCharacter() },
-                    label = { Text(text = stringResource(R.string.personal_records_entry_note)) },
-                    keyboardOptions = DefaultTextFieldKeyboardOptions,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
-        },
-        confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (isEdit && onDeleteRequested != null) {
-                    IconButton(onClick = onDeleteRequested) {
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = stringResource(R.string.personal_records_delete_result_confirm),
-                            tint = colorScheme.onSurface,
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                TextButton(onClick = onDismiss) {
-                    Text(text = stringResource(R.string.add_workout_cancel))
-                }
-
-                TextButton(
-                    enabled = canSave,
-                    onClick = {
-                        val input =
-                            buildPersonalRecordEntryInput(
-                                family = selectedFamily,
-                                valueText = valueText,
-                                selectedUnit = selectedUnit,
-                                time =
-                                    com.rafaelfelipeac.hermes.core.time.DurationParts(
-                                        hours = timeHours,
-                                        minutes = timeMinutes,
-                                        seconds = timeSeconds,
-                                    ),
-                                recordDate = recordDate,
-                                note = note,
-                                customUnitLabel = customUnitLabel,
-                            ) ?: return@TextButton
-                        onSave(
-                            input.familyId,
-                            input.value,
-                            input.unit,
-                            input.recordDate,
-                            input.note,
-                            input.customUnitLabel,
-                        )
-                    },
-                ) {
-                    Text(
-                        text =
-                            if (isEdit) {
-                                stringResource(R.string.save_changes)
-                            } else {
-                                stringResource(R.string.personal_records_save_result)
-                            },
-                    )
-                }
-            }
-        },
-    )
-
-    if (showDatePicker) {
-        val selectedDateMillis =
-            remember(recordDate) {
-                recordDate.toUtcEpochMillis()
-            }
-        val maximumSelectableDateMillis = remember(today) { today.toUtcEpochMillis() }
-        val selectableDates =
-            remember(maximumSelectableDateMillis) {
-                object : SelectableDates {
-                    override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                        return utcTimeMillis <= maximumSelectableDateMillis
-                    }
-                }
-            }
-        val datePickerState =
-            remember(selectedDateMillis, selectableDates, currentLocale) {
-                DatePickerState(
-                    locale = currentLocale,
-                    initialSelectedDateMillis = selectedDateMillis.coerceAtMost(maximumSelectableDateMillis),
-                    selectableDates = selectableDates,
-                )
-            }
-
-        HermesDatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        datePickerState.selectedDateMillis?.let {
-                            recordDate = it.toUtcLocalDate()
-                        }
-                        showDatePicker = false
-                    },
-                ) {
-                    Text(text = stringResource(R.string.personal_records_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text(text = stringResource(R.string.add_workout_cancel))
-                }
-            },
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
-}
-
 private data class PersonalRecordFamilyGroup(
     val category: Category?,
     val families: List<PersonalRecordFamily>,
@@ -1951,7 +1053,7 @@ private fun buildFamilyGroups(
 }
 
 @Composable
-private fun familyLabelFor(
+internal fun familyLabelFor(
     family: PersonalRecordFamily?,
     entries: List<PersonalRecordEntry>,
 ): String {
@@ -1961,7 +1063,7 @@ private fun familyLabelFor(
 }
 
 @Composable
-private fun metricLabel(metricType: PersonalRecordMetricType): String {
+internal fun metricLabel(metricType: PersonalRecordMetricType): String {
     return when (metricType) {
         DISTANCE -> stringResource(R.string.personal_records_metric_distance)
         TIME -> stringResource(R.string.personal_records_metric_time)
@@ -1973,7 +1075,7 @@ private fun metricLabel(metricType: PersonalRecordMetricType): String {
 }
 
 @Composable
-private fun comparisonLabel(comparisonRule: PersonalRecordComparisonRule): String {
+internal fun comparisonLabel(comparisonRule: PersonalRecordComparisonRule): String {
     return when (comparisonRule) {
         HIGHER_IS_BETTER -> stringResource(R.string.personal_records_comparison_higher)
         LOWER_IS_BETTER -> stringResource(R.string.personal_records_comparison_lower)
@@ -1982,7 +1084,7 @@ private fun comparisonLabel(comparisonRule: PersonalRecordComparisonRule): Strin
 }
 
 @Composable
-private fun metricDescription(metricType: PersonalRecordMetricType): String {
+internal fun metricDescription(metricType: PersonalRecordMetricType): String {
     return when (metricType) {
         DISTANCE -> stringResource(R.string.personal_records_metric_distance_help)
         TIME -> stringResource(R.string.personal_records_metric_time_help)
@@ -1994,7 +1096,7 @@ private fun metricDescription(metricType: PersonalRecordMetricType): String {
 }
 
 @Composable
-private fun unitChoiceLabelFor(unit: PersonalRecordUnit): String {
+internal fun unitChoiceLabelFor(unit: PersonalRecordUnit): String {
     return when (unit) {
         KILOMETER -> stringResource(R.string.personal_records_unit_kilometer)
         MILE -> stringResource(R.string.personal_records_unit_mile)
@@ -2011,7 +1113,7 @@ private fun unitChoiceLabelFor(unit: PersonalRecordUnit): String {
 }
 
 @Composable
-private fun unitValueLabelFor(unit: PersonalRecordUnit): String {
+internal fun unitValueLabelFor(unit: PersonalRecordUnit): String {
     return when (unit) {
         KILOMETER -> stringResource(R.string.settings_unit_kilometers)
         MILE -> stringResource(R.string.settings_unit_miles)

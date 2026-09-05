@@ -32,65 +32,90 @@ internal data class PersonalRecordEntryEditorDefaults(
     val customUnitLabel: String,
 )
 
+internal data class PersonalRecordEntryEditorSource(
+    val family: PersonalRecordFamily?,
+    val entries: List<PersonalRecordEntry>,
+    val initialEntry: PersonalRecordEntry?,
+    val isEdit: Boolean,
+    val settingsDistanceUnit: DistanceUnit,
+    val settingsWeightUnit: WeightUnit,
+)
+
+internal data class PersonalRecordEntryEditorFields(
+    val valueText: String,
+    val selectedUnit: PersonalRecordUnit,
+    val time: DurationParts,
+    val recordDate: LocalDate,
+    val note: String,
+    val customUnitLabel: String,
+)
+
 internal fun comparisonRuleAfterMetricSelection(
     metricType: PersonalRecordMetricType,
 ): PersonalRecordComparisonRule = metricType.defaultComparisonRule()
 
 internal fun personalRecordEntryEditorDefaults(
-    family: PersonalRecordFamily?,
-    entries: List<PersonalRecordEntry>,
-    initialEntry: PersonalRecordEntry?,
-    isEdit: Boolean,
-    settingsDistanceUnit: DistanceUnit,
-    settingsWeightUnit: WeightUnit,
+    source: PersonalRecordEntryEditorSource,
 ): PersonalRecordEntryEditorDefaults {
-    if (family == null) {
-        return PersonalRecordEntryEditorDefaults(
-            unit = initialEntry?.unit ?: KILOMETER,
-            valueText = EMPTY,
-            time = DurationParts(),
-            customUnitLabel = initialEntry?.customUnitLabel.orEmpty(),
-        )
-    }
-
+    val family = source.family
     val currentEntry =
-        if (isEdit) {
-            initialEntry
+        if (family == null || source.isEdit) {
+            source.initialEntry
         } else {
-            PersonalRecordBestSelector.selectBest(family, entries)
+            PersonalRecordBestSelector.selectBest(family, source.entries)
         }
-
-    if (family.metricType == TIME) {
-        val normalizedSeconds =
-            currentEntry?.let {
-                PersonalRecordValueNormalizer.normalize(it.value, it.unit).toLong()
-            } ?: 0L
-        return PersonalRecordEntryEditorDefaults(
-            unit = SECOND,
-            valueText = EMPTY,
-            time = secondsToDurationParts(normalizedSeconds),
-            customUnitLabel = currentEntry?.customUnitLabel.orEmpty(),
-        )
+    return when {
+        family == null -> emptyEditorDefaults(source.initialEntry)
+        family.metricType == TIME -> timeEditorDefaults(currentEntry)
+        else -> measuredEditorDefaults(source, family, currentEntry)
     }
+}
 
+private fun emptyEditorDefaults(initialEntry: PersonalRecordEntry?) =
+    PersonalRecordEntryEditorDefaults(
+        unit = initialEntry?.unit ?: KILOMETER,
+        valueText = EMPTY,
+        time = DurationParts(),
+        customUnitLabel = initialEntry?.customUnitLabel.orEmpty(),
+    )
+
+private fun timeEditorDefaults(currentEntry: PersonalRecordEntry?): PersonalRecordEntryEditorDefaults {
+    val normalizedSeconds =
+        currentEntry?.let {
+            PersonalRecordValueNormalizer.normalize(it.value, it.unit).toLong()
+        } ?: 0L
+    return PersonalRecordEntryEditorDefaults(
+        unit = SECOND,
+        valueText = EMPTY,
+        time = secondsToDurationParts(normalizedSeconds),
+        customUnitLabel = currentEntry?.customUnitLabel.orEmpty(),
+    )
+}
+
+private fun measuredEditorDefaults(
+    source: PersonalRecordEntryEditorSource,
+    family: PersonalRecordFamily,
+    currentEntry: PersonalRecordEntry?,
+): PersonalRecordEntryEditorDefaults {
     val unit =
         when {
-            isEdit && initialEntry != null -> initialEntry.unit
-            family.metricType == DISTANCE -> settingsDistanceUnit.asPersonalRecordUnit()
-            family.metricType == WEIGHT -> settingsWeightUnit.asPersonalRecordUnit()
+            source.isEdit && source.initialEntry != null -> source.initialEntry.unit
+            family.metricType == DISTANCE -> source.settingsDistanceUnit.asPersonalRecordUnit()
+            family.metricType == WEIGHT -> source.settingsWeightUnit.asPersonalRecordUnit()
             else -> currentEntry?.unit ?: family.defaultUnit
         }
     val valueText =
         currentEntry?.let { entry ->
+            val shouldConvert =
+                !source.isEdit && (family.metricType == DISTANCE || family.metricType == WEIGHT)
             val value =
-                if (!isEdit && (family.metricType == DISTANCE || family.metricType == WEIGHT)) {
+                if (shouldConvert) {
                     PersonalRecordValueNormalizer.convert(entry.value, entry.unit, unit)
                 } else {
                     entry.value
                 }
             formatEditablePersonalRecordValue(value)
         }.orEmpty()
-
     return PersonalRecordEntryEditorDefaults(
         unit = unit,
         valueText = valueText,
@@ -112,50 +137,45 @@ internal fun convertPersonalRecordEditorValue(
 
 internal fun canSavePersonalRecordEntry(
     family: PersonalRecordFamily?,
-    valueText: String,
-    selectedUnit: PersonalRecordUnit,
-    customUnitLabel: String,
-    recordDate: LocalDate,
+    fields: PersonalRecordEntryEditorFields,
     today: LocalDate,
 ): Boolean {
     family ?: return false
     val isTimeMetric = family.metricType == TIME
     val requiresCustomLabel =
-        (family.metricType == DISTANCE || family.metricType == WEIGHT) && selectedUnit == CUSTOM_UNIT
-    return (isTimeMetric || parsePersonalRecordValue(valueText) != null) &&
-        (!requiresCustomLabel || customUnitLabel.isNotBlank()) &&
-        !recordDate.isAfter(today)
+        (family.metricType == DISTANCE || family.metricType == WEIGHT) && fields.selectedUnit == CUSTOM_UNIT
+    return (isTimeMetric || parsePersonalRecordValue(fields.valueText) != null) &&
+        (!requiresCustomLabel || fields.customUnitLabel.isNotBlank()) &&
+        !fields.recordDate.isAfter(today)
 }
 
 internal fun buildPersonalRecordEntryInput(
     family: PersonalRecordFamily?,
-    valueText: String,
-    selectedUnit: PersonalRecordUnit,
-    time: DurationParts,
-    recordDate: LocalDate,
-    note: String,
-    customUnitLabel: String,
+    fields: PersonalRecordEntryEditorFields,
 ): PersonalRecordEntryInput? {
-    family ?: return null
-    val isTimeMetric = family.metricType == TIME
-    val value =
-        if (isTimeMetric) {
-            durationPartsToSeconds(
-                hours = time.hours.toLong(),
-                minutes = time.minutes.toLong(),
-                seconds = time.seconds.toLong(),
-            ).toDouble()
-        } else {
-            parsePersonalRecordValue(valueText) ?: return null
+    return family?.let { resolvedFamily ->
+        val isTimeMetric = resolvedFamily.metricType == TIME
+        val value =
+            if (isTimeMetric) {
+                durationPartsToSeconds(
+                    hours = fields.time.hours.toLong(),
+                    minutes = fields.time.minutes.toLong(),
+                    seconds = fields.time.seconds.toLong(),
+                ).toDouble()
+            } else {
+                parsePersonalRecordValue(fields.valueText)
+            }
+        value?.let {
+            PersonalRecordEntryInput(
+                familyId = resolvedFamily.id,
+                value = it,
+                unit = if (isTimeMetric) SECOND else fields.selectedUnit,
+                recordDate = fields.recordDate,
+                note = fields.note.trim().ifBlank { null },
+                customUnitLabel = fields.customUnitLabel.trim().ifBlank { null },
+            )
         }
-    return PersonalRecordEntryInput(
-        familyId = family.id,
-        value = value,
-        unit = if (isTimeMetric) SECOND else selectedUnit,
-        recordDate = recordDate,
-        note = note.trim().ifBlank { null },
-        customUnitLabel = customUnitLabel.trim().ifBlank { null },
-    )
+    }
 }
 
 internal fun DistanceUnit.asPersonalRecordUnit(): PersonalRecordUnit {
