@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.domain
 
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.LOWER_IS_BETTER
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.MANUAL
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.TIME
@@ -19,6 +20,18 @@ class PersonalRecordHistoryOrdererTest {
         val ordered = PersonalRecordHistoryOrderer.order(family(), listOf(older, newer))
 
         assertEquals(listOf(newer, older), ordered)
+    }
+
+    @Test
+    fun order_manual_placesSelectedEntryFirstAndThenUsesRecency() {
+        val oldest = entry(id = 1L, recordDate = LocalDate.parse("2024-01-01"))
+        val newest = entry(id = 2L, recordDate = LocalDate.parse("2024-03-01"))
+        val selected = entry(id = 3L, recordDate = LocalDate.parse("2024-02-01"))
+        val family = family().copy(comparisonRule = MANUAL, manualCurrentEntryId = selected.id)
+
+        val ordered = PersonalRecordHistoryOrderer.order(family, listOf(oldest, newest, selected))
+
+        assertEquals(listOf(selected, newest, oldest), ordered)
     }
 
     private fun family() =
