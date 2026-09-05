@@ -52,36 +52,11 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ARABIC
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.FRENCH
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.GERMAN
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.HINDI
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ITALIAN
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.JAPANESE
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SPANISH
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
-import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.KILOMETERS
-import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit.MILES
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
-import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_KM
-import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit.MIN_PER_MI
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
-import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.DARK
-import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.LIGHT
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.FRIDAY
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.MONDAY
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.SATURDAY
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.SUNDAY
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.THURSDAY
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.TUESDAY
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay.WEDNESDAY
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
-import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.POUNDS
 
 @Composable
 internal fun SettingsSection(
@@ -348,64 +323,34 @@ internal fun SettingsInfoRow(
 }
 
 @Composable
-internal fun themeLabel(themeMode: ThemeMode): String {
-    return when (themeMode) {
-        ThemeMode.SYSTEM -> stringResource(R.string.settings_theme_system)
-        LIGHT -> stringResource(R.string.settings_theme_light)
-        DARK -> stringResource(R.string.settings_theme_dark)
-    }
-}
+internal fun themeLabel(themeMode: ThemeMode): String = stringResource(themeLabelRes(themeMode))
 
 @Composable
-internal fun languageLabel(language: AppLanguage): String {
-    return when (language) {
-        SYSTEM -> stringResource(R.string.settings_language_system)
-        ENGLISH -> stringResource(R.string.settings_language_english)
-        PORTUGUESE_BRAZIL ->
-            stringResource(R.string.settings_language_portuguese_brazil)
-        GERMAN -> stringResource(R.string.settings_language_german)
-        FRENCH -> stringResource(R.string.settings_language_french)
-        SPANISH -> stringResource(R.string.settings_language_spanish)
-        ITALIAN -> stringResource(R.string.settings_language_italian)
-        ARABIC -> stringResource(R.string.settings_language_arabic)
-        HINDI -> stringResource(R.string.settings_language_hindi)
-        JAPANESE -> stringResource(R.string.settings_language_japanese)
-    }
-}
+internal fun languageLabel(language: AppLanguage): String = stringResource(languageLabelRes(language))
 
 @Composable
-internal fun weekStartLabel(weekStartDay: WeekStartDay): String {
-    return when (weekStartDay) {
-        MONDAY -> stringResource(R.string.day_monday)
-        TUESDAY -> stringResource(R.string.day_tuesday)
-        WEDNESDAY -> stringResource(R.string.day_wednesday)
-        THURSDAY -> stringResource(R.string.day_thursday)
-        FRIDAY -> stringResource(R.string.day_friday)
-        SATURDAY -> stringResource(R.string.day_saturday)
-        SUNDAY -> stringResource(R.string.day_sunday)
-    }
-}
+internal fun weekStartLabel(weekStartDay: WeekStartDay): String = stringResource(weekStartLabelRes(weekStartDay))
 
 @Composable
-internal fun distanceUnitLabel(distanceUnit: DistanceUnit): String {
-    return when (distanceUnit) {
-        KILOMETERS -> stringResource(R.string.settings_unit_kilometers)
-        MILES -> stringResource(R.string.settings_unit_miles)
-    }
-}
+internal fun distanceUnitLabel(distanceUnit: DistanceUnit): String = stringResource(distanceUnitLabelRes(distanceUnit))
 
 @Composable
-internal fun paceUnitLabel(paceUnit: PaceUnit): String {
-    return when (paceUnit) {
-        MIN_PER_KM -> stringResource(R.string.settings_unit_min_per_km)
-        MIN_PER_MI -> stringResource(R.string.settings_unit_min_per_mi)
-    }
-}
+internal fun paceUnitLabel(paceUnit: PaceUnit): String = stringResource(paceUnitLabelRes(paceUnit))
 
 @Composable
-internal fun weightUnitLabel(weightUnit: WeightUnit): String {
-    return when (weightUnit) {
-        KILOGRAMS -> stringResource(R.string.settings_unit_kilograms)
-        POUNDS -> stringResource(R.string.settings_unit_pounds)
-    }
+internal fun weightUnitLabel(weightUnit: WeightUnit): String = stringResource(weightUnitLabelRes(weightUnit))
+
+@Composable
+internal fun unitsSummaryLabel(
+    distanceUnit: DistanceUnit,
+    paceUnit: PaceUnit,
+    weightUnit: WeightUnit,
+): String {
+    val (distance, pace, weight) = unitsSummaryLabelResources(distanceUnit, paceUnit, weightUnit)
+    return stringResource(
+        R.string.settings_units_summary,
+        stringResource(distance),
+        stringResource(pace),
+        stringResource(weight),
+    )
 }

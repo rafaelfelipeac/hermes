@@ -56,8 +56,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
-import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE_TOKEN
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ReleaseNotesBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -66,7 +64,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxl
 import java.util.Locale
 
-private const val DEBUG_PACKAGE_SUFFIX = ".dev"
 internal const val SETTINGS_THEME_ROW_TAG = "settings_theme_row"
 internal const val SETTINGS_LANGUAGE_ROW_TAG = "settings_language_row"
 internal const val SETTINGS_WEEK_START_ROW_TAG = "settings_week_start_row"
@@ -193,7 +190,7 @@ fun SettingsScreen(
                 onSlotModeClick = { route = SettingsRoute.SLOT_MODE },
                 onUnitsClick = { route = SettingsRoute.UNITS },
                 onFeedbackClick = { subject, body ->
-                    val normalizedBody = body.replace("\n", "\r\n")
+                    val normalizedBody = normalizeFeedbackBody(body)
                     val mailToUri =
                         String.format(
                             Locale.ROOT,
@@ -231,11 +228,7 @@ fun SettingsScreen(
                 },
                 onRateClick = {
                     val packageName =
-                        if (BuildConfig.DEBUG && context.packageName.endsWith(DEBUG_PACKAGE_SUFFIX)) {
-                            context.packageName.removeSuffix(DEBUG_PACKAGE_SUFFIX)
-                        } else {
-                            context.packageName
-                        }
+                        storePackageName(context.packageName, BuildConfig.DEBUG)
                     val marketIntent =
                         Intent(
                             Intent.ACTION_VIEW,
@@ -450,13 +443,7 @@ internal fun SettingsContent(
 
                     SettingsNavigationRow(
                         label = stringResource(R.string.settings_units_title),
-                        detail =
-                            stringResource(
-                                R.string.settings_units_summary,
-                                distanceUnitLabel(state.distanceUnit),
-                                paceUnitLabel(state.paceUnit),
-                                weightUnitLabel(state.weightUnit),
-                            ),
+                        detail = unitsSummaryLabel(state.distanceUnit, state.paceUnit, state.weightUnit),
                         onClick = onUnitsClick,
                         modifier = Modifier.testTag(SETTINGS_UNITS_ROW_TAG),
                     )
@@ -484,10 +471,9 @@ internal fun SettingsContent(
                         appName,
                     )
                 val feedbackBody =
-                    stringResource(
-                        R.string.settings_feedback_email_body,
-                        appVersion,
-                    ).replace(NEW_LINE_TOKEN, NEW_LINE)
+                    feedbackBodyText(
+                        stringResource(R.string.settings_feedback_email_body, appVersion),
+                    )
 
                 Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
                     Text(

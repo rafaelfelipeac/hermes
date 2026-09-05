@@ -20,10 +20,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
-import java.time.Instant
 import java.time.ZoneId
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 @Composable
 internal fun SettingsBackupScreen(
@@ -118,7 +115,7 @@ internal fun SettingsBackupActionRow(
 @Composable
 private fun backupExportLabel(rawTimestamp: String?): String {
     val never = stringResource(R.string.settings_backup_never)
-    val formatted = formatBackupTimestamp(rawTimestamp) ?: never
+    val formatted = formatBackupTimestamp(rawTimestamp, currentLocale(), ZoneId.systemDefault()) ?: never
 
     return stringResource(R.string.settings_backup_last_exported, formatted)
 }
@@ -126,32 +123,10 @@ private fun backupExportLabel(rawTimestamp: String?): String {
 @Composable
 private fun backupImportLabel(rawTimestamp: String?): String {
     val never = stringResource(R.string.settings_backup_never)
-    val formatted = formatBackupTimestamp(rawTimestamp) ?: never
+    val formatted = formatBackupTimestamp(rawTimestamp, currentLocale(), ZoneId.systemDefault()) ?: never
 
     return stringResource(R.string.settings_backup_last_imported, formatted)
 }
 
 @Composable
-private fun backupFolderLabel(rawUri: String?): String {
-    return if (rawUri.isNullOrBlank()) {
-        stringResource(R.string.settings_backup_folder_default)
-    } else {
-        stringResource(R.string.settings_backup_folder_selected)
-    }
-}
-
-@Composable
-private fun formatBackupTimestamp(rawTimestamp: String?): String? {
-    if (rawTimestamp.isNullOrBlank()) return null
-
-    val locale = currentLocale()
-    val zoneId = ZoneId.systemDefault()
-    val formatter =
-        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM, FormatStyle.SHORT)
-            .withLocale(locale)
-            .withZone(zoneId)
-
-    return runCatching {
-        formatter.format(Instant.parse(rawTimestamp))
-    }.getOrDefault(rawTimestamp)
-}
+private fun backupFolderLabel(rawUri: String?): String = stringResource(backupFolderLabelRes(rawUri))
