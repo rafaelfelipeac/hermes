@@ -11,7 +11,6 @@
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,8 +33,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.TrackChanges
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,7 +40,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
@@ -75,7 +71,6 @@ import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -722,35 +717,6 @@ internal fun ChallengeProgressEntryRow(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-internal fun ChallengeCard(
-    challenge: Challenge,
-    category: Category?,
-    calculation: ChallengeCalculationResult?,
-    onClick: () -> Unit,
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(SpacingMd),
-            verticalArrangement = Arrangement.spacedBy(SpacingSm),
-        ) {
-            ChallengeSummaryContent(
-                challenge = challenge,
-                category = category,
-                calculation = calculation,
-                showProgressBar = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
-                modifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
-            )
         }
     }
 }
