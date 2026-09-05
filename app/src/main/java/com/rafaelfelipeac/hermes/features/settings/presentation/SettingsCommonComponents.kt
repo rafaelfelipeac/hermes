@@ -338,9 +338,6 @@ internal fun distanceUnitLabel(distanceUnit: DistanceUnit): String = stringResou
 internal fun paceUnitLabel(paceUnit: PaceUnit): String = stringResource(paceUnitLabelRes(paceUnit))
 
 @Composable
-internal fun weightUnitLabel(weightUnit: WeightUnit): String = stringResource(weightUnitLabelRes(weightUnit))
-
-@Composable
 internal fun unitsSummaryLabel(
     distanceUnit: DistanceUnit,
     paceUnit: PaceUnit,

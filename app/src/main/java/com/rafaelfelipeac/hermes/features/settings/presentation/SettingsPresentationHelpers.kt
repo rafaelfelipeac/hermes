@@ -17,7 +17,10 @@ internal fun feedbackBodyText(localizedBody: String): String = localizedBody.rep
 
 internal fun normalizeFeedbackBody(body: String): String = body.replace(NEW_LINE, EMAIL_NEW_LINE)
 
-internal fun storePackageName(packageName: String, isDebug: Boolean): String =
+internal fun storePackageName(
+    packageName: String,
+    isDebug: Boolean,
+): String =
     if (isDebug && packageName.endsWith(DEBUG_PACKAGE_SUFFIX)) {
         packageName.removeSuffix(DEBUG_PACKAGE_SUFFIX)
     } else {

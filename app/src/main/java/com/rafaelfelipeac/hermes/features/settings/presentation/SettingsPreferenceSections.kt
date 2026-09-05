@@ -52,7 +52,10 @@ internal fun SettingsWorkoutSection(
 }
 
 @Composable
-internal fun SettingsThemeSection(themeMode: ThemeMode, onThemeClick: () -> Unit) {
+internal fun SettingsThemeSection(
+    themeMode: ThemeMode,
+    onThemeClick: () -> Unit,
+) {
     SettingsSection(title = stringResource(R.string.settings_theme_title)) {
         SettingsNavigationRow(
             label = themeLabel(themeMode),
@@ -63,7 +66,10 @@ internal fun SettingsThemeSection(themeMode: ThemeMode, onThemeClick: () -> Unit
 }
 
 @Composable
-internal fun SettingsLanguageSection(language: AppLanguage, onLanguageClick: () -> Unit) {
+internal fun SettingsLanguageSection(
+    language: AppLanguage,
+    onLanguageClick: () -> Unit,
+) {
     SettingsSection(title = stringResource(R.string.settings_language_title)) {
         SettingsNavigationRow(
             label = languageLabel(language),
