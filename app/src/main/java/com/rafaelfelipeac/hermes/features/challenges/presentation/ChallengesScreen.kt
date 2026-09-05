@@ -14,7 +14,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -61,26 +60,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.HermesSnackbar
-import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
-import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
-import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
-import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
-import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
-import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
-import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuantity
@@ -718,87 +708,5 @@ internal fun ChallengeProgressEntryRow(
                 }
             }
         }
-    }
-}
-
-@Composable
-internal fun ChallengeSummaryContent(
-    modifier: Modifier = Modifier,
-    challenge: Challenge,
-    category: Category?,
-    calculation: ChallengeCalculationResult?,
-    showProgressBar: Boolean,
-) {
-    val categoryAccent = category?.let { categoryAccentColor(it.colorId) }
-    val currentLocale = currentLocale()
-
-    Text(
-        text = challenge.title,
-        style = typography.titleMedium,
-        maxLines = 2,
-        overflow = TextOverflow.Ellipsis,
-    )
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(SpacingXs),
-        verticalArrangement = Arrangement.spacedBy(SpacingXs),
-    ) {
-        TitleChip(
-            label = challengeTargetTypeLabel(challenge.targetType),
-            containerColor = colorScheme.surfaceVariant,
-            contentColor = colorScheme.onSurfaceVariant,
-        )
-        category?.let {
-            TitleChip(
-                label = it.name,
-                containerColor = categoryAccent ?: colorScheme.surfaceVariant,
-                contentColor = categoryAccent?.let { accent -> contentColorForBackground(accent) } ?: colorScheme.onSurfaceVariant,
-            )
-        }
-        calculation?.let { calculationResult ->
-            TitleChip(
-                label = challengeStatusLabel(calculationResult.status),
-                containerColor = challengeProgressContainerColor(calculationResult.status),
-                contentColor = challengeProgressColor(calculationResult.status),
-            )
-        }
-    }
-
-    challenge.description?.takeIf { it.isNotBlank() }?.let { description ->
-        Text(
-            text = description,
-            color = colorScheme.onSurfaceVariant,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-
-    Text(
-        text =
-            stringResource(
-                R.string.challenges_date_range,
-                formatWorkoutDate(challenge.startDate, currentLocale),
-                formatWorkoutDate(challenge.endDate, currentLocale),
-            ),
-        style = typography.bodySmall,
-        color = colorScheme.onSurfaceVariant,
-    )
-
-    calculation?.let { calculationResult ->
-        if (showProgressBar) {
-            ChallengeProgressBar(
-                progress = calculationResult.visualProgress,
-                color = challengeProgressColor(calculationResult.status),
-                modifier = modifier,
-            )
-        }
-
-        Text(
-            text =
-                challengeProgressLabel(calculationResult),
-            modifier = Modifier.fillMaxWidth(),
-            style = typography.labelLarge,
-            color = colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.End,
-        )
     }
 }
