@@ -101,9 +101,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
-import com.rafaelfelipeac.hermes.core.time.DurationParts
-import com.rafaelfelipeac.hermes.core.time.durationPartsToSeconds
-import com.rafaelfelipeac.hermes.core.time.secondsToDurationParts
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerField
 import com.rafaelfelipeac.hermes.core.ui.components.CategoryPickerOption
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
@@ -140,7 +137,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordBestSelector
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordHistoryOrderer
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordValueNormalizer
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.defaultComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.defaultUnit
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
@@ -1295,8 +1291,6 @@ private fun TimeWheelColumn(
     }
 }
 
-private fun secondsToTimeParts(totalSeconds: Long) = secondsToDurationParts(totalSeconds)
-
 @Composable
 internal fun PersonalRecordFamilyEditorDialog(
     categories: List<Category>,
@@ -1324,7 +1318,7 @@ internal fun PersonalRecordFamilyEditorDialog(
 
     LaunchedEffect(metricType) {
         if (didInitializeMetricRule) {
-            comparisonRule = metricType.defaultComparisonRule()
+            comparisonRule = comparisonRuleAfterMetricSelection(metricType)
         } else {
             didInitializeMetricRule = true
         }
@@ -1563,105 +1557,45 @@ internal fun PersonalRecordEntryEditorDialog(
                 selectedFamily?.let { PersonalRecordBestSelector.selectBest(it, entries) }
             }
         }
-    val initialTimeParts =
-        remember(initialEntry?.id, selectedFamily?.id, currentEntry?.id) {
-            when {
-                isEdit && initialEntry != null && selectedFamily?.metricType == TIME ->
-                    secondsToTimeParts(
-                        PersonalRecordValueNormalizer.normalize(initialEntry.value, initialEntry.unit).toLong(),
-                    )
-
-                !isEdit && selectedFamily?.metricType == TIME && currentEntry != null ->
-                    secondsToTimeParts(
-                        PersonalRecordValueNormalizer.normalize(currentEntry.value, currentEntry.unit).toLong(),
-                    )
-
-                else -> DurationParts()
-            }
+    val initialDefaults =
+        remember(initialEntry?.id, selectedFamily?.id, currentEntry?.id, isEdit) {
+            personalRecordEntryEditorDefaults(
+                family = selectedFamily,
+                entries = entries,
+                initialEntry = initialEntry,
+                isEdit = isEdit,
+                settingsDistanceUnit = settingsDistanceUnit,
+                settingsWeightUnit = settingsWeightUnit,
+            )
         }
-    var timeHours by rememberSaveable(dialogKey) { mutableIntStateOf(initialTimeParts.hours) }
-    var timeMinutes by rememberSaveable(dialogKey) { mutableIntStateOf(initialTimeParts.minutes) }
-    var timeSeconds by rememberSaveable(dialogKey) { mutableIntStateOf(initialTimeParts.seconds) }
+    var timeHours by rememberSaveable(dialogKey) { mutableIntStateOf(initialDefaults.time.hours) }
+    var timeMinutes by rememberSaveable(dialogKey) { mutableIntStateOf(initialDefaults.time.minutes) }
+    var timeSeconds by rememberSaveable(dialogKey) { mutableIntStateOf(initialDefaults.time.seconds) }
     var hasLoadedInitialState by rememberSaveable(dialogKey) { mutableStateOf(false) }
 
     LaunchedEffect(familyId) {
-        val family = selectedFamily ?: return@LaunchedEffect
-
-        if (isEdit) {
-            if (!hasLoadedInitialState && initialEntry != null) {
-                hasLoadedInitialState = true
-                selectedUnit = initialEntry.unit
-                recordDate = initialEntry.recordDate
-                note = initialEntry.note.orEmpty().capitalizedFirstCharacter()
-                customUnitLabel = initialEntry.customUnitLabel.orEmpty()
-                if (family.metricType == TIME) {
-                    val parts =
-                        secondsToTimeParts(
-                            PersonalRecordValueNormalizer.normalize(initialEntry.value, initialEntry.unit).toLong(),
-                        )
-                    timeHours = parts.hours
-                    timeMinutes = parts.minutes
-                    timeSeconds = parts.seconds
-                    valueText = EMPTY
-                } else {
-                    valueText = formatEditablePersonalRecordValue(initialEntry.value)
-                }
-            }
-            return@LaunchedEffect
-        }
-
+        selectedFamily ?: return@LaunchedEffect
+        if (isEdit && hasLoadedInitialState) return@LaunchedEffect
         hasLoadedInitialState = true
-        recordDate = today
-        note = EMPTY
-        customUnitLabel = currentEntry?.customUnitLabel.orEmpty()
-
-        when (family.metricType) {
-            TIME -> {
-                selectedUnit = SECOND
-                val parts =
-                    currentEntry?.let {
-                        secondsToTimeParts(
-                            PersonalRecordValueNormalizer.normalize(it.value, it.unit).toLong(),
-                        )
-                    } ?: DurationParts()
-                timeHours = parts.hours
-                timeMinutes = parts.minutes
-                timeSeconds = parts.seconds
-                valueText = EMPTY
-            }
-
-            DISTANCE -> {
-                selectedUnit = settingsDistanceUnit.asPersonalRecordUnit()
-                valueText =
-                    currentEntry?.let {
-                        formatEditablePersonalRecordValue(
-                            PersonalRecordValueNormalizer.convert(it.value, it.unit, selectedUnit),
-                        )
-                    }.orEmpty()
-            }
-
-            WEIGHT -> {
-                selectedUnit = settingsWeightUnit.asPersonalRecordUnit()
-                valueText =
-                    currentEntry?.let {
-                        formatEditablePersonalRecordValue(
-                            PersonalRecordValueNormalizer.convert(it.value, it.unit, selectedUnit),
-                        )
-                    }.orEmpty()
-            }
-
-            else -> {
-                selectedUnit = currentEntry?.unit ?: family.defaultUnit
-                valueText = currentEntry?.let { formatEditablePersonalRecordValue(it.value) }.orEmpty()
-            }
-        }
+        selectedUnit = initialDefaults.unit
+        valueText = initialDefaults.valueText
+        timeHours = initialDefaults.time.hours
+        timeMinutes = initialDefaults.time.minutes
+        timeSeconds = initialDefaults.time.seconds
+        customUnitLabel = initialDefaults.customUnitLabel
+        recordDate = if (isEdit) initialEntry?.recordDate ?: today else today
+        note = if (isEdit) initialEntry?.note.orEmpty().capitalizedFirstCharacter() else EMPTY
     }
 
     val canSave =
-        familyId != null &&
-            (if (isTimeMetric) true else parsePersonalRecordValue(valueText) != null) &&
-            (!isDistanceOrWeightMetric || selectedUnit != CUSTOM_UNIT || customUnitLabel.isNotBlank()) &&
-            !recordDate.isAfter(today)
+        canSavePersonalRecordEntry(
+            family = selectedFamily,
+            valueText = valueText,
+            selectedUnit = selectedUnit,
+            customUnitLabel = customUnitLabel,
+            recordDate = recordDate,
+            today = today,
+        )
     AlertDialog(
         modifier =
             Modifier.testTag(
@@ -1801,16 +1735,12 @@ internal fun PersonalRecordEntryEditorDialog(
                                                 val previousUnit = selectedUnit
                                                 selectedUnit = option
                                                 unitMenuExpanded = false
-                                                parsePersonalRecordValue(valueText)?.let { parsed ->
-                                                    valueText =
-                                                        formatEditablePersonalRecordValue(
-                                                            PersonalRecordValueNormalizer.convert(
-                                                                parsed,
-                                                                previousUnit,
-                                                                option,
-                                                            ),
-                                                        )
-                                                }
+                                                valueText =
+                                                    convertPersonalRecordEditorValue(
+                                                        valueText = valueText,
+                                                        fromUnit = previousUnit,
+                                                        toUnit = option,
+                                                    )
                                             },
                                         )
                                     }
@@ -1896,25 +1826,28 @@ internal fun PersonalRecordEntryEditorDialog(
                 TextButton(
                     enabled = canSave,
                     onClick = {
-                        val resolvedFamilyId = familyId ?: return@TextButton
-                        val resolvedValue =
-                            if (isTimeMetric) {
-                                durationPartsToSeconds(
-                                    hours = timeHours.toLong(),
-                                    minutes = timeMinutes.toLong(),
-                                    seconds = timeSeconds.toLong(),
-                                ).toDouble()
-                            } else {
-                                parsePersonalRecordValue(valueText) ?: return@TextButton
-                            }
-                        val resolvedUnit = if (isTimeMetric) SECOND else selectedUnit
+                        val input =
+                            buildPersonalRecordEntryInput(
+                                family = selectedFamily,
+                                valueText = valueText,
+                                selectedUnit = selectedUnit,
+                                time =
+                                    com.rafaelfelipeac.hermes.core.time.DurationParts(
+                                        hours = timeHours,
+                                        minutes = timeMinutes,
+                                        seconds = timeSeconds,
+                                    ),
+                                recordDate = recordDate,
+                                note = note,
+                                customUnitLabel = customUnitLabel,
+                            ) ?: return@TextButton
                         onSave(
-                            resolvedFamilyId,
-                            resolvedValue,
-                            resolvedUnit,
-                            recordDate,
-                            note.trim().ifBlank { null },
-                            customUnitLabel.trim().ifBlank { null },
+                            input.familyId,
+                            input.value,
+                            input.unit,
+                            input.recordDate,
+                            input.note,
+                            input.customUnitLabel,
                         )
                     },
                 ) {
@@ -2118,25 +2051,4 @@ private fun unitLabelFor(
             }
         CUSTOM_UNIT -> customLabel?.ifBlank { null } ?: stringResource(R.string.personal_records_unit_custom)
     }
-}
-
-private fun DistanceUnit.asPersonalRecordUnit(): PersonalRecordUnit {
-    return when (this) {
-        DistanceUnit.KILOMETERS -> KILOMETER
-        DistanceUnit.MILES -> MILE
-    }
-}
-
-private fun WeightUnit.asPersonalRecordUnit(): PersonalRecordUnit {
-    return when (this) {
-        WeightUnit.KILOGRAMS -> KILOGRAM
-        WeightUnit.POUNDS -> POUND
-    }
-}
-
-internal fun parsePersonalRecordValue(valueText: String): Double? {
-    return valueText
-        .trim()
-        .replace(',', '.')
-        .toDoubleOrNull()
 }
