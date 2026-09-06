@@ -129,6 +129,101 @@ class TrophyViewModelTest {
         assertEquals(25, card.target)
     }
 
+    @Test
+    fun buildTrophyPageState_keepsCountsForCategoriesWithoutNames() {
+        val state =
+            buildTrophyPageState(
+                listOf(
+                    progress(
+                        TrophyId.PODIUM_PLACE,
+                        categoryId = 10L,
+                        categoryName = null,
+                        categoryColorId = COLOR_RUN,
+                    ),
+                    progress(
+                        TrophyId.IN_ROTATION,
+                        categoryId = 10L,
+                        categoryName = null,
+                        categoryColorId = COLOR_RUN,
+                    ),
+                    progress(
+                        TrophyId.MAINSTAY,
+                        categoryId = 20L,
+                        categoryName = "Run",
+                        categoryColorId = COLOR_STRENGTH,
+                    ),
+                ),
+            )
+
+        val categoriesFamily = state.families.first { it.family == TrophyFamilyUi.CATEGORIES }
+
+        assertEquals(3, categoriesFamily.totalCount)
+        assertEquals(1, categoriesFamily.sections.size)
+        assertEquals(listOf("Run"), categoriesFamily.sections.mapNotNull { it.title })
+    }
+
+    @Test
+    fun buildTrophyPageState_sortsSectionsAndCardsByDefinitionOrder() {
+        val earlyCard =
+            progress(
+                TrophyId.MATCH_FITNESS,
+                currentValue = 4,
+            )
+        val lateCard =
+            progress(
+                TrophyId.FULL_TIME,
+                currentValue = 4,
+            )
+        assertTrue(earlyCard.sortOrder != lateCard.sortOrder)
+
+        val state =
+            buildTrophyPageState(
+                listOf(
+                    progress(
+                        TrophyId.IN_ROTATION,
+                        categoryId = 20L,
+                        categoryName = "Zed",
+                        categoryColorId = COLOR_STRENGTH,
+                    ),
+                    progress(
+                        TrophyId.PODIUM_PLACE,
+                        categoryId = 10L,
+                        categoryName = "Alpha",
+                        categoryColorId = COLOR_RUN,
+                    ),
+                    lateCard,
+                    earlyCard,
+                ),
+            )
+
+        val categoriesFamily = state.families.first { it.family == TrophyFamilyUi.CATEGORIES }
+        val sectionsByTitle = categoriesFamily.sections.associateBy { it.title }
+
+        assertEquals(listOf("Alpha", "Zed"), categoriesFamily.sections.mapNotNull { it.title })
+        assertEquals("10", sectionsByTitle["Alpha"]?.stableId)
+        assertEquals("20", sectionsByTitle["Zed"]?.stableId)
+        assertEquals(
+            listOf(TrophyId.PODIUM_PLACE),
+            sectionsByTitle["Alpha"]?.trophies?.map { it.trophyId },
+        )
+        assertEquals(
+            listOf(TrophyId.IN_ROTATION),
+            sectionsByTitle["Zed"]?.trophies?.map { it.trophyId },
+        )
+        val followThroughTrophies =
+            state.families
+                .first { it.family == TrophyFamilyUi.FOLLOW_THROUGH }
+                .sections
+                .first()
+                .trophies
+                .map { it.trophyId }
+
+        assertEquals(
+            listOf(lateCard.definition.id, earlyCard.definition.id),
+            followThroughTrophies,
+        )
+    }
+
     private fun progress(
         trophyId: TrophyId,
         currentValue: Int = 0,

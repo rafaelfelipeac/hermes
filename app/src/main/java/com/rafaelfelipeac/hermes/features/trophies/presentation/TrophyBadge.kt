@@ -179,7 +179,7 @@ private fun LockedOverlayBadge(modifier: Modifier = Modifier) {
     }
 }
 
-private data class TrophyBadgeTierStyle(
+internal data class TrophyBadgeTierStyle(
     val badgeScale: Float,
     val middleRingScale: Float,
     val innerRingScale: Float,
@@ -191,7 +191,7 @@ private data class TrophyBadgeTierStyle(
     val iconScale: Float,
 )
 
-private fun Int.toBadgeTierStyle(): TrophyBadgeTierStyle {
+internal fun Int.toBadgeTierStyle(): TrophyBadgeTierStyle {
     return when {
         this >= 3 ->
             TrophyBadgeTierStyle(

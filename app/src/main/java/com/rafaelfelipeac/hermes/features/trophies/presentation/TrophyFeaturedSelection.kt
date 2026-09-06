@@ -33,6 +33,6 @@ internal fun selectFeaturedTrophy(cards: List<TrophyCardUi>): FeaturedTrophyUi? 
 }
 
 private fun TrophyFamilyUi.sortIndex(): Int {
-    val index = TrophyViewModel.familyOrder.indexOf(this)
-    return if (index >= 0) index else TrophyViewModel.familyOrder.size
+    val index = trophyFamilyOrder.indexOf(this)
+    return if (index >= 0) index else trophyFamilyOrder.size
 }

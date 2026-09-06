@@ -1,13 +1,17 @@
 package com.rafaelfelipeac.hermes.features.activity.presentation.formatter
 
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.AppConstants.NEW_LINE
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.time.Instant
+import java.time.ZoneId
 import java.util.Locale
 
 class ActivityUiFormatterTest {
@@ -35,6 +39,7 @@ class ActivityUiFormatterTest {
     private val firstArgStrings =
         mapOf<Int, (String) -> String>(
             R.string.activity_action_create_race_event to { "You created the event $it." },
+            R.string.activity_action_create_workout to { "You created the workout $it." },
             R.string.activity_value_quoted to { "\"$it\"" },
             R.string.activity_action_change_distance_unit to { "You changed the distance unit." },
             R.string.activity_action_use_pace_calculator to { "You used the pace calculator." },
@@ -50,16 +55,29 @@ class ActivityUiFormatterTest {
             R.string.activity_action_delete_challenge_progress_entry_named to { "You deleted progress for $it." },
             R.string.activity_action_restore_challenge_progress_entry_named to { "You restored progress for $it." },
             R.string.activity_action_complete_challenge_named to { "You completed the challenge $it." },
+            R.string.activity_action_share_trophy to { "You started sharing the trophy $it." },
             R.string.activity_subtitle_challenge_recovered to { "Recovered." },
             R.string.challenge_target_type_daily to { "Daily" },
             R.string.challenge_target_type_total to { "Total" },
             R.string.activity_value_unknown to { "Unknown" },
             R.string.activity_subtitle_separator to { "\n" },
+            R.string.activity_time_pattern to { "HH:mm" },
             R.string.activity_week_date_pattern to { "MMM d, uuuu" },
+            R.string.activity_subtitle_week to { "Week of $it." },
             R.string.settings_unit_kilometers to { "km" },
             R.string.settings_unit_miles to { "mi" },
             R.string.personal_records_metric_distance to { "Distance" },
             R.string.activity_workout_fallback to { "untitled" },
+            R.string.day_monday to { "Monday" },
+            R.string.day_tuesday to { "Tuesday" },
+            R.string.day_wednesday to { "Wednesday" },
+            R.string.day_thursday to { "Thursday" },
+            R.string.day_friday to { "Friday" },
+            R.string.day_saturday to { "Saturday" },
+            R.string.day_sunday to { "Sunday" },
+            R.string.weekly_training_slot_morning to { "Morning" },
+            R.string.weekly_training_slot_afternoon to { "Afternoon" },
+            R.string.weekly_training_slot_night to { "Evening" },
         )
 
     private val argsStrings =
@@ -79,6 +97,7 @@ class ActivityUiFormatterTest {
             R.string.activity_subtitle_challenge_category to { "Category ${it[0]}." },
             R.string.activity_subtitle_challenge_dates to { "${it[0]} to ${it[1]}." },
             R.string.activity_subtitle_change_value to { "From ${it[0]} to ${it[1]}." },
+            R.string.activity_subtitle_move to { "From ${it[0]} to ${it[1]}." },
         )
 
     @Test
@@ -141,6 +160,79 @@ class ActivityUiFormatterTest {
     }
 
     @Test
+    fun buildTitle_usesEntitySpecificFallbackBeforeGlobalFallback() {
+        val record =
+            UserActionRecord(
+                id = 1L,
+                actionType = UserActionType.CREATE_WORKOUT.name,
+                entityType = UserActionEntityType.CATEGORY.name,
+                entityId = 42L,
+                metadata = null,
+                timestamp = 0L,
+            )
+
+        assertEquals(
+            R.string.activity_action_fallback.toString(),
+            formatter.buildTitle(record, emptyMap()),
+        )
+    }
+
+    @Test
+    fun buildTitle_usesGlobalFallbackForUnknownActionAndEntity() {
+        val record =
+            UserActionRecord(
+                id = 1L,
+                actionType = "NOT_A_REAL_ACTION",
+                entityType = "NOT_A_REAL_ENTITY",
+                entityId = 42L,
+                metadata = null,
+                timestamp = 0L,
+            )
+
+        assertEquals(
+            R.string.activity_action_fallback.toString(),
+            formatter.buildTitle(record, emptyMap()),
+        )
+    }
+
+    @Test
+    fun shareTrophyTitle_quotesTheTrophyNameAndFallsBackToUnknown() {
+        val record =
+            UserActionRecord(
+                id = 1L,
+                actionType = UserActionType.SHARE_TROPHY.name,
+                entityType = UserActionEntityType.TROPHY.name,
+                entityId = 42L,
+                metadata = null,
+                timestamp = 0L,
+            )
+
+        assertEquals(
+            "You started sharing the trophy \"Full Time\".",
+            formatter.buildTitle(
+                record,
+                mapOf(UserActionMetadataKeys.TROPHY_NAME to "Full Time"),
+            ),
+        )
+        assertEquals(
+            "You started sharing the trophy \"Unknown\".",
+            formatter.buildTitle(record, emptyMap()),
+        )
+    }
+
+    @Test
+    fun formatTime_usesRequestedLocaleAndTimeZone() {
+        assertEquals(
+            "09:30",
+            formatter.formatTime(
+                timestamp = Instant.parse("2026-09-05T12:30:00Z").toEpochMilli(),
+                zoneId = ZoneId.of("America/Sao_Paulo"),
+                locale = Locale.forLanguageTag("pt-BR"),
+            ),
+        )
+    }
+
+    @Test
     fun personalRecordDistanceResult_hasSingleUnitAndSpacedSeparator() {
         val record = personalRecordEntryRecord()
         val metadata =
@@ -192,6 +284,32 @@ class ActivityUiFormatterTest {
         assertEquals(
             "39:20\nAug 24, 2026",
             formatter.buildSubtitle(record, metadata, Locale.US),
+        )
+    }
+
+    @Test
+    fun personalRecordUpdateSubtitle_keepsRawValueAndDateFallbacks() {
+        val record =
+            UserActionRecord(
+                id = 1L,
+                actionType = UserActionType.UPDATE_PERSONAL_RECORD_ENTRY.name,
+                entityType = UserActionEntityType.PERSONAL_RECORD.name,
+                entityId = 42L,
+                metadata = null,
+                timestamp = 0L,
+            )
+
+        assertEquals(
+            "tempo rápido${NEW_LINE}2026-13-40",
+            formatter.buildSubtitle(
+                record,
+                mapOf(
+                    UserActionMetadataKeys.PERSONAL_RECORD_UNIT to "SECOND",
+                    UserActionMetadataKeys.PERSONAL_RECORD_NEW_VALUE to "tempo rápido",
+                    UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE to "2026-13-40",
+                ),
+                Locale.US,
+            ),
         )
     }
 
@@ -338,6 +456,57 @@ class ActivityUiFormatterTest {
                 mapOf(
                     UserActionMetadataKeys.CHALLENGE_PROGRESS_QUANTITY to "3",
                     UserActionMetadataKeys.CHALLENGE_PROGRESS_DATE to "2026-08-31",
+                ),
+                Locale.US,
+            ),
+        )
+    }
+
+    @Test
+    fun moveWorkoutSubtitle_usesSplitLinesAndNormalizesHistoricDayTokens() {
+        val record =
+            UserActionRecord(
+                id = 1L,
+                actionType = UserActionType.MOVE_WORKOUT_BETWEEN_DAYS.name,
+                entityType = UserActionEntityType.WORKOUT.name,
+                entityId = 42L,
+                metadata = null,
+                timestamp = 0L,
+            )
+        val metadata =
+            mapOf(
+                UserActionMetadataKeys.WEEK_START_DATE to "2026-09-01",
+                UserActionMetadataKeys.OLD_DAY_OF_WEEK to "mon-day",
+                UserActionMetadataKeys.NEW_DAY_OF_WEEK to "3",
+                UserActionMetadataKeys.OLD_TIME_SLOT to "MORNING",
+                UserActionMetadataKeys.NEW_TIME_SLOT to UserActionMetadataValues.UNPLANNED,
+            )
+
+        assertEquals(
+            "Week of Sep 1, 2026.${NEW_LINE}From \"Monday | Morning\" to \"Wednesday\".",
+            formatter.buildSubtitle(record, metadata, Locale.US),
+        )
+    }
+
+    @Test
+    fun reorderWorkoutSubtitle_omitsSameDayTransition() {
+        val record =
+            UserActionRecord(
+                id = 1L,
+                actionType = UserActionType.REORDER_WORKOUT.name,
+                entityType = UserActionEntityType.WORKOUT.name,
+                entityId = 42L,
+                metadata = null,
+                timestamp = 0L,
+            )
+
+        assertEquals(
+            null,
+            formatter.buildSubtitle(
+                record,
+                mapOf(
+                    UserActionMetadataKeys.OLD_DAY_OF_WEEK to "2",
+                    UserActionMetadataKeys.NEW_DAY_OF_WEEK to "Tue",
                 ),
                 Locale.US,
             ),

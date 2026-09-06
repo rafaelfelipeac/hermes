@@ -15,6 +15,9 @@ import java.time.LocalDate
 private const val PREVIEW_WORKOUT_TYPE_RUN = "Run"
 private const val PREVIEW_WORKOUT_TYPE_SWIM = "Swim"
 private const val PREVIEW_WORKOUT_TYPE_BIKE = "Bike"
+private const val PREVIEW_WORKOUT_NAME_RUN = PREVIEW_WORKOUT_TYPE_RUN
+private const val PREVIEW_WORKOUT_NAME_SWIM = PREVIEW_WORKOUT_TYPE_SWIM
+private const val PREVIEW_WORKOUT_NAME_BIKE = PREVIEW_WORKOUT_TYPE_BIKE
 private const val PREVIEW_WORKOUT_DESCRIPTION_RUN = "Easy 5k"
 private const val PREVIEW_WORKOUT_DESCRIPTION_SWIM = "Intervals 10x100"
 private const val PREVIEW_WORKOUT_DESCRIPTION_BIKE = "Tempo 45 min"
@@ -48,7 +51,7 @@ class WeeklyTrainingContentPreviewProvider :
                             isRestDay = false,
                             categoryId = RUN_ID,
                             categoryColorId = COLOR_RUN,
-                            categoryName = "Run",
+                            categoryName = PREVIEW_WORKOUT_NAME_RUN,
                             order = PREVIEW_ORDER,
                         ),
                         WorkoutUi(
@@ -60,7 +63,7 @@ class WeeklyTrainingContentPreviewProvider :
                             isRestDay = false,
                             categoryId = SWIM_ID,
                             categoryColorId = COLOR_SWIM,
-                            categoryName = "Swim",
+                            categoryName = PREVIEW_WORKOUT_NAME_SWIM,
                             order = PREVIEW_ORDER,
                         ),
                         WorkoutUi(
@@ -72,7 +75,7 @@ class WeeklyTrainingContentPreviewProvider :
                             isRestDay = false,
                             categoryId = CYCLING_ID,
                             categoryColorId = COLOR_CYCLING,
-                            categoryName = "Cycling",
+                            categoryName = PREVIEW_WORKOUT_NAME_BIKE,
                             order = PREVIEW_ORDER,
                         ),
                     ),
