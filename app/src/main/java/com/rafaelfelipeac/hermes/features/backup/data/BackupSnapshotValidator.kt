@@ -1,3 +1,5 @@
+@file:Suppress("NestedBlockDepth", "MaxLineLength", "MaximumLineLength", "ArgumentListWrapping", "Wrapping")
+
 package com.rafaelfelipeac.hermes.features.backup.data
 
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot

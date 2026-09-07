@@ -1,15 +1,10 @@
 package com.rafaelfelipeac.hermes.features.backup.data
 
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
-import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupCategoryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeProgressEntryRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeRecord
-import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordEntryRecord
-import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordFamilyRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
-import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
-import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryDao
 import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao

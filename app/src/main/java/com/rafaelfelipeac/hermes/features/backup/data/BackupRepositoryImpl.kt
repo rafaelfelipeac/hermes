@@ -1,4 +1,4 @@
-@file:Suppress("LongParameterList", "NestedBlockDepth")
+@file:Suppress("LongParameterList", "NestedBlockDepth", "TooGenericExceptionCaught")
 
 package com.rafaelfelipeac.hermes.features.backup.data
 
@@ -27,7 +27,6 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
