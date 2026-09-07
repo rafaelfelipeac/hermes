@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.challenges.presentation
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
@@ -19,7 +20,6 @@ import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
-import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
@@ -631,13 +631,22 @@ class ChallengesScreenTest {
             .onNodeWithText(context.getString(R.string.challenges_field_progress_quantity))
             .performTextInput("42")
 
+        val restoredDate =
+            composeRule
+                .onNodeWithText(context.getString(R.string.challenges_field_progress_date), substring = true)
+                .currentText()
+        assertTrue(restoredDate.isNotBlank())
+
         restorationTester.emulateSavedInstanceStateRestore()
 
         composeRule.onNodeWithText(context.getString(R.string.challenges_add_progress)).assertIsDisplayed()
         composeRule.onNodeWithText("42").assertIsDisplayed()
-        composeRule
-            .onNodeWithText(formatWorkoutDate(LocalDate.of(2026, 8, 28), testLocale))
-            .assertIsDisplayed()
+        assertEquals(
+            restoredDate,
+            composeRule
+                .onNodeWithText(context.getString(R.string.challenges_field_progress_date), substring = true)
+                .currentText(),
+        )
     }
 
     private fun createViewModel(
@@ -697,6 +706,10 @@ class ChallengesScreenTest {
             isHidden = false,
             isSystem = false,
         )
+    }
+
+    private fun androidx.compose.ui.test.SemanticsNodeInteraction.currentText(): String {
+        return fetchSemanticsNode().config[SemanticsProperties.EditableText].text
     }
 
     private fun sampleProgressEntry(

@@ -187,6 +187,7 @@ class BackupJsonCodecTest {
         val restored = (decoded as BackupDecodeResult.Success).snapshot
         assertEquals(snapshot.schemaVersion, restored.schemaVersion)
         assertEquals(snapshot.exportedAt, restored.exportedAt)
+        assertEquals(snapshot.appVersion, restored.appVersion)
         assertEquals("WORKOUT", restored.workouts.first().eventType)
         assertEquals("RACE_EVENT", restored.workouts.last().eventType)
         assertEquals(snapshot.categories.single().name, restored.categories.single().name)
