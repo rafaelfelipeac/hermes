@@ -30,25 +30,16 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_REST_DAY_TO_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_WORKOUT_TO_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_RACE_EVENT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_RACE_EVENT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_RACE_EVENT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_INCOMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
-import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
@@ -1010,60 +1001,6 @@ class WeeklyTrainingViewModel
         }
     }
 
-private fun copyWorkoutToNextWeek(workout: Workout): Workout {
-    val nextWeekStart =
-        if (workout.dayOfWeek == null) {
-            workout.weekStartDate.plusWeeks(1)
-        } else {
-            val workoutDate = workout.weekStartDate.plusDays((workout.dayOfWeek.value - 1).toLong())
-            canonicalStorageWeekStart(workoutDate.plusWeeks(1))
-        }
-
-    return workout.copy(
-        id = 0L,
-        weekStartDate = nextWeekStart,
-        isCompleted = false,
-    )
-}
-
-private fun mapWorkoutsToUi(
-    workouts: List<Workout>,
-    categories: List<CategoryUi>,
-): List<WorkoutUi> {
-    val categoriesById = categories.associateBy { it.id }
-    val fallbackCategory = categoriesById[UNCATEGORIZED_ID]
-
-    return workouts.map { workout ->
-        val category =
-            if (workout.eventType != EventType.WORKOUT && workout.eventType != EventType.RACE_EVENT) {
-                null
-            } else {
-                workout.categoryId?.let(categoriesById::get) ?: fallbackCategory
-            }
-        workout.toUi(category)
-    }
-}
-
-private fun EventType.supportsCompletion(): Boolean {
-    return this == EventType.WORKOUT || this == EventType.RACE_EVENT
-}
-
-private fun EventType.toCompletionActionType(isCompleted: Boolean) =
-    when (this) {
-        EventType.RACE_EVENT ->
-            if (isCompleted) {
-                COMPLETE_RACE_EVENT
-            } else {
-                INCOMPLETE_RACE_EVENT
-            }
-        else ->
-            if (isCompleted) {
-                COMPLETE_WORKOUT
-            } else {
-                INCOMPLETE_WORKOUT
-            }
-    }
-
 private suspend fun undoCompletion(
     action: PendingUndoAction.Completion,
     repository: WeeklyTrainingRepository,
@@ -1099,33 +1036,6 @@ private suspend fun undoCompletion(
     )
 }
 
-private fun normalizeCategoryId(
-    eventType: EventType,
-    categoryId: Long?,
-): Long? {
-    return if (eventType != EventType.WORKOUT && eventType != EventType.RACE_EVENT) {
-        null
-    } else {
-        categoryId ?: UNCATEGORIZED_ID
-    }
-}
-
-private fun EventType.toUndoCompletionActionType(newCompleted: Boolean) =
-    when (this) {
-        EventType.RACE_EVENT ->
-            if (newCompleted) {
-                UNDO_COMPLETE_RACE_EVENT
-            } else {
-                UNDO_INCOMPLETE_RACE_EVENT
-            }
-        else ->
-            if (newCompleted) {
-                UNDO_COMPLETE_WORKOUT
-            } else {
-                UNDO_INCOMPLETE_WORKOUT
-            }
-    }
-
 private suspend fun normalizeRaceEventSourceBucket(
     repository: WeeklyTrainingRepository,
     movedEventId: Long,
@@ -1150,35 +1060,6 @@ private suspend fun normalizeRaceEventSourceBucket(
                 )
             }
         }
-}
-
-private fun resolveCategoryId(
-    eventType: EventType,
-    categoryId: Long?,
-    categories: List<CategoryUi>,
-): Long? {
-    val normalized = normalizeCategoryId(eventType, categoryId) ?: return null
-    return if (categories.any { it.id == normalized }) normalized else UNCATEGORIZED_ID
-}
-
-private fun resolveCategoryNames(
-    eventType: EventType,
-    normalizedCategoryId: Long?,
-    categories: List<CategoryUi>,
-    original: WorkoutUi?,
-): Pair<String?, String?> {
-    val oldCategoryName =
-        original?.takeIf {
-            it.eventType == EventType.WORKOUT || it.eventType == EventType.RACE_EVENT
-        }?.categoryName
-    val newCategoryName =
-        if ((eventType != EventType.WORKOUT && eventType != EventType.RACE_EVENT) || normalizedCategoryId == null) {
-            null
-        } else {
-            categories.firstOrNull { it.id == normalizedCategoryId }?.name
-        }
-
-    return oldCategoryName to newCategoryName
 }
 
 private fun buildWorkoutUpdateMetadata(input: WorkoutUpdateMetadataInput): Map<String, String> {
@@ -1222,30 +1103,6 @@ private suspend fun logWorkoutDetailsUpdate(
     )
 }
 
-private fun buildDeleteBucketPositions(
-    workoutId: Long,
-    original: WorkoutUi?,
-    currentWorkouts: List<WorkoutUi>,
-): List<WorkoutPosition> {
-    return original?.let { workout ->
-        currentWorkouts
-            .asSequence()
-            .filter { it.dayOfWeek == workout.dayOfWeek }
-            .filter { it.timeSlot == workout.timeSlot }
-            .sortedBy { it.order }
-            .filter { it.id != workoutId }
-            .map {
-                WorkoutPosition(
-                    id = it.id,
-                    weekStartDate = it.weekStartDate,
-                    dayOfWeek = it.dayOfWeek,
-                    timeSlot = it.timeSlot,
-                    order = it.order,
-                )
-            }.toList()
-    }.orEmpty()
-}
-
 private suspend fun logWorkoutDeletion(
     userActionLogger: UserActionLogger,
     workoutId: Long,
@@ -1273,8 +1130,4 @@ private suspend fun logWorkoutDeletion(
                 )
             },
     )
-}
-
-private fun nextUnplannedOrder(state: WeeklyTrainingState): Int {
-    return state.workouts.count { it.dayOfWeek == null }
 }
