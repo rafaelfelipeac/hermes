@@ -200,7 +200,6 @@ internal fun buildCompletedTrophyActions(
             ]
         actions +=
             categoryAction(
-                stringProvider = stringProvider,
                 type = actionType,
                 categoryId = categoryId,
                 categoryName = categoryNameForId(stringProvider, categoryId),
@@ -574,21 +573,18 @@ private fun buildHistoricTrophyActions(
             timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 20),
         ),
         categoryAction(
-            stringProvider = stringProvider,
             type = UserActionType.UPDATE_CATEGORY_COLOR,
             categoryId = RUN_ID,
             categoryName = categoryNameForId(stringProvider, RUN_ID),
             timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 21),
         ),
         categoryAction(
-            stringProvider = stringProvider,
             type = UserActionType.UPDATE_CATEGORY_VISIBILITY,
             categoryId = STRENGTH_ID,
             categoryName = categoryNameForId(stringProvider, STRENGTH_ID),
             timestamp = weekTimestamp(weekD, zoneId, dayOffset = 6, hour = 21, minute = 10),
         ),
         categoryAction(
-            stringProvider = stringProvider,
             type = UserActionType.REORDER_CATEGORY,
             categoryId = MOBILITY_ID,
             categoryName = categoryNameForId(stringProvider, MOBILITY_ID),
@@ -689,49 +685,42 @@ private fun buildCurrentWeekActions(
                 timestamp = now - dayMillis * 2 + 5_000,
             ),
             categoryAction(
-                stringProvider = stringProvider,
                 type = UserActionType.UPDATE_CATEGORY_COLOR,
                 categoryId = RUN_ID,
                 categoryName = categoryNameForId(stringProvider, RUN_ID),
                 timestamp = now - dayMillis * 2 + 6_000,
             ),
             categoryAction(
-                stringProvider = stringProvider,
                 type = UserActionType.UPDATE_CATEGORY_VISIBILITY,
                 categoryId = CYCLING_ID,
                 categoryName = categoryNameForId(stringProvider, CYCLING_ID),
                 timestamp = now - dayMillis * 2 + 7_000,
             ),
             categoryAction(
-                stringProvider = stringProvider,
                 type = UserActionType.REORDER_CATEGORY,
                 categoryId = STRENGTH_ID,
                 categoryName = categoryNameForId(stringProvider, STRENGTH_ID),
                 timestamp = now - dayMillis * 2 + 8_000,
             ),
             categoryAction(
-                stringProvider = stringProvider,
                 type = UserActionType.UPDATE_CATEGORY_COLOR,
                 categoryId = SWIM_ID,
                 categoryName = categoryNameForId(stringProvider, SWIM_ID),
                 timestamp = now - dayMillis * 2 + 9_000,
             ),
             categoryAction(
-                stringProvider = stringProvider,
                 type = UserActionType.UPDATE_CATEGORY_VISIBILITY,
                 categoryId = MOBILITY_ID,
                 categoryName = categoryNameForId(stringProvider, MOBILITY_ID),
                 timestamp = now - dayMillis * 2 + 10_000,
             ),
             categoryAction(
-                stringProvider = stringProvider,
                 type = UserActionType.REORDER_CATEGORY,
                 categoryId = OTHER_ID,
                 categoryName = categoryNameForId(stringProvider, OTHER_ID),
                 timestamp = now - dayMillis * 2 + 11_000,
             ),
             categoryAction(
-                stringProvider = stringProvider,
                 type = UserActionType.UPDATE_CATEGORY_COLOR,
                 categoryId = RUN_ID,
                 categoryName = categoryNameForId(stringProvider, RUN_ID),
@@ -907,7 +896,6 @@ private fun copyLastWeekAction(
 }
 
 private fun categoryAction(
-    stringProvider: StringProvider,
     type: UserActionType,
     categoryId: Long,
     categoryName: String,

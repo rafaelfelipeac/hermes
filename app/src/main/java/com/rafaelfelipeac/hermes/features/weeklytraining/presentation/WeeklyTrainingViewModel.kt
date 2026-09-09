@@ -75,6 +75,7 @@ import kotlinx.coroutines.sync.withLock
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -958,7 +959,7 @@ class WeeklyTrainingViewModel
             undoTimeoutJob?.cancel()
             undoTimeoutJob =
                 viewModelScope.launch {
-                    delay(UNDO_TIMEOUT_MS)
+                    delay(UNDO_TIMEOUT_MS.milliseconds)
 
                     if (undoState.value?.id == undoId) {
                         undoState.value = null

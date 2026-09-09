@@ -4,6 +4,8 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType
 import com.rafaelfelipeac.hermes.features.personalrecords.presentation.formatPersonalRecordValue
 import java.text.NumberFormat
 import java.util.Locale
@@ -148,22 +150,26 @@ internal class ActivityUiFormatterPersonalRecord(
     }
 
     private fun personalRecordMetricLabel(raw: String?): String? {
-        return when (raw?.uppercase(Locale.ENGLISH)) {
-            "DISTANCE" -> stringProvider.get(R.string.personal_records_metric_distance)
-            "TIME" -> stringProvider.get(R.string.personal_records_metric_time)
-            "WEIGHT" -> stringProvider.get(R.string.personal_records_metric_weight)
-            "POWER" -> stringProvider.get(R.string.personal_records_metric_power)
-            "REPS" -> stringProvider.get(R.string.personal_records_metric_reps)
-            "CUSTOM" -> stringProvider.get(R.string.personal_records_metric_custom)
+        return when (parseEnum<PersonalRecordMetricType>(raw)) {
+            PersonalRecordMetricType.DISTANCE -> stringProvider.get(R.string.personal_records_metric_distance)
+            PersonalRecordMetricType.TIME -> stringProvider.get(R.string.personal_records_metric_time)
+            PersonalRecordMetricType.WEIGHT -> stringProvider.get(R.string.personal_records_metric_weight)
+            PersonalRecordMetricType.POWER -> stringProvider.get(R.string.personal_records_metric_power)
+            PersonalRecordMetricType.REPS -> stringProvider.get(R.string.personal_records_metric_reps)
+            PersonalRecordMetricType.CUSTOM -> stringProvider.get(R.string.personal_records_metric_custom)
             else -> raw
         }
     }
 
     private fun personalRecordComparisonRuleLabel(raw: String?): String? {
-        return when (raw?.uppercase(Locale.ENGLISH)) {
-            "HIGHER_IS_BETTER" -> stringProvider.get(R.string.personal_records_comparison_higher)
-            "LOWER_IS_BETTER" -> stringProvider.get(R.string.personal_records_comparison_lower)
-            "MANUAL" -> stringProvider.get(R.string.personal_records_comparison_manual)
+        return when (parseEnum<PersonalRecordComparisonRule>(raw)) {
+            PersonalRecordComparisonRule.HIGHER_IS_BETTER ->
+                stringProvider.get(R.string.personal_records_comparison_higher)
+
+            PersonalRecordComparisonRule.LOWER_IS_BETTER ->
+                stringProvider.get(R.string.personal_records_comparison_lower)
+
+            PersonalRecordComparisonRule.MANUAL -> stringProvider.get(R.string.personal_records_comparison_manual)
             else -> raw
         }
     }
@@ -193,18 +199,20 @@ internal class ActivityUiFormatterPersonalRecord(
         raw: String?,
         value: Double? = null,
     ): String? {
-        return when (raw?.uppercase(Locale.ENGLISH)) {
-            "KILOMETER" -> stringProvider.get(R.string.settings_unit_kilometers)
-            "MILE" -> stringProvider.get(R.string.settings_unit_miles)
-            "METER" -> stringProvider.get(R.string.personal_records_unit_meter_symbol)
-            "SECOND" -> null
-            "MINUTE" -> null
-            "HOUR" -> null
-            "KILOGRAM" -> stringProvider.get(R.string.settings_unit_kilograms)
-            "POUND" -> stringProvider.get(R.string.settings_unit_pounds)
-            "WATT" -> stringProvider.get(R.string.personal_records_unit_watt_symbol)
-            "REP" ->
-                if (value == 1.0) {
+        return when (parseEnum<PersonalRecordUnit>(raw)) {
+            PersonalRecordUnit.KILOMETER -> stringProvider.get(R.string.settings_unit_kilometers)
+            PersonalRecordUnit.MILE -> stringProvider.get(R.string.settings_unit_miles)
+            PersonalRecordUnit.METER -> stringProvider.get(R.string.personal_records_unit_meter_symbol)
+            PersonalRecordUnit.SECOND,
+            PersonalRecordUnit.MINUTE,
+            PersonalRecordUnit.HOUR,
+            -> null
+
+            PersonalRecordUnit.KILOGRAM -> stringProvider.get(R.string.settings_unit_kilograms)
+            PersonalRecordUnit.POUND -> stringProvider.get(R.string.settings_unit_pounds)
+            PersonalRecordUnit.WATT -> stringProvider.get(R.string.personal_records_unit_watt_symbol)
+            PersonalRecordUnit.REP ->
+                if (value == SINGULAR_UNIT_VALUE) {
                     stringProvider.get(R.string.personal_records_unit_rep_singular)
                 } else {
                     stringProvider.get(R.string.personal_records_unit_rep_plural)
@@ -215,10 +223,16 @@ internal class ActivityUiFormatterPersonalRecord(
     }
 
     private fun personalRecordUnit(raw: String?): PersonalRecordUnit {
+        return parseEnum<PersonalRecordUnit>(raw) ?: PersonalRecordUnit.CUSTOM
+    }
+
+    private inline fun <reified T : Enum<T>> parseEnum(raw: String?): T? {
         return runCatching {
-            PersonalRecordUnit.valueOf(
-                raw?.uppercase(Locale.ENGLISH).orEmpty(),
-            )
-        }.getOrDefault(PersonalRecordUnit.CUSTOM)
+            enumValueOf<T>(raw?.uppercase(Locale.ENGLISH).orEmpty())
+        }.getOrNull()
+    }
+
+    private companion object {
+        const val SINGULAR_UNIT_VALUE = 1.0
     }
 }

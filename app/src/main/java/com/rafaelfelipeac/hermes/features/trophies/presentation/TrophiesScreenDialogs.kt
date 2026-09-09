@@ -41,6 +41,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyProgressHeight
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 
+private const val TROPHY_DETAIL_ACCENT_ALPHA = 0.32f
+
 @Composable
 internal fun TrophyDetailDialog(
     trophy: TrophyCardUi,
@@ -176,7 +178,7 @@ private fun TrophyProgressIndicator(
                         Modifier
                             .width(maxWidth * progress)
                             .fillMaxSize()
-                            .background(trophyAccentColor(trophy).copy(alpha = 0.32f)),
+                            .background(trophyAccentColor(trophy).copy(alpha = TROPHY_DETAIL_ACCENT_ALPHA)),
                 )
                 Box(
                     modifier = Modifier.fillMaxSize(),

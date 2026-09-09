@@ -29,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +50,10 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfCardMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyStateLineBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+
+private const val UNLOCKED_TROPHY_BORDER_ALPHA = 0.42f
+private const val UNLOCKED_TROPHY_CARD_ALPHA = 0.16f
+private const val TROPHY_TITLE_MAX_LINES = 2
 
 @Composable
 internal fun TrophyOverviewContent(
@@ -140,7 +145,7 @@ private fun TrophyOverviewSection(
                 )
                 Text(
                     text =
-                        androidx.compose.ui.res.stringResource(
+                        stringResource(
                             R.string.trophies_unlocked_count,
                             familySection.unlockedCount,
                             familySection.totalCount,
@@ -158,7 +163,7 @@ private fun TrophyOverviewSection(
                             TROPHIES_VIEW_ALL_TAG_PREFIX + familySection.family.name.lowercase(java.util.Locale.ROOT),
                         ),
             ) {
-                Text(text = androidx.compose.ui.res.stringResource(R.string.trophies_view_all))
+                Text(text = stringResource(R.string.trophies_view_all))
             }
         }
 
@@ -230,13 +235,13 @@ private fun TrophyShelfCard(
     val accent = trophyAccentColor(trophy)
     val borderColor =
         if (trophy.isUnlocked) {
-            accent.copy(alpha = 0.42f)
+            accent.copy(alpha = UNLOCKED_TROPHY_BORDER_ALPHA)
         } else {
             colorScheme.outlineVariant
         }
     val cardColor =
         if (trophy.isUnlocked) {
-            accent.copy(alpha = 0.16f)
+            accent.copy(alpha = UNLOCKED_TROPHY_CARD_ALPHA)
         } else {
             colorScheme.surfaceContainerLow
         }
@@ -303,7 +308,7 @@ private fun TrophyShelfCard(
                         text = trophyName(trophy),
                         style = typography.titleSmall,
                         color = colorScheme.onSurface,
-                        maxLines = 2,
+                        maxLines = TROPHY_TITLE_MAX_LINES,
                         textAlign = TextAlign.Center,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -378,7 +383,7 @@ private fun TrophyStateLine(
 
 @Composable
 private fun trophyConditionLabel(trophy: TrophyCardUi): String {
-    return androidx.compose.ui.res.stringResource(
+    return stringResource(
         R.string.trophies_unlock_target,
         trophy.currentValue,
         trophy.target,
@@ -387,12 +392,12 @@ private fun trophyConditionLabel(trophy: TrophyCardUi): String {
 
 @Composable
 private fun trophyName(trophy: TrophyCardUi): String =
-    androidx.compose.ui.res.stringResource(
+    stringResource(
         trophyNameRes(trophy.trophyId),
     )
 
 @Composable
 private fun familyTitle(family: TrophyFamilyUi): String =
-    androidx.compose.ui.res.stringResource(
+    stringResource(
         familyTitleRes(family),
     )

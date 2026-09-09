@@ -24,6 +24,9 @@ import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult
 
+private const val CHALLENGE_TITLE_MAX_LINES = 2
+private const val CHALLENGE_DESCRIPTION_MAX_LINES = 2
+
 @Composable
 internal fun ChallengeSummaryContent(
     modifier: Modifier = Modifier,
@@ -37,7 +40,7 @@ internal fun ChallengeSummaryContent(
     Text(
         text = challenge.title,
         style = typography.titleMedium,
-        maxLines = 2,
+        maxLines = CHALLENGE_TITLE_MAX_LINES,
         overflow = TextOverflow.Ellipsis,
     )
     FlowRow(
@@ -65,7 +68,12 @@ internal fun ChallengeSummaryContent(
         }
     }
     challenge.description?.takeIf { it.isNotBlank() }?.let { description ->
-        Text(text = description, color = colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
+        Text(
+            text = description,
+            color = colorScheme.onSurfaceVariant,
+            maxLines = CHALLENGE_DESCRIPTION_MAX_LINES,
+            overflow = TextOverflow.Ellipsis,
+        )
     }
     Text(
         text = stringResource(R.string.challenges_date_range, formatWorkoutDate(challenge.startDate, currentLocale), formatWorkoutDate(challenge.endDate, currentLocale)),

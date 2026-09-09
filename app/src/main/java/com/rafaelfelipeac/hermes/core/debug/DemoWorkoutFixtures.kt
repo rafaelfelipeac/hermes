@@ -247,7 +247,7 @@ internal fun categoryIdForSeed(
             strength -> COLOR_STRENGTH
             mobility -> COLOR_MOBILITY
             other -> COLOR_OTHER
-            else -> CategoryDefaults.COLOR_OTHER
+            else -> COLOR_OTHER
         }
 
     return when (colorId) {

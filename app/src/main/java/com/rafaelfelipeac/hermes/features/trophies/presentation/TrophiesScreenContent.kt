@@ -30,6 +30,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 
+private const val TROPHY_PREVIEW_TEXT_ALPHA = 0.72f
+
 @Composable
 internal fun TrophiesContent(
     state: TrophyPageState,
@@ -221,12 +223,12 @@ private fun TrophyPreviewCard(
             Text(
                 text = title,
                 style = typography.titleMedium,
-                color = colorScheme.onSurface.copy(alpha = 0.72f),
+                color = colorScheme.onSurface.copy(alpha = TROPHY_PREVIEW_TEXT_ALPHA),
             )
             Text(
                 text = description,
                 style = typography.bodySmall,
-                color = colorScheme.onSurfaceVariant.copy(alpha = 0.72f),
+                color = colorScheme.onSurfaceVariant.copy(alpha = TROPHY_PREVIEW_TEXT_ALPHA),
             )
         }
     }

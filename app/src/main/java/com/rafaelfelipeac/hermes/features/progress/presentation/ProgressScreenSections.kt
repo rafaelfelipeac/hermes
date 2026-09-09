@@ -53,6 +53,9 @@ import com.rafaelfelipeac.hermes.features.trophies.presentation.trophyNameRes
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+private const val CURRENT_WEEK_TREND_BAR_ALPHA = 0.24f
+private const val TREND_LABEL_MAX_LINES = 2
+
 @Composable
 internal fun ProgressWeeklyReadout(
     readout: ProgressWeeklyReadoutUi,
@@ -209,7 +212,7 @@ internal fun ProgressWeeklyTrend(
                                         width = BorderHairline,
                                         color =
                                             if (isCurrentWeek) {
-                                                colorScheme.primary.copy(alpha = 0.24f)
+                                                colorScheme.primary.copy(alpha = CURRENT_WEEK_TREND_BAR_ALPHA)
                                             } else {
                                                 colorScheme.outlineVariant
                                             },
@@ -257,7 +260,7 @@ internal fun ProgressWeeklyTrend(
                                 color = if (week.isCurrentWeek) colorScheme.onSurface else colorScheme.onSurfaceVariant,
                                 modifier = Modifier.fillMaxWidth(),
                                 textAlign = TextAlign.Center,
-                                maxLines = 2,
+                                maxLines = TREND_LABEL_MAX_LINES,
                             )
                         }
                     }

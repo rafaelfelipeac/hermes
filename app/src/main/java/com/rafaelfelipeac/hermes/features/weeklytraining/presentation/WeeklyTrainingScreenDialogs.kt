@@ -39,12 +39,11 @@ internal fun WeeklyTrainingWorkoutDialog(
 ) {
     if (!visible) return
 
-    val actualWorkout = workout
-    val renderRaceEvent = actualWorkout?.eventType == RACE_EVENT || isRaceEvent
+    val renderRaceEvent = workout?.eventType == RACE_EVENT || isRaceEvent
     val dialogCategories =
         categories
             .filter {
-                !it.isHidden || it.id == UNCATEGORIZED_ID || it.id == actualWorkout?.categoryId
+                !it.isHidden || it.id == UNCATEGORIZED_ID || it.id == workout?.categoryId
             }
             .sortedBy { it.sortOrder }
 
@@ -55,7 +54,7 @@ internal fun WeeklyTrainingWorkoutDialog(
             onManageCategories = { type, description, categoryId, eventDate ->
                 onManageCategories(
                     WorkoutDialogDraft(
-                        workoutId = actualWorkout?.id,
+                        workoutId = workout?.id,
                         type = type,
                         description = description,
                         categoryId = categoryId,
@@ -66,11 +65,11 @@ internal fun WeeklyTrainingWorkoutDialog(
             },
             isEdit = isEdit,
             categories = dialogCategories,
-            selectedCategoryId = actualWorkout?.categoryId ?: selectedCategoryId,
+            selectedCategoryId = workout?.categoryId ?: selectedCategoryId,
             weekStartDay = weekStartDay,
             selectedDate = selectedDate,
-            initialTitle = actualWorkout?.type ?: initialType,
-            initialDescription = actualWorkout?.description ?: initialDescription,
+            initialTitle = workout?.type ?: initialType,
+            initialDescription = workout?.description ?: initialDescription,
         )
     } else {
         AddWorkoutDialog(
@@ -79,7 +78,7 @@ internal fun WeeklyTrainingWorkoutDialog(
             onManageCategories = { type, description, categoryId, workoutDate ->
                 onManageCategories(
                     WorkoutDialogDraft(
-                        workoutId = actualWorkout?.id,
+                        workoutId = workout?.id,
                         type = type,
                         description = description,
                         categoryId = categoryId,
@@ -89,11 +88,11 @@ internal fun WeeklyTrainingWorkoutDialog(
             },
             isEdit = isEdit,
             categories = dialogCategories,
-            selectedCategoryId = actualWorkout?.categoryId ?: selectedCategoryId,
+            selectedCategoryId = workout?.categoryId ?: selectedCategoryId,
             weekStartDay = weekStartDay,
             selectedDate = selectedDate,
-            initialType = actualWorkout?.type ?: initialType,
-            initialDescription = actualWorkout?.description ?: initialDescription,
+            initialType = workout?.type ?: initialType,
+            initialDescription = workout?.description ?: initialDescription,
         )
     }
 }

@@ -272,6 +272,26 @@ class ActivityUiFormatterTest {
     }
 
     @Test
+    fun personalRecordMetricParsing_isCaseInsensitiveAndKeepsUnknownValues() {
+        val record = personalRecordEntryRecord()
+
+        assertEquals(
+            "You added a Distance PR result.",
+            formatter.buildTitle(
+                record,
+                mapOf(UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE to "distance"),
+            ),
+        )
+        assertEquals(
+            "You added a future_metric PR result.",
+            formatter.buildTitle(
+                record,
+                mapOf(UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE to "future_metric"),
+            ),
+        )
+    }
+
+    @Test
     fun personalRecordTimeResult_hasSpacedSeparator() {
         val record = personalRecordEntryRecord()
         val metadata =
