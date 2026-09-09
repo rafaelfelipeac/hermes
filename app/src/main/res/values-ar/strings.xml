@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App and navigation -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
@@ -10,6 +11,7 @@
     <string name="browse_title">تصفح</string>
     <string name="browse_backup_import_title">النسخ الاحتياطي والاستيراد</string>
     <string name="settings_nav_label">الإعدادات</string>
+
     <!-- Common actions and components -->
     <string name="add_workout_cancel">إلغاء</string>
     <string name="save_changes">حفظ</string>
@@ -21,6 +23,7 @@
     <string name="day_saturday">السبت</string>
     <string name="day_sunday">الأحد</string>
     <string name="filters_clear">مسح الفلاتر</string>
+
     <!-- Weekly Training -->
     <string name="weekly_training_add_item">إضافة</string>
     <string name="add_workout">إضافة تمرين</string>
@@ -126,6 +129,7 @@
     <string name="weekly_training_slot_night">مساء</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | رقم %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | رقم %2$s</string>
+
     <!-- Progress -->
     <string name="progress_title">التقدم</string>
     <string name="progress_empty_title">لا يوجد تقدم بعد.</string>
@@ -159,6 +163,7 @@
     <string name="progress_trophy_recent_unlock">مفتوح حديثًا</string>
     <string name="progress_trophy_nearest">أقرب كأس</string>
     <string name="progress_days_until">بعد %1$d أيام</string>
+
     <!-- Events -->
     <string name="race_event_label">فعالية</string>
     <string name="race_events_title">الفعاليات</string>
@@ -190,6 +195,7 @@
     <string name="race_event_dialog_edit_race_event">تعديل فعالية</string>
     <string name="race_event_dialog_date">التاريخ</string>
     <string name="race_event_dialog_add_race_event_confirm">إضافة</string>
+
     <!-- Browse -->
     <string name="browse_challenges_subtitle">تتبّع الأهداف طويلة المدى مع سجل التقدّم والحالة.</string>
     <string name="browse_categories_subtitle">نظّم فئات التمرين والألوان ومستوى الظهور والترتيب.</string>
@@ -203,6 +209,7 @@
     <string name="browse_section_training">التدريب</string>
     <string name="browse_section_progress">التقدم</string>
     <string name="browse_section_app_data">التطبيق والبيانات</string>
+
     <!-- Categories -->
     <string name="challenges_field_category">الفئة</string>
     <string name="category_uncategorized">بدون تصنيف</string>
@@ -237,6 +244,7 @@
     <string name="categories_restore_defaults_confirm">استعادة</string>
     <string name="categories_restore_defaults_message">سيؤدي ذلك إلى إعادة تعيين أسماء وألوان الفئات الافتراضية. ستظل فئاتك المخصصة محفوظة.</string>
     <string name="categories_restore_defaults_title">استعادة الفئات الافتراضية؟</string>
+
     <!-- Settings and Backup -->
     <string name="settings_title">الإعدادات</string>
     <string name="settings_theme_title">المظهر</string>
@@ -322,6 +330,7 @@
     <string name="settings_slot_mode_always">إظهار الفترات دائمًا</string>
     <string name="settings_slot_mode_help_title">كيف يعمل وضع الفترات</string>
     <string name="settings_slot_mode_help_message">عند التفعيل، تساعد الفترات على تنظيم عدة أحداث في اليوم نفسه.\n\nفي الوضع التلقائي، تظهر الفترات فقط عندما يحتوي اليوم على حدثين أو أكثر.\n\nفي وضع دائمًا، تكون الفترات مرئية دائمًا.</string>
+
     <!-- Activity -->
     <string name="activity_action_create_challenge">لقد أنشأت تحديًا.</string>
     <string name="activity_action_update_challenge">لقد حدّثت تحديًا.</string>
@@ -479,6 +488,7 @@
     <string name="activity_subtitle_challenge_target_change">تم تغيير الهدف من %1$s إلى %2$s.</string>
     <string name="activity_subtitle_challenge_target_value_daily">%1$s يوميًا</string>
     <string name="activity_subtitle_challenge_target_value_total">%1$s إجمالًا</string>
+
     <!-- Challenges -->
     <string name="challenges_title">التحديات</string>
     <string name="challenges_active_title">التحديات النشطة</string>
@@ -550,6 +560,7 @@
     <string name="challenges_total_preview">الهدف الإجمالي: %1$s</string>
     <string name="challenges_actions_menu">المزيد من الإجراءات</string>
     <string name="challenges_progress_entry_actions_menu">إجراءات إدخال التقدّم</string>
+
     <!-- Personal Records -->
     <string name="personal_records_metric_distance">المسافة</string>
     <string name="personal_records_metric_time">الوقت</string>
@@ -631,6 +642,7 @@
     <string name="personal_records_unit_watt_symbol">واط</string>
     <string name="personal_records_unit_rep_singular">تكرار</string>
     <string name="personal_records_unit_rep_plural">تكرارات</string>
+
     <!-- Pace Calculator -->
     <string name="pace_calculator_title">حاسبة الإيقاع</string>
     <string name="pace_calculator_distance_presets">إعدادات المسافة</string>
@@ -658,6 +670,7 @@
     <string name="pace_calculator_preset_15k">15 كم</string>
     <string name="pace_calculator_preset_half_marathon">نصف ماراثون</string>
     <string name="pace_calculator_preset_marathon">ماراثون</string>
+
     <!-- Trophies -->
     <string name="trophies_title">الكؤوس</string>
     <string name="trophies_empty_title">رفك ما زال يتشكل.</string>
@@ -803,6 +816,7 @@
     <string name="trophies_desc_category_presence_unlocked">لقد أنهيت %1$d أسابيع تضمنت تمرينًا مكتملًا واحدًا على الأقل من هذه الفئة.</string>
     <string name="trophies_desc_category_planning_locked">افتحها عند إضافة تمارين في هذه الفئة أو نقلها أو تنظيمها %1$d مرات.</string>
     <string name="trophies_desc_category_planning_unlocked">لقد أضفت تمارين في هذه الفئة أو نقلتها أو نظّمتها %1$d مرات.</string>
+
     <!-- Developer and demo data -->
     <string name="settings_developer_title">وضع المطوّر</string>
     <string name="settings_developer_data_title">البيانات</string>

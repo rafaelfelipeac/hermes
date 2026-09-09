@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App and navigation -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
@@ -10,6 +11,7 @@
     <string name="browse_title">Explorar</string>
     <string name="browse_backup_import_title">Copia de seguridad e importación</string>
     <string name="settings_nav_label">Ajustes</string>
+
     <!-- Common actions and components -->
     <string name="add_workout_cancel">Cancelar</string>
     <string name="save_changes">Guardar</string>
@@ -21,6 +23,7 @@
     <string name="day_saturday">Sábado</string>
     <string name="day_sunday">Domingo</string>
     <string name="filters_clear">Limpiar filtros</string>
+
     <!-- Weekly Training -->
     <string name="weekly_training_add_item">Agregar</string>
     <string name="add_workout">Agregar entrenamiento</string>
@@ -110,6 +113,7 @@
     <string name="weekly_training_slot_night">Noche</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | n.º %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | n.º %2$s</string>
+
     <!-- Progress -->
     <string name="progress_title">Progreso</string>
     <string name="progress_empty_title">Todavía no hay progreso.</string>
@@ -139,6 +143,7 @@
     <string name="progress_trophy_recent_unlock">Recién desbloqueado</string>
     <string name="progress_trophy_nearest">Trofeo más cercano</string>
     <string name="progress_days_until">faltan %1$d días</string>
+
     <!-- Events -->
     <string name="race_event_label">Evento</string>
     <string name="race_events_title">Eventos</string>
@@ -162,6 +167,7 @@
     <string name="race_event_dialog_edit_race_event">Editar evento</string>
     <string name="race_event_dialog_date">Fecha</string>
     <string name="race_event_dialog_add_race_event_confirm">Agregar</string>
+
     <!-- Browse -->
     <string name="browse_challenges_subtitle">Sigue objetivos de largo plazo con historial de progreso y estado.</string>
     <string name="browse_categories_subtitle">Organiza las categorías de entrenamiento, los colores, la visibilidad y el orden.</string>
@@ -175,6 +181,7 @@
     <string name="browse_section_training">Entrenamiento</string>
     <string name="browse_section_progress">Progreso</string>
     <string name="browse_section_app_data">Aplicación y datos</string>
+
     <!-- Categories -->
     <string name="challenges_field_category">Categoría</string>
     <string name="category_uncategorized">Sin categoría</string>
@@ -209,6 +216,7 @@
     <string name="categories_restore_defaults_confirm">Restaurar</string>
     <string name="categories_restore_defaults_message">Esto restablecerá los nombres y colores de las categorías predeterminadas. Tus categorías personalizadas se mantendrán.</string>
     <string name="categories_restore_defaults_title">¿Restaurar categorías predeterminadas?</string>
+
     <!-- Settings and Backup -->
     <string name="settings_title">Ajustes</string>
     <string name="settings_theme_title">Tema</string>
@@ -294,6 +302,7 @@
     <string name="settings_slot_mode_always">Mostrar turnos siempre</string>
     <string name="settings_slot_mode_help_title">Cómo funciona el modo por turnos</string>
     <string name="settings_slot_mode_help_message">Cuando está activado, los turnos ayudan a organizar varios eventos en el mismo día.\n\nEn modo automático, los turnos aparecen solo cuando un día tiene dos o más eventos.\n\nEn modo siempre, los turnos están visibles todo el tiempo.</string>
+
     <!-- Activity -->
     <string name="activity_action_create_challenge">Has creado un desafío.</string>
     <string name="activity_action_update_challenge">Has actualizado un desafío.</string>
@@ -451,6 +460,7 @@
     <string name="activity_subtitle_challenge_target_change">Objetivo cambiado de %1$s a %2$s.</string>
     <string name="activity_subtitle_challenge_target_value_daily">%1$s por día</string>
     <string name="activity_subtitle_challenge_target_value_total">%1$s en total</string>
+
     <!-- Challenges -->
     <string name="challenges_title">Desafíos</string>
     <string name="challenges_active_title">Desafíos activos</string>
@@ -522,6 +532,7 @@
     <string name="challenges_total_preview">Objetivo total: %1$s</string>
     <string name="challenges_actions_menu">Más opciones</string>
     <string name="challenges_progress_entry_actions_menu">Acciones de la entrada de progreso</string>
+
     <!-- Personal Records -->
     <string name="personal_records_metric_distance">Distancia</string>
     <string name="personal_records_metric_time">Tiempo</string>
@@ -599,6 +610,7 @@
     <string name="personal_records_unit_watt_symbol">W</string>
     <string name="personal_records_unit_rep_singular">repetición</string>
     <string name="personal_records_unit_rep_plural">repeticiones</string>
+
     <!-- Pace Calculator -->
     <string name="pace_calculator_title">Calculadora de ritmo</string>
     <string name="pace_calculator_distance_presets">Preajustes de distancia</string>
@@ -626,6 +638,7 @@
     <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">Media maratón</string>
     <string name="pace_calculator_preset_marathon">Maratón</string>
+
     <!-- Trophies -->
     <string name="trophies_title">Trofeos</string>
     <string name="trophies_empty_title">Tu vitrina todavía se está formando.</string>
@@ -771,6 +784,7 @@
     <string name="trophies_desc_category_presence_unlocked">Terminaste %1$d semanas que incluían al menos un entrenamiento completado de esta categoría.</string>
     <string name="trophies_desc_category_planning_locked">Desbloquéalo al añadir, mover u organizar entrenamientos en esta categoría %1$d veces.</string>
     <string name="trophies_desc_category_planning_unlocked">Añadiste, moviste u organizaste entrenamientos en esta categoría %1$d veces.</string>
+
     <!-- Developer and demo data -->
     <string name="settings_developer_title">Modo desarrollador</string>
     <string name="settings_developer_data_title">Datos</string>

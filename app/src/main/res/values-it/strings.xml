@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App and navigation -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
@@ -10,6 +11,7 @@
     <string name="browse_title">Sfoglia</string>
     <string name="browse_backup_import_title">Backup e importazione</string>
     <string name="settings_nav_label">Opzioni</string>
+
     <!-- Common actions and components -->
     <string name="add_workout_cancel">Annulla</string>
     <string name="save_changes">Salva</string>
@@ -21,6 +23,7 @@
     <string name="day_saturday">Sabato</string>
     <string name="day_sunday">Domenica</string>
     <string name="filters_clear">Cancella filtri</string>
+
     <!-- Weekly Training -->
     <string name="weekly_training_add_item">Aggiungi</string>
     <string name="add_workout">Aggiungi allenamento</string>
@@ -110,6 +113,7 @@
     <string name="weekly_training_slot_night">Sera</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | n. %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | n. %2$s</string>
+
     <!-- Progress -->
     <string name="progress_title">Progresso</string>
     <string name="progress_empty_title">Nessun progresso ancora.</string>
@@ -139,6 +143,7 @@
     <string name="progress_trophy_recent_unlock">Sbloccato di recente</string>
     <string name="progress_trophy_nearest">Trofeo più vicino</string>
     <string name="progress_days_until">tra %1$d giorni</string>
+
     <!-- Events -->
     <string name="race_event_label">Evento</string>
     <string name="race_events_title">Eventi</string>
@@ -162,6 +167,7 @@
     <string name="race_event_dialog_edit_race_event">Modifica evento</string>
     <string name="race_event_dialog_date">Data</string>
     <string name="race_event_dialog_add_race_event_confirm">Aggiungi</string>
+
     <!-- Browse -->
     <string name="browse_challenges_subtitle">Tieni traccia di obiettivi a lungo termine con cronologia dei progressi e stato.</string>
     <string name="browse_categories_subtitle">Organizza categorie di allenamento, colori, visibilità e ordine.</string>
@@ -175,6 +181,7 @@
     <string name="browse_section_training">Allenamento</string>
     <string name="browse_section_progress">Progressi</string>
     <string name="browse_section_app_data">App e dati</string>
+
     <!-- Categories -->
     <string name="challenges_field_category">Categoria</string>
     <string name="category_uncategorized">Senza categoria</string>
@@ -209,6 +216,7 @@
     <string name="categories_restore_defaults_confirm">Ripristina</string>
     <string name="categories_restore_defaults_message">Questo reimposterà i nomi e i colori delle categorie predefinite. Le tue categorie personalizzate verranno mantenute.</string>
     <string name="categories_restore_defaults_title">Ripristinare le categorie predefinite?</string>
+
     <!-- Settings and Backup -->
     <string name="settings_title">Impostazioni</string>
     <string name="settings_theme_title">Tema</string>
@@ -294,6 +302,7 @@
     <string name="settings_slot_mode_always">Mostra sempre i turni</string>
     <string name="settings_slot_mode_help_title">Come funziona la modalità turni</string>
     <string name="settings_slot_mode_help_message">Quando è attiva, i turni aiutano a organizzare più eventi nello stesso giorno.\n\nIn modalità automatica, i turni appaiono solo quando un giorno ha due o più eventi.\n\nIn modalità sempre, i turni sono sempre visibili.</string>
+
     <!-- Activity -->
     <string name="activity_action_create_challenge">Hai creato una sfida.</string>
     <string name="activity_action_update_challenge">Hai aggiornato una sfida.</string>
@@ -451,6 +460,7 @@
     <string name="activity_subtitle_challenge_target_change">Obiettivo modificato da %1$s a %2$s.</string>
     <string name="activity_subtitle_challenge_target_value_daily">%1$s al giorno</string>
     <string name="activity_subtitle_challenge_target_value_total">%1$s in totale</string>
+
     <!-- Challenges -->
     <string name="challenges_title">Sfide</string>
     <string name="challenges_active_title">Sfide attive</string>
@@ -522,6 +532,7 @@
     <string name="challenges_total_preview">Obiettivo totale: %1$s</string>
     <string name="challenges_actions_menu">Altre azioni</string>
     <string name="challenges_progress_entry_actions_menu">Azioni voce di progresso</string>
+
     <!-- Personal Records -->
     <string name="personal_records_metric_distance">Distanza</string>
     <string name="personal_records_metric_time">Tempo</string>
@@ -599,6 +610,7 @@
     <string name="personal_records_unit_watt_symbol">W</string>
     <string name="personal_records_unit_rep_singular">ripetizione</string>
     <string name="personal_records_unit_rep_plural">ripetizioni</string>
+
     <!-- Pace Calculator -->
     <string name="pace_calculator_title">Calcolatore di ritmo</string>
     <string name="pace_calculator_distance_presets">Preset distanza</string>
@@ -626,6 +638,7 @@
     <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">Mezza maratona</string>
     <string name="pace_calculator_preset_marathon">Maratona</string>
+
     <!-- Trophies -->
     <string name="trophies_title">Trofei</string>
     <string name="trophies_empty_title">La tua bacheca sta ancora prendendo forma.</string>
@@ -771,6 +784,7 @@
     <string name="trophies_desc_category_presence_unlocked">Hai completato %1$d settimane che includevano almeno un allenamento completato di questa categoria.</string>
     <string name="trophies_desc_category_planning_locked">Sbloccala aggiungendo, spostando o organizzando allenamenti in questa categoria %1$d volte.</string>
     <string name="trophies_desc_category_planning_unlocked">Hai aggiunto, spostato o organizzato allenamenti in questa categoria %1$d volte.</string>
+
     <!-- Developer and demo data -->
     <string name="settings_developer_title">Modalità sviluppatore</string>
     <string name="settings_developer_data_title">Dati</string>

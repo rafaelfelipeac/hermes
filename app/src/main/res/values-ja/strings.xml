@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App and navigation -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
@@ -10,6 +11,7 @@
     <string name="browse_title">ブラウズ</string>
     <string name="browse_backup_import_title">バックアップとインポート</string>
     <string name="settings_nav_label">設定</string>
+
     <!-- Common actions and components -->
     <string name="add_workout_cancel">キャンセル</string>
     <string name="save_changes">保存</string>
@@ -21,6 +23,7 @@
     <string name="day_saturday">土曜日</string>
     <string name="day_sunday">日曜日</string>
     <string name="filters_clear">フィルターをクリア</string>
+
     <!-- Weekly Training -->
     <string name="weekly_training_add_item">追加</string>
     <string name="add_workout">トレーニングを追加</string>
@@ -106,6 +109,7 @@
     <string name="weekly_training_slot_night">夜</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | %3$s番</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | %2$s番</string>
+
     <!-- Progress -->
     <string name="progress_title">進捗</string>
     <string name="progress_empty_title">まだ進捗はありません。</string>
@@ -135,6 +139,7 @@
     <string name="progress_trophy_recent_unlock">最近アンロック</string>
     <string name="progress_trophy_nearest">次に近いトロフィー</string>
     <string name="progress_days_until">あと%1$d日</string>
+
     <!-- Events -->
     <string name="race_event_label">イベント</string>
     <string name="race_events_title">イベント</string>
@@ -158,6 +163,7 @@
     <string name="race_event_dialog_edit_race_event">イベントを編集</string>
     <string name="race_event_dialog_date">日付</string>
     <string name="race_event_dialog_add_race_event_confirm">追加</string>
+
     <!-- Browse -->
     <string name="browse_challenges_subtitle">進捗履歴と状態で、長期目標を追跡します。</string>
     <string name="browse_categories_subtitle">トレーニングカテゴリー、色、表示状態、順序を整理します。</string>
@@ -171,6 +177,7 @@
     <string name="browse_section_training">トレーニング</string>
     <string name="browse_section_progress">進捗</string>
     <string name="browse_section_app_data">アプリとデータ</string>
+
     <!-- Categories -->
     <string name="challenges_field_category">カテゴリ</string>
     <string name="category_uncategorized">未分類</string>
@@ -205,6 +212,7 @@
     <string name="categories_restore_defaults_confirm">復元</string>
     <string name="categories_restore_defaults_message">デフォルトのカテゴリの名前と色がリセットされます。カスタムカテゴリは保持されます。</string>
     <string name="categories_restore_defaults_title">デフォルトのカテゴリを復元しますか？</string>
+
     <!-- Settings and Backup -->
     <string name="settings_title">設定</string>
     <string name="settings_theme_title">テーマ</string>
@@ -290,6 +298,7 @@
     <string name="settings_slot_mode_always">常に時間帯を表示</string>
     <string name="settings_slot_mode_help_title">時間帯モードの仕組み</string>
     <string name="settings_slot_mode_help_message">有効にすると、同じ日の複数イベントを時間帯で整理できます。\n\n自動モードでは、1日に2件以上のイベントがある場合のみ表示されます。\n\n常時表示モードでは常に表示されます。</string>
+
     <!-- Activity -->
     <string name="activity_action_create_challenge">チャレンジを作成しました。</string>
     <string name="activity_action_update_challenge">チャレンジを更新しました。</string>
@@ -447,6 +456,7 @@
     <string name="activity_subtitle_challenge_target_change">目標を%1$sから%2$sに変更しました。</string>
     <string name="activity_subtitle_challenge_target_value_daily">1日あたり%1$s</string>
     <string name="activity_subtitle_challenge_target_value_total">合計%1$s</string>
+
     <!-- Challenges -->
     <string name="challenges_title">チャレンジ</string>
     <string name="challenges_active_title">進行中のチャレンジ</string>
@@ -518,6 +528,7 @@
     <string name="challenges_total_preview">合計目標: %1$s</string>
     <string name="challenges_actions_menu">その他の操作</string>
     <string name="challenges_progress_entry_actions_menu">進捗エントリの操作</string>
+
     <!-- Personal Records -->
     <string name="personal_records_metric_distance">距離</string>
     <string name="personal_records_metric_time">時間</string>
@@ -595,6 +606,7 @@
     <string name="personal_records_unit_watt_symbol">W</string>
     <string name="personal_records_unit_rep_singular">回</string>
     <string name="personal_records_unit_rep_plural">回</string>
+
     <!-- Pace Calculator -->
     <string name="pace_calculator_title">ペース計算機</string>
     <string name="pace_calculator_distance_presets">距離プリセット</string>
@@ -622,6 +634,7 @@
     <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">ハーフマラソン</string>
     <string name="pace_calculator_preset_marathon">マラソン</string>
+
     <!-- Trophies -->
     <string name="trophies_title">トロフィー</string>
     <string name="trophies_empty_title">あなたの棚はまだ形になっている途中です。</string>
@@ -767,6 +780,7 @@
     <string name="trophies_desc_category_presence_unlocked">このカテゴリの完了済みワークアウトを少なくとも 1 件含む週を %1$d 回やり切りました。</string>
     <string name="trophies_desc_category_planning_locked">このカテゴリでワークアウトを %1$d 回追加、移動、整理すると解除されます。</string>
     <string name="trophies_desc_category_planning_unlocked">このカテゴリでワークアウトを %1$d 回追加、移動、整理しました。</string>
+
     <!-- Developer and demo data -->
     <string name="settings_developer_title">開発者モード</string>
     <string name="settings_developer_data_title">データ</string>

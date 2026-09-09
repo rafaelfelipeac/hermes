@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App and navigation -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
@@ -10,6 +11,7 @@
     <string name="browse_title">ब्राउज़</string>
     <string name="browse_backup_import_title">बैकअप और आयात</string>
     <string name="settings_nav_label">सेटिंग</string>
+
     <!-- Common actions and components -->
     <string name="add_workout_cancel">रद्द करें</string>
     <string name="save_changes">सहेजें</string>
@@ -21,6 +23,7 @@
     <string name="day_saturday">शनिवार</string>
     <string name="day_sunday">रविवार</string>
     <string name="filters_clear">फ़िल्टर साफ़ करें</string>
+
     <!-- Weekly Training -->
     <string name="weekly_training_add_item">जोड़ें</string>
     <string name="add_workout">प्रशिक्षण जोड़ें</string>
@@ -110,6 +113,7 @@
     <string name="weekly_training_slot_night">रात</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | क्रम %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | क्रम %2$s</string>
+
     <!-- Progress -->
     <string name="progress_title">प्रगति</string>
     <string name="progress_empty_title">अभी कोई प्रगति नहीं है।</string>
@@ -139,6 +143,7 @@
     <string name="progress_trophy_recent_unlock">हाल में अनलॉक</string>
     <string name="progress_trophy_nearest">सबसे नज़दीकी ट्रॉफी</string>
     <string name="progress_days_until">%1$d दिन बाकी</string>
+
     <!-- Events -->
     <string name="race_event_label">इवेंट</string>
     <string name="race_events_title">इवेंट्स</string>
@@ -162,6 +167,7 @@
     <string name="race_event_dialog_edit_race_event">इवेंट संपादित करें</string>
     <string name="race_event_dialog_date">तारीख</string>
     <string name="race_event_dialog_add_race_event_confirm">जोड़ें</string>
+
     <!-- Browse -->
     <string name="browse_challenges_subtitle">प्रगति इतिहास और स्थिति के साथ लंबे समय के लक्ष्यों को ट्रैक करें।</string>
     <string name="browse_categories_subtitle">वर्कआउट श्रेणियाँ, रंग, दृश्यता और क्रम व्यवस्थित करें।</string>
@@ -175,6 +181,7 @@
     <string name="browse_section_training">प्रशिक्षण</string>
     <string name="browse_section_progress">प्रगति</string>
     <string name="browse_section_app_data">ऐप और डेटा</string>
+
     <!-- Categories -->
     <string name="challenges_field_category">श्रेणी</string>
     <string name="category_uncategorized">बिना श्रेणी</string>
@@ -209,6 +216,7 @@
     <string name="categories_restore_defaults_confirm">बहाल करें</string>
     <string name="categories_restore_defaults_message">यह डिफ़ॉल्ट श्रेणियों के नाम और रंग रीसेट करेगा। आपकी कस्टम श्रेणियाँ बनी रहेंगी।</string>
     <string name="categories_restore_defaults_title">डिफ़ॉल्ट श्रेणियाँ बहाल करें?</string>
+
     <!-- Settings and Backup -->
     <string name="settings_title">सेटिंग्स</string>
     <string name="settings_theme_title">थीम</string>
@@ -294,6 +302,7 @@
     <string name="settings_slot_mode_always">स्लॉट हमेशा दिखाएँ</string>
     <string name="settings_slot_mode_help_title">स्लॉट मोड कैसे काम करता है</string>
     <string name="settings_slot_mode_help_message">सक्षम होने पर, स्लॉट एक ही दिन में कई इवेंट व्यवस्थित करने में मदद करते हैं।\n\nस्वचालित मोड में स्लॉट तभी दिखते हैं जब एक दिन में दो या अधिक इवेंट हों।\n\nहमेशा मोड में स्लॉट हमेशा दिखाई देते हैं।</string>
+
     <!-- Activity -->
     <string name="activity_action_create_challenge">आपने एक चुनौती बनाई।</string>
     <string name="activity_action_update_challenge">आपने एक चुनौती अपडेट की।</string>
@@ -451,6 +460,7 @@
     <string name="activity_subtitle_challenge_target_change">लक्ष्य %1$s से %2$s में बदला।</string>
     <string name="activity_subtitle_challenge_target_value_daily">प्रति दिन %1$s</string>
     <string name="activity_subtitle_challenge_target_value_total">कुल %1$s</string>
+
     <!-- Challenges -->
     <string name="challenges_title">चुनौतियाँ</string>
     <string name="challenges_active_title">सक्रिय चुनौतियाँ</string>
@@ -522,6 +532,7 @@
     <string name="challenges_total_preview">कुल लक्ष्य: %1$s</string>
     <string name="challenges_actions_menu">और कार्रवाइयाँ</string>
     <string name="challenges_progress_entry_actions_menu">प्रगति प्रविष्टि की कार्रवाइयाँ</string>
+
     <!-- Personal Records -->
     <string name="personal_records_metric_distance">दूरी</string>
     <string name="personal_records_metric_time">समय</string>
@@ -599,6 +610,7 @@
     <string name="personal_records_unit_watt_symbol">W</string>
     <string name="personal_records_unit_rep_singular">दोहराव</string>
     <string name="personal_records_unit_rep_plural">दोहराव</string>
+
     <!-- Pace Calculator -->
     <string name="pace_calculator_title">रफ्तार कैलकुलेटर</string>
     <string name="pace_calculator_distance_presets">दूरी प्रीसेट</string>
@@ -626,6 +638,7 @@
     <string name="pace_calculator_preset_15k">15 किमी</string>
     <string name="pace_calculator_preset_half_marathon">हाफ मैराथन</string>
     <string name="pace_calculator_preset_marathon">मैराथन</string>
+
     <!-- Trophies -->
     <string name="trophies_title">ट्रॉफियां</string>
     <string name="trophies_empty_title">आपकी शेल्फ अभी आकार ले रही है।</string>
@@ -771,6 +784,7 @@
     <string name="trophies_desc_category_presence_unlocked">आपने %1$d हफ्ते पूरे किए जिनमें इस श्रेणी का कम-से-कम एक पूरा हुआ वर्कआउट शामिल था।</string>
     <string name="trophies_desc_category_planning_locked">इस श्रेणी में %1$d बार वर्कआउट जोड़ने, खिसकाने या व्यवस्थित करने पर अनलॉक होगा।</string>
     <string name="trophies_desc_category_planning_unlocked">आपने इस श्रेणी में %1$d बार वर्कआउट जोड़े, खिसकाए या व्यवस्थित किए।</string>
+
     <!-- Developer and demo data -->
     <string name="settings_developer_title">डेवलपर मोड</string>
     <string name="settings_developer_data_title">डेटा</string>

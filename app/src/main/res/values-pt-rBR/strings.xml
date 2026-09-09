@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App and navigation -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
@@ -10,6 +11,7 @@
     <string name="browse_title">Explorar</string>
     <string name="browse_backup_import_title">Backup e importação</string>
     <string name="settings_nav_label">Config.</string>
+
     <!-- Common actions and components -->
     <string name="add_workout_cancel">Cancelar</string>
     <string name="save_changes">Salvar</string>
@@ -21,6 +23,7 @@
     <string name="day_saturday">Sábado</string>
     <string name="day_sunday">Domingo</string>
     <string name="filters_clear">Limpar filtros</string>
+
     <!-- Weekly Training -->
     <string name="weekly_training_add_item">Adicionar</string>
     <string name="add_workout">Adicionar treino</string>
@@ -110,6 +113,7 @@
     <string name="weekly_training_slot_night">Noite</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | nº%3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | nº%2$s</string>
+
     <!-- Progress -->
     <string name="progress_title">Progresso</string>
     <string name="progress_empty_title">Ainda sem progresso.</string>
@@ -139,6 +143,7 @@
     <string name="progress_trophy_recent_unlock">Desbloqueado recentemente</string>
     <string name="progress_trophy_nearest">Troféu mais próximo</string>
     <string name="progress_days_until">faltam %1$d dias</string>
+
     <!-- Events -->
     <string name="race_event_label">Evento</string>
     <string name="race_events_title">Eventos</string>
@@ -162,6 +167,7 @@
     <string name="race_event_dialog_edit_race_event">Editar evento</string>
     <string name="race_event_dialog_date">Data</string>
     <string name="race_event_dialog_add_race_event_confirm">Adicionar</string>
+
     <!-- Browse -->
     <string name="browse_challenges_subtitle">Acompanhe metas de longo prazo com histórico de progresso e status.</string>
     <string name="browse_categories_subtitle">Organize categorias de treino, cores, visibilidade e ordem.</string>
@@ -175,6 +181,7 @@
     <string name="browse_section_training">Treino</string>
     <string name="browse_section_progress">Progresso</string>
     <string name="browse_section_app_data">Aplicativo e dados</string>
+
     <!-- Categories -->
     <string name="challenges_field_category">Categoria</string>
     <string name="category_uncategorized">Sem categoria</string>
@@ -209,6 +216,7 @@
     <string name="categories_restore_defaults_confirm">Restaurar</string>
     <string name="categories_restore_defaults_message">Isso vai redefinir os nomes e as cores das categorias padrão. Suas categorias personalizadas serão mantidas.</string>
     <string name="categories_restore_defaults_title">Restaurar categorias padrão?</string>
+
     <!-- Settings and Backup -->
     <string name="settings_title">Configurações</string>
     <string name="settings_theme_title">Tema</string>
@@ -294,6 +302,7 @@
     <string name="settings_slot_mode_always">Sempre mostrar divisão do dia</string>
     <string name="settings_slot_mode_help_title">Como a divisão do dia funciona</string>
     <string name="settings_slot_mode_help_message">Quando ativada, a divisão do dia ajuda a organizar vários eventos no mesmo dia.\n\nNo modo automático, a divisão do dia aparece apenas quando um dia tem dois ou mais eventos.\n\nNo modo sempre, a divisão do dia fica sempre visível.</string>
+
     <!-- Activity -->
     <string name="activity_action_create_challenge">Você criou um desafio.</string>
     <string name="activity_action_update_challenge">Você atualizou um desafio.</string>
@@ -451,6 +460,7 @@
     <string name="activity_subtitle_challenge_target_change">Meta alterada de %1$s para %2$s.</string>
     <string name="activity_subtitle_challenge_target_value_daily">%1$s por dia</string>
     <string name="activity_subtitle_challenge_target_value_total">%1$s no total</string>
+
     <!-- Challenges -->
     <string name="challenges_title">Desafios</string>
     <string name="challenges_active_title">Desafios ativos</string>
@@ -522,6 +532,7 @@
     <string name="challenges_total_preview">Meta total: %1$s</string>
     <string name="challenges_actions_menu">Mais ações</string>
     <string name="challenges_progress_entry_actions_menu">Ações da entrada de progresso</string>
+
     <!-- Personal Records -->
     <string name="personal_records_metric_distance">Distância</string>
     <string name="personal_records_metric_time">Tempo</string>
@@ -599,6 +610,7 @@
     <string name="personal_records_unit_watt_symbol">W</string>
     <string name="personal_records_unit_rep_singular">repetição</string>
     <string name="personal_records_unit_rep_plural">repetições</string>
+
     <!-- Pace Calculator -->
     <string name="pace_calculator_title">Calculadora de ritmo</string>
     <string name="pace_calculator_distance_presets">Predefinições de distância</string>
@@ -626,6 +638,7 @@
     <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">Meia maratona</string>
     <string name="pace_calculator_preset_marathon">Maratona</string>
+
     <!-- Trophies -->
     <string name="trophies_title">Troféus</string>
     <string name="trophies_empty_title">Sua prateleira ainda está tomando forma.</string>
@@ -771,6 +784,7 @@
     <string name="trophies_desc_category_presence_unlocked">Você concluiu %1$d semanas que incluíam pelo menos um treino concluído desta categoria.</string>
     <string name="trophies_desc_category_planning_locked">Desbloqueie ao adicionar, mover ou organizar treinos nesta categoria %1$d vezes.</string>
     <string name="trophies_desc_category_planning_unlocked">Você adicionou, moveu ou organizou treinos nesta categoria %1$d vezes.</string>
+
     <!-- Developer and demo data -->
     <string name="settings_developer_title">Modo desenvolvedor</string>
     <string name="settings_developer_data_title">Dados</string>

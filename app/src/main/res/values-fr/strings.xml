@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App and navigation -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
@@ -10,6 +11,7 @@
     <string name="browse_title">Explorer</string>
     <string name="browse_backup_import_title">Sauvegarde et importation</string>
     <string name="settings_nav_label">Réglages</string>
+
     <!-- Common actions and components -->
     <string name="add_workout_cancel">Annuler</string>
     <string name="save_changes">Enregistrer</string>
@@ -21,6 +23,7 @@
     <string name="day_saturday">Samedi</string>
     <string name="day_sunday">Dimanche</string>
     <string name="filters_clear">Effacer les filtres</string>
+
     <!-- Weekly Training -->
     <string name="weekly_training_add_item">Ajouter</string>
     <string name="add_workout">Ajouter un entraînement</string>
@@ -110,6 +113,7 @@
     <string name="weekly_training_slot_night">Soir</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | n° %3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | n° %2$s</string>
+
     <!-- Progress -->
     <string name="progress_title">Progression</string>
     <string name="progress_empty_title">Pas encore de progression.</string>
@@ -139,6 +143,7 @@
     <string name="progress_trophy_recent_unlock">Récemment débloqué</string>
     <string name="progress_trophy_nearest">Trophée le plus proche</string>
     <string name="progress_days_until">dans %1$d jours</string>
+
     <!-- Events -->
     <string name="race_event_label">Événement</string>
     <string name="race_events_title">Événements</string>
@@ -162,6 +167,7 @@
     <string name="race_event_dialog_edit_race_event">Modifier un événement</string>
     <string name="race_event_dialog_date">Date</string>
     <string name="race_event_dialog_add_race_event_confirm">Ajouter</string>
+
     <!-- Browse -->
     <string name="browse_challenges_subtitle">Suivez des objectifs de longue durée avec historique de progression et statut.</string>
     <string name="browse_categories_subtitle">Organisez les catégories d’entraînement, les couleurs, la visibilité et l’ordre.</string>
@@ -175,6 +181,7 @@
     <string name="browse_section_training">Entraînement</string>
     <string name="browse_section_progress">Progression</string>
     <string name="browse_section_app_data">Application et données</string>
+
     <!-- Categories -->
     <string name="challenges_field_category">Catégorie</string>
     <string name="category_uncategorized">Sans catégorie</string>
@@ -209,6 +216,7 @@
     <string name="categories_restore_defaults_confirm">Restaurer</string>
     <string name="categories_restore_defaults_message">Cela réinitialisera les noms et couleurs des catégories par défaut. Vos catégories personnalisées seront conservées.</string>
     <string name="categories_restore_defaults_title">Restaurer les catégories par défaut ?</string>
+
     <!-- Settings and Backup -->
     <string name="settings_title">Paramètres</string>
     <string name="settings_theme_title">Thème</string>
@@ -294,6 +302,7 @@
     <string name="settings_slot_mode_always">Toujours afficher les créneaux</string>
     <string name="settings_slot_mode_help_title">Comment fonctionne le mode des créneaux</string>
     <string name="settings_slot_mode_help_message">Lorsqu’il est activé, les créneaux aident à organiser plusieurs événements le même jour.\n\nEn mode automatique, les créneaux apparaissent seulement lorsqu’un jour a au moins deux événements.\n\nEn mode toujours, les créneaux sont toujours visibles.</string>
+
     <!-- Activity -->
     <string name="activity_action_create_challenge">Vous avez créé un défi.</string>
     <string name="activity_action_update_challenge">Vous avez modifié un défi.</string>
@@ -451,6 +460,7 @@
     <string name="activity_subtitle_challenge_target_change">Objectif modifié de %1$s à %2$s.</string>
     <string name="activity_subtitle_challenge_target_value_daily">%1$s par jour</string>
     <string name="activity_subtitle_challenge_target_value_total">%1$s au total</string>
+
     <!-- Challenges -->
     <string name="challenges_title">Défis</string>
     <string name="challenges_active_title">Défis actifs</string>
@@ -522,6 +532,7 @@
     <string name="challenges_total_preview">Objectif total : %1$s</string>
     <string name="challenges_actions_menu">Plus d’actions</string>
     <string name="challenges_progress_entry_actions_menu">Actions de l’entrée de progression</string>
+
     <!-- Personal Records -->
     <string name="personal_records_metric_distance">Distance</string>
     <string name="personal_records_metric_time">Temps</string>
@@ -599,6 +610,7 @@
     <string name="personal_records_unit_watt_symbol">W</string>
     <string name="personal_records_unit_rep_singular">répétition</string>
     <string name="personal_records_unit_rep_plural">répétitions</string>
+
     <!-- Pace Calculator -->
     <string name="pace_calculator_title">Calculateur d’allure</string>
     <string name="pace_calculator_distance_presets">Préréglages de distance</string>
@@ -626,6 +638,7 @@
     <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">Semi-marathon</string>
     <string name="pace_calculator_preset_marathon">Marathon</string>
+
     <!-- Trophies -->
     <string name="trophies_title">Trophées</string>
     <string name="trophies_empty_title">Votre étagère prend encore forme.</string>
@@ -771,6 +784,7 @@
     <string name="trophies_desc_category_presence_unlocked">Vous avez terminé %1$d semaines qui incluaient au moins une séance terminée de cette catégorie.</string>
     <string name="trophies_desc_category_planning_locked">Débloquez-le en ajoutant, déplaçant ou organisant des séances dans cette catégorie %1$d fois.</string>
     <string name="trophies_desc_category_planning_unlocked">Vous avez ajouté, déplacé ou organisé des séances dans cette catégorie %1$d fois.</string>
+
     <!-- Developer and demo data -->
     <string name="settings_developer_title">Mode développeur</string>
     <string name="settings_developer_data_title">Données</string>

@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
+
     <!-- App and navigation -->
     <string name="app_name">Hermes</string>
     <string name="app_name_dev">Hermes Dev</string>
@@ -10,6 +11,7 @@
     <string name="browse_title">Browse</string>
     <string name="browse_backup_import_title">Backup and Import</string>
     <string name="settings_nav_label">Settings</string>
+
     <!-- Common actions and components -->
     <string name="add_workout_cancel">Cancel</string>
     <string name="save_changes">Save</string>
@@ -21,6 +23,7 @@
     <string name="day_saturday">Saturday</string>
     <string name="day_sunday">Sunday</string>
     <string name="filters_clear">Clear filters</string>
+
     <!-- Weekly Training -->
     <string name="weekly_training_add_item">Add</string>
     <string name="add_workout">Add workout</string>
@@ -110,6 +113,7 @@
     <string name="weekly_training_slot_night">Evening</string>
     <string name="weekly_training_drop_preview_with_slot">%1$s | %2$s | #%3$s</string>
     <string name="weekly_training_drop_preview_without_slot">%1$s | #%2$s</string>
+
     <!-- Progress -->
     <string name="progress_title">Progress</string>
     <string name="progress_empty_title">No progress yet.</string>
@@ -139,6 +143,7 @@
     <string name="progress_trophy_recent_unlock">Recently unlocked</string>
     <string name="progress_trophy_nearest">Closest next trophy</string>
     <string name="progress_days_until">%1$d days away</string>
+
     <!-- Events -->
     <string name="race_event_label">Event</string>
     <string name="race_events_title">Events</string>
@@ -162,6 +167,7 @@
     <string name="race_event_dialog_edit_race_event">Edit event</string>
     <string name="race_event_dialog_date">Date</string>
     <string name="race_event_dialog_add_race_event_confirm">Add</string>
+
     <!-- Browse -->
     <string name="browse_challenges_subtitle">Track long-running goals with progress history and status.</string>
     <string name="browse_categories_subtitle">Organize workout categories, colors, visibility and order.</string>
@@ -175,6 +181,7 @@
     <string name="browse_section_training">Training</string>
     <string name="browse_section_progress">Progress</string>
     <string name="browse_section_app_data">App and data</string>
+
     <!-- Categories -->
     <string name="challenges_field_category">Category</string>
     <string name="category_uncategorized">Uncategorized</string>
@@ -209,6 +216,7 @@
     <string name="categories_restore_defaults_confirm">Restore</string>
     <string name="categories_restore_defaults_message">This will reset the names and colors of the default categories. Your custom categories will be kept.</string>
     <string name="categories_restore_defaults_title">Restore default categories?</string>
+
     <!-- Settings and Backup -->
     <string name="settings_title">Settings</string>
     <string name="settings_theme_title">Theme</string>
@@ -294,6 +302,7 @@
     <string name="settings_slot_mode_always">Always show slots</string>
     <string name="settings_slot_mode_help_title">How slot mode works</string>
     <string name="settings_slot_mode_help_message">When enabled, slots help organize multiple events in the same day.\n\nIn auto mode, slots appear only when a day has two or more events.\n\nIn always mode, slots are always visible.</string>
+
     <!-- Activity -->
     <string name="activity_action_create_challenge">You created a challenge.</string>
     <string name="activity_action_update_challenge">You updated a challenge.</string>
@@ -451,6 +460,7 @@
     <string name="activity_subtitle_challenge_target_change">Target changed from %1$s to %2$s.</string>
     <string name="activity_subtitle_challenge_target_value_daily">%1$s per day</string>
     <string name="activity_subtitle_challenge_target_value_total">%1$s total</string>
+
     <!-- Challenges -->
     <string name="challenges_title">Challenges</string>
     <string name="challenges_active_title">Active challenges</string>
@@ -522,6 +532,7 @@
     <string name="challenges_total_preview">Total target: %1$s</string>
     <string name="challenges_actions_menu">More actions</string>
     <string name="challenges_progress_entry_actions_menu">Progress entry actions</string>
+
     <!-- Personal Records -->
     <string name="personal_records_metric_distance">Distance</string>
     <string name="personal_records_metric_time">Time</string>
@@ -599,6 +610,7 @@
     <string name="personal_records_unit_watt_symbol">W</string>
     <string name="personal_records_unit_rep_singular">rep</string>
     <string name="personal_records_unit_rep_plural">reps</string>
+
     <!-- Pace Calculator -->
     <string name="pace_calculator_title">Pace calculator</string>
     <string name="pace_calculator_distance_presets">Distance presets</string>
@@ -626,6 +638,7 @@
     <string name="pace_calculator_preset_15k">15 km</string>
     <string name="pace_calculator_preset_half_marathon">Half marathon</string>
     <string name="pace_calculator_preset_marathon">Marathon</string>
+
     <!-- Trophies -->
     <string name="trophies_title">Trophies</string>
     <string name="trophies_empty_title">Your shelf is still taking shape.</string>
@@ -771,6 +784,7 @@
     <string name="trophies_desc_category_presence_unlocked">You finished %1$d weeks that included at least one completed workout from this category.</string>
     <string name="trophies_desc_category_planning_locked">Unlock by adding, moving or organizing workouts in this category %1$d times.</string>
     <string name="trophies_desc_category_planning_unlocked">You added, moved or organized workouts in this category %1$d times.</string>
+
     <!-- Developer and demo data -->
     <string name="settings_developer_title">Developer mode</string>
     <string name="settings_developer_data_title">Data</string>
