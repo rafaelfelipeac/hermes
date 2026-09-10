@@ -3,12 +3,12 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
@@ -280,12 +280,15 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
-                repository.updateWorkoutDetails(
-                    workoutId = 43,
-                    type = "Bike",
-                    description = "Tempo",
-                    eventType = EventType.WORKOUT,
-                    categoryId = UNCATEGORIZED_ID,
+                commandRepository.updateDetails(
+                    WorkoutDetailsCommand(
+                        workoutId = 43,
+                        type = "Bike",
+                        description = "Tempo",
+                        eventType = EventType.WORKOUT,
+                        categoryId = UNCATEGORIZED_ID,
+                        displayWeekStart = weekStart,
+                    ),
                 )
             }
             coVerify(exactly = 1) {
@@ -309,7 +312,8 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 4, 6)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -338,30 +342,16 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
-                repository.updateWorkoutSchedule(
-                    workoutId = 43,
-                    weekStartDate = targetWeekStart,
-                    dayOfWeek = targetDate.dayOfWeek,
-                    timeSlot = null,
-                    order = 0,
-                )
-            }
-            coVerify(exactly = 1) {
-                repository.updateWorkoutDetails(
-                    workoutId = 43,
-                    type = "Bike",
-                    description = "Tempo",
-                    eventType = EventType.WORKOUT,
-                    categoryId = UNCATEGORIZED_ID,
-                )
-            }
-            coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = MOVE_WORKOUT_BETWEEN_DAYS,
-                    entityType = any(),
-                    entityId = 43,
-                    metadata = any(),
-                    timestamp = any(),
+                commandRepository.updateDetails(
+                    WorkoutDetailsCommand(
+                        workoutId = 43,
+                        type = "Bike",
+                        description = "Tempo",
+                        eventType = EventType.WORKOUT,
+                        categoryId = UNCATEGORIZED_ID,
+                        displayWeekStart = weekStart,
+                        targetDate = targetDate,
+                    ),
                 )
             }
 

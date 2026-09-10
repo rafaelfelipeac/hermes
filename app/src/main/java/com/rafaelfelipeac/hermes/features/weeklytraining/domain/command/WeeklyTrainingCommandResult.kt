@@ -10,6 +10,8 @@ sealed interface WeeklyTrainingCommandResult {
 
     data object ScheduleChanged : WeeklyTrainingCommandResult
 
+    data object DetailsChanged : WeeklyTrainingCommandResult
+
     data object WorkoutDeleted : WeeklyTrainingCommandResult
 
     data object NoChange : WeeklyTrainingCommandResult

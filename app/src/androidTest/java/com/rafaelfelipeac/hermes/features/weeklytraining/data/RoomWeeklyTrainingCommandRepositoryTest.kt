@@ -10,6 +10,7 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
@@ -32,13 +33,17 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleChange
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
@@ -300,6 +305,105 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertTrue(logger.actions.isEmpty())
         }
 
+    @Test
+    fun updateDetails_updatesWorkoutAndLogsPersistedMetadata() =
+        runTest {
+            seedCategory()
+            seedWorkout(sampleWorkout(type = "Easy", description = "Aerobic"))
+
+            val result =
+                repository.updateDetails(
+                    detailsCommand(
+                        type = "Tempo",
+                        description = "Threshold",
+                    ),
+                )
+
+            assertEquals(WeeklyTrainingCommandResult.DetailsChanged, result)
+            val workout = database.workoutDao().getWorkout(WORKOUT_ID)
+            assertEquals("Tempo", workout?.type)
+            assertEquals("Threshold", workout?.description)
+            logger.assertDetailsLoggedOnce(
+                actionType = UPDATE_WORKOUT,
+                entityType = WORKOUT,
+                oldType = "Easy",
+                newType = "Tempo",
+                oldDescription = "Aerobic",
+                newDescription = "Threshold",
+            )
+        }
+
+    @Test
+    fun updateDetails_movesRaceEventAndNormalizesSourceBucket() =
+        runTest {
+            seedCategory()
+            seedWorkout(sampleWorkout(id = 10, eventType = EventType.RACE_EVENT, sortOrder = 0))
+            seedWorkout(sampleWorkout(id = WORKOUT_ID, eventType = EventType.RACE_EVENT, sortOrder = 1))
+            seedWorkout(sampleWorkout(id = 30, eventType = EventType.RACE_EVENT, sortOrder = 2))
+
+            val result =
+                repository.updateDetails(
+                    detailsCommand(
+                        type = "Race",
+                        description = "10K",
+                        eventType = EventType.RACE_EVENT,
+                        targetDate = LocalDate.parse("2026-09-08"),
+                    ),
+                )
+
+            assertEquals(WeeklyTrainingCommandResult.DetailsChanged, result)
+            assertEquals(1, database.workoutDao().getWorkout(30)?.sortOrder)
+            logger.assertMovedDetailsLoggedOnce(
+                actionType = MOVE_RACE_EVENT,
+                entityType = RACE_EVENT,
+                oldDayOfWeek = DayOfWeek.MONDAY.value.toString(),
+                newDayOfWeek = DayOfWeek.TUESDAY.value.toString(),
+                oldOrder = "1",
+                newOrder = "0",
+            )
+        }
+
+    @Test
+    fun updateDetails_updatesRaceEventWithoutMove() =
+        runTest {
+            seedCategory()
+            seedWorkout(sampleWorkout(eventType = EventType.RACE_EVENT))
+
+            val result =
+                repository.updateDetails(
+                    detailsCommand(
+                        type = "Race",
+                        description = "10K",
+                        eventType = EventType.RACE_EVENT,
+                        targetDate = LocalDate.parse("2026-09-07"),
+                    ),
+                )
+
+            assertEquals(WeeklyTrainingCommandResult.DetailsChanged, result)
+            logger.assertDetailsLoggedOnce(
+                actionType = UPDATE_RACE_EVENT,
+                entityType = RACE_EVENT,
+                oldType = WORKOUT_TYPE,
+                newType = "Race",
+                oldDescription = WORKOUT_DESCRIPTION,
+                newDescription = "10K",
+            )
+        }
+
+    @Test
+    fun updateDetails_rollsBackWhenLoggerFails() =
+        runTest {
+            val original = sampleWorkout()
+            seedWorkout(original)
+            logger.failNextLog = true
+
+            val result = runCatching { repository.updateDetails(detailsCommand(type = "Tempo")) }
+
+            assertTrue(result.isFailure)
+            assertEquals(original, database.workoutDao().getWorkout(WORKOUT_ID))
+            assertTrue(logger.actions.isEmpty())
+        }
+
     private suspend fun seedCategory() {
         database.categoryDao().insert(
             CategoryEntity(
@@ -337,6 +441,21 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             changes = changes.toList(),
         )
 
+    private fun detailsCommand(
+        type: String = WORKOUT_TYPE,
+        description: String = WORKOUT_DESCRIPTION,
+        eventType: EventType = EventType.WORKOUT,
+        targetDate: LocalDate? = null,
+    ) = WorkoutDetailsCommand(
+        workoutId = WORKOUT_ID,
+        type = type,
+        description = description,
+        eventType = eventType,
+        categoryId = WORKOUT_CATEGORY_ID,
+        displayWeekStart = LocalDate.parse("2026-09-07"),
+        targetDate = targetDate,
+    )
+
     private fun sampleWorkout(
         id: Long = WORKOUT_ID,
         eventType: EventType = EventType.WORKOUT,
@@ -345,12 +464,14 @@ class RoomWeeklyTrainingCommandRepositoryTest {
         dayOfWeek: Int? = DayOfWeek.MONDAY.value,
         timeSlot: String? = null,
         sortOrder: Int = 0,
+        type: String = WORKOUT_TYPE,
+        description: String = WORKOUT_DESCRIPTION,
     ) = WorkoutEntity(
         id = id,
         weekStartDate = LocalDate.parse("2026-09-07"),
         dayOfWeek = dayOfWeek,
-        type = WORKOUT_TYPE,
-        description = WORKOUT_DESCRIPTION,
+        type = type,
+        description = description,
         isCompleted = isCompleted,
         isRestDay = isRestDay,
         eventType = eventType.name,
@@ -431,6 +552,48 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertEquals(WORKOUT_DESCRIPTION, action.metadata?.get(NEW_DESCRIPTION))
             assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID))
             assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(CATEGORY_NAME))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(NEW_CATEGORY_NAME))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(OLD_CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(OLD_CATEGORY_NAME))
+        }
+
+        fun assertDetailsLoggedOnce(
+            actionType: UserActionType,
+            entityType: UserActionEntityType,
+            oldType: String,
+            newType: String,
+            oldDescription: String,
+            newDescription: String,
+        ) {
+            val action = assertCommonAction(actionType, entityType)
+            assertEquals(oldType, action.metadata?.get(OLD_TYPE))
+            assertEquals(newType, action.metadata?.get(NEW_TYPE))
+            assertEquals(oldDescription, action.metadata?.get(OLD_DESCRIPTION))
+            assertEquals(newDescription, action.metadata?.get(NEW_DESCRIPTION))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(CATEGORY_NAME))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(NEW_CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(NEW_CATEGORY_NAME))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(OLD_CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(OLD_CATEGORY_NAME))
+        }
+
+        fun assertMovedDetailsLoggedOnce(
+            actionType: UserActionType,
+            entityType: UserActionEntityType,
+            oldDayOfWeek: String,
+            newDayOfWeek: String,
+            oldOrder: String,
+            newOrder: String,
+        ) {
+            val action = assertCommonAction(actionType, entityType)
+            assertEquals(oldDayOfWeek, action.metadata?.get(OLD_DAY_OF_WEEK))
+            assertEquals(newDayOfWeek, action.metadata?.get(NEW_DAY_OF_WEEK))
+            assertEquals(oldOrder, action.metadata?.get(OLD_ORDER))
+            assertEquals(newOrder, action.metadata?.get(NEW_ORDER))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(CATEGORY_NAME))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(NEW_CATEGORY_ID))
             assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(NEW_CATEGORY_NAME))
             assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(OLD_CATEGORY_ID))
             assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(OLD_CATEGORY_NAME))
