@@ -4,19 +4,13 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
@@ -25,6 +19,7 @@ import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
@@ -36,7 +31,6 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutD
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleChange
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleCommand
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.REST
@@ -242,53 +236,22 @@ class WeeklyTrainingViewModel
                     categoryId = categoryId,
                     categories = currentState.categories,
                 )
-            val categoryName =
-                currentState.categories.firstOrNull { it.id == normalizedCategoryId }?.name
 
             viewModelScope.launch {
                 val storageWeekStart = canonicalStorageWeekStart(workoutDate ?: currentState.selectedDate)
                 val dayOfWeek = workoutDate?.dayOfWeek
-                val nextOrder =
-                    if (dayOfWeek == null) {
-                        nextUnplannedOrder(currentState)
-                    } else {
-                        repository.getWorkoutsForWeek(storageWeekStart)
-                            .count { workout ->
-                                workout.dayOfWeek == dayOfWeek &&
-                                    workout.timeSlot == null
-                            }
-                    }
-                val workoutId =
-                    repository.addWorkout(
-                        AddWorkoutRequest(
-                            weekStartDate = storageWeekStart,
-                            dayOfWeek = dayOfWeek,
-                            type = type,
-                            description = description,
-                            categoryId = normalizedCategoryId,
-                            order = nextOrder,
-                        ),
-                    )
 
-                userActionLogger.log(
-                    actionType = CREATE_WORKOUT,
-                    entityType = WORKOUT,
-                    entityId = workoutId,
-                    metadata =
-                        mutableMapOf(
-                            WEEK_START_DATE to storageWeekStart.toString(),
-                            DAY_OF_WEEK to (dayOfWeek?.value?.toString() ?: UNPLANNED),
-                            NEW_ORDER to nextOrder.toString(),
-                            NEW_TYPE to type,
-                            NEW_DESCRIPTION to description,
-                        ).apply {
-                            putWorkoutCategoryMetadata(
-                                categoryId = normalizedCategoryId,
-                                categoryName = categoryName,
-                                newCategoryId = normalizedCategoryId,
-                                newCategoryName = categoryName,
-                            )
-                        },
+                weeklyTrainingCommandRepository.createItem(
+                    CreateWeeklyItemCommand(
+                        eventType = EventType.WORKOUT,
+                        storageWeekStart = storageWeekStart,
+                        displayWeekStart = storageWeekStart,
+                        dayOfWeek = dayOfWeek,
+                        timeSlot = null,
+                        type = type,
+                        description = description,
+                        categoryId = normalizedCategoryId,
+                    ),
                 )
             }
         }
@@ -318,83 +281,43 @@ class WeeklyTrainingViewModel
                     categoryId = categoryId,
                     categories = currentState.categories,
                 )
-            val categoryName =
-                currentState.categories.firstOrNull { it.id == normalizedCategoryId }?.name
 
             viewModelScope.launch {
                 val storageWeekStart = canonicalStorageWeekStart(eventDate)
                 val dayOfWeek = eventDate.dayOfWeek
-                val nextOrder =
-                    repository.getWorkoutsForWeek(storageWeekStart)
-                        .count { workout ->
-                            workout.dayOfWeek == dayOfWeek &&
-                                workout.timeSlot == null
-                        }
 
-                val eventId =
-                    repository.insertWorkout(
-                        Workout(
-                            id = 0L,
-                            weekStartDate = storageWeekStart,
-                            dayOfWeek = dayOfWeek,
-                            type = type,
-                            description = description,
-                            isCompleted = false,
-                            isRestDay = false,
-                            categoryId = normalizedCategoryId,
-                            order = nextOrder,
-                            eventType = EventType.RACE_EVENT,
-                            timeSlot = null,
-                        ),
-                    )
-
-                userActionLogger.log(
-                    actionType = EventType.RACE_EVENT.toCreateActionType(),
-                    entityType = EventType.RACE_EVENT.toUserActionEntityType(),
-                    entityId = eventId,
-                    metadata =
-                        mutableMapOf(
-                            WEEK_START_DATE to storageWeekStart.toString(),
-                            DAY_OF_WEEK to dayOfWeek.value.toString(),
-                            NEW_ORDER to nextOrder.toString(),
-                            NEW_TYPE to type,
-                            NEW_DESCRIPTION to description,
-                        ).apply {
-                            putWorkoutCategoryMetadata(
-                                categoryId = normalizedCategoryId,
-                                categoryName = categoryName,
-                                newCategoryId = normalizedCategoryId,
-                                newCategoryName = categoryName,
-                            )
-                        },
+                weeklyTrainingCommandRepository.createItem(
+                    CreateWeeklyItemCommand(
+                        eventType = EventType.RACE_EVENT,
+                        storageWeekStart = storageWeekStart,
+                        displayWeekStart = storageWeekStart,
+                        dayOfWeek = dayOfWeek,
+                        timeSlot = null,
+                        type = type,
+                        description = description,
+                        categoryId = normalizedCategoryId,
+                    ),
                 )
             }
         }
 
         private fun addNonWorkoutEvent(eventType: EventType) {
             val currentState = state.value
-            val nextOrder = nextUnplannedOrder(currentState)
 
             viewModelScope.launch {
                 val storageWeekStart = canonicalStorageWeekStart(currentState.selectedDate)
-                val eventId =
-                    repository.addEvent(
-                        weekStartDate = storageWeekStart,
-                        dayOfWeek = null,
-                        eventType = eventType,
-                        order = nextOrder,
-                    )
 
-                userActionLogger.log(
-                    actionType = eventType.toCreateActionType(),
-                    entityType = eventType.toUserActionEntityType(),
-                    entityId = eventId,
-                    metadata =
-                        mapOf(
-                            WEEK_START_DATE to currentState.weekStartDate.toString(),
-                            DAY_OF_WEEK to UNPLANNED,
-                            NEW_ORDER to nextOrder.toString(),
-                        ),
+                weeklyTrainingCommandRepository.createItem(
+                    CreateWeeklyItemCommand(
+                        eventType = eventType,
+                        storageWeekStart = storageWeekStart,
+                        displayWeekStart = currentState.weekStartDate,
+                        dayOfWeek = null,
+                        timeSlot = null,
+                        type = EMPTY,
+                        description = EMPTY,
+                        categoryId = null,
+                    ),
                 )
             }
         }

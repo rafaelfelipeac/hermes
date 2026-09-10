@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
@@ -29,14 +30,18 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.REST
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_REST_DAY
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
@@ -50,6 +55,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WOR
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
@@ -96,6 +102,49 @@ class RoomWeeklyTrainingCommandRepositoryTest {
     fun tearDown() {
         database.close()
     }
+
+    @Test
+    fun createItem_insertsWorkoutWithNextOrderAndLogsInTransaction() =
+        runTest {
+            seedCategory()
+            seedWorkout(sampleWorkout(id = 10, sortOrder = 0, timeSlot = TimeSlot.MORNING.name))
+
+            val result = repository.createItem(createWorkoutCommand())
+
+            val itemId = (result as WeeklyTrainingCommandResult.ItemCreated).itemId
+            val createdWorkout = database.workoutDao().getWorkout(itemId)
+            assertEquals(TimeSlot.MORNING.name, createdWorkout?.timeSlot)
+            assertEquals(1, createdWorkout?.sortOrder)
+            assertEquals(WORKOUT_CATEGORY_ID, createdWorkout?.categoryId)
+            logger.assertCreateWorkoutLoggedOnce(itemId)
+        }
+
+    @Test
+    fun createItem_insertsNonWorkoutEventWithoutWorkoutMetadata() =
+        runTest {
+            val result = repository.createItem(createRestCommand())
+
+            val itemId = (result as WeeklyTrainingCommandResult.ItemCreated).itemId
+            val createdWorkout = database.workoutDao().getWorkout(itemId)
+            assertEquals(EventType.REST.name, createdWorkout?.eventType)
+            assertEquals(true, createdWorkout?.isRestDay)
+            assertEquals(null, createdWorkout?.categoryId)
+            assertEquals(0, createdWorkout?.sortOrder)
+            logger.assertCreateRestLoggedOnce(itemId)
+        }
+
+    @Test
+    fun createItem_rollsBackWhenLoggerFails() =
+        runTest {
+            seedCategory()
+            logger.failNextLog = true
+
+            val result = runCatching { repository.createItem(createWorkoutCommand()) }
+
+            assertTrue(result.isFailure)
+            assertTrue(database.workoutDao().getAll().isEmpty())
+            assertTrue(logger.actions.isEmpty())
+        }
 
     @Test
     fun updateCompletion_updatesWorkoutAndLogsFromPersistedState() =
@@ -658,6 +707,30 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             displayWeekStart = LocalDate.parse("2026-09-07"),
         )
 
+    private fun createWorkoutCommand() =
+        CreateWeeklyItemCommand(
+            eventType = EventType.WORKOUT,
+            storageWeekStart = LocalDate.parse("2026-09-07"),
+            displayWeekStart = LocalDate.parse("2026-09-07"),
+            dayOfWeek = DayOfWeek.MONDAY,
+            timeSlot = TimeSlot.MORNING,
+            type = WORKOUT_TYPE,
+            description = WORKOUT_DESCRIPTION,
+            categoryId = WORKOUT_CATEGORY_ID,
+        )
+
+    private fun createRestCommand() =
+        CreateWeeklyItemCommand(
+            eventType = EventType.REST,
+            storageWeekStart = LocalDate.parse("2026-09-07"),
+            displayWeekStart = LocalDate.parse("2026-09-07"),
+            dayOfWeek = null,
+            timeSlot = null,
+            type = EMPTY,
+            description = EMPTY,
+            categoryId = null,
+        )
+
     private fun undoDeleteCommand() =
         UndoDeleteCommand(
             workout = sampleWorkout(timeSlot = TimeSlot.MORNING.name).toDomainWorkout(),
@@ -851,6 +924,26 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID))
             assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(CATEGORY_NAME))
             assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(NEW_CATEGORY_NAME))
+        }
+
+        fun assertCreateWorkoutLoggedOnce(itemId: Long) {
+            val action = assertCommonAction(CREATE_WORKOUT, WORKOUT)
+            assertEquals(itemId, action.entityId)
+            assertEquals(DayOfWeek.MONDAY.value.toString(), action.metadata?.get(DAY_OF_WEEK))
+            assertEquals("1", action.metadata?.get(NEW_ORDER))
+            assertEquals(WORKOUT_TYPE, action.metadata?.get(NEW_TYPE))
+            assertEquals(WORKOUT_DESCRIPTION, action.metadata?.get(NEW_DESCRIPTION))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(CATEGORY_NAME))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(NEW_CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(NEW_CATEGORY_NAME))
+        }
+
+        fun assertCreateRestLoggedOnce(itemId: Long) {
+            val action = assertCommonAction(CREATE_REST_DAY, REST)
+            assertEquals(itemId, action.entityId)
+            assertEquals(UNPLANNED, action.metadata?.get(DAY_OF_WEEK))
+            assertEquals("0", action.metadata?.get(NEW_ORDER))
         }
 
         fun assertScheduleLoggedOnce(

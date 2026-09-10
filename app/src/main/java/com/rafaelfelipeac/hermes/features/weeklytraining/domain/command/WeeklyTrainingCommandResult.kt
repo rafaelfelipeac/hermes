@@ -4,6 +4,10 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 
 sealed interface WeeklyTrainingCommandResult {
+    data class ItemCreated(
+        val itemId: Long,
+    ) : WeeklyTrainingCommandResult
+
     data class WeekCopied(
         val previousWorkouts: List<Workout>,
     ) : WeeklyTrainingCommandResult

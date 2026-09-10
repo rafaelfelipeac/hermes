@@ -32,6 +32,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
@@ -61,6 +62,16 @@ class RoomWeeklyTrainingCommandRepository
     ) : WeeklyTrainingCommandRepository {
         private val categoryDao = database.categoryDao()
         private val workoutDao = database.workoutDao()
+
+        override suspend fun createItem(request: CreateWeeklyItemCommand): WeeklyTrainingCommandResult {
+            return database.withTransaction {
+                CreateWeeklyItemTransaction(
+                    workoutDao = workoutDao,
+                    categoryDao = categoryDao,
+                    userActionLogger = userActionLogger,
+                ).apply(request)
+            }
+        }
 
         override suspend fun copyLastWeek(request: CopyLastWeekCommand): WeeklyTrainingCommandResult {
             return database.withTransaction {

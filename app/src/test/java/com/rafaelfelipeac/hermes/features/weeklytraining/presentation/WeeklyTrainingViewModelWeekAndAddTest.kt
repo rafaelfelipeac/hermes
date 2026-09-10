@@ -3,12 +3,11 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
-import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
@@ -22,7 +21,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.time.DayOfWeek
 import java.time.DayOfWeek.MONDAY
 import java.time.DayOfWeek.WEDNESDAY
 import java.time.LocalDate
@@ -39,10 +37,11 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 1, 15)
 
@@ -134,10 +133,11 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 1, 15)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -154,17 +154,18 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             viewModel.addWorkout(type = "Run", description = "Easy", categoryId = null)
             advanceUntilIdle()
 
-            val requestSlot = slot<AddWorkoutRequest>()
+            val commandSlot = slot<CreateWeeklyItemCommand>()
 
             coVerify(exactly = 1) {
-                repository.addWorkout(capture(requestSlot))
+                commandRepository.createItem(capture(commandSlot))
             }
-            assertEquals(weekStart, requestSlot.captured.weekStartDate)
-            assertEquals(null, requestSlot.captured.dayOfWeek)
-            assertEquals("Run", requestSlot.captured.type)
-            assertEquals("Easy", requestSlot.captured.description)
-            assertEquals(UNCATEGORIZED_ID, requestSlot.captured.categoryId)
-            assertEquals(2, requestSlot.captured.order)
+            assertEquals(EventType.WORKOUT, commandSlot.captured.eventType)
+            assertEquals(weekStart, commandSlot.captured.storageWeekStart)
+            assertEquals(weekStart, commandSlot.captured.displayWeekStart)
+            assertEquals(null, commandSlot.captured.dayOfWeek)
+            assertEquals("Run", commandSlot.captured.type)
+            assertEquals("Easy", commandSlot.captured.description)
+            assertEquals(UNCATEGORIZED_ID, commandSlot.captured.categoryId)
 
             collectJob.cancel()
         }
@@ -175,10 +176,11 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 2, 18)
             val workoutDate = LocalDate.of(2026, 3, 7)
@@ -194,9 +196,6 @@ class WeeklyTrainingViewModelWeekAndAddTest {
                         order = 0,
                     ),
                 )
-            coEvery {
-                repository.getWorkoutsForWeek(derivedWeekStart)
-            } returns workoutsFlow.value
             advanceUntilIdle()
 
             viewModel.addWorkout(
@@ -207,17 +206,18 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             )
             advanceUntilIdle()
 
-            val requestSlot = slot<AddWorkoutRequest>()
+            val commandSlot = slot<CreateWeeklyItemCommand>()
 
             coVerify(exactly = 1) {
-                repository.addWorkout(capture(requestSlot))
+                commandRepository.createItem(capture(commandSlot))
             }
-            assertEquals(derivedWeekStart, requestSlot.captured.weekStartDate)
-            assertEquals(workoutDate.dayOfWeek, requestSlot.captured.dayOfWeek)
-            assertEquals("Run", requestSlot.captured.type)
-            assertEquals("Easy", requestSlot.captured.description)
-            assertEquals(UNCATEGORIZED_ID, requestSlot.captured.categoryId)
-            assertEquals(1, requestSlot.captured.order)
+            assertEquals(EventType.WORKOUT, commandSlot.captured.eventType)
+            assertEquals(derivedWeekStart, commandSlot.captured.storageWeekStart)
+            assertEquals(derivedWeekStart, commandSlot.captured.displayWeekStart)
+            assertEquals(workoutDate.dayOfWeek, commandSlot.captured.dayOfWeek)
+            assertEquals("Run", commandSlot.captured.type)
+            assertEquals("Easy", commandSlot.captured.description)
+            assertEquals(UNCATEGORIZED_ID, commandSlot.captured.categoryId)
 
             collectJob.cancel()
         }
@@ -228,10 +228,11 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 2, 2)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -246,23 +247,16 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             viewModel.addRest()
             advanceUntilIdle()
 
-            val weekStartSlot = slot<LocalDate>()
-            val daySlot = slot<DayOfWeek?>()
-            val eventTypeSlot = slot<EventType>()
-            val orderSlot = slot<Int>()
+            val commandSlot = slot<CreateWeeklyItemCommand>()
 
             coVerify(exactly = 1) {
-                repository.addEvent(
-                    weekStartDate = capture(weekStartSlot),
-                    dayOfWeek = captureNullable(daySlot),
-                    eventType = capture(eventTypeSlot),
-                    order = capture(orderSlot),
-                )
+                commandRepository.createItem(capture(commandSlot))
             }
-            assertEquals(weekStart, weekStartSlot.captured)
-            assertEquals(null, daySlot.captured)
-            assertEquals(EventType.REST, eventTypeSlot.captured)
-            assertEquals(1, orderSlot.captured)
+            assertEquals(EventType.REST, commandSlot.captured.eventType)
+            assertEquals(weekStart, commandSlot.captured.storageWeekStart)
+            assertEquals(weekStart, commandSlot.captured.displayWeekStart)
+            assertEquals(null, commandSlot.captured.dayOfWeek)
+            assertEquals(null, commandSlot.captured.categoryId)
 
             collectJob.cancel()
         }
@@ -273,10 +267,11 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 2, 18)
             val eventDate = LocalDate.of(2026, 3, 7)
@@ -293,12 +288,6 @@ class WeeklyTrainingViewModelWeekAndAddTest {
                         eventType = EventType.WORKOUT,
                     ),
                 )
-            coEvery {
-                repository.getWorkoutsForWeek(derivedWeekStart)
-            } returns workoutsFlow.value
-            coEvery {
-                repository.insertWorkout(any())
-            } returns 99L
             advanceUntilIdle()
 
             viewModel.addRaceEvent(
@@ -309,18 +298,18 @@ class WeeklyTrainingViewModelWeekAndAddTest {
             )
             advanceUntilIdle()
 
-            val workoutSlot = slot<Workout>()
+            val commandSlot = slot<CreateWeeklyItemCommand>()
 
             coVerify(exactly = 1) {
-                repository.insertWorkout(capture(workoutSlot))
+                commandRepository.createItem(capture(commandSlot))
             }
-            assertEquals(derivedWeekStart, workoutSlot.captured.weekStartDate)
-            assertEquals(eventDate.dayOfWeek, workoutSlot.captured.dayOfWeek)
-            assertEquals("Half Marathon", workoutSlot.captured.type)
-            assertEquals("Race prep", workoutSlot.captured.description)
-            assertEquals(EventType.RACE_EVENT, workoutSlot.captured.eventType)
-            assertEquals(UNCATEGORIZED_ID, workoutSlot.captured.categoryId)
-            assertEquals(1, workoutSlot.captured.order)
+            assertEquals(EventType.RACE_EVENT, commandSlot.captured.eventType)
+            assertEquals(derivedWeekStart, commandSlot.captured.storageWeekStart)
+            assertEquals(derivedWeekStart, commandSlot.captured.displayWeekStart)
+            assertEquals(eventDate.dayOfWeek, commandSlot.captured.dayOfWeek)
+            assertEquals("Half Marathon", commandSlot.captured.type)
+            assertEquals("Race prep", commandSlot.captured.description)
+            assertEquals(UNCATEGORIZED_ID, commandSlot.captured.categoryId)
 
             collectJob.cancel()
         }

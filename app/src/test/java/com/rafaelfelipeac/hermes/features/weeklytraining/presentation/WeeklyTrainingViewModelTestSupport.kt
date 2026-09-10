@@ -150,6 +150,9 @@ fun createViewModel(
 fun defaultWeeklyTrainingCommandRepository(): WeeklyTrainingCommandRepository {
     val commandRepository = mockk<WeeklyTrainingCommandRepository>()
     coEvery {
+        commandRepository.createItem(any())
+    } returns WeeklyTrainingCommandResult.ItemCreated(1L)
+    coEvery {
         commandRepository.copyLastWeek(any())
     } returns WeeklyTrainingCommandResult.WeekCopied(emptyList())
     coEvery {
