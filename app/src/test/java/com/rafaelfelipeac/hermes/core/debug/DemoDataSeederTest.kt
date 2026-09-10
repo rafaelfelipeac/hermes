@@ -393,6 +393,8 @@ class DemoDataSeederTest {
 
         override suspend fun getAll(): List<WorkoutEntity> = workouts.value
 
+        override suspend fun getWorkout(id: Long): WorkoutEntity? = workouts.value.firstOrNull { it.id == id }
+
         override fun observeAll(): Flow<List<WorkoutEntity>> = MutableStateFlow(workouts.value)
 
         override fun observeByEventType(eventType: String): Flow<List<WorkoutEntity>> =

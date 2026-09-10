@@ -9,9 +9,12 @@ import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryR
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
@@ -60,6 +63,7 @@ data class WeeklyTrainingHarness(
     val userActionLogger: UserActionLogger,
     val categoryRepository: CategoryRepository,
     val settingsRepository: SettingsRepository,
+    val commandRepository: WeeklyTrainingCommandRepository,
     val collectJob: Job,
 )
 
@@ -74,6 +78,7 @@ fun createWeeklyTrainingHarness(
     val categoryRepository = mockk<CategoryRepository>(relaxed = true)
     val categorySeeder = mockk<CategorySeeder>(relaxed = true)
     val settingsRepository = mockk<SettingsRepository>()
+    val commandRepository = defaultWeeklyTrainingCommandRepository()
 
     every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
     every { categoryRepository.observeCategories() } returns categoriesFlow
@@ -89,6 +94,7 @@ fun createWeeklyTrainingHarness(
             categoryRepository,
             categorySeeder,
             settingsRepository,
+            commandRepository,
         )
     val collectJob = backgroundScope.launch { viewModel.state.collect() }
 
@@ -98,6 +104,7 @@ fun createWeeklyTrainingHarness(
         userActionLogger = userActionLogger,
         categoryRepository = categoryRepository,
         settingsRepository = settingsRepository,
+        commandRepository = commandRepository,
         collectJob = collectJob,
     )
 }
@@ -118,6 +125,7 @@ fun createViewModel(
     userActionLogger: UserActionLogger,
     categoriesFlow: MutableStateFlow<List<Category>> = MutableStateFlow(listOf(defaultCategory())),
     weekStartDay: WeekStartDay = WeekStartDay.MONDAY,
+    commandRepository: WeeklyTrainingCommandRepository = defaultWeeklyTrainingCommandRepository(),
 ): WeeklyTrainingViewModel {
     val categoryRepository = mockk<CategoryRepository>(relaxed = true)
     val categorySeeder = mockk<CategorySeeder>(relaxed = true)
@@ -135,7 +143,20 @@ fun createViewModel(
         categoryRepository,
         categorySeeder,
         settingsRepository,
+        commandRepository,
     )
+}
+
+fun defaultWeeklyTrainingCommandRepository(): WeeklyTrainingCommandRepository {
+    val commandRepository = mockk<WeeklyTrainingCommandRepository>()
+    coEvery {
+        commandRepository.updateCompletion(any())
+    } returns
+        WeeklyTrainingCommandResult.CompletionChanged(
+            previousCompleted = false,
+            eventType = EventType.WORKOUT,
+        )
+    return commandRepository
 }
 
 data class CopyLastWeekFixture(

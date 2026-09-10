@@ -38,10 +38,11 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 6, 3)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -79,10 +80,11 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 7, 10)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -120,7 +122,13 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
             viewModel.undoLastAction()
             runCurrent()
 
-            coVerify(exactly = 1) { repository.updateWorkoutCompletion(120, true) }
+            coVerify(exactly = 1) {
+                commandRepository.updateCompletion(
+                    match { command ->
+                        command.workoutId == 120L && command.isCompleted
+                    },
+                )
+            }
             coVerify(exactly = 1) { repository.updateWorkoutCompletion(120, false) }
 
             collectJob.cancel()

@@ -43,6 +43,9 @@ import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryR
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
@@ -88,6 +91,7 @@ class WeeklyTrainingViewModel
         private val categoryRepository: CategoryRepository,
         private val categorySeeder: CategorySeeder,
         private val settingsRepository: SettingsRepository,
+        private val weeklyTrainingCommandRepository: WeeklyTrainingCommandRepository,
     ) : ViewModel() {
         private val selectedDate = MutableStateFlow(LocalDate.now())
         private val weekStartDay = settingsRepository.weekStartDay
@@ -543,38 +547,29 @@ class WeeklyTrainingViewModel
                 pendingCompletionById[workout.id] = isCompleted
                 val optimisticWorkouts = applyPendingCompletionOverrides(currentWorkouts)
 
-                repository.updateWorkoutCompletion(workout.id, isCompleted)
-
-                val actionType = workout.eventType.toCompletionActionType(isCompleted)
-
-                userActionLogger.log(
-                    actionType = actionType,
-                    entityType = workout.eventType.toUserActionEntityType(),
-                    entityId = workout.id,
-                    metadata =
-                        mutableMapOf(
-                            WEEK_START_DATE to state.value.weekStartDate.toString(),
-                            WAS_COMPLETED to originalEffective.isCompleted.toString(),
-                            IS_COMPLETED to isCompleted.toString(),
-                            NEW_TYPE to workout.type,
-                            NEW_DESCRIPTION to workout.description,
-                        ).apply {
-                            putWorkoutCategoryMetadata(
-                                categoryId = workout.categoryId,
-                                categoryName = workout.categoryName,
-                                newCategoryName = workout.categoryName,
-                            )
-                        },
-                )
+                val commandResult =
+                    weeklyTrainingCommandRepository.updateCompletion(
+                        WorkoutCompletionCommand(
+                            workoutId = workout.id,
+                            isCompleted = isCompleted,
+                            displayWeekStart = state.value.weekStartDate,
+                        ),
+                    )
+                if (commandResult !is WeeklyTrainingCommandResult.CompletionChanged) {
+                    pendingCompletionById.remove(workout.id)
+                    return@withLock
+                }
+                val undoWorkout = originalEffective.copy(isCompleted = commandResult.previousCompleted)
+                val persistedEventType = commandResult.eventType
 
                 val message =
                     if (isCompleted) {
                         if (
-                            workout.eventType.supportsCompletion() &&
+                            persistedEventType.supportsCompletion() &&
                             shouldCelebrateAllWorkoutsCompleted(
                                 currentWorkouts = optimisticWorkouts,
                                 workoutId = workout.id,
-                                previousIsCompleted = false,
+                                previousIsCompleted = commandResult.previousCompleted,
                                 newIsCompleted = true,
                             )
                         ) {
@@ -596,8 +591,8 @@ class WeeklyTrainingViewModel
                 setUndoAction(
                     action =
                         PendingUndoAction.Completion(
-                            workout = originalEffective,
-                            previousCompleted = originalEffective.isCompleted,
+                            workout = undoWorkout,
+                            previousCompleted = commandResult.previousCompleted,
                             newCompleted = isCompleted,
                             weekStartDate = state.value.weekStartDate,
                         ),

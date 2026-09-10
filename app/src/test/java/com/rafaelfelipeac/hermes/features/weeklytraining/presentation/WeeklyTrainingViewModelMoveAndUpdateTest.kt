@@ -7,20 +7,19 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -55,10 +54,11 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 3, 4)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -241,7 +241,7 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
         }
 
     @Test
-    fun updateAndDelete_delegateToRepository() =
+    fun updateDetailsAndDelete_delegateToRepository() =
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
@@ -263,22 +263,6 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
                 )
             runCurrent()
 
-            viewModel.updateWorkoutCompletion(
-                workout =
-                    WorkoutUi(
-                        id = 42,
-                        dayOfWeek = null,
-                        type = "Bike",
-                        description = "Tempo",
-                        isCompleted = false,
-                        isRestDay = false,
-                        categoryId = UNCATEGORIZED_ID,
-                        categoryColorId = "uncategorized",
-                        categoryName = "Uncategorized",
-                        order = 0,
-                    ),
-                isCompleted = true,
-            )
             viewModel.updateWorkoutDetails(
                 workoutId = 43,
                 type = "Bike",
@@ -289,7 +273,6 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             viewModel.deleteWorkout(workoutId = 44)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { repository.updateWorkoutCompletion(42, true) }
             coVerify(exactly = 1) {
                 repository.updateWorkoutDetails(
                     workoutId = 43,
@@ -472,15 +455,16 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
         }
 
     @Test
-    fun updateWorkoutCompletion_logsCategoryMetadata() =
+    fun updateWorkoutCompletion_dispatchesCompletionCommand() =
         runTest(mainDispatcherRule.testDispatcher) {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 4, 7)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -496,18 +480,15 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             viewModel.updateWorkoutCompletion(workout = targetWorkout, isCompleted = true)
             advanceUntilIdle()
 
-            val metadataSlot = slot<Map<String, String>>()
-            coVerify(atLeast = 1) {
-                userActionLogger.log(
-                    actionType = any(),
-                    entityType = any(),
-                    entityId = 42L,
-                    metadata = capture(metadataSlot),
-                    timestamp = any(),
+            coVerify(exactly = 1) {
+                commandRepository.updateCompletion(
+                    match { command ->
+                        command.workoutId == 42L &&
+                            command.isCompleted &&
+                            command.displayWeekStart == weekStart
+                    },
                 )
             }
-            assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[CATEGORY_ID])
-            assertEquals("Uncategorized", metadataSlot.captured[CATEGORY_NAME])
 
             collectJob.cancel()
         }
@@ -518,10 +499,11 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = raceEventCompletionCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val undoStates = mutableListOf<UndoState?>()
             val undoJob = backgroundScope.launch { viewModel.undoUiState.collect(undoStates::add) }
@@ -545,14 +527,11 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             viewModel.updateWorkoutCompletion(workout = targetEvent, isCompleted = true)
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { repository.updateWorkoutCompletion(45, true) }
             coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = COMPLETE_RACE_EVENT,
-                    entityType = RACE_EVENT,
-                    entityId = 45L,
-                    metadata = any(),
-                    timestamp = any(),
+                commandRepository.updateCompletion(
+                    match { command ->
+                        command.workoutId == 45L && command.isCompleted
+                    },
                 )
             }
             assertEquals(
@@ -563,6 +542,18 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             undoJob.cancel()
             collectJob.cancel()
         }
+
+    private fun raceEventCompletionCommandRepository(): WeeklyTrainingCommandRepository {
+        val commandRepository = mockk<WeeklyTrainingCommandRepository>()
+        coEvery {
+            commandRepository.updateCompletion(any())
+        } returns
+            WeeklyTrainingCommandResult.CompletionChanged(
+                previousCompleted = false,
+                eventType = EventType.RACE_EVENT,
+            )
+        return commandRepository
+    }
 
     @Test
     fun updateWorkoutCompletion_whenCompletingBackToBackWithStaleState_stillEmitsWeekCelebration() =

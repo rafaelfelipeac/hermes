@@ -620,3 +620,4 @@ Recent learnings:
 - Category delete/reorder commands are safer as feature-level Room transactions than as ViewModel orchestration. Keeping reassignment, category mutation, and Activity logging inside one coordinator lets logger failures roll back the same database state that the user action describes.
 
 - Deleting a manual Personal Record entry should update the selected-current reference with a narrow DAO operation inside the same transaction as the delete and Activity log. That avoids rewriting stale family fields while still preventing orphaned manual selections.
+- Completion commands for weekly items need to read the persisted workout inside the Room transaction before logging. That makes repeated completion taps idempotent and keeps Activity aligned with the event type/category actually stored, while the ViewModel can still own optimistic UI and undo presentation.
