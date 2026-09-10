@@ -40,11 +40,13 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WOR
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
@@ -165,6 +167,33 @@ class RoomWeeklyTrainingCommandRepositoryTest {
 
             assertTrue(result.isFailure)
             assertEquals(false, database.workoutDao().getWorkout(WORKOUT_ID)?.isCompleted)
+            assertTrue(logger.actions.isEmpty())
+        }
+
+    @Test
+    fun undoCompletion_restoresPreviousStateAndLogsInTransaction() =
+        runTest {
+            seedCategory()
+            seedWorkout(sampleWorkout(isCompleted = true))
+
+            val result = repository.undoCompletion(undoCompletionCommand())
+
+            assertEquals(WeeklyTrainingCommandResult.UndoApplied, result)
+            assertEquals(false, database.workoutDao().getWorkout(WORKOUT_ID)?.isCompleted)
+            logger.assertUndoCompletionLoggedOnce()
+        }
+
+    @Test
+    fun undoCompletion_rollsBackWhenLoggerFails() =
+        runTest {
+            val original = sampleWorkout(isCompleted = true)
+            seedWorkout(original)
+            logger.failNextLog = true
+
+            val result = runCatching { repository.undoCompletion(undoCompletionCommand()) }
+
+            assertTrue(result.isFailure)
+            assertEquals(original, database.workoutDao().getWorkout(WORKOUT_ID))
             assertTrue(logger.actions.isEmpty())
         }
 
@@ -482,6 +511,14 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             displayWeekStart = LocalDate.parse("2026-09-07"),
         )
 
+    private fun undoCompletionCommand() =
+        UndoCompletionCommand(
+            workoutId = WORKOUT_ID,
+            previousCompleted = false,
+            newCompleted = true,
+            displayWeekStart = LocalDate.parse("2026-09-07"),
+        )
+
     private fun deleteCommand() =
         WorkoutDeleteCommand(
             workoutId = WORKOUT_ID,
@@ -593,6 +630,17 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             val action = assertCommonAction(actionType, entityType)
             assertEquals("false", action.metadata?.get(WAS_COMPLETED))
             assertEquals("true", action.metadata?.get(IS_COMPLETED))
+            assertEquals(WORKOUT_TYPE, action.metadata?.get(NEW_TYPE))
+            assertEquals(WORKOUT_DESCRIPTION, action.metadata?.get(NEW_DESCRIPTION))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(CATEGORY_NAME))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(NEW_CATEGORY_NAME))
+        }
+
+        fun assertUndoCompletionLoggedOnce() {
+            val action = assertCommonAction(UNDO_COMPLETE_WORKOUT, WORKOUT)
+            assertEquals("true", action.metadata?.get(WAS_COMPLETED))
+            assertEquals("false", action.metadata?.get(IS_COMPLETED))
             assertEquals(WORKOUT_TYPE, action.metadata?.get(NEW_TYPE))
             assertEquals(WORKOUT_DESCRIPTION, action.metadata?.get(NEW_DESCRIPTION))
             assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID))

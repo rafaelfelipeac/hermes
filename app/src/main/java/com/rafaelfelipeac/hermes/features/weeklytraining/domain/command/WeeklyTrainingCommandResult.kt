@@ -19,5 +19,7 @@ sealed interface WeeklyTrainingCommandResult {
 
     data object WorkoutDeleted : WeeklyTrainingCommandResult
 
+    data object UndoApplied : WeeklyTrainingCommandResult
+
     data object NoChange : WeeklyTrainingCommandResult
 }

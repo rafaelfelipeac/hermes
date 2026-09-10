@@ -32,6 +32,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
@@ -251,6 +252,47 @@ class RoomWeeklyTrainingCommandRepository
             }
         }
 
+        override suspend fun undoCompletion(request: UndoCompletionCommand): WeeklyTrainingCommandResult {
+            return database.withTransaction {
+                val workout =
+                    workoutDao.getWorkout(request.workoutId)
+                        ?: return@withTransaction WeeklyTrainingCommandResult.NoChange
+                val eventType = workout.eventType.toEventType(workout.isRestDay)
+
+                if (!eventType.supportsCompletion() || workout.isCompleted == request.previousCompleted) {
+                    return@withTransaction WeeklyTrainingCommandResult.NoChange
+                }
+
+                val categoryName = workout.categoryId?.let { categoryDao.getCategory(it)?.name }
+                workoutDao.updateCompletion(
+                    id = request.workoutId,
+                    isCompleted = request.previousCompleted,
+                )
+
+                userActionLogger.log(
+                    actionType = eventType.toUndoCompletionActionType(request.newCompleted),
+                    entityType = eventType.toUserActionEntityType(),
+                    entityId = request.workoutId,
+                    metadata =
+                        mutableMapOf(
+                            WEEK_START_DATE to request.displayWeekStart.toString(),
+                            WAS_COMPLETED to request.newCompleted.toString(),
+                            IS_COMPLETED to request.previousCompleted.toString(),
+                            NEW_TYPE to workout.type,
+                            NEW_DESCRIPTION to workout.description,
+                        ).apply {
+                            putWorkoutCategoryMetadata(
+                                categoryId = workout.categoryId,
+                                categoryName = categoryName,
+                                newCategoryName = categoryName,
+                            )
+                        },
+                )
+
+                WeeklyTrainingCommandResult.UndoApplied
+            }
+        }
+
         override suspend fun deleteWorkout(request: WorkoutDeleteCommand): WeeklyTrainingCommandResult {
             return database.withTransaction {
                 val workout =
@@ -462,6 +504,15 @@ private fun EventType.toCompletionActionType(isCompleted: Boolean): UserActionTy
             if (isCompleted) UserActionType.COMPLETE_RACE_EVENT else UserActionType.INCOMPLETE_RACE_EVENT
         else ->
             if (isCompleted) UserActionType.COMPLETE_WORKOUT else UserActionType.INCOMPLETE_WORKOUT
+    }
+}
+
+private fun EventType.toUndoCompletionActionType(wasCompleted: Boolean): UserActionType {
+    return when (this) {
+        EventType.RACE_EVENT ->
+            if (wasCompleted) UserActionType.UNDO_COMPLETE_RACE_EVENT else UserActionType.UNDO_INCOMPLETE_RACE_EVENT
+        else ->
+            if (wasCompleted) UserActionType.UNDO_COMPLETE_WORKOUT else UserActionType.UNDO_INCOMPLETE_WORKOUT
     }
 }
 

@@ -166,6 +166,9 @@ fun defaultWeeklyTrainingCommandRepository(): WeeklyTrainingCommandRepository {
             eventType = EventType.WORKOUT,
         )
     coEvery {
+        commandRepository.undoCompletion(any())
+    } returns WeeklyTrainingCommandResult.UndoApplied
+    coEvery {
         commandRepository.deleteWorkout(any())
     } returns WeeklyTrainingCommandResult.WorkoutDeleted
     return commandRepository

@@ -4,6 +4,7 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
@@ -130,7 +131,16 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
                     },
                 )
             }
-            coVerify(exactly = 1) { repository.updateWorkoutCompletion(120, false) }
+            coVerify(exactly = 1) {
+                commandRepository.undoCompletion(
+                    UndoCompletionCommand(
+                        workoutId = 120L,
+                        previousCompleted = false,
+                        newCompleted = true,
+                        displayWeekStart = weekStart,
+                    ),
+                )
+            }
 
             collectJob.cancel()
         }

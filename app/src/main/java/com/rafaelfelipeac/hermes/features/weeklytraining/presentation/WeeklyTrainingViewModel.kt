@@ -7,13 +7,11 @@ import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
@@ -27,6 +25,7 @@ import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
@@ -723,10 +722,13 @@ class WeeklyTrainingViewModel
                     is PendingUndoAction.Completion ->
                         completionUpdateMutex.withLock {
                             pendingCompletionById[action.workout.id] = action.previousCompleted
-                            undoCompletion(
-                                action = action,
-                                repository = repository,
-                                userActionLogger = userActionLogger,
+                            weeklyTrainingCommandRepository.undoCompletion(
+                                UndoCompletionCommand(
+                                    workoutId = action.workout.id,
+                                    previousCompleted = action.previousCompleted,
+                                    newCompleted = action.newCompleted,
+                                    displayWeekStart = action.weekStartDate,
+                                ),
                             )
                         }
                     is PendingUndoAction.ReplaceWeek ->
@@ -804,38 +806,3 @@ class WeeklyTrainingViewModel
             private const val UNDO_TIMEOUT_MS = 4_000L
         }
     }
-
-private suspend fun undoCompletion(
-    action: PendingUndoAction.Completion,
-    repository: WeeklyTrainingRepository,
-    userActionLogger: UserActionLogger,
-) {
-    repository.updateWorkoutCompletion(
-        workoutId = action.workout.id,
-        isCompleted = action.previousCompleted,
-    )
-
-    val entityType =
-        action.workout.eventType.toUserActionEntityType()
-    val actionType = action.workout.eventType.toUndoCompletionActionType(action.newCompleted)
-
-    userActionLogger.log(
-        actionType = actionType,
-        entityType = entityType,
-        entityId = action.workout.id,
-        metadata =
-            mutableMapOf(
-                WEEK_START_DATE to action.weekStartDate.toString(),
-                WAS_COMPLETED to action.newCompleted.toString(),
-                IS_COMPLETED to action.previousCompleted.toString(),
-                NEW_TYPE to action.workout.type,
-                NEW_DESCRIPTION to action.workout.description,
-            ).apply {
-                putWorkoutCategoryMetadata(
-                    categoryId = action.workout.categoryId,
-                    categoryName = action.workout.categoryName,
-                    newCategoryName = action.workout.categoryName,
-                )
-            },
-    )
-}

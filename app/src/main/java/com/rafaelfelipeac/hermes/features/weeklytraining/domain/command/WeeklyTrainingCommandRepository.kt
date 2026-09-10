@@ -9,5 +9,7 @@ interface WeeklyTrainingCommandRepository {
 
     suspend fun updateCompletion(request: WorkoutCompletionCommand): WeeklyTrainingCommandResult
 
+    suspend fun undoCompletion(request: UndoCompletionCommand): WeeklyTrainingCommandResult
+
     suspend fun deleteWorkout(request: WorkoutDeleteCommand): WeeklyTrainingCommandResult
 }
