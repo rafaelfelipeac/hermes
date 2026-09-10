@@ -156,6 +156,9 @@ fun defaultWeeklyTrainingCommandRepository(): WeeklyTrainingCommandRepository {
             previousCompleted = false,
             eventType = EventType.WORKOUT,
         )
+    coEvery {
+        commandRepository.deleteWorkout(any())
+    } returns WeeklyTrainingCommandResult.WorkoutDeleted
     return commandRepository
 }
 

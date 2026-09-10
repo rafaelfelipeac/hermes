@@ -21,10 +21,12 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -139,6 +141,48 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertTrue(logger.actions.isEmpty())
         }
 
+    @Test
+    fun deleteWorkout_deletesWorkoutNormalizesBucketAndLogsFromPersistedState() =
+        runTest {
+            seedCategory()
+            seedWorkout(sampleWorkout(id = 10, sortOrder = 0))
+            seedWorkout(sampleWorkout(id = WORKOUT_ID, sortOrder = 1))
+            seedWorkout(sampleWorkout(id = 30, sortOrder = 2))
+
+            val result = repository.deleteWorkout(deleteCommand())
+
+            assertEquals(WeeklyTrainingCommandResult.WorkoutDeleted, result)
+            assertEquals(null, database.workoutDao().getWorkout(WORKOUT_ID))
+            assertEquals(0, database.workoutDao().getWorkout(10)?.sortOrder)
+            assertEquals(1, database.workoutDao().getWorkout(30)?.sortOrder)
+            logger.assertLoggedOnce(
+                actionType = DELETE_WORKOUT,
+                entityType = WORKOUT,
+            )
+        }
+
+    @Test
+    fun deleteWorkout_returnsNoChangeForMissingWorkout() =
+        runTest {
+            val result = repository.deleteWorkout(deleteCommand())
+
+            assertEquals(WeeklyTrainingCommandResult.NoChange, result)
+            assertTrue(logger.actions.isEmpty())
+        }
+
+    @Test
+    fun deleteWorkout_rollsBackWhenLoggerFails() =
+        runTest {
+            seedWorkout(sampleWorkout())
+            logger.failNextLog = true
+
+            val result = runCatching { repository.deleteWorkout(deleteCommand()) }
+
+            assertTrue(result.isFailure)
+            assertEquals(sampleWorkout(), database.workoutDao().getWorkout(WORKOUT_ID))
+            assertTrue(logger.actions.isEmpty())
+        }
+
     private suspend fun seedCategory() {
         database.categoryDao().insert(
             CategoryEntity(
@@ -163,12 +207,20 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             displayWeekStart = LocalDate.parse("2026-09-07"),
         )
 
+    private fun deleteCommand() =
+        WorkoutDeleteCommand(
+            workoutId = WORKOUT_ID,
+            displayWeekStart = LocalDate.parse("2026-09-07"),
+        )
+
     private fun sampleWorkout(
+        id: Long = WORKOUT_ID,
         eventType: EventType = EventType.WORKOUT,
         isCompleted: Boolean = false,
         isRestDay: Boolean = false,
+        sortOrder: Int = 0,
     ) = WorkoutEntity(
-        id = WORKOUT_ID,
+        id = id,
         weekStartDate = LocalDate.parse("2026-09-07"),
         dayOfWeek = 1,
         type = WORKOUT_TYPE,
@@ -178,7 +230,7 @@ class RoomWeeklyTrainingCommandRepositoryTest {
         eventType = eventType.name,
         timeSlot = null,
         categoryId = WORKOUT_CATEGORY_ID,
-        sortOrder = 0,
+        sortOrder = sortOrder,
     )
 
     private class FakeUserActionLogger : UserActionLogger {

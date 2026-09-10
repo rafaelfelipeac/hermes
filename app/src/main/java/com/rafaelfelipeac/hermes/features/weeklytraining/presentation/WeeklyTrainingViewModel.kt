@@ -34,7 +34,6 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_RE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CONVERT_WORKOUT_TO_REST_DAY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -46,6 +45,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorage
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
@@ -862,17 +862,19 @@ class WeeklyTrainingViewModel
                         currentWorkouts = currentWorkouts,
                     )
 
-                repository.deleteWorkout(workoutId)
-
-                if (original != null) {
-                    normalizeOrdersAfterDelete(
-                        deletedWorkoutId = workoutId,
-                        dayOfWeek = original.dayOfWeek,
-                        timeSlot = original.timeSlot,
-                        currentWorkouts = currentWorkouts,
-                        repository = repository,
+                val commandResult =
+                    weeklyTrainingCommandRepository.deleteWorkout(
+                        WorkoutDeleteCommand(
+                            workoutId = workoutId,
+                            displayWeekStart = state.value.weekStartDate,
+                        ),
                     )
 
+                if (commandResult !is WeeklyTrainingCommandResult.WorkoutDeleted) {
+                    return@launch
+                }
+
+                if (original != null) {
                     setUndoAction(
                         action =
                             PendingUndoAction.Delete(
@@ -883,13 +885,6 @@ class WeeklyTrainingViewModel
                         message = UndoMessage.Deleted,
                     )
                 }
-
-                logWorkoutDeletion(
-                    userActionLogger = userActionLogger,
-                    workoutId = workoutId,
-                    weekStartDate = state.value.weekStartDate,
-                    original = original,
-                )
             }
 
         fun undoLastAction() {
@@ -1096,34 +1091,5 @@ private suspend fun logWorkoutDetailsUpdate(
         entityType = entityType,
         entityId = workoutId,
         metadata = buildWorkoutUpdateMetadata(metadataInput),
-    )
-}
-
-private suspend fun logWorkoutDeletion(
-    userActionLogger: UserActionLogger,
-    workoutId: Long,
-    weekStartDate: LocalDate,
-    original: WorkoutUi?,
-) {
-    val entityType = original?.eventType?.toUserActionEntityType() ?: WORKOUT
-    val actionType = original?.eventType?.toDeleteActionType() ?: DELETE_WORKOUT
-
-    userActionLogger.log(
-        actionType = actionType,
-        entityType = entityType,
-        entityId = workoutId,
-        metadata =
-            mutableMapOf(
-                WEEK_START_DATE to weekStartDate.toString(),
-                OLD_TYPE to (original?.type ?: EMPTY),
-                OLD_DESCRIPTION to (original?.description ?: EMPTY),
-            ).apply {
-                putWorkoutCategoryMetadata(
-                    categoryId = original?.categoryId,
-                    categoryName = original?.categoryName,
-                    oldCategoryId = original?.categoryId,
-                    oldCategoryName = original?.categoryName,
-                )
-            },
     )
 }

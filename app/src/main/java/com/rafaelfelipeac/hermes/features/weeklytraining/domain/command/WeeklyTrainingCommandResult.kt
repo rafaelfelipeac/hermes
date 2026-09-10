@@ -8,5 +8,7 @@ sealed interface WeeklyTrainingCommandResult {
         val eventType: EventType,
     ) : WeeklyTrainingCommandResult
 
+    data object WorkoutDeleted : WeeklyTrainingCommandResult
+
     data object NoChange : WeeklyTrainingCommandResult
 }
