@@ -174,6 +174,9 @@ fun defaultWeeklyTrainingCommandRepository(): WeeklyTrainingCommandRepository {
     coEvery {
         commandRepository.deleteWorkout(any())
     } returns WeeklyTrainingCommandResult.WorkoutDeleted
+    coEvery {
+        commandRepository.undoDelete(any())
+    } returns WeeklyTrainingCommandResult.UndoApplied
     return commandRepository
 }
 

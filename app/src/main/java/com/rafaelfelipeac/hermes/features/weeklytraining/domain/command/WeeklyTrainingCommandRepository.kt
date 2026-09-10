@@ -14,4 +14,6 @@ interface WeeklyTrainingCommandRepository {
     suspend fun undoCompletion(request: UndoCompletionCommand): WeeklyTrainingCommandResult
 
     suspend fun deleteWorkout(request: WorkoutDeleteCommand): WeeklyTrainingCommandResult
+
+    suspend fun undoDelete(request: UndoDeleteCommand): WeeklyTrainingCommandResult
 }

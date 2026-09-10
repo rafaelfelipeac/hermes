@@ -26,6 +26,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRep
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
@@ -708,28 +709,9 @@ class WeeklyTrainingViewModel
             viewModelScope.launch {
                 when (val action = currentUndo.action) {
                     is PendingUndoAction.MoveOrReorder ->
-                        weeklyTrainingCommandRepository.undoSchedule(
-                            UndoScheduleCommand(
-                                movedWorkoutId = action.movedWorkoutId,
-                                displayWeekStart = action.weekStartDate,
-                                previousPositions =
-                                    action.previousPositions.map { position ->
-                                        WorkoutScheduleChange(
-                                            workoutId = position.id,
-                                            weekStartDate = position.weekStartDate,
-                                            dayOfWeek = position.dayOfWeek,
-                                            timeSlot = position.timeSlot,
-                                            order = position.order,
-                                        )
-                                    },
-                            ),
-                        )
+                        weeklyTrainingCommandRepository.undoSchedule(action.toUndoScheduleCommand())
                     is PendingUndoAction.Delete ->
-                        undoDelete(
-                            action = action,
-                            repository = repository,
-                            userActionLogger = userActionLogger,
-                        )
+                        weeklyTrainingCommandRepository.undoDelete(action.toUndoDeleteCommand())
                     is PendingUndoAction.Completion ->
                         completionUpdateMutex.withLock {
                             pendingCompletionById[action.workout.id] = action.previousCompleted
@@ -810,6 +792,50 @@ class WeeklyTrainingViewModel
                 } else {
                     workout.copy(isCompleted = pendingCompletion)
                 }
+            }
+        }
+
+        private fun WorkoutUi.toWorkout(): Workout {
+            return Workout(
+                id = id,
+                weekStartDate = weekStartDate,
+                dayOfWeek = dayOfWeek,
+                type = type,
+                description = description,
+                isCompleted = isCompleted,
+                isRestDay = isRestDay,
+                categoryId = categoryId,
+                order = order,
+                eventType = eventType,
+                timeSlot = timeSlot,
+            )
+        }
+
+        private fun PendingUndoAction.MoveOrReorder.toUndoScheduleCommand(): UndoScheduleCommand {
+            return UndoScheduleCommand(
+                movedWorkoutId = movedWorkoutId,
+                displayWeekStart = weekStartDate,
+                previousPositions = previousPositions.toScheduleChanges(),
+            )
+        }
+
+        private fun PendingUndoAction.Delete.toUndoDeleteCommand(): UndoDeleteCommand {
+            return UndoDeleteCommand(
+                workout = workout.toWorkout(),
+                displayWeekStart = weekStartDate,
+                previousPositions = previousPositions.toScheduleChanges(),
+            )
+        }
+
+        private fun List<WorkoutPosition>.toScheduleChanges(): List<WorkoutScheduleChange> {
+            return map { position ->
+                WorkoutScheduleChange(
+                    workoutId = position.id,
+                    weekStartDate = position.weekStartDate,
+                    dayOfWeek = position.dayOfWeek,
+                    timeSlot = position.timeSlot,
+                    order = position.order,
+                )
             }
         }
 

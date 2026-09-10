@@ -5,6 +5,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
@@ -66,12 +67,13 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
             viewModel.undoLastAction()
             runCurrent()
 
-            val workoutSlot = slot<Workout>()
-            coVerify(exactly = 1) { repository.insertWorkout(capture(workoutSlot)) }
-            assertEquals(deletedWorkout.id, workoutSlot.captured.id)
-            assertEquals(weekStart, workoutSlot.captured.weekStartDate)
-            assertEquals(deletedWorkout.dayOfWeek, workoutSlot.captured.dayOfWeek)
-            assertEquals(deletedWorkout.order, workoutSlot.captured.order)
+            val commandSlot = slot<UndoDeleteCommand>()
+            coVerify(exactly = 1) { commandRepository.undoDelete(capture(commandSlot)) }
+            assertEquals(deletedWorkout.id, commandSlot.captured.workout.id)
+            assertEquals(weekStart, commandSlot.captured.workout.weekStartDate)
+            assertEquals(deletedWorkout.dayOfWeek, commandSlot.captured.workout.dayOfWeek)
+            assertEquals(deletedWorkout.order, commandSlot.captured.workout.order)
+            assertEquals(emptyList<WorkoutPosition>(), commandSlot.captured.previousPositions)
 
             collectJob.cancel()
         }

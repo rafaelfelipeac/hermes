@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
@@ -41,6 +42,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_RACE_
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
@@ -48,6 +50,7 @@ import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
@@ -238,6 +241,32 @@ class RoomWeeklyTrainingCommandRepositoryTest {
 
             assertTrue(result.isFailure)
             assertEquals(sampleWorkout(), database.workoutDao().getWorkout(WORKOUT_ID))
+            assertTrue(logger.actions.isEmpty())
+        }
+
+    @Test
+    fun undoDelete_restoresWorkoutAndLogsInTransaction() =
+        runTest {
+            seedCategory()
+            seedWorkout(sampleWorkout(id = 10, sortOrder = 0, timeSlot = TimeSlot.MORNING.name))
+
+            val result = repository.undoDelete(undoDeleteCommand())
+
+            assertEquals(WeeklyTrainingCommandResult.UndoApplied, result)
+            val restoredWorkout = database.workoutDao().getWorkout(WORKOUT_ID)
+            assertEquals(sampleWorkout(timeSlot = TimeSlot.MORNING.name), restoredWorkout)
+            logger.assertUndoDeleteLoggedOnce()
+        }
+
+    @Test
+    fun undoDelete_rollsBackWhenLoggerFails() =
+        runTest {
+            logger.failNextLog = true
+
+            val result = runCatching { repository.undoDelete(undoDeleteCommand()) }
+
+            assertTrue(result.isFailure)
+            assertEquals(null, database.workoutDao().getWorkout(WORKOUT_ID))
             assertTrue(logger.actions.isEmpty())
         }
 
@@ -580,6 +609,22 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             displayWeekStart = LocalDate.parse("2026-09-07"),
         )
 
+    private fun undoDeleteCommand() =
+        UndoDeleteCommand(
+            workout = sampleWorkout(timeSlot = TimeSlot.MORNING.name).toDomainWorkout(),
+            displayWeekStart = LocalDate.parse("2026-09-07"),
+            previousPositions =
+                listOf(
+                    WorkoutScheduleChange(
+                        workoutId = 10,
+                        weekStartDate = LocalDate.parse("2026-09-07"),
+                        dayOfWeek = DayOfWeek.MONDAY,
+                        timeSlot = TimeSlot.MORNING,
+                        order = 0,
+                    ),
+                ),
+        )
+
     private fun scheduleCommand(vararg changes: WorkoutScheduleChange) =
         WorkoutScheduleCommand(
             movedWorkoutId = WORKOUT_ID,
@@ -737,6 +782,18 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(CATEGORY_NAME))
             assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(OLD_CATEGORY_ID))
             assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(OLD_CATEGORY_NAME))
+        }
+
+        fun assertUndoDeleteLoggedOnce() {
+            val action = assertCommonAction(UNDO_DELETE_WORKOUT, WORKOUT)
+            assertEquals(DayOfWeek.MONDAY.value.toString(), action.metadata?.get(DAY_OF_WEEK))
+            assertEquals(TimeSlot.MORNING.name, action.metadata?.get(NEW_TIME_SLOT))
+            assertEquals("0", action.metadata?.get(NEW_ORDER))
+            assertEquals(WORKOUT_TYPE, action.metadata?.get(NEW_TYPE))
+            assertEquals(WORKOUT_DESCRIPTION, action.metadata?.get(NEW_DESCRIPTION))
+            assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(CATEGORY_NAME))
+            assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(NEW_CATEGORY_NAME))
         }
 
         fun assertScheduleLoggedOnce(
