@@ -29,6 +29,7 @@ import com.rafaelfelipeac.hermes.features.settings.data.SettingsRepositoryImpl
 import com.rafaelfelipeac.hermes.features.settings.data.settingsDataStore
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
@@ -340,7 +341,7 @@ class BackupRepositoryImplTest {
                             BackupSettingsRecord(
                                 themeMode = ThemeMode.SYSTEM.name,
                                 languageTag = "en",
-                                slotModePolicy = com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE.name,
+                                slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE.name,
                                 weekStartDay = WeekStartDay.FRIDAY.name,
                                 distanceUnit = DistanceUnit.MILES.name,
                                 paceUnit = PaceUnit.MIN_PER_MI.name,

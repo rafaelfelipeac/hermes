@@ -1,3 +1,8 @@
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.LibraryElements
+import org.gradle.api.attributes.Usage
+import org.gradle.api.tasks.JavaExec
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -10,6 +15,7 @@ plugins {
 
 val appVersionCode = 19
 val appVersionName = "1.12.0"
+val ktlintCliVersion = "1.0.1"
 
 val releaseKeystorePath = providers.gradleProperty("RELEASE_KEYSTORE_PATH").orNull
 val releaseKeystorePassword = providers.gradleProperty("RELEASE_KEYSTORE_PASSWORD").orNull
@@ -91,6 +97,17 @@ android {
     }
 }
 
+val ktlintCliRuntime =
+    configurations.create("ktlintCliRuntime") {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
+            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements.JAR))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+        }
+    }
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -128,6 +145,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     detektPlugins(libs.detekt.formatting)
+    add("ktlintCliRuntime", "com.pinterest.ktlint:ktlint-cli:$ktlintCliVersion")
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 }
 
@@ -144,4 +162,22 @@ ktlint {
     android.set(true)
     outputToConsole.set(true)
     ignoreFailures.set(false)
+}
+
+val ktlintKotlinSourceCheck =
+    tasks.register<JavaExec>("ktlintKotlinSourceCheck") {
+        group = "verification"
+        description = "Runs ktlint over Android Kotlin source sets."
+        classpath = ktlintCliRuntime
+        mainClass.set("com.pinterest.ktlint.Main")
+        args(
+            "src/main/**/*.kt",
+            "src/test/**/*.kt",
+            "src/androidTest/**/*.kt",
+            "!src/**/build/**/*.kt",
+        )
+    }
+
+tasks.named("ktlintCheck") {
+    dependsOn(ktlintKotlinSourceCheck)
 }

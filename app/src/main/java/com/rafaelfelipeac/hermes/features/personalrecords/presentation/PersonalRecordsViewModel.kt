@@ -62,9 +62,9 @@ class PersonalRecordsViewModel
                 )
             }
                 .stateInWhileSubscribed(
-                scope = viewModelScope,
-                initialValue = PersonalRecordsState(),
-            )
+                    scope = viewModelScope,
+                    initialValue = PersonalRecordsState(),
+                )
 
         fun createFamily(
             categoryId: Long?,
@@ -114,11 +114,11 @@ class PersonalRecordsViewModel
                 val now = Instant.now()
                 val updatedFamily =
                     existingFamily.copy(
-                    categoryId = categoryId,
-                    title = title,
-                    comparisonRule = comparisonRule,
-                    updatedAt = now,
-                )
+                        categoryId = categoryId,
+                        title = title,
+                        comparisonRule = comparisonRule,
+                        updatedAt = now,
+                    )
                 repository.updateFamily(updatedFamily)
 
                 userActionLogger.log(
@@ -236,7 +236,7 @@ class PersonalRecordsViewModel
                         recordDate = input.recordDate,
                         note = input.note,
                         updatedAt = now,
-                )
+                    )
                 repository.updateEntry(updatedEntry)
 
                 userActionLogger.log(

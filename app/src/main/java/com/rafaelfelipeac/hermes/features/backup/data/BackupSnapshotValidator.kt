@@ -54,8 +54,18 @@ internal object BackupSnapshotValidator {
             } catch (_: DateTimeParseException) {
                 return ImportBackupError.INVALID_FIELD_VALUE
             }
-            if (challenge.lifecycle == ChallengeLifecycle.ACTIVE.name && challenge.archivedAt != null) return ImportBackupError.INVALID_FIELD_VALUE
-            if (challenge.lifecycle == ChallengeLifecycle.ARCHIVED.name && challenge.archivedAt == null) return ImportBackupError.INVALID_FIELD_VALUE
+            if (
+                challenge.lifecycle == ChallengeLifecycle.ACTIVE.name &&
+                challenge.archivedAt != null
+            ) {
+                return ImportBackupError.INVALID_FIELD_VALUE
+            }
+            if (
+                challenge.lifecycle == ChallengeLifecycle.ARCHIVED.name &&
+                challenge.archivedAt == null
+            ) {
+                return ImportBackupError.INVALID_FIELD_VALUE
+            }
         }
 
         val challengeProgressTotals = mutableMapOf<Long, Long>()
@@ -102,9 +112,24 @@ internal object BackupSnapshotValidator {
         }
 
         snapshot.personalRecordFamilies.forEach { family ->
-            if (runCatching { PersonalRecordMetricType.valueOf(family.metricType) }.isFailure) return ImportBackupError.INVALID_FIELD_VALUE
-            if (runCatching { PersonalRecordUnit.valueOf(family.defaultUnit) }.isFailure) return ImportBackupError.INVALID_FIELD_VALUE
-            if (runCatching { PersonalRecordComparisonRule.valueOf(family.comparisonRule) }.isFailure) return ImportBackupError.INVALID_FIELD_VALUE
+            if (
+                runCatching { PersonalRecordMetricType.valueOf(family.metricType) }.isFailure
+            ) {
+                return ImportBackupError.INVALID_FIELD_VALUE
+            }
+            if (
+                runCatching { PersonalRecordUnit.valueOf(family.defaultUnit) }.isFailure
+            ) {
+                return ImportBackupError.INVALID_FIELD_VALUE
+            }
+            if (runCatching {
+                    PersonalRecordComparisonRule.valueOf(
+                        family.comparisonRule,
+                    )
+                }.isFailure
+            ) {
+                return ImportBackupError.INVALID_FIELD_VALUE
+            }
             try {
                 Instant.parse(family.createdAt)
                 Instant.parse(family.updatedAt)

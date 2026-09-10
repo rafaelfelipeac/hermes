@@ -38,7 +38,10 @@ internal fun challengeProgressLabel(calculation: ChallengeCalculationResult): St
     return stringResource(R.string.challenges_progress_value_with_percent, progressValue, progressPercent)
 }
 
-internal fun challengeProgressPercent(calculation: ChallengeCalculationResult, locale: Locale): String {
+internal fun challengeProgressPercent(
+    calculation: ChallengeCalculationResult,
+    locale: Locale,
+): String {
     if (calculation.plannedTotal <= 0L) return formatChallengeProgressPercent(0.0, locale)
     val exactPercent = calculation.completedTotal.toDouble() / calculation.plannedTotal.toDouble() * 100.0
     val roundedPercent = (exactPercent * 10.0).roundToInt() / 10.0
@@ -47,14 +50,21 @@ internal fun challengeProgressPercent(calculation: ChallengeCalculationResult, l
     return formatChallengeProgressPercent(displayPercent, locale)
 }
 
-private fun formatChallengeProgressPercent(value: Double, locale: Locale): String =
+private fun formatChallengeProgressPercent(
+    value: Double,
+    locale: Locale,
+): String =
     NumberFormat.getNumberInstance(locale).apply {
         minimumFractionDigits = 1
         maximumFractionDigits = 1
     }.format(value)
 
 @Composable
-internal fun ChallengeProgressBar(progress: Double, color: Color, modifier: Modifier = Modifier) {
+internal fun ChallengeProgressBar(
+    progress: Double,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
     Box(
         modifier =
             modifier

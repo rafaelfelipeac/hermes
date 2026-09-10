@@ -35,6 +35,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -356,6 +357,7 @@ private fun TrophyStateLine(
     trophy: TrophyCardUi,
     modifier: Modifier = Modifier,
 ) {
+    val currentLocale = currentLocale()
     Box(
         modifier =
             modifier
@@ -365,11 +367,11 @@ private fun TrophyStateLine(
     ) {
         Text(
             text =
-                    trophyStateLineText(
+                trophyStateLineText(
                     isUnlocked = trophy.isUnlocked,
                     unlockedDateText =
                         trophy.unlockedAt?.let { unlockedAt ->
-                            formatUnlockedDateCompactLabel(unlockedAt, java.util.Locale.getDefault())
+                            formatUnlockedDateCompactLabel(unlockedAt, currentLocale)
                         },
                     conditionLabel = trophyConditionLabel(trophy),
                 ),

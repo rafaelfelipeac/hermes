@@ -25,7 +25,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import java.time.LocalDate
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM as CUSTOM_UNIT
 
-internal data class PersonalRecordEntryEditorDefaults(
+internal data class EntryEditorDefaults(
     val unit: PersonalRecordUnit,
     val valueText: String,
     val time: DurationParts,
@@ -50,13 +50,10 @@ internal data class PersonalRecordEntryEditorFields(
     val customUnitLabel: String,
 )
 
-internal fun comparisonRuleAfterMetricSelection(
-    metricType: PersonalRecordMetricType,
-): PersonalRecordComparisonRule = metricType.defaultComparisonRule()
+internal fun comparisonRuleAfterMetricSelection(metricType: PersonalRecordMetricType): PersonalRecordComparisonRule =
+    metricType.defaultComparisonRule()
 
-internal fun personalRecordEntryEditorDefaults(
-    source: PersonalRecordEntryEditorSource,
-): PersonalRecordEntryEditorDefaults {
+internal fun personalRecordEntryEditorDefaults(source: PersonalRecordEntryEditorSource): EntryEditorDefaults {
     val family = source.family
     val currentEntry =
         if (family == null || source.isEdit) {
@@ -72,19 +69,19 @@ internal fun personalRecordEntryEditorDefaults(
 }
 
 private fun emptyEditorDefaults(initialEntry: PersonalRecordEntry?) =
-    PersonalRecordEntryEditorDefaults(
+    EntryEditorDefaults(
         unit = initialEntry?.unit ?: KILOMETER,
         valueText = EMPTY,
         time = DurationParts(),
         customUnitLabel = initialEntry?.customUnitLabel.orEmpty(),
     )
 
-private fun timeEditorDefaults(currentEntry: PersonalRecordEntry?): PersonalRecordEntryEditorDefaults {
+private fun timeEditorDefaults(currentEntry: PersonalRecordEntry?): EntryEditorDefaults {
     val normalizedSeconds =
         currentEntry?.let {
             PersonalRecordValueNormalizer.normalize(it.value, it.unit).toLong()
         } ?: 0L
-    return PersonalRecordEntryEditorDefaults(
+    return EntryEditorDefaults(
         unit = SECOND,
         valueText = EMPTY,
         time = secondsToDurationParts(normalizedSeconds),
@@ -96,7 +93,7 @@ private fun measuredEditorDefaults(
     source: PersonalRecordEntryEditorSource,
     family: PersonalRecordFamily,
     currentEntry: PersonalRecordEntry?,
-): PersonalRecordEntryEditorDefaults {
+): EntryEditorDefaults {
     val unit =
         when {
             source.isEdit && source.initialEntry != null -> source.initialEntry.unit
@@ -116,7 +113,7 @@ private fun measuredEditorDefaults(
                 }
             formatEditablePersonalRecordValue(value)
         }.orEmpty()
-    return PersonalRecordEntryEditorDefaults(
+    return EntryEditorDefaults(
         unit = unit,
         valueText = valueText,
         time = DurationParts(),

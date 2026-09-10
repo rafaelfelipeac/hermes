@@ -109,32 +109,30 @@ class ChallengeProgressPresentationTest {
     private fun challenge(
         startDate: LocalDate,
         endDate: LocalDate,
-    ) =
-        Challenge(
-            id = 1L,
-            title = "September distance",
-            targetType = ChallengeTargetType.TOTAL,
-            targetQuantity = 10L,
-            startDate = startDate,
-            endDate = endDate,
-            lifecycle = ChallengeLifecycle.ACTIVE,
-            createdAt = Instant.parse("2026-09-01T00:00:00Z"),
-            updatedAt = Instant.parse("2026-09-01T00:00:00Z"),
-        )
+    ) = Challenge(
+        id = 1L,
+        title = "September distance",
+        targetType = ChallengeTargetType.TOTAL,
+        targetQuantity = 10L,
+        startDate = startDate,
+        endDate = endDate,
+        lifecycle = ChallengeLifecycle.ACTIVE,
+        createdAt = Instant.parse("2026-09-01T00:00:00Z"),
+        updatedAt = Instant.parse("2026-09-01T00:00:00Z"),
+    )
 
     private fun progressEntry(
         id: Long,
         quantity: Long,
         date: LocalDate,
         occurredAt: String,
-    ) =
-        ChallengeProgressEntry(
-            id = id,
-            challengeId = 1L,
-            quantity = quantity,
-            entryDate = date,
-            occurredAt = Instant.parse(occurredAt),
-            createdAt = Instant.parse(occurredAt),
-            updatedAt = Instant.parse(occurredAt),
-        )
+    ) = ChallengeProgressEntry(
+        id = id,
+        challengeId = 1L,
+        quantity = quantity,
+        entryDate = date,
+        occurredAt = Instant.parse(occurredAt),
+        createdAt = Instant.parse(occurredAt),
+        updatedAt = Instant.parse(occurredAt),
+    )
 }

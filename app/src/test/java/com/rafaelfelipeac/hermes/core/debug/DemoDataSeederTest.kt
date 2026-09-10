@@ -24,7 +24,6 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_QUANTITY
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TARGET_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_TITLE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_ENTRY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_ID
@@ -41,13 +40,9 @@ import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsReco
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupWorkoutRecord
-import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
-import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeDao
-import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeEntity
-import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeProgressEntryEntity
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
@@ -56,9 +51,6 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.repository.Challenge
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordDao
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
@@ -77,7 +69,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 class DemoDataSeederTest {
     @Test
@@ -127,9 +118,11 @@ class DemoDataSeederTest {
             val categoryIds = snapshot.categories.mapTo(mutableSetOf()) { it.id }
 
             assertEquals(24, snapshot.workouts.size)
-            assertTrue(snapshot.workouts.all { workout ->
-                workout.categoryId == null || workout.categoryId in categoryIds
-            })
+            assertTrue(
+                snapshot.workouts.all { workout ->
+                    workout.categoryId == null || workout.categoryId in categoryIds
+                },
+            )
             assertTrue(snapshot.userActions.isEmpty())
             assertTrue(snapshot.personalRecordFamilies.isEmpty())
             assertTrue(snapshot.personalRecordEntries.isEmpty())
@@ -174,21 +167,31 @@ class DemoDataSeederTest {
         val entryIds = snapshot.personalRecordEntries.mapTo(mutableSetOf()) { it.id }
         val challengeIds = snapshot.challenges.mapTo(mutableSetOf()) { it.id }
 
-        assertTrue(snapshot.workouts.all { workout ->
-            workout.categoryId == null || workout.categoryId in categoryIds
-        })
-        assertTrue(snapshot.challenges.all { challenge ->
-            challenge.categoryId == null || challenge.categoryId in categoryIds
-        })
-        assertTrue(snapshot.challengeProgressEntries.all { entry ->
-            entry.challengeId in challengeIds
-        })
-        assertTrue(snapshot.personalRecordFamilies.all { family ->
-            family.categoryId == null || family.categoryId in categoryIds
-        })
-        assertTrue(snapshot.personalRecordEntries.all { entry ->
-            entry.familyId in familyIds
-        })
+        assertTrue(
+            snapshot.workouts.all { workout ->
+                workout.categoryId == null || workout.categoryId in categoryIds
+            },
+        )
+        assertTrue(
+            snapshot.challenges.all { challenge ->
+                challenge.categoryId == null || challenge.categoryId in categoryIds
+            },
+        )
+        assertTrue(
+            snapshot.challengeProgressEntries.all { entry ->
+                entry.challengeId in challengeIds
+            },
+        )
+        assertTrue(
+            snapshot.personalRecordFamilies.all { family ->
+                family.categoryId == null || family.categoryId in categoryIds
+            },
+        )
+        assertTrue(
+            snapshot.personalRecordEntries.all { entry ->
+                entry.familyId in familyIds
+            },
+        )
         assertTrue(
             snapshot.personalRecordFamilies.all { family ->
                 family.manualCurrentEntryId == null || family.manualCurrentEntryId in entryIds
@@ -208,21 +211,25 @@ class DemoDataSeederTest {
         val entryIds = snapshot.personalRecordEntries.mapTo(mutableSetOf()) { it.id }
 
         val familyActions = snapshot.userActions.filter { it.actionType == "CREATE_PERSONAL_RECORD_FAMILY" }
-        assertTrue(familyActions.all { action ->
-            val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
-            metadata[PERSONAL_RECORD_FAMILY_ID] == action.entityId.toString() &&
-                metadata[PERSONAL_RECORD_CATEGORY_ID]?.toLongOrNull() in categoryIds
-        })
+        assertTrue(
+            familyActions.all { action ->
+                val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
+                metadata[PERSONAL_RECORD_FAMILY_ID] == action.entityId.toString() &&
+                    metadata[PERSONAL_RECORD_CATEGORY_ID]?.toLongOrNull() in categoryIds
+            },
+        )
 
         val entryActions = snapshot.userActions.filter { it.actionType == "CREATE_PERSONAL_RECORD_ENTRY" }
-        assertTrue(entryActions.all { action ->
-            val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
-            val familyId = metadata[PERSONAL_RECORD_FAMILY_ID]?.toLongOrNull()
-            val entryId = metadata[PERSONAL_RECORD_ENTRY_ID]?.toLongOrNull()
-            familyId in familyIds &&
-                entryId in entryIds &&
-                metadata[PERSONAL_RECORD_FAMILY_TITLE]?.isNotBlank() == true
-        })
+        assertTrue(
+            entryActions.all { action ->
+                val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
+                val familyId = metadata[PERSONAL_RECORD_FAMILY_ID]?.toLongOrNull()
+                val entryId = metadata[PERSONAL_RECORD_ENTRY_ID]?.toLongOrNull()
+                familyId in familyIds &&
+                    entryId in entryIds &&
+                    metadata[PERSONAL_RECORD_FAMILY_TITLE]?.isNotBlank() == true
+            },
+        )
     }
 
     private fun assertCompletedTrophyActivityReferences(snapshot: BackupSnapshot) {
@@ -233,21 +240,25 @@ class DemoDataSeederTest {
                 .mapTo(mutableSetOf()) { it.entityId }
 
         val familyActions = snapshot.userActions.filter { it.actionType == "CREATE_PERSONAL_RECORD_FAMILY" }
-        assertTrue(familyActions.all { action ->
-            val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
-            metadata[PERSONAL_RECORD_FAMILY_ID] == action.entityId.toString() &&
-                metadata[PERSONAL_RECORD_CATEGORY_ID]?.toLongOrNull() in categoryIds
-        })
+        assertTrue(
+            familyActions.all { action ->
+                val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
+                metadata[PERSONAL_RECORD_FAMILY_ID] == action.entityId.toString() &&
+                    metadata[PERSONAL_RECORD_CATEGORY_ID]?.toLongOrNull() in categoryIds
+            },
+        )
 
         val entryActions = snapshot.userActions.filter { it.actionType == "CREATE_PERSONAL_RECORD_ENTRY" }
-        assertTrue(entryActions.all { action ->
-            val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
-            val familyId = metadata[PERSONAL_RECORD_FAMILY_ID]?.toLongOrNull()
-            val entryId = metadata[PERSONAL_RECORD_ENTRY_ID]?.toLongOrNull()
-            familyId in familyActionIds &&
-                entryId == action.entityId &&
-                metadata[PERSONAL_RECORD_FAMILY_TITLE]?.isNotBlank() == true
-        })
+        assertTrue(
+            entryActions.all { action ->
+                val metadata = UserActionMetadataSerializer.fromJson(action.metadata)
+                val familyId = metadata[PERSONAL_RECORD_FAMILY_ID]?.toLongOrNull()
+                val entryId = metadata[PERSONAL_RECORD_ENTRY_ID]?.toLongOrNull()
+                familyId in familyActionIds &&
+                    entryId == action.entityId &&
+                    metadata[PERSONAL_RECORD_FAMILY_TITLE]?.isNotBlank() == true
+            },
+        )
     }
 
     private fun assertImportable(snapshot: BackupSnapshot) {
@@ -317,9 +328,10 @@ class DemoDataSeederTest {
                 categories = categoryRepository.categories.value.map { it.toBackupRecord() },
                 personalRecordFamilies = personalRecordDao.families.value.map { it.toBackupRecord() },
                 personalRecordEntries = personalRecordDao.entries.value.map { it.toBackupRecord() },
-                userActions = userActionDao.actions.value.mapIndexed { index, action ->
-                    action.toBackupRecord(index + 1L)
-                },
+                userActions =
+                    userActionDao.actions.value.mapIndexed { index, action ->
+                        action.toBackupRecord(index + 1L)
+                    },
                 challenges = challengeRepository.challenges.value.map { it.toBackupChallengeRecord() },
                 challengeProgressEntries = challengeRepository.progressEntries.value.map { it.toBackupChallengeProgressRecord() },
                 settings = settingsRepository.toBackupRecord(),
@@ -546,8 +558,7 @@ class DemoDataSeederTest {
             return actions.map { insert(it) }
         }
 
-        override fun observeAll(): Flow<List<UserActionEntity>> =
-            MutableStateFlow(actions.value.sortedByDescending { it.timestamp })
+        override fun observeAll(): Flow<List<UserActionEntity>> = MutableStateFlow(actions.value.sortedByDescending { it.timestamp })
 
         override suspend fun deleteAll() {
             actions.value = emptyList()
@@ -571,11 +582,9 @@ class DemoDataSeederTest {
 
         override suspend fun getEntries(): List<PersonalRecordEntryEntity> = entries.value
 
-        override suspend fun getFamily(id: Long): PersonalRecordFamilyEntity? =
-            families.value.firstOrNull { it.id == id }
+        override suspend fun getFamily(id: Long): PersonalRecordFamilyEntity? = families.value.firstOrNull { it.id == id }
 
-        override suspend fun getEntry(id: Long): PersonalRecordEntryEntity? =
-            entries.value.firstOrNull { it.id == id }
+        override suspend fun getEntry(id: Long): PersonalRecordEntryEntity? = entries.value.firstOrNull { it.id == id }
 
         override suspend fun insertFamily(family: PersonalRecordFamilyEntity): Long {
             val stored = family.copy(id = nextFamilyId++)
@@ -648,22 +657,19 @@ class DemoDataSeederTest {
         override fun observeArchivedChallenges(): Flow<List<Challenge>> =
             MutableStateFlow(challenges.value.filter { it.lifecycle == ChallengeLifecycle.ARCHIVED })
 
-        override fun observeChallenge(id: Long): Flow<Challenge?> =
-            MutableStateFlow(challenges.value.firstOrNull { it.id == id })
+        override fun observeChallenge(id: Long): Flow<Challenge?> = MutableStateFlow(challenges.value.firstOrNull { it.id == id })
 
         override fun observeProgressEntries(challengeId: Long): Flow<List<ChallengeProgressEntry>> =
             MutableStateFlow(progressEntries.value.filter { it.challengeId == challengeId })
 
         override fun observeAllProgressEntries(): Flow<List<ChallengeProgressEntry>> = progressEntries
 
-        override suspend fun getActiveChallenges(): List<Challenge> =
-            challenges.value.filter { it.lifecycle == ChallengeLifecycle.ACTIVE }
+        override suspend fun getActiveChallenges(): List<Challenge> = challenges.value.filter { it.lifecycle == ChallengeLifecycle.ACTIVE }
 
         override suspend fun getArchivedChallenges(): List<Challenge> =
             challenges.value.filter { it.lifecycle == ChallengeLifecycle.ARCHIVED }
 
-        override suspend fun getChallenge(id: Long): Challenge? =
-            challenges.value.firstOrNull { it.id == id }
+        override suspend fun getChallenge(id: Long): Challenge? = challenges.value.firstOrNull { it.id == id }
 
         override suspend fun getChallengeDateBounds(id: Long) = error("Not needed in test")
 

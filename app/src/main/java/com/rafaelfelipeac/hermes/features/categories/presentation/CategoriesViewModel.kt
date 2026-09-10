@@ -52,9 +52,9 @@ class CategoriesViewModel
                     CategoriesState(categories = categories.map { it.toUi() })
                 }
                 .stateInWhileSubscribed(
-                scope = viewModelScope,
-                initialValue = CategoriesState(categories = emptyList()),
-            )
+                    scope = viewModelScope,
+                    initialValue = CategoriesState(categories = emptyList()),
+                )
 
         init {
             viewModelScope.launch {

@@ -85,7 +85,6 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.TIME
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.WEIGHT
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM as CUSTOM_UNIT
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.supportedUnits
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
@@ -93,6 +92,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import kotlin.math.abs
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.CUSTOM as CUSTOM_UNIT
 
 private const val SELECTED_WHEEL_ITEM_ALPHA = 1f
 private const val ADJACENT_WHEEL_ITEM_ALPHA = 0.82f

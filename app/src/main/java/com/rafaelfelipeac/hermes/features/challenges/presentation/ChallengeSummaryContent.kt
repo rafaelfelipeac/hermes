@@ -14,9 +14,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
@@ -76,7 +76,12 @@ internal fun ChallengeSummaryContent(
         )
     }
     Text(
-        text = stringResource(R.string.challenges_date_range, formatWorkoutDate(challenge.startDate, currentLocale), formatWorkoutDate(challenge.endDate, currentLocale)),
+        text =
+            stringResource(
+                R.string.challenges_date_range,
+                formatWorkoutDate(challenge.startDate, currentLocale),
+                formatWorkoutDate(challenge.endDate, currentLocale),
+            ),
         style = typography.bodySmall,
         color = colorScheme.onSurfaceVariant,
     )

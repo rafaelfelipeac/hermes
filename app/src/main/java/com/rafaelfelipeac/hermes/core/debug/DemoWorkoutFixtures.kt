@@ -3,7 +3,6 @@ package com.rafaelfelipeac.hermes.core.debug
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
-import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_CYCLING
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_MOBILITY
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_OTHER
