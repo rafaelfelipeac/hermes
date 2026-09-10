@@ -4,13 +4,22 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_ENTRIES_COUNT
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_CONFIGURED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.FAILURE_REASON
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.SCHEMA_VERSION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.USER_ACTIONS_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WORKOUTS_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.APP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_BACKUP_FOLDER
+import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupDataStats
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
@@ -28,6 +37,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
@@ -35,6 +45,57 @@ import org.junit.Test
 class BackupViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+
+    @Test
+    fun logExportBackupResult_success_logsActionAndTimestamp() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val settingsRepository = FakeSettingsRepository()
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+            coEvery { backupRepository.getDataStats() } returns
+                BackupDataStats(
+                    schemaVersion = 6,
+                    challengesCount = 5,
+                    challengeProgressEntriesCount = 7,
+                    workoutsCount = 2,
+                    categoriesCount = 3,
+                    userActionsCount = 4,
+                )
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = settingsRepository,
+                    userActionLogger = userActionLogger,
+                    backupRepository = backupRepository,
+                )
+
+            viewModel.logExportBackupResult(
+                exportResult = Result.success("{}"),
+                destinationType = "save_as",
+                destinationConfigured = false,
+            )
+
+            assertEquals(false, settingsRepository.lastBackupExportedAt.value.isNullOrBlank())
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = EXPORT_BACKUP,
+                    entityType = APP,
+                    entityId = null,
+                    metadata =
+                        mapOf(
+                            RESULT to "success",
+                            DESTINATION_TYPE to "save_as",
+                            DESTINATION_CONFIGURED to "false",
+                            SCHEMA_VERSION to "6",
+                            CHALLENGES_COUNT to "5",
+                            CHALLENGE_PROGRESS_ENTRIES_COUNT to "7",
+                            WORKOUTS_COUNT to "2",
+                            CATEGORIES_COUNT to "3",
+                            USER_ACTIONS_COUNT to "4",
+                        ),
+                    timestamp = any(),
+                )
+            }
+        }
 
     @Test
     fun importBackupJson_partialSuccess_logsPartialAction() =
@@ -81,17 +142,127 @@ class BackupViewModelTest {
             }
         }
 
-    private class FakeSettingsRepository : SettingsRepository {
-        override val themeMode = MutableStateFlow(ThemeMode.SYSTEM)
-        override val language = MutableStateFlow(AppLanguage.SYSTEM)
-        override val slotModePolicy = MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
-        override val weekStartDay = MutableStateFlow(WeekStartDay.MONDAY)
-        override val distanceUnit = MutableStateFlow(DistanceUnit.KILOMETERS)
-        override val paceUnit = MutableStateFlow(PaceUnit.MIN_PER_KM)
-        override val weightUnit = MutableStateFlow(WeightUnit.KILOGRAMS)
+    @Test
+    fun hasBackupData_returnsTrueWhenRepositoryHasData() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+            coEvery { backupRepository.hasAnyData() } returns true
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = FakeSettingsRepository(),
+                    userActionLogger = mockk(relaxed = true),
+                    backupRepository = backupRepository,
+                )
+
+            assertEquals(true, viewModel.hasBackupData())
+        }
+
+    @Test
+    fun hasBackupData_returnsTrueWhenSettingsAreNonDefault() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+            coEvery { backupRepository.hasAnyData() } returns false
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = FakeSettingsRepository(themeMode = ThemeMode.DARK),
+                    userActionLogger = mockk(relaxed = true),
+                    backupRepository = backupRepository,
+                )
+
+            assertEquals(true, viewModel.hasBackupData())
+        }
+
+    @Test
+    fun hasBackupData_returnsFalseWhenRepositoryAndSettingsArePristine() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+            coEvery { backupRepository.hasAnyData() } returns false
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = FakeSettingsRepository(),
+                    userActionLogger = mockk(relaxed = true),
+                    backupRepository = backupRepository,
+                )
+
+            assertEquals(false, viewModel.hasBackupData())
+        }
+
+    @Test
+    fun setBackupFolderUri_logsAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = FakeSettingsRepository(),
+                    userActionLogger = userActionLogger,
+                    backupRepository = mockk(relaxed = true),
+                )
+
+            viewModel.setBackupFolderUri("content://tree/test")
+
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = SET_BACKUP_FOLDER,
+                    entityType = SETTINGS,
+                    entityId = null,
+                    metadata =
+                        mapOf(
+                            OLD_VALUE to "default",
+                            NEW_VALUE to "configured",
+                        ),
+                    timestamp = any(),
+                )
+            }
+        }
+
+    @Test
+    fun clearBackupFolderUri_logsAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = FakeSettingsRepository(backupFolderUri = "content://tree/test"),
+                    userActionLogger = userActionLogger,
+                    backupRepository = mockk(relaxed = true),
+                )
+
+            viewModel.clearBackupFolderUri()
+
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = CLEAR_BACKUP_FOLDER,
+                    entityType = SETTINGS,
+                    entityId = null,
+                    metadata =
+                        mapOf(
+                            OLD_VALUE to "configured",
+                            NEW_VALUE to "default",
+                        ),
+                    timestamp = any(),
+                )
+            }
+        }
+
+    private class FakeSettingsRepository(
+        themeMode: ThemeMode = ThemeMode.SYSTEM,
+        language: AppLanguage = AppLanguage.SYSTEM,
+        slotModePolicy: SlotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
+        weekStartDay: WeekStartDay = WeekStartDay.MONDAY,
+        distanceUnit: DistanceUnit = DistanceUnit.KILOMETERS,
+        paceUnit: PaceUnit = PaceUnit.MIN_PER_KM,
+        weightUnit: WeightUnit = WeightUnit.KILOGRAMS,
+        backupFolderUri: String? = null,
+    ) : SettingsRepository {
+        override val themeMode = MutableStateFlow(themeMode)
+        override val language = MutableStateFlow(language)
+        override val slotModePolicy = MutableStateFlow(slotModePolicy)
+        override val weekStartDay = MutableStateFlow(weekStartDay)
+        override val distanceUnit = MutableStateFlow(distanceUnit)
+        override val paceUnit = MutableStateFlow(paceUnit)
+        override val weightUnit = MutableStateFlow(weightUnit)
         override val lastBackupExportedAt = MutableStateFlow<String?>(null)
         override val lastBackupImportedAt = MutableStateFlow<String?>(null)
-        override val backupFolderUri = MutableStateFlow<String?>(null)
+        override val backupFolderUri = MutableStateFlow(backupFolderUri)
         override val lastSeenTrophyCelebrationToken = MutableStateFlow<String?>(null)
 
         override fun initialThemeMode(): ThemeMode = themeMode.value

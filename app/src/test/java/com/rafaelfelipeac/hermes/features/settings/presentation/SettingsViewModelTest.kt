@@ -3,31 +3,15 @@ package com.rafaelfelipeac.hermes.features.settings.presentation
 import app.cash.turbine.test
 import com.rafaelfelipeac.hermes.core.debug.DemoDataSeeder
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGES_COUNT
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_ENTRIES_COUNT
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_CONFIGURED
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_TYPE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.FAILURE_REASON
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.SCHEMA_VERSION
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.USER_ACTIONS_COUNT
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WORKOUTS_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.APP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_DISTANCE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_PACE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_WEIGHT_UNIT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CLEAR_BACKUP_FOLDER
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.EXPORT_BACKUP
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.IMPORT_BACKUP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SEED_DEMO_DATA
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_BACKUP_FOLDER
-import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupDataStats
-import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
-import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
@@ -82,7 +66,6 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
 
             val viewModel =
                 SettingsViewModel(
@@ -90,7 +73,6 @@ class SettingsViewModelTest {
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             assertEquals(KILOMETERS, viewModel.state.value.distanceUnit)
@@ -115,7 +97,6 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
 
             every { repository.themeMode } returns themeFlow
             every { repository.language } returns languageFlow
@@ -141,7 +122,6 @@ class SettingsViewModelTest {
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.state.test {
@@ -205,7 +185,6 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
 
             val viewModel =
                 SettingsViewModel(
@@ -213,7 +192,6 @@ class SettingsViewModelTest {
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.setThemeMode(DARK)
@@ -229,7 +207,6 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
 
             val viewModel =
                 SettingsViewModel(
@@ -237,7 +214,6 @@ class SettingsViewModelTest {
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.setLanguage(ENGLISH)
@@ -253,7 +229,6 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
 
             val viewModel =
                 SettingsViewModel(
@@ -261,7 +236,6 @@ class SettingsViewModelTest {
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.setWeekStartDay(WeekStartDay.WEDNESDAY)
@@ -277,14 +251,12 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
             val viewModel =
                 SettingsViewModel(
                     repository,
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.setDistanceUnit(MILES)
@@ -313,14 +285,12 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
             val viewModel =
                 SettingsViewModel(
                     repository,
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.setPaceUnit(MIN_PER_MI)
@@ -349,14 +319,12 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
             val viewModel =
                 SettingsViewModel(
                     repository,
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.setWeightUnit(POUNDS)
@@ -393,14 +361,12 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
             val viewModel =
                 SettingsViewModel(
                     repository,
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.setDistanceUnit(MILES)
@@ -448,7 +414,6 @@ class SettingsViewModelTest {
             val categorySeeder = mockk<CategorySeeder>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
 
             val viewModel =
                 SettingsViewModel(
@@ -456,7 +421,6 @@ class SettingsViewModelTest {
                     categorySeeder,
                     userActionLogger,
                     demoDataSeeder,
-                    backupRepository,
                 )
 
             viewModel.setLanguage(ENGLISH)
@@ -469,194 +433,6 @@ class SettingsViewModelTest {
                     force = false,
                 )
             }
-        }
-
-    @Test
-    fun logExportBackupResult_success_logsAction() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository = createSettingsRepository()
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.exportBackupJson(any()) } returns Result.success("{}")
-            coEvery { backupRepository.getDataStats() } returns
-                BackupDataStats(
-                    schemaVersion = 1,
-                    challengesCount = 5,
-                    challengeProgressEntriesCount = 7,
-                    workoutsCount = 2,
-                    categoriesCount = 3,
-                    userActionsCount = 4,
-                )
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            val exportResult = viewModel.exportBackupJson("1.3.0")
-            viewModel.logExportBackupResult(
-                exportResult = exportResult,
-                destinationType = "save_as",
-                destinationConfigured = false,
-            )
-            advanceUntilIdle()
-
-            coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = EXPORT_BACKUP,
-                    entityType = APP,
-                    entityId = null,
-                    metadata =
-                        mapOf(
-                            RESULT to "success",
-                            DESTINATION_TYPE to "save_as",
-                            DESTINATION_CONFIGURED to "false",
-                            SCHEMA_VERSION to "1",
-                            CHALLENGES_COUNT to "5",
-                            CHALLENGE_PROGRESS_ENTRIES_COUNT to "7",
-                            WORKOUTS_COUNT to "2",
-                            CATEGORIES_COUNT to "3",
-                            USER_ACTIONS_COUNT to "4",
-                        ),
-                    timestamp = any(),
-                )
-            }
-        }
-
-    @Test
-    fun importBackupJson_success_logsAction() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository = createSettingsRepository()
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.importBackupJson(any()) } returns
-                ImportBackupResult.Success(
-                    schemaVersion = 1,
-                    challengesCount = 5,
-                    challengeProgressEntriesCount = 7,
-                    workoutsCount = 2,
-                    categoriesCount = 3,
-                    userActionsCount = 4,
-                )
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            viewModel.importBackupJson("{}")
-            advanceUntilIdle()
-
-            coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = IMPORT_BACKUP,
-                    entityType = APP,
-                    entityId = null,
-                    metadata =
-                        mapOf(
-                            RESULT to "success",
-                            SCHEMA_VERSION to "1",
-                            CHALLENGES_COUNT to "5",
-                            CHALLENGE_PROGRESS_ENTRIES_COUNT to "7",
-                            WORKOUTS_COUNT to "2",
-                            CATEGORIES_COUNT to "3",
-                            USER_ACTIONS_COUNT to "4",
-                        ),
-                    timestamp = any(),
-                )
-            }
-        }
-
-    @Test
-    fun importBackupJson_partialSuccess_logsPartialAction() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository = createSettingsRepository()
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.importBackupJson(any()) } returns
-                ImportBackupResult.Success(
-                    schemaVersion = 6,
-                    challengesCount = 1,
-                    challengeProgressEntriesCount = 2,
-                    workoutsCount = 3,
-                    categoriesCount = 4,
-                    userActionsCount = 5,
-                    settingsImported = false,
-                )
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            viewModel.importBackupJson("{}")
-            advanceUntilIdle()
-
-            coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = IMPORT_BACKUP,
-                    entityType = APP,
-                    entityId = null,
-                    metadata =
-                        mapOf(
-                            RESULT to "partial",
-                            SCHEMA_VERSION to "6",
-                            CHALLENGES_COUNT to "1",
-                            CHALLENGE_PROGRESS_ENTRIES_COUNT to "2",
-                            WORKOUTS_COUNT to "3",
-                            CATEGORIES_COUNT to "4",
-                            USER_ACTIONS_COUNT to "5",
-                            FAILURE_REASON to "settings_import_failed",
-                        ),
-                    timestamp = any(),
-                )
-            }
-        }
-
-    @Test
-    fun hasBackupData_returnsTrue_whenRepositoryHasData() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository =
-                createSettingsRepository(
-                    initialThemeMode = ThemeMode.SYSTEM,
-                    initialLanguage = AppLanguage.SYSTEM,
-                    themeMode = ThemeMode.SYSTEM,
-                    language = AppLanguage.SYSTEM,
-                )
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.hasAnyData() } returns true
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            assertEquals(true, viewModel.hasBackupData())
         }
 
     @Test
@@ -785,256 +561,18 @@ class SettingsViewModelTest {
             }
         }
 
-    @Test
-    fun hasBackupData_returnsTrue_whenSettingsAreNonDefault() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository =
-                createSettingsRepository(
-                    initialThemeMode = ThemeMode.SYSTEM,
-                    initialLanguage = AppLanguage.SYSTEM,
-                    themeMode = DARK,
-                    language = AppLanguage.SYSTEM,
-                )
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.hasAnyData() } returns false
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            assertEquals(true, viewModel.hasBackupData())
-        }
-
-    @Test
-    fun hasBackupData_returnsFalse_whenRepositoryIsPristine() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository =
-                createSettingsRepository(
-                    initialThemeMode = ThemeMode.SYSTEM,
-                    initialLanguage = AppLanguage.SYSTEM,
-                    themeMode = ThemeMode.SYSTEM,
-                    language = AppLanguage.SYSTEM,
-                )
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.hasAnyData() } returns false
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            assertEquals(false, viewModel.hasBackupData())
-        }
-
-    @Test
-    fun hasBackupData_returnsTrue_whenWeekStartDayIsNonDefault() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository =
-                createSettingsRepository(
-                    initialThemeMode = ThemeMode.SYSTEM,
-                    initialLanguage = AppLanguage.SYSTEM,
-                    themeMode = ThemeMode.SYSTEM,
-                    language = AppLanguage.SYSTEM,
-                    weekStartDay = WeekStartDay.WEDNESDAY,
-                )
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.hasAnyData() } returns false
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            assertEquals(true, viewModel.hasBackupData())
-        }
-
-    @Test
-    fun hasBackupData_returnsTrue_whenDistanceUnitIsNonDefault() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository =
-                createSettingsRepository(
-                    initialThemeMode = ThemeMode.SYSTEM,
-                    initialLanguage = AppLanguage.SYSTEM,
-                    themeMode = ThemeMode.SYSTEM,
-                    language = AppLanguage.SYSTEM,
-                    distanceUnit = MILES,
-                )
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.hasAnyData() } returns false
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            assertEquals(true, viewModel.hasBackupData())
-        }
-
-    @Test
-    fun hasBackupData_returnsTrue_whenPaceUnitIsNonDefault() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository =
-                createSettingsRepository(
-                    initialThemeMode = ThemeMode.SYSTEM,
-                    initialLanguage = AppLanguage.SYSTEM,
-                    themeMode = ThemeMode.SYSTEM,
-                    language = AppLanguage.SYSTEM,
-                    paceUnit = MIN_PER_MI,
-                )
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.hasAnyData() } returns false
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            assertEquals(true, viewModel.hasBackupData())
-        }
-
-    @Test
-    fun hasBackupData_returnsTrue_whenWeightUnitIsNonDefault() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository =
-                createSettingsRepository(
-                    initialThemeMode = ThemeMode.SYSTEM,
-                    initialLanguage = AppLanguage.SYSTEM,
-                    themeMode = ThemeMode.SYSTEM,
-                    language = AppLanguage.SYSTEM,
-                    weightUnit = POUNDS,
-                )
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-            coEvery { backupRepository.hasAnyData() } returns false
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            assertEquals(true, viewModel.hasBackupData())
-        }
-
-    @Test
-    fun setBackupFolderUri_logsAction() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository = createSettingsRepository()
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            viewModel.setBackupFolderUri("content://tree/test")
-            advanceUntilIdle()
-
-            coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = SET_BACKUP_FOLDER,
-                    entityType = SETTINGS,
-                    metadata = any(),
-                    entityId = null,
-                    timestamp = any(),
-                )
-            }
-        }
-
-    @Test
-    fun clearBackupFolderUri_logsAction() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val repository = createSettingsRepository(backupFolderUri = "content://tree/test")
-            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
-            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
-            val backupRepository = mockk<BackupRepository>(relaxed = true)
-
-            val viewModel =
-                SettingsViewModel(
-                    repository,
-                    categorySeeder,
-                    userActionLogger,
-                    demoDataSeeder,
-                    backupRepository,
-                )
-
-            viewModel.clearBackupFolderUri()
-            advanceUntilIdle()
-
-            coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = CLEAR_BACKUP_FOLDER,
-                    entityType = SETTINGS,
-                    metadata = any(),
-                    entityId = null,
-                    timestamp = any(),
-                )
-            }
-        }
-
     private fun createViewModel(
         userActionLogger: UserActionLogger,
         demoDataSeeder: DemoDataSeeder,
     ): SettingsViewModel {
         val repository = createSettingsRepository()
         val categorySeeder = mockk<CategorySeeder>(relaxed = true)
-        val backupRepository = mockk<BackupRepository>(relaxed = true)
 
         return SettingsViewModel(
             repository,
             categorySeeder,
             userActionLogger,
             demoDataSeeder,
-            backupRepository,
         )
     }
 
