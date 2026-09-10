@@ -17,6 +17,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
@@ -24,14 +25,17 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.RACE_EVENT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
@@ -40,6 +44,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_RAC
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
@@ -48,6 +53,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutS
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -404,6 +410,54 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertTrue(logger.actions.isEmpty())
         }
 
+    @Test
+    fun copyLastWeek_replacesDisplayWeekAndLogsInTransaction() =
+        runTest {
+            val previousWorkout = sampleWorkout(id = 10, type = "Old", description = "Target")
+            seedWorkout(previousWorkout)
+
+            val result =
+                repository.copyLastWeek(
+                    copyLastWeekCommand(
+                        replacementWorkouts =
+                            listOf(
+                                previousWorkout.toDomainWorkout(id = 0L, type = "New", description = "Source"),
+                            ),
+                    ),
+                )
+
+            assertEquals(WeeklyTrainingCommandResult.WeekCopied(listOf(previousWorkout.toDomainWorkout())), result)
+            val workouts = database.workoutDao().getWorkoutsForWeek(LocalDate.parse("2026-09-07"))
+            assertEquals(1, workouts.size)
+            assertEquals("New", workouts.single().type)
+            assertEquals(false, workouts.single().isCompleted)
+            logger.assertWeekCopyLoggedOnce()
+        }
+
+    @Test
+    fun copyLastWeek_rollsBackWhenLoggerFails() =
+        runTest {
+            val previousWorkout = sampleWorkout(id = 10, type = "Old", description = "Target")
+            seedWorkout(previousWorkout)
+            logger.failNextLog = true
+
+            val result =
+                runCatching {
+                    repository.copyLastWeek(
+                        copyLastWeekCommand(
+                            replacementWorkouts =
+                                listOf(
+                                    previousWorkout.toDomainWorkout(id = 0L, type = "New", description = "Source"),
+                                ),
+                        ),
+                    )
+                }
+
+            assertTrue(result.isFailure)
+            assertEquals(listOf(previousWorkout), database.workoutDao().getWorkoutsForWeek(LocalDate.parse("2026-09-07")))
+            assertTrue(logger.actions.isEmpty())
+        }
+
     private suspend fun seedCategory() {
         database.categoryDao().insert(
             CategoryEntity(
@@ -456,6 +510,15 @@ class RoomWeeklyTrainingCommandRepositoryTest {
         targetDate = targetDate,
     )
 
+    private fun copyLastWeekCommand(replacementWorkouts: List<Workout>) =
+        CopyLastWeekCommand(
+            targetStorageWeekStarts = listOf(LocalDate.parse("2026-09-07")),
+            targetDisplayWeekStart = LocalDate.parse("2026-09-07"),
+            targetUnassignedStorageWeekStart = LocalDate.parse("2026-09-07"),
+            sourceDisplayWeekStart = LocalDate.parse("2026-08-31"),
+            replacementWorkouts = replacementWorkouts,
+        )
+
     private fun sampleWorkout(
         id: Long = WORKOUT_ID,
         eventType: EventType = EventType.WORKOUT,
@@ -478,6 +541,24 @@ class RoomWeeklyTrainingCommandRepositoryTest {
         timeSlot = timeSlot,
         categoryId = WORKOUT_CATEGORY_ID,
         sortOrder = sortOrder,
+    )
+
+    private fun WorkoutEntity.toDomainWorkout(
+        id: Long = this.id,
+        type: String = this.type,
+        description: String = this.description,
+    ) = Workout(
+        id = id,
+        weekStartDate = weekStartDate,
+        dayOfWeek = dayOfWeek?.let(DayOfWeek::of),
+        type = type,
+        description = description,
+        isCompleted = isCompleted,
+        isRestDay = isRestDay,
+        eventType = eventType.toTestEventType(isRestDay),
+        timeSlot = timeSlot?.let(TimeSlot::valueOf),
+        categoryId = categoryId,
+        order = sortOrder,
     )
 
     private class FakeUserActionLogger : UserActionLogger {
@@ -598,6 +679,21 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertEquals(WORKOUT_CATEGORY_ID.toString(), action.metadata?.get(OLD_CATEGORY_ID))
             assertEquals(CATEGORY_NAME_VALUE, action.metadata?.get(OLD_CATEGORY_NAME))
         }
+
+        fun assertWeekCopyLoggedOnce() {
+            val action = actions.single()
+            assertEquals(COPY_LAST_WEEK, action.actionType)
+            assertEquals(WEEK, action.entityType)
+            assertEquals(null, action.entityId)
+            assertEquals("2026-09-07", action.metadata?.get(WEEK_START_DATE))
+            assertEquals("2026-08-31", action.metadata?.get(OLD_WEEK_START_DATE))
+            assertEquals("2026-09-07", action.metadata?.get(NEW_WEEK_START_DATE))
+        }
+    }
+
+    private fun String.toTestEventType(isRestDay: Boolean): EventType {
+        return runCatching { EventType.valueOf(this) }
+            .getOrDefault(if (isRestDay) EventType.REST else EventType.WORKOUT)
     }
 
     private companion object {

@@ -2,8 +2,9 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -142,6 +143,7 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
             val viewModel = harness.viewModel
             val repository = harness.repository
             val userActionLogger = harness.userActionLogger
+            val commandRepository = harness.commandRepository
             val collectJob = harness.collectJob
             val fixture = copyLastWeekFixture()
 
@@ -154,45 +156,30 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
             val replacedWorkouts = emptyList<Workout>()
 
             coEvery {
-                repository.replaceWorkoutsForDisplayWeek(
-                    targetStorageWeekStarts = listOf(fixture.weekStart),
-                    targetDisplayWeekStart = fixture.weekStart,
-                    targetUnassignedStorageWeekStart = fixture.weekStart,
-                    replacementWorkouts = any(),
-                )
-            } returns Result.success(replacedWorkouts)
+                commandRepository.copyLastWeek(any())
+            } returns WeeklyTrainingCommandResult.WeekCopied(replacedWorkouts)
 
             viewModel.onWeekChanged(fixture.selectedDate)
             runCurrent()
             viewModel.copyLastWeek()
             runCurrent()
 
-            val replacements = slot<List<Workout>>()
+            val commandSlot = slot<CopyLastWeekCommand>()
 
             coVerify(exactly = 1) {
-                repository.replaceWorkoutsForDisplayWeek(
-                    targetStorageWeekStarts = listOf(fixture.weekStart),
-                    targetDisplayWeekStart = fixture.weekStart,
-                    targetUnassignedStorageWeekStart = fixture.weekStart,
-                    replacementWorkouts = capture(replacements),
-                )
+                commandRepository.copyLastWeek(capture(commandSlot))
             }
+            assertEquals(listOf(fixture.weekStart), commandSlot.captured.targetStorageWeekStarts)
+            assertEquals(fixture.weekStart, commandSlot.captured.targetDisplayWeekStart)
+            assertEquals(fixture.weekStart, commandSlot.captured.targetUnassignedStorageWeekStart)
+            assertEquals(fixture.previousWeekStart, commandSlot.captured.sourceDisplayWeekStart)
             assertEquals(
                 setOf(
                     fixture.sourceWorkout.copy(id = 0L, weekStartDate = fixture.weekStart, isCompleted = false),
                     fixture.sourceRestDay.copy(id = 0L, weekStartDate = fixture.weekStart, isCompleted = false),
                 ),
-                replacements.captured.toSet(),
+                commandSlot.captured.replacementWorkouts.toSet(),
             )
-            coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = COPY_LAST_WEEK,
-                    entityType = WEEK,
-                    entityId = null,
-                    metadata = any(),
-                    timestamp = any(),
-                )
-            }
 
             collectJob.cancel()
         }
@@ -205,6 +192,7 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
             val viewModel = harness.viewModel
             val repository = harness.repository
             val userActionLogger = harness.userActionLogger
+            val commandRepository = harness.commandRepository
             val collectJob = harness.collectJob
             val fixture = copyLastWeekUndoFixture()
 
@@ -213,14 +201,9 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
                     fixture.sourceWorkout,
                 )
             coEvery {
-                repository.replaceWorkoutsForDisplayWeek(
-                    targetStorageWeekStarts = listOf(fixture.weekStart),
-                    targetDisplayWeekStart = fixture.weekStart,
-                    targetUnassignedStorageWeekStart = fixture.weekStart,
-                    replacementWorkouts = any(),
-                )
+                commandRepository.copyLastWeek(any())
             } returns
-                Result.success(
+                WeeklyTrainingCommandResult.WeekCopied(
                     listOf(
                         fixture.previousTargetWorkout,
                         fixture.previousTargetRestDay,
@@ -267,7 +250,8 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val messages = mutableListOf<WeeklyTrainingMessage>()
             val messageJob = backgroundScope.launch { viewModel.messages.collect(messages::add) }
@@ -286,7 +270,7 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
                 listOf(WeeklyTrainingMessage.NothingToCopyFromLastWeek),
                 messages,
             )
-            coVerify(exactly = 0) { repository.replaceWorkoutsForDisplayWeek(any(), any(), any(), any()) }
+            coVerify(exactly = 0) { commandRepository.copyLastWeek(any()) }
             assertEquals(null, viewModel.undoUiState.value)
 
             messageJob.cancel()

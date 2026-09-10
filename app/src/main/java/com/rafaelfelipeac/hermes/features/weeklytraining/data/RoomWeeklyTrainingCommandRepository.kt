@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.data
 
 import androidx.room.withTransaction
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
@@ -26,9 +27,11 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
@@ -37,6 +40,10 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutD
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleChange
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekDates
+import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -50,6 +57,31 @@ class RoomWeeklyTrainingCommandRepository
     ) : WeeklyTrainingCommandRepository {
         private val categoryDao = database.categoryDao()
         private val workoutDao = database.workoutDao()
+
+        override suspend fun copyLastWeek(request: CopyLastWeekCommand): WeeklyTrainingCommandResult {
+            return database.withTransaction {
+                val previousWorkouts =
+                    workoutDao.replaceWorkoutsForDisplayWeek(
+                        targetStorageWeekStarts = request.targetStorageWeekStarts,
+                        targetDisplayDates = weekDates(request.targetDisplayWeekStart),
+                        targetUnassignedStorageWeekStart = request.targetUnassignedStorageWeekStart,
+                        replacementWorkouts = request.replacementWorkouts.toReplacementEntities(),
+                    ).map(WorkoutEntity::toDomain)
+
+                userActionLogger.log(
+                    actionType = UserActionType.COPY_LAST_WEEK,
+                    entityType = WEEK,
+                    metadata =
+                        mapOf(
+                            WEEK_START_DATE to request.targetDisplayWeekStart.toString(),
+                            OLD_WEEK_START_DATE to request.sourceDisplayWeekStart.toString(),
+                            NEW_WEEK_START_DATE to request.targetDisplayWeekStart.toString(),
+                        ),
+                )
+
+                WeeklyTrainingCommandResult.WeekCopied(previousWorkouts)
+            }
+        }
 
         override suspend fun updateSchedule(request: WorkoutScheduleCommand): WeeklyTrainingCommandResult {
             if (request.changes.isEmpty()) {
@@ -370,6 +402,46 @@ private data class DetailsMetadataInput(
     val oldCategoryName: String?,
     val newCategoryName: String?,
 )
+
+private fun List<Workout>.toReplacementEntities(): List<WorkoutEntity> {
+    return sortedWith(
+        compareBy(
+            { it.dayOfWeek?.value ?: Int.MAX_VALUE },
+            { it.order },
+            { it.id },
+        ),
+    ).map { workout ->
+        val isRestDay = workout.isRestDay
+        WorkoutEntity(
+            weekStartDate = workout.weekStartDate,
+            dayOfWeek = workout.dayOfWeek?.value,
+            type = if (isRestDay) EMPTY else workout.type,
+            description = if (isRestDay) EMPTY else workout.description,
+            isCompleted = false,
+            isRestDay = isRestDay,
+            eventType = workout.eventType.name,
+            timeSlot = workout.timeSlot?.name,
+            categoryId = if (isRestDay) null else workout.categoryId,
+            sortOrder = workout.order,
+        )
+    }
+}
+
+private fun WorkoutEntity.toDomain(): Workout {
+    return Workout(
+        id = id,
+        weekStartDate = weekStartDate,
+        dayOfWeek = dayOfWeek?.let(DayOfWeek::of),
+        type = type,
+        description = description,
+        isCompleted = isCompleted,
+        isRestDay = isRestDay,
+        eventType = eventType.toEventType(isRestDay),
+        timeSlot = timeSlot?.let { raw -> runCatching { TimeSlot.valueOf(raw) }.getOrNull() },
+        categoryId = categoryId,
+        order = sortOrder,
+    )
+}
 
 private fun String.toEventType(isRestDay: Boolean): EventType {
     return runCatching { EventType.valueOf(this) }

@@ -18,7 +18,6 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WORKOUT
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.OPEN_WEEK
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -27,6 +26,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryR
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
@@ -418,27 +418,21 @@ class WeeklyTrainingViewModel
                     return@launch
                 }
 
-                val targetWorkouts =
-                    repository
-                        .replaceWorkoutsForDisplayWeek(
+                val commandResult =
+                    weeklyTrainingCommandRepository.copyLastWeek(
+                        CopyLastWeekCommand(
                             targetStorageWeekStarts = currentStorageWeekStarts,
                             targetDisplayWeekStart = currentDisplayWeekStartDate,
                             targetUnassignedStorageWeekStart = currentUnassignedStorageWeekStart,
+                            sourceDisplayWeekStart = previousDisplayWeekStartDate,
                             replacementWorkouts = sourceWorkouts.map(::copyWorkoutToNextWeek),
-                        ).getOrElse {
-                            return@launch
-                        }
-
-                userActionLogger.log(
-                    actionType = COPY_LAST_WEEK,
-                    entityType = WEEK,
-                    metadata =
-                        mapOf(
-                            WEEK_START_DATE to currentDisplayWeekStartDate.toString(),
-                            OLD_WEEK_START_DATE to previousDisplayWeekStartDate.toString(),
-                            NEW_WEEK_START_DATE to currentDisplayWeekStartDate.toString(),
                         ),
-                )
+                    )
+                if (commandResult !is WeeklyTrainingCommandResult.WeekCopied) {
+                    return@launch
+                }
+
+                val targetWorkouts = commandResult.previousWorkouts
 
                 setUndoAction(
                     action =
