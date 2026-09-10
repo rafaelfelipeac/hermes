@@ -67,6 +67,7 @@ import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupE
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
 import com.rafaelfelipeac.hermes.features.backup.presentation.AndroidBackupDocumentGateway
 import com.rafaelfelipeac.hermes.features.backup.presentation.BACKUP_MIME_TYPE
+import com.rafaelfelipeac.hermes.features.backup.presentation.BackupViewModel
 import com.rafaelfelipeac.hermes.features.backup.presentation.backupExportResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
 import com.rafaelfelipeac.hermes.features.challenges.presentation.ChallengesScreen
@@ -173,7 +174,6 @@ internal fun BrowseScreen(
             BrowseBackupScreen(
                 modifier = modifier,
                 state = settingsState,
-                viewModel = settingsViewModel,
                 onBack = onBack,
             )
 
@@ -361,7 +361,7 @@ private fun BrowseDestinationCard(
 private fun BrowseBackupScreen(
     modifier: Modifier = Modifier,
     state: SettingsState,
-    viewModel: SettingsViewModel,
+    viewModel: BackupViewModel = hiltViewModel(),
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
