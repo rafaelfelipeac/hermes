@@ -280,6 +280,7 @@
     <string name="settings_export_backup_error">Impossibile esportare ora. Riprova.</string>
     <string name="settings_export_backup_success">Backup esportato.</string>
     <string name="settings_import_backup_error">Impossibile importare questo backup. Controlla il file e riprova.</string>
+    <string name="settings_import_backup_partial_success">Dati del backup importati, ma non è stato possibile ripristinare le impostazioni.</string>
     <string name="settings_import_backup_success">Backup importato.</string>
     <string name="settings_import_backup_replace_title">Questa importazione sostituirà i dati attuali.</string>
     <string name="settings_import_backup_replace_message">Questa importazione sostituisce i dati locali con il backup selezionato.</string>

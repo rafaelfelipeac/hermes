@@ -4,10 +4,14 @@ import android.content.Context
 import androidx.datastore.preferences.core.edit
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.rafaelfelipeac.hermes.features.backup.data.BackupSettingsDataSource
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SettingsSnapshot
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
+import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.async
@@ -101,5 +105,31 @@ class SettingsRepositoryImplTest {
                 assertEquals(PaceUnit.entries.last(), repository.paceUnit.first())
                 assertEquals(DistanceUnit.entries.last(), repository.distanceUnit.first())
             }
+        }
+
+    @Test
+    fun replaceSettings_persistsAllBackupPreferencesTogether() =
+        runTest {
+            BackupSettingsDataSource(context).replace(
+                SettingsSnapshot(
+                    themeMode = ThemeMode.DARK,
+                    language = AppLanguage.ENGLISH,
+                    slotModePolicy = SlotModePolicy.ALWAYS_SHOW,
+                    weekStartDay = WeekStartDay.FRIDAY,
+                    distanceUnit = DistanceUnit.MILES,
+                    paceUnit = PaceUnit.MIN_PER_MI,
+                    weightUnit = WeightUnit.POUNDS,
+                ),
+            )
+
+            val snapshot = BackupSettingsDataSource(context).snapshot()
+
+            assertEquals(ThemeMode.DARK, snapshot.themeMode)
+            assertEquals(AppLanguage.ENGLISH, snapshot.language)
+            assertEquals(SlotModePolicy.ALWAYS_SHOW, snapshot.slotModePolicy)
+            assertEquals(WeekStartDay.FRIDAY, snapshot.weekStartDay)
+            assertEquals(DistanceUnit.MILES, snapshot.distanceUnit)
+            assertEquals(PaceUnit.MIN_PER_MI, snapshot.paceUnit)
+            assertEquals(WeightUnit.POUNDS, snapshot.weightUnit)
         }
 }

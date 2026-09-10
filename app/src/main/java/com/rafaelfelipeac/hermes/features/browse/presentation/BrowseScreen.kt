@@ -384,6 +384,7 @@ private fun BrowseBackupScreen(
     val exportFallbackMessage = stringResource(R.string.settings_export_backup_fallback_save_as)
     val importFailedMessage = stringResource(R.string.settings_import_backup_error)
     val importSuccessMessage = stringResource(R.string.settings_import_backup_success)
+    val importPartialSuccessMessage = stringResource(R.string.settings_import_backup_partial_success)
     val backupFolderUnavailableMessage = stringResource(R.string.settings_backup_folder_unavailable)
 
     val exportDocumentLauncher =
@@ -434,7 +435,13 @@ private fun BrowseBackupScreen(
         scope.launch {
             when (val result = viewModel.importBackupJson(raw)) {
                 is ImportBackupResult.Success -> {
-                    Toast.makeText(context, importSuccessMessage, Toast.LENGTH_SHORT).show()
+                    val message =
+                        if (result.settingsImported) {
+                            importSuccessMessage
+                        } else {
+                            importPartialSuccessMessage
+                        }
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
                 }
 
                 is ImportBackupResult.Failure -> {

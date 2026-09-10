@@ -3,12 +3,14 @@
 package com.rafaelfelipeac.hermes.features.backup.data
 
 import android.util.Log
+import androidx.room.withTransaction
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
 import com.rafaelfelipeac.hermes.core.useraction.data.local.UserActionDao
 import com.rafaelfelipeac.hermes.features.backup.BACKUP_IMPORT_LOG_TAG
 import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.SUPPORTED_SCHEMA_VERSION
 import com.rafaelfelipeac.hermes.features.backup.data.BackupJsonCodec.decode
 import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupDecodeResult
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupDataStats
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.BackupRepository
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
@@ -21,12 +23,15 @@ import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRec
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SettingsSnapshot
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
-import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutDao
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,19 +45,24 @@ class BackupRepositoryImpl
         private val categoryDao: CategoryDao,
         private val userActionDao: UserActionDao,
         private val personalRecordDao: PersonalRecordDao,
-        private val settingsRepository: SettingsRepository,
+        private val settingsDataSource: BackupSettingsDataSource,
     ) : BackupRepository {
         override suspend fun exportBackupJson(appVersion: String): Result<String> {
-            val snapshot =
-                BackupSnapshotExporter(
-                    challengeDao = challengeDao,
-                    workoutDao = workoutDao,
-                    categoryDao = categoryDao,
-                    userActionDao = userActionDao,
-                    personalRecordDao = personalRecordDao,
-                    settingsRepository = settingsRepository,
-                ).buildSnapshot(appVersion)
-            return runCatching { BackupJsonCodec.encode(snapshot) }
+            return runCatchingPreservingCancellation {
+                val snapshot =
+                    withContext(Dispatchers.IO) {
+                        BackupSnapshotExporter(
+                            database = database,
+                            challengeDao = challengeDao,
+                            workoutDao = workoutDao,
+                            categoryDao = categoryDao,
+                            userActionDao = userActionDao,
+                            personalRecordDao = personalRecordDao,
+                            settingsDataSource = settingsDataSource,
+                        ).buildSnapshot(appVersion)
+                    }
+                withContext(Dispatchers.Default) { BackupJsonCodec.encode(snapshot) }
+            }
         }
 
         @Suppress("LongMethod", "ReturnCount")
@@ -60,7 +70,7 @@ class BackupRepositoryImpl
             Log.i(BACKUP_IMPORT_LOG_TAG, "$LOG_IMPORT_STARTED${rawJson.length}")
 
             val snapshot =
-                when (val decoded = decode(rawJson)) {
+                when (val decoded = withContext(Dispatchers.Default) { decode(rawJson) }) {
                     is BackupDecodeResult.Failure -> {
                         Log.e(BACKUP_IMPORT_LOG_TAG, "$LOG_DECODE_FAILED${decoded.error.name}")
                         return Failure(decoded.error.toImportBackupError())
@@ -74,7 +84,10 @@ class BackupRepositoryImpl
                     }
                 }
 
-            val validationError = BackupSnapshotValidator.validate(snapshot)
+            val validationError =
+                withContext(Dispatchers.Default) {
+                    BackupSnapshotValidator.validate(snapshot)
+                }
             if (validationError != null) {
                 Log.e(BACKUP_IMPORT_LOG_TAG, "$LOG_VALIDATION_FAILED${validationError.name}")
                 return Failure(validationError)
@@ -82,15 +95,19 @@ class BackupRepositoryImpl
 
             val dbResult =
                 try {
-                    BackupDatabaseWriter(
-                        database = database,
-                        challengeDao = challengeDao,
-                        workoutDao = workoutDao,
-                        categoryDao = categoryDao,
-                        userActionDao = userActionDao,
-                        personalRecordDao = personalRecordDao,
-                    ).replace(snapshot)
+                    withContext(Dispatchers.IO) {
+                        BackupDatabaseWriter(
+                            database = database,
+                            challengeDao = challengeDao,
+                            workoutDao = workoutDao,
+                            categoryDao = categoryDao,
+                            userActionDao = userActionDao,
+                            personalRecordDao = personalRecordDao,
+                        ).replace(snapshot)
+                    }
                     Result.success(Unit)
+                } catch (t: CancellationException) {
+                    throw t
                 } catch (t: Throwable) {
                     Result.failure(t)
                 }
@@ -105,20 +122,18 @@ class BackupRepositoryImpl
             }
 
             val settings = snapshot.settings
+            var settingsImported = true
             if (settings != null) {
-                runCatching {
-                    settingsRepository.setThemeMode(ThemeMode.valueOf(settings.themeMode))
-                    settingsRepository.setLanguage(AppLanguage.fromTag(settings.languageTag))
-                    settingsRepository.setSlotModePolicy(SlotModePolicy.valueOf(settings.slotModePolicy))
-                    settingsRepository.setWeekStartDay(WeekStartDay.valueOf(settings.weekStartDay))
-                    settingsRepository.setDistanceUnit(DistanceUnit.valueOf(settings.distanceUnit))
-                    settingsRepository.setPaceUnit(PaceUnit.valueOf(settings.paceUnit))
-                    settingsRepository.setWeightUnit(WeightUnit.valueOf(settings.weightUnit))
-                }.onFailure {
+                try {
+                    settingsDataSource.replace(settings.toSettingsSnapshot())
+                } catch (t: CancellationException) {
+                    throw t
+                } catch (t: Throwable) {
+                    settingsImported = false
                     Log.w(
                         BACKUP_IMPORT_LOG_TAG,
                         LOG_SETTINGS_IMPORT_FAILED,
-                        it,
+                        t,
                     )
                 }
             }
@@ -144,30 +159,56 @@ class BackupRepositoryImpl
                 workoutsCount = snapshot.workouts.size,
                 categoriesCount = snapshot.categories.size,
                 userActionsCount = snapshot.userActions.size,
+                settingsImported = settingsImported,
             )
         }
 
         override suspend fun getDataStats(): BackupDataStats {
-            return BackupDataStats(
-                schemaVersion = SUPPORTED_SCHEMA_VERSION,
-                challengesCount = challengeDao.getAllChallenges().size,
-                challengeProgressEntriesCount = challengeDao.getAllProgressEntries().size,
-                workoutsCount = workoutDao.getAll().size,
-                categoriesCount = categoryDao.getCategories().size,
-                userActionsCount = userActionDao.getAll().size,
-            )
+            return database.withTransaction {
+                BackupDataStats(
+                    schemaVersion = SUPPORTED_SCHEMA_VERSION,
+                    challengesCount = challengeDao.getAllChallenges().size,
+                    challengeProgressEntriesCount = challengeDao.getAllProgressEntries().size,
+                    workoutsCount = workoutDao.getAll().size,
+                    categoriesCount = categoryDao.getCategories().size,
+                    userActionsCount = userActionDao.getAll().size,
+                )
+            }
         }
 
         override suspend fun hasAnyData(): Boolean {
-            return workoutDao.getAll().isNotEmpty() ||
-                categoryDao.getCategories().isNotEmpty() ||
-                userActionDao.getAll().isNotEmpty() ||
-                personalRecordDao.getFamilies().isNotEmpty() ||
-                personalRecordDao.getEntries().isNotEmpty() ||
-                challengeDao.getAllChallenges().isNotEmpty() ||
-                challengeDao.getAllProgressEntries().isNotEmpty()
+            return database.withTransaction {
+                workoutDao.getAll().isNotEmpty() ||
+                    categoryDao.getCategories().isNotEmpty() ||
+                    userActionDao.getAll().isNotEmpty() ||
+                    personalRecordDao.getFamilies().isNotEmpty() ||
+                    personalRecordDao.getEntries().isNotEmpty() ||
+                    challengeDao.getAllChallenges().isNotEmpty() ||
+                    challengeDao.getAllProgressEntries().isNotEmpty()
+            }
         }
     }
+
+private fun BackupSettingsRecord.toSettingsSnapshot(): SettingsSnapshot =
+    SettingsSnapshot(
+        themeMode = ThemeMode.valueOf(themeMode),
+        language = AppLanguage.fromTag(languageTag),
+        slotModePolicy = SlotModePolicy.valueOf(slotModePolicy),
+        weekStartDay = WeekStartDay.valueOf(weekStartDay),
+        distanceUnit = DistanceUnit.valueOf(distanceUnit),
+        paceUnit = PaceUnit.valueOf(paceUnit),
+        weightUnit = WeightUnit.valueOf(weightUnit),
+    )
+
+private suspend fun <T> runCatchingPreservingCancellation(block: suspend () -> T): Result<T> {
+    return try {
+        Result.success(block())
+    } catch (t: CancellationException) {
+        throw t
+    } catch (t: Throwable) {
+        Result.failure(t)
+    }
+}
 
 private const val LOG_IMPORT_STARTED = "Import started; payloadCharacters="
 private const val LOG_DECODE_FAILED = "Decode failed; error="

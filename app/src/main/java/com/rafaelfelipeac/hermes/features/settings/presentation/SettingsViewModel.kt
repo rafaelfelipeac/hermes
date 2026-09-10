@@ -400,13 +400,16 @@ class SettingsViewModel
             val metadata = mutableMapOf(RESULT to RESULT_FAILURE)
 
             if (result is ImportBackupResult.Success) {
-                metadata[RESULT] = RESULT_SUCCESS
+                metadata[RESULT] = if (result.settingsImported) RESULT_SUCCESS else RESULT_PARTIAL
                 metadata[SCHEMA_VERSION] = result.schemaVersion.toString()
                 metadata[CHALLENGES_COUNT] = result.challengesCount.toString()
                 metadata[CHALLENGE_PROGRESS_ENTRIES_COUNT] = result.challengeProgressEntriesCount.toString()
                 metadata[WORKOUTS_COUNT] = result.workoutsCount.toString()
                 metadata[CATEGORIES_COUNT] = result.categoriesCount.toString()
                 metadata[USER_ACTIONS_COUNT] = result.userActionsCount.toString()
+                if (!result.settingsImported) {
+                    metadata[FAILURE_REASON] = SETTINGS_IMPORT_FAILED
+                }
 
                 runCatching {
                     repository.setLastBackupImportedAt(Instant.now().toString())
@@ -506,7 +509,9 @@ class SettingsViewModel
 
         private companion object {
             const val RESULT_SUCCESS = "success"
+            const val RESULT_PARTIAL = "partial"
             const val RESULT_FAILURE = "failure"
+            const val SETTINGS_IMPORT_FAILED = "settings_import_failed"
             const val UNKNOWN_FAILURE_REASON = "unknown"
             const val BACKUP_FOLDER_DEFAULT = "default"
             const val BACKUP_FOLDER_CONFIGURED = "configured"

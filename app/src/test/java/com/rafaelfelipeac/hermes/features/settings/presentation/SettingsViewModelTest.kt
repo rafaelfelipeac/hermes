@@ -8,6 +8,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_PROGRESS_ENTRIES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_CONFIGURED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DESTINATION_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.FAILURE_REASON
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_VALUE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.RESULT
@@ -572,6 +573,58 @@ class SettingsViewModelTest {
                             WORKOUTS_COUNT to "2",
                             CATEGORIES_COUNT to "3",
                             USER_ACTIONS_COUNT to "4",
+                        ),
+                    timestamp = any(),
+                )
+            }
+        }
+
+    @Test
+    fun importBackupJson_partialSuccess_logsPartialAction() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = createSettingsRepository()
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+            val backupRepository = mockk<BackupRepository>(relaxed = true)
+            coEvery { backupRepository.importBackupJson(any()) } returns
+                ImportBackupResult.Success(
+                    schemaVersion = 6,
+                    challengesCount = 1,
+                    challengeProgressEntriesCount = 2,
+                    workoutsCount = 3,
+                    categoriesCount = 4,
+                    userActionsCount = 5,
+                    settingsImported = false,
+                )
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                    backupRepository,
+                )
+
+            viewModel.importBackupJson("{}")
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                userActionLogger.log(
+                    actionType = IMPORT_BACKUP,
+                    entityType = APP,
+                    entityId = null,
+                    metadata =
+                        mapOf(
+                            RESULT to "partial",
+                            SCHEMA_VERSION to "6",
+                            CHALLENGES_COUNT to "1",
+                            CHALLENGE_PROGRESS_ENTRIES_COUNT to "2",
+                            WORKOUTS_COUNT to "3",
+                            CATEGORIES_COUNT to "4",
+                            USER_ACTIONS_COUNT to "5",
+                            FAILURE_REASON to "settings_import_failed",
                         ),
                     timestamp = any(),
                 )

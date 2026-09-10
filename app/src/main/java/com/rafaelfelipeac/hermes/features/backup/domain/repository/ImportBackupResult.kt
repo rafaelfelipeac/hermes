@@ -8,6 +8,7 @@ sealed interface ImportBackupResult {
         val workoutsCount: Int,
         val categoriesCount: Int,
         val userActionsCount: Int,
+        val settingsImported: Boolean = true,
     ) : ImportBackupResult
 
     data class Failure(

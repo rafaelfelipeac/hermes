@@ -308,6 +308,7 @@
     <string name="settings_export_backup_error">تعذر التصدير الآن. حاول مرة أخرى.</string>
     <string name="settings_export_backup_success">تم تصدير النسخة الاحتياطية.</string>
     <string name="settings_import_backup_error">تعذر استيراد هذه النسخة الاحتياطية. تحقق من الملف وحاول مرة أخرى.</string>
+    <string name="settings_import_backup_partial_success">تم استيراد بيانات النسخة الاحتياطية، لكن تعذرت استعادة الإعدادات.</string>
     <string name="settings_import_backup_success">تم استيراد النسخة الاحتياطية.</string>
     <string name="settings_import_backup_replace_title">سيؤدي الاستيراد إلى استبدال بياناتك الحالية.</string>
     <string name="settings_import_backup_replace_message">سيستبدل هذا الاستيراد بياناتك المحلية بالنسخة الاحتياطية المحددة.</string>

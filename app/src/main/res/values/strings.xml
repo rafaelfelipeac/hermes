@@ -280,6 +280,7 @@
     <string name="settings_export_backup_error">Couldn’t export right now. Try again.</string>
     <string name="settings_export_backup_success">Backup exported.</string>
     <string name="settings_import_backup_error">Couldn’t import this backup. Check the file and try again.</string>
+    <string name="settings_import_backup_partial_success">Backup data imported, but settings could not be restored.</string>
     <string name="settings_import_backup_success">Backup imported.</string>
     <string name="settings_import_backup_replace_title">Import will replace your current data.</string>
     <string name="settings_import_backup_replace_message">This import replaces your local data with the selected backup.</string>

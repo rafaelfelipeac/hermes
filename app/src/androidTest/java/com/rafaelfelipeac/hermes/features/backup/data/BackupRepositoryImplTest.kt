@@ -29,6 +29,7 @@ import com.rafaelfelipeac.hermes.features.settings.data.SettingsRepositoryImpl
 import com.rafaelfelipeac.hermes.features.settings.data.settingsDataStore
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SettingsSnapshot
 import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
@@ -72,7 +73,7 @@ class BackupRepositoryImplTest {
                     categoryDao = database.categoryDao(),
                     userActionDao = database.userActionDao(),
                     personalRecordDao = database.personalRecordDao(),
-                    settingsRepository = settingsRepository,
+                    settingsDataSource = BackupSettingsDataSource(context),
                 )
         }
 
@@ -130,6 +131,26 @@ class BackupRepositoryImplTest {
             assertEquals(DistanceUnit.MILES.name, snapshot.settings?.distanceUnit)
             assertEquals(PaceUnit.MIN_PER_MI.name, snapshot.settings?.paceUnit)
             assertEquals(WeightUnit.POUNDS.name, snapshot.settings?.weightUnit)
+        }
+
+    @Test
+    fun exportBackupJson_returnsFailureWhenSnapshotBuildFails() =
+        runTest {
+            val failingSettingsDataSource = FailingSettingsDataSource(context)
+            val repositoryWithFailingSettings =
+                BackupRepositoryImpl(
+                    database = database,
+                    challengeDao = database.challengeDao(),
+                    workoutDao = database.workoutDao(),
+                    categoryDao = database.categoryDao(),
+                    userActionDao = database.userActionDao(),
+                    personalRecordDao = database.personalRecordDao(),
+                    settingsDataSource = failingSettingsDataSource,
+                )
+
+            val result = repositoryWithFailingSettings.exportBackupJson(TEST_APP_VERSION)
+
+            assertTrue(result.isFailure)
         }
 
     @Test
@@ -364,7 +385,7 @@ class BackupRepositoryImplTest {
     @Test
     fun importBackupJson_keepsCoreDataWhenSettingsRestoreFails() =
         runTest {
-            val failingSettingsRepository = FailingSettingsRepository(SettingsRepositoryImpl(context))
+            val failingSettingsDataSource = FailingSettingsDataSource(context)
             val repositoryWithFailingSettings =
                 BackupRepositoryImpl(
                     database = database,
@@ -373,7 +394,7 @@ class BackupRepositoryImplTest {
                     categoryDao = database.categoryDao(),
                     userActionDao = database.userActionDao(),
                     personalRecordDao = database.personalRecordDao(),
-                    settingsRepository = failingSettingsRepository,
+                    settingsDataSource = failingSettingsDataSource,
                 )
 
             val raw =
@@ -432,8 +453,9 @@ class BackupRepositoryImplTest {
             val result = repositoryWithFailingSettings.importBackupJson(raw)
 
             assertTrue(result is ImportBackupResult.Success)
-            assertEquals(WeekStartDay.MONDAY, failingSettingsRepository.delegate.weekStartDay.first())
-            assertEquals(DistanceUnit.KILOMETERS, failingSettingsRepository.delegate.distanceUnit.first())
+            assertEquals(false, (result as ImportBackupResult.Success).settingsImported)
+            assertEquals(WeekStartDay.MONDAY, settingsRepository.weekStartDay.first())
+            assertEquals(DistanceUnit.KILOMETERS, settingsRepository.distanceUnit.first())
             assertEquals(1, database.personalRecordDao().getFamilies().size)
             assertEquals(1, database.personalRecordDao().getEntries().size)
         }
@@ -527,10 +549,14 @@ class BackupRepositoryImplTest {
         }
     }
 
-    private class FailingSettingsRepository(
-        val delegate: SettingsRepository,
-    ) : SettingsRepository by delegate {
-        override suspend fun setThemeMode(mode: ThemeMode) {
+    private class FailingSettingsDataSource(
+        context: Context,
+    ) : BackupSettingsDataSource(context) {
+        override suspend fun snapshot(): SettingsSnapshot {
+            throw IllegalStateException("settings snapshot failed")
+        }
+
+        override suspend fun replace(snapshot: SettingsSnapshot) {
             throw IllegalStateException("settings restore failed")
         }
     }

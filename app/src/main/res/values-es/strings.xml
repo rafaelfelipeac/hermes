@@ -280,6 +280,7 @@
     <string name="settings_export_backup_error">No se pudo exportar ahora. Inténtalo de nuevo.</string>
     <string name="settings_export_backup_success">Copia de seguridad exportada.</string>
     <string name="settings_import_backup_error">No se pudo importar esta copia de seguridad. Revisa el archivo e inténtalo de nuevo.</string>
+    <string name="settings_import_backup_partial_success">Datos de la copia importados, pero no se pudieron restaurar los ajustes.</string>
     <string name="settings_import_backup_success">Copia de seguridad importada.</string>
     <string name="settings_import_backup_replace_title">La importación reemplazará tus datos actuales.</string>
     <string name="settings_import_backup_replace_message">Esta importación reemplaza tus datos locales con la copia seleccionada.</string>
