@@ -32,7 +32,11 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit.KILOGRAMS
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
 import java.time.Instant
 import javax.inject.Inject
 import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode.SYSTEM as SYSTEM_THEME
@@ -45,6 +49,25 @@ class BackupViewModel
         private val userActionLogger: UserActionLogger,
         private val backupRepository: BackupRepository,
     ) : ViewModel() {
+        private val operationMutex = Mutex()
+        private val _isOperationInProgress = MutableStateFlow(false)
+        val isOperationInProgress: StateFlow<Boolean> = _isOperationInProgress.asStateFlow()
+
+        suspend fun runExclusiveOperation(block: suspend () -> Unit): Boolean {
+            if (!operationMutex.tryLock()) {
+                return false
+            }
+
+            _isOperationInProgress.value = true
+            return try {
+                block()
+                true
+            } finally {
+                _isOperationInProgress.value = false
+                operationMutex.unlock()
+            }
+        }
+
         suspend fun exportBackupJson(appVersion: String): Result<String> {
             return backupRepository.exportBackupJson(appVersion)
         }

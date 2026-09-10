@@ -41,6 +41,7 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -367,6 +368,7 @@ private fun BrowseBackupScreen(
     val context = LocalContext.current
     val documentGateway = remember(context) { AndroidBackupDocumentGateway(context) }
     val scope = rememberCoroutineScope()
+    val isOperationInProgress by viewModel.isOperationInProgress.collectAsState()
     var isBackupHelpVisible by rememberSaveable { mutableStateOf(false) }
     var isImportReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
     var pendingImportPayload by remember { mutableStateOf<String?>(null) }
@@ -379,25 +381,56 @@ private fun BrowseBackupScreen(
     val importPartialSuccessMessage = stringResource(R.string.settings_import_backup_partial_success)
     val backupFolderUnavailableMessage = stringResource(R.string.settings_backup_folder_unavailable)
 
+    fun showImportResult(result: ImportBackupResult) {
+        when (result) {
+            is ImportBackupResult.Success -> {
+                val message =
+                    if (result.settingsImported) {
+                        importSuccessMessage
+                    } else {
+                        importPartialSuccessMessage
+                    }
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+
+            is ImportBackupResult.Failure -> {
+                val message =
+                    when (result.error) {
+                        ImportBackupError.INVALID_JSON,
+                        ImportBackupError.UNSUPPORTED_SCHEMA_VERSION,
+                        ImportBackupError.MISSING_REQUIRED_SECTION,
+                        ImportBackupError.INVALID_FIELD_VALUE,
+                        ImportBackupError.INVALID_REFERENCE,
+                        ImportBackupError.WRITE_FAILED,
+                        -> importFailedMessage
+                    }
+
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     val exportDocumentLauncher =
         rememberLauncherForActivityResult(CreateDocument(BACKUP_MIME_TYPE)) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
 
             scope.launch {
-                val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
-                val writeSucceeded =
-                    jsonResult.getOrNull()?.let { payload -> documentGateway.writeText(uri, payload) } ?: false
-                val message = if (writeSucceeded) exportSuccessMessage else exportFailedMessage
-                val exportResult = backupExportResult(jsonResult, writeSucceeded)
+                viewModel.runExclusiveOperation {
+                    val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
+                    val writeSucceeded =
+                        jsonResult.getOrNull()?.let { payload -> documentGateway.writeText(uri, payload) } ?: false
+                    val message = if (writeSucceeded) exportSuccessMessage else exportFailedMessage
+                    val exportResult = backupExportResult(jsonResult, writeSucceeded)
 
-                viewModel.logExportBackupResult(
-                    exportResult = exportResult,
-                    destinationType = EXPORT_DESTINATION_SAVE_AS,
-                    destinationConfigured = pendingSaveAsDestinationConfigured,
-                )
-                pendingSaveAsDestinationConfigured = false
+                    viewModel.logExportBackupResult(
+                        exportResult = exportResult,
+                        destinationType = EXPORT_DESTINATION_SAVE_AS,
+                        destinationConfigured = pendingSaveAsDestinationConfigured,
+                    )
+                    pendingSaveAsDestinationConfigured = false
 
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -412,37 +445,16 @@ private fun BrowseBackupScreen(
             }
 
             scope.launch {
-                viewModel.setBackupFolderUri(uri.toString())
+                viewModel.runExclusiveOperation {
+                    viewModel.setBackupFolderUri(uri.toString())
+                }
             }
         }
 
     fun importPayload(raw: String) {
         scope.launch {
-            when (val result = viewModel.importBackupJson(raw)) {
-                is ImportBackupResult.Success -> {
-                    val message =
-                        if (result.settingsImported) {
-                            importSuccessMessage
-                        } else {
-                            importPartialSuccessMessage
-                        }
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                }
-
-                is ImportBackupResult.Failure -> {
-                    val message =
-                        when (result.error) {
-                            ImportBackupError.INVALID_JSON,
-                            ImportBackupError.UNSUPPORTED_SCHEMA_VERSION,
-                            ImportBackupError.MISSING_REQUIRED_SECTION,
-                            ImportBackupError.INVALID_FIELD_VALUE,
-                            ImportBackupError.INVALID_REFERENCE,
-                            ImportBackupError.WRITE_FAILED,
-                            -> importFailedMessage
-                        }
-
-                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-                }
+            viewModel.runExclusiveOperation {
+                showImportResult(viewModel.importBackupJson(raw))
             }
         }
     }
@@ -451,17 +463,19 @@ private fun BrowseBackupScreen(
         rememberLauncherForActivityResult(OpenDocument()) { uri ->
             if (uri == null) return@rememberLauncherForActivityResult
             scope.launch {
-                val payload = documentGateway.readText(uri)
-                if (payload == null) {
-                    Toast.makeText(context, importFailedMessage, Toast.LENGTH_SHORT).show()
-                    return@launch
-                }
+                viewModel.runExclusiveOperation {
+                    val payload = documentGateway.readText(uri)
+                    if (payload == null) {
+                        Toast.makeText(context, importFailedMessage, Toast.LENGTH_SHORT).show()
+                        return@runExclusiveOperation
+                    }
 
-                if (viewModel.hasBackupData()) {
-                    pendingImportPayload = payload
-                    isImportReplaceDialogVisible = true
-                } else {
-                    importPayload(payload)
+                    if (viewModel.hasBackupData()) {
+                        pendingImportPayload = payload
+                        isImportReplaceDialogVisible = true
+                    } else {
+                        showImportResult(viewModel.importBackupJson(payload))
+                    }
                 }
             }
         }
@@ -485,77 +499,90 @@ private fun BrowseBackupScreen(
         onHelpClick = { isBackupHelpVisible = true },
         onExportClick = {
             scope.launch {
-                val configuredUri = state.backupFolderUri
+                viewModel.runExclusiveOperation {
+                    val configuredUri = state.backupFolderUri
 
-                if (configuredUri == null) {
-                    pendingSaveAsDestinationConfigured = false
-                    exportDocumentLauncher.launch(backupFileName())
-                } else {
-                    val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
-
-                    if (jsonResult.isFailure) {
-                        Toast.makeText(
-                            context,
-                            exportFallbackMessage,
-                            Toast.LENGTH_SHORT,
-                        ).show()
-
-                        viewModel.logExportBackupResult(
-                            exportResult = jsonResult,
-                            destinationType = EXPORT_DESTINATION_FOLDER,
-                            destinationConfigured = false,
-                        )
+                    if (configuredUri == null) {
+                        pendingSaveAsDestinationConfigured = false
+                        exportDocumentLauncher.launch(backupFileName())
                     } else {
-                        val writeSucceeded =
-                            jsonResult.getOrNull()?.let { payload ->
-                                documentGateway.writeTextToTree(
-                                    treeUri = configuredUri.toUri(),
-                                    fileName = backupFileName(),
-                                    content = payload,
-                                )
-                            } ?: false
+                        val jsonResult = viewModel.exportBackupJson(VERSION_NAME)
 
-                        if (writeSucceeded) {
-                            Toast.makeText(
-                                context,
-                                exportSuccessMessage,
-                                Toast.LENGTH_SHORT,
-                            ).show()
-
-                            viewModel.logExportBackupResult(
-                                exportResult = jsonResult,
-                                destinationType = EXPORT_DESTINATION_FOLDER,
-                                destinationConfigured = true,
-                            )
-                        } else {
-                            val exportResult = backupExportResult(jsonResult, writeSucceeded = false)
-
+                        if (jsonResult.isFailure) {
                             Toast.makeText(
                                 context,
                                 exportFallbackMessage,
                                 Toast.LENGTH_SHORT,
                             ).show()
 
-                            pendingSaveAsDestinationConfigured = true
-                            exportDocumentLauncher.launch(backupFileName())
-
                             viewModel.logExportBackupResult(
-                                exportResult = exportResult,
+                                exportResult = jsonResult,
                                 destinationType = EXPORT_DESTINATION_FOLDER,
                                 destinationConfigured = false,
                             )
+                        } else {
+                            val writeSucceeded =
+                                jsonResult.getOrNull()?.let { payload ->
+                                    documentGateway.writeTextToTree(
+                                        treeUri = configuredUri.toUri(),
+                                        fileName = backupFileName(),
+                                        content = payload,
+                                    )
+                                } ?: false
+
+                            if (writeSucceeded) {
+                                Toast.makeText(
+                                    context,
+                                    exportSuccessMessage,
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+
+                                viewModel.logExportBackupResult(
+                                    exportResult = jsonResult,
+                                    destinationType = EXPORT_DESTINATION_FOLDER,
+                                    destinationConfigured = true,
+                                )
+                            } else {
+                                val exportResult = backupExportResult(jsonResult, writeSucceeded = false)
+
+                                Toast.makeText(
+                                    context,
+                                    exportFallbackMessage,
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+
+                                pendingSaveAsDestinationConfigured = true
+                                exportDocumentLauncher.launch(backupFileName())
+
+                                viewModel.logExportBackupResult(
+                                    exportResult = exportResult,
+                                    destinationType = EXPORT_DESTINATION_FOLDER,
+                                    destinationConfigured = false,
+                                )
+                            }
                         }
                     }
                 }
             }
         },
-        onImportClick = { importDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE)) },
-        onSelectFolderClick = { backupFolderLauncher.launch(null) },
-        onClearFolderClick = {
-            scope.launch {
-                viewModel.clearBackupFolderUri()
+        onImportClick = {
+            if (!isOperationInProgress) {
+                importDocumentLauncher.launch(arrayOf(BACKUP_MIME_TYPE))
             }
         },
+        onSelectFolderClick = {
+            if (!isOperationInProgress) {
+                backupFolderLauncher.launch(null)
+            }
+        },
+        onClearFolderClick = {
+            scope.launch {
+                viewModel.runExclusiveOperation {
+                    viewModel.clearBackupFolderUri()
+                }
+            }
+        },
+        isOperationInProgress = isOperationInProgress,
     )
 
     if (isBackupHelpVisible) {
@@ -589,6 +616,7 @@ private fun BrowseBackupScreen(
                         isImportReplaceDialogVisible = false
                         pendingImportPayload = null
                     },
+                    enabled = !isOperationInProgress,
                 ) {
                     Text(text = stringResource(R.string.settings_import_backup_replace_confirm))
                 }
@@ -599,6 +627,7 @@ private fun BrowseBackupScreen(
                         isImportReplaceDialogVisible = false
                         pendingImportPayload = null
                     },
+                    enabled = !isOperationInProgress,
                 ) {
                     Text(text = stringResource(R.string.settings_import_backup_replace_cancel))
                 }
@@ -617,6 +646,7 @@ private fun BrowseBackupContent(
     onImportClick: () -> Unit,
     onSelectFolderClick: () -> Unit,
     onClearFolderClick: () -> Unit,
+    isOperationInProgress: Boolean,
 ) {
     SettingsBackupScreen(
         state = state,
@@ -627,6 +657,7 @@ private fun BrowseBackupContent(
         onImportClick = onImportClick,
         onSelectFolderClick = onSelectFolderClick,
         onClearFolderClick = onClearFolderClick,
+        isOperationInProgress = isOperationInProgress,
     )
 }
 

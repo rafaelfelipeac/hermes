@@ -34,8 +34,11 @@ import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -45,6 +48,45 @@ import org.junit.Test
 class BackupViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+
+    @Test
+    fun runExclusiveOperation_blocksConcurrentOperationUntilCurrentFinishes() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = FakeSettingsRepository(),
+                    userActionLogger = mockk(relaxed = true),
+                    backupRepository = mockk(relaxed = true),
+                )
+            val firstOperationStarted = CompletableDeferred<Unit>()
+            val finishFirstOperation = CompletableDeferred<Unit>()
+            var secondOperationExecuted = false
+
+            val firstOperation =
+                launch {
+                    viewModel.runExclusiveOperation {
+                        firstOperationStarted.complete(Unit)
+                        finishFirstOperation.await()
+                    }
+                }
+            firstOperationStarted.await()
+
+            val secondOperation =
+                async {
+                    viewModel.runExclusiveOperation {
+                        secondOperationExecuted = true
+                    }
+                }
+
+            assertEquals(true, viewModel.isOperationInProgress.value)
+            assertEquals(false, secondOperation.await())
+            assertEquals(false, secondOperationExecuted)
+
+            finishFirstOperation.complete(Unit)
+            firstOperation.join()
+
+            assertEquals(false, viewModel.isOperationInProgress.value)
+        }
 
     @Test
     fun logExportBackupResult_success_logsActionAndTimestamp() =
