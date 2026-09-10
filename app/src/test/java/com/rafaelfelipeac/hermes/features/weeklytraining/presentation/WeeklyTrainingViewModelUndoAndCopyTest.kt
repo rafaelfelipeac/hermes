@@ -1,10 +1,9 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
@@ -221,11 +220,6 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
                         fixture.previousTargetRestDay,
                     ),
                 )
-            coEvery { repository.getWorkoutsForWeekStarts(listOf(fixture.weekStart)) } returns
-                listOf(
-                    fixture.sourceWorkout.copy(id = 999, weekStartDate = fixture.weekStart),
-                )
-
             viewModel.onWeekChanged(fixture.selectedDate)
             runCurrent()
             viewModel.copyLastWeek()
@@ -233,21 +227,16 @@ class WeeklyTrainingViewModelUndoAndCopyTest {
             viewModel.undoLastAction()
             runCurrent()
 
-            val restoredWorkouts = mutableListOf<Workout>()
-            coVerify(exactly = 1) { repository.deleteWorkout(any()) }
-            coVerify(exactly = 2) { repository.insertWorkout(capture(restoredWorkouts)) }
+            val commandSlot = slot<UndoCopyLastWeekCommand>()
             coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = UNDO_COPY_LAST_WEEK,
-                    entityType = WEEK,
-                    entityId = fixture.weekStart.toEpochDay(),
-                    metadata = any(),
-                    timestamp = any(),
-                )
+                commandRepository.undoCopyLastWeek(capture(commandSlot))
             }
+            assertEquals(listOf(fixture.weekStart), commandSlot.captured.targetStorageWeekStarts)
+            assertEquals(fixture.weekStart, commandSlot.captured.targetDisplayWeekStart)
+            assertEquals(fixture.weekStart, commandSlot.captured.targetUnassignedStorageWeekStart)
             assertEquals(
                 setOf(fixture.previousTargetWorkout, fixture.previousTargetRestDay),
-                restoredWorkouts.toSet(),
+                commandSlot.captured.previousWorkouts.toSet(),
             )
 
             collectJob.cancel()

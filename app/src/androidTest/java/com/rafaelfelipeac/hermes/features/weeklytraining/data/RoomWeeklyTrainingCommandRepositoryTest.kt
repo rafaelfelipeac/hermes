@@ -42,6 +42,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_RACE_
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COPY_LAST_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_DELETE_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_RACE_EVENT
@@ -50,6 +51,7 @@ import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
@@ -571,6 +573,53 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertTrue(logger.actions.isEmpty())
         }
 
+    @Test
+    fun undoCopyLastWeek_restoresPreviousDisplayWeekAndLogsInTransaction() =
+        runTest {
+            val copiedWorkout = sampleWorkout(id = 10, type = "Copied", description = "Current")
+            val previousWorkout = sampleWorkout(id = 20, type = "Previous", description = "Target")
+            seedWorkout(copiedWorkout)
+
+            val result =
+                repository.undoCopyLastWeek(
+                    undoCopyLastWeekCommand(
+                        previousWorkouts = listOf(previousWorkout.toDomainWorkout()),
+                    ),
+                )
+
+            assertEquals(WeeklyTrainingCommandResult.UndoApplied, result)
+            assertEquals(
+                listOf(previousWorkout),
+                database.workoutDao().getWorkoutsForWeek(LocalDate.parse("2026-09-07")),
+            )
+            logger.assertWeekUndoCopyLoggedOnce()
+        }
+
+    @Test
+    fun undoCopyLastWeek_rollsBackWhenLoggerFails() =
+        runTest {
+            val copiedWorkout = sampleWorkout(id = 10, type = "Copied", description = "Current")
+            val previousWorkout = sampleWorkout(id = 20, type = "Previous", description = "Target")
+            seedWorkout(copiedWorkout)
+            logger.failNextLog = true
+
+            val result =
+                runCatching {
+                    repository.undoCopyLastWeek(
+                        undoCopyLastWeekCommand(
+                            previousWorkouts = listOf(previousWorkout.toDomainWorkout()),
+                        ),
+                    )
+                }
+
+            assertTrue(result.isFailure)
+            assertEquals(
+                listOf(copiedWorkout),
+                database.workoutDao().getWorkoutsForWeek(LocalDate.parse("2026-09-07")),
+            )
+            assertTrue(logger.actions.isEmpty())
+        }
+
     private suspend fun seedCategory() {
         database.categoryDao().insert(
             CategoryEntity(
@@ -677,6 +726,14 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             targetUnassignedStorageWeekStart = LocalDate.parse("2026-09-07"),
             sourceDisplayWeekStart = LocalDate.parse("2026-08-31"),
             replacementWorkouts = replacementWorkouts,
+        )
+
+    private fun undoCopyLastWeekCommand(previousWorkouts: List<Workout>) =
+        UndoCopyLastWeekCommand(
+            targetStorageWeekStarts = listOf(LocalDate.parse("2026-09-07")),
+            targetDisplayWeekStart = LocalDate.parse("2026-09-07"),
+            targetUnassignedStorageWeekStart = LocalDate.parse("2026-09-07"),
+            previousWorkouts = previousWorkouts,
         )
 
     private fun sampleWorkout(
@@ -871,6 +928,14 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             assertEquals("2026-09-07", action.metadata?.get(WEEK_START_DATE))
             assertEquals("2026-08-31", action.metadata?.get(OLD_WEEK_START_DATE))
             assertEquals("2026-09-07", action.metadata?.get(NEW_WEEK_START_DATE))
+        }
+
+        fun assertWeekUndoCopyLoggedOnce() {
+            val action = actions.single()
+            assertEquals(UNDO_COPY_LAST_WEEK, action.actionType)
+            assertEquals(WEEK, action.entityType)
+            assertEquals(LocalDate.parse("2026-09-07").toEpochDay(), action.entityId)
+            assertEquals("2026-09-07", action.metadata?.get(WEEK_START_DATE))
         }
     }
 

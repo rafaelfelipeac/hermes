@@ -3,6 +3,8 @@ package com.rafaelfelipeac.hermes.features.weeklytraining.domain.command
 interface WeeklyTrainingCommandRepository {
     suspend fun copyLastWeek(request: CopyLastWeekCommand): WeeklyTrainingCommandResult
 
+    suspend fun undoCopyLastWeek(request: UndoCopyLastWeekCommand): WeeklyTrainingCommandResult
+
     suspend fun updateSchedule(request: WorkoutScheduleCommand): WeeklyTrainingCommandResult
 
     suspend fun undoSchedule(request: UndoScheduleCommand): WeeklyTrainingCommandResult

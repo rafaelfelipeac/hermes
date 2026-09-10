@@ -153,6 +153,9 @@ fun defaultWeeklyTrainingCommandRepository(): WeeklyTrainingCommandRepository {
         commandRepository.copyLastWeek(any())
     } returns WeeklyTrainingCommandResult.WeekCopied(emptyList())
     coEvery {
+        commandRepository.undoCopyLastWeek(any())
+    } returns WeeklyTrainingCommandResult.UndoApplied
+    coEvery {
         commandRepository.updateSchedule(any())
     } returns WeeklyTrainingCommandResult.ScheduleChanged
     coEvery {

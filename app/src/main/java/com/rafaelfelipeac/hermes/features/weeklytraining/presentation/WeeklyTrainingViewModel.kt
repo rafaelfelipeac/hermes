@@ -26,6 +26,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRep
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
@@ -725,11 +726,7 @@ class WeeklyTrainingViewModel
                             )
                         }
                     is PendingUndoAction.ReplaceWeek ->
-                        undoReplaceWeek(
-                            action = action,
-                            repository = repository,
-                            userActionLogger = userActionLogger,
-                        )
+                        weeklyTrainingCommandRepository.undoCopyLastWeek(action.toUndoCopyLastWeekCommand())
                 }
 
                 undoState.value = null
@@ -824,6 +821,15 @@ class WeeklyTrainingViewModel
                 workout = workout.toWorkout(),
                 displayWeekStart = weekStartDate,
                 previousPositions = previousPositions.toScheduleChanges(),
+            )
+        }
+
+        private fun PendingUndoAction.ReplaceWeek.toUndoCopyLastWeekCommand(): UndoCopyLastWeekCommand {
+            return UndoCopyLastWeekCommand(
+                targetStorageWeekStarts = storageWeekStartsForDisplayWeek(weekStartDate),
+                targetDisplayWeekStart = weekStartDate,
+                targetUnassignedStorageWeekStart = unassignedStorageWeekStart,
+                previousWorkouts = previousWorkouts,
             )
         }
 

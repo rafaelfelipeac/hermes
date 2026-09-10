@@ -33,6 +33,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntit
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
@@ -83,6 +84,15 @@ class RoomWeeklyTrainingCommandRepository
                 )
 
                 WeeklyTrainingCommandResult.WeekCopied(previousWorkouts)
+            }
+        }
+
+        override suspend fun undoCopyLastWeek(request: UndoCopyLastWeekCommand): WeeklyTrainingCommandResult {
+            return database.withTransaction {
+                UndoCopyLastWeekTransaction(
+                    workoutDao = workoutDao,
+                    userActionLogger = userActionLogger,
+                ).apply(request)
             }
         }
 

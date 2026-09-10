@@ -142,7 +142,7 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 ### P05 — Estabelecer comandos transacionais de treino/evento
 
-**Status parcial:** conclusão, exclusão, movimentação/reordenação, edição de detalhes de treino/evento, cópia de semana, undo de conclusão, undo de movimentação/reordenação e undo de exclusão implementados localmente em 10/09/2026 com comandos transacionais e idempotentes. Compilação, unit tests, Detekt e ktlint passaram; execução instrumentada real de `RoomWeeklyTrainingCommandRepositoryTest` permanece pendente porque não há emulador/dispositivo conectado. Undo de cópia ainda fica para o próximo commit do P05.
+**Status parcial:** conclusão, exclusão, movimentação/reordenação, edição de detalhes de treino/evento, cópia de semana, undo de conclusão, undo de movimentação/reordenação, undo de exclusão e undo de cópia implementados localmente em 10/09/2026 com comandos transacionais e idempotentes. Compilação, unit tests, Detekt e ktlint passaram; execução instrumentada real de `RoomWeeklyTrainingCommandRepositoryTest` permanece pendente porque não há emulador/dispositivo conectado. Criação de treino/evento ainda fica para o próximo commit do P05.
 
 **Achados:** 2/7. **Dependências:** P02–P04. **Esforço:** maior bloco. **Risco:** médio a alto.
 
