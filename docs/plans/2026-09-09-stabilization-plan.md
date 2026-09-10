@@ -124,6 +124,8 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 **Aceite:** nenhuma operação concluída parcialmente; ViewModel apenas despacha e apresenta resultado. Nenhuma mudança de schema.
 
+**Status:** implementado localmente em 10/09/2026. Compilação, unit tests, Detekt e ktlint passaram; execução instrumentada real de `RoomCategoryCommandRepositoryTest` permanece pendente porque não há emulador/dispositivo conectado.
+
 ### P04 — Excluir entrada manual de recorde com integridade
 
 **Achado:** 2. **Dependências:** P02 e padrão de P03. **Esforço:** pequeno a médio. **Risco:** médio.

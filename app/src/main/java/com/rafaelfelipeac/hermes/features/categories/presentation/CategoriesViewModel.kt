@@ -14,19 +14,15 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValu
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.CATEGORY_VISIBLE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_CATEGORY
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_CATEGORY
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_CATEGORY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_DEFAULT_CATEGORIES
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_COLOR
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CATEGORY_VISIBILITY
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
+import com.rafaelfelipeac.hermes.features.categories.domain.command.CategoryCommandRepository
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
-import com.rafaelfelipeac.hermes.features.challenges.domain.repository.ChallengeRepository
-import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
-import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.StateFlow
@@ -39,9 +35,7 @@ class CategoriesViewModel
     @Inject
     constructor(
         private val repository: CategoryRepository,
-        private val workoutRepository: WeeklyTrainingRepository,
-        private val personalRecordsRepository: PersonalRecordsRepository,
-        private val challengeRepository: ChallengeRepository,
+        private val categoryCommandRepository: CategoryCommandRepository,
         private val categorySeeder: CategorySeeder,
         private val userActionLogger: UserActionLogger,
     ) : ViewModel() {
@@ -171,20 +165,8 @@ class CategoriesViewModel
         fun deleteCategory(categoryId: Long) {
             if (categoryId == UNCATEGORIZED_ID) return
 
-            val category = state.value.categories.firstOrNull { it.id == categoryId }
-
             viewModelScope.launch {
-                workoutRepository.reassignCategory(categoryId, UNCATEGORIZED_ID)
-                personalRecordsRepository.reassignCategory(categoryId, null)
-                challengeRepository.reassignCategory(categoryId, null)
-                repository.deleteCategory(categoryId)
-
-                userActionLogger.log(
-                    actionType = DELETE_CATEGORY,
-                    entityType = CATEGORY,
-                    entityId = categoryId,
-                    metadata = mapOf(CATEGORY_NAME to (category?.name ?: EMPTY)),
-                )
+                categoryCommandRepository.deleteCategory(categoryId)
             }
         }
 
@@ -208,25 +190,8 @@ class CategoriesViewModel
             categoryId: Long,
             delta: Int,
         ) {
-            val ordered = state.value.categories.sortedBy { it.sortOrder }
-            val index = ordered.indexOfFirst { it.id == categoryId }
-            val swapIndex = index + delta
-
-            if (index == -1 || swapIndex !in ordered.indices) return
-
-            val current = ordered[index]
-            val target = ordered[swapIndex]
-
             viewModelScope.launch {
-                repository.updateCategorySortOrder(current.id, target.sortOrder)
-                repository.updateCategorySortOrder(target.id, current.sortOrder)
-
-                userActionLogger.log(
-                    actionType = REORDER_CATEGORY,
-                    entityType = CATEGORY,
-                    entityId = current.id,
-                    metadata = mapOf(CATEGORY_NAME to current.name),
-                )
+                categoryCommandRepository.moveCategory(categoryId, delta)
             }
         }
     }
