@@ -40,6 +40,24 @@ fun applyAppLanguage(
     }
 }
 
+fun currentPlatformAppLanguage(context: Context): AppLanguage {
+    val localeTags = currentPlatformAppLocaleTags(context)
+
+    return if (localeTags.isBlank()) {
+        SYSTEM
+    } else {
+        AppLanguage.fromTag(localeTags)
+    }
+}
+
+private fun currentPlatformAppLocaleTags(context: Context): String {
+    return if (SDK_INT >= TIRAMISU) {
+        context.getSystemService(LocaleManager::class.java).applicationLocales.toLanguageTags()
+    } else {
+        AppCompatDelegate.getApplicationLocales().toLanguageTags()
+    }
+}
+
 internal fun AppLanguage.toApplicationLocaleTags(): String {
     return if (this == SYSTEM) EMPTY_LOCALE_TAGS else tag
 }

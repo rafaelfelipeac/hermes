@@ -168,6 +168,13 @@ class SettingsViewModel
                 }
             }
 
+        fun syncLanguageFromPlatform(language: AppLanguage) =
+            viewModelScope.launch {
+                if (state.value.language != language) {
+                    repository.setLanguage(language)
+                }
+            }
+
         fun setSlotModePolicy(policy: SlotModePolicy) =
             viewModelScope.launch {
                 val previous = state.value.slotModePolicy
