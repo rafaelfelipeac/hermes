@@ -7,8 +7,10 @@ import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.LocaleList
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.SYSTEM
+import java.util.Locale
 
 fun applyAppLanguage(
     context: Context,
@@ -40,6 +42,10 @@ fun applyAppLanguage(
 
 internal fun AppLanguage.toApplicationLocaleTags(): String {
     return if (this == SYSTEM) EMPTY_LOCALE_TAGS else tag
+}
+
+internal fun AppLanguage.toLocale(localeProvider: LocaleProvider): Locale {
+    return if (this == SYSTEM) localeProvider.current() else Locale.forLanguageTag(tag)
 }
 
 private const val EMPTY_LOCALE_TAGS = ""

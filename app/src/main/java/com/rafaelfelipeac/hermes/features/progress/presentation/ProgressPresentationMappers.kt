@@ -1,11 +1,9 @@
 package com.rafaelfelipeac.hermes.features.progress.presentation
 
-import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
 import com.rafaelfelipeac.hermes.features.activity.presentation.formatter.ActivityUiFormatter
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
-import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyFamily
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import com.rafaelfelipeac.hermes.features.trophies.presentation.TrophyCardUi
@@ -76,8 +74,4 @@ private fun TrophyFamily.toUi(): TrophyFamilyUi {
         TrophyFamily.PERSONAL_RECORDS -> TrophyFamilyUi.PERSONAL_RECORDS
         TrophyFamily.CATEGORIES -> TrophyFamilyUi.CATEGORIES
     }
-}
-
-internal fun AppLanguage.toLocale(localeProvider: LocaleProvider): Locale {
-    return if (this == AppLanguage.SYSTEM) localeProvider.current() else Locale.forLanguageTag(tag)
 }
