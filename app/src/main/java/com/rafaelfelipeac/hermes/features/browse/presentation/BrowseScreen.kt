@@ -70,6 +70,7 @@ import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
 import com.rafaelfelipeac.hermes.features.backup.BACKUP_IMPORT_LOG_TAG
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
+import com.rafaelfelipeac.hermes.features.backup.presentation.backupExportResult
 import com.rafaelfelipeac.hermes.features.categories.presentation.CategoriesScreen
 import com.rafaelfelipeac.hermes.features.challenges.presentation.ChallengesScreen
 import com.rafaelfelipeac.hermes.features.challenges.presentation.model.ChallengeEditorDraft
@@ -100,7 +101,6 @@ private const val BACKUP_EXTENSION = ".json"
 private const val BACKUP_FILE_NAME_PREFIX = "hermes-backup-"
 private const val ISO_TIME_SEPARATOR = ":"
 private const val FILE_SAFE_TIME_SEPARATOR = "-"
-private const val EXPORT_WRITE_FAILED = "export_write_failed"
 private const val EXPORT_DESTINATION_SAVE_AS = "save_as"
 private const val EXPORT_DESTINATION_FOLDER = "folder"
 private const val LOG_BACKUP_DOCUMENT_READ_FAILED = "Could not read the selected backup document."
@@ -396,14 +396,7 @@ private fun BrowseBackupScreen(
                 val writeSucceeded =
                     jsonResult.getOrNull()?.let { payload -> writeTextToUri(context, uri, payload) } ?: false
                 val message = if (writeSucceeded) exportSuccessMessage else exportFailedMessage
-                val exportResult =
-                    if (jsonResult.isFailure) {
-                        jsonResult
-                    } else if (writeSucceeded) {
-                        jsonResult
-                    } else {
-                        Result.failure(IllegalStateException(EXPORT_WRITE_FAILED))
-                    }
+                val exportResult = backupExportResult(jsonResult, writeSucceeded)
 
                 viewModel.logExportBackupResult(
                     exportResult = exportResult,
@@ -547,6 +540,8 @@ private fun BrowseBackupScreen(
                                 destinationConfigured = true,
                             )
                         } else {
+                            val exportResult = backupExportResult(jsonResult, writeSucceeded = false)
+
                             Toast.makeText(
                                 context,
                                 exportFallbackMessage,
@@ -557,7 +552,7 @@ private fun BrowseBackupScreen(
                             exportDocumentLauncher.launch(backupFileName())
 
                             viewModel.logExportBackupResult(
-                                exportResult = jsonResult,
+                                exportResult = exportResult,
                                 destinationType = EXPORT_DESTINATION_FOLDER,
                                 destinationConfigured = false,
                             )
