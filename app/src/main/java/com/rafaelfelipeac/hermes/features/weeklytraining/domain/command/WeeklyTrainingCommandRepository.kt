@@ -5,6 +5,8 @@ interface WeeklyTrainingCommandRepository {
 
     suspend fun updateSchedule(request: WorkoutScheduleCommand): WeeklyTrainingCommandResult
 
+    suspend fun undoSchedule(request: UndoScheduleCommand): WeeklyTrainingCommandResult
+
     suspend fun updateDetails(request: WorkoutDetailsCommand): WeeklyTrainingCommandResult
 
     suspend fun updateCompletion(request: WorkoutCompletionCommand): WeeklyTrainingCommandResult

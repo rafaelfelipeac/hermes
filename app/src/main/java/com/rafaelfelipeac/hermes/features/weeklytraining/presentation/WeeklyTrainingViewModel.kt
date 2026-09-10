@@ -26,6 +26,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRep
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
@@ -707,11 +708,21 @@ class WeeklyTrainingViewModel
             viewModelScope.launch {
                 when (val action = currentUndo.action) {
                     is PendingUndoAction.MoveOrReorder ->
-                        undoMoveOrReorder(
-                            action = action,
-                            currentWorkouts = state.value.workouts,
-                            repository = repository,
-                            userActionLogger = userActionLogger,
+                        weeklyTrainingCommandRepository.undoSchedule(
+                            UndoScheduleCommand(
+                                movedWorkoutId = action.movedWorkoutId,
+                                displayWeekStart = action.weekStartDate,
+                                previousPositions =
+                                    action.previousPositions.map { position ->
+                                        WorkoutScheduleChange(
+                                            workoutId = position.id,
+                                            weekStartDate = position.weekStartDate,
+                                            dayOfWeek = position.dayOfWeek,
+                                            timeSlot = position.timeSlot,
+                                            order = position.order,
+                                        )
+                                    },
+                            ),
                         )
                     is PendingUndoAction.Delete ->
                         undoDelete(

@@ -33,6 +33,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntit
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
@@ -147,6 +148,20 @@ class RoomWeeklyTrainingCommandRepository
                 )
 
                 WeeklyTrainingCommandResult.ScheduleChanged
+            }
+        }
+
+        override suspend fun undoSchedule(request: UndoScheduleCommand): WeeklyTrainingCommandResult {
+            if (request.previousPositions.isEmpty()) {
+                return WeeklyTrainingCommandResult.NoChange
+            }
+
+            return database.withTransaction {
+                UndoScheduleTransaction(
+                    workoutDao = workoutDao,
+                    categoryDao = categoryDao,
+                    userActionLogger = userActionLogger,
+                ).apply(request)
             }
         }
 
@@ -485,7 +500,7 @@ private fun WorkoutEntity.toDomain(): Workout {
     )
 }
 
-private fun String.toEventType(isRestDay: Boolean): EventType {
+internal fun String.toEventType(isRestDay: Boolean): EventType {
     return runCatching { EventType.valueOf(this) }
         .getOrDefault(if (isRestDay) EventType.REST else EventType.WORKOUT)
 }
@@ -504,15 +519,6 @@ private fun EventType.toCompletionActionType(isCompleted: Boolean): UserActionTy
             if (isCompleted) UserActionType.COMPLETE_RACE_EVENT else UserActionType.INCOMPLETE_RACE_EVENT
         else ->
             if (isCompleted) UserActionType.COMPLETE_WORKOUT else UserActionType.INCOMPLETE_WORKOUT
-    }
-}
-
-private fun EventType.toUndoCompletionActionType(wasCompleted: Boolean): UserActionType {
-    return when (this) {
-        EventType.RACE_EVENT ->
-            if (wasCompleted) UserActionType.UNDO_COMPLETE_RACE_EVENT else UserActionType.UNDO_INCOMPLETE_RACE_EVENT
-        else ->
-            if (wasCompleted) UserActionType.UNDO_COMPLETE_WORKOUT else UserActionType.UNDO_INCOMPLETE_WORKOUT
     }
 }
 
@@ -585,7 +591,7 @@ private fun EventType.toDeleteActionType(): UserActionType {
     }
 }
 
-private fun EventType.toUserActionEntityType(): UserActionEntityType {
+internal fun EventType.toUserActionEntityType(): UserActionEntityType {
     return when (this) {
         EventType.WORKOUT -> UserActionEntityType.WORKOUT
         EventType.REST -> UserActionEntityType.REST
@@ -662,7 +668,7 @@ private fun buildUpdatedDetailsMetadata(input: DetailsMetadataInput): Map<String
     }
 }
 
-private fun MutableMap<String, String>.putWorkoutCategoryMetadata(
+internal fun MutableMap<String, String>.putWorkoutCategoryMetadata(
     categoryId: Long?,
     categoryName: String?,
     newCategoryId: Long? = null,

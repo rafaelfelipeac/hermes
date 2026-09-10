@@ -5,10 +5,12 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleChange
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.AFTERNOON
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot.MORNING
@@ -364,10 +366,11 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val undoStates = mutableListOf<UndoState?>()
             val undoJob = backgroundScope.launch { viewModel.undoUiState.collect(undoStates::add) }
@@ -410,10 +413,11 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val undoStates = mutableListOf<UndoState?>()
             val undoJob = backgroundScope.launch { viewModel.undoUiState.collect(undoStates::add) }
@@ -615,10 +619,11 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             val workoutsFlow = MutableStateFlow(emptyList<Workout>())
             val repository = mockk<WeeklyTrainingRepository>(relaxed = true)
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 5, 12)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -648,21 +653,21 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             runCurrent()
 
             coVerify(exactly = 1) {
-                repository.updateWorkoutSchedule(
-                    workoutId = movedWorkout.id,
-                    weekStartDate = weekStart,
-                    dayOfWeek = MONDAY,
-                    timeSlot = null,
-                    order = 1,
-                )
-            }
-            coVerify(exactly = 1) {
-                repository.updateWorkoutSchedule(
-                    workoutId = mondayWorkout.id,
-                    weekStartDate = weekStart,
-                    dayOfWeek = MONDAY,
-                    timeSlot = null,
-                    order = 0,
+                commandRepository.undoSchedule(
+                    UndoScheduleCommand(
+                        movedWorkoutId = movedWorkout.id,
+                        displayWeekStart = weekStart,
+                        previousPositions =
+                            listOf(
+                                WorkoutScheduleChange(
+                                    workoutId = movedWorkout.id,
+                                    weekStartDate = weekStart,
+                                    dayOfWeek = MONDAY,
+                                    timeSlot = null,
+                                    order = 1,
+                                ),
+                            ),
+                    ),
                 )
             }
 

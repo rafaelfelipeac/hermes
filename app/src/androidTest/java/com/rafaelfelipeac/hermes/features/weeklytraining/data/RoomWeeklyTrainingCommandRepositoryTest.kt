@@ -41,12 +41,14 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_RACE_
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_COMPLETE_WORKOUT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UNDO_MOVE_WORKOUT_BETWEEN_DAYS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_RACE_EVENT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
@@ -341,6 +343,59 @@ class RoomWeeklyTrainingCommandRepositoryTest {
         }
 
     @Test
+    fun undoSchedule_restoresPreviousPositionsAndLogsInTransaction() =
+        runTest {
+            seedCategory()
+            seedWorkout(sampleWorkout(id = 10, sortOrder = 0, timeSlot = TimeSlot.MORNING.name))
+            seedWorkout(
+                sampleWorkout(
+                    id = WORKOUT_ID,
+                    dayOfWeek = DayOfWeek.TUESDAY.value,
+                    sortOrder = 0,
+                    timeSlot = TimeSlot.AFTERNOON.name,
+                ),
+            )
+
+            val result = repository.undoSchedule(undoScheduleCommand())
+
+            assertEquals(WeeklyTrainingCommandResult.UndoApplied, result)
+            val movedWorkout = database.workoutDao().getWorkout(WORKOUT_ID)
+            assertEquals(DayOfWeek.MONDAY.value, movedWorkout?.dayOfWeek)
+            assertEquals(TimeSlot.MORNING.name, movedWorkout?.timeSlot)
+            assertEquals(1, movedWorkout?.sortOrder)
+            logger.assertScheduleLoggedOnce(
+                actionType = UNDO_MOVE_WORKOUT_BETWEEN_DAYS,
+                oldDayOfWeek = DayOfWeek.TUESDAY.value.toString(),
+                newDayOfWeek = DayOfWeek.MONDAY.value.toString(),
+                oldTimeSlot = TimeSlot.AFTERNOON.name,
+                newTimeSlot = TimeSlot.MORNING.name,
+                oldOrder = "0",
+                newOrder = "1",
+            )
+        }
+
+    @Test
+    fun undoSchedule_rollsBackWhenLoggerFails() =
+        runTest {
+            val moved =
+                sampleWorkout(
+                    id = WORKOUT_ID,
+                    dayOfWeek = DayOfWeek.TUESDAY.value,
+                    sortOrder = 0,
+                    timeSlot = TimeSlot.AFTERNOON.name,
+                )
+            seedWorkout(sampleWorkout(id = 10, sortOrder = 0, timeSlot = TimeSlot.MORNING.name))
+            seedWorkout(moved)
+            logger.failNextLog = true
+
+            val result = runCatching { repository.undoSchedule(undoScheduleCommand()) }
+
+            assertTrue(result.isFailure)
+            assertEquals(moved, database.workoutDao().getWorkout(WORKOUT_ID))
+            assertTrue(logger.actions.isEmpty())
+        }
+
+    @Test
     fun updateDetails_updatesWorkoutAndLogsPersistedMetadata() =
         runTest {
             seedCategory()
@@ -530,6 +585,29 @@ class RoomWeeklyTrainingCommandRepositoryTest {
             movedWorkoutId = WORKOUT_ID,
             displayWeekStart = LocalDate.parse("2026-09-07"),
             changes = changes.toList(),
+        )
+
+    private fun undoScheduleCommand() =
+        UndoScheduleCommand(
+            movedWorkoutId = WORKOUT_ID,
+            displayWeekStart = LocalDate.parse("2026-09-07"),
+            previousPositions =
+                listOf(
+                    WorkoutScheduleChange(
+                        workoutId = 10,
+                        weekStartDate = LocalDate.parse("2026-09-07"),
+                        dayOfWeek = DayOfWeek.MONDAY,
+                        timeSlot = TimeSlot.MORNING,
+                        order = 0,
+                    ),
+                    WorkoutScheduleChange(
+                        workoutId = WORKOUT_ID,
+                        weekStartDate = LocalDate.parse("2026-09-07"),
+                        dayOfWeek = DayOfWeek.MONDAY,
+                        timeSlot = TimeSlot.MORNING,
+                        order = 1,
+                    ),
+                ),
         )
 
     private fun detailsCommand(
