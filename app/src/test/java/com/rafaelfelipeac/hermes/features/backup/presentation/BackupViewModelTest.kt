@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.backup.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGES_COUNT
@@ -57,6 +58,7 @@ class BackupViewModelTest {
                     settingsRepository = FakeSettingsRepository(),
                     userActionLogger = mockk(relaxed = true),
                     backupRepository = mockk(relaxed = true),
+                    savedStateHandle = SavedStateHandle(),
                 )
             val firstOperationStarted = CompletableDeferred<Unit>()
             val finishFirstOperation = CompletableDeferred<Unit>()
@@ -89,6 +91,42 @@ class BackupViewModelTest {
         }
 
     @Test
+    fun pendingImportToken_isRestoredFromSavedStateHandleAndCanBeCleared() {
+        val savedStateHandle = SavedStateHandle(mapOf("pending_import_token" to "token-1"))
+        val viewModel =
+            BackupViewModel(
+                settingsRepository = FakeSettingsRepository(),
+                userActionLogger = mockk(relaxed = true),
+                backupRepository = mockk(relaxed = true),
+                savedStateHandle = savedStateHandle,
+            )
+
+        assertEquals("token-1", viewModel.pendingImportToken.value)
+
+        viewModel.clearPendingImportToken()
+
+        assertEquals(null, viewModel.pendingImportToken.value)
+        assertEquals(null, savedStateHandle.get<String>("pending_import_token"))
+    }
+
+    @Test
+    fun setPendingImportToken_persistsTokenInSavedStateHandle() {
+        val savedStateHandle = SavedStateHandle()
+        val viewModel =
+            BackupViewModel(
+                settingsRepository = FakeSettingsRepository(),
+                userActionLogger = mockk(relaxed = true),
+                backupRepository = mockk(relaxed = true),
+                savedStateHandle = savedStateHandle,
+            )
+
+        viewModel.setPendingImportToken("token-2")
+
+        assertEquals("token-2", viewModel.pendingImportToken.value)
+        assertEquals("token-2", savedStateHandle.get<String>("pending_import_token"))
+    }
+
+    @Test
     fun logExportBackupResult_success_logsActionAndTimestamp() =
         runTest(mainDispatcherRule.testDispatcher) {
             val settingsRepository = FakeSettingsRepository()
@@ -108,6 +146,7 @@ class BackupViewModelTest {
                     settingsRepository = settingsRepository,
                     userActionLogger = userActionLogger,
                     backupRepository = backupRepository,
+                    savedStateHandle = SavedStateHandle(),
                 )
 
             viewModel.logExportBackupResult(
@@ -159,6 +198,7 @@ class BackupViewModelTest {
                     settingsRepository = FakeSettingsRepository(),
                     userActionLogger = userActionLogger,
                     backupRepository = backupRepository,
+                    savedStateHandle = SavedStateHandle(),
                 )
 
             viewModel.importBackupJson("{}")
@@ -194,6 +234,7 @@ class BackupViewModelTest {
                     settingsRepository = FakeSettingsRepository(),
                     userActionLogger = mockk(relaxed = true),
                     backupRepository = backupRepository,
+                    savedStateHandle = SavedStateHandle(),
                 )
 
             assertEquals(true, viewModel.hasBackupData())
@@ -209,6 +250,7 @@ class BackupViewModelTest {
                     settingsRepository = FakeSettingsRepository(themeMode = ThemeMode.DARK),
                     userActionLogger = mockk(relaxed = true),
                     backupRepository = backupRepository,
+                    savedStateHandle = SavedStateHandle(),
                 )
 
             assertEquals(true, viewModel.hasBackupData())
@@ -224,6 +266,7 @@ class BackupViewModelTest {
                     settingsRepository = FakeSettingsRepository(),
                     userActionLogger = mockk(relaxed = true),
                     backupRepository = backupRepository,
+                    savedStateHandle = SavedStateHandle(),
                 )
 
             assertEquals(false, viewModel.hasBackupData())
@@ -238,6 +281,7 @@ class BackupViewModelTest {
                     settingsRepository = FakeSettingsRepository(),
                     userActionLogger = userActionLogger,
                     backupRepository = mockk(relaxed = true),
+                    savedStateHandle = SavedStateHandle(),
                 )
 
             viewModel.setBackupFolderUri("content://tree/test")
@@ -266,6 +310,7 @@ class BackupViewModelTest {
                     settingsRepository = FakeSettingsRepository(backupFolderUri = "content://tree/test"),
                     userActionLogger = userActionLogger,
                     backupRepository = mockk(relaxed = true),
+                    savedStateHandle = SavedStateHandle(),
                 )
 
             viewModel.clearBackupFolderUri()

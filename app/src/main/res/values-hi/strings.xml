@@ -280,6 +280,7 @@
     <string name="settings_export_backup_error">अभी निर्यात नहीं हो सका। फिर से प्रयास करें।</string>
     <string name="settings_export_backup_success">बैकअप निर्यात किया गया।</string>
     <string name="settings_import_backup_error">इस बैकअप को आयात नहीं किया जा सका। फ़ाइल जाँचें और फिर से प्रयास करें।</string>
+    <string name="settings_import_backup_temporary_unavailable">लंबित बैकअप आयात अब उपलब्ध नहीं है। फ़ाइल फिर से चुनें।</string>
     <string name="settings_import_backup_partial_success">बैकअप डेटा आयात हो गया, लेकिन सेटिंग्स बहाल नहीं हो सकीं।</string>
     <string name="settings_import_backup_success">बैकअप आयात किया गया।</string>
     <string name="settings_import_backup_replace_title">आयात आपके वर्तमान डेटा को बदल देगा।</string>

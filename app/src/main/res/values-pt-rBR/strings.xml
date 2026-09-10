@@ -280,6 +280,7 @@
     <string name="settings_export_backup_error">Não foi possível exportar agora. Tente novamente.</string>
     <string name="settings_export_backup_success">Backup exportado.</string>
     <string name="settings_import_backup_error">Não foi possível importar este backup. Verifique o arquivo e tente novamente.</string>
+    <string name="settings_import_backup_temporary_unavailable">A importação de backup pendente não está mais disponível. Selecione o arquivo novamente.</string>
     <string name="settings_import_backup_partial_success">Dados do backup importados, mas não foi possível restaurar as configurações.</string>
     <string name="settings_import_backup_success">Backup importado.</string>
     <string name="settings_import_backup_replace_title">A importação substituirá seus dados atuais.</string>

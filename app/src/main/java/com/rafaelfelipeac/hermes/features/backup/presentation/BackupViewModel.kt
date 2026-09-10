@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.backup.presentation
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
@@ -48,10 +49,23 @@ class BackupViewModel
         private val settingsRepository: SettingsRepository,
         private val userActionLogger: UserActionLogger,
         private val backupRepository: BackupRepository,
+        private val savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
         private val operationMutex = Mutex()
         private val _isOperationInProgress = MutableStateFlow(false)
         val isOperationInProgress: StateFlow<Boolean> = _isOperationInProgress.asStateFlow()
+        private val _pendingImportToken = MutableStateFlow(savedStateHandle.get<String>(PENDING_IMPORT_TOKEN_KEY))
+        val pendingImportToken: StateFlow<String?> = _pendingImportToken.asStateFlow()
+
+        fun setPendingImportToken(token: String) {
+            savedStateHandle[PENDING_IMPORT_TOKEN_KEY] = token
+            _pendingImportToken.value = token
+        }
+
+        fun clearPendingImportToken() {
+            savedStateHandle.remove<String>(PENDING_IMPORT_TOKEN_KEY)
+            _pendingImportToken.value = null
+        }
 
         suspend fun runExclusiveOperation(block: suspend () -> Unit): Boolean {
             if (!operationMutex.tryLock()) {
@@ -243,6 +257,7 @@ class BackupViewModel
                 "Export side effect failed while persisting last exported timestamp."
             const val LOG_IMPORT_TIMESTAMP_SIDE_EFFECT_FAILED =
                 "Import side effect failed while persisting last imported timestamp."
+            const val PENDING_IMPORT_TOKEN_KEY = "pending_import_token"
         }
     }
 

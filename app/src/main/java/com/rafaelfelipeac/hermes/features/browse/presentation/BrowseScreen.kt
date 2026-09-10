@@ -369,9 +369,8 @@ private fun BrowseBackupScreen(
     val documentGateway = remember(context) { AndroidBackupDocumentGateway(context) }
     val scope = rememberCoroutineScope()
     val isOperationInProgress by viewModel.isOperationInProgress.collectAsState()
+    val pendingImportToken by viewModel.pendingImportToken.collectAsState()
     var isBackupHelpVisible by rememberSaveable { mutableStateOf(false) }
-    var isImportReplaceDialogVisible by rememberSaveable { mutableStateOf(false) }
-    var pendingImportPayload by remember { mutableStateOf<String?>(null) }
     var pendingSaveAsDestinationConfigured by rememberSaveable { mutableStateOf(false) }
     val exportFailedMessage = stringResource(R.string.settings_export_backup_error)
     val exportSuccessMessage = stringResource(R.string.settings_export_backup_success)
@@ -379,6 +378,7 @@ private fun BrowseBackupScreen(
     val importFailedMessage = stringResource(R.string.settings_import_backup_error)
     val importSuccessMessage = stringResource(R.string.settings_import_backup_success)
     val importPartialSuccessMessage = stringResource(R.string.settings_import_backup_partial_success)
+    val importTemporaryUnavailableMessage = stringResource(R.string.settings_import_backup_temporary_unavailable)
     val backupFolderUnavailableMessage = stringResource(R.string.settings_backup_folder_unavailable)
 
     fun showImportResult(result: ImportBackupResult) {
@@ -451,10 +451,20 @@ private fun BrowseBackupScreen(
             }
         }
 
-    fun importPayload(raw: String) {
+    fun importPendingPayload(token: String) {
         scope.launch {
             viewModel.runExclusiveOperation {
-                showImportResult(viewModel.importBackupJson(raw))
+                val payload = documentGateway.readTemporaryImportPayload(token)
+                if (payload == null) {
+                    viewModel.clearPendingImportToken()
+                    documentGateway.deleteTemporaryImportPayload(token)
+                    Toast.makeText(context, importTemporaryUnavailableMessage, Toast.LENGTH_SHORT).show()
+                    return@runExclusiveOperation
+                }
+
+                showImportResult(viewModel.importBackupJson(payload))
+                viewModel.clearPendingImportToken()
+                documentGateway.deleteTemporaryImportPayload(token)
             }
         }
     }
@@ -471,8 +481,12 @@ private fun BrowseBackupScreen(
                     }
 
                     if (viewModel.hasBackupData()) {
-                        pendingImportPayload = payload
-                        isImportReplaceDialogVisible = true
+                        val token = documentGateway.saveTemporaryImportPayload(payload)
+                        if (token == null) {
+                            Toast.makeText(context, importTemporaryUnavailableMessage, Toast.LENGTH_SHORT).show()
+                        } else {
+                            viewModel.setPendingImportToken(token)
+                        }
                     } else {
                         showImportResult(viewModel.importBackupJson(payload))
                     }
@@ -598,23 +612,24 @@ private fun BrowseBackupScreen(
         )
     }
 
-    if (isImportReplaceDialogVisible) {
+    if (pendingImportToken != null) {
         AlertDialog(
             onDismissRequest = {
-                isImportReplaceDialogVisible = false
-                pendingImportPayload = null
+                val token = pendingImportToken
+                viewModel.clearPendingImportToken()
+                if (token != null) {
+                    scope.launch { documentGateway.deleteTemporaryImportPayload(token) }
+                }
             },
             title = { Text(text = stringResource(R.string.settings_import_backup_replace_title)) },
             text = { Text(text = stringResource(R.string.settings_import_backup_replace_message)) },
             confirmButton = {
                 Button(
                     onClick = {
-                        val payload = pendingImportPayload
-                        if (payload != null) {
-                            importPayload(payload)
+                        val token = pendingImportToken
+                        if (token != null) {
+                            importPendingPayload(token)
                         }
-                        isImportReplaceDialogVisible = false
-                        pendingImportPayload = null
                     },
                     enabled = !isOperationInProgress,
                 ) {
@@ -624,8 +639,11 @@ private fun BrowseBackupScreen(
             dismissButton = {
                 Button(
                     onClick = {
-                        isImportReplaceDialogVisible = false
-                        pendingImportPayload = null
+                        val token = pendingImportToken
+                        viewModel.clearPendingImportToken()
+                        if (token != null) {
+                            scope.launch { documentGateway.deleteTemporaryImportPayload(token) }
+                        }
                     },
                     enabled = !isOperationInProgress,
                 ) {

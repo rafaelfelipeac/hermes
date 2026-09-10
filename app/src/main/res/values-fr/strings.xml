@@ -280,6 +280,7 @@
     <string name="settings_export_backup_error">Impossible d’exporter pour le moment. Réessayez.</string>
     <string name="settings_export_backup_success">Sauvegarde exportée.</string>
     <string name="settings_import_backup_error">Impossible d’importer cette sauvegarde. Vérifiez le fichier et réessayez.</string>
+    <string name="settings_import_backup_temporary_unavailable">L’importation de sauvegarde en attente n’est plus disponible. Sélectionnez de nouveau le fichier.</string>
     <string name="settings_import_backup_partial_success">Données de sauvegarde importées, mais les réglages n’ont pas pu être restaurés.</string>
     <string name="settings_import_backup_success">Sauvegarde importée.</string>
     <string name="settings_import_backup_replace_title">L’importation remplacera vos données actuelles.</string>

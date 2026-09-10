@@ -7,6 +7,8 @@ import androidx.documentfile.provider.DocumentFile
 import com.rafaelfelipeac.hermes.features.backup.BACKUP_IMPORT_LOG_TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.util.UUID
 
 internal interface BackupDocumentGateway {
     suspend fun writeText(
@@ -23,6 +25,12 @@ internal interface BackupDocumentGateway {
         fileName: String,
         content: String,
     ): Boolean
+
+    suspend fun saveTemporaryImportPayload(content: String): String?
+
+    suspend fun readTemporaryImportPayload(token: String): String?
+
+    suspend fun deleteTemporaryImportPayload(token: String)
 }
 
 internal class AndroidBackupDocumentGateway(
@@ -87,10 +95,48 @@ internal class AndroidBackupDocumentGateway(
 
         return backupFile?.let { file -> writeText(file.uri, content) } ?: false
     }
+
+    override suspend fun saveTemporaryImportPayload(content: String): String? {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val token = UUID.randomUUID().toString()
+                temporaryImportFile(token).writeText(content)
+                token
+            }.getOrNull()
+        }
+    }
+
+    override suspend fun readTemporaryImportPayload(token: String): String? {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val file = temporaryImportFile(token)
+
+                if (file.exists()) {
+                    file.readText()
+                } else {
+                    null
+                }
+            }.getOrNull()
+        }
+    }
+
+    override suspend fun deleteTemporaryImportPayload(token: String) {
+        withContext(Dispatchers.IO) {
+            runCatching {
+                temporaryImportFile(token).delete()
+            }
+        }
+    }
+
+    private fun temporaryImportFile(token: String): File {
+        return File(context.cacheDir, "$TEMPORARY_IMPORT_PREFIX$token$TEMPORARY_IMPORT_EXTENSION")
+    }
 }
 
 internal const val BACKUP_MIME_TYPE = "application/json"
 
+private const val TEMPORARY_IMPORT_PREFIX = "backup-import-"
+private const val TEMPORARY_IMPORT_EXTENSION = ".json"
 private const val LOG_BACKUP_DOCUMENT_READ_FAILED = "Could not read the selected backup document."
 private const val LOG_BACKUP_DOCUMENT_STREAM_UNAVAILABLE =
     "The selected backup document did not provide a readable stream."
