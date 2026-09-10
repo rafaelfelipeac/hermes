@@ -1,6 +1,6 @@
 # Plano de estabilização e refatoração — próxima versão
 
-**Status: em implementação. P01 concluído localmente em 09/09/2026.**
+**Status: em implementação. P01 concluído localmente em 09/09/2026. P02 implementado localmente em 09/09/2026; execução instrumentada real pendente de emulador/CI.**
 
 **Branch:** `feat/refactor`. **Base de referência:** `030513a`.
 
@@ -88,7 +88,7 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 ### P02 — Cobrir migrações com dados e habilitar instrumentados
 
-**Achado:** 11. **Dependências:** P01. **Esforço:** médio. **Risco:** baixo no produto.
+**Status:** implementado localmente em 09/09/2026; compilação/gates passaram, sem dispositivo local conectado para executar instrumentados. **Achado:** 11. **Dependências:** P01. **Esforço:** médio. **Risco:** baixo no produto.
 
 **Arquivos:** `.github/workflows/build-and-lint.yml`, `.github/workflows/release.yml` apenas para reaproveitar verificações se adequado; `ChallengesMigrationTest.kt`, `PersonalRecordsMigrationTest.kt`; novos testes de migração antiga em `androidTest/core/database`. Usar os schemas 1–7 existentes em `app/schemas`.
 
