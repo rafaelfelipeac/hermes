@@ -138,6 +138,8 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 **Aceite:** nenhuma referência manual órfã produzida pelo comando e metadados existentes preservados.
 
+**Status:** implementado localmente em 10/09/2026. Compilação, unit tests, Detekt e ktlint passaram; execução instrumentada real de `RoomPersonalRecordCommandRepositoryTest` permanece pendente porque não há emulador/dispositivo conectado.
+
 ### P05 — Estabelecer comandos transacionais de treino/evento
 
 **Achados:** 2/7. **Dependências:** P02–P04. **Esforço:** maior bloco. **Risco:** médio a alto.

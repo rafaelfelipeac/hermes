@@ -21,7 +21,6 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.PERSONAL_RECORD
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_PERSONAL_RECORD_FAMILY
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_ENTRY
@@ -29,6 +28,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PER
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordValueNormalizer
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.command.PersonalRecordCommandRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
@@ -47,6 +47,7 @@ class PersonalRecordsViewModel
     constructor(
         private val repository: PersonalRecordsRepository,
         private val categoryRepository: CategoryRepository,
+        private val personalRecordCommandRepository: PersonalRecordCommandRepository,
         private val userActionLogger: UserActionLogger,
     ) : ViewModel() {
         val state =
@@ -258,40 +259,7 @@ class PersonalRecordsViewModel
 
         fun deleteEntry(entryId: Long) {
             viewModelScope.launch {
-                val entry = repository.getEntry(entryId) ?: return@launch
-                val family = repository.getFamily(entry.familyId)
-                val category = categoryById(family?.categoryId)
-                repository.deleteEntry(entryId)
-                if (family?.manualCurrentEntryId == entryId) {
-                    repository.updateFamily(
-                        family.copy(
-                            manualCurrentEntryId = null,
-                            updatedAt = Instant.now(),
-                        ),
-                    )
-                }
-
-                userActionLogger.log(
-                    actionType = DELETE_PERSONAL_RECORD_ENTRY,
-                    entityType = PERSONAL_RECORD,
-                    entityId = entryId,
-                    metadata =
-                        mapOf(
-                            PERSONAL_RECORD_ENTRY_ID to entryId.toString(),
-                            PERSONAL_RECORD_FAMILY_ID to entry.familyId.toString(),
-                            PERSONAL_RECORD_FAMILY_TITLE to family?.title.orEmpty(),
-                            PERSONAL_RECORD_CATEGORY_ID to family?.categoryId?.toString().orEmpty(),
-                            PERSONAL_RECORD_CATEGORY_NAME to (category?.name.orEmpty()),
-                            PERSONAL_RECORD_METRIC_TYPE to (family?.metricType?.name.orEmpty()),
-                            PERSONAL_RECORD_UNIT to entry.unit.name,
-                            PERSONAL_RECORD_RECORD_DATE to entry.recordDate.toString(),
-                            PERSONAL_RECORD_NEW_VALUE to entry.value.toString(),
-                            PERSONAL_RECORD_NORMALIZED_VALUE to
-                                PersonalRecordValueNormalizer
-                                    .normalize(entry.value, entry.unit)
-                                    .toString(),
-                        ),
-                )
+                personalRecordCommandRepository.deleteEntry(entryId)
             }
         }
 

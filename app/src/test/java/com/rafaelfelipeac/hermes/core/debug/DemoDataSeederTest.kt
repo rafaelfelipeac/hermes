@@ -600,6 +600,16 @@ class DemoDataSeederTest {
             families.value = families.value.map { if (it.id == family.id) family else it }
         }
 
+        override suspend fun clearManualCurrentEntry(
+            familyId: Long,
+            updatedAt: Long,
+        ) {
+            families.value =
+                families.value.map {
+                    if (it.id == familyId) it.copy(manualCurrentEntryId = null, updatedAt = updatedAt) else it
+                }
+        }
+
         override suspend fun reassignCategory(
             categoryId: Long,
             newCategoryId: Long?,

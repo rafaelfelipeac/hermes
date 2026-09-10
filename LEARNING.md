@@ -618,3 +618,5 @@ Recent learnings:
 - Migration tests should prove old data survives, not only that Room accepts the final schema. Creating databases at versions 1, 4, 5, and 6 with representative rows catches default-value assumptions for workouts, Personal Records, challenge progress, and nullable columns added later.
 
 - Category delete/reorder commands are safer as feature-level Room transactions than as ViewModel orchestration. Keeping reassignment, category mutation, and Activity logging inside one coordinator lets logger failures roll back the same database state that the user action describes.
+
+- Deleting a manual Personal Record entry should update the selected-current reference with a narrow DAO operation inside the same transaction as the delete and Activity log. That avoids rewriting stale family fields while still preventing orphaned manual selections.

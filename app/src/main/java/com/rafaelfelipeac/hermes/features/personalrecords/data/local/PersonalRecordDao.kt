@@ -41,6 +41,15 @@ interface PersonalRecordDao {
     @Update
     suspend fun updateFamily(family: PersonalRecordFamilyEntity)
 
+    @Query(
+        "UPDATE personal_record_families SET manualCurrentEntryId = NULL, " +
+            "updatedAt = :updatedAt WHERE id = :familyId",
+    )
+    suspend fun clearManualCurrentEntry(
+        familyId: Long,
+        updatedAt: Long,
+    )
+
     @Query("UPDATE personal_record_families SET categoryId = :newCategoryId WHERE categoryId = :categoryId")
     suspend fun reassignCategory(
         categoryId: Long,

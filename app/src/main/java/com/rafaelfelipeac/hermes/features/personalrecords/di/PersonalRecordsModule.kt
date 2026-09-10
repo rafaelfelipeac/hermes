@@ -1,6 +1,8 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.di
 
 import com.rafaelfelipeac.hermes.features.personalrecords.data.PersonalRecordsRepositoryImpl
+import com.rafaelfelipeac.hermes.features.personalrecords.data.RoomPersonalRecordCommandRepository
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.command.PersonalRecordCommandRepository
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.repository.PersonalRecordsRepository
 import dagger.Binds
 import dagger.Module
@@ -12,4 +14,7 @@ import dagger.hilt.components.SingletonComponent
 abstract class PersonalRecordsModule {
     @Binds
     abstract fun bindPersonalRecordsRepository(impl: PersonalRecordsRepositoryImpl): PersonalRecordsRepository
+
+    @Binds
+    abstract fun bindCommandRepository(impl: RoomPersonalRecordCommandRepository): PersonalRecordCommandRepository
 }
