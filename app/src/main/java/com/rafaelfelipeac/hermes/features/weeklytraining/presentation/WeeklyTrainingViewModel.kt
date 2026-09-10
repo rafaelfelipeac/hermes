@@ -46,6 +46,8 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTr
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleChange
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.BUSY
@@ -495,19 +497,16 @@ class WeeklyTrainingViewModel
             val movedEventType = originalWorkout?.eventType ?: EventType.WORKOUT
 
             viewModelScope.launch {
-                persistWorkoutChanges(
-                    dependencies =
-                        WorkoutChangeDependencies(
-                            repository = repository,
-                            userActionLogger = userActionLogger,
-                            weekStartDate = state.value.weekStartDate,
-                            displayStartDay = state.value.weekStartDay,
-                            unassignedStorageWeekStart = canonicalStorageWeekStart(state.value.selectedDate),
+                val commandResult =
+                    weeklyTrainingCommandRepository.updateSchedule(
+                        buildScheduleCommand(
+                            movedWorkoutId = workoutId,
+                            changes = changes,
                         ),
-                    changes = changes,
-                    currentWorkouts = currentWorkouts,
-                    movedWorkoutId = workoutId,
-                )
+                    )
+                if (commandResult !is WeeklyTrainingCommandResult.ScheduleChanged) {
+                    return@launch
+                }
 
                 if (undoPositions.isNotEmpty()) {
                     setUndoAction(
@@ -522,6 +521,35 @@ class WeeklyTrainingViewModel
                     )
                 }
             }
+        }
+
+        private fun buildScheduleCommand(
+            movedWorkoutId: Long,
+            changes: List<WorkoutUi>,
+        ): WorkoutScheduleCommand {
+            val currentState = state.value
+            val unassignedStorageWeekStart = canonicalStorageWeekStart(currentState.selectedDate)
+
+            return WorkoutScheduleCommand(
+                movedWorkoutId = movedWorkoutId,
+                displayWeekStart = currentState.weekStartDate,
+                changes =
+                    changes.map { workout ->
+                        WorkoutScheduleChange(
+                            workoutId = workout.id,
+                            weekStartDate =
+                                resolveStorageWeekStartDate(
+                                    workout = workout,
+                                    weekStartDate = currentState.weekStartDate,
+                                    displayStartDay = currentState.weekStartDay,
+                                    unassignedStorageWeekStart = unassignedStorageWeekStart,
+                                ),
+                            dayOfWeek = workout.dayOfWeek,
+                            timeSlot = workout.timeSlot,
+                            order = workout.order,
+                        )
+                    },
+            )
         }
 
         @Suppress("LongMethod")

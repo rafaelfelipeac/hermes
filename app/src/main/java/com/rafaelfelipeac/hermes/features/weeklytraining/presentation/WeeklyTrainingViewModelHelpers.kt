@@ -540,7 +540,7 @@ internal fun workoutsForDisplayWeek(
     }
 }
 
-private fun resolveStorageWeekStartDate(
+internal fun resolveStorageWeekStartDate(
     workout: WorkoutUi,
     weekStartDate: LocalDate,
     displayStartDay: WeekStartDay,

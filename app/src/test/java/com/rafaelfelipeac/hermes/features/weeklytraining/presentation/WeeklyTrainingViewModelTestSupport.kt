@@ -150,6 +150,9 @@ fun createViewModel(
 fun defaultWeeklyTrainingCommandRepository(): WeeklyTrainingCommandRepository {
     val commandRepository = mockk<WeeklyTrainingCommandRepository>()
     coEvery {
+        commandRepository.updateSchedule(any())
+    } returns WeeklyTrainingCommandResult.ScheduleChanged
+    coEvery {
         commandRepository.updateCompletion(any())
     } returns
         WeeklyTrainingCommandResult.CompletionChanged(

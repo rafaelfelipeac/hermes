@@ -1,16 +1,9 @@
 package com.rafaelfelipeac.hermes.features.weeklytraining.presentation
 
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.WEEK
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.COMPLETE_WEEK_WORKOUTS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.REORDER_WORKOUT
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
@@ -27,7 +20,6 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -87,21 +79,25 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
-                repository.updateWorkoutSchedule(
-                    workoutId = mondayWorkout.id,
-                    weekStartDate = weekStart,
-                    dayOfWeek = MONDAY,
-                    timeSlot = null,
-                    order = 0,
-                )
-            }
-            coVerify(exactly = 1) {
-                repository.updateWorkoutSchedule(
-                    workoutId = restDay.id,
-                    weekStartDate = weekStart,
-                    dayOfWeek = TUESDAY,
-                    timeSlot = null,
-                    order = 0,
+                commandRepository.updateSchedule(
+                    match { command ->
+                        command.movedWorkoutId == restDay.id &&
+                            command.displayWeekStart == weekStart &&
+                            command.changes.any {
+                                it.workoutId == mondayWorkout.id &&
+                                    it.weekStartDate == weekStart &&
+                                    it.dayOfWeek == MONDAY &&
+                                    it.timeSlot == null &&
+                                    it.order == 0
+                            } &&
+                            command.changes.any {
+                                it.workoutId == restDay.id &&
+                                    it.weekStartDate == weekStart &&
+                                    it.dayOfWeek == TUESDAY &&
+                                    it.timeSlot == null &&
+                                    it.order == 0
+                            }
+                    },
                 )
             }
 
@@ -117,11 +113,13 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
             val viewModel =
                 createViewModel(
                     repository = repository,
                     userActionLogger = userActionLogger,
                     weekStartDay = WeekStartDay.WEDNESDAY,
+                    commandRepository = commandRepository,
                 )
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 3, 1)
@@ -140,12 +138,15 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
-                repository.updateWorkoutSchedule(
-                    workoutId = workoutId,
-                    weekStartDate = activeUnassignedBucket,
-                    dayOfWeek = null,
-                    timeSlot = null,
-                    order = 0,
+                commandRepository.updateSchedule(
+                    match { command ->
+                        command.movedWorkoutId == workoutId &&
+                            command.changes.single().workoutId == workoutId &&
+                            command.changes.single().weekStartDate == activeUnassignedBucket &&
+                            command.changes.single().dayOfWeek == null &&
+                            command.changes.single().timeSlot == null &&
+                            command.changes.single().order == 0
+                    },
                 )
             }
 
@@ -181,22 +182,19 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             viewModel.moveWorkout(mondayWorkoutB.id, MONDAY, AFTERNOON, 0)
             advanceUntilIdle()
 
-            val metadataSlot = slot<Map<String, String>>()
             coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = MOVE_WORKOUT_BETWEEN_DAYS,
-                    entityType = any(),
-                    entityId = mondayWorkoutB.id,
-                    metadata = capture(metadataSlot),
-                    timestamp = any(),
+                commandRepository.updateSchedule(
+                    match { command ->
+                        command.movedWorkoutId == mondayWorkoutB.id &&
+                            command.changes.any {
+                                it.workoutId == mondayWorkoutB.id &&
+                                    it.dayOfWeek == MONDAY &&
+                                    it.timeSlot == AFTERNOON &&
+                                    it.order == 0
+                            }
+                    },
                 )
             }
-            assertEquals(MORNING.name, metadataSlot.captured[OLD_TIME_SLOT])
-            assertEquals(AFTERNOON.name, metadataSlot.captured[NEW_TIME_SLOT])
-            assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[CATEGORY_ID])
-            assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[OLD_CATEGORY_ID])
-            assertEquals(UNCATEGORIZED_ID.toString(), metadataSlot.captured[NEW_CATEGORY_ID])
-            assertEquals("Uncategorized", metadataSlot.captured[CATEGORY_NAME])
 
             collectJob.cancel()
         }
@@ -210,7 +208,8 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
 
             every { repository.observeWorkoutsForWeekStarts(any()) } returns workoutsFlow
 
-            val viewModel = createViewModel(repository, userActionLogger)
+            val commandRepository = defaultWeeklyTrainingCommandRepository()
+            val viewModel = createViewModel(repository, userActionLogger, commandRepository = commandRepository)
             val collectJob = backgroundScope.launch { viewModel.state.collect() }
             val selectedDate = LocalDate.of(2026, 3, 4)
             val weekStart = selectedDate.with(TemporalAdjusters.previousOrSame(MONDAY))
@@ -230,12 +229,16 @@ class WeeklyTrainingViewModelMoveAndUpdateTest {
             advanceUntilIdle()
 
             coVerify(exactly = 1) {
-                userActionLogger.log(
-                    actionType = REORDER_WORKOUT,
-                    entityType = any(),
-                    entityId = mondayWorkoutB.id,
-                    metadata = any(),
-                    timestamp = any(),
+                commandRepository.updateSchedule(
+                    match { command ->
+                        command.movedWorkoutId == mondayWorkoutB.id &&
+                            command.changes.any {
+                                it.workoutId == mondayWorkoutB.id &&
+                                    it.dayOfWeek == MONDAY &&
+                                    it.timeSlot == MORNING &&
+                                    it.order == 0
+                            }
+                    },
                 )
             }
 

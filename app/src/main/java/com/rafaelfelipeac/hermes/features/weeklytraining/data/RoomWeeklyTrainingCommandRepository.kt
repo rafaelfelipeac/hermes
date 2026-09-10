@@ -7,14 +7,21 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TIME_SLOT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataValues.UNPLANNED
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
@@ -22,6 +29,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTr
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,6 +43,71 @@ class RoomWeeklyTrainingCommandRepository
     ) : WeeklyTrainingCommandRepository {
         private val categoryDao = database.categoryDao()
         private val workoutDao = database.workoutDao()
+
+        override suspend fun updateSchedule(request: WorkoutScheduleCommand): WeeklyTrainingCommandResult {
+            if (request.changes.isEmpty()) {
+                return WeeklyTrainingCommandResult.NoChange
+            }
+
+            return database.withTransaction {
+                val persistedById =
+                    request.changes
+                        .map { it.workoutId }
+                        .distinct()
+                        .associateWith { workoutDao.getWorkout(it) }
+
+                val movedWorkout =
+                    persistedById[request.movedWorkoutId]
+                        ?: return@withTransaction WeeklyTrainingCommandResult.NoChange
+                if (persistedById.values.any { it == null }) {
+                    return@withTransaction WeeklyTrainingCommandResult.NoChange
+                }
+
+                request.changes.forEach { change ->
+                    workoutDao.updateSchedule(
+                        id = change.workoutId,
+                        weekStartDate = change.weekStartDate,
+                        dayOfWeek = change.dayOfWeek?.value,
+                        timeSlot = change.timeSlot?.name,
+                        order = change.order,
+                    )
+                }
+
+                val movedChange =
+                    request.changes.firstOrNull { it.workoutId == request.movedWorkoutId }
+                        ?: return@withTransaction WeeklyTrainingCommandResult.NoChange
+                val movedEventType = movedWorkout.eventType.toEventType(movedWorkout.isRestDay)
+                val categoryName = movedWorkout.categoryId?.let { categoryDao.getCategory(it)?.name }
+
+                userActionLogger.log(
+                    actionType = movedEventType.toScheduleActionType(movedWorkout, movedChange),
+                    entityType = movedEventType.toUserActionEntityType(),
+                    entityId = request.movedWorkoutId,
+                    metadata =
+                        mutableMapOf(
+                            WEEK_START_DATE to request.displayWeekStart.toString(),
+                            OLD_DAY_OF_WEEK to (movedWorkout.dayOfWeek?.toString() ?: UNPLANNED),
+                            NEW_DAY_OF_WEEK to (movedChange.dayOfWeek?.value?.toString() ?: UNPLANNED),
+                            OLD_TIME_SLOT to (movedWorkout.timeSlot ?: UNPLANNED),
+                            NEW_TIME_SLOT to (movedChange.timeSlot?.name ?: UNPLANNED),
+                            OLD_ORDER to movedWorkout.sortOrder.toString(),
+                            NEW_ORDER to movedChange.order.toString(),
+                            NEW_TYPE to movedWorkout.type,
+                            NEW_DESCRIPTION to movedWorkout.description,
+                        ).apply {
+                            putWorkoutCategoryMetadata(
+                                categoryId = movedWorkout.categoryId,
+                                categoryName = categoryName,
+                                newCategoryName = categoryName,
+                                oldCategoryId = movedWorkout.categoryId,
+                                oldCategoryName = categoryName,
+                            )
+                        },
+                )
+
+                WeeklyTrainingCommandResult.ScheduleChanged
+            }
+        }
 
         override suspend fun updateCompletion(request: WorkoutCompletionCommand): WeeklyTrainingCommandResult {
             return database.withTransaction {
@@ -153,6 +226,37 @@ private fun EventType.toCompletionActionType(isCompleted: Boolean): UserActionTy
             if (isCompleted) UserActionType.COMPLETE_RACE_EVENT else UserActionType.INCOMPLETE_RACE_EVENT
         else ->
             if (isCompleted) UserActionType.COMPLETE_WORKOUT else UserActionType.INCOMPLETE_WORKOUT
+    }
+}
+
+private fun EventType.toScheduleActionType(
+    original: WorkoutEntity,
+    change: com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleChange,
+): UserActionType {
+    return if (original.dayOfWeek != change.dayOfWeek?.value || original.timeSlot != change.timeSlot?.name) {
+        toMoveActionType()
+    } else {
+        toReorderActionType()
+    }
+}
+
+private fun EventType.toReorderActionType(): UserActionType {
+    return when (this) {
+        EventType.WORKOUT -> UserActionType.REORDER_WORKOUT
+        EventType.REST -> UserActionType.REORDER_REST
+        EventType.BUSY -> UserActionType.REORDER_BUSY
+        EventType.SICK -> UserActionType.REORDER_SICK
+        EventType.RACE_EVENT -> UserActionType.REORDER_RACE_EVENT
+    }
+}
+
+private fun EventType.toMoveActionType(): UserActionType {
+    return when (this) {
+        EventType.WORKOUT -> UserActionType.MOVE_WORKOUT_BETWEEN_DAYS
+        EventType.REST -> UserActionType.MOVE_REST
+        EventType.BUSY -> UserActionType.MOVE_BUSY
+        EventType.SICK -> UserActionType.MOVE_SICK
+        EventType.RACE_EVENT -> UserActionType.MOVE_RACE_EVENT
     }
 }
 
