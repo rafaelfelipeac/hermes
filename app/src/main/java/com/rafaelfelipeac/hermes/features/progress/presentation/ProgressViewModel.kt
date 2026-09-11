@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.features.app.toLocale
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
@@ -19,8 +20,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import java.time.Clock
-import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,7 +33,7 @@ class ProgressViewModel
         settingsRepository: SettingsRepository,
         stringProvider: StringProvider,
         private val localeProvider: LocaleProvider,
-        clock: Clock,
+        currentDateProvider: CurrentDateProvider,
     ) : ViewModel() {
         private val trophyEngine = TrophyEngine()
         private val categoriesFlow =
@@ -85,11 +84,11 @@ class ProgressViewModel
                 workoutsAndCategories,
                 actionsAndTrophies,
                 settingsAndLocale,
-            ) { workoutsAndCategories, actionsAndTrophies, settingsAndLocale ->
+                currentDateProvider.observeToday(),
+            ) { workoutsAndCategories, actionsAndTrophies, settingsAndLocale, today ->
                 val (workouts, categories) = workoutsAndCategories
                 val (actions, trophyCategories) = actionsAndTrophies
                 val (weekStartDay, locale) = settingsAndLocale
-                val today = LocalDate.now(clock)
                 val currentWeekStart = weekStart(today, weekStartDay.dayOfWeek)
                 val trophyCards =
                     trophyEngine.compute(

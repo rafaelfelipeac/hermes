@@ -12,14 +12,14 @@ import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
-class CurrentDateProvider
+open class CurrentDateProvider
     @Inject
     constructor(
         private val clock: Clock,
     ) {
-        fun today(): LocalDate = LocalDate.now(clock)
+        open fun today(): LocalDate = LocalDate.now(clock)
 
-        fun observeToday(): Flow<LocalDate> =
+        open fun observeToday(): Flow<LocalDate> =
             flow {
                 while (true) {
                     emit(today())
