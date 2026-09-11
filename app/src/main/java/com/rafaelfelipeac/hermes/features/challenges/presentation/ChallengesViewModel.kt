@@ -4,6 +4,7 @@
     "ArgumentListWrapping",
     "LargeClass",
     "LongMethod",
+    "LongParameterList",
     "MaxLineLength",
     "TooManyFunctions",
     "ReturnCount",
@@ -11,6 +12,7 @@
 
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.R
@@ -102,11 +104,12 @@ class ChallengesViewModel
         private val stringProvider: StringProvider,
         private val localeProvider: LocaleProvider,
         private val clock: Clock,
+        private val savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
         private val calculator = ChallengeCalculator()
         private val actionMutex = Mutex()
-        private val editorState = MutableStateFlow(defaultChallengeEditorState(today = LocalDate.now(clock)))
-        private val selectedChallengeId = MutableStateFlow<Long?>(null)
+        private val editorState = MutableStateFlow(restoredEditorState())
+        private val selectedChallengeId = MutableStateFlow(savedStateHandle.get<Long>(KEY_SELECTED_CHALLENGE_ID))
         private val undoState = MutableStateFlow<ChallengeUndoState?>(null)
         private var undoTimeoutJob: Job? = null
         private var undoCounter = 0L
@@ -194,17 +197,17 @@ class ChallengesViewModel
             )
 
         fun selectChallenge(challengeId: Long?) {
-            selectedChallengeId.value = challengeId
+            setSelectedChallengeId(challengeId)
         }
 
         fun beginCreateChallenge() {
-            editorState.value = defaultChallengeEditorState(today = LocalDate.now(clock))
+            setEditorState(defaultChallengeEditorState(today = LocalDate.now(clock)))
         }
 
         fun beginEditChallenge(challengeId: Long) {
             viewModelScope.launch {
                 val challenge = currentChallenge(challengeId) ?: return@launch
-                editorState.value =
+                setEditorState(
                     ChallengeEditorState(
                         challengeId = challenge.id,
                         categoryId = challenge.categoryId,
@@ -217,7 +220,8 @@ class ChallengesViewModel
                         lifecycle = challenge.lifecycle,
                         isDirty = false,
                         validationMessage = null,
-                    )
+                    ),
+                )
             }
         }
 
@@ -230,7 +234,7 @@ class ChallengesViewModel
         }
 
         fun restoreEditorState(state: ChallengeEditorState) {
-            editorState.value = state
+            setEditorState(state)
         }
 
         fun updateEditorCategory(categoryId: Long?) {
@@ -332,7 +336,7 @@ class ChallengesViewModel
                             entityId = challengeId,
                             metadata = challengeMetadata(challenge, challengeId = challengeId),
                         )
-                        selectedChallengeId.value = challengeId
+                        setSelectedChallengeId(challengeId)
                     } else {
                         repository.updateChallenge(challenge.copy(id = existing.id, createdAt = existing.createdAt))
                         val isCompleted = completionState(existing.id)
@@ -363,7 +367,7 @@ class ChallengesViewModel
                         )
                     }
 
-                    editorState.value = defaultChallengeEditorState(today = LocalDate.now(clock))
+                    setEditorState(defaultChallengeEditorState(today = LocalDate.now(clock)))
                 }
             }
             return true
@@ -439,7 +443,7 @@ class ChallengesViewModel
                         metadata = challengeMetadata(challenge, challengeId) + completionMetadata(wasCompleted, false),
                     )
                     if (selectedChallengeId.value == challengeId) {
-                        selectedChallengeId.value = null
+                        setSelectedChallengeId(null)
                     }
                 }
             }
@@ -629,7 +633,7 @@ class ChallengesViewModel
                                     challengeMetadata(action.challenge, action.challenge.id) +
                                         completionMetadata(wasCompleted, isCompleted),
                             )
-                            selectedChallengeId.value = action.challenge.id
+                            setSelectedChallengeId(action.challenge.id)
                         }
 
                         is PendingChallengeUndoAction.DeleteProgressEntry -> {
@@ -670,7 +674,57 @@ class ChallengesViewModel
         }
 
         private fun updateEditor(transform: ChallengeEditorState.() -> ChallengeEditorState) {
-            editorState.value = editorState.value.transform()
+            setEditorState(editorState.value.transform())
+        }
+
+        private fun setSelectedChallengeId(challengeId: Long?) {
+            selectedChallengeId.value = challengeId
+            savedStateHandle[KEY_SELECTED_CHALLENGE_ID] = challengeId
+        }
+
+        private fun setEditorState(state: ChallengeEditorState) {
+            editorState.value = state
+            saveEditorState(state)
+        }
+
+        private fun saveEditorState(state: ChallengeEditorState) {
+            savedStateHandle[KEY_EDITOR_CHALLENGE_ID] = state.challengeId
+            savedStateHandle[KEY_EDITOR_CATEGORY_ID] = state.categoryId
+            savedStateHandle[KEY_EDITOR_TITLE] = state.title
+            savedStateHandle[KEY_EDITOR_DESCRIPTION] = state.description
+            savedStateHandle[KEY_EDITOR_TARGET_TYPE] = state.targetType.name
+            savedStateHandle[KEY_EDITOR_TARGET_QUANTITY] = state.targetQuantityText
+            savedStateHandle[KEY_EDITOR_START_DATE] = state.startDate?.toEpochDay()
+            savedStateHandle[KEY_EDITOR_END_DATE] = state.endDate?.toEpochDay()
+            savedStateHandle[KEY_EDITOR_LIFECYCLE] = state.lifecycle.name
+            savedStateHandle[KEY_EDITOR_IS_DIRTY] = state.isDirty
+            savedStateHandle[KEY_EDITOR_VALIDATION_MESSAGE] = state.validationMessage
+        }
+
+        private fun restoredEditorState(): ChallengeEditorState {
+            val savedTargetType = savedStateHandle.get<String>(KEY_EDITOR_TARGET_TYPE)
+            if (savedTargetType == null) {
+                return defaultChallengeEditorState(today = LocalDate.now(clock))
+            }
+            val targetType =
+                savedTargetType.let { runCatching { ChallengeTargetType.valueOf(it) }.getOrNull() }
+            val lifecycle =
+                savedStateHandle.get<String>(KEY_EDITOR_LIFECYCLE)
+                    ?.let { runCatching { ChallengeLifecycle.valueOf(it) }.getOrNull() }
+
+            return ChallengeEditorState(
+                challengeId = savedStateHandle.get<Long>(KEY_EDITOR_CHALLENGE_ID),
+                categoryId = savedStateHandle.get<Long>(KEY_EDITOR_CATEGORY_ID),
+                title = savedStateHandle.get<String>(KEY_EDITOR_TITLE) ?: EMPTY_EDITOR_FIELD,
+                description = savedStateHandle.get<String>(KEY_EDITOR_DESCRIPTION) ?: EMPTY_EDITOR_FIELD,
+                targetType = targetType ?: ChallengeTargetType.DAILY,
+                targetQuantityText = savedStateHandle.get<String>(KEY_EDITOR_TARGET_QUANTITY) ?: EMPTY_EDITOR_FIELD,
+                startDate = savedStateHandle.get<Long>(KEY_EDITOR_START_DATE)?.let(LocalDate::ofEpochDay),
+                endDate = savedStateHandle.get<Long>(KEY_EDITOR_END_DATE)?.let(LocalDate::ofEpochDay),
+                lifecycle = lifecycle ?: ChallengeLifecycle.ACTIVE,
+                isDirty = savedStateHandle.get<Boolean>(KEY_EDITOR_IS_DIRTY) ?: false,
+                validationMessage = savedStateHandle.get<String>(KEY_EDITOR_VALIDATION_MESSAGE),
+            )
         }
 
         private suspend fun currentChallenge(challengeId: Long): Challenge? {
@@ -753,7 +807,7 @@ class ChallengesViewModel
         }
 
         private fun setEditorValidation(messageResId: Int) {
-            editorState.value = editorState.value.copy(validationMessage = stringProvider.get(messageResId))
+            setEditorState(editorState.value.copy(validationMessage = stringProvider.get(messageResId)))
         }
 
         private fun setUndoAction(
@@ -791,5 +845,18 @@ class ChallengesViewModel
 
         private companion object {
             const val UNDO_TIMEOUT_MS = 5_000L
+            const val EMPTY_EDITOR_FIELD = ""
+            const val KEY_SELECTED_CHALLENGE_ID = "challenges.selectedChallengeId"
+            const val KEY_EDITOR_CHALLENGE_ID = "challenges.editor.challengeId"
+            const val KEY_EDITOR_CATEGORY_ID = "challenges.editor.categoryId"
+            const val KEY_EDITOR_TITLE = "challenges.editor.title"
+            const val KEY_EDITOR_DESCRIPTION = "challenges.editor.description"
+            const val KEY_EDITOR_TARGET_TYPE = "challenges.editor.targetType"
+            const val KEY_EDITOR_TARGET_QUANTITY = "challenges.editor.targetQuantity"
+            const val KEY_EDITOR_START_DATE = "challenges.editor.startDate"
+            const val KEY_EDITOR_END_DATE = "challenges.editor.endDate"
+            const val KEY_EDITOR_LIFECYCLE = "challenges.editor.lifecycle"
+            const val KEY_EDITOR_IS_DIRTY = "challenges.editor.isDirty"
+            const val KEY_EDITOR_VALIDATION_MESSAGE = "challenges.editor.validationMessage"
         }
     }

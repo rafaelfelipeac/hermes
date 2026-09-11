@@ -225,6 +225,8 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 ### P09 — Migrar Events e concluir a unificação dos comandos
 
+**Status:** concluído em 11/09/2026. Events passou a usar os comandos transacionais de Weekly Training para criação, edição/movimentação, conclusão/undo e exclusão/undo de race events; compilação, unit tests, Detekt e ktlint passaram.
+
 **Achado:** 7. **Dependências:** P05. **Esforço/risco:** médios.
 
 **Arquivos:** `EventsViewModel.kt`, `WeeklyTrainingViewModel.kt`, `EventsUndo.kt`, `WeeklyTrainingUndo.kt`, mapeamentos de ações, módulos Hilt e testes das duas features.
@@ -236,6 +238,8 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 **Aceite:** regra compartilhada tem uma implementação; UI ainda produz suas mensagens e navegação esperadas. Não impor abstração de CRUD a desafios/recordes.
 
 ### P10 — Restaurar seleção e editor de desafios
+
+**Status:** em implementação desde 11/09/2026. Primeiro recorte persistiu seleção e campos primitivos do editor no `SavedStateHandle` do ViewModel.
 
 **Achado:** 4. **Dependências:** P01. **Esforço/risco:** médios.
 

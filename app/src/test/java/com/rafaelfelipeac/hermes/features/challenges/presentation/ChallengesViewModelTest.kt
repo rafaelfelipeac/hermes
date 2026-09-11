@@ -2,6 +2,7 @@
 
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
+import androidx.lifecycle.SavedStateHandle
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
@@ -53,6 +54,46 @@ import java.util.concurrent.CopyOnWriteArrayList
 class ChallengesViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
+
+    @Test
+    fun recreatedViewModel_restoresSelectedChallengeAndEditorDraft() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge()
+            val repository = FakeChallengeRepository(initialChallenges = listOf(challenge))
+            val savedStateHandle = SavedStateHandle()
+            val firstViewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val firstStateJob = backgroundScope.launch { firstViewModel.state.collect { } }
+
+            firstViewModel.selectChallenge(challenge.id)
+            firstViewModel.beginCreateChallenge()
+            firstViewModel.updateEditorTitle("September distance")
+            firstViewModel.updateEditorDescription("Build consistency")
+            firstViewModel.updateEditorCategory(TEST_CATEGORY_ID)
+            firstViewModel.updateEditorTargetType(ChallengeTargetType.TOTAL)
+            firstViewModel.updateEditorTargetQuantity(ChallengeQuantity.format(42_000L, TEST_LOCALE))
+            firstViewModel.updateEditorStartDate(LocalDate.of(2026, 9, 1))
+            firstViewModel.updateEditorEndDate(LocalDate.of(2026, 9, 30))
+            runCurrent()
+            firstStateJob.cancel()
+
+            val recreatedViewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val recreatedStateJob = backgroundScope.launch { recreatedViewModel.state.collect { } }
+            runCurrent()
+
+            assertEquals(challenge.id, recreatedViewModel.state.value.selectedChallengeId)
+            assertEquals(challenge, recreatedViewModel.state.value.selectedChallenge)
+            with(recreatedViewModel.state.value.editorState) {
+                assertEquals("September distance", title)
+                assertEquals("Build consistency", description)
+                assertEquals(TEST_CATEGORY_ID, categoryId)
+                assertEquals(ChallengeTargetType.TOTAL, targetType)
+                assertEquals(ChallengeQuantity.format(42_000L, TEST_LOCALE), targetQuantityText)
+                assertEquals(LocalDate.of(2026, 9, 1), startDate)
+                assertEquals(LocalDate.of(2026, 9, 30), endDate)
+                assertTrue(isDirty)
+            }
+            recreatedStateJob.cancel()
+        }
 
     @Test
     fun invalidEditorSave_returnsFalseAndDoesNotPersist() =
@@ -287,6 +328,7 @@ class ChallengesViewModelTest {
         repository: FakeChallengeRepository,
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
         categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
+        savedStateHandle: SavedStateHandle = SavedStateHandle(),
     ): ChallengesViewModel {
         return ChallengesViewModel(
             repository = repository,
@@ -295,6 +337,7 @@ class ChallengesViewModelTest {
             stringProvider = FakeStringProvider,
             localeProvider = FakeLocaleProvider,
             clock = FIXED_CLOCK,
+            savedStateHandle = savedStateHandle,
         )
     }
 
@@ -509,6 +552,7 @@ class ChallengesViewModelTest {
     }
 
     private companion object {
+        const val TEST_CATEGORY_ID = 1L
         val TEST_LOCALE: Locale = Locale.getDefault()
         val TODAY: LocalDate = LocalDate.of(2026, 8, 3)
         val FIXED_CLOCK: Clock = Clock.fixed(Instant.parse("2026-08-03T12:00:00Z"), ZoneOffset.UTC)
