@@ -1,0 +1,529 @@
+package com.rafaelfelipeac.hermes.features.events.presentation
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
+import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
+import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
+import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
+import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardFooterHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventFlagIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
+import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
+import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
+import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
+import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
+import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
+import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
+import java.time.LocalDate
+import java.time.temporal.ChronoUnit
+
+private const val TYPE_CHIP_ALPHA = 0.18f
+private const val EVENT_GRID_COLUMNS = 2
+internal const val EVENT_CARD_TAG_PREFIX = "event-card-"
+
+@Composable
+internal fun EventsContent(
+    state: EventsUiState,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
+    requestedEventId: Long? = null,
+    onEditEvent: (WorkoutUi) -> Unit,
+    onToggleCompleted: (eventId: Long, isCompleted: Boolean) -> Unit,
+    onDeleteEvent: (eventId: Long) -> Unit,
+) {
+    val today = state.today
+    val upcomingEvents =
+        state.events
+            .filter { it.eventDate() >= today }
+            .sortedWith(compareBy<WorkoutUi> { it.eventDate() }.thenBy { it.order }.thenBy { it.id })
+    val pastEvents =
+        state.events
+            .filter { it.eventDate() < today }
+            .sortedWith(
+                compareByDescending<WorkoutUi> { it.eventDate() }
+                    .thenByDescending { it.order }
+                    .thenByDescending { it.id },
+            )
+
+    Box(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(contentPadding),
+    ) {
+        if (upcomingEvents.isEmpty() && pastEvents.isEmpty()) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(start = SpacingXl, end = SpacingXl, bottom = SpacingXl),
+            ) {
+                EventsHeader(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopStart)
+                            .padding(top = SpacingXl),
+                )
+
+                EmptyStateCard(
+                    icon = Icons.Outlined.Flag,
+                    title = stringResource(R.string.race_events_empty_title),
+                    body = stringResource(R.string.race_events_empty_body),
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(EVENT_GRID_COLUMNS),
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(start = SpacingXl, top = Zero, end = SpacingXl, bottom = SpacingXl),
+                horizontalArrangement = Arrangement.spacedBy(SpacingMd),
+                verticalArrangement = Arrangement.spacedBy(SpacingMd),
+            ) {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    EventsHeader(
+                        modifier = Modifier.padding(top = SpacingXl),
+                    )
+                }
+
+                if (upcomingEvents.isNotEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        EventsSectionTitle(
+                            title = stringResource(R.string.race_events_upcoming_title),
+                            modifier = Modifier.padding(top = SpacingLg),
+                        )
+                    }
+                }
+
+                items(upcomingEvents, key = { it.id }) { event ->
+                    EventCard(
+                        event = event,
+                        eventToday = today,
+                        onClick = { onEditEvent(event) },
+                        onFocusRequested = { onEditEvent(event) },
+                        onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
+                        onDelete = { onDeleteEvent(event.id) },
+                        focusRequested = event.id == requestedEventId,
+                    )
+                }
+
+                if (pastEvents.isNotEmpty()) {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        EventsSectionTitle(
+                            title = stringResource(R.string.race_events_past_title),
+                            modifier = Modifier.padding(top = SpacingLg),
+                        )
+                    }
+                }
+
+                items(pastEvents, key = { it.id }) { event ->
+                    EventCard(
+                        event = event,
+                        eventToday = today,
+                        onClick = { onEditEvent(event) },
+                        onFocusRequested = { onEditEvent(event) },
+                        onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
+                        onDelete = { onDeleteEvent(event.id) },
+                        focusRequested = event.id == requestedEventId,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EventsHeader(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingMd),
+    ) {
+        Text(
+            text = stringResource(R.string.race_events_title),
+            style = typography.titleLarge,
+            color = colorScheme.onSurface,
+        )
+        Text(
+            text = stringResource(R.string.race_events_subtitle),
+            style = typography.bodyMedium,
+            color = colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun EventsSectionTitle(
+    title: String,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(SpacingMd),
+    ) {
+        HorizontalDivider(color = colorScheme.outlineVariant)
+
+        Text(
+            text = title,
+            style = typography.titleMedium,
+            color = colorScheme.onSurface,
+        )
+    }
+}
+
+@Composable
+private fun EventCard(
+    event: WorkoutUi,
+    eventToday: LocalDate,
+    onClick: () -> Unit,
+    onFocusRequested: () -> Unit = {},
+    onToggleCompleted: (Boolean) -> Unit,
+    onDelete: () -> Unit,
+    focusRequested: Boolean,
+) {
+    val eventDate = event.eventDate()
+    val categoryAccent = event.categoryColorId?.let(::categoryAccentColor)?.let(::baseCategoryColor)
+    val currentLocale = currentLocale()
+    val isDarkTheme = isDarkBackground(colorScheme.background)
+    val colors = eventCardColors(event = event, categoryAccent = categoryAccent, isDarkTheme = isDarkTheme)
+    val categoryChipBase =
+        categoryAccent?.let { accent ->
+            if (event.isCompleted) {
+                completedCategoryColor(
+                    accent = accent,
+                    isDarkTheme = isDarkTheme,
+                    surface = colorScheme.surface,
+                )
+            } else {
+                accent
+            }
+        }
+    val categoryChipBackground =
+        categoryChipBase?.let { base ->
+            lighterTone(base, isDarkTheme = isDarkTheme)
+        }
+    val categoryChipContent = Color.White
+    val countdown = countdownLabel(eventDate = eventDate, today = eventToday)
+    val dateLabel = formatWorkoutDate(eventDate, currentLocale)
+    val categoryLabel = event.categoryName ?: stringResource(R.string.category_uncategorized)
+    val frameColor = if (event.isCompleted) colors.background else categoryAccent
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+
+    LaunchedEffect(focusRequested) {
+        if (focusRequested) {
+            bringIntoViewRequester.bringIntoView()
+            onFocusRequested()
+        }
+    }
+
+    Card(
+        onClick = onClick,
+        shape = shapes.medium,
+        border = BorderStroke(BorderHairline, frameColor ?: colorScheme.outlineVariant),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = colors.background,
+                contentColor = colors.content,
+            ),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(EventCardHeight)
+                .then(
+                    if (focusRequested) {
+                        Modifier.bringIntoViewRequester(bringIntoViewRequester)
+                    } else {
+                        Modifier
+                    },
+                )
+                .testTag(EVENT_CARD_TAG_PREFIX + event.id),
+    ) {
+        Box {
+            if (frameColor != null) {
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxHeight()
+                            .width(SpacingXs)
+                            .background(frameColor),
+                )
+            }
+
+            Column(
+                modifier =
+                    Modifier
+                        .fillMaxSize(),
+            ) {
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = ContentPadding,
+                                top = ContentPadding,
+                                end = ContentPadding,
+                            )
+                            .padding(end = SpacingXl),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingLg),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .size(CheckboxBoxSize + SpacingSm)
+                                .offset(y = Zero),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Checkbox(
+                            checked = event.isCompleted,
+                            onCheckedChange = onToggleCompleted,
+                            modifier = Modifier.size(CheckboxSize + SpacingSm),
+                            colors =
+                                CheckboxDefaults.colors(
+                                    checkedColor = colors.content,
+                                    uncheckedColor = colors.content,
+                                    checkmarkColor = colors.background,
+                                ),
+                        )
+                    }
+
+                    TitleChip(
+                        label = categoryLabel,
+                        containerColor = categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
+                        contentColor = categoryChipContent,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                ) {
+                    Column(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = ContentPadding,
+                                    top = SpacingXs,
+                                    end = ContentPadding,
+                                    bottom = SpacingXs,
+                                ),
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                        ) {
+                            Text(
+                                text = event.type,
+                                style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = colors.content,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+
+                            if (event.description.isNotBlank()) {
+                                Text(
+                                    text = event.description,
+                                    style = typography.bodySmall,
+                                    color = colors.content.copy(alpha = 0.85f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Text(
+                            text = dateLabel,
+                            style = typography.bodySmall,
+                            color = colors.content.copy(alpha = 0.85f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
+                }
+
+                HorizontalDivider(
+                    color = colors.content.copy(alpha = 0.35f),
+                    thickness = BorderThin,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+
+                Row(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = ContentPadding, vertical = SpacingSm)
+                            .height(EventCardFooterHeight),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Flag,
+                        contentDescription = stringResource(R.string.race_event_label),
+                        tint = colors.content,
+                        modifier = Modifier.size(EventFlagIconSize),
+                    )
+
+                    Text(
+                        text = countdown,
+                        style = typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                        color = colors.content,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+
+            Icon(
+                imageVector = Icons.Outlined.Close,
+                contentDescription = stringResource(R.string.weekly_training_delete_race_event),
+                tint = colors.content,
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = SpacingMd, end = SpacingMd)
+                        .size(SmallIconSize)
+                        .clickable { onDelete() },
+            )
+        }
+    }
+}
+
+private data class EventCardColors(
+    val background: Color,
+    val content: Color,
+)
+
+@Composable
+private fun eventCardColors(
+    event: WorkoutUi,
+    categoryAccent: Color?,
+    isDarkTheme: Boolean,
+): EventCardColors {
+    val background =
+        when {
+            event.isCompleted && categoryAccent == null -> TodoBlue
+            event.isCompleted && categoryAccent != null ->
+                completedCategoryColor(
+                    accent = categoryAccent,
+                    isDarkTheme = isDarkTheme,
+                    surface = colorScheme.surface,
+                )
+            categoryAccent != null -> categoryAccent
+            else -> CompletedBlue
+        }
+    val content =
+        when {
+            event.isCompleted && categoryAccent == null -> TodoBlueContent
+            event.isCompleted && categoryAccent != null -> contentColorForBackground(background)
+            categoryAccent != null -> contentColorForBackground(categoryAccent)
+            else -> CompletedBlueContent
+        }
+
+    return EventCardColors(background = background, content = content)
+}
+
+internal fun WorkoutUi.eventDate(): LocalDate {
+    return weekStartDate.plusDays((dayOfWeek?.value?.minus(1) ?: 0).toLong())
+}
+
+private fun lighterTone(
+    color: Color,
+    isDarkTheme: Boolean,
+): Color {
+    val blend = if (isDarkTheme) LIGHTER_TONE_BLEND_DARK else LIGHTER_TONE_BLEND_LIGHT
+    return lerp(color, Color.White, blend)
+}
+
+@Composable
+private fun countdownLabel(
+    eventDate: LocalDate,
+    today: LocalDate,
+): String {
+    val days = ChronoUnit.DAYS.between(today, eventDate)
+    return when {
+        days == 0L -> stringResource(R.string.race_events_today)
+        days == 1L -> stringResource(R.string.race_events_tomorrow)
+        days > 1L ->
+            pluralStringResource(R.plurals.race_events_days_left, days.toInt(), days.toInt())
+        days == -1L -> pluralStringResource(R.plurals.race_events_days_ago, 1, 1)
+        else ->
+            pluralStringResource(
+                R.plurals.race_events_days_ago,
+                kotlin.math.abs(days).toInt(),
+                kotlin.math.abs(days).toInt(),
+            )
+    }
+}
