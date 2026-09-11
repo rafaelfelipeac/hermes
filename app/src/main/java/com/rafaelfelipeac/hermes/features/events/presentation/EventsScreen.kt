@@ -48,7 +48,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +64,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.AddRaceEventDialog
@@ -123,8 +123,8 @@ fun EventsScreen(
     onRequestedEventConsumed: () -> Unit = {},
     viewModel: EventsViewModel = hiltViewModel(),
 ) {
-    val state by viewModel.state.collectAsState()
-    val undoState by viewModel.undoUiState.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val undoState by viewModel.undoUiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var isDialogVisible by rememberSaveable { mutableStateOf(false) }
     var editingEventId by rememberSaveable { mutableStateOf<Long?>(null) }
