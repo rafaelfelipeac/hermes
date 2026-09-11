@@ -7,20 +7,13 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
@@ -32,15 +25,14 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorage
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.UndoMessage
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toDeleteActionType
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toMoveActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUndoDeleteActionType
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUpdateActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUserActionEntityType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -145,7 +137,6 @@ class EventsViewModel
             }
         }
 
-        @Suppress("CyclomaticComplexMethod", "LongMethod")
         fun updateRaceEvent(
             eventId: Long,
             title: String,
@@ -153,8 +144,7 @@ class EventsViewModel
             categoryId: Long?,
             eventDate: LocalDate,
         ) {
-            val original = state.value.events.firstOrNull { it.id == eventId }
-            val originalEvent = original ?: return
+            val original = state.value.events.firstOrNull { it.id == eventId } ?: return
             val currentCategories = state.value.categories
             val normalizedCategoryId =
                 if (currentCategories.any { it.id == categoryId }) {
@@ -162,85 +152,30 @@ class EventsViewModel
                 } else {
                     UNCATEGORIZED_ID
                 }
-            val categoryName = currentCategories.firstOrNull { it.id == normalizedCategoryId }?.name
             val storageWeekStart = canonicalStorageWeekStart(eventDate)
             val dayOfWeek = eventDate.dayOfWeek
             val dateChanged =
-                originalEvent.weekStartDate != storageWeekStart || originalEvent.dayOfWeek != dayOfWeek
+                original.weekStartDate != storageWeekStart || original.dayOfWeek != dayOfWeek
 
             if (dateChanged && eventDate.isBefore(LocalDate.now())) return
 
             viewModelScope.launch {
-                val nextOrder =
-                    if (dateChanged) {
-                        nextRaceEventOrder(storageWeekStart, dayOfWeek, eventId)
-                    } else {
-                        originalEvent.order
-                    }
+                val result =
+                    weeklyTrainingCommandRepository.updateDetails(
+                        WorkoutDetailsCommand(
+                            workoutId = eventId,
+                            type = title,
+                            description = description,
+                            eventType = RACE_EVENT,
+                            categoryId = normalizedCategoryId,
+                            displayWeekStart = storageWeekStart,
+                            targetDate = eventDate,
+                        ),
+                    )
 
-                if (dateChanged) {
-                    repository.updateWorkoutSchedule(
-                        workoutId = eventId,
-                        weekStartDate = storageWeekStart,
-                        dayOfWeek = dayOfWeek,
-                        timeSlot = null,
-                        order = nextOrder,
-                    )
-                    normalizeRaceEventSourceBucket(
-                        movedEventId = eventId,
-                        weekStartDate = originalEvent.weekStartDate,
-                        dayOfWeek = originalEvent.dayOfWeek,
-                    )
+                if (result is WeeklyTrainingCommandResult.DetailsChanged) {
+                    messageEvents.emit(EventsMessage.Updated(title))
                 }
-                repository.updateWorkoutDetails(
-                    workoutId = eventId,
-                    type = title,
-                    description = description,
-                    eventType = RACE_EVENT,
-                    categoryId = normalizedCategoryId,
-                )
-                val actionType =
-                    if (dateChanged) {
-                        RACE_EVENT.toMoveActionType()
-                    } else {
-                        RACE_EVENT.toUpdateActionType()
-                    }
-
-                userActionLogger.log(
-                    actionType = actionType,
-                    entityType = RACE_EVENT.toUserActionEntityType(),
-                    entityId = eventId,
-                    metadata =
-                        mutableMapOf(
-                            WEEK_START_DATE to storageWeekStart.toString(),
-                            OLD_WEEK_START_DATE to originalEvent.weekStartDate.toString(),
-                            NEW_WEEK_START_DATE to storageWeekStart.toString(),
-                            OLD_DAY_OF_WEEK to
-                                (originalEvent.dayOfWeek?.value?.toString() ?: dayOfWeek.value.toString()),
-                            NEW_DAY_OF_WEEK to dayOfWeek.value.toString(),
-                            OLD_ORDER to originalEvent.order.toString(),
-                            NEW_ORDER to nextOrder.toString(),
-                            OLD_TYPE to originalEvent.type,
-                            NEW_TYPE to title,
-                            OLD_DESCRIPTION to originalEvent.description,
-                            NEW_DESCRIPTION to description,
-                        ).apply {
-                            originalEvent.categoryId?.let { put(OLD_CATEGORY_ID, it.toString()) }
-                            normalizedCategoryId?.let {
-                                put(CATEGORY_ID, it.toString())
-                                put(NEW_CATEGORY_ID, it.toString())
-                            }
-                            originalEvent.categoryName?.takeIf { it.isNotBlank() }?.let {
-                                put(OLD_CATEGORY_NAME, it)
-                            }
-                            categoryName?.takeIf { it.isNotBlank() }?.let {
-                                put(CATEGORY_NAME, it)
-                                put(NEW_CATEGORY_NAME, it)
-                            }
-                        },
-                )
-
-                messageEvents.emit(EventsMessage.Updated(title))
             }
         }
 
@@ -374,31 +309,6 @@ class EventsViewModel
                 .maxOfOrNull { it.order }
                 ?.plus(1)
                 ?: 0
-        }
-
-        private suspend fun normalizeRaceEventSourceBucket(
-            movedEventId: Long,
-            weekStartDate: LocalDate,
-            dayOfWeek: DayOfWeek?,
-        ) {
-            repository.getWorkoutsForWeek(weekStartDate)
-                .filter { workout ->
-                    workout.id != movedEventId &&
-                        workout.dayOfWeek == dayOfWeek &&
-                        workout.timeSlot == null
-                }
-                .sortedBy { it.order }
-                .forEachIndexed { index, workout ->
-                    if (workout.order != index) {
-                        repository.updateWorkoutSchedule(
-                            workoutId = workout.id,
-                            weekStartDate = workout.weekStartDate,
-                            dayOfWeek = workout.dayOfWeek,
-                            timeSlot = workout.timeSlot,
-                            order = index,
-                        )
-                    }
-                }
         }
 
         private suspend fun undoCompletion(action: PendingEventUndoAction.Completion) {

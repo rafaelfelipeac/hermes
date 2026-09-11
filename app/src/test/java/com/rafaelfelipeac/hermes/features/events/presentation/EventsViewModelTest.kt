@@ -241,7 +241,7 @@ class EventsViewModelTest {
             assertEquals(UPDATED_TITLE, updated.type)
             assertEquals(UPDATED_DESCRIPTION, updated.description)
             assertEquals(UNCATEGORIZED_ID, updated.categoryId)
-            assertEquals(3, updated.order)
+            assertEquals(1, updated.order)
 
             val action = logger.actions.single()
             assertEquals(UserActionType.MOVE_RACE_EVENT, action.actionType)
@@ -609,7 +609,96 @@ class EventsViewModelTest {
 
         override suspend fun undoSchedule(request: UndoScheduleCommand) = missingCommand()
 
-        override suspend fun updateDetails(request: WorkoutDetailsCommand) = missingCommand()
+        override suspend fun updateDetails(request: WorkoutDetailsCommand): WeeklyTrainingCommandResult {
+            val original =
+                repository.workouts.value.firstOrNull { it.id == request.workoutId }
+                    ?: return WeeklyTrainingCommandResult.NoChange
+            val plan = buildDetailsPlan(request, original)
+
+            if (plan.dateChanged) {
+                repository.updateWorkoutSchedule(
+                    workoutId = request.workoutId,
+                    weekStartDate = plan.targetWeekStart,
+                    dayOfWeek = plan.targetDayOfWeek,
+                    timeSlot = null,
+                    order = plan.order,
+                )
+            }
+            repository.updateWorkoutDetails(
+                workoutId = request.workoutId,
+                type = request.type,
+                description = request.description,
+                eventType = request.eventType,
+                categoryId = request.categoryId,
+            )
+
+            logger.log(
+                actionType = if (plan.dateChanged) UserActionType.MOVE_RACE_EVENT else UserActionType.UPDATE_RACE_EVENT,
+                entityType = UserActionEntityType.RACE_EVENT,
+                entityId = request.workoutId,
+                metadata = buildDetailsMetadata(request, original, plan),
+            )
+
+            return WeeklyTrainingCommandResult.DetailsChanged
+        }
+
+        private suspend fun buildDetailsPlan(
+            request: WorkoutDetailsCommand,
+            original: Workout,
+        ): FakeDetailsUpdatePlan {
+            val targetDate =
+                request.targetDate
+                    ?: original.dayOfWeek?.let { day ->
+                        original.weekStartDate.plusDays((day.value - 1).toLong())
+                    }
+            val targetWeekStart = targetDate?.let(::canonicalStorageWeekStart) ?: original.weekStartDate
+            val targetDayOfWeek = targetDate?.dayOfWeek ?: original.dayOfWeek
+            val dateChanged =
+                targetDate != null &&
+                    original.eventType == RACE_EVENT &&
+                    (original.weekStartDate != targetWeekStart || original.dayOfWeek != targetDayOfWeek)
+            val order =
+                if (dateChanged) {
+                    repository.getWorkoutsForWeek(targetWeekStart).count { workout ->
+                        workout.id != request.workoutId &&
+                            workout.dayOfWeek == targetDayOfWeek &&
+                            workout.timeSlot == null
+                    }
+                } else {
+                    original.order
+                }
+
+            return FakeDetailsUpdatePlan(
+                targetWeekStart = targetWeekStart,
+                targetDayOfWeek = targetDayOfWeek,
+                dateChanged = dateChanged,
+                order = order,
+            )
+        }
+
+        private fun buildDetailsMetadata(
+            request: WorkoutDetailsCommand,
+            original: Workout,
+            plan: FakeDetailsUpdatePlan,
+        ): Map<String, String> {
+            return if (plan.dateChanged) {
+                mapOf(
+                    NEW_WEEK_START_DATE to plan.targetWeekStart.toString(),
+                    NEW_DAY_OF_WEEK to plan.targetDayOfWeek?.value.toString(),
+                    NEW_ORDER to plan.order.toString(),
+                    NEW_TYPE to request.type,
+                    NEW_DESCRIPTION to request.description,
+                )
+            } else {
+                mapOf(
+                    WEEK_START_DATE to plan.targetWeekStart.toString(),
+                    OLD_TYPE to original.type,
+                    NEW_TYPE to request.type,
+                    OLD_DESCRIPTION to original.description,
+                    NEW_DESCRIPTION to request.description,
+                )
+            }
+        }
 
         override suspend fun updateCompletion(request: WorkoutCompletionCommand) = missingCommand()
 
@@ -621,6 +710,13 @@ class EventsViewModelTest {
 
         private fun missingCommand(): WeeklyTrainingCommandResult = error("Not needed")
     }
+
+    private data class FakeDetailsUpdatePlan(
+        val targetWeekStart: LocalDate,
+        val targetDayOfWeek: DayOfWeek?,
+        val dateChanged: Boolean,
+        val order: Int,
+    )
 
     private class FakeWeeklyTrainingRepository(
         initialWorkouts: List<Workout> = emptyList(),
