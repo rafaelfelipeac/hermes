@@ -3,12 +3,17 @@ package com.rafaelfelipeac.hermes.features.events.presentation
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -16,6 +21,18 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
@@ -114,7 +131,7 @@ class EventsViewModelTest {
                                 id = 2L,
                                 eventDate = eventDate,
                                 eventType = EventType.WORKOUT,
-                                order = 2,
+                                order = 1,
                             ),
                         ),
                 )
@@ -136,7 +153,7 @@ class EventsViewModelTest {
             assertEquals(expectedWeekStart, inserted.weekStartDate)
             assertEquals(eventDate.dayOfWeek, inserted.dayOfWeek)
             assertEquals(RACE_EVENT, inserted.eventType)
-            assertEquals(3, inserted.order)
+            assertEquals(2, inserted.order)
             assertEquals(CATEGORY_ID, inserted.categoryId)
 
             val action = logger.actions.single()
@@ -144,7 +161,7 @@ class EventsViewModelTest {
             assertEquals(UserActionEntityType.RACE_EVENT, action.entityType)
             assertEquals(INSERTED_ID, action.entityId)
             assertEquals(EVENT_TITLE, action.metadata?.get(NEW_TYPE))
-            assertEquals("3", action.metadata?.get(NEW_ORDER))
+            assertEquals("2", action.metadata?.get(NEW_ORDER))
             assertEquals(CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID_KEY))
 
             collectJob.cancel()
@@ -521,13 +538,88 @@ class EventsViewModelTest {
         repository: FakeWeeklyTrainingRepository = FakeWeeklyTrainingRepository(),
         categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
+        commandRepository: WeeklyTrainingCommandRepository =
+            FakeWeeklyTrainingCommandRepository(repository, categoryRepository, logger),
     ): EventsViewModel {
         return EventsViewModel(
             repository = repository,
             categoryRepository = categoryRepository,
             categorySeeder = CategorySeeder(categoryRepository, FakeStringProvider()),
             userActionLogger = logger,
+            weeklyTrainingCommandRepository = commandRepository,
         )
+    }
+
+    private class FakeWeeklyTrainingCommandRepository(
+        private val repository: FakeWeeklyTrainingRepository,
+        private val categoryRepository: FakeCategoryRepository,
+        private val logger: RecordingUserActionLogger,
+    ) : WeeklyTrainingCommandRepository {
+        override suspend fun createItem(request: CreateWeeklyItemCommand): WeeklyTrainingCommandResult {
+            val nextOrder =
+                repository.getWorkoutsForWeek(request.storageWeekStart).count { workout ->
+                    workout.dayOfWeek == request.dayOfWeek && workout.timeSlot == request.timeSlot
+                }
+            val itemId =
+                repository.insertWorkout(
+                    Workout(
+                        id = 0L,
+                        weekStartDate = request.storageWeekStart,
+                        dayOfWeek = request.dayOfWeek,
+                        type = request.type,
+                        description = request.description,
+                        isCompleted = false,
+                        isRestDay = false,
+                        categoryId = request.categoryId,
+                        order = nextOrder,
+                        eventType = request.eventType,
+                        timeSlot = request.timeSlot,
+                    ),
+                )
+            val categoryName = request.categoryId?.let { categoryRepository.getCategory(it)?.name }
+
+            logger.log(
+                actionType = UserActionType.CREATE_RACE_EVENT,
+                entityType = UserActionEntityType.RACE_EVENT,
+                entityId = itemId,
+                metadata =
+                    mutableMapOf(
+                        WEEK_START_DATE to request.displayWeekStart.toString(),
+                        DAY_OF_WEEK to (request.dayOfWeek?.value?.toString() ?: UNPLANNED_DAY),
+                        NEW_ORDER to nextOrder.toString(),
+                        NEW_TYPE to request.type,
+                        NEW_DESCRIPTION to request.description,
+                    ).apply {
+                        request.categoryId?.let { put(CATEGORY_ID_KEY, it.toString()) }
+                        if (!categoryName.isNullOrBlank()) {
+                            put(CATEGORY_NAME, categoryName)
+                            put(NEW_CATEGORY_NAME, categoryName)
+                        }
+                    },
+            )
+
+            return WeeklyTrainingCommandResult.ItemCreated(itemId)
+        }
+
+        override suspend fun copyLastWeek(request: CopyLastWeekCommand) = missingCommand()
+
+        override suspend fun undoCopyLastWeek(request: UndoCopyLastWeekCommand) = missingCommand()
+
+        override suspend fun updateSchedule(request: WorkoutScheduleCommand) = missingCommand()
+
+        override suspend fun undoSchedule(request: UndoScheduleCommand) = missingCommand()
+
+        override suspend fun updateDetails(request: WorkoutDetailsCommand) = missingCommand()
+
+        override suspend fun updateCompletion(request: WorkoutCompletionCommand) = missingCommand()
+
+        override suspend fun undoCompletion(request: UndoCompletionCommand) = missingCommand()
+
+        override suspend fun deleteWorkout(request: WorkoutDeleteCommand) = missingCommand()
+
+        override suspend fun undoDelete(request: UndoDeleteCommand) = missingCommand()
+
+        private fun missingCommand(): WeeklyTrainingCommandResult = error("Not needed")
     }
 
     private class FakeWeeklyTrainingRepository(
@@ -767,6 +859,7 @@ class EventsViewModelTest {
         const val WORKOUT_TITLE = "Easy Run"
         const val EVENT_DESCRIPTION = "Race prep"
         const val UPDATED_DESCRIPTION = "Updated race prep"
+        const val UNPLANNED_DAY = "unplanned"
     }
 }
 

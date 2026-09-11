@@ -6,7 +6,6 @@ import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
@@ -30,12 +29,14 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.UndoMessage
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toCreateActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toDeleteActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toMoveActionType
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUndoDeleteActionType
@@ -65,6 +66,7 @@ class EventsViewModel
         private val categoryRepository: CategoryRepository,
         private val categorySeeder: CategorySeeder,
         private val userActionLogger: UserActionLogger,
+        private val weeklyTrainingCommandRepository: WeeklyTrainingCommandRepository,
     ) : ViewModel() {
         private val messageEvents = MutableSharedFlow<EventsMessage>(extraBufferCapacity = 1)
         private val undoState = MutableStateFlow<EventUndoState?>(null)
@@ -120,51 +122,26 @@ class EventsViewModel
                 } else {
                     UNCATEGORIZED_ID
                 }
-            val categoryName = currentCategories.firstOrNull { it.id == normalizedCategoryId }?.name
-
             viewModelScope.launch {
                 val storageWeekStart = canonicalStorageWeekStart(eventDate)
                 val dayOfWeek = eventDate.dayOfWeek
-                val nextOrder = nextRaceEventOrder(storageWeekStart, dayOfWeek)
-
-                val workout =
-                    Workout(
-                        id = 0L,
-                        weekStartDate = storageWeekStart,
-                        dayOfWeek = dayOfWeek,
-                        type = title,
-                        description = description,
-                        isCompleted = false,
-                        isRestDay = false,
-                        categoryId = normalizedCategoryId,
-                        order = nextOrder,
-                        eventType = RACE_EVENT,
-                        timeSlot = null,
+                val result =
+                    weeklyTrainingCommandRepository.createItem(
+                        CreateWeeklyItemCommand(
+                            eventType = RACE_EVENT,
+                            storageWeekStart = storageWeekStart,
+                            displayWeekStart = storageWeekStart,
+                            dayOfWeek = dayOfWeek,
+                            timeSlot = null,
+                            type = title,
+                            description = description,
+                            categoryId = normalizedCategoryId,
+                        ),
                     )
 
-                val eventId = repository.insertWorkout(workout)
-
-                userActionLogger.log(
-                    actionType = RACE_EVENT.toCreateActionType(),
-                    entityType = RACE_EVENT.toUserActionEntityType(),
-                    entityId = eventId,
-                    metadata =
-                        mutableMapOf(
-                            WEEK_START_DATE to storageWeekStart.toString(),
-                            DAY_OF_WEEK to dayOfWeek.value.toString(),
-                            NEW_ORDER to nextOrder.toString(),
-                            NEW_TYPE to title,
-                            NEW_DESCRIPTION to description,
-                        ).apply {
-                            normalizedCategoryId?.let { put(CATEGORY_ID, it.toString()) }
-                            if (!categoryName.isNullOrBlank()) {
-                                put(CATEGORY_NAME, categoryName)
-                                put(NEW_CATEGORY_NAME, categoryName)
-                            }
-                        },
-                )
-
-                messageEvents.emit(EventsMessage.Created(title))
+                if (result is WeeklyTrainingCommandResult.ItemCreated) {
+                    messageEvents.emit(EventsMessage.Created(title))
+                }
             }
         }
 
