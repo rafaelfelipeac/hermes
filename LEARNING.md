@@ -659,3 +659,5 @@ Recent learnings:
 - The current-date flow should emit immediately on every new collection, not only after a scheduled midnight delay. That behavior is what lets lifecycle-aware screens catch up after being stopped in the background without waiting for another repository emission.
 - Events is easier to evolve when route ownership and content rendering are separate. Keeping dialog state, snackbar handling, and pending draft consumption in the route while moving list grouping/cards into a content file reduces coupling without changing the category/date picker flow.
 - Even tiny private UI-state carriers should stay out of ViewModel classes in Hermes. Moving `ChallengeCalculationState` into its own presentation file keeps the ViewModel focused on flow assembly and respects the project boundary for dedicated state types.
+
+- Instrumented repository tests should assert the persisted/logging contract rather than stale UI assumptions: generated Room IDs must flow into Activity assertions, normalized Personal Record values use storage units, and undo-delete fixtures must describe the sibling positions needed to reopen the restored item slot.

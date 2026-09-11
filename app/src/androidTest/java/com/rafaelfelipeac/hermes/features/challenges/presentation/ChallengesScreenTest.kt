@@ -16,10 +16,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.SavedStateHandle
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
@@ -27,6 +29,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COL
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.CYCLING_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
@@ -656,13 +659,17 @@ class ChallengesScreenTest {
     ): ChallengesViewModel {
         val repository = FakeChallengeRepository(challenges, progressEntries)
         val categoryRepository = FakeCategoryRepository(categories)
+        val clock = Clock.fixed(Instant.parse("2026-08-28T12:00:00Z"), ZoneOffset.UTC)
         return ChallengesViewModel(
             repository = repository,
             categoryRepository = categoryRepository,
             userActionLogger = NoOpUserActionLogger,
             stringProvider = AndroidStringProviderAdapter(ApplicationProvider.getApplicationContext()),
             localeProvider = TestLocaleProvider(testLocale),
-            clock = Clock.fixed(Instant.parse("2026-08-28T12:00:00Z"), ZoneOffset.UTC),
+            clock = clock,
+            currentDateProvider = CurrentDateProvider(clock),
+            calculator = ChallengeCalculator(),
+            savedStateHandle = SavedStateHandle(),
         )
     }
 

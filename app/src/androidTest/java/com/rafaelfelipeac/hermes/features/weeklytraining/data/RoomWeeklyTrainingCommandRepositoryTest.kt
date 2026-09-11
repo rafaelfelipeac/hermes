@@ -742,7 +742,7 @@ class RoomWeeklyTrainingCommandRepositoryTest {
                         weekStartDate = LocalDate.parse("2026-09-07"),
                         dayOfWeek = DayOfWeek.MONDAY,
                         timeSlot = TimeSlot.MORNING,
-                        order = 0,
+                        order = 1,
                     ),
                 ),
         )
@@ -867,11 +867,12 @@ class RoomWeeklyTrainingCommandRepositoryTest {
         private fun assertCommonAction(
             actionType: UserActionType,
             entityType: UserActionEntityType,
+            entityId: Long = WORKOUT_ID,
         ): UserAction {
             val action = actions.single()
             assertEquals(actionType, action.actionType)
             assertEquals(entityType, action.entityType)
-            assertEquals(WORKOUT_ID, action.entityId)
+            assertEquals(entityId, action.entityId)
             assertEquals("2026-09-07", action.metadata?.get(WEEK_START_DATE))
             return action
         }
@@ -927,8 +928,7 @@ class RoomWeeklyTrainingCommandRepositoryTest {
         }
 
         fun assertCreateWorkoutLoggedOnce(itemId: Long) {
-            val action = assertCommonAction(CREATE_WORKOUT, WORKOUT)
-            assertEquals(itemId, action.entityId)
+            val action = assertCommonAction(CREATE_WORKOUT, WORKOUT, itemId)
             assertEquals(DayOfWeek.MONDAY.value.toString(), action.metadata?.get(DAY_OF_WEEK))
             assertEquals("1", action.metadata?.get(NEW_ORDER))
             assertEquals(WORKOUT_TYPE, action.metadata?.get(NEW_TYPE))
@@ -940,8 +940,7 @@ class RoomWeeklyTrainingCommandRepositoryTest {
         }
 
         fun assertCreateRestLoggedOnce(itemId: Long) {
-            val action = assertCommonAction(CREATE_REST_DAY, REST)
-            assertEquals(itemId, action.entityId)
+            val action = assertCommonAction(CREATE_REST_DAY, REST, itemId)
             assertEquals(UNPLANNED, action.metadata?.get(DAY_OF_WEEK))
             assertEquals("0", action.metadata?.get(NEW_ORDER))
         }

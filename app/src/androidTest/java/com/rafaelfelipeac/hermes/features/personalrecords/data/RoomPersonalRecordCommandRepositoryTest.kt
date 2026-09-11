@@ -200,7 +200,7 @@ class RoomPersonalRecordCommandRepositoryTest {
             assertEquals(MANUAL.name, action.metadata?.get(PERSONAL_RECORD_COMPARISON_RULE))
             assertEquals("2026-09-07", action.metadata?.get(PERSONAL_RECORD_RECORD_DATE))
             assertEquals("42.2", action.metadata?.get(PERSONAL_RECORD_NEW_VALUE))
-            assertEquals("42.2", action.metadata?.get(PERSONAL_RECORD_NORMALIZED_VALUE))
+            assertEquals("42200.0", action.metadata?.get(PERSONAL_RECORD_NORMALIZED_VALUE))
         }
     }
 
