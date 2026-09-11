@@ -547,7 +547,6 @@ class EventsViewModelTest {
             repository = repository,
             categoryRepository = categoryRepository,
             categorySeeder = CategorySeeder(categoryRepository, FakeStringProvider()),
-            userActionLogger = logger,
             weeklyTrainingCommandRepository = commandRepository,
         )
     }
@@ -775,9 +774,67 @@ class EventsViewModelTest {
             }
         }
 
-        override suspend fun deleteWorkout(request: WorkoutDeleteCommand) = missingCommand()
+        override suspend fun deleteWorkout(request: WorkoutDeleteCommand): WeeklyTrainingCommandResult {
+            val original = repository.workouts.value.firstOrNull { it.id == request.workoutId }
+            val result =
+                if (original == null) {
+                    WeeklyTrainingCommandResult.NoChange
+                } else {
+                    repository.deleteWorkout(request.workoutId)
+                    logger.log(
+                        actionType = UserActionType.DELETE_RACE_EVENT,
+                        entityType = UserActionEntityType.RACE_EVENT,
+                        entityId = request.workoutId,
+                        metadata = deleteMetadata(original),
+                    )
+                    WeeklyTrainingCommandResult.WorkoutDeleted
+                }
 
-        override suspend fun undoDelete(request: UndoDeleteCommand) = missingCommand()
+            return result
+        }
+
+        override suspend fun undoDelete(request: UndoDeleteCommand): WeeklyTrainingCommandResult {
+            val restoredId = repository.insertWorkout(request.workout)
+            logger.log(
+                actionType = UserActionType.UNDO_DELETE_RACE_EVENT,
+                entityType = UserActionEntityType.RACE_EVENT,
+                entityId = restoredId,
+                metadata = undoDeleteMetadata(request.workout),
+            )
+
+            return WeeklyTrainingCommandResult.UndoApplied
+        }
+
+        private suspend fun deleteMetadata(original: Workout): Map<String, String> {
+            val categoryName = original.categoryId?.let { categoryRepository.getCategory(it)?.name }
+            return mutableMapOf(
+                WEEK_START_DATE to original.weekStartDate.toString(),
+                OLD_TYPE to original.type,
+                OLD_DESCRIPTION to original.description,
+            ).apply {
+                original.categoryId?.let { put(CATEGORY_ID_KEY, it.toString()) }
+                if (!categoryName.isNullOrBlank()) {
+                    put(CATEGORY_NAME, categoryName)
+                }
+            }
+        }
+
+        private suspend fun undoDeleteMetadata(restored: Workout): Map<String, String> {
+            val categoryName = restored.categoryId?.let { categoryRepository.getCategory(it)?.name }
+            return mutableMapOf(
+                WEEK_START_DATE to restored.weekStartDate.toString(),
+                DAY_OF_WEEK to restored.dayOfWeek?.value.toString(),
+                NEW_ORDER to restored.order.toString(),
+                NEW_TYPE to restored.type,
+                NEW_DESCRIPTION to restored.description,
+            ).apply {
+                restored.categoryId?.let { put(CATEGORY_ID_KEY, it.toString()) }
+                if (!categoryName.isNullOrBlank()) {
+                    put(CATEGORY_NAME, categoryName)
+                    put(NEW_CATEGORY_NAME, categoryName)
+                }
+            }
+        }
 
         private fun missingCommand(): WeeklyTrainingCommandResult = error("Not needed")
     }

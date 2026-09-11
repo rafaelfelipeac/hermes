@@ -3,17 +3,6 @@ package com.rafaelfelipeac.hermes.features.events.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
-import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
@@ -21,18 +10,17 @@ import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.UndoMessage
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toDeleteActionType
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUndoDeleteActionType
-import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.toUserActionEntityType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -56,7 +44,6 @@ class EventsViewModel
         private val repository: WeeklyTrainingRepository,
         private val categoryRepository: CategoryRepository,
         private val categorySeeder: CategorySeeder,
-        private val userActionLogger: UserActionLogger,
         private val weeklyTrainingCommandRepository: WeeklyTrainingCommandRepository,
     ) : ViewModel() {
         private val messageEvents = MutableSharedFlow<EventsMessage>(extraBufferCapacity = 1)
@@ -217,32 +204,20 @@ class EventsViewModel
         fun deleteRaceEvent(eventId: Long) {
             viewModelScope.launch {
                 val original = state.value.events.firstOrNull { it.id == eventId } ?: return@launch
-                repository.deleteWorkout(eventId)
-                setUndoAction(
-                    action = PendingEventUndoAction.Delete(original),
-                    message = UndoMessage.Deleted,
-                )
+                val result =
+                    weeklyTrainingCommandRepository.deleteWorkout(
+                        WorkoutDeleteCommand(
+                            workoutId = eventId,
+                            displayWeekStart = original.weekStartDate,
+                        ),
+                    )
 
-                userActionLogger.log(
-                    actionType = RACE_EVENT.toDeleteActionType(),
-                    entityType = RACE_EVENT.toUserActionEntityType(),
-                    entityId = eventId,
-                    metadata =
-                        mutableMapOf(
-                            WEEK_START_DATE to original.weekStartDate.toString(),
-                            OLD_TYPE to original.type,
-                            OLD_DESCRIPTION to original.description,
-                        ).apply {
-                            original.categoryId?.let {
-                                put(CATEGORY_ID, it.toString())
-                                put(OLD_CATEGORY_ID, it.toString())
-                            }
-                            original.categoryName?.takeIf { it.isNotBlank() }?.let {
-                                put(CATEGORY_NAME, it)
-                                put(OLD_CATEGORY_NAME, it)
-                            }
-                        },
-                )
+                if (result is WeeklyTrainingCommandResult.WorkoutDeleted) {
+                    setUndoAction(
+                        action = PendingEventUndoAction.Delete(original),
+                        message = UndoMessage.Deleted,
+                    )
+                }
             }
         }
 
@@ -268,13 +243,12 @@ class EventsViewModel
         private suspend fun undoDelete(action: PendingEventUndoAction.Delete) {
             val event = action.event
             val restoredOrder = nextRaceEventOrder(event.weekStartDate, event.dayOfWeek)
-            val restoredId = repository.insertWorkout(event.toDomain().copy(order = restoredOrder))
-
-            userActionLogger.log(
-                actionType = RACE_EVENT.toUndoDeleteActionType(),
-                entityType = RACE_EVENT.toUserActionEntityType(),
-                entityId = restoredId,
-                metadata = event.toActionMetadata(),
+            weeklyTrainingCommandRepository.undoDelete(
+                UndoDeleteCommand(
+                    workout = event.toDomain().copy(order = restoredOrder),
+                    displayWeekStart = event.weekStartDate,
+                    previousPositions = emptyList(),
+                ),
             )
         }
 
@@ -351,18 +325,4 @@ private fun WorkoutUi.toDomain(): Workout {
         eventType = eventType,
         timeSlot = timeSlot,
     )
-}
-
-private fun WorkoutUi.toActionMetadata(): MutableMap<String, String> {
-    return mutableMapOf(
-        WEEK_START_DATE to weekStartDate.toString(),
-        NEW_TYPE to type,
-        NEW_DESCRIPTION to description,
-    ).apply {
-        categoryId?.let { put(CATEGORY_ID, it.toString()) }
-        categoryName?.takeIf { it.isNotBlank() }?.let {
-            put(CATEGORY_NAME, it)
-            put(NEW_CATEGORY_NAME, it)
-        }
-    }
 }
