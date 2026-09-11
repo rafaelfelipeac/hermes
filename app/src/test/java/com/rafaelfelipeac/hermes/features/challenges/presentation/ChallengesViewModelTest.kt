@@ -97,6 +97,36 @@ class ChallengesViewModelTest {
         }
 
     @Test
+    fun recreatedViewModel_savesRestoredEditWithoutCreatingDuplicate() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge(targetQuantity = 10_000L)
+            val repository = FakeChallengeRepository(initialChallenges = listOf(challenge))
+            val savedStateHandle = SavedStateHandle()
+            val firstViewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val firstStateJob = backgroundScope.launch { firstViewModel.state.collect { } }
+
+            firstViewModel.beginEditChallenge(challenge.id)
+            runCurrent()
+            firstViewModel.updateEditorTitle("Updated September distance")
+            firstViewModel.updateEditorTargetQuantity(ChallengeQuantity.format(12_000L, TEST_LOCALE))
+            firstStateJob.cancel()
+
+            val recreatedViewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val recreatedStateJob = backgroundScope.launch { recreatedViewModel.state.collect { } }
+            runCurrent()
+
+            assertTrue(recreatedViewModel.saveEditorChallenge())
+            runCurrent()
+
+            val savedChallenge = repository.challenges.value.single()
+            assertEquals(challenge.id, savedChallenge.id)
+            assertEquals("Updated September distance", savedChallenge.title)
+            assertEquals(12_000L, savedChallenge.targetQuantity)
+            assertFalse(recreatedViewModel.state.value.editorState.isDirty)
+            recreatedStateJob.cancel()
+        }
+
+    @Test
     fun restoredSelection_keepsSelectedIdBeforeChallengeLoads() =
         runTest(mainDispatcherRule.testDispatcher) {
             val challenge = sampleChallenge()

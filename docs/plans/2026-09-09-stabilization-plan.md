@@ -239,7 +239,7 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 ### P10 — Restaurar seleção e editor de desafios
 
-**Status:** em implementação desde 11/09/2026. Primeiro recorte persistiu seleção e campos primitivos do editor no `SavedStateHandle` do ViewModel.
+**Status:** concluído em 11/09/2026. A seleção e os campos primitivos do editor ficam no `SavedStateHandle`; seleção restaurada distingue carregamento de registro ausente; categorias removidas bloqueiam o salvamento com mensagem localizada; desafios removidos retornam à lista; falhas de escrita preservam o rascunho; edição restaurada salva o registro existente sem duplicar criação.
 
 **Achado:** 4. **Dependências:** P01. **Esforço/risco:** médios.
 
