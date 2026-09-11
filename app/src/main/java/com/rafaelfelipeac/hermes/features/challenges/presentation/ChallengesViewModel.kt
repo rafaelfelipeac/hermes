@@ -176,6 +176,8 @@ class ChallengesViewModel
                             )
                         challenge.id to calculation
                     }
+                val selectedId = selectedChallengeId.value
+                val selectedChallengeMissing = selectedId != null && allChallenges.none { it.id == selectedId }
                 val calculation =
                     selectedChallenge?.let { calculations[it.id] }
 
@@ -185,8 +187,9 @@ class ChallengesViewModel
                     categories = categories,
                     challengeCalculations = calculations,
                     allProgressEntries = allProgressEntries,
-                    selectedChallengeId = selectedChallengeId.value,
+                    selectedChallengeId = selectedId,
                     selectedChallenge = selectedChallenge,
+                    selectedChallengeMissing = selectedChallengeMissing,
                     progressEntries = progressEntries,
                     calculation = calculation,
                     editorState = editor,

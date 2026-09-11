@@ -108,12 +108,14 @@ class ChallengesViewModelTest {
 
             assertEquals(challenge.id, viewModel.state.value.selectedChallengeId)
             assertEquals(null, viewModel.state.value.selectedChallenge)
+            assertTrue(viewModel.state.value.selectedChallengeMissing)
 
             repository.challenges.value = listOf(challenge)
             runCurrent()
 
             assertEquals(challenge.id, viewModel.state.value.selectedChallengeId)
             assertEquals(challenge, viewModel.state.value.selectedChallenge)
+            assertFalse(viewModel.state.value.selectedChallengeMissing)
             stateJob.cancel()
         }
 

@@ -190,6 +190,14 @@ internal fun ChallengesScreen(
         onChallengeDraftConsumed()
     }
 
+    LaunchedEffect(route, state.selectedChallengeMissing) {
+        if (route == CHALLENGES_ROUTE_DETAIL && state.selectedChallengeMissing) {
+            route = CHALLENGES_ROUTE_LIST
+            viewModel.selectChallenge(null)
+            selectedTab = detailOriginTab
+        }
+    }
+
     val addProgressDefaultDate =
         state.selectedChallenge?.let { challenge ->
             challenge.endDate.coerceAtMost(LocalDate.now()).takeIf { !it.isBefore(challenge.startDate) }
