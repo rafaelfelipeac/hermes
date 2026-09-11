@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_FIRST_COMPLETION_AT
@@ -23,7 +24,9 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CH
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateBounds
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
@@ -146,6 +149,27 @@ class ChallengesViewModelTest {
             assertEquals(challenge.id, viewModel.state.value.selectedChallengeId)
             assertEquals(challenge, viewModel.state.value.selectedChallenge)
             assertFalse(viewModel.state.value.selectedChallengeMissing)
+            stateJob.cancel()
+        }
+
+    @Test
+    fun editorChangesDoNotRecalculateChallengeHistory() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge()
+            val repository = FakeChallengeRepository(initialChallenges = listOf(challenge))
+            val calculator = CountingChallengeCalculator()
+            val viewModel = createViewModel(repository, calculator = calculator)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            runCurrent()
+            val callsAfterInitialState = calculator.calls
+
+            viewModel.beginCreateChallenge()
+            viewModel.updateEditorTitle("September distance")
+            viewModel.updateEditorDescription("Build consistency")
+            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(42_000L, TEST_LOCALE))
+            runCurrent()
+
+            assertEquals(callsAfterInitialState, calculator.calls)
             stateJob.cancel()
         }
 
@@ -439,6 +463,8 @@ class ChallengesViewModelTest {
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
         categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
         savedStateHandle: SavedStateHandle = SavedStateHandle(),
+        currentDateProvider: CurrentDateProvider = CurrentDateProvider(FIXED_CLOCK),
+        calculator: ChallengeCalculator = ChallengeCalculator(),
     ): ChallengesViewModel {
         return ChallengesViewModel(
             repository = repository,
@@ -447,6 +473,8 @@ class ChallengesViewModelTest {
             stringProvider = FakeStringProvider,
             localeProvider = FakeLocaleProvider,
             clock = FIXED_CLOCK,
+            currentDateProvider = currentDateProvider,
+            calculator = calculator,
             savedStateHandle = savedStateHandle,
         )
     }
@@ -488,6 +516,20 @@ class ChallengesViewModelTest {
             createdAt = Instant.parse("2026-08-01T13:00:00Z"),
             updatedAt = Instant.parse("2026-08-01T13:00:00Z"),
         )
+    }
+
+    private class CountingChallengeCalculator : ChallengeCalculator() {
+        var calls = 0
+            private set
+
+        override fun calculate(
+            challenge: Challenge,
+            progressEntries: List<ChallengeProgressEntry>,
+            today: LocalDate,
+        ): ChallengeCalculationResult {
+            calls += 1
+            return super.calculate(challenge, progressEntries, today)
+        }
     }
 
     private class RecordingUserActionLogger : UserActionLogger {

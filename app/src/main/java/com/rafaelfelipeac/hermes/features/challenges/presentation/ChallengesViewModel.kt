@@ -19,6 +19,7 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ARCHIVED_AT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_CATEGORY_ID
@@ -64,6 +65,7 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHA
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEditorState
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
@@ -80,16 +82,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Clock
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -104,23 +103,16 @@ class ChallengesViewModel
         private val stringProvider: StringProvider,
         private val localeProvider: LocaleProvider,
         private val clock: Clock,
+        private val currentDateProvider: CurrentDateProvider,
+        private val calculator: ChallengeCalculator,
         private val savedStateHandle: SavedStateHandle,
     ) : ViewModel() {
-        private val calculator = ChallengeCalculator()
         private val actionMutex = Mutex()
         private val editorState = MutableStateFlow(restoredEditorState())
         private val selectedChallengeId = MutableStateFlow(savedStateHandle.get<Long>(KEY_SELECTED_CHALLENGE_ID))
         private val undoState = MutableStateFlow<ChallengeUndoState?>(null)
         private var undoTimeoutJob: Job? = null
         private var undoCounter = 0L
-
-        private val todayFlow: Flow<LocalDate> =
-            flow {
-                while (true) {
-                    emit(LocalDate.now(clock))
-                    delay(delayUntilNextMidnight(clock).milliseconds)
-                }
-            }
 
         private val selectedChallengeFlow: Flow<Challenge?> =
             selectedChallengeId.flatMapLatest { id ->
@@ -146,47 +138,53 @@ class ChallengesViewModel
                 initialValue = null,
             )
 
-        val state: StateFlow<ChallengeUiState> =
+        private val calculationState: Flow<ChallengeCalculationState> =
             combine(
-                combine(
-                    repository.observeActiveChallenges(),
-                    repository.observeArchivedChallenges(),
-                    repository.observeAllProgressEntries(),
-                ) { active, archived, allProgressEntries ->
-                    Triple(active, archived, allProgressEntries)
-                },
-                categoryRepository.observeCategories(),
-                combine(selectedChallengeFlow, selectedProgressEntriesFlow) { selectedChallenge, progressEntries ->
-                    selectedChallenge to progressEntries
-                },
-                editorState,
-                todayFlow,
-            ) { challengeLists, categories, selectedState, editor, today ->
-                val (active, archived, allProgressEntries) = challengeLists
-                val (selectedChallenge, progressEntries) = selectedState
+                repository.observeActiveChallenges(),
+                repository.observeArchivedChallenges(),
+                repository.observeAllProgressEntries(),
+                currentDateProvider.observeToday(),
+            ) { active, archived, allProgressEntries, today ->
                 val allChallenges = active + archived
                 val progressEntriesByChallengeId = allProgressEntries.groupBy { it.challengeId }
                 val calculations =
                     allChallenges.associate { challenge ->
-                        val calculation =
+                        challenge.id to
                             calculator.calculate(
                                 challenge = challenge,
                                 progressEntries = progressEntriesByChallengeId[challenge.id].orEmpty(),
                                 today = today,
                             )
-                        challenge.id to calculation
                     }
-                val selectedId = selectedChallengeId.value
-                val selectedChallengeMissing = selectedId != null && allChallenges.none { it.id == selectedId }
-                val calculation =
-                    selectedChallenge?.let { calculations[it.id] }
-
-                ChallengeUiState(
+                ChallengeCalculationState(
                     activeChallenges = active,
                     archivedChallenges = archived,
-                    categories = categories,
-                    challengeCalculations = calculations,
+                    allChallenges = allChallenges,
                     allProgressEntries = allProgressEntries,
+                    calculations = calculations,
+                )
+            }
+
+        val state: StateFlow<ChallengeUiState> =
+            combine(
+                calculationState,
+                categoryRepository.observeCategories(),
+                combine(selectedChallengeFlow, selectedProgressEntriesFlow) { selectedChallenge, progressEntries ->
+                    selectedChallenge to progressEntries
+                },
+                editorState,
+            ) { calculationState, categories, selectedState, editor ->
+                val (selectedChallenge, progressEntries) = selectedState
+                val selectedId = selectedChallengeId.value
+                val selectedChallengeMissing = selectedId != null && calculationState.allChallenges.none { it.id == selectedId }
+                val calculation = selectedChallenge?.let { calculationState.calculations[it.id] }
+
+                ChallengeUiState(
+                    activeChallenges = calculationState.activeChallenges,
+                    archivedChallenges = calculationState.archivedChallenges,
+                    categories = categories,
+                    challengeCalculations = calculationState.calculations,
+                    allProgressEntries = calculationState.allProgressEntries,
                     selectedChallengeId = selectedId,
                     selectedChallenge = selectedChallenge,
                     selectedChallengeMissing = selectedChallengeMissing,
@@ -204,7 +202,7 @@ class ChallengesViewModel
         }
 
         fun beginCreateChallenge() {
-            setEditorState(defaultChallengeEditorState(today = LocalDate.now(clock)))
+            setEditorState(defaultChallengeEditorState(today = currentDateProvider.today()))
         }
 
         fun beginEditChallenge(challengeId: Long) {
@@ -380,7 +378,7 @@ class ChallengesViewModel
                     }
 
                 if (saveResult.isSuccess) {
-                    setEditorState(defaultChallengeEditorState(today = LocalDate.now(clock)))
+                    setEditorState(defaultChallengeEditorState(today = currentDateProvider.today()))
                 } else {
                     setEditorValidation(R.string.challenge_validation_save_failed)
                 }
@@ -470,7 +468,7 @@ class ChallengesViewModel
             entryDate: LocalDate,
         ): Boolean {
             val challenge = currentChallengeFromState(challengeId) ?: return false
-            if (!canEditChallengeProgress(challenge, entryDate, today = LocalDate.now(clock))) {
+            if (!canEditChallengeProgress(challenge, entryDate, today = currentDateProvider.today())) {
                 setEditorValidation(R.string.challenge_validation_progress_date_invalid)
                 return false
             }
@@ -508,7 +506,7 @@ class ChallengesViewModel
                         calculator.calculate(
                             challenge = currentChallenge,
                             progressEntries = repository.getProgressEntries(challengeId),
-                            today = LocalDate.now(clock),
+                            today = currentDateProvider.today(),
                         )
                     userActionLogger.log(
                         actionType = CREATE_CHALLENGE_PROGRESS_ENTRY,
@@ -537,7 +535,7 @@ class ChallengesViewModel
         ): Boolean {
             val currentEntry = currentProgressEntryFromState(entryId) ?: return false
             val challenge = currentChallengeFromState(currentEntry.challengeId) ?: return false
-            if (!canEditChallengeProgress(challenge, entryDate, today = LocalDate.now(clock))) {
+            if (!canEditChallengeProgress(challenge, entryDate, today = currentDateProvider.today())) {
                 setEditorValidation(R.string.challenge_validation_progress_date_invalid)
                 return false
             }
@@ -719,7 +717,7 @@ class ChallengesViewModel
         private fun restoredEditorState(): ChallengeEditorState {
             val savedTargetType = savedStateHandle.get<String>(KEY_EDITOR_TARGET_TYPE)
             if (savedTargetType == null) {
-                return defaultChallengeEditorState(today = LocalDate.now(clock))
+                return defaultChallengeEditorState(today = currentDateProvider.today())
             }
             val targetType =
                 savedTargetType.let { runCatching { ChallengeTargetType.valueOf(it) }.getOrNull() }
@@ -806,7 +804,7 @@ class ChallengesViewModel
         private suspend fun completionState(challengeId: Long): Boolean? {
             val challenge = repository.getChallenge(challengeId) ?: return null
             val entries = repository.getProgressEntries(challengeId)
-            val result = calculator.calculate(challenge, entries, LocalDate.now(clock))
+            val result = calculator.calculate(challenge, entries, currentDateProvider.today())
             return result.status == com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeStatus.COMPLETED ||
                 result.status == com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeStatus.EXCEEDED
         }
@@ -850,13 +848,13 @@ class ChallengesViewModel
             undoTimeoutJob = null
         }
 
-        private fun delayUntilNextMidnight(clock: Clock): Long {
-            val zone = clock.zone
-            val now = LocalDateTime.now(clock)
-            val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay(zone)
-            val millis = Duration.between(now.atZone(zone), nextMidnight).toMillis()
-            return millis.coerceAtLeast(1L)
-        }
+        private data class ChallengeCalculationState(
+            val activeChallenges: List<Challenge>,
+            val archivedChallenges: List<Challenge>,
+            val allChallenges: List<Challenge>,
+            val allProgressEntries: List<ChallengeProgressEntry>,
+            val calculations: Map<Long, ChallengeCalculationResult>,
+        )
 
         private companion object {
             const val UNDO_TIMEOUT_MS = 5_000L

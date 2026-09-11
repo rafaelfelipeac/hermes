@@ -13,9 +13,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-class ChallengeCalculator {
+open class ChallengeCalculator {
     @Suppress("LongMethod")
-    fun calculate(
+    open fun calculate(
         challenge: Challenge,
         progressEntries: List<ChallengeProgressEntry>,
         today: LocalDate,
