@@ -15,8 +15,10 @@ import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryR
 import com.rafaelfelipeac.hermes.features.trophies.domain.TrophyEngine
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyCategoryContext
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -53,10 +55,11 @@ class TrophyViewModel
                             categories = categories,
                         ),
                 )
-            }.stateInWhileSubscribed(
-                scope = viewModelScope,
-                initialValue = TrophyPageState(),
-            )
+            }.flowOn(Dispatchers.Default)
+                .stateInWhileSubscribed(
+                    scope = viewModelScope,
+                    initialValue = TrophyPageState(),
+                )
 
         fun logShareTrophy(
             trophy: TrophyCardUi,

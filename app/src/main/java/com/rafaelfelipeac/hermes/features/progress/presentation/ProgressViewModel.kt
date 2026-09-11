@@ -17,8 +17,10 @@ import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekStart
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -104,8 +106,9 @@ class ProgressViewModel
                     today = today,
                     currentWeekStart = currentWeekStart,
                 )
-            }.stateInWhileSubscribed(
-                scope = viewModelScope,
-                initialValue = ProgressState(),
-            )
+            }.flowOn(Dispatchers.Default)
+                .stateInWhileSubscribed(
+                    scope = viewModelScope,
+                    initialValue = ProgressState(),
+                )
     }

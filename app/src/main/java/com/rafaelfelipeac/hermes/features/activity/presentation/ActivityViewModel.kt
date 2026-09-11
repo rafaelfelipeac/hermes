@@ -22,9 +22,11 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNC
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.LocalDate
@@ -108,10 +110,11 @@ class ActivityViewModel
                             isAnyFilterActive = primaryFilter != ActivityPrimaryFilter.ALL,
                         ),
                 )
-            }.stateInWhileSubscribed(
-                scope = viewModelScope,
-                initialValue = ActivityState(),
-            )
+            }.flowOn(Dispatchers.Default)
+                .stateInWhileSubscribed(
+                    scope = viewModelScope,
+                    initialValue = ActivityState(),
+                )
 
         fun updateLocale(currentLocale: Locale) {
             locale.value = currentLocale
