@@ -259,7 +259,7 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 ### P11 — Atualizar “hoje” e separar projeções do estado de edição
 
-**Status:** em implementação desde 11/09/2026. Fonte observável de data criada em `core/time`; Challenges, Progress e Events já consomem essa data. O cálculo de desafios foi separado do estado do editor, então digitação de rascunho não recalcula histórico. Ainda faltam os recortes de retomada/lifecycle e avaliação dos deslocamentos de Activity/Trophies/Progress para dispatcher adequado.
+**Status:** concluído em 11/09/2026. Fonte observável de data criada em `core/time`; Challenges, Progress e Events consomem essa data. O cálculo de desafios foi separado do estado do editor, então digitação de rascunho não recalcula histórico. As telas tocadas usam coleta lifecycle-aware, e as agregações de Activity, Trophies e Progress foram deslocadas para `Dispatchers.Default` preservando os contratos de estado.
 
 **Achados:** 6/8. **Dependências:** P10 para evitar disputar a organização do ViewModel. **Esforço/risco:** médios.
 
