@@ -397,7 +397,7 @@ internal fun EventsContent(
     onToggleCompleted: (eventId: Long, isCompleted: Boolean) -> Unit,
     onDeleteEvent: (eventId: Long) -> Unit,
 ) {
-    val today = LocalDate.now()
+    val today = state.today
     val upcomingEvents =
         state.events
             .filter { it.eventDate() >= today }
@@ -464,6 +464,7 @@ internal fun EventsContent(
                 items(upcomingEvents, key = { it.id }) { event ->
                     EventCard(
                         event = event,
+                        eventToday = today,
                         onClick = { onEditEvent(event) },
                         onFocusRequested = { onEditEvent(event) },
                         onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
@@ -484,6 +485,7 @@ internal fun EventsContent(
                 items(pastEvents, key = { it.id }) { event ->
                     EventCard(
                         event = event,
+                        eventToday = today,
                         onClick = { onEditEvent(event) },
                         onFocusRequested = { onEditEvent(event) },
                         onToggleCompleted = { checked -> onToggleCompleted(event.id, checked) },
@@ -537,6 +539,7 @@ private fun EventsSectionTitle(
 @Composable
 private fun EventCard(
     event: WorkoutUi,
+    eventToday: LocalDate,
     onClick: () -> Unit,
     onFocusRequested: () -> Unit = {},
     onToggleCompleted: (Boolean) -> Unit,
@@ -565,7 +568,7 @@ private fun EventCard(
             lighterTone(base, isDarkTheme = isDarkTheme)
         }
     val categoryChipContent = Color.White
-    val countdown = countdownLabel(eventDate)
+    val countdown = countdownLabel(eventDate = eventDate, today = eventToday)
     val dateLabel = formatWorkoutDate(eventDate, currentLocale)
     val categoryLabel = event.categoryName ?: stringResource(R.string.category_uncategorized)
     val frameColor = if (event.isCompleted) colors.background else categoryAccent
@@ -805,8 +808,11 @@ private fun lighterTone(
 }
 
 @Composable
-private fun countdownLabel(eventDate: LocalDate): String {
-    val days = ChronoUnit.DAYS.between(LocalDate.now(), eventDate)
+private fun countdownLabel(
+    eventDate: LocalDate,
+    today: LocalDate,
+): String {
+    val days = ChronoUnit.DAYS.between(today, eventDate)
     return when {
         days == 0L -> stringResource(R.string.race_events_today)
         days == 1L -> stringResource(R.string.race_events_tomorrow)

@@ -3,6 +3,7 @@ package com.rafaelfelipeac.hermes.features.events.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
@@ -45,6 +46,7 @@ class EventsViewModel
         private val categoryRepository: CategoryRepository,
         private val categorySeeder: CategorySeeder,
         private val weeklyTrainingCommandRepository: WeeklyTrainingCommandRepository,
+        private val currentDateProvider: CurrentDateProvider,
     ) : ViewModel() {
         private val messageEvents = MutableSharedFlow<EventsMessage>(extraBufferCapacity = 1)
         private val undoState = MutableStateFlow<EventUndoState?>(null)
@@ -55,7 +57,8 @@ class EventsViewModel
             combine(
                 repository.observeWorkoutsByEventType(RACE_EVENT),
                 categoryRepository.observeCategories(),
-            ) { workouts, categories ->
+                currentDateProvider.observeToday(),
+            ) { workouts, categories, today ->
                 val categoriesById = categories.associateBy { it.id }
                 EventsUiState(
                     events =
@@ -66,6 +69,7 @@ class EventsViewModel
                             }
                             .toList(),
                     categories = categories.map { it.toUi() },
+                    today = today,
                 )
             }.stateInWhileSubscribed(
                 scope = viewModelScope,
@@ -91,7 +95,7 @@ class EventsViewModel
             categoryId: Long?,
             eventDate: LocalDate,
         ) {
-            if (eventDate.isBefore(LocalDate.now())) return
+            if (eventDate.isBefore(currentDateProvider.today())) return
 
             val currentCategories = state.value.categories
             val normalizedCategoryId =
@@ -143,7 +147,7 @@ class EventsViewModel
             val dateChanged =
                 original.weekStartDate != storageWeekStart || original.dayOfWeek != dayOfWeek
 
-            if (dateChanged && eventDate.isBefore(LocalDate.now())) return
+            if (dateChanged && eventDate.isBefore(currentDateProvider.today())) return
 
             viewModelScope.launch {
                 val result =

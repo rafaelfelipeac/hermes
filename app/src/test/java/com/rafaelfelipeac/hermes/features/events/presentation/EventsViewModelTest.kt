@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.events.presentation
 
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
@@ -45,6 +46,7 @@ import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -54,8 +56,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import java.time.Clock
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID as CATEGORY_ID_KEY
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -112,6 +117,23 @@ class EventsViewModelTest {
             assertEquals(EVENT_TITLE, viewModel.state.value.events.single().type)
             assertEquals(CATEGORY_NAME, viewModel.state.value.events.single().categoryName)
 
+            collectJob.cancel()
+        }
+
+    @Test
+    fun state_updatesTodayWhenDateChanges() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val dateProvider = MutableCurrentDateProvider(TODAY)
+            val viewModel = createViewModel(currentDateProvider = dateProvider)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+            advanceUntilIdle()
+
+            assertEquals(TODAY, viewModel.state.value.today)
+
+            dateProvider.currentDate.value = TODAY.plusDays(1)
+            advanceUntilIdle()
+
+            assertEquals(TODAY.plusDays(1), viewModel.state.value.today)
             collectJob.cancel()
         }
 
@@ -290,8 +312,8 @@ class EventsViewModelTest {
     @Test
     fun updateRaceEvent_rejectsMoveIntoPast() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val futureDate = LocalDate.now().plusDays(5)
-            val pastDate = LocalDate.now().minusDays(5)
+            val futureDate = TODAY.plusDays(5)
+            val pastDate = TODAY.minusDays(5)
             val original = workout(id = EVENT_ID, eventDate = futureDate, eventType = RACE_EVENT)
             val repository = FakeWeeklyTrainingRepository(initialWorkouts = listOf(original))
             val logger = RecordingUserActionLogger()
@@ -542,13 +564,29 @@ class EventsViewModelTest {
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
         commandRepository: WeeklyTrainingCommandRepository =
             FakeWeeklyTrainingCommandRepository(repository, categoryRepository, logger),
+        currentDateProvider: CurrentDateProvider = FixedCurrentDateProvider(TODAY),
     ): EventsViewModel {
         return EventsViewModel(
             repository = repository,
             categoryRepository = categoryRepository,
             categorySeeder = CategorySeeder(categoryRepository, FakeStringProvider()),
             weeklyTrainingCommandRepository = commandRepository,
+            currentDateProvider = currentDateProvider,
         )
+    }
+
+    private open class FixedCurrentDateProvider(private val date: LocalDate) : CurrentDateProvider(TEST_CLOCK) {
+        override fun today(): LocalDate = date
+
+        override fun observeToday(): Flow<LocalDate> = flowOf(date)
+    }
+
+    private class MutableCurrentDateProvider(initialDate: LocalDate) : CurrentDateProvider(TEST_CLOCK) {
+        val currentDate = MutableStateFlow(initialDate)
+
+        override fun today(): LocalDate = currentDate.value
+
+        override fun observeToday(): Flow<LocalDate> = currentDate
     }
 
     private class FakeWeeklyTrainingCommandRepository(
@@ -1084,6 +1122,8 @@ class EventsViewModelTest {
         const val EVENT_DESCRIPTION = "Race prep"
         const val UPDATED_DESCRIPTION = "Updated race prep"
         const val UNPLANNED_DAY = "unplanned"
+        val TODAY: LocalDate = LocalDate.of(2026, 5, 18)
+        val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T12:00:00Z"), ZoneOffset.UTC)
     }
 }
 
