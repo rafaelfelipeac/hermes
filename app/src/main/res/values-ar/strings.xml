@@ -535,6 +535,7 @@
     <string name="challenge_validation_quantity_required">أدخل كمية صالحة.</string>
     <string name="challenge_validation_dates_required">اختر كلا التاريخين.</string>
     <string name="challenge_validation_date_range_invalid">يجب أن يكون تاريخ البدء في نفس يوم تاريخ الانتهاء أو قبله.</string>
+    <string name="challenge_validation_category_missing">اختر فئة متاحة أو امسح حقل الفئة.</string>
     <string name="challenge_validation_progress_date_invalid">اختر تاريخ تقدّم ضمن نطاق التحدي وليس بعد اليوم.</string>
     <string name="challenge_target_type_daily">يومي</string>
     <string name="challenge_target_type_total">إجمالي</string>

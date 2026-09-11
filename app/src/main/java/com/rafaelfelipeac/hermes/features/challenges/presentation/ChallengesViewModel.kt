@@ -287,6 +287,11 @@ class ChallengesViewModel
                     return false
                 }
 
+                editor.categoryId != null && state.value.categories.none { it.id == editor.categoryId } -> {
+                    setEditorValidation(R.string.challenge_validation_category_missing)
+                    return false
+                }
+
                 !isPlannedChallengeTargetSafe(editor.targetType, targetQuantity, startDate, endDate) -> {
                     setEditorValidation(R.string.challenge_validation_quantity_required)
                     return false

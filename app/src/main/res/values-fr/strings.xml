@@ -507,6 +507,7 @@
     <string name="challenge_validation_quantity_required">Saisissez une quantité valide.</string>
     <string name="challenge_validation_dates_required">Choisissez les deux dates.</string>
     <string name="challenge_validation_date_range_invalid">La date de début doit être antérieure ou égale à la date de fin.</string>
+    <string name="challenge_validation_category_missing">Choisissez une catégorie disponible ou effacez le champ de catégorie.</string>
     <string name="challenge_validation_progress_date_invalid">Choisissez une date de progression dans la plage du défi et pas après aujourd’hui.</string>
     <string name="challenge_target_type_daily">Quotidien</string>
     <string name="challenge_target_type_total">Total</string>

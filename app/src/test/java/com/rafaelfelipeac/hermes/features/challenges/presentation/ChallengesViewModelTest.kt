@@ -3,6 +3,7 @@
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
 import androidx.lifecycle.SavedStateHandle
+import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
@@ -113,6 +114,33 @@ class ChallengesViewModelTest {
 
             assertEquals(challenge.id, viewModel.state.value.selectedChallengeId)
             assertEquals(challenge, viewModel.state.value.selectedChallenge)
+            stateJob.cancel()
+        }
+
+    @Test
+    fun saveEditorChallenge_rejectsRemovedCategory() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeChallengeRepository()
+            val categoryRepository = FakeCategoryRepository(initialCategories = emptyList())
+            val viewModel = createViewModel(repository, categoryRepository = categoryRepository)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+
+            viewModel.beginCreateChallenge()
+            viewModel.updateEditorTitle("September distance")
+            viewModel.updateEditorCategory(TEST_CATEGORY_ID)
+            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(42_000L, TEST_LOCALE))
+            viewModel.updateEditorStartDate(LocalDate.of(2026, 9, 1))
+            viewModel.updateEditorEndDate(LocalDate.of(2026, 9, 30))
+            runCurrent()
+
+            assertFalse(viewModel.saveEditorChallenge())
+            runCurrent()
+
+            assertEquals(
+                R.string.challenge_validation_category_missing.toString(),
+                viewModel.state.value.editorState.validationMessage,
+            )
+            assertTrue(repository.challenges.value.isEmpty())
             stateJob.cancel()
         }
 

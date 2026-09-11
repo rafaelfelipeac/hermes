@@ -507,6 +507,7 @@
     <string name="challenge_validation_quantity_required">Enter a valid quantity.</string>
     <string name="challenge_validation_dates_required">Choose both dates.</string>
     <string name="challenge_validation_date_range_invalid">Start date must be on or before the end date.</string>
+    <string name="challenge_validation_category_missing">Choose an available category or clear the category field.</string>
     <string name="challenge_validation_progress_date_invalid">Choose a progress date inside the challenge range and not after today.</string>
     <string name="challenge_target_type_daily">Daily</string>
     <string name="challenge_target_type_total">Total</string>
