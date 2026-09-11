@@ -96,6 +96,27 @@ class ChallengesViewModelTest {
         }
 
     @Test
+    fun restoredSelection_keepsSelectedIdBeforeChallengeLoads() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge()
+            val repository = FakeChallengeRepository()
+            val savedStateHandle = SavedStateHandle(mapOf("challenges.selectedChallengeId" to challenge.id))
+            val viewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            runCurrent()
+
+            assertEquals(challenge.id, viewModel.state.value.selectedChallengeId)
+            assertEquals(null, viewModel.state.value.selectedChallenge)
+
+            repository.challenges.value = listOf(challenge)
+            runCurrent()
+
+            assertEquals(challenge.id, viewModel.state.value.selectedChallengeId)
+            assertEquals(challenge, viewModel.state.value.selectedChallenge)
+            stateJob.cancel()
+        }
+
+    @Test
     fun invalidEditorSave_returnsFalseAndDoesNotPersist() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeChallengeRepository()

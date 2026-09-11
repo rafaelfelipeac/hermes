@@ -185,7 +185,7 @@ class ChallengesViewModel
                     categories = categories,
                     challengeCalculations = calculations,
                     allProgressEntries = allProgressEntries,
-                    selectedChallengeId = selectedChallenge?.id,
+                    selectedChallengeId = selectedChallengeId.value,
                     selectedChallenge = selectedChallenge,
                     progressEntries = progressEntries,
                     calculation = calculation,
