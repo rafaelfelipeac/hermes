@@ -92,6 +92,11 @@ android {
         compose = true
         buildConfig = true
     }
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
     sourceSets {
         getByName("androidTest").assets.directories.add("schemas")
     }
