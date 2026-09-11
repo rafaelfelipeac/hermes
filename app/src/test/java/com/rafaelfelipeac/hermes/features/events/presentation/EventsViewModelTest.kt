@@ -5,6 +5,7 @@ import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
@@ -13,6 +14,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
@@ -700,9 +702,78 @@ class EventsViewModelTest {
             }
         }
 
-        override suspend fun updateCompletion(request: WorkoutCompletionCommand) = missingCommand()
+        override suspend fun updateCompletion(request: WorkoutCompletionCommand): WeeklyTrainingCommandResult {
+            val original = repository.workouts.value.firstOrNull { it.id == request.workoutId }
+            val result =
+                if (original == null || original.isCompleted == request.isCompleted) {
+                    WeeklyTrainingCommandResult.NoChange
+                } else {
+                    repository.updateWorkoutCompletion(request.workoutId, request.isCompleted)
+                    logger.log(
+                        actionType =
+                            if (request.isCompleted) {
+                                UserActionType.COMPLETE_RACE_EVENT
+                            } else {
+                                UserActionType.INCOMPLETE_RACE_EVENT
+                            },
+                        entityType = UserActionEntityType.RACE_EVENT,
+                        entityId = request.workoutId,
+                        metadata = completionMetadata(original, request.isCompleted),
+                    )
 
-        override suspend fun undoCompletion(request: UndoCompletionCommand) = missingCommand()
+                    WeeklyTrainingCommandResult.CompletionChanged(
+                        previousCompleted = original.isCompleted,
+                        eventType = original.eventType,
+                    )
+                }
+
+            return result
+        }
+
+        override suspend fun undoCompletion(request: UndoCompletionCommand): WeeklyTrainingCommandResult {
+            val original = repository.workouts.value.firstOrNull { it.id == request.workoutId }
+            val result =
+                if (original == null || original.isCompleted == request.previousCompleted) {
+                    WeeklyTrainingCommandResult.NoChange
+                } else {
+                    repository.updateWorkoutCompletion(request.workoutId, request.previousCompleted)
+                    logger.log(
+                        actionType =
+                            if (request.newCompleted) {
+                                UserActionType.UNDO_COMPLETE_RACE_EVENT
+                            } else {
+                                UserActionType.UNDO_INCOMPLETE_RACE_EVENT
+                            },
+                        entityType = UserActionEntityType.RACE_EVENT,
+                        entityId = request.workoutId,
+                        metadata = completionMetadata(original, request.previousCompleted),
+                    )
+
+                    WeeklyTrainingCommandResult.UndoApplied
+                }
+
+            return result
+        }
+
+        private suspend fun completionMetadata(
+            original: Workout,
+            isCompleted: Boolean,
+        ): Map<String, String> {
+            return mutableMapOf(
+                WEEK_START_DATE to original.weekStartDate.toString(),
+                WAS_COMPLETED to original.isCompleted.toString(),
+                IS_COMPLETED to isCompleted.toString(),
+                NEW_TYPE to original.type,
+                NEW_DESCRIPTION to original.description,
+            ).apply {
+                original.categoryId?.let { put(CATEGORY_ID_KEY, it.toString()) }
+                val categoryName = original.categoryId?.let { categoryRepository.getCategory(it)?.name }
+                if (!categoryName.isNullOrBlank()) {
+                    put(CATEGORY_NAME, categoryName)
+                    put(NEW_CATEGORY_NAME, categoryName)
+                }
+            }
+        }
 
         override suspend fun deleteWorkout(request: WorkoutDeleteCommand) = missingCommand()
 

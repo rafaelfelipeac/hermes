@@ -6,7 +6,6 @@ import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
@@ -14,17 +13,17 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.categories.presentation.toUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
@@ -185,14 +184,24 @@ class EventsViewModel
         ) {
             viewModelScope.launch {
                 val original = state.value.events.firstOrNull { it.id == eventId } ?: return@launch
-                if (original.isCompleted == isCompleted) return@launch
+                val result =
+                    weeklyTrainingCommandRepository.updateCompletion(
+                        WorkoutCompletionCommand(
+                            workoutId = eventId,
+                            isCompleted = isCompleted,
+                            displayWeekStart = original.weekStartDate,
+                        ),
+                    )
 
-                repository.updateWorkoutCompletion(eventId, isCompleted)
+                if (result !is WeeklyTrainingCommandResult.CompletionChanged) {
+                    return@launch
+                }
+
                 setUndoAction(
                     action =
                         PendingEventUndoAction.Completion(
-                            event = original,
-                            previousCompleted = original.isCompleted,
+                            event = original.copy(isCompleted = result.previousCompleted),
+                            previousCompleted = result.previousCompleted,
                             newCompleted = isCompleted,
                         ),
                     message =
@@ -200,31 +209,6 @@ class EventsViewModel
                             UndoMessage.Completed
                         } else {
                             UndoMessage.MarkedIncomplete
-                        },
-                )
-
-                userActionLogger.log(
-                    actionType =
-                        if (isCompleted) {
-                            UserActionType.COMPLETE_RACE_EVENT
-                        } else {
-                            UserActionType.INCOMPLETE_RACE_EVENT
-                        },
-                    entityType = RACE_EVENT.toUserActionEntityType(),
-                    entityId = eventId,
-                    metadata =
-                        mutableMapOf(
-                            WEEK_START_DATE to original.weekStartDate.toString(),
-                            WAS_COMPLETED to original.isCompleted.toString(),
-                            IS_COMPLETED to isCompleted.toString(),
-                            NEW_TYPE to original.type,
-                            NEW_DESCRIPTION to original.description,
-                        ).apply {
-                            original.categoryId?.let { put(CATEGORY_ID, it.toString()) }
-                            original.categoryName?.takeIf { it.isNotBlank() }?.let {
-                                put(CATEGORY_NAME, it)
-                                put(NEW_CATEGORY_NAME, it)
-                            }
                         },
                 )
             }
@@ -312,26 +296,13 @@ class EventsViewModel
         }
 
         private suspend fun undoCompletion(action: PendingEventUndoAction.Completion) {
-            val event = action.event
-            repository.updateWorkoutCompletion(
-                workoutId = event.id,
-                isCompleted = action.previousCompleted,
-            )
-
-            userActionLogger.log(
-                actionType =
-                    if (action.newCompleted) {
-                        UserActionType.UNDO_COMPLETE_RACE_EVENT
-                    } else {
-                        UserActionType.UNDO_INCOMPLETE_RACE_EVENT
-                    },
-                entityType = RACE_EVENT.toUserActionEntityType(),
-                entityId = event.id,
-                metadata =
-                    event.toActionMetadata().apply {
-                        put(WAS_COMPLETED, action.newCompleted.toString())
-                        put(IS_COMPLETED, action.previousCompleted.toString())
-                    },
+            weeklyTrainingCommandRepository.undoCompletion(
+                UndoCompletionCommand(
+                    workoutId = action.event.id,
+                    previousCompleted = action.previousCompleted,
+                    newCompleted = action.newCompleted,
+                    displayWeekStart = action.event.weekStartDate,
+                ),
             )
         }
 
