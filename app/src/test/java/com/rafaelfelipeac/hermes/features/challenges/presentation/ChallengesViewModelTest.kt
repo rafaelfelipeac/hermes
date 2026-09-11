@@ -147,6 +147,35 @@ class ChallengesViewModelTest {
         }
 
     @Test
+    fun saveEditorChallenge_preservesDraftWhenRepositoryFails() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeChallengeRepository(failInsertChallenge = true)
+            val viewModel = createViewModel(repository)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+
+            viewModel.beginCreateChallenge()
+            viewModel.updateEditorTitle("September distance")
+            viewModel.updateEditorDescription("Build consistency")
+            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(42_000L, TEST_LOCALE))
+            viewModel.updateEditorStartDate(LocalDate.of(2026, 9, 1))
+            viewModel.updateEditorEndDate(LocalDate.of(2026, 9, 30))
+
+            assertTrue(viewModel.saveEditorChallenge())
+            runCurrent()
+
+            with(viewModel.state.value.editorState) {
+                assertEquals("September distance", title)
+                assertEquals("Build consistency", description)
+                assertEquals(ChallengeQuantity.format(42_000L, TEST_LOCALE), targetQuantityText)
+                assertEquals(LocalDate.of(2026, 9, 1), startDate)
+                assertEquals(LocalDate.of(2026, 9, 30), endDate)
+                assertEquals(R.string.challenge_validation_save_failed.toString(), validationMessage)
+            }
+            assertTrue(repository.challenges.value.isEmpty())
+            stateJob.cancel()
+        }
+
+    @Test
     fun invalidEditorSave_returnsFalseAndDoesNotPersist() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeChallengeRepository()
@@ -455,6 +484,7 @@ class ChallengesViewModelTest {
     private class FakeChallengeRepository(
         initialChallenges: List<Challenge> = emptyList(),
         initialEntries: List<ChallengeProgressEntry> = emptyList(),
+        private val failInsertChallenge: Boolean = false,
     ) : ChallengeRepository {
         val challenges = MutableStateFlow(initialChallenges)
         private val entries = MutableStateFlow(initialEntries)
@@ -496,6 +526,7 @@ class ChallengesViewModelTest {
         override suspend fun getAllProgressEntries(): List<ChallengeProgressEntry> = entries.value
 
         override suspend fun insertChallenge(challenge: Challenge): Long {
+            if (failInsertChallenge) error("Insert failed")
             val id = challenge.id.takeIf { it != 0L } ?: ((challenges.value.maxOfOrNull { it.id } ?: 0L) + 1L)
             challenges.value = challenges.value.filterNot { it.id == id } + challenge.copy(id = id)
             return id

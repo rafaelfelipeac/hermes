@@ -508,6 +508,7 @@
     <string name="challenge_validation_dates_required">दोनों तिथियाँ चुनें।</string>
     <string name="challenge_validation_date_range_invalid">प्रारंभ तिथि समाप्ति तिथि के बराबर या उससे पहले होनी चाहिए।</string>
     <string name="challenge_validation_category_missing">उपलब्ध श्रेणी चुनें या श्रेणी फ़ील्ड साफ़ करें।</string>
+    <string name="challenge_validation_save_failed">चैलेंज सेव नहीं हो सका। विवरण जाँचें और फिर से कोशिश करें।</string>
     <string name="challenge_validation_progress_date_invalid">चुनौती सीमा के भीतर और आज के बाद नहीं, ऐसी प्रगति तिथि चुनें।</string>
     <string name="challenge_target_type_daily">दैनिक</string>
     <string name="challenge_target_type_total">कुल</string>

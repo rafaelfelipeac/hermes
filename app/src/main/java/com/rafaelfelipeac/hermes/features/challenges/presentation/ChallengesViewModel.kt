@@ -316,66 +316,73 @@ class ChallengesViewModel
 
             clearValidationMessage()
             viewModelScope.launch {
-                actionMutex.withLock {
-                    val now = Instant.now(clock)
-                    val existing = editor.challengeId?.let { repository.getChallenge(it) }
-                    val wasCompleted = editor.challengeId?.let { completionState(it) }
-                    val challenge =
-                        Challenge(
-                            id = existing?.id ?: 0L,
-                            categoryId = editor.categoryId,
-                            title = title,
-                            description = description.takeIf { it.isNotBlank() },
-                            targetType = editor.targetType,
-                            targetQuantity = targetQuantity,
-                            startDate = startDate,
-                            endDate = endDate,
-                            lifecycle = existing?.lifecycle ?: ChallengeLifecycle.ACTIVE,
-                            archivedAt = existing?.archivedAt,
-                            createdAt = existing?.createdAt ?: now,
-                            updatedAt = now,
-                        )
+                val saveResult =
+                    runCatching {
+                        actionMutex.withLock {
+                            val now = Instant.now(clock)
+                            val existing = editor.challengeId?.let { repository.getChallenge(it) }
+                            val wasCompleted = editor.challengeId?.let { completionState(it) }
+                            val challenge =
+                                Challenge(
+                                    id = existing?.id ?: 0L,
+                                    categoryId = editor.categoryId,
+                                    title = title,
+                                    description = description.takeIf { it.isNotBlank() },
+                                    targetType = editor.targetType,
+                                    targetQuantity = targetQuantity,
+                                    startDate = startDate,
+                                    endDate = endDate,
+                                    lifecycle = existing?.lifecycle ?: ChallengeLifecycle.ACTIVE,
+                                    archivedAt = existing?.archivedAt,
+                                    createdAt = existing?.createdAt ?: now,
+                                    updatedAt = now,
+                                )
 
-                    if (existing == null) {
-                        val challengeId = repository.insertChallenge(challenge)
-                        userActionLogger.log(
-                            actionType = CREATE_CHALLENGE,
-                            entityType = CHALLENGE,
-                            entityId = challengeId,
-                            metadata = challengeMetadata(challenge, challengeId = challengeId),
-                        )
-                        setSelectedChallengeId(challengeId)
-                    } else {
-                        repository.updateChallenge(challenge.copy(id = existing.id, createdAt = existing.createdAt))
-                        val isCompleted = completionState(existing.id)
-                        userActionLogger.log(
-                            actionType = UPDATE_CHALLENGE,
-                            entityType = CHALLENGE,
-                            entityId = existing.id,
-                            metadata =
-                                challengeMetadata(
-                                    challenge.copy(id = existing.id, createdAt = existing.createdAt),
-                                    challengeId = existing.id,
-                                ) +
-                                    mapOf(
-                                        OLD_TYPE to existing.targetType.name,
-                                        NEW_TYPE to challenge.targetType.name,
-                                        CHALLENGE_NEW_VALUE to challenge.targetQuantity.toString(),
-                                        CHALLENGE_OLD_VALUE to existing.targetQuantity.toString(),
-                                        CHALLENGE_OLD_DATE to existing.endDate.toString(),
-                                        CHALLENGE_NEW_DATE to challenge.endDate.toString(),
-                                        CHALLENGE_OLD_STATUS to existing.lifecycle.name,
-                                        CHALLENGE_NEW_STATUS to challenge.lifecycle.name,
-                                    ) +
-                                    categoryChangeMetadata(
-                                        oldCategoryId = existing.categoryId,
-                                        newCategoryId = challenge.categoryId,
-                                    ) +
-                                    completionMetadata(wasCompleted, isCompleted),
-                        )
+                            if (existing == null) {
+                                val challengeId = repository.insertChallenge(challenge)
+                                userActionLogger.log(
+                                    actionType = CREATE_CHALLENGE,
+                                    entityType = CHALLENGE,
+                                    entityId = challengeId,
+                                    metadata = challengeMetadata(challenge, challengeId = challengeId),
+                                )
+                                setSelectedChallengeId(challengeId)
+                            } else {
+                                repository.updateChallenge(challenge.copy(id = existing.id, createdAt = existing.createdAt))
+                                val isCompleted = completionState(existing.id)
+                                userActionLogger.log(
+                                    actionType = UPDATE_CHALLENGE,
+                                    entityType = CHALLENGE,
+                                    entityId = existing.id,
+                                    metadata =
+                                        challengeMetadata(
+                                            challenge.copy(id = existing.id, createdAt = existing.createdAt),
+                                            challengeId = existing.id,
+                                        ) +
+                                            mapOf(
+                                                OLD_TYPE to existing.targetType.name,
+                                                NEW_TYPE to challenge.targetType.name,
+                                                CHALLENGE_NEW_VALUE to challenge.targetQuantity.toString(),
+                                                CHALLENGE_OLD_VALUE to existing.targetQuantity.toString(),
+                                                CHALLENGE_OLD_DATE to existing.endDate.toString(),
+                                                CHALLENGE_NEW_DATE to challenge.endDate.toString(),
+                                                CHALLENGE_OLD_STATUS to existing.lifecycle.name,
+                                                CHALLENGE_NEW_STATUS to challenge.lifecycle.name,
+                                            ) +
+                                            categoryChangeMetadata(
+                                                oldCategoryId = existing.categoryId,
+                                                newCategoryId = challenge.categoryId,
+                                            ) +
+                                            completionMetadata(wasCompleted, isCompleted),
+                                )
+                            }
+                        }
                     }
 
+                if (saveResult.isSuccess) {
                     setEditorState(defaultChallengeEditorState(today = LocalDate.now(clock)))
+                } else {
+                    setEditorValidation(R.string.challenge_validation_save_failed)
                 }
             }
             return true

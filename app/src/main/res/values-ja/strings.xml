@@ -504,6 +504,7 @@
     <string name="challenge_validation_dates_required">両方の日付を選択してください。</string>
     <string name="challenge_validation_date_range_invalid">開始日は終了日と同じか、それ以前である必要があります。</string>
     <string name="challenge_validation_category_missing">利用可能なカテゴリーを選ぶか、カテゴリー欄をクリアしてください。</string>
+    <string name="challenge_validation_save_failed">チャレンジを保存できませんでした。内容を確認してもう一度お試しください。</string>
     <string name="challenge_validation_progress_date_invalid">チャレンジ期間内で、今日以前の進捗日を選択してください。</string>
     <string name="challenge_target_type_daily">毎日</string>
     <string name="challenge_target_type_total">合計</string>

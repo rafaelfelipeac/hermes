@@ -508,6 +508,7 @@
     <string name="challenge_validation_dates_required">Escolha ambas as datas.</string>
     <string name="challenge_validation_date_range_invalid">A data de início deve ser igual ou anterior à data de fim.</string>
     <string name="challenge_validation_category_missing">Escolha uma categoria disponível ou limpe o campo de categoria.</string>
+    <string name="challenge_validation_save_failed">Não foi possível salvar o desafio. Confira os dados e tente novamente.</string>
     <string name="challenge_validation_progress_date_invalid">Escolha uma data de progresso dentro do intervalo do desafio e não depois de hoje.</string>
     <string name="challenge_target_type_daily">Diária</string>
     <string name="challenge_target_type_total">Total</string>
