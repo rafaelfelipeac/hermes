@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Changed
+- Stabilized category, weekly/event, backup, language, challenge and date-sensitive flows ahead of the next release.
+- Events rendering is split between route/dialog ownership and reusable content/cards.
+
+### Fixed
+- Challenge editor restoration now preserves drafts, selected items and save-failure recovery paths.
+- Progress, Events and Challenges now refresh from an observable current-date source instead of waiting for unrelated data changes.
+- Activity, Trophies and Progress presentation aggregation now runs off the collector context.
+
 ## [v1.12.0]
 ### Added
 - Challenges with daily or total goals, flexible date ranges and optional categories

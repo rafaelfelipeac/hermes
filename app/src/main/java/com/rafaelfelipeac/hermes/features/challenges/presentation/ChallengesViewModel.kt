@@ -65,7 +65,6 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHA
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
-import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeEditorState
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
@@ -847,14 +846,6 @@ class ChallengesViewModel
             undoTimeoutJob?.cancel()
             undoTimeoutJob = null
         }
-
-        private data class ChallengeCalculationState(
-            val activeChallenges: List<Challenge>,
-            val archivedChallenges: List<Challenge>,
-            val allChallenges: List<Challenge>,
-            val allProgressEntries: List<ChallengeProgressEntry>,
-            val calculations: Map<Long, ChallengeCalculationResult>,
-        )
 
         private companion object {
             const val UNDO_TIMEOUT_MS = 5_000L

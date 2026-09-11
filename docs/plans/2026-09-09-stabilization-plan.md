@@ -279,6 +279,8 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 ### P12 — Finalizar componentes, regressão e preparação da versão
 
+**Status:** em fechamento desde 11/09/2026. `EventsScreen` foi separado em rota e conteúdo/cards. Regressão local ampla passou (`:app:testDebugUnitTest`, `:app:detekt`, `:app:ktlintCheck`, `:app:lintDebug`). Release APK/AAB passou após permitir rede para baixar `org.jetbrains.kotlin:compose-group-mapping:2.4.10`, ausente no cache offline. Instrumentados e smoke em emulador seguem pendentes porque `rtk adb devices` não encontrou devices conectados.
+
 **Dependências:** P01–P11. **Esforço:** médio. **Risco:** baixo a médio.
 
 **Arquivos:** `EventsScreen.kt` e novas seções/diálogos/rota; remanescentes de Weekly/Challenges/Browse; `LEARNING.md`, `CHANGELOG.md`, política de backup e diagrama de arquitetura quando a fronteira de componentes tiver mudado.
