@@ -1,6 +1,6 @@
 # Plano de estabilização e refatoração — próxima versão
 
-**Status: em fechamento. P01–P12 implementados na `feat/refactor`; regressão local, release APK/AAB e instrumentados completos passaram em 11/09/2026. Smoke manual final ainda pendente.**
+**Status: fechado localmente. P01–P12 implementados na `feat/refactor`; regressão local, release APK/AAB, instrumentados completos e smoke manual em emulador passaram em 13/09/2026.**
 
 **Branch:** `feat/refactor`. **Base de referência:** `030513a`.
 
@@ -279,7 +279,7 @@ Execução serial por padrão, sem novas branches ou tarefas paralelas. Cada blo
 
 ### P12 — Finalizar componentes, regressão e preparação da versão
 
-**Status:** em fechamento desde 11/09/2026. `EventsScreen` foi separado em rota e conteúdo/cards. Regressão local ampla passou (`:app:testDebugUnitTest`, `:app:detekt`, `:app:ktlintCheck`, `:app:lintDebug`). Release APK/AAB passou após permitir rede para baixar `org.jetbrains.kotlin:compose-group-mapping:2.4.10`, ausente no cache offline. Com o emulador Pixel 3a API 34 disponível, `:app:connectedDebugAndroidTest --continue` passou após alinhar os testes instrumentados aos contratos atuais de ViewModel, metadata normalizada e ordenação de undo. Smoke manual final segue pendente.
+**Status:** fechado localmente em 13/09/2026. `EventsScreen` foi separado em rota e conteúdo/cards. Regressão local ampla passou (`:app:testDebugUnitTest`, `:app:detekt`, `:app:ktlintCheck`, `:app:lintDebug`). Release APK/AAB passou após permitir rede para baixar `org.jetbrains.kotlin:compose-group-mapping:2.4.10`, ausente no cache offline. Com o emulador Pixel 3a API 34 disponível, `:app:connectedDebugAndroidTest --continue` passou após alinhar os testes instrumentados aos contratos atuais de ViewModel, metadata normalizada e ordenação de undo. Smoke manual passou no emulador com Home/Weekly, Events, Progress, Browse, Challenges, Activity Log, Backup e Settings.
 
 **Dependências:** P01–P11. **Esforço:** médio. **Risco:** baixo a médio.
 
