@@ -3,6 +3,8 @@ package com.rafaelfelipeac.hermes.features.backup.presentation
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORIES_COUNT
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGES_COUNT
@@ -35,7 +37,6 @@ import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRep
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import java.time.Instant
@@ -53,9 +54,17 @@ class BackupViewModel
     ) : ViewModel() {
         private val operationMutex = Mutex()
         private val _isOperationInProgress = MutableStateFlow(false)
-        val isOperationInProgress: StateFlow<Boolean> = _isOperationInProgress.asStateFlow()
+        val isOperationInProgress: StateFlow<Boolean> =
+            _isOperationInProgress.stateInWhileSubscribed(
+                scope = viewModelScope,
+                initialValue = false,
+            )
         private val _pendingImportToken = MutableStateFlow(savedStateHandle.get<String>(PENDING_IMPORT_TOKEN_KEY))
-        val pendingImportToken: StateFlow<String?> = _pendingImportToken.asStateFlow()
+        val pendingImportToken: StateFlow<String?> =
+            _pendingImportToken.stateInWhileSubscribed(
+                scope = viewModelScope,
+                initialValue = savedStateHandle[PENDING_IMPORT_TOKEN_KEY],
+            )
 
         fun setPendingImportToken(token: String) {
             savedStateHandle[PENDING_IMPORT_TOKEN_KEY] = token

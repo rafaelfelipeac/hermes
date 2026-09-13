@@ -79,6 +79,7 @@ class SettingsViewModel
                     lastBackupExportedAt = null,
                     lastBackupImportedAt = null,
                     backupFolderUri = null,
+                    isLoaded = true,
                 )
             }.let { baseSettings ->
                 combine(
@@ -170,8 +171,14 @@ class SettingsViewModel
 
         fun syncLanguageFromPlatform(language: AppLanguage) =
             viewModelScope.launch {
-                if (state.value.language != language) {
+                val previous = state.value.language
+                if (previous != language) {
                     repository.setLanguage(language)
+                    categorySeeder.syncLocalizedNames(
+                        previousLanguage = previous,
+                        newLanguage = language,
+                        force = false,
+                    )
                 }
             }
 

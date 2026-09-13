@@ -7,35 +7,39 @@ import java.time.Clock
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.milliseconds
 
 @Singleton
-open class CurrentDateProvider
+open class CurrentDateProvider(
+    private val clock: Clock,
+    private val zoneProvider: () -> ZoneId,
+) {
     @Inject
-    constructor(
-        private val clock: Clock,
-    ) {
-        open fun today(): LocalDate = LocalDate.now(clock)
+    constructor(clock: Clock) : this(clock, ZoneId::systemDefault)
 
-        open fun observeToday(): Flow<LocalDate> =
-            flow {
-                while (true) {
-                    emit(today())
-                    delay(delayUntilNextMidnight().milliseconds)
-                }
+    open fun today(): LocalDate = LocalDate.now(clock.withZone(zoneProvider()))
+
+    open fun observeToday(): Flow<LocalDate> =
+        flow {
+            while (true) {
+                emit(today())
+                delay(delayUntilNextMidnight().milliseconds)
             }
-
-        private fun delayUntilNextMidnight(): Long {
-            val zone = clock.zone
-            val now = LocalDateTime.now(clock)
-            val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay(zone)
-            val millis = Duration.between(now.atZone(zone), nextMidnight).toMillis()
-            return millis.coerceAtLeast(MIN_DELAY_MS)
         }
 
-        private companion object {
-            const val MIN_DELAY_MS = 1L
-        }
+    private fun delayUntilNextMidnight(): Long {
+        val zone = zoneProvider()
+        val zonedClock = clock.withZone(zone)
+        val now = LocalDateTime.now(zonedClock)
+        val nextMidnight = now.toLocalDate().plusDays(1).atStartOfDay(zone)
+        val millis = Duration.between(now.atZone(zone), nextMidnight).toMillis()
+        return millis.coerceAtLeast(MIN_DELAY_MS)
     }
+
+    private companion object {
+        const val MIN_DELAY_MS = 1L
+    }
+}

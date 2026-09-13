@@ -16,7 +16,7 @@ class CurrentDateProviderTest {
     fun observeToday_emitsCurrentDateWhenCollectedAgain() =
         runTest {
             val clock = MutableClock(Instant.parse("2026-05-18T12:00:00Z"))
-            val provider = CurrentDateProvider(clock)
+            val provider = CurrentDateProvider(clock, zoneProvider = { ZoneOffset.UTC })
 
             provider.observeToday().test {
                 assertEquals("2026-05-18", awaitItem().toString())

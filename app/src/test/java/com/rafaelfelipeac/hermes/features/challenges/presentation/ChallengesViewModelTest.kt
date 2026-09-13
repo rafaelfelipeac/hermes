@@ -214,8 +214,11 @@ class ChallengesViewModelTest {
             viewModel.updateEditorStartDate(LocalDate.of(2026, 9, 1))
             viewModel.updateEditorEndDate(LocalDate.of(2026, 9, 30))
 
-            assertTrue(viewModel.saveEditorChallenge())
+            var saveCallbackResult: Boolean? = null
+            assertTrue(viewModel.saveEditorChallenge { saved -> saveCallbackResult = saved })
             runCurrent()
+
+            assertEquals(false, saveCallbackResult)
 
             with(viewModel.state.value.editorState) {
                 assertEquals("September distance", title)

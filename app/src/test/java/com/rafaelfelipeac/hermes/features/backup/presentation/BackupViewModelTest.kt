@@ -39,7 +39,9 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -60,6 +62,7 @@ class BackupViewModelTest {
                     backupRepository = mockk(relaxed = true),
                     savedStateHandle = SavedStateHandle(),
                 )
+            val stateJob = backgroundScope.launch { viewModel.isOperationInProgress.collect() }
             val firstOperationStarted = CompletableDeferred<Unit>()
             val finishFirstOperation = CompletableDeferred<Unit>()
             var secondOperationExecuted = false
@@ -72,6 +75,7 @@ class BackupViewModelTest {
                     }
                 }
             firstOperationStarted.await()
+            advanceUntilIdle()
 
             val secondOperation =
                 async {
@@ -86,45 +90,59 @@ class BackupViewModelTest {
 
             finishFirstOperation.complete(Unit)
             firstOperation.join()
+            advanceUntilIdle()
 
             assertEquals(false, viewModel.isOperationInProgress.value)
+            stateJob.cancel()
         }
 
     @Test
-    fun pendingImportToken_isRestoredFromSavedStateHandleAndCanBeCleared() {
-        val savedStateHandle = SavedStateHandle(mapOf("pending_import_token" to "token-1"))
-        val viewModel =
-            BackupViewModel(
-                settingsRepository = FakeSettingsRepository(),
-                userActionLogger = mockk(relaxed = true),
-                backupRepository = mockk(relaxed = true),
-                savedStateHandle = savedStateHandle,
-            )
+    fun pendingImportToken_isRestoredFromSavedStateHandleAndCanBeCleared() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val savedStateHandle = SavedStateHandle(mapOf("pending_import_token" to "token-1"))
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = FakeSettingsRepository(),
+                    userActionLogger = mockk(relaxed = true),
+                    backupRepository = mockk(relaxed = true),
+                    savedStateHandle = savedStateHandle,
+                )
 
-        assertEquals("token-1", viewModel.pendingImportToken.value)
+            val stateJob = backgroundScope.launch { viewModel.pendingImportToken.collect() }
+            advanceUntilIdle()
 
-        viewModel.clearPendingImportToken()
+            assertEquals("token-1", viewModel.pendingImportToken.value)
 
-        assertEquals(null, viewModel.pendingImportToken.value)
-        assertEquals(null, savedStateHandle.get<String>("pending_import_token"))
-    }
+            viewModel.clearPendingImportToken()
+            advanceUntilIdle()
+
+            assertEquals(null, viewModel.pendingImportToken.value)
+            assertEquals(null, savedStateHandle.get<String>("pending_import_token"))
+            stateJob.cancel()
+        }
 
     @Test
-    fun setPendingImportToken_persistsTokenInSavedStateHandle() {
-        val savedStateHandle = SavedStateHandle()
-        val viewModel =
-            BackupViewModel(
-                settingsRepository = FakeSettingsRepository(),
-                userActionLogger = mockk(relaxed = true),
-                backupRepository = mockk(relaxed = true),
-                savedStateHandle = savedStateHandle,
-            )
+    fun setPendingImportToken_persistsTokenInSavedStateHandle() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val savedStateHandle = SavedStateHandle()
+            val viewModel =
+                BackupViewModel(
+                    settingsRepository = FakeSettingsRepository(),
+                    userActionLogger = mockk(relaxed = true),
+                    backupRepository = mockk(relaxed = true),
+                    savedStateHandle = savedStateHandle,
+                )
 
-        viewModel.setPendingImportToken("token-2")
+            val stateJob = backgroundScope.launch { viewModel.pendingImportToken.collect() }
+            advanceUntilIdle()
 
-        assertEquals("token-2", viewModel.pendingImportToken.value)
-        assertEquals("token-2", savedStateHandle.get<String>("pending_import_token"))
-    }
+            viewModel.setPendingImportToken("token-2")
+            advanceUntilIdle()
+
+            assertEquals("token-2", viewModel.pendingImportToken.value)
+            assertEquals("token-2", savedStateHandle.get<String>("pending_import_token"))
+            stateJob.cancel()
+        }
 
     @Test
     fun logExportBackupResult_success_logsActionAndTimestamp() =

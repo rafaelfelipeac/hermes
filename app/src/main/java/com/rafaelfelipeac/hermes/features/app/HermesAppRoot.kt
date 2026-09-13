@@ -30,11 +30,13 @@ fun HermesAppRoot() {
     val activity = context as? Activity
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    LaunchedEffect(settingsState.language) {
-        val applied = applyAppLanguage(context, settingsState.language)
+    LaunchedEffect(settingsState.language, settingsState.isLoaded) {
+        if (settingsState.isLoaded) {
+            val applied = applyAppLanguage(context, settingsState.language)
 
-        if (applied && activity != null) {
-            activity.recreate()
+            if (applied && activity != null) {
+                activity.recreate()
+            }
         }
     }
 

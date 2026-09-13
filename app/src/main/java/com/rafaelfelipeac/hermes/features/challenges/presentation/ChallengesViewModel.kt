@@ -258,7 +258,7 @@ class ChallengesViewModel
         }
 
         @Suppress("CyclomaticComplexMethod", "ComplexCondition")
-        fun saveEditorChallenge(): Boolean {
+        fun saveEditorChallenge(onResult: (Boolean) -> Unit = {}): Boolean {
             val editor = editorState.value
             val title = editor.title.trim()
             val description = editor.description.trim()
@@ -381,6 +381,7 @@ class ChallengesViewModel
                 } else {
                     setEditorValidation(R.string.challenge_validation_save_failed)
                 }
+                onResult(saveResult.isSuccess)
             }
             return true
         }

@@ -153,6 +153,7 @@ class SettingsViewModelTest {
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
+                        isLoaded = true,
                     ),
                     awaitItem(),
                 )
@@ -170,6 +171,7 @@ class SettingsViewModelTest {
                         lastBackupExportedAt = null,
                         lastBackupImportedAt = null,
                         backupFolderUri = null,
+                        isLoaded = true,
                     ),
                     awaitItem(),
                 )
@@ -424,6 +426,38 @@ class SettingsViewModelTest {
                 )
 
             viewModel.setLanguage(ENGLISH)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                categorySeeder.syncLocalizedNames(
+                    previousLanguage = PORTUGUESE_BRAZIL,
+                    newLanguage = ENGLISH,
+                    force = false,
+                )
+            }
+        }
+
+    @Test
+    fun syncLanguageFromPlatform_triggersCategoryLocalizationSync() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository =
+                createSettingsRepository(
+                    initialLanguage = PORTUGUESE_BRAZIL,
+                    language = PORTUGUESE_BRAZIL,
+                )
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                )
+
+            viewModel.syncLanguageFromPlatform(ENGLISH)
             advanceUntilIdle()
 
             coVerify(exactly = 1) {

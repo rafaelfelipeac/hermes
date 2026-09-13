@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.progress.presentation
 
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
@@ -45,6 +46,7 @@ import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters.previousOrSame
 import java.util.Locale
 
+private const val MAX_PROGRESS_STATE_UPDATES = 5
 private val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T00:00:00Z"), ZoneOffset.UTC)
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -203,8 +205,7 @@ class ProgressViewModelTest {
 
                 dateProvider.currentDate.value = nextWeek
 
-                val updated = awaitItem()
-                assertEquals(nextWeek, updated.weeklyTrend.last().weekStartDate)
+                val updated = awaitStateForWeek(nextWeek)
                 assertEquals(0, updated.weeklyReadout.completedWorkouts)
 
                 cancelAndIgnoreRemainingEvents()
@@ -226,6 +227,16 @@ class ProgressViewModelTest {
                 cancelAndIgnoreRemainingEvents()
             }
         }
+
+    private suspend fun ReceiveTurbine<ProgressState>.awaitStateForWeek(weekStart: LocalDate): ProgressState {
+        repeat(MAX_PROGRESS_STATE_UPDATES) {
+            val state = awaitItem()
+            if (state.weeklyTrend.lastOrNull()?.weekStartDate == weekStart) {
+                return state
+            }
+        }
+        error("Progress state did not emit week $weekStart")
+    }
 
     private fun createViewModel(
         workouts: List<Workout>,

@@ -409,9 +409,11 @@ internal fun ChallengesScreen(
             onStartDateChange = viewModel::updateEditorStartDate,
             onEndDateChange = viewModel::updateEditorEndDate,
             onSave = {
-                if (viewModel.saveEditorChallenge()) {
-                    showEditorDialog = false
-                    editorChallengeId = null
+                viewModel.saveEditorChallenge { saved ->
+                    if (saved) {
+                        showEditorDialog = false
+                        editorChallengeId = null
+                    }
                 }
             },
             onCancel = {
