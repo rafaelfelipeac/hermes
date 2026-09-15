@@ -50,6 +50,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.AddMenuBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
@@ -165,10 +166,14 @@ internal fun WeeklyPlannerCategoryFilters(
         centerWeeklySelectedChip(listState, selectedIndex)
     }
 
-    Box(modifier = modifier.fillMaxWidth()) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(SpacingSm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         LazyRow(
             state = listState,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.spacedBy(SpacingMd),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -203,7 +208,6 @@ internal fun WeeklyPlannerCategoryFilters(
             FilterChip(
                 selected = false,
                 onClick = onClearFilters,
-                modifier = Modifier.align(Alignment.CenterEnd),
                 label = {
                     Icon(
                         imageVector = Icons.Outlined.Close,
