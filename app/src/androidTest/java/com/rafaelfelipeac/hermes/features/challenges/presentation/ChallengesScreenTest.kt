@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.challenges.presentation
 
 import android.content.Context
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasTestTag
@@ -15,10 +16,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
+import androidx.lifecycle.SavedStateHandle
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
-import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.ui.theme.HermesTheme
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
@@ -26,6 +29,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COL
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.CYCLING_ID
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
@@ -50,6 +54,8 @@ import kotlin.math.abs
 class ChallengesScreenTest {
     @get:Rule
     val composeRule = createAndroidComposeRule<ComponentActivity>()
+
+    private val testLocale = Locale.getDefault()
 
     @Test
     fun listShellShowsHermesBackButtonFabAndCenteredEmptyStates() {
@@ -147,8 +153,8 @@ class ChallengesScreenTest {
                     R.string.challenges_progress_value_with_percent,
                     context.getString(
                         R.string.challenges_progress_value,
-                        ChallengeQuantity.format(progress.quantity, Locale.getDefault()),
-                        ChallengeQuantity.format(310L, Locale.getDefault()),
+                        ChallengeQuantity.format(progress.quantity, testLocale),
+                        ChallengeQuantity.format(310L, testLocale),
                     ),
                     context.getString(R.string.challenges_progress_percent, formatPercent(1_290.3)),
                 ),
@@ -216,8 +222,8 @@ class ChallengesScreenTest {
                     R.string.challenges_progress_value_with_percent,
                     context.getString(
                         R.string.challenges_progress_value,
-                        ChallengeQuantity.format(75L, Locale.getDefault()),
-                        ChallengeQuantity.format(310L, Locale.getDefault()),
+                        ChallengeQuantity.format(75L, testLocale),
+                        ChallengeQuantity.format(310L, testLocale),
                     ),
                     context.getString(R.string.challenges_progress_percent, formatPercent(24.2)),
                 ),
@@ -232,7 +238,7 @@ class ChallengesScreenTest {
             .onNodeWithText(
                 context.getString(
                     R.string.challenges_history_day_completed,
-                    ChallengeQuantity.format(57L, Locale.getDefault()),
+                    ChallengeQuantity.format(57L, testLocale),
                 ),
             )
             .performScrollTo()
@@ -628,13 +634,22 @@ class ChallengesScreenTest {
             .onNodeWithText(context.getString(R.string.challenges_field_progress_quantity))
             .performTextInput("42")
 
+        val restoredDate =
+            composeRule
+                .onNodeWithText(context.getString(R.string.challenges_field_progress_date), substring = true)
+                .currentText()
+        assertTrue(restoredDate.isNotBlank())
+
         restorationTester.emulateSavedInstanceStateRestore()
 
         composeRule.onNodeWithText(context.getString(R.string.challenges_add_progress)).assertIsDisplayed()
         composeRule.onNodeWithText("42").assertIsDisplayed()
-        composeRule
-            .onNodeWithText(formatWorkoutDate(LocalDate.of(2026, 8, 28), Locale.getDefault()))
-            .assertIsDisplayed()
+        assertEquals(
+            restoredDate,
+            composeRule
+                .onNodeWithText(context.getString(R.string.challenges_field_progress_date), substring = true)
+                .currentText(),
+        )
     }
 
     private fun createViewModel(
@@ -644,13 +659,24 @@ class ChallengesScreenTest {
     ): ChallengesViewModel {
         val repository = FakeChallengeRepository(challenges, progressEntries)
         val categoryRepository = FakeCategoryRepository(categories)
+        val clock = Clock.fixed(Instant.parse("2026-08-28T12:00:00Z"), ZoneOffset.UTC)
         return ChallengesViewModel(
             repository = repository,
             categoryRepository = categoryRepository,
             userActionLogger = NoOpUserActionLogger,
             stringProvider = AndroidStringProviderAdapter(ApplicationProvider.getApplicationContext()),
-            clock = Clock.fixed(Instant.parse("2026-08-28T12:00:00Z"), ZoneOffset.UTC),
+            localeProvider = TestLocaleProvider(testLocale),
+            clock = clock,
+            currentDateProvider = CurrentDateProvider(clock),
+            calculator = ChallengeCalculator(),
+            savedStateHandle = SavedStateHandle(),
         )
+    }
+
+    private class TestLocaleProvider(
+        private val locale: Locale,
+    ) : LocaleProvider {
+        override fun current(): Locale = locale
     }
 
     private fun sampleChallenge(
@@ -689,6 +715,10 @@ class ChallengesScreenTest {
         )
     }
 
+    private fun androidx.compose.ui.test.SemanticsNodeInteraction.currentText(): String {
+        return fetchSemanticsNode().config[SemanticsProperties.EditableText].text
+    }
+
     private fun sampleProgressEntry(
         id: Long = 1L,
         challengeId: Long = 1L,
@@ -709,7 +739,7 @@ class ChallengesScreenTest {
     private fun historyGroupTag(date: LocalDate): String = "$CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX$date"
 
     private fun formatPercent(value: Double): String =
-        NumberFormat.getNumberInstance(Locale.getDefault()).apply {
+        NumberFormat.getNumberInstance(testLocale).apply {
             minimumFractionDigits = 1
             maximumFractionDigits = 1
         }.format(value)

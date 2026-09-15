@@ -3,7 +3,32 @@
 package com.rafaelfelipeac.hermes.features.trophies.presentation
 
 import androidx.annotation.StringRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.LibraryBooks
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.EmojiEvents
+import androidx.compose.material.icons.outlined.AddTask
+import androidx.compose.material.icons.outlined.Archive
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.Calculate
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.EventBusy
+import androidx.compose.material.icons.outlined.Explore
+import androidx.compose.material.icons.outlined.FitnessCenter
+import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.material.icons.outlined.GridView
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Leaderboard
+import androidx.compose.material.icons.outlined.Repeat
+import androidx.compose.material.icons.outlined.RestartAlt
+import androidx.compose.material.icons.outlined.SportsScore
+import androidx.compose.material.icons.outlined.TrackChanges
+import androidx.compose.ui.graphics.Color
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyFamily
 import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyId
 
@@ -18,6 +43,82 @@ internal fun TrophyFamily.toUi(): TrophyFamilyUi {
         TrophyFamily.RACE_EVENTS -> TrophyFamilyUi.RACE_EVENTS
         TrophyFamily.PERSONAL_RECORDS -> TrophyFamilyUi.PERSONAL_RECORDS
         TrophyFamily.CATEGORIES -> TrophyFamilyUi.CATEGORIES
+    }
+}
+
+internal fun trophyAccentColor(trophy: TrophyCardUi): Color {
+    return trophy.categoryColorId?.let(::categoryAccentColor) ?: trophyFamilyAccentColor(trophy.family)
+}
+
+internal fun trophyIcon(trophyId: TrophyId): androidx.compose.ui.graphics.vector.ImageVector {
+    return when (trophyId) {
+        TrophyId.CHALLENGE_ACCEPTED,
+        TrophyId.CHALLENGE_GOAL_SETTER,
+        TrophyId.CHALLENGE_GOAL_ARCHITECT,
+        -> Icons.Outlined.AddTask
+        TrophyId.FIRST_CHALLENGE_WIN,
+        TrophyId.CHALLENGE_MOMENTUM,
+        TrophyId.CHALLENGE_VETERAN,
+        -> Icons.Outlined.TrackChanges
+        TrophyId.BACK_ON_TRACK,
+        TrophyId.COMEBACK_MOMENTUM,
+        TrophyId.NEVER_OUT,
+        -> Icons.Outlined.RestartAlt
+        TrophyId.FULL_TIME,
+        TrophyId.SEASON_BUILDER,
+        TrophyId.SEASON_ANCHOR,
+        -> Icons.Outlined.CalendarMonth
+        TrophyId.MATCH_FITNESS,
+        TrophyId.ENGINE_ROOM,
+        TrophyId.WORKHORSE,
+        -> Icons.Outlined.FitnessCenter
+        TrophyId.IN_FORM,
+        TrophyId.LOCKED_IN,
+        TrophyId.STEADY_RHYTHM,
+        -> Icons.Outlined.Repeat
+        TrophyId.COMEBACK_WEEK -> Icons.Outlined.Explore
+        TrophyId.GAME_PLAN,
+        TrophyId.TACTICAL_BOARD,
+        TrophyId.FIELD_MARSHAL,
+        -> Icons.Outlined.Build
+        TrophyId.BACK_IN_FORMATION -> Icons.Outlined.ContentCopy
+        TrophyId.HOLD_THE_LINE -> Icons.Outlined.CheckCircle
+        TrophyId.TEAM_SHEET -> Icons.Outlined.GridView
+        TrophyId.KIT_BAG -> Icons.Outlined.Archive
+        TrophyId.KICKOFF,
+        TrophyId.SET_PIECE,
+        TrophyId.PROGRAM_BUILDER,
+        -> Icons.Filled.Add
+        TrophyId.PROTECTED_TIME -> Icons.Outlined.EventBusy
+        TrophyId.EVENT_PLANNER,
+        TrophyId.EVENT_CALENDAR,
+        TrophyId.EVENT_SEASON,
+        -> Icons.Outlined.Flag
+        TrophyId.RACE_READY,
+        TrophyId.RACE_SHARP,
+        TrophyId.RACE_FINISH,
+        -> Icons.Outlined.SportsScore
+        TrophyId.FIRST_BENCHMARK,
+        TrophyId.BENCHMARK_BUILDER,
+        TrophyId.RECORD_LIBRARY,
+        -> Icons.AutoMirrored.Outlined.LibraryBooks
+        TrophyId.ON_THE_BOARD,
+        TrophyId.FORM_BOOK,
+        TrophyId.RECORD_KEEPER,
+        -> Icons.Outlined.Leaderboard
+        TrophyId.PACE_SETTER,
+        TrophyId.SPLIT_STRATEGIST,
+        TrophyId.PACE_MASTER,
+        -> Icons.Outlined.Calculate
+        TrophyId.PODIUM_PLACE,
+        TrophyId.IN_ROTATION,
+        TrophyId.MAINSTAY,
+        -> Icons.Default.EmojiEvents
+        TrophyId.HOME_GROUND,
+        TrophyId.LOCAL_FAVORITE,
+        TrophyId.TERRITORY,
+        -> Icons.Outlined.Home
+        TrophyId.TRAINING_BLOCK -> Icons.Outlined.Inventory2
     }
 }
 
@@ -353,21 +454,20 @@ internal fun familyTitleRes(family: TrophyFamilyUi): Int {
     }
 }
 
-@StringRes
-internal fun familyDescriptionRes(family: TrophyFamilyUi): Int {
-    return when (family) {
-        TrophyFamilyUi.CHALLENGES -> R.string.trophies_family_challenges_desc
-        TrophyFamilyUi.FOLLOW_THROUGH -> R.string.trophies_family_follow_through_desc
-        TrophyFamilyUi.CONSISTENCY -> R.string.trophies_family_consistency_desc
-        TrophyFamilyUi.ADAPTABILITY -> R.string.trophies_family_adaptability_desc
-        TrophyFamilyUi.MOMENTUM -> R.string.trophies_family_momentum_desc
-        TrophyFamilyUi.BUILDER -> R.string.trophies_family_builder_desc
-        TrophyFamilyUi.RACE_EVENTS -> R.string.trophies_family_race_events_desc
-        TrophyFamilyUi.PERSONAL_RECORDS -> R.string.trophies_family_personal_records_desc
-        TrophyFamilyUi.CATEGORIES -> R.string.trophies_family_categories_desc
-    }
-}
-
 internal fun celebrationToken(trophy: TrophyCardUi): String {
     return "${trophy.stableId}:${trophy.unlockedAt ?: 0L}"
+}
+
+private fun trophyFamilyAccentColor(family: TrophyFamilyUi): Color {
+    return when (family) {
+        TrophyFamilyUi.CHALLENGES -> Color(0xFF4A7A89)
+        TrophyFamilyUi.FOLLOW_THROUGH -> Color(0xFF4277B8)
+        TrophyFamilyUi.CONSISTENCY -> Color(0xFF2B917D)
+        TrophyFamilyUi.ADAPTABILITY -> Color(0xFFB97B38)
+        TrophyFamilyUi.MOMENTUM -> Color(0xFF7B63C8)
+        TrophyFamilyUi.BUILDER -> Color(0xFF6F7E4A)
+        TrophyFamilyUi.RACE_EVENTS -> Color(0xFFB44F3E)
+        TrophyFamilyUi.PERSONAL_RECORDS -> Color(0xFF3F7C74)
+        TrophyFamilyUi.CATEGORIES -> Color(0xFF8A5E3A)
+    }
 }

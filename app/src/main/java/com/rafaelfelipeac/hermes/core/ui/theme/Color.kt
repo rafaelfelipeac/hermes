@@ -8,15 +8,8 @@ val TodoBlueContent = Color(0xFFEAF2FA)
 val CompletedBlue = Color(0xFF6AA6DC)
 val CompletedBlueContent = Color(0xFF0B3A63)
 
-val RestDaySurfaceDark = Color(0xFF2A3A48)
 val RestDayContentDark = Color(0xFFB6C2CF)
-val RestDaySurfaceLight = Color(0xFFE6EEF6)
 val RestDayContentLight = Color(0xFF4A5A6A)
-
-val FabContainerLight = Color(0xFF2F3943)
-val FabContainerDark = Color(0xFF3C4956)
-val FabContentLight = Color(0xFFE7EEF5)
-val FabContentDark = Color(0xFFE7EEF5)
 
 val LightPrimary = TodoBlue
 val LightOnPrimary = TodoBlueContent

@@ -177,7 +177,7 @@ internal object BackupV5Decoder {
                 Instant.parse(entry.occurredAt)
                 Instant.parse(entry.createdAt)
                 Instant.parse(entry.updatedAt)
-                if (entryDate < challengeStartDate || entryDate > challengeEndDate) {
+                if (entryDate !in challengeStartDate..challengeEndDate) {
                     return Failure(INVALID_FIELD_VALUE)
                 }
             } catch (_: DateTimeParseException) {

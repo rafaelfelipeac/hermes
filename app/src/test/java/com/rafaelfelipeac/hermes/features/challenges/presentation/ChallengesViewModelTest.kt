@@ -2,7 +2,11 @@
 
 package com.rafaelfelipeac.hermes.features.challenges.presentation
 
+import androidx.lifecycle.SavedStateHandle
+import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_FIRST_COMPLETION_AT
@@ -20,7 +24,9 @@ import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.RESTORE_CH
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_CHALLENGE_PROGRESS_ENTRY
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalculationResult
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeDateBounds
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
@@ -54,13 +60,186 @@ class ChallengesViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     @Test
+    fun recreatedViewModel_restoresSelectedChallengeAndEditorDraft() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge()
+            val repository = FakeChallengeRepository(initialChallenges = listOf(challenge))
+            val savedStateHandle = SavedStateHandle()
+            val firstViewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val firstStateJob = backgroundScope.launch { firstViewModel.state.collect { } }
+
+            firstViewModel.selectChallenge(challenge.id)
+            firstViewModel.beginCreateChallenge()
+            firstViewModel.updateEditorTitle("September distance")
+            firstViewModel.updateEditorDescription("Build consistency")
+            firstViewModel.updateEditorCategory(TEST_CATEGORY_ID)
+            firstViewModel.updateEditorTargetType(ChallengeTargetType.TOTAL)
+            firstViewModel.updateEditorTargetQuantity(ChallengeQuantity.format(42_000L, TEST_LOCALE))
+            firstViewModel.updateEditorStartDate(LocalDate.of(2026, 9, 1))
+            firstViewModel.updateEditorEndDate(LocalDate.of(2026, 9, 30))
+            runCurrent()
+            firstStateJob.cancel()
+
+            val recreatedViewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val recreatedStateJob = backgroundScope.launch { recreatedViewModel.state.collect { } }
+            runCurrent()
+
+            assertEquals(challenge.id, recreatedViewModel.state.value.selectedChallengeId)
+            assertEquals(challenge, recreatedViewModel.state.value.selectedChallenge)
+            with(recreatedViewModel.state.value.editorState) {
+                assertEquals("September distance", title)
+                assertEquals("Build consistency", description)
+                assertEquals(TEST_CATEGORY_ID, categoryId)
+                assertEquals(ChallengeTargetType.TOTAL, targetType)
+                assertEquals(ChallengeQuantity.format(42_000L, TEST_LOCALE), targetQuantityText)
+                assertEquals(LocalDate.of(2026, 9, 1), startDate)
+                assertEquals(LocalDate.of(2026, 9, 30), endDate)
+                assertTrue(isDirty)
+            }
+            recreatedStateJob.cancel()
+        }
+
+    @Test
+    fun recreatedViewModel_savesRestoredEditWithoutCreatingDuplicate() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge(targetQuantity = 10_000L)
+            val repository = FakeChallengeRepository(initialChallenges = listOf(challenge))
+            val savedStateHandle = SavedStateHandle()
+            val firstViewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val firstStateJob = backgroundScope.launch { firstViewModel.state.collect { } }
+
+            firstViewModel.beginEditChallenge(challenge.id)
+            runCurrent()
+            firstViewModel.updateEditorTitle("Updated September distance")
+            firstViewModel.updateEditorTargetQuantity(ChallengeQuantity.format(12_000L, TEST_LOCALE))
+            firstStateJob.cancel()
+
+            val recreatedViewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val recreatedStateJob = backgroundScope.launch { recreatedViewModel.state.collect { } }
+            runCurrent()
+
+            assertTrue(recreatedViewModel.saveEditorChallenge())
+            runCurrent()
+
+            val savedChallenge = repository.challenges.value.single()
+            assertEquals(challenge.id, savedChallenge.id)
+            assertEquals("Updated September distance", savedChallenge.title)
+            assertEquals(12_000L, savedChallenge.targetQuantity)
+            assertFalse(recreatedViewModel.state.value.editorState.isDirty)
+            recreatedStateJob.cancel()
+        }
+
+    @Test
+    fun restoredSelection_keepsSelectedIdBeforeChallengeLoads() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge()
+            val repository = FakeChallengeRepository()
+            val savedStateHandle = SavedStateHandle(mapOf("challenges.selectedChallengeId" to challenge.id))
+            val viewModel = createViewModel(repository, savedStateHandle = savedStateHandle)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            runCurrent()
+
+            assertEquals(challenge.id, viewModel.state.value.selectedChallengeId)
+            assertEquals(null, viewModel.state.value.selectedChallenge)
+            assertTrue(viewModel.state.value.selectedChallengeMissing)
+
+            repository.challenges.value = listOf(challenge)
+            runCurrent()
+
+            assertEquals(challenge.id, viewModel.state.value.selectedChallengeId)
+            assertEquals(challenge, viewModel.state.value.selectedChallenge)
+            assertFalse(viewModel.state.value.selectedChallengeMissing)
+            stateJob.cancel()
+        }
+
+    @Test
+    fun editorChangesDoNotRecalculateChallengeHistory() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val challenge = sampleChallenge()
+            val repository = FakeChallengeRepository(initialChallenges = listOf(challenge))
+            val calculator = CountingChallengeCalculator()
+            val viewModel = createViewModel(repository, calculator = calculator)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            runCurrent()
+            val callsAfterInitialState = calculator.calls
+
+            viewModel.beginCreateChallenge()
+            viewModel.updateEditorTitle("September distance")
+            viewModel.updateEditorDescription("Build consistency")
+            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(42_000L, TEST_LOCALE))
+            runCurrent()
+
+            assertEquals(callsAfterInitialState, calculator.calls)
+            stateJob.cancel()
+        }
+
+    @Test
+    fun saveEditorChallenge_rejectsRemovedCategory() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeChallengeRepository()
+            val categoryRepository = FakeCategoryRepository(initialCategories = emptyList())
+            val viewModel = createViewModel(repository, categoryRepository = categoryRepository)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+
+            viewModel.beginCreateChallenge()
+            viewModel.updateEditorTitle("September distance")
+            viewModel.updateEditorCategory(TEST_CATEGORY_ID)
+            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(42_000L, TEST_LOCALE))
+            viewModel.updateEditorStartDate(LocalDate.of(2026, 9, 1))
+            viewModel.updateEditorEndDate(LocalDate.of(2026, 9, 30))
+            runCurrent()
+
+            assertFalse(viewModel.saveEditorChallenge())
+            runCurrent()
+
+            assertEquals(
+                R.string.challenge_validation_category_missing.toString(),
+                viewModel.state.value.editorState.validationMessage,
+            )
+            assertTrue(repository.challenges.value.isEmpty())
+            stateJob.cancel()
+        }
+
+    @Test
+    fun saveEditorChallenge_preservesDraftWhenRepositoryFails() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = FakeChallengeRepository(failInsertChallenge = true)
+            val viewModel = createViewModel(repository)
+            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+
+            viewModel.beginCreateChallenge()
+            viewModel.updateEditorTitle("September distance")
+            viewModel.updateEditorDescription("Build consistency")
+            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(42_000L, TEST_LOCALE))
+            viewModel.updateEditorStartDate(LocalDate.of(2026, 9, 1))
+            viewModel.updateEditorEndDate(LocalDate.of(2026, 9, 30))
+
+            var saveCallbackResult: Boolean? = null
+            assertTrue(viewModel.saveEditorChallenge { saved -> saveCallbackResult = saved })
+            runCurrent()
+
+            assertEquals(false, saveCallbackResult)
+
+            with(viewModel.state.value.editorState) {
+                assertEquals("September distance", title)
+                assertEquals("Build consistency", description)
+                assertEquals(ChallengeQuantity.format(42_000L, TEST_LOCALE), targetQuantityText)
+                assertEquals(LocalDate.of(2026, 9, 1), startDate)
+                assertEquals(LocalDate.of(2026, 9, 30), endDate)
+                assertEquals(R.string.challenge_validation_save_failed.toString(), validationMessage)
+            }
+            assertTrue(repository.challenges.value.isEmpty())
+            stateJob.cancel()
+        }
+
+    @Test
     fun invalidEditorSave_returnsFalseAndDoesNotPersist() =
         runTest(mainDispatcherRule.testDispatcher) {
             val repository = FakeChallengeRepository()
             val viewModel = createViewModel(repository)
 
             viewModel.beginCreateChallenge()
-            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(10_000L, Locale.getDefault()))
+            viewModel.updateEditorTargetQuantity(ChallengeQuantity.format(10_000L, TEST_LOCALE))
 
             assertFalse(viewModel.saveEditorChallenge())
             runCurrent()
@@ -142,7 +321,7 @@ class ChallengesViewModelTest {
             assertTrue(
                 viewModel.updateProgressEntry(
                     entryId = entry.id,
-                    quantityText = ChallengeQuantity.format(updatedQuantity, Locale.getDefault()),
+                    quantityText = ChallengeQuantity.format(updatedQuantity, TEST_LOCALE),
                     entryDate = TODAY,
                 ),
             )
@@ -182,7 +361,7 @@ class ChallengesViewModelTest {
             assertTrue(
                 viewModel.addProgressEntry(
                     challengeId = challenge.id,
-                    quantityText = ChallengeQuantity.format(15L, Locale.getDefault()),
+                    quantityText = ChallengeQuantity.format(15L, TEST_LOCALE),
                     entryDate = LocalDate.of(2026, 8, 2),
                 ),
             )
@@ -286,14 +465,25 @@ class ChallengesViewModelTest {
         repository: FakeChallengeRepository,
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
         categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
+        savedStateHandle: SavedStateHandle = SavedStateHandle(),
+        currentDateProvider: CurrentDateProvider = CurrentDateProvider(FIXED_CLOCK),
+        calculator: ChallengeCalculator = ChallengeCalculator(),
     ): ChallengesViewModel {
         return ChallengesViewModel(
             repository = repository,
             categoryRepository = categoryRepository,
             userActionLogger = logger,
             stringProvider = FakeStringProvider,
+            localeProvider = FakeLocaleProvider,
             clock = FIXED_CLOCK,
+            currentDateProvider = currentDateProvider,
+            calculator = calculator,
+            savedStateHandle = savedStateHandle,
         )
+    }
+
+    private object FakeLocaleProvider : LocaleProvider {
+        override fun current(): Locale = TEST_LOCALE
     }
 
     private fun sampleChallenge(
@@ -331,6 +521,20 @@ class ChallengesViewModelTest {
         )
     }
 
+    private class CountingChallengeCalculator : ChallengeCalculator() {
+        var calls = 0
+            private set
+
+        override fun calculate(
+            challenge: Challenge,
+            progressEntries: List<ChallengeProgressEntry>,
+            today: LocalDate,
+        ): ChallengeCalculationResult {
+            calls += 1
+            return super.calculate(challenge, progressEntries, today)
+        }
+    }
+
     private class RecordingUserActionLogger : UserActionLogger {
         val actions = CopyOnWriteArrayList<UserAction>()
 
@@ -355,6 +559,7 @@ class ChallengesViewModelTest {
     private class FakeChallengeRepository(
         initialChallenges: List<Challenge> = emptyList(),
         initialEntries: List<ChallengeProgressEntry> = emptyList(),
+        private val failInsertChallenge: Boolean = false,
     ) : ChallengeRepository {
         val challenges = MutableStateFlow(initialChallenges)
         private val entries = MutableStateFlow(initialEntries)
@@ -396,6 +601,7 @@ class ChallengesViewModelTest {
         override suspend fun getAllProgressEntries(): List<ChallengeProgressEntry> = entries.value
 
         override suspend fun insertChallenge(challenge: Challenge): Long {
+            if (failInsertChallenge) error("Insert failed")
             val id = challenge.id.takeIf { it != 0L } ?: ((challenges.value.maxOfOrNull { it.id } ?: 0L) + 1L)
             challenges.value = challenges.value.filterNot { it.id == id } + challenge.copy(id = id)
             return id
@@ -503,6 +709,8 @@ class ChallengesViewModelTest {
     }
 
     private companion object {
+        const val TEST_CATEGORY_ID = 1L
+        val TEST_LOCALE: Locale = Locale.getDefault()
         val TODAY: LocalDate = LocalDate.of(2026, 8, 3)
         val FIXED_CLOCK: Clock = Clock.fixed(Instant.parse("2026-08-03T12:00:00Z"), ZoneOffset.UTC)
     }

@@ -3,7 +3,6 @@ package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_CATEGORY_ID
-import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_ENTRY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_FAMILY_TITLE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_METRIC_TYPE
@@ -12,13 +11,14 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_RECORD_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.PERSONAL_RECORD_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CREATE_PERSONAL_RECORD_ENTRY
-import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.DELETE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.SET_CURRENT_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_ENTRY
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.UPDATE_PERSONAL_RECORD_FAMILY
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.command.PersonalRecordCommandRepository
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.command.PersonalRecordCommandResult
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.HIGHER_IS_BETTER
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule.MANUAL
@@ -213,28 +213,24 @@ class PersonalRecordsViewModelTest {
         }
 
     @Test
-    fun deleteEntry_removesEntryAndLogsAction() =
+    fun deleteEntry_dispatchesDeleteCommand() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val repository =
-                FakePersonalRecordsRepository(
-                    initialFamilies = listOf(sampleFamily()),
-                    initialEntries = listOf(sampleEntry(familyId = 1L)),
-                )
-            val categoryRepository = FakeCategoryRepository(initialCategories = listOf(sampleCategory()))
+            val repository = FakePersonalRecordsRepository()
             val logger = RecordingUserActionLogger()
-            val viewModel = createViewModel(repository, categoryRepository, logger)
-            val stateJob = backgroundScope.launch { viewModel.state.collect { } }
+            val commandRepository = FakePersonalRecordCommandRepository()
+            val viewModel =
+                createViewModel(
+                    repository = repository,
+                    categoryRepository = FakeCategoryRepository(),
+                    logger = logger,
+                    commandRepository = commandRepository,
+                )
 
             viewModel.deleteEntry(10L)
-
             advanceUntilIdle()
 
-            assertTrue(repository.entries.isEmpty())
-            assertEquals(DELETE_PERSONAL_RECORD_ENTRY, logger.actions.single().actionType)
-            assertEquals("10", logger.actions.single().metadata?.get(PERSONAL_RECORD_ENTRY_ID))
-            assertEquals("1", logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_ID))
-            assertEquals("5K", logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_TITLE))
-            stateJob.cancel()
+            assertEquals(listOf(10L), commandRepository.deleteEntryRequests)
+            assertTrue(logger.actions.isEmpty())
         }
 
     @Test
@@ -268,33 +264,17 @@ class PersonalRecordsViewModelTest {
             assertEquals(family.title, logger.actions.single().metadata?.get(PERSONAL_RECORD_FAMILY_TITLE))
         }
 
-    @Test
-    fun deleteEntry_clearsManualCurrentEntryReference() =
-        runTest(mainDispatcherRule.testDispatcher) {
-            val family = sampleFamily(comparisonRule = MANUAL, manualCurrentEntryId = 10L)
-            val repository =
-                FakePersonalRecordsRepository(
-                    initialFamilies = listOf(family),
-                    initialEntries = listOf(sampleEntry(familyId = family.id)),
-                )
-            val viewModel =
-                createViewModel(
-                    repository = repository,
-                    categoryRepository = FakeCategoryRepository(),
-                    logger = RecordingUserActionLogger(),
-                )
-
-            viewModel.deleteEntry(10L)
-            advanceUntilIdle()
-
-            assertEquals(null, repository.families.single().manualCurrentEntryId)
-        }
-
     private fun createViewModel(
         repository: FakePersonalRecordsRepository,
         categoryRepository: FakeCategoryRepository,
         logger: RecordingUserActionLogger,
-    ) = PersonalRecordsViewModel(repository, categoryRepository, logger)
+        commandRepository: FakePersonalRecordCommandRepository = FakePersonalRecordCommandRepository(),
+    ) = PersonalRecordsViewModel(
+        repository = repository,
+        categoryRepository = categoryRepository,
+        personalRecordCommandRepository = commandRepository,
+        userActionLogger = logger,
+    )
 
     private fun sampleCategory(
         id: Long = 1L,
@@ -344,6 +324,15 @@ class PersonalRecordsViewModelTest {
         createdAt = Instant.parse("2024-01-01T00:00:00Z"),
         updatedAt = Instant.parse("2024-01-01T00:00:00Z"),
     )
+
+    private class FakePersonalRecordCommandRepository : PersonalRecordCommandRepository {
+        val deleteEntryRequests = mutableListOf<Long>()
+
+        override suspend fun deleteEntry(entryId: Long): PersonalRecordCommandResult {
+            deleteEntryRequests.add(entryId)
+            return PersonalRecordCommandResult.Changed
+        }
+    }
 
     private class RecordingUserActionLogger : UserActionLogger {
         val actions = CopyOnWriteArrayList<UserAction>()

@@ -7,6 +7,8 @@ Keep backup import stable across app releases by versioning the JSON schema expl
 - Import compatibility is decided by `schemaVersion`, not by `appVersion`.
 - `appVersion` is metadata for diagnostics and support triage only.
 - Unknown future schemas must fail fast with a friendly import error.
+- Export reads Room data in one short transaction and reads settings as a separate DataStore snapshot. Room and DataStore are intentionally not presented as one durable transaction.
+- Replace-mode import commits Room data transactionally before applying settings. If the settings restore fails after the Room commit, the import result is a partial success: core data remains imported and preferences keep their previous values.
 
 ## Current policy
 - Current supported schema(s): `1`, `2`, `3`, `4`, `5`, `6`
@@ -52,5 +54,5 @@ Keep backup import stable across app releases by versioning the JSON schema expl
   - `v6` round-trip coverage for challenge category assignments
 
 ## Notes
-- Replace-mode import remains transactional in the repository layer.
+- Replace-mode import remains transactional for Room data in the repository layer.
 - Backward compatibility should be additive whenever possible to avoid breaking existing backups.

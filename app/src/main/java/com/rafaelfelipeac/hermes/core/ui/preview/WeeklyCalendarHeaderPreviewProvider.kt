@@ -12,6 +12,10 @@ private const val PREVIEW_MONTH = 1
 private const val PREVIEW_SELECTED_DAY = 15
 private const val PREVIEW_WEEK_START_DAY = 12
 private const val PREVIEW_ORDER = 0
+private const val PREVIEW_WORKOUT_TYPE_RUN = "Run"
+private const val PREVIEW_WORKOUT_TYPE_SWIM = "Swim"
+private const val PREVIEW_WORKOUT_COLOR_RUN = "run"
+private const val PREVIEW_WORKOUT_COLOR_SWIM = "swim"
 
 data class WeeklyCalendarHeaderPreviewData(
     val selectedDate: LocalDate,
@@ -34,13 +38,13 @@ class WeeklyCalendarHeaderPreviewProvider :
                                     WorkoutUi(
                                         id = 1L,
                                         dayOfWeek = DayOfWeek.MONDAY,
-                                        type = "Run",
+                                        type = PREVIEW_WORKOUT_TYPE_RUN,
                                         description = "Easy",
                                         isCompleted = false,
                                         isRestDay = false,
                                         categoryId = 1L,
-                                        categoryColorId = "run",
-                                        categoryName = "Run",
+                                        categoryColorId = PREVIEW_WORKOUT_COLOR_RUN,
+                                        categoryName = PREVIEW_WORKOUT_TYPE_RUN,
                                         order = PREVIEW_ORDER,
                                     ),
                                 isDayCompleted = false,
@@ -51,13 +55,13 @@ class WeeklyCalendarHeaderPreviewProvider :
                                     WorkoutUi(
                                         id = 2L,
                                         dayOfWeek = DayOfWeek.WEDNESDAY,
-                                        type = "Swim",
+                                        type = PREVIEW_WORKOUT_TYPE_SWIM,
                                         description = "Intervals",
                                         isCompleted = true,
                                         isRestDay = false,
                                         categoryId = 2L,
-                                        categoryColorId = "swim",
-                                        categoryName = "Swim",
+                                        categoryColorId = PREVIEW_WORKOUT_COLOR_SWIM,
+                                        categoryName = PREVIEW_WORKOUT_TYPE_SWIM,
                                         order = PREVIEW_ORDER,
                                     ),
                                 isDayCompleted = true,

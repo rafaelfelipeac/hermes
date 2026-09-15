@@ -10,9 +10,9 @@ data class ChallengeUiState(
     val allProgressEntries: List<ChallengeProgressEntry> = emptyList(),
     val selectedChallengeId: Long? = null,
     val selectedChallenge: Challenge? = null,
+    val selectedChallengeMissing: Boolean = false,
     val progressEntries: List<ChallengeProgressEntry> = emptyList(),
     val calculation: ChallengeCalculationResult? = null,
     val editorState: ChallengeEditorState = ChallengeEditorState(),
-    val isLoading: Boolean = false,
     val validationMessage: String? = null,
 )

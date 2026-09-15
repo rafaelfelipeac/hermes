@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.core.di
 
+import com.rafaelfelipeac.hermes.features.challenges.domain.ChallengeCalculator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,5 +13,10 @@ object TimeModule {
     @Provides
     fun provideClock(): Clock {
         return Clock.systemDefaultZone()
+    }
+
+    @Provides
+    fun provideChallengeCalculator(): ChallengeCalculator {
+        return ChallengeCalculator()
     }
 }

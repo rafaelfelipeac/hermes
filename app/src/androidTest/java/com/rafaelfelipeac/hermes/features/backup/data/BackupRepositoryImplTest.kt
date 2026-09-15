@@ -6,8 +6,20 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.rafaelfelipeac.hermes.core.database.HermesDatabase
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeProgressEntryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupChallengeRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordEntryRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupPersonalRecordFamilyRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSettingsRecord
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupSnapshot
+import com.rafaelfelipeac.hermes.features.backup.domain.model.BackupUserActionRecord
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupError
 import com.rafaelfelipeac.hermes.features.backup.domain.repository.ImportBackupResult
+import com.rafaelfelipeac.hermes.features.categories.data.local.CategoryEntity
+import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeEntity
+import com.rafaelfelipeac.hermes.features.challenges.data.local.ChallengeProgressEntryEntity
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeLifecycle
+import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordEntryEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.data.local.PersonalRecordFamilyEntity
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordComparisonRule
@@ -17,9 +29,14 @@ import com.rafaelfelipeac.hermes.features.settings.data.SettingsRepositoryImpl
 import com.rafaelfelipeac.hermes.features.settings.data.settingsDataStore
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SettingsSnapshot
+import com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy
+import com.rafaelfelipeac.hermes.features.settings.domain.model.ThemeMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeekStartDay
 import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.repository.SettingsRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.data.local.WorkoutEntity
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -56,7 +73,7 @@ class BackupRepositoryImplTest {
                     categoryDao = database.categoryDao(),
                     userActionDao = database.userActionDao(),
                     personalRecordDao = database.personalRecordDao(),
-                    settingsRepository = settingsRepository,
+                    settingsDataSource = BackupSettingsDataSource(context),
                 )
         }
 
@@ -114,6 +131,26 @@ class BackupRepositoryImplTest {
             assertEquals(DistanceUnit.MILES.name, snapshot.settings?.distanceUnit)
             assertEquals(PaceUnit.MIN_PER_MI.name, snapshot.settings?.paceUnit)
             assertEquals(WeightUnit.POUNDS.name, snapshot.settings?.weightUnit)
+        }
+
+    @Test
+    fun exportBackupJson_returnsFailureWhenSnapshotBuildFails() =
+        runTest {
+            val failingSettingsDataSource = FailingSettingsDataSource(context)
+            val repositoryWithFailingSettings =
+                BackupRepositoryImpl(
+                    database = database,
+                    challengeDao = database.challengeDao(),
+                    workoutDao = database.workoutDao(),
+                    categoryDao = database.categoryDao(),
+                    userActionDao = database.userActionDao(),
+                    personalRecordDao = database.personalRecordDao(),
+                    settingsDataSource = failingSettingsDataSource,
+                )
+
+            val result = repositoryWithFailingSettings.exportBackupJson(TEST_APP_VERSION)
+
+            assertTrue(result.isFailure)
         }
 
     @Test
@@ -257,6 +294,272 @@ class BackupRepositoryImplTest {
             assertTrue(database.challengeDao().getAllChallenges().isEmpty())
             assertTrue(database.challengeDao().getAllProgressEntries().isEmpty())
         }
+
+    @Test
+    fun importBackupJson_rollsBackDatabaseChangesWhenWriteFailsMidTransaction() =
+        runTest {
+            seedBaselineData()
+            database.openHelper.writableDatabase.execSQL(
+                """
+                CREATE TRIGGER backup_import_fail_on_user_actions
+                AFTER INSERT ON user_actions
+                BEGIN
+                    SELECT RAISE(ABORT, 'backup import failure');
+                END
+                """.trimIndent(),
+            )
+
+            val raw =
+                BackupJsonCodec.encode(
+                    BackupSnapshot(
+                        schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V6,
+                        exportedAt = EXPORTED_AT,
+                        challenges =
+                            listOf(
+                                BackupChallengeRecord(
+                                    id = 2L,
+                                    categoryId = null,
+                                    title = "Imported challenge",
+                                    description = null,
+                                    targetType = ChallengeTargetType.TOTAL.name,
+                                    targetQuantity = 10L,
+                                    startDate = "2026-02-01",
+                                    endDate = "2026-02-28",
+                                    lifecycle = ChallengeLifecycle.ACTIVE.name,
+                                    archivedAt = null,
+                                    createdAt = "2026-02-01T10:00:00Z",
+                                    updatedAt = "2026-02-01T10:00:00Z",
+                                ),
+                            ),
+                        challengeProgressEntries =
+                            listOf(
+                                BackupChallengeProgressEntryRecord(
+                                    id = 2L,
+                                    challengeId = 2L,
+                                    quantity = 3L,
+                                    entryDate = "2026-02-02",
+                                    occurredAt = "2026-02-02T11:00:00Z",
+                                    createdAt = "2026-02-02T11:00:00Z",
+                                    updatedAt = "2026-02-02T11:00:00Z",
+                                ),
+                            ),
+                        workouts = emptyList(),
+                        categories = emptyList(),
+                        personalRecordFamilies = emptyList(),
+                        personalRecordEntries = emptyList(),
+                        userActions =
+                            listOf(
+                                BackupUserActionRecord(
+                                    id = 1L,
+                                    actionType = "CREATE_WORKOUT",
+                                    entityType = "WORKOUT",
+                                    entityId = 1L,
+                                    metadata = null,
+                                    timestamp = 1740456000000,
+                                ),
+                            ),
+                        settings =
+                            BackupSettingsRecord(
+                                themeMode = ThemeMode.SYSTEM.name,
+                                languageTag = "en",
+                                slotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE.name,
+                                weekStartDay = WeekStartDay.FRIDAY.name,
+                                distanceUnit = DistanceUnit.MILES.name,
+                                paceUnit = PaceUnit.MIN_PER_MI.name,
+                                weightUnit = WeightUnit.POUNDS.name,
+                            ),
+                    ),
+                )
+
+            val result = repository.importBackupJson(raw)
+
+            assertEquals(ImportBackupResult.Failure(ImportBackupError.WRITE_FAILED), result)
+            assertEquals(1, database.challengeDao().getAllChallenges().size)
+            assertEquals(1, database.challengeDao().getAllProgressEntries().size)
+            assertEquals(1, database.categoryDao().getCategories().size)
+            assertEquals(1, database.workoutDao().getAll().size)
+            assertEquals(1, database.personalRecordDao().getFamilies().size)
+            assertEquals(1, database.personalRecordDao().getEntries().size)
+        }
+
+    @Test
+    fun importBackupJson_keepsCoreDataWhenSettingsRestoreFails() =
+        runTest {
+            val failingSettingsDataSource = FailingSettingsDataSource(context)
+            val repositoryWithFailingSettings =
+                BackupRepositoryImpl(
+                    database = database,
+                    challengeDao = database.challengeDao(),
+                    workoutDao = database.workoutDao(),
+                    categoryDao = database.categoryDao(),
+                    userActionDao = database.userActionDao(),
+                    personalRecordDao = database.personalRecordDao(),
+                    settingsDataSource = failingSettingsDataSource,
+                )
+
+            val raw =
+                BackupJsonCodec.encode(
+                    BackupSnapshot(
+                        schemaVersion = BackupJsonCodec.SCHEMA_VERSION_V6,
+                        exportedAt = EXPORTED_AT,
+                        challenges = emptyList(),
+                        challengeProgressEntries = emptyList(),
+                        workouts = emptyList(),
+                        categories = emptyList(),
+                        personalRecordFamilies =
+                            listOf(
+                                BackupPersonalRecordFamilyRecord(
+                                    id = 1L,
+                                    categoryId = null,
+                                    title = "5K PR",
+                                    metricType = PersonalRecordMetricType.DISTANCE.name,
+                                    defaultUnit = PersonalRecordUnit.MILE.name,
+                                    comparisonRule = PersonalRecordComparisonRule.LOWER_IS_BETTER.name,
+                                    manualCurrentEntryId = 1L,
+                                    sortOrder = 0,
+                                    createdAt = "2026-02-25T10:00:00Z",
+                                    updatedAt = "2026-02-25T10:00:00Z",
+                                ),
+                            ),
+                        personalRecordEntries =
+                            listOf(
+                                BackupPersonalRecordEntryRecord(
+                                    id = 1L,
+                                    familyId = 1L,
+                                    value = 20.5,
+                                    unit = PersonalRecordUnit.MILE.name,
+                                    customUnitLabel = null,
+                                    recordDate = "2026-02-24",
+                                    note = "All-out effort",
+                                    createdAt = "2026-02-25T10:15:00Z",
+                                    updatedAt = "2026-02-25T10:15:00Z",
+                                ),
+                            ),
+                        userActions = emptyList(),
+                        settings =
+                            BackupSettingsRecord(
+                                themeMode = ThemeMode.SYSTEM.name,
+                                languageTag = "en",
+                                slotModePolicy =
+                                    com.rafaelfelipeac.hermes.features.settings.domain.model.SlotModePolicy.AUTO_WHEN_MULTIPLE.name,
+                                weekStartDay = WeekStartDay.FRIDAY.name,
+                                distanceUnit = DistanceUnit.MILES.name,
+                                paceUnit = PaceUnit.MIN_PER_MI.name,
+                                weightUnit = WeightUnit.POUNDS.name,
+                            ),
+                    ),
+                )
+
+            val result = repositoryWithFailingSettings.importBackupJson(raw)
+
+            assertTrue(result is ImportBackupResult.Success)
+            assertEquals(false, (result as ImportBackupResult.Success).settingsImported)
+            assertEquals(WeekStartDay.MONDAY, settingsRepository.weekStartDay.first())
+            assertEquals(DistanceUnit.KILOMETERS, settingsRepository.distanceUnit.first())
+            assertEquals(1, database.personalRecordDao().getFamilies().size)
+            assertEquals(1, database.personalRecordDao().getEntries().size)
+        }
+
+    private suspend fun seedBaselineData() {
+        database.challengeDao().insertChallenges(
+            listOf(
+                ChallengeEntity(
+                    id = 1L,
+                    title = "Before import",
+                    description = null,
+                    targetType = ChallengeTargetType.TOTAL,
+                    targetQuantity = 10L,
+                    categoryId = null,
+                    startDate = LocalDate.parse("2026-02-01"),
+                    endDate = LocalDate.parse("2026-02-28"),
+                    lifecycle = ChallengeLifecycle.ACTIVE,
+                    archivedAt = null,
+                    createdAt = Instant.parse("2026-02-01T10:00:00Z").toEpochMilli(),
+                    updatedAt = Instant.parse("2026-02-01T10:00:00Z").toEpochMilli(),
+                ),
+            ),
+        )
+        database.challengeDao().insertProgressEntries(
+            listOf(
+                ChallengeProgressEntryEntity(
+                    id = 1L,
+                    challengeId = 1L,
+                    quantity = 5L,
+                    entryDate = LocalDate.parse("2026-02-02"),
+                    occurredAt = Instant.parse("2026-02-02T10:00:00Z").toEpochMilli(),
+                    createdAt = Instant.parse("2026-02-02T10:00:00Z").toEpochMilli(),
+                    updatedAt = Instant.parse("2026-02-02T10:00:00Z").toEpochMilli(),
+                ),
+            ),
+        )
+        database.categoryDao().insertAll(
+            listOf(
+                CategoryEntity(
+                    id = 1L,
+                    name = "Run",
+                    colorId = "COLOR_RUN",
+                    sortOrder = 0,
+                    isHidden = false,
+                    isSystem = true,
+                ),
+            ),
+        )
+        database.workoutDao().insertAllReplace(
+            listOf(
+                WorkoutEntity(
+                    id = 1L,
+                    weekStartDate = LocalDate.parse("2026-02-02"),
+                    dayOfWeek = 1,
+                    type = "Run",
+                    description = "",
+                    isCompleted = false,
+                    isRestDay = false,
+                    eventType = EventType.WORKOUT.name,
+                    timeSlot = null,
+                    categoryId = null,
+                    sortOrder = 0,
+                ),
+            ),
+        )
+        database.personalRecordDao().insertFamily(
+            PersonalRecordFamilyEntity(
+                categoryId = null,
+                title = "Baseline PR",
+                metricType = PersonalRecordMetricType.DISTANCE,
+                defaultUnit = PersonalRecordUnit.MILE,
+                comparisonRule = PersonalRecordComparisonRule.LOWER_IS_BETTER,
+                manualCurrentEntryId = null,
+                sortOrder = 0,
+                createdAt = Instant.parse("2026-02-01T10:00:00Z").toEpochMilli(),
+                updatedAt = Instant.parse("2026-02-01T10:00:00Z").toEpochMilli(),
+            ),
+        ).let { familyId ->
+            database.personalRecordDao().insertEntry(
+                PersonalRecordEntryEntity(
+                    familyId = familyId,
+                    value = 20.5,
+                    unit = PersonalRecordUnit.MILE,
+                    customUnitLabel = null,
+                    recordDate = LocalDate.parse("2026-02-02"),
+                    note = null,
+                    createdAt = Instant.parse("2026-02-02T10:00:00Z").toEpochMilli(),
+                    updatedAt = Instant.parse("2026-02-02T10:00:00Z").toEpochMilli(),
+                ),
+            )
+        }
+    }
+
+    private class FailingSettingsDataSource(
+        context: Context,
+    ) : BackupSettingsDataSource(context) {
+        override suspend fun snapshot(): SettingsSnapshot {
+            throw IllegalStateException("settings snapshot failed")
+        }
+
+        override suspend fun replace(snapshot: SettingsSnapshot) {
+            throw IllegalStateException("settings restore failed")
+        }
+    }
 }
 
 private fun buildImportBackupJson(
@@ -266,6 +569,7 @@ private fun buildImportBackupJson(
     paceUnit: String?,
     weightUnit: String?,
     includePersonalRecords: Boolean,
+    includeUserActions: Boolean = false,
 ): String {
     val weekStartDayField =
         weekStartDay?.let { value ->
@@ -323,14 +627,34 @@ private fun buildImportBackupJson(
         } else {
             ""
         }
+    val userActionsField =
+        if (includeUserActions) {
+            """
+              ,
+            "$KEY_USER_ACTIONS": [
+              {
+                "$KEY_ID": 1,
+                "$KEY_ACTION_TYPE": "CREATE_WORKOUT",
+                "$KEY_ENTITY_TYPE": "WORKOUT",
+                "$KEY_ENTITY_ID": 1,
+                "$KEY_METADATA": null,
+                "$KEY_TIMESTAMP": 1740456000000
+              }
+            ]
+            """.trimIndent()
+        } else {
+            """
+            ,
+                "$KEY_USER_ACTIONS": []
+            """.trimIndent()
+        }
 
     return """
         {
           "$KEY_SCHEMA_VERSION": $schemaVersion,
           "$KEY_EXPORTED_AT": "$EXPORTED_AT",
           "$KEY_WORKOUTS": [],
-          "$KEY_CATEGORIES": [],
-          "$KEY_USER_ACTIONS": []$personalRecordFamiliesField$personalRecordEntriesField,
+          "$KEY_CATEGORIES": []$userActionsField$personalRecordFamiliesField$personalRecordEntriesField,
           "$KEY_SETTINGS": {
             "$KEY_THEME_MODE": "$THEME_MODE_SYSTEM",
             "$KEY_LANGUAGE_TAG": "$LANGUAGE_TAG_ENGLISH",

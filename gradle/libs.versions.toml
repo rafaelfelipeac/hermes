@@ -1,34 +1,35 @@
 [versions]
-agp = "9.0.0"
-kotlin = "2.2.10"
+agp = "9.4.0"
+kotlin = "2.4.10"
+ksp = "2.3.11"
 
 # AndroidX
-coreKtx = "1.17.0"
+coreKtx = "1.18.0"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.2"
-composeBom = "2026.02.00"
-appcompat = "1.7.1"
-datastore = "1.1.7"
+activityCompose = "1.12.4"
+composeBom = "2026.06.00"
+appcompat = "1.8.0"
+datastore = "1.2.1"
 foundationLayout = "1.10.1"
-androidx-hilt-navigation-compose = "1.2.0"
+androidx-hilt-navigation-compose = "1.3.0"
 room = "2.8.4"
 roomTesting = "2.8.4"
 espressoCore = "3.7.0"
 junitVersion = "1.3.0"
 
 # KotlinX
-coroutines = "1.10.2"
-kotlinxSerialization = "1.8.1"
+coroutines = "1.11.0"
+kotlinxSerialization = "1.11.0"
 
 # Google / other
-hilt = "2.57.2"
+hilt = "2.60.1"
 junit = "4.13.2"
-mockk = "1.13.12"
-turbine = "1.1.0"
+mockk = "1.14.11"
+turbine = "1.2.1"
 konfetti = "2.0.5"
 
 # Tooling
-detekt = "1.23.7"
+detekt = "1.23.8"
 ktlintGradle = "12.1.1"
 desugarJdkLibs = "2.1.5"
 javapoet = "1.13.0"
@@ -37,6 +38,7 @@ javapoet = "1.13.0"
 # AndroidX
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
@@ -83,8 +85,8 @@ androidx-room-testing = { group = "androidx.room", name = "room-testing", versio
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }

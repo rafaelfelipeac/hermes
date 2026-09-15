@@ -50,6 +50,20 @@ Project-level conventions for Codex and similar agents.
 - Avoid mass formatting changes unless explicitly requested.
 - Do not define new data classes/enums/sealed classes inside ViewModels; place them in dedicated files in the feature package.
 
+## Refactoring guardrails
+- Treat files above 500 lines as an architecture review trigger, not an automatic refactor requirement.
+- Treat files above 800 lines as requiring an explicit cohesion or generated/fixture-data rationale in the PR.
+- Treat files above 1,000 lines as refactor candidates unless they are cohesive domain engines, generated code, or fixture catalogs.
+- Split classes that combine more than three unrelated responsibilities even when they are below the size thresholds.
+- Keep ViewModels focused on flow combination, state exposure, and intent dispatch; extract pure rules, mappings, formatting, and validation into dedicated feature files.
+- Keep composable route files focused on navigation, active UI state, and callbacks; extract sections, cards, dialogs, and pure presentation rules.
+- Keep repositories focused on persistence and entity/domain mapping; keep multi-step writes in one explicit transaction coordinator.
+- Do not suppress Detekt size or complexity rules without documenting why the file remains cohesive and what boundary would justify extraction.
+- Add deterministic tests for every extracted pure rule, using fakes instead of mocks.
+- Preserve Activity logging metadata and add assertions for state-changing behavior when refactoring mutation paths.
+- Prefer small commits ordered as pure rules, components or coordinators, then cleanup and tests.
+- Before merging a refactor, verify public APIs, navigation, schemas, logging metadata, localization, focused tests, quality checks, and `git diff --check`.
+
 ## Change safety
 - If a change affects public APIs, navigation, or persisted data schemas, stop and ask before proceeding.
 - If unsure about an architectural decision, present options instead of choosing.

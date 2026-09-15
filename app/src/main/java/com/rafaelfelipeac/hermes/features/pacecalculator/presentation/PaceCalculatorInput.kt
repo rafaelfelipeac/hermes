@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.pacecalculator.presentation
 
+import com.rafaelfelipeac.hermes.core.time.durationPartsToSeconds
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculator
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode
 import kotlin.math.roundToLong
@@ -133,7 +134,7 @@ private fun durationSeconds(
     if (hours !in 0L..maxHours || minutes !in 0L..MAX_MINUTES_OR_SECONDS || seconds !in 0L..MAX_MINUTES_OR_SECONDS) {
         return null
     }
-    return hours * 3600L + minutes * 60L + seconds
+    return durationPartsToSeconds(hours = hours, minutes = minutes, seconds = seconds)
 }
 
 internal fun validWholeNumberInput(

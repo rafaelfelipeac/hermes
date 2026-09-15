@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.HelpOutline
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
@@ -23,6 +23,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
+import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
@@ -38,9 +40,6 @@ import java.time.DayOfWeek.THURSDAY
 import java.time.DayOfWeek.TUESDAY
 import java.time.DayOfWeek.WEDNESDAY
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
-import java.util.Locale
 
 private const val SECTION_KEY_TBD = "tbd"
 
@@ -86,7 +85,7 @@ internal fun SectionHeader(
                             .clickable(onClick = onHelpClick),
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.HelpOutline,
+                        imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
                         contentDescription = stringResource(R.string.weekly_training_tbd_help_icon),
                         modifier = Modifier.size(HelpIconGlyphSize),
                     )
@@ -117,6 +116,7 @@ sealed class SectionKey(val key: String) {
 
 @Composable
 internal fun SectionKey.title(date: LocalDate? = null): String {
+    val currentLocale = currentLocale()
     return when (this) {
         SectionKey.ToBeDefined -> stringResource(R.string.weekly_training_section_to_be_defined)
         is SectionKey.Day ->
@@ -124,7 +124,7 @@ internal fun SectionKey.title(date: LocalDate? = null): String {
                 stringResource(
                     R.string.weekly_training_section_day_with_date,
                     stringResource(dayOfWeek.labelRes()),
-                    formatSectionDate(date),
+                    formatWorkoutDate(date, currentLocale),
                 )
             } else {
                 stringResource(dayOfWeek.labelRes())
@@ -149,9 +149,4 @@ private fun DayOfWeek.labelRes(): Int {
         SATURDAY -> R.string.day_saturday
         SUNDAY -> R.string.day_sunday
     }
-}
-
-private fun formatSectionDate(date: LocalDate): String {
-    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
-    return date.format(formatter)
 }

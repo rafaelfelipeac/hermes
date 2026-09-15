@@ -1,7 +1,10 @@
 package com.rafaelfelipeac.hermes.features.progress.presentation
 
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
+import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionRepository
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionRecord
@@ -41,7 +44,9 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters.previousOrSame
+import java.util.Locale
 
+private const val MAX_PROGRESS_STATE_UPDATES = 20
 private val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T00:00:00Z"), ZoneOffset.UTC)
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -175,6 +180,40 @@ class ProgressViewModelTest {
         }
 
     @Test
+    fun state_updatesCurrentWeekWhenDateChanges() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val firstWeek = LocalDate.of(2026, 5, 18)
+            val nextWeek = LocalDate.of(2026, 5, 25)
+            val dateProvider = MutableCurrentDateProvider(firstWeek)
+            val workouts =
+                listOf(
+                    workout(1L, firstWeek, DayOfWeek.MONDAY, isCompleted = true, categoryId = 2L),
+                    workout(2L, nextWeek, DayOfWeek.MONDAY, isCompleted = false, categoryId = 2L),
+                )
+            val viewModel =
+                createViewModel(
+                    workouts = workouts,
+                    actions = emptyList(),
+                    currentDateProvider = dateProvider,
+                )
+
+            viewModel.state.test {
+                awaitItem()
+                val initial = awaitItem()
+                assertEquals(firstWeek, initial.weeklyTrend.last().weekStartDate)
+                assertEquals(1, initial.weeklyReadout.completedWorkouts)
+
+                dateProvider.currentDate.value = nextWeek
+                advanceUntilIdle()
+
+                val updated = awaitStateForWeek(nextWeek)
+                assertEquals(0, updated.weeklyReadout.completedWorkouts)
+
+                cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
     fun state_exposesEmptyReasonWhenNoWorkoutHistoryExists() =
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = createViewModel(workouts = emptyList(), actions = emptyList())
@@ -190,10 +229,21 @@ class ProgressViewModelTest {
             }
         }
 
+    private suspend fun ReceiveTurbine<ProgressState>.awaitStateForWeek(weekStart: LocalDate): ProgressState {
+        repeat(MAX_PROGRESS_STATE_UPDATES) {
+            val state = awaitItem()
+            if (state.weeklyTrend.lastOrNull()?.weekStartDate == weekStart) {
+                return state
+            }
+        }
+        error("Progress state did not emit week $weekStart")
+    }
+
     private fun createViewModel(
         workouts: List<Workout>,
         actions: List<UserActionRecord>,
         categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
+        currentDateProvider: CurrentDateProvider = MutableCurrentDateProvider(LocalDate.now(TEST_CLOCK)),
     ): ProgressViewModel {
         return ProgressViewModel(
             weeklyTrainingRepository = FakeWeeklyTrainingRepository(workouts),
@@ -201,8 +251,13 @@ class ProgressViewModelTest {
             userActionRepository = FakeUserActionRepository(actions),
             settingsRepository = FakeSettingsRepository(),
             stringProvider = FakeStringProvider(),
-            clock = TEST_CLOCK,
+            localeProvider = FakeLocaleProvider,
+            currentDateProvider = currentDateProvider,
         )
+    }
+
+    private object FakeLocaleProvider : LocaleProvider {
+        override fun current(): Locale = Locale.ENGLISH
     }
 
     private fun workout(
@@ -240,6 +295,14 @@ class ProgressViewModelTest {
             metadata = null,
             timestamp = timestamp,
         )
+    }
+
+    private class MutableCurrentDateProvider(initialDate: LocalDate) : CurrentDateProvider(TEST_CLOCK) {
+        val currentDate = MutableStateFlow(initialDate)
+
+        override fun today(): LocalDate = currentDate.value
+
+        override fun observeToday(): Flow<LocalDate> = currentDate
     }
 
     private class FakeWeeklyTrainingRepository(

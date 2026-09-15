@@ -1,16 +1,24 @@
 package com.rafaelfelipeac.hermes.features.pacecalculator.presentation
 
+import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
+import com.rafaelfelipeac.hermes.core.measurement.MeasurementConstants.METERS_PER_KILOMETER
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode.PACE
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode.TIME
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Test
 
 class PaceCalculatorInputTest {
     @Test
     fun parsePaceCalculatorDecimal_acceptsDotAndComma() {
-        assertEquals(1.609, parsePaceCalculatorDecimal("1.609")!!, TOLERANCE)
-        assertEquals(1.609, parsePaceCalculatorDecimal("1,609")!!, TOLERANCE)
+        val dotValue = parsePaceCalculatorDecimal("1.609")
+        val commaValue = parsePaceCalculatorDecimal("1,609")
+
+        assertNotNull(dotValue)
+        assertNotNull(commaValue)
+        assertEquals(1.609, dotValue ?: Double.NaN, TOLERANCE)
+        assertEquals(1.609, commaValue ?: Double.NaN, TOLERANCE)
     }
 
     @Test
@@ -24,7 +32,9 @@ class PaceCalculatorInputTest {
                 ),
             )
 
-        assertEquals(298.322, result.paceSecondsPerUnit!!, 0.01)
+        val paceSecondsPerUnit = result.paceSecondsPerUnit
+        assertNotNull(paceSecondsPerUnit)
+        assertEquals(298.322, paceSecondsPerUnit ?: Double.NaN, 0.01)
     }
 
     @Test
@@ -62,7 +72,7 @@ class PaceCalculatorInputTest {
                 input(
                     mode = PACE,
                     distanceText = "5",
-                    timeMinutesText = "60",
+                    timeMinutesText = OUT_OF_RANGE_SECONDS_TEXT,
                 ),
             )
 
@@ -71,17 +81,17 @@ class PaceCalculatorInputTest {
 
     @Test
     fun validWholeNumberInput_rejectsImpossibleValues() {
-        assertEquals(true, validWholeNumberInput("59", 59))
-        assertEquals(false, validWholeNumberInput("60", 59))
+        assertEquals(true, validWholeNumberInput(MAX_SECONDS_TEXT, MAX_SECONDS_OR_MINUTES))
+        assertEquals(false, validWholeNumberInput(OUT_OF_RANGE_SECONDS_TEXT, MAX_SECONDS_OR_MINUTES))
         assertEquals(false, validWholeNumberInput("33333", MAX_TIME_HOURS.toInt()))
     }
 
     @Test
     fun sanitizedWholeNumberInput_preservesValidLeadingZero() {
-        assertEquals("09", sanitizedWholeNumberInput("09", 59))
-        assertEquals("04", sanitizedWholeNumberInput("04", 59))
-        assertEquals("00", sanitizedWholeNumberInput("00", 59))
-        assertNull(sanitizedWholeNumberInput("0666666", 59))
+        assertEquals("09", sanitizedWholeNumberInput("09", MAX_SECONDS_OR_MINUTES))
+        assertEquals("04", sanitizedWholeNumberInput("04", MAX_SECONDS_OR_MINUTES))
+        assertEquals("00", sanitizedWholeNumberInput("00", MAX_SECONDS_OR_MINUTES))
+        assertNull(sanitizedWholeNumberInput("0666666", MAX_SECONDS_OR_MINUTES))
     }
 
     @Test
@@ -95,21 +105,24 @@ class PaceCalculatorInputTest {
     private fun input(
         mode: com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode,
         distanceText: String,
-        timeMinutesText: String = "",
-        paceMinutesText: String = "",
+        timeMinutesText: String = EMPTY,
+        paceMinutesText: String = EMPTY,
     ) = PaceCalculatorInput(
         mode = mode,
         distanceText = distanceText,
-        timeHoursText = "",
+        timeHoursText = EMPTY,
         timeMinutesText = timeMinutesText,
-        timeSecondsText = "",
+        timeSecondsText = EMPTY,
         paceMinutesText = paceMinutesText,
-        paceSecondsText = "",
-        paceUnitMeters = 1_000.0,
-        distanceUnitMeters = 1_000.0,
+        paceSecondsText = EMPTY,
+        paceUnitMeters = METERS_PER_KILOMETER,
+        distanceUnitMeters = METERS_PER_KILOMETER,
     )
 
     private companion object {
         const val TOLERANCE = 0.000001
+        const val MAX_SECONDS_OR_MINUTES = 59
+        const val MAX_SECONDS_TEXT = "59"
+        const val OUT_OF_RANGE_SECONDS_TEXT = "60"
     }
 }

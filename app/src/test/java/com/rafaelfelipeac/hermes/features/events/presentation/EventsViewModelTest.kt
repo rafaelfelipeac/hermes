@@ -1,14 +1,22 @@
 package com.rafaelfelipeac.hermes.features.events.presentation
 
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
+import com.rafaelfelipeac.hermes.core.time.CurrentDateProvider
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserAction
 import com.rafaelfelipeac.hermes.core.useraction.domain.UserActionLogger
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.IS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DAY_OF_WEEK
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_ORDER
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_TYPE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.NEW_WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_DESCRIPTION
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.OLD_TYPE
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WAS_COMPLETED
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.WEEK_START_DATE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
@@ -16,6 +24,18 @@ import com.rafaelfelipeac.hermes.features.categories.domain.CategorySeeder
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.canonicalStorageWeekStart
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.CreateWeeklyItemCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoCopyLastWeekCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoDeleteCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.UndoScheduleCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandRepository
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WeeklyTrainingCommandResult
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutCompletionCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDeleteCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutDetailsCommand
+import com.rafaelfelipeac.hermes.features.weeklytraining.domain.command.WorkoutScheduleCommand
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.AddWorkoutRequest
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
@@ -26,6 +46,7 @@ import com.rafaelfelipeac.hermes.test.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -35,8 +56,11 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import java.time.Clock
 import java.time.DayOfWeek
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID as CATEGORY_ID_KEY
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -97,6 +121,23 @@ class EventsViewModelTest {
         }
 
     @Test
+    fun state_updatesTodayWhenDateChanges() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val dateProvider = MutableCurrentDateProvider(TODAY)
+            val viewModel = createViewModel(currentDateProvider = dateProvider)
+            val collectJob = backgroundScope.launch { viewModel.state.collect {} }
+            advanceUntilIdle()
+
+            assertEquals(TODAY, viewModel.state.value.today)
+
+            dateProvider.currentDate.value = TODAY.plusDays(1)
+            advanceUntilIdle()
+
+            assertEquals(TODAY.plusDays(1), viewModel.state.value.today)
+            collectJob.cancel()
+        }
+
+    @Test
     fun addRaceEvent_schedulesIntoDerivedWeekAndLogsCreate() =
         runTest(mainDispatcherRule.testDispatcher) {
             val eventDate = LocalDate.now().plusDays(30)
@@ -114,7 +155,7 @@ class EventsViewModelTest {
                                 id = 2L,
                                 eventDate = eventDate,
                                 eventType = EventType.WORKOUT,
-                                order = 2,
+                                order = 1,
                             ),
                         ),
                 )
@@ -136,7 +177,7 @@ class EventsViewModelTest {
             assertEquals(expectedWeekStart, inserted.weekStartDate)
             assertEquals(eventDate.dayOfWeek, inserted.dayOfWeek)
             assertEquals(RACE_EVENT, inserted.eventType)
-            assertEquals(3, inserted.order)
+            assertEquals(2, inserted.order)
             assertEquals(CATEGORY_ID, inserted.categoryId)
 
             val action = logger.actions.single()
@@ -144,7 +185,7 @@ class EventsViewModelTest {
             assertEquals(UserActionEntityType.RACE_EVENT, action.entityType)
             assertEquals(INSERTED_ID, action.entityId)
             assertEquals(EVENT_TITLE, action.metadata?.get(NEW_TYPE))
-            assertEquals("3", action.metadata?.get(NEW_ORDER))
+            assertEquals("2", action.metadata?.get(NEW_ORDER))
             assertEquals(CATEGORY_ID.toString(), action.metadata?.get(CATEGORY_ID_KEY))
 
             collectJob.cancel()
@@ -224,7 +265,7 @@ class EventsViewModelTest {
             assertEquals(UPDATED_TITLE, updated.type)
             assertEquals(UPDATED_DESCRIPTION, updated.description)
             assertEquals(UNCATEGORIZED_ID, updated.categoryId)
-            assertEquals(3, updated.order)
+            assertEquals(1, updated.order)
 
             val action = logger.actions.single()
             assertEquals(UserActionType.MOVE_RACE_EVENT, action.actionType)
@@ -271,8 +312,8 @@ class EventsViewModelTest {
     @Test
     fun updateRaceEvent_rejectsMoveIntoPast() =
         runTest(mainDispatcherRule.testDispatcher) {
-            val futureDate = LocalDate.now().plusDays(5)
-            val pastDate = LocalDate.now().minusDays(5)
+            val futureDate = TODAY.plusDays(5)
+            val pastDate = TODAY.minusDays(5)
             val original = workout(id = EVENT_ID, eventDate = futureDate, eventType = RACE_EVENT)
             val repository = FakeWeeklyTrainingRepository(initialWorkouts = listOf(original))
             val logger = RecordingUserActionLogger()
@@ -521,14 +562,327 @@ class EventsViewModelTest {
         repository: FakeWeeklyTrainingRepository = FakeWeeklyTrainingRepository(),
         categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
         logger: RecordingUserActionLogger = RecordingUserActionLogger(),
+        commandRepository: WeeklyTrainingCommandRepository =
+            FakeWeeklyTrainingCommandRepository(repository, categoryRepository, logger),
+        currentDateProvider: CurrentDateProvider = FixedCurrentDateProvider(TODAY),
     ): EventsViewModel {
         return EventsViewModel(
             repository = repository,
             categoryRepository = categoryRepository,
             categorySeeder = CategorySeeder(categoryRepository, FakeStringProvider()),
-            userActionLogger = logger,
+            weeklyTrainingCommandRepository = commandRepository,
+            currentDateProvider = currentDateProvider,
         )
     }
+
+    private open class FixedCurrentDateProvider(private val date: LocalDate) : CurrentDateProvider(TEST_CLOCK) {
+        override fun today(): LocalDate = date
+
+        override fun observeToday(): Flow<LocalDate> = flowOf(date)
+    }
+
+    private class MutableCurrentDateProvider(initialDate: LocalDate) : CurrentDateProvider(TEST_CLOCK) {
+        val currentDate = MutableStateFlow(initialDate)
+
+        override fun today(): LocalDate = currentDate.value
+
+        override fun observeToday(): Flow<LocalDate> = currentDate
+    }
+
+    private class FakeWeeklyTrainingCommandRepository(
+        private val repository: FakeWeeklyTrainingRepository,
+        private val categoryRepository: FakeCategoryRepository,
+        private val logger: RecordingUserActionLogger,
+    ) : WeeklyTrainingCommandRepository {
+        override suspend fun createItem(request: CreateWeeklyItemCommand): WeeklyTrainingCommandResult {
+            val nextOrder =
+                repository.getWorkoutsForWeek(request.storageWeekStart).count { workout ->
+                    workout.dayOfWeek == request.dayOfWeek && workout.timeSlot == request.timeSlot
+                }
+            val itemId =
+                repository.insertWorkout(
+                    Workout(
+                        id = 0L,
+                        weekStartDate = request.storageWeekStart,
+                        dayOfWeek = request.dayOfWeek,
+                        type = request.type,
+                        description = request.description,
+                        isCompleted = false,
+                        isRestDay = false,
+                        categoryId = request.categoryId,
+                        order = nextOrder,
+                        eventType = request.eventType,
+                        timeSlot = request.timeSlot,
+                    ),
+                )
+            val categoryName = request.categoryId?.let { categoryRepository.getCategory(it)?.name }
+
+            logger.log(
+                actionType = UserActionType.CREATE_RACE_EVENT,
+                entityType = UserActionEntityType.RACE_EVENT,
+                entityId = itemId,
+                metadata =
+                    mutableMapOf(
+                        WEEK_START_DATE to request.displayWeekStart.toString(),
+                        DAY_OF_WEEK to (request.dayOfWeek?.value?.toString() ?: UNPLANNED_DAY),
+                        NEW_ORDER to nextOrder.toString(),
+                        NEW_TYPE to request.type,
+                        NEW_DESCRIPTION to request.description,
+                    ).apply {
+                        request.categoryId?.let { put(CATEGORY_ID_KEY, it.toString()) }
+                        if (!categoryName.isNullOrBlank()) {
+                            put(CATEGORY_NAME, categoryName)
+                            put(NEW_CATEGORY_NAME, categoryName)
+                        }
+                    },
+            )
+
+            return WeeklyTrainingCommandResult.ItemCreated(itemId)
+        }
+
+        override suspend fun copyLastWeek(request: CopyLastWeekCommand) = missingCommand()
+
+        override suspend fun undoCopyLastWeek(request: UndoCopyLastWeekCommand) = missingCommand()
+
+        override suspend fun updateSchedule(request: WorkoutScheduleCommand) = missingCommand()
+
+        override suspend fun undoSchedule(request: UndoScheduleCommand) = missingCommand()
+
+        override suspend fun updateDetails(request: WorkoutDetailsCommand): WeeklyTrainingCommandResult {
+            val original =
+                repository.workouts.value.firstOrNull { it.id == request.workoutId }
+                    ?: return WeeklyTrainingCommandResult.NoChange
+            val plan = buildDetailsPlan(request, original)
+
+            if (plan.dateChanged) {
+                repository.updateWorkoutSchedule(
+                    workoutId = request.workoutId,
+                    weekStartDate = plan.targetWeekStart,
+                    dayOfWeek = plan.targetDayOfWeek,
+                    timeSlot = null,
+                    order = plan.order,
+                )
+            }
+            repository.updateWorkoutDetails(
+                workoutId = request.workoutId,
+                type = request.type,
+                description = request.description,
+                eventType = request.eventType,
+                categoryId = request.categoryId,
+            )
+
+            logger.log(
+                actionType = if (plan.dateChanged) UserActionType.MOVE_RACE_EVENT else UserActionType.UPDATE_RACE_EVENT,
+                entityType = UserActionEntityType.RACE_EVENT,
+                entityId = request.workoutId,
+                metadata = buildDetailsMetadata(request, original, plan),
+            )
+
+            return WeeklyTrainingCommandResult.DetailsChanged
+        }
+
+        private suspend fun buildDetailsPlan(
+            request: WorkoutDetailsCommand,
+            original: Workout,
+        ): FakeDetailsUpdatePlan {
+            val targetDate =
+                request.targetDate
+                    ?: original.dayOfWeek?.let { day ->
+                        original.weekStartDate.plusDays((day.value - 1).toLong())
+                    }
+            val targetWeekStart = targetDate?.let(::canonicalStorageWeekStart) ?: original.weekStartDate
+            val targetDayOfWeek = targetDate?.dayOfWeek ?: original.dayOfWeek
+            val dateChanged =
+                targetDate != null &&
+                    original.eventType == RACE_EVENT &&
+                    (original.weekStartDate != targetWeekStart || original.dayOfWeek != targetDayOfWeek)
+            val order =
+                if (dateChanged) {
+                    repository.getWorkoutsForWeek(targetWeekStart).count { workout ->
+                        workout.id != request.workoutId &&
+                            workout.dayOfWeek == targetDayOfWeek &&
+                            workout.timeSlot == null
+                    }
+                } else {
+                    original.order
+                }
+
+            return FakeDetailsUpdatePlan(
+                targetWeekStart = targetWeekStart,
+                targetDayOfWeek = targetDayOfWeek,
+                dateChanged = dateChanged,
+                order = order,
+            )
+        }
+
+        private fun buildDetailsMetadata(
+            request: WorkoutDetailsCommand,
+            original: Workout,
+            plan: FakeDetailsUpdatePlan,
+        ): Map<String, String> {
+            return if (plan.dateChanged) {
+                mapOf(
+                    NEW_WEEK_START_DATE to plan.targetWeekStart.toString(),
+                    NEW_DAY_OF_WEEK to plan.targetDayOfWeek?.value.toString(),
+                    NEW_ORDER to plan.order.toString(),
+                    NEW_TYPE to request.type,
+                    NEW_DESCRIPTION to request.description,
+                )
+            } else {
+                mapOf(
+                    WEEK_START_DATE to plan.targetWeekStart.toString(),
+                    OLD_TYPE to original.type,
+                    NEW_TYPE to request.type,
+                    OLD_DESCRIPTION to original.description,
+                    NEW_DESCRIPTION to request.description,
+                )
+            }
+        }
+
+        override suspend fun updateCompletion(request: WorkoutCompletionCommand): WeeklyTrainingCommandResult {
+            val original = repository.workouts.value.firstOrNull { it.id == request.workoutId }
+            val result =
+                if (original == null || original.isCompleted == request.isCompleted) {
+                    WeeklyTrainingCommandResult.NoChange
+                } else {
+                    repository.updateWorkoutCompletion(request.workoutId, request.isCompleted)
+                    logger.log(
+                        actionType =
+                            if (request.isCompleted) {
+                                UserActionType.COMPLETE_RACE_EVENT
+                            } else {
+                                UserActionType.INCOMPLETE_RACE_EVENT
+                            },
+                        entityType = UserActionEntityType.RACE_EVENT,
+                        entityId = request.workoutId,
+                        metadata = completionMetadata(original, request.isCompleted),
+                    )
+
+                    WeeklyTrainingCommandResult.CompletionChanged(
+                        previousCompleted = original.isCompleted,
+                        eventType = original.eventType,
+                    )
+                }
+
+            return result
+        }
+
+        override suspend fun undoCompletion(request: UndoCompletionCommand): WeeklyTrainingCommandResult {
+            val original = repository.workouts.value.firstOrNull { it.id == request.workoutId }
+            val result =
+                if (original == null || original.isCompleted == request.previousCompleted) {
+                    WeeklyTrainingCommandResult.NoChange
+                } else {
+                    repository.updateWorkoutCompletion(request.workoutId, request.previousCompleted)
+                    logger.log(
+                        actionType =
+                            if (request.newCompleted) {
+                                UserActionType.UNDO_COMPLETE_RACE_EVENT
+                            } else {
+                                UserActionType.UNDO_INCOMPLETE_RACE_EVENT
+                            },
+                        entityType = UserActionEntityType.RACE_EVENT,
+                        entityId = request.workoutId,
+                        metadata = completionMetadata(original, request.previousCompleted),
+                    )
+
+                    WeeklyTrainingCommandResult.UndoApplied
+                }
+
+            return result
+        }
+
+        private suspend fun completionMetadata(
+            original: Workout,
+            isCompleted: Boolean,
+        ): Map<String, String> {
+            return mutableMapOf(
+                WEEK_START_DATE to original.weekStartDate.toString(),
+                WAS_COMPLETED to original.isCompleted.toString(),
+                IS_COMPLETED to isCompleted.toString(),
+                NEW_TYPE to original.type,
+                NEW_DESCRIPTION to original.description,
+            ).apply {
+                original.categoryId?.let { put(CATEGORY_ID_KEY, it.toString()) }
+                val categoryName = original.categoryId?.let { categoryRepository.getCategory(it)?.name }
+                if (!categoryName.isNullOrBlank()) {
+                    put(CATEGORY_NAME, categoryName)
+                    put(NEW_CATEGORY_NAME, categoryName)
+                }
+            }
+        }
+
+        override suspend fun deleteWorkout(request: WorkoutDeleteCommand): WeeklyTrainingCommandResult {
+            val original = repository.workouts.value.firstOrNull { it.id == request.workoutId }
+            val result =
+                if (original == null) {
+                    WeeklyTrainingCommandResult.NoChange
+                } else {
+                    repository.deleteWorkout(request.workoutId)
+                    logger.log(
+                        actionType = UserActionType.DELETE_RACE_EVENT,
+                        entityType = UserActionEntityType.RACE_EVENT,
+                        entityId = request.workoutId,
+                        metadata = deleteMetadata(original),
+                    )
+                    WeeklyTrainingCommandResult.WorkoutDeleted
+                }
+
+            return result
+        }
+
+        override suspend fun undoDelete(request: UndoDeleteCommand): WeeklyTrainingCommandResult {
+            val restoredId = repository.insertWorkout(request.workout)
+            logger.log(
+                actionType = UserActionType.UNDO_DELETE_RACE_EVENT,
+                entityType = UserActionEntityType.RACE_EVENT,
+                entityId = restoredId,
+                metadata = undoDeleteMetadata(request.workout),
+            )
+
+            return WeeklyTrainingCommandResult.UndoApplied
+        }
+
+        private suspend fun deleteMetadata(original: Workout): Map<String, String> {
+            val categoryName = original.categoryId?.let { categoryRepository.getCategory(it)?.name }
+            return mutableMapOf(
+                WEEK_START_DATE to original.weekStartDate.toString(),
+                OLD_TYPE to original.type,
+                OLD_DESCRIPTION to original.description,
+            ).apply {
+                original.categoryId?.let { put(CATEGORY_ID_KEY, it.toString()) }
+                if (!categoryName.isNullOrBlank()) {
+                    put(CATEGORY_NAME, categoryName)
+                }
+            }
+        }
+
+        private suspend fun undoDeleteMetadata(restored: Workout): Map<String, String> {
+            val categoryName = restored.categoryId?.let { categoryRepository.getCategory(it)?.name }
+            return mutableMapOf(
+                WEEK_START_DATE to restored.weekStartDate.toString(),
+                DAY_OF_WEEK to restored.dayOfWeek?.value.toString(),
+                NEW_ORDER to restored.order.toString(),
+                NEW_TYPE to restored.type,
+                NEW_DESCRIPTION to restored.description,
+            ).apply {
+                restored.categoryId?.let { put(CATEGORY_ID_KEY, it.toString()) }
+                if (!categoryName.isNullOrBlank()) {
+                    put(CATEGORY_NAME, categoryName)
+                    put(NEW_CATEGORY_NAME, categoryName)
+                }
+            }
+        }
+
+        private fun missingCommand(): WeeklyTrainingCommandResult = error("Not needed")
+    }
+
+    private data class FakeDetailsUpdatePlan(
+        val targetWeekStart: LocalDate,
+        val targetDayOfWeek: DayOfWeek?,
+        val dateChanged: Boolean,
+        val order: Int,
+    )
 
     private class FakeWeeklyTrainingRepository(
         initialWorkouts: List<Workout> = emptyList(),
@@ -767,6 +1121,9 @@ class EventsViewModelTest {
         const val WORKOUT_TITLE = "Easy Run"
         const val EVENT_DESCRIPTION = "Race prep"
         const val UPDATED_DESCRIPTION = "Updated race prep"
+        const val UNPLANNED_DAY = "unplanned"
+        val TODAY: LocalDate = LocalDate.of(2026, 5, 18)
+        val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T12:00:00Z"), ZoneOffset.UTC)
     }
 }
 

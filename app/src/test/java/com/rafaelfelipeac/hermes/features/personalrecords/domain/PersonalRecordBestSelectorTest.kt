@@ -9,6 +9,7 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordMetricType.DISTANCE
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.KILOMETER
+import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordUnit.METER
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.Instant
@@ -70,6 +71,18 @@ class PersonalRecordBestSelectorTest {
             listOf(
                 entry(id = 1, familyId = family.id, value = 2.0, unit = KILOMETER, recordDate = "2024-01-01"),
                 entry(id = 2, familyId = family.id, value = 2.0, unit = KILOMETER, recordDate = "2024-01-03"),
+            )
+
+        assertEquals(entries[1], PersonalRecordBestSelector.selectBest(family, entries))
+    }
+
+    @Test
+    fun selectBest_comparesEntriesStoredInDifferentUnits() {
+        val family = family(comparisonRule = HIGHER_IS_BETTER)
+        val entries =
+            listOf(
+                entry(id = 1, familyId = family.id, value = 1.0, unit = KILOMETER, recordDate = "2024-01-01"),
+                entry(id = 2, familyId = family.id, value = 1_100.0, unit = METER, recordDate = "2024-01-02"),
             )
 
         assertEquals(entries[1], PersonalRecordBestSelector.selectBest(family, entries))

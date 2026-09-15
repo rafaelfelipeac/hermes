@@ -15,6 +15,9 @@ import java.time.LocalDate
 private const val PREVIEW_WORKOUT_TYPE_RUN = "Run"
 private const val PREVIEW_WORKOUT_TYPE_SWIM = "Swim"
 private const val PREVIEW_WORKOUT_TYPE_BIKE = "Bike"
+private const val PREVIEW_WORKOUT_NAME_RUN = PREVIEW_WORKOUT_TYPE_RUN
+private const val PREVIEW_WORKOUT_NAME_SWIM = PREVIEW_WORKOUT_TYPE_SWIM
+private const val PREVIEW_WORKOUT_NAME_BIKE = PREVIEW_WORKOUT_TYPE_BIKE
 private const val PREVIEW_WORKOUT_DESCRIPTION_RUN = "Easy 5k"
 private const val PREVIEW_WORKOUT_DESCRIPTION_SWIM = "Intervals 10x100"
 private const val PREVIEW_WORKOUT_DESCRIPTION_BIKE = "Tempo 45 min"
@@ -24,6 +27,7 @@ private const val PREVIEW_DAY = 15
 private const val PREVIEW_WORKOUT_ID_RUN = 1L
 private const val PREVIEW_WORKOUT_ID_SWIM = 2L
 private const val PREVIEW_WORKOUT_ID_BIKE = 3L
+private const val PREVIEW_WORKOUT_ID_SELECTED = 4L
 private const val PREVIEW_ORDER = 0
 
 data class WeeklyTrainingContentPreviewData(
@@ -37,45 +41,100 @@ class WeeklyTrainingContentPreviewProvider :
         sequenceOf(
             WeeklyTrainingContentPreviewData(
                 selectedDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_DAY),
+                workouts = emptyList(),
+            ),
+            WeeklyTrainingContentPreviewData(
+                selectedDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_DAY),
                 workouts =
                     listOf(
-                        WorkoutUi(
+                        previewWorkout(
                             id = PREVIEW_WORKOUT_ID_RUN,
-                            dayOfWeek = null,
+                            dayOfWeek = MONDAY,
                             type = PREVIEW_WORKOUT_TYPE_RUN,
                             description = PREVIEW_WORKOUT_DESCRIPTION_RUN,
-                            isCompleted = false,
-                            isRestDay = false,
                             categoryId = RUN_ID,
                             categoryColorId = COLOR_RUN,
-                            categoryName = "Run",
-                            order = PREVIEW_ORDER,
+                            categoryName = PREVIEW_WORKOUT_NAME_RUN,
+                            isCompleted = false,
                         ),
-                        WorkoutUi(
-                            id = PREVIEW_WORKOUT_ID_SWIM,
+                    ),
+            ),
+            WeeklyTrainingContentPreviewData(
+                selectedDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, PREVIEW_DAY),
+                workouts =
+                    listOf(
+                        previewWorkout(
+                            id = PREVIEW_WORKOUT_ID_RUN,
                             dayOfWeek = MONDAY,
+                            type = PREVIEW_WORKOUT_TYPE_RUN,
+                            description = PREVIEW_WORKOUT_DESCRIPTION_RUN,
+                            categoryId = RUN_ID,
+                            categoryColorId = COLOR_RUN,
+                            categoryName = PREVIEW_WORKOUT_NAME_RUN,
+                            isCompleted = true,
+                        ),
+                        previewWorkout(
+                            id = PREVIEW_WORKOUT_ID_SWIM,
+                            dayOfWeek = WEDNESDAY,
                             type = PREVIEW_WORKOUT_TYPE_SWIM,
                             description = PREVIEW_WORKOUT_DESCRIPTION_SWIM,
-                            isCompleted = false,
-                            isRestDay = false,
                             categoryId = SWIM_ID,
                             categoryColorId = COLOR_SWIM,
-                            categoryName = "Swim",
-                            order = PREVIEW_ORDER,
+                            categoryName = PREVIEW_WORKOUT_NAME_SWIM,
+                            isCompleted = true,
                         ),
-                        WorkoutUi(
+                        previewWorkout(
                             id = PREVIEW_WORKOUT_ID_BIKE,
-                            dayOfWeek = WEDNESDAY,
+                            dayOfWeek = MONDAY,
                             type = PREVIEW_WORKOUT_TYPE_BIKE,
                             description = PREVIEW_WORKOUT_DESCRIPTION_BIKE,
-                            isCompleted = true,
-                            isRestDay = false,
                             categoryId = CYCLING_ID,
                             categoryColorId = COLOR_CYCLING,
-                            categoryName = "Cycling",
-                            order = PREVIEW_ORDER,
+                            categoryName = PREVIEW_WORKOUT_NAME_BIKE,
+                            isCompleted = true,
+                        ),
+                    ),
+            ),
+            WeeklyTrainingContentPreviewData(
+                selectedDate = LocalDate.of(PREVIEW_YEAR, PREVIEW_MONTH, 12),
+                workouts =
+                    listOf(
+                        previewWorkout(
+                            id = PREVIEW_WORKOUT_ID_SELECTED,
+                            dayOfWeek = MONDAY,
+                            type = PREVIEW_WORKOUT_TYPE_RUN,
+                            description = PREVIEW_WORKOUT_DESCRIPTION_RUN,
+                            categoryId = RUN_ID,
+                            categoryColorId = COLOR_RUN,
+                            categoryName = PREVIEW_WORKOUT_NAME_RUN,
+                            isCompleted = false,
                         ),
                     ),
             ),
         )
+}
+
+@Suppress("LongParameterList")
+private fun previewWorkout(
+    id: Long,
+    dayOfWeek: java.time.DayOfWeek,
+    type: String,
+    description: String,
+    categoryId: Long,
+    categoryColorId: String,
+    categoryName: String,
+    isCompleted: Boolean,
+): WorkoutUi {
+    return WorkoutUi(
+        id = id,
+        dayOfWeek = dayOfWeek,
+        type = type,
+        description = description,
+        isCompleted = isCompleted,
+        isRestDay = false,
+        categoryId = categoryId,
+        categoryColorId = categoryColorId,
+        categoryName = categoryName,
+        order = PREVIEW_ORDER,
+    )
 }

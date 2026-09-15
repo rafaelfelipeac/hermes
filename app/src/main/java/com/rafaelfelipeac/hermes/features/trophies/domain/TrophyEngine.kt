@@ -11,6 +11,7 @@
 
 package com.rafaelfelipeac.hermes.features.trophies.domain
 
+import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_ID
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CATEGORY_NAME
 import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_ARCHIVED_AT
@@ -276,7 +277,7 @@ class TrophyEngine(
                 fun currentChallengeEntries(challengeId: Long): List<ChallengeProgressEntry> {
                     return challengeEntriesById[challengeId]
                         ?.values
-                        ?.sortedWith(compareBy<ChallengeProgressEntry>({ it.entryDate }, { it.occurredAt }, { it.id }))
+                        ?.sortedWith(compareBy({ it.entryDate }, { it.occurredAt }, { it.id }))
                         .orEmpty()
                 }
 
@@ -380,7 +381,7 @@ class TrophyEngine(
                         id = challengeId,
                         title = title,
                         description =
-                            action.metadata[com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys.CHALLENGE_DESCRIPTION]
+                            action.metadata[UserActionMetadataKeys.CHALLENGE_DESCRIPTION]
                                 ?.takeIf { it.isNotBlank() },
                         targetType = targetType,
                         targetQuantity = targetQuantity,
@@ -413,15 +414,6 @@ class TrophyEngine(
                             ?: return false
                     challengesById[challengeId] = snapshot.challenge
                     challengeEntriesById[challengeId] = snapshot.entries.associateByTo(linkedMapOf()) { it.id }
-                    return true
-                }
-
-                fun restoreDeletedProgressEntry(entryId: Long): Boolean {
-                    val entry =
-                        deletedProgressEntryStacksById[entryId]
-                            ?.removeLastIfPresent()
-                            ?: return false
-                    challengeEntriesById.getOrPut(entry.challengeId, ::linkedMapOf)[entry.id] = entry
                     return true
                 }
 

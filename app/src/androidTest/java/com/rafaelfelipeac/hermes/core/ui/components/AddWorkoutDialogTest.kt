@@ -16,13 +16,13 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Locale
 
 class AddWorkoutDialogTest {
     @get:Rule
     val composeRule = createComposeRule()
+
+    private val testLocale = Locale.getDefault()
 
     @Test
     fun typeAndDescriptionAreCapitalizedBeforeSave() {
@@ -82,10 +82,7 @@ class AddWorkoutDialogTest {
     @Test
     fun dateField_canShowProvidedDateWhenCreatingWorkout() {
         val selectedDate = LocalDate.of(2026, 4, 12)
-        val expectedDateLabel =
-            selectedDate.format(
-                DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault()),
-            )
+        val expectedDateLabel = formatWorkoutDate(selectedDate, testLocale)
 
         composeRule.setContent {
             AddWorkoutDialog(
@@ -108,10 +105,7 @@ class AddWorkoutDialogTest {
     @Test
     fun dateField_isVisibleInEditMode() {
         val selectedDate = LocalDate.of(2026, 4, 12)
-        val expectedDateLabel =
-            selectedDate.format(
-                DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault()),
-            )
+        val expectedDateLabel = formatWorkoutDate(selectedDate, testLocale)
         val savedDate = mutableListOf<LocalDate?>()
 
         composeRule.setContent {

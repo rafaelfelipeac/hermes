@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -26,7 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.BROWSE
 import com.rafaelfelipeac.hermes.core.navigation.AppDestinations.EVENTS
@@ -62,17 +63,17 @@ fun HermesAppContent() {
     var browseOriginTab by rememberSaveable { mutableStateOf<AppDestinations?>(null) }
     var browseParentDestination by rememberSaveable { mutableStateOf(BrowseDestination.ROOT) }
     var pendingWorkoutDraft by rememberSaveable(stateSaver = WorkoutDialogDraft.Saver) {
-        mutableStateOf<WorkoutDialogDraft?>(null)
+        mutableStateOf(null)
     }
     var pendingEventDraft by rememberSaveable(stateSaver = EventDialogDraft.Saver) {
-        mutableStateOf<EventDialogDraft?>(null)
+        mutableStateOf(null)
     }
     var pendingChallengeDraft by rememberSaveable(stateSaver = ChallengeEditorDraft.Saver) {
-        mutableStateOf<ChallengeEditorDraft?>(null)
+        mutableStateOf(null)
     }
     var pendingRequestedWorkoutId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedWorkoutDate by rememberSaveable { mutableStateOf<String?>(null) }
-    var pendingRequestedWorkoutRequestKey by rememberSaveable { mutableStateOf(0L) }
+    var pendingRequestedWorkoutRequestKey by rememberSaveable { mutableLongStateOf(0L) }
     var pendingRequestedEventId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedActivityId by rememberSaveable { mutableStateOf<Long?>(null) }
     var pendingRequestedTrophyStableId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -127,7 +128,7 @@ fun HermesAppContent() {
     val openProgressWorkout: (ProgressNextFocusUi) -> Unit = { workout ->
         pendingWorkoutDraft = null
         pendingRequestedWorkoutId = workout.id
-        pendingRequestedWorkoutDate = workout.date?.toString()
+        pendingRequestedWorkoutDate = workout.date.toString()
         pendingRequestedWorkoutRequestKey += 1L
         pendingRequestedTrophyStableId = null
         pendingRequestedEventId = null
@@ -185,28 +186,17 @@ fun HermesAppContent() {
         navigateToBrowse(BrowseDestination.CATEGORIES)
     }
     val onBrowseBack = {
-        when (currentBrowseDestination) {
-            BrowseDestination.ACTIVITIES ->
-                if (browseParentDestination != BrowseDestination.ROOT) {
-                    currentBrowseDestination = browseParentDestination
-                    browseParentDestination = BrowseDestination.ROOT
-                } else if (browseOriginTab != null) {
-                    currentDestination = browseOriginTab!!
-                    resetBrowseNavigation()
-                } else {
-                    currentBrowseDestination = BrowseDestination.ROOT
-                }
-
-            else ->
-                if (browseParentDestination != BrowseDestination.ROOT) {
-                    currentBrowseDestination = browseParentDestination
-                    browseParentDestination = BrowseDestination.ROOT
-                } else if (browseOriginTab != null) {
-                    currentDestination = browseOriginTab!!
-                    resetBrowseNavigation()
-                } else {
-                    currentBrowseDestination = BrowseDestination.ROOT
-                }
+        if (browseParentDestination != BrowseDestination.ROOT) {
+            currentBrowseDestination = browseParentDestination
+            browseParentDestination = BrowseDestination.ROOT
+        } else {
+            val originTab = browseOriginTab
+            if (originTab != null) {
+                currentDestination = originTab
+                resetBrowseNavigation()
+            } else {
+                currentBrowseDestination = BrowseDestination.ROOT
+            }
         }
     }
 

@@ -19,4 +19,5 @@ data class SettingsState(
     val lastBackupExportedAt: String? = null,
     val lastBackupImportedAt: String? = null,
     val backupFolderUri: String? = null,
+    val isLoaded: Boolean = false,
 )

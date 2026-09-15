@@ -9,14 +9,13 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgr
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuantity
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeStatus
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeTargetType
-import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
-class ChallengeCalculator {
+open class ChallengeCalculator {
     @Suppress("LongMethod")
-    fun calculate(
+    open fun calculate(
         challenge: Challenge,
         progressEntries: List<ChallengeProgressEntry>,
         today: LocalDate,
@@ -252,16 +251,4 @@ class ChallengeCalculator {
             else -> ChronoUnit.DAYS.between(bounds.startDate, date)
         }.coerceIn(0L, bounds.inclusiveDays.coerceAtLeast(1L))
     }
-}
-
-fun ChallengeCalculator.calculate(
-    challenge: Challenge,
-    progressEntries: List<ChallengeProgressEntry>,
-    clock: Clock,
-): ChallengeCalculationResult {
-    return calculate(
-        challenge = challenge,
-        progressEntries = progressEntries,
-        today = LocalDate.now(clock),
-    )
 }
