@@ -46,7 +46,7 @@ import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters.previousOrSame
 import java.util.Locale
 
-private const val MAX_PROGRESS_STATE_UPDATES = 5
+private const val MAX_PROGRESS_STATE_UPDATES = 20
 private val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T00:00:00Z"), ZoneOffset.UTC)
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -204,6 +204,7 @@ class ProgressViewModelTest {
                 assertEquals(1, initial.weeklyReadout.completedWorkouts)
 
                 dateProvider.currentDate.value = nextWeek
+                advanceUntilIdle()
 
                 val updated = awaitStateForWeek(nextWeek)
                 assertEquals(0, updated.weeklyReadout.completedWorkouts)

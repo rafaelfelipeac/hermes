@@ -665,3 +665,5 @@ Recent learnings:
 - Manual smoke after stabilization should use the same app clock/device date assumptions as the UI. In the 2026-09-13 emulator run, Challenges default dates and Progress next-focus cards reflected the emulator date, while DatePicker needed an explicit day selection before Save would return the chosen date to the event editor.
 
 - PR feedback that changes ViewModel state exposure can require test collectors too: `stateIn(WhileSubscribed)` keeps UI lifecycle behavior honest, but unit tests that assert `.value` after mutations need an active collector or they only observe the initial snapshot.
+
+- CI can expose extra intermediate emissions in Flow-based ViewModel tests that local runs may not hit. When asserting a state after mutating a fake clock/date provider, advance the test scheduler and wait for the semantic state instead of assuming a fixed small number of emissions.
