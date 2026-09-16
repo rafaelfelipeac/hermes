@@ -18,8 +18,14 @@
 - Older backup schemas 1-6 import with `useDynamicColor = false`.
 - Updated backup compatibility notes and focused tests for v7 round trip, legacy defaults, and malformed v7 settings.
 
-## Next Wave
-- Started Categories list refactor first.
+## Wave 1 Status
+- Finished Categories list refactor first.
 - Added individual quiet row cards, drag handles, overflow actions, and atomic move-to-position support.
 - Added accessible up/down menu actions while keeping existing edit, visibility, and delete flows.
-- Stop for visual review before applying the list grammar to Browse or Settings.
+- Verified light and dark Categories screens, including protected and regular category overflow menus.
+
+## Wave 2 Status
+- Applied the same quiet list grammar to the Browse home cards.
+- Replaced broad filled cards with neutral elevated destination rows.
+- Kept icons small and brand-tinted, with a trailing chevron for navigation affordance.
+- Verified light and dark Browse captures before continuing.

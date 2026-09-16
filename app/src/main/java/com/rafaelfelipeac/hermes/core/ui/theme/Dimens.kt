@@ -73,6 +73,7 @@ object Dimens {
     val CategoryMoveIconSize = 32.dp
     val CategoryActionIconSize = 36.dp
     val CategoryColorSwatchSize = 36.dp
+    val BrowseDestinationRowMinHeight = 72.dp
     val CategoryColorGridHeight = 140.dp
     val EventCardFooterHeight = 44.dp
     val EventCardHeight = 176.dp
