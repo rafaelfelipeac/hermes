@@ -52,3 +52,8 @@
 - Refined Events cards away from fully colored tiles.
 - Kept category color as a slim frame, footer icon tint, and chip accent while moving the card body back to neutral surfaces.
 - Preserved completion checkbox, edit tap, delete action, section grouping, and countdown behavior.
+
+## Wave 7 Status
+- Refined Personal Records shelf cards toward the quiet row grammar.
+- Replaced decorative category icon bubbles with simple category-tinted icons and a slim accent rail.
+- Preserved family grouping, metric chips, current-best summaries, entry counts, and add-first-result actions.
