@@ -27,6 +27,7 @@ wave-N-feature/
 - `wave-7-personal-records`: Personal Records shelf before/after, captured with demo personal records.
 - `wave-8-pace-calculator`: Pace Calculator result surface before/after.
 - `wave-9-activity`: Activity Log timeline rows before/after, captured with demo activity history.
+- `wave-10-challenges`: Challenges list cards before/after, captured with mixed demo challenge states.
 
 ## Future Waves
 

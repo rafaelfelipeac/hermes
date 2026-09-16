@@ -68,3 +68,9 @@
 - Added a slim primary rail to each activity item while keeping row bodies neutral in light and dark themes.
 - Preserved filters, section grouping, requested-item focus, timestamps, and subtitles.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 10 Status
+- Refined Challenges list cards with the quiet rail grammar.
+- Moved challenge category color into a slim leading accent while preserving neutral card bodies, chips, progress bars, and status labels.
+- Preserved active/archived tabs, sorting, list clicks, and create challenge action.
+- Added before and after light/dark captures to the screenshot archive.
