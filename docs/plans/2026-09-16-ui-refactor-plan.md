@@ -62,3 +62,9 @@
 - Refined the Pace Calculator result card as the outcome surface.
 - Added a restrained result rail and primary result emphasis while keeping empty-result copy quiet.
 - Preserved mode selection, presets, inputs, calculation behavior, and logging.
+
+## Wave 9 Status
+- Refined Activity Log rows toward a clearer timeline surface.
+- Added a slim primary rail to each activity item while keeping row bodies neutral in light and dark themes.
+- Preserved filters, section grouping, requested-item focus, timestamps, and subtitles.
+- Added before and after light/dark captures to the screenshot archive.

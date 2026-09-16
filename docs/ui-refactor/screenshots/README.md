@@ -26,6 +26,7 @@ wave-N-feature/
 - `wave-6-events`: Events grid before/after, captured with demo race events.
 - `wave-7-personal-records`: Personal Records shelf before/after, captured with demo personal records.
 - `wave-8-pace-calculator`: Pace Calculator result surface before/after.
+- `wave-9-activity`: Activity Log timeline rows before/after, captured with demo activity history.
 
 ## Future Waves
 
