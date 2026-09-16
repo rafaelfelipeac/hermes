@@ -28,6 +28,7 @@ wave-N-feature/
 - `wave-8-pace-calculator`: Pace Calculator result surface before/after.
 - `wave-9-activity`: Activity Log timeline rows before/after, captured with demo activity history.
 - `wave-10-challenges`: Challenges list cards before/after, captured with mixed demo challenge states.
+- `wave-11-progress`: Progress support blocks before/after, captured with weekly readout and trend data.
 
 ## Future Waves
 

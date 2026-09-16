@@ -74,3 +74,9 @@
 - Moved challenge category color into a slim leading accent while preserving neutral card bodies, chips, progress bars, and status labels.
 - Preserved active/archived tabs, sorting, list clicks, and create challenge action.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 11 Status
+- Refined Progress support blocks away from filled `surfaceVariant` panels.
+- Moved Next focus and reusable support cards to neutral bordered surfaces while preserving click targets and content hierarchy.
+- Preserved weekly readout, trend chart, category mix, recent activity, and support navigation behavior.
+- Added before and after light/dark captures to the screenshot archive.

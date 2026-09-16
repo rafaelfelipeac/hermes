@@ -678,3 +678,4 @@ Recent learnings:
 - Calculator screens benefit from a clear output anchor even when the inputs stay form-like. A restrained result rail and primary-colored calculated value make the answer easier to find without making the whole utility screen feel decorative.
 - Activity feeds read better when timeline meaning is expressed as a narrow structural accent instead of another icon or filled card. Keeping the event body neutral preserves dense history scanning while the rail gives the log a stronger chronological rhythm.
 - Challenge list cards can use category color as a structural cue without changing the progress vocabulary. A narrow rail keeps category identity visible while leaving target chips, status chips, and progress bars responsible for their own meanings.
+- Progress support blocks work better as neutral, bordered sub-surfaces than as filled panels. That keeps charts and readouts dominant while still making secondary actions like Next focus feel tappable.
