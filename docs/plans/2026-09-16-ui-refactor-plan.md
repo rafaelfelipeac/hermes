@@ -41,3 +41,9 @@
 - Split export, import, and folder actions into standalone elevated rows.
 - Preserved per-action disabled semantics during backup operations.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 5 Status
+- Refined the Trophies shelf cards toward neutral surfaces.
+- Removed the filled unlocked-card treatment in favor of restrained borders and a small top accent.
+- Made locked trophy cards quieter so overview shelves feel less decorative and more consistent with the refactor direction.
+- Added before and after light/dark captures to the screenshot archive, with after captures using mixed trophy demo data to show unlocked and locked states together.

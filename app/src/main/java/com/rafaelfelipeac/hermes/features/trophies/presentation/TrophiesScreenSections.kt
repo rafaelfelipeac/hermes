@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.trophies.presentation
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,7 +54,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyStateLineBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 
 private const val UNLOCKED_TROPHY_BORDER_ALPHA = 0.42f
-private const val UNLOCKED_TROPHY_CARD_ALPHA = 0.16f
 private const val TROPHY_TITLE_MAX_LINES = 2
 
 @Composable
@@ -242,9 +242,9 @@ private fun TrophyShelfCard(
         }
     val cardColor =
         if (trophy.isUnlocked) {
-            accent.copy(alpha = UNLOCKED_TROPHY_CARD_ALPHA)
-        } else {
             colorScheme.surfaceContainerLow
+        } else {
+            colorScheme.surface
         }
     val semanticsLabel =
         trophyCardSemanticsLabel(
@@ -273,14 +273,25 @@ private fun TrophyShelfCard(
         Box(
             modifier =
                 Modifier
-                    .fillMaxSize()
-                    .padding(SpacingMd),
+                    .fillMaxSize(),
         ) {
+            if (trophy.isUnlocked) {
+                Box(
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopCenter)
+                            .fillMaxWidth()
+                            .height(BorderThin)
+                            .background(accent),
+                )
+            }
+
             Column(
                 modifier =
                     Modifier
                         .align(Alignment.TopCenter)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(SpacingMd),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(if (showExpandedMeta) SpacingXs else SpacingSm),
             ) {
@@ -339,7 +350,8 @@ private fun TrophyShelfCard(
                     modifier =
                         Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(horizontal = SpacingXs),
+                            .padding(horizontal = SpacingXs)
+                            .padding(bottom = SpacingMd),
                 )
             }
         }
