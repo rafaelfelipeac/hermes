@@ -35,3 +35,9 @@
 - Converted preference and About actions into standalone elevated rows.
 - Kept detail option screens card-based to preserve compact form density.
 - Verified light and dark Settings captures before continuing.
+
+## Wave 4 Status
+- Applied the quiet row grammar to the Backup utility screen.
+- Split export, import, and folder actions into standalone elevated rows.
+- Preserved per-action disabled semantics during backup operations.
+- Added before and after light/dark captures to the screenshot archive.

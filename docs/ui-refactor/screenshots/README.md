@@ -21,6 +21,7 @@ wave-N-feature/
 - `wave-1-categories`: Categories list before/after, plus after overflow menu states.
 - `wave-2-browse`: Browse destination launcher before/after.
 - `wave-3-settings`: Main Settings launcher before/after.
+- `wave-4-backup`: Backup utility screen before/after.
 
 ## Future Waves
 
