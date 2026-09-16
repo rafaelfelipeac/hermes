@@ -251,6 +251,9 @@
     <string name="settings_theme_system">استخدام إعدادات النظام</string>
     <string name="settings_theme_light">فاتح</string>
     <string name="settings_theme_dark">داكن</string>
+    <string name="settings_dynamic_color_title">استخدام ألوان Material You</string>
+    <string name="settings_dynamic_color_summary">تطابق ألوان خلفية Android على الأجهزة المدعومة.</string>
+    <string name="settings_dynamic_color_unavailable">تتطلب ألوان Material You نظام Android 12 أو أحدث.</string>
     <string name="settings_language_title">اللغة</string>
     <string name="settings_language_system">استخدام إعدادات النظام</string>
     <string name="settings_language_english">الإنجليزية</string>
@@ -406,6 +409,7 @@
     <string name="activity_action_convert_rest_day_to_workout">لقد حولت حدث راحة إلى تمرين.</string>
     <string name="activity_action_change_language">لقد غيّرت اللغة.</string>
     <string name="activity_action_change_theme">لقد غيّرت السمة.</string>
+    <string name="activity_action_change_dynamic_color">لقد غيّرت ألوان Material You.</string>
     <string name="activity_action_open_week">لقد فتحت أسبوعًا آخر.</string>
     <string name="activity_action_complete_week_workouts">لقد أكملت كل شيء هذا الأسبوع.</string>
     <string name="activity_action_copy_last_week">لقد نسخت الأسبوع الماضي إلى هذا الأسبوع.</string>
@@ -435,6 +439,8 @@
     <string name="activity_week_date_pattern">d MMM yyyy</string>
     <string name="activity_value_system">النظام</string>
     <string name="activity_value_unknown">غير معروف</string>
+    <string name="activity_value_enabled">مفعّل</string>
+    <string name="activity_value_disabled">معطّل</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
     <string name="activity_action_create_category">لقد أنشأت الفئة %1$s.</string>
     <string name="activity_action_update_category_name">لقد أعدت تسمية فئة.</string>

@@ -13,6 +13,7 @@ import com.rafaelfelipeac.hermes.core.useraction.metadata.UserActionMetadataKeys
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.APP
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionEntityType.SETTINGS
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_DISTANCE_UNIT
+import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_DYNAMIC_COLOR
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_LANGUAGE
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_PACE_UNIT
 import com.rafaelfelipeac.hermes.core.useraction.model.UserActionType.CHANGE_SLOT_MODE
@@ -64,12 +65,14 @@ class SettingsViewModel
         val state: StateFlow<SettingsState> =
             combine(
                 repository.themeMode,
+                repository.useDynamicColor,
                 repository.language,
                 repository.slotModePolicy,
                 repository.weekStartDay,
-            ) { themeMode, language, slotModePolicy, weekStartDay ->
+            ) { themeMode, useDynamicColor, language, slotModePolicy, weekStartDay ->
                 SettingsState(
                     themeMode = themeMode,
+                    useDynamicColor = useDynamicColor,
                     language = language,
                     slotModePolicy = slotModePolicy,
                     weekStartDay = weekStartDay,
@@ -140,6 +143,25 @@ class SettingsViewModel
                             mapOf(
                                 OLD_VALUE to previous.name,
                                 NEW_VALUE to mode.name,
+                            ),
+                    )
+                }
+            }
+
+        fun setUseDynamicColor(useDynamicColor: Boolean) =
+            viewModelScope.launch {
+                val previous = state.value.useDynamicColor
+
+                repository.setUseDynamicColor(useDynamicColor)
+
+                if (previous != useDynamicColor) {
+                    userActionLogger.log(
+                        actionType = CHANGE_DYNAMIC_COLOR,
+                        entityType = SETTINGS,
+                        metadata =
+                            mapOf(
+                                OLD_VALUE to previous.toString(),
+                                NEW_VALUE to useDynamicColor.toString(),
                             ),
                     )
                 }

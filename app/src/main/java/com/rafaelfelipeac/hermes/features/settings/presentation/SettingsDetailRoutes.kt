@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -107,10 +108,14 @@ internal fun SettingsLanguageScreen(
 @Composable
 internal fun SettingsThemeScreen(
     themeMode: ThemeMode,
+    useDynamicColor: Boolean,
     onBack: () -> Unit,
     onThemeSelected: (ThemeMode) -> Unit,
+    onUseDynamicColorChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val dynamicColorAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
     SettingsDetailScreen(
         title = stringResource(R.string.settings_theme_title),
         onBack = onBack,
@@ -130,6 +135,18 @@ internal fun SettingsThemeScreen(
             label = stringResource(R.string.settings_theme_dark),
             selected = themeMode == DARK,
             onClick = { onThemeSelected(DARK) },
+        )
+        SettingsSwitchRow(
+            label = stringResource(R.string.settings_dynamic_color_title),
+            checked = useDynamicColor,
+            enabled = dynamicColorAvailable,
+            supportingText =
+                if (dynamicColorAvailable) {
+                    stringResource(R.string.settings_dynamic_color_summary)
+                } else {
+                    stringResource(R.string.settings_dynamic_color_unavailable)
+                },
+            onCheckedChange = onUseDynamicColorChanged,
         )
     }
 }

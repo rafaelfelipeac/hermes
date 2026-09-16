@@ -96,6 +96,7 @@ class ActivityUiFormatter(
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE,
             UserActionType.CHANGE_THEME,
+            UserActionType.CHANGE_DYNAMIC_COLOR,
             UserActionType.CHANGE_SLOT_MODE,
             UserActionType.CHANGE_WEEK_START,
             UserActionType.CHANGE_DISTANCE_UNIT,

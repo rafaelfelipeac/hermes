@@ -223,6 +223,9 @@
     <string name="settings_theme_system">सिस्टम डिफ़ॉल्ट का उपयोग करें</string>
     <string name="settings_theme_light">हल्का</string>
     <string name="settings_theme_dark">गहरा</string>
+    <string name="settings_dynamic_color_title">Material You रंगों का उपयोग करें</string>
+    <string name="settings_dynamic_color_summary">समर्थित डिवाइस पर Android वॉलपेपर के रंगों से मेल खाता है।</string>
+    <string name="settings_dynamic_color_unavailable">Material You रंगों के लिए Android 12 या नया संस्करण चाहिए।</string>
     <string name="settings_language_title">भाषा</string>
     <string name="settings_language_system">सिस्टम डिफ़ॉल्ट का उपयोग करें</string>
     <string name="settings_language_english">अंग्रेज़ी</string>
@@ -378,6 +381,7 @@
     <string name="activity_action_convert_rest_day_to_workout">आपने एक आराम इवेंट को वर्कआउट में बदला।</string>
     <string name="activity_action_change_language">आपने भाषा बदली।</string>
     <string name="activity_action_change_theme">आपने थीम बदली।</string>
+    <string name="activity_action_change_dynamic_color">आपने Material You रंग बदले।</string>
     <string name="activity_action_open_week">आपने एक और सप्ताह खोला।</string>
     <string name="activity_action_complete_week_workouts">आपने इस सप्ताह सब कुछ पूरा किया।</string>
     <string name="activity_action_copy_last_week">आपने पिछले सप्ताह को इस सप्ताह में कॉपी किया।</string>
@@ -407,6 +411,8 @@
     <string name="activity_week_date_pattern">d MMM yyyy</string>
     <string name="activity_value_system">सिस्टम</string>
     <string name="activity_value_unknown">अज्ञात</string>
+    <string name="activity_value_enabled">चालू</string>
+    <string name="activity_value_disabled">बंद</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
     <string name="activity_action_create_category">आपने श्रेणी %1$s बनाई।</string>
     <string name="activity_action_update_category_name">आपने एक श्रेणी का नाम बदला।</string>

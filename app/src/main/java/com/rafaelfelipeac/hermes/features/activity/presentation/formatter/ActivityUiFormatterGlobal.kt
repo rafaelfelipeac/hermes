@@ -18,6 +18,9 @@ internal class ActivityUiFormatterGlobal(
             UserActionType.CHANGE_THEME ->
                 stringProvider.get(R.string.activity_action_change_theme)
 
+            UserActionType.CHANGE_DYNAMIC_COLOR ->
+                stringProvider.get(R.string.activity_action_change_dynamic_color)
+
             UserActionType.CHANGE_SLOT_MODE ->
                 stringProvider.get(R.string.activity_action_change_slot_mode)
 
@@ -125,6 +128,7 @@ internal class ActivityUiFormatterGlobal(
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE,
             UserActionType.CHANGE_THEME,
+            UserActionType.CHANGE_DYNAMIC_COLOR,
             UserActionType.CHANGE_SLOT_MODE,
             UserActionType.CHANGE_WEEK_START,
             UserActionType.CHANGE_DISTANCE_UNIT,

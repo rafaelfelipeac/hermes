@@ -223,6 +223,9 @@
     <string name="settings_theme_system">Systemstandard verwenden</string>
     <string name="settings_theme_light">Hell</string>
     <string name="settings_theme_dark">Dunkel</string>
+    <string name="settings_dynamic_color_title">Material-You-Farben verwenden</string>
+    <string name="settings_dynamic_color_summary">Passt sich auf unterstützten Geräten an die Android-Hintergrundfarben an.</string>
+    <string name="settings_dynamic_color_unavailable">Material-You-Farben erfordern Android 12 oder neuer.</string>
     <string name="settings_language_title">Sprache</string>
     <string name="settings_language_system">Systemstandard verwenden</string>
     <string name="settings_language_english">Englisch</string>
@@ -378,6 +381,7 @@
     <string name="activity_action_convert_rest_day_to_workout">Du hast ein Ruheereignis in ein Training umgewandelt.</string>
     <string name="activity_action_change_language">Du hast die Sprache geändert.</string>
     <string name="activity_action_change_theme">Du hast das Design geändert.</string>
+    <string name="activity_action_change_dynamic_color">Du hast die Material-You-Farben geändert.</string>
     <string name="activity_action_open_week">Du hast eine andere Woche geöffnet.</string>
     <string name="activity_action_complete_week_workouts">Du hast diese Woche alles abgeschlossen.</string>
     <string name="activity_action_copy_last_week">Du hast die letzte Woche in diese Woche kopiert.</string>
@@ -407,6 +411,8 @@
     <string name="activity_week_date_pattern">dd.MM.yyyy</string>
     <string name="activity_value_system">System</string>
     <string name="activity_value_unknown">Unbekannt</string>
+    <string name="activity_value_enabled">Aktiviert</string>
+    <string name="activity_value_disabled">Deaktiviert</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
     <string name="activity_action_create_category">Du hast die Kategorie %1$s erstellt.</string>
     <string name="activity_action_update_category_name">Du hast eine Kategorie umbenannt.</string>

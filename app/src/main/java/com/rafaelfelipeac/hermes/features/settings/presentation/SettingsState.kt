@@ -10,6 +10,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 
 data class SettingsState(
     val themeMode: ThemeMode,
+    val useDynamicColor: Boolean = false,
     val language: AppLanguage,
     val slotModePolicy: SlotModePolicy,
     val weekStartDay: WeekStartDay,

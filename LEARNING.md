@@ -667,3 +667,4 @@ Recent learnings:
 - PR feedback that changes ViewModel state exposure can require test collectors too: `stateIn(WhileSubscribed)` keeps UI lifecycle behavior honest, but unit tests that assert `.value` after mutations need an active collector or they only observe the initial snapshot.
 
 - CI can expose extra intermediate emissions in Flow-based ViewModel tests that local runs may not hit. When asserting a state after mutating a fake clock/date provider, advance the test scheduler and wait for the semantic state instead of assuming a fixed small number of emissions.
+- Material You is safest as an opt-in preference layered over the branded Hermes palette. Persisting it separately from light/dark mode keeps imports from older backups visually stable, while schema v7 can require the boolean only when settings are present and let schemas 1-6 synthesize the branded default.

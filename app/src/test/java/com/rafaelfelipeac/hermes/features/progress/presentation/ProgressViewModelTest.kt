@@ -439,6 +439,7 @@ class ProgressViewModelTest {
 
     private class FakeSettingsRepository : SettingsRepository {
         override val themeMode = MutableStateFlow(ThemeMode.SYSTEM)
+        override val useDynamicColor = MutableStateFlow(false)
         override val language = MutableStateFlow(AppLanguage.SYSTEM)
         override val slotModePolicy = MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
         override val weekStartDay = MutableStateFlow(WeekStartDay.MONDAY)
@@ -465,6 +466,8 @@ class ProgressViewModelTest {
         override fun initialWeightUnit(): WeightUnit = weightUnit.value
 
         override suspend fun setThemeMode(mode: ThemeMode) = Unit
+
+        override suspend fun setUseDynamicColor(useDynamicColor: Boolean) = Unit
 
         override suspend fun setLanguage(language: AppLanguage) = Unit
 

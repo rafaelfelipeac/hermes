@@ -30,6 +30,7 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -210,6 +211,48 @@ internal fun SettingsOptionRow(
         Text(
             text = label,
             style = typography.bodyLarge,
+        )
+    }
+}
+
+@Composable
+internal fun SettingsSwitchRow(
+    label: String,
+    checked: Boolean,
+    enabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    supportingText: String? = null,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled) { onCheckedChange(!checked) }
+                .padding(vertical = SpacingSm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = typography.bodyLarge,
+                color = if (enabled) colorScheme.onSurface else colorScheme.onSurfaceVariant,
+            )
+            if (supportingText != null) {
+                Spacer(modifier = Modifier.height(SpacingXs))
+                Text(
+                    text = supportingText,
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(SpacingLg))
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            enabled = enabled,
         )
     }
 }

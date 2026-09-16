@@ -223,6 +223,9 @@
     <string name="settings_theme_system">Usar padrão do sistema</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Escuro</string>
+    <string name="settings_dynamic_color_title">Usar cores Material You</string>
+    <string name="settings_dynamic_color_summary">Combina com as cores do papel de parede do Android em dispositivos compatíveis.</string>
+    <string name="settings_dynamic_color_unavailable">As cores Material You exigem Android 12 ou mais recente.</string>
     <string name="settings_language_title">Idioma</string>
     <string name="settings_language_system">Usar padrão do sistema</string>
     <string name="settings_language_english">Inglês</string>
@@ -378,6 +381,7 @@
     <string name="activity_action_convert_rest_day_to_workout">Você converteu um evento de descanso em treino.</string>
     <string name="activity_action_change_language">Você mudou o idioma.</string>
     <string name="activity_action_change_theme">Você mudou o tema.</string>
+    <string name="activity_action_change_dynamic_color">Você mudou as cores Material You.</string>
     <string name="activity_action_open_week">Você abriu outra semana.</string>
     <string name="activity_action_complete_week_workouts">Você concluiu tudo da semana.</string>
     <string name="activity_action_copy_last_week">Você copiou a semana passada para esta semana.</string>
@@ -407,6 +411,8 @@
     <string name="activity_week_date_pattern">d \'de\' MMM \'de\' yyyy</string>
     <string name="activity_value_system">Sistema</string>
     <string name="activity_value_unknown">Desconhecido</string>
+    <string name="activity_value_enabled">Ativado</string>
+    <string name="activity_value_disabled">Desativado</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
     <string name="activity_action_create_category">Você criou a categoria %1$s.</string>
     <string name="activity_action_update_category_name">Você renomeou uma categoria.</string>

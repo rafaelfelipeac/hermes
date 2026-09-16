@@ -85,6 +85,7 @@ class SettingsViewModelTest {
     fun state_emitsRepositoryValues() =
         runTest(mainDispatcherRule.testDispatcher) {
             val themeFlow = MutableStateFlow(DARK)
+            val useDynamicColorFlow = MutableStateFlow(true)
             val languageFlow = MutableStateFlow(PORTUGUESE_BRAZIL)
             val slotModePolicyFlow = MutableStateFlow(ALWAYS_SHOW)
             val weekStartDayFlow = MutableStateFlow(WeekStartDay.WEDNESDAY)
@@ -99,6 +100,7 @@ class SettingsViewModelTest {
             val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
 
             every { repository.themeMode } returns themeFlow
+            every { repository.useDynamicColor } returns useDynamicColorFlow
             every { repository.language } returns languageFlow
             every { repository.slotModePolicy } returns slotModePolicyFlow
             every { repository.weekStartDay } returns weekStartDayFlow
@@ -144,6 +146,7 @@ class SettingsViewModelTest {
                 assertEquals(
                     SettingsState(
                         themeMode = DARK,
+                        useDynamicColor = true,
                         language = PORTUGUESE_BRAZIL,
                         slotModePolicy = ALWAYS_SHOW,
                         weekStartDay = WeekStartDay.WEDNESDAY,
@@ -162,6 +165,7 @@ class SettingsViewModelTest {
                 assertEquals(
                     SettingsState(
                         themeMode = DARK,
+                        useDynamicColor = true,
                         language = PORTUGUESE_BRAZIL,
                         slotModePolicy = ALWAYS_SHOW,
                         weekStartDay = WeekStartDay.WEDNESDAY,
@@ -619,6 +623,7 @@ class SettingsViewModelTest {
         initialPaceUnit: PaceUnit = MIN_PER_KM,
         initialWeightUnit: WeightUnit = KILOGRAMS,
         themeMode: ThemeMode = initialThemeMode,
+        useDynamicColor: Boolean = false,
         language: AppLanguage = initialLanguage,
         slotModePolicy: SlotModePolicy = initialSlotModePolicy,
         weekStartDay: WeekStartDay = initialWeekStartDay,
@@ -639,6 +644,7 @@ class SettingsViewModelTest {
         every { repository.initialPaceUnit() } returns initialPaceUnit
         every { repository.initialWeightUnit() } returns initialWeightUnit
         every { repository.themeMode } returns MutableStateFlow(themeMode)
+        every { repository.useDynamicColor } returns MutableStateFlow(useDynamicColor)
         every { repository.language } returns MutableStateFlow(language)
         every { repository.slotModePolicy } returns MutableStateFlow(slotModePolicy)
         every { repository.weekStartDay } returns MutableStateFlow(weekStartDay)

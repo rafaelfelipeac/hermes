@@ -1,11 +1,13 @@
 package com.rafaelfelipeac.hermes.features.settings.data
 
 import android.content.Context
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 
 internal const val SETTINGS_DATA_STORE_NAME = "settings"
 internal const val THEME_MODE_KEY_NAME = "theme_mode"
+internal const val USE_DYNAMIC_COLOR_KEY_NAME = "use_dynamic_color"
 internal const val LANGUAGE_KEY_NAME = "language"
 internal const val SLOT_MODE_POLICY_KEY_NAME = "slot_mode_policy"
 internal const val WEEK_START_DAY_KEY_NAME = "week_start_day"
@@ -22,6 +24,7 @@ internal val Context.settingsDataStore by preferencesDataStore(
 )
 
 internal val THEME_MODE_KEY = stringPreferencesKey(THEME_MODE_KEY_NAME)
+internal val USE_DYNAMIC_COLOR_KEY = booleanPreferencesKey(USE_DYNAMIC_COLOR_KEY_NAME)
 internal val LANGUAGE_KEY = stringPreferencesKey(LANGUAGE_KEY_NAME)
 internal val SLOT_MODE_POLICY_KEY = stringPreferencesKey(SLOT_MODE_POLICY_KEY_NAME)
 internal val WEEK_START_DAY_KEY = stringPreferencesKey(WEEK_START_DAY_KEY_NAME)

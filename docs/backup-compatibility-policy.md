@@ -11,7 +11,7 @@ Keep backup import stable across app releases by versioning the JSON schema expl
 - Replace-mode import commits Room data transactionally before applying settings. If the settings restore fails after the Room commit, the import result is a partial success: core data remains imported and preferences keep their previous values.
 
 ## Current policy
-- Current supported schema(s): `1`, `2`, `3`, `4`, `5`, `6`
+- Current supported schema(s): `1`, `2`, `3`, `4`, `5`, `6`, `7`
 - Decoder routing:
   - `schemaVersion = 1` -> `BackupV1Decoder`
   - `schemaVersion = 2` -> `BackupV2Decoder`
@@ -19,6 +19,7 @@ Keep backup import stable across app releases by versioning the JSON schema expl
   - `schemaVersion = 4` -> `BackupV4Decoder`
   - `schemaVersion = 5` -> `BackupV5Decoder`
   - `schemaVersion = 6` -> `BackupV6Decoder`
+  - `schemaVersion = 7` -> `BackupV7Decoder`
   - Any other value -> unsupported schema error
 
 ## Current schema notes
@@ -35,6 +36,9 @@ Keep backup import stable across app releases by versioning the JSON schema expl
 - `schemaVersion = 6` requires the `categoryId` member and accepts either `null` or an integer reference present in the category list; missing or malformed values fail as invalid fields.
 - Challenge dates, daily target totals, and aggregate challenge progress totals are validated so malformed dates and numeric overflow return a structured invalid-field error instead of escaping the import flow or being persisted for later crashes.
 - `schemaVersion = 1`, `2`, `3`, `4`, and `5` backups continue to import with uncategorized challenges when `categoryId` is absent.
+- `schemaVersion = 7` adds `settings.useDynamicColor`.
+- `schemaVersion = 7` requires `settings.useDynamicColor` when the optional settings object is present; missing or non-boolean values fail as invalid fields.
+- `schemaVersion = 1`, `2`, `3`, `4`, `5`, and `6` backups continue to import with `useDynamicColor = false`.
 
 ## Rules for future schema changes
 1. Add a new decoder (`BackupV2Decoder`, etc.) instead of rewriting old decoders.
@@ -52,6 +56,7 @@ Keep backup import stable across app releases by versioning the JSON schema expl
   - `v4` round-trip coverage for personal records and unit preferences
   - `v5` round-trip coverage for challenges and challenge progress entries
   - `v6` round-trip coverage for challenge category assignments
+  - `v7` round-trip coverage for Material You color preference
 
 ## Notes
 - Replace-mode import remains transactional for Room data in the repository layer.

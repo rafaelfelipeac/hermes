@@ -192,6 +192,7 @@ class BackupRepositoryImpl
 private fun BackupSettingsRecord.toSettingsSnapshot(): SettingsSnapshot =
     SettingsSnapshot(
         themeMode = ThemeMode.valueOf(themeMode),
+        useDynamicColor = useDynamicColor,
         language = AppLanguage.fromTag(languageTag),
         slotModePolicy = SlotModePolicy.valueOf(slotModePolicy),
         weekStartDay = WeekStartDay.valueOf(weekStartDay),

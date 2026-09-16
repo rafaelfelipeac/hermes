@@ -59,7 +59,10 @@ fun HermesAppRoot() {
             ThemeMode.SYSTEM -> isSystemInDarkTheme()
         }
 
-    HermesTheme(darkTheme = darkTheme) {
+    HermesTheme(
+        darkTheme = darkTheme,
+        dynamicColor = settingsState.useDynamicColor,
+    ) {
         HermesAppContent()
     }
 }
