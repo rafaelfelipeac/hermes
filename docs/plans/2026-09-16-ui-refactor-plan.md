@@ -57,3 +57,8 @@
 - Refined Personal Records shelf cards toward the quiet row grammar.
 - Replaced decorative category icon bubbles with simple category-tinted icons and a slim accent rail.
 - Preserved family grouping, metric chips, current-best summaries, entry counts, and add-first-result actions.
+
+## Wave 8 Status
+- Refined the Pace Calculator result card as the outcome surface.
+- Added a restrained result rail and primary result emphasis while keeping empty-result copy quiet.
+- Preserved mode selection, presets, inputs, calculation behavior, and logging.

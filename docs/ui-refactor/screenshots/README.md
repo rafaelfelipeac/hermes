@@ -25,6 +25,7 @@ wave-N-feature/
 - `wave-5-trophies`: Trophies overview shelf before/after, with after captures using mixed trophy demo data.
 - `wave-6-events`: Events grid before/after, captured with demo race events.
 - `wave-7-personal-records`: Personal Records shelf before/after, captured with demo personal records.
+- `wave-8-pace-calculator`: Pace Calculator result surface before/after.
 
 ## Future Waves
 
