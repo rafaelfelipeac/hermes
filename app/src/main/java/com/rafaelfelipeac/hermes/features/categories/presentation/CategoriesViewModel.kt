@@ -162,6 +162,15 @@ class CategoriesViewModel
             moveCategory(categoryId, 1)
         }
 
+        fun moveCategoryToPosition(
+            categoryId: Long,
+            targetIndex: Int,
+        ) {
+            viewModelScope.launch {
+                categoryCommandRepository.moveCategoryToPosition(categoryId, targetIndex)
+            }
+        }
+
         fun deleteCategory(categoryId: Long) {
             if (categoryId == UNCATEGORIZED_ID) return
 

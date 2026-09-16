@@ -201,6 +201,9 @@
     <string name="categories_color_label">रंग</string>
     <string name="categories_hide_action">श्रेणी छिपाएं</string>
     <string name="categories_show_action">श्रेणी दिखाएं</string>
+    <string name="categories_drag_action">श्रेणी खींचें</string>
+    <string name="categories_more_actions">श्रेणी की कार्रवाइयाँ</string>
+    <string name="categories_hidden_status">छिपी हुई</string>
     <string name="categories_move_up">श्रेणी ऊपर करें</string>
     <string name="categories_move_down">श्रेणी नीचे करें</string>
     <string name="categories_edit_action">श्रेणी संपादित करें</string>

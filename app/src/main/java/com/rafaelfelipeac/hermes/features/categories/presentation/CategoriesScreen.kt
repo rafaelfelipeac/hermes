@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,30 +16,35 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.material.icons.outlined.ArrowUpward
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DragIndicator
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -51,19 +57,25 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.zIndex
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
 import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
-import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
@@ -71,20 +83,21 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryActionIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorGridHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorSwatchSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryMoveIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryRowMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryColorOptions
-import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
+import kotlin.math.roundToInt
 
 @Composable
 fun CategoriesScreen(
@@ -98,8 +111,24 @@ fun CategoriesScreen(
     var isRestoreDefaultsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var deletingCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var isHelpDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var draggedCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var dragStartIndex by rememberSaveable { mutableStateOf<Int?>(null) }
+    var dragTargetIndex by rememberSaveable { mutableStateOf<Int?>(null) }
+    var dragOffsetY by rememberSaveable { mutableStateOf(0f) }
+    var categoryRowHeightPx by rememberSaveable { mutableStateOf(0) }
     val listState = rememberLazyListState()
     val actionIconTint = colorScheme.onSurfaceVariant
+    val displayedCategories by remember(state.categories, draggedCategoryId, dragTargetIndex) {
+        derivedStateOf {
+            val draggedId = draggedCategoryId
+            val targetIndex = dragTargetIndex
+            if (draggedId == null || targetIndex == null) {
+                state.categories
+            } else {
+                state.categories.previewMovedCategory(draggedId, targetIndex)
+            }
+        }
+    }
 
     BackHandler(onBack = onBack)
 
@@ -192,44 +221,62 @@ fun CategoriesScreen(
                     }
                 }
 
-                item {
-                    Box(modifier = Modifier.padding(horizontal = SpacingXl)) {
-                        Surface(
-                            shape = shapes.medium,
-                            tonalElevation = ElevationSm,
-                            modifier = Modifier.fillMaxWidth(),
-                        ) {
-                            Column(
-                                modifier =
-                                    Modifier.padding(
-                                        horizontal = SpacingMd,
-                                        vertical = SpacingXxs,
-                                    ),
-                            ) {
-                                state.categories.forEachIndexed { index, category ->
-                                    CategoryRow(
-                                        category = category,
-                                        canMoveUp = index != 0,
-                                        canMoveDown = index != state.categories.lastIndex,
-                                        onMoveUp = { viewModel.moveCategoryUp(category.id) },
-                                        onMoveDown = { viewModel.moveCategoryDown(category.id) },
-                                        onToggleHidden = { isHidden ->
-                                            viewModel.updateCategoryVisibility(category.id, isHidden)
-                                        },
-                                        onEdit = { editorCategoryId = category.id },
-                                        onDelete = { deletingCategoryId = category.id },
-                                        modifier = Modifier.padding(vertical = SpacingXxs),
-                                    )
+                itemsIndexed(
+                    items = displayedCategories,
+                    key = { _, category -> category.id },
+                ) { index, category ->
+                    val isDragging = category.id == draggedCategoryId
 
-                                    if (index != state.categories.lastIndex) {
-                                        HorizontalDivider(
-                                            modifier = Modifier.padding(vertical = SpacingXxs),
-                                        )
+                    CategoryRow(
+                        category = category,
+                        canMoveUp = index != 0,
+                        canMoveDown = index != displayedCategories.lastIndex,
+                        isDragging = isDragging,
+                        onMoveUp = { viewModel.moveCategoryUp(category.id) },
+                        onMoveDown = { viewModel.moveCategoryDown(category.id) },
+                        onToggleHidden = { isHidden ->
+                            viewModel.updateCategoryVisibility(category.id, isHidden)
+                        },
+                        onEdit = { editorCategoryId = category.id },
+                        onDelete = { deletingCategoryId = category.id },
+                        onDragStart = {
+                            draggedCategoryId = category.id
+                            dragStartIndex = state.categories.indexOfFirst { it.id == category.id }
+                            dragTargetIndex = dragStartIndex
+                            dragOffsetY = 0f
+                        },
+                        onDrag = { deltaY ->
+                            val startIndex = dragStartIndex ?: return@CategoryRow
+                            if (categoryRowHeightPx <= 0) return@CategoryRow
+                            dragOffsetY += deltaY
+                            dragTargetIndex =
+                                (startIndex + (dragOffsetY / categoryRowHeightPx).roundToInt())
+                                    .coerceIn(state.categories.indices)
+                        },
+                        onDragEnd = {
+                            val startIndex = dragStartIndex
+                            val targetIndex = dragTargetIndex
+                            if (startIndex != null && targetIndex != null && startIndex != targetIndex) {
+                                viewModel.moveCategoryToPosition(category.id, targetIndex)
+                            }
+                            draggedCategoryId = null
+                            dragStartIndex = null
+                            dragTargetIndex = null
+                            dragOffsetY = 0f
+                        },
+                        onMeasured = { height -> categoryRowHeightPx = height },
+                        modifier =
+                            Modifier
+                                .padding(horizontal = SpacingXl)
+                                .offset {
+                                    if (isDragging) {
+                                        IntOffset(x = 0, y = dragOffsetY.roundToInt())
+                                    } else {
+                                        IntOffset.Zero
                                     }
                                 }
-                            }
-                        }
-                    }
+                                .zIndex(if (isDragging) CATEGORY_DRAG_Z_INDEX else CATEGORY_ROW_Z_INDEX),
+                    )
                 }
             }
         }
@@ -345,110 +392,213 @@ private fun CategoryRow(
     category: CategoryUi,
     canMoveUp: Boolean,
     canMoveDown: Boolean,
+    isDragging: Boolean,
     onMoveUp: () -> Unit,
     onMoveDown: () -> Unit,
     onToggleHidden: (Boolean) -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
+    onDragStart: () -> Unit,
+    onDrag: (Float) -> Unit,
+    onDragEnd: () -> Unit,
+    onMeasured: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val accent = categoryAccentColor(category.colorId)
     val isHiddenToggleEnabled = category.id != UNCATEGORIZED_ID
-    val actionIconTint = colorScheme.onSurfaceVariant
-    val disabledIconTint = actionIconTint.copy(alpha = DISABLED_ICON_ALPHA)
+    val contentAlpha = if (isDragging) DRAGGING_ROW_ALPHA else ENABLED_ROW_ALPHA
 
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+    Surface(
+        shape = shapes.medium,
+        tonalElevation = ElevationSm,
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .alpha(contentAlpha)
+                .onGloballyPositioned { coordinates -> onMeasured(coordinates.size.height) },
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier
+                    .heightIn(min = CategoryRowMinHeight)
+                    .fillMaxWidth(),
+        ) {
             IconButton(
-                onClick = onMoveUp,
-                enabled = canMoveUp,
-                modifier = Modifier.size(CategoryMoveIconSize),
+                onClick = { },
+                modifier =
+                    Modifier
+                        .size(CategoryMoveIconSize)
+                        .pointerInput(category.id) {
+                            detectDragGesturesAfterLongPress(
+                                onDragStart = { onDragStart() },
+                                onDrag = { _, dragAmount ->
+                                    onDrag(dragAmount.y)
+                                },
+                                onDragEnd = onDragEnd,
+                                onDragCancel = onDragEnd,
+                            )
+                        },
             ) {
                 Icon(
-                    imageVector = Icons.Outlined.ArrowUpward,
-                    contentDescription = stringResource(R.string.categories_move_up),
-                    tint = if (canMoveUp) actionIconTint else disabledIconTint,
+                    imageVector = Icons.Outlined.DragIndicator,
+                    contentDescription = stringResource(R.string.categories_drag_action),
+                    tint = colorScheme.onSurfaceVariant,
                 )
             }
 
-            IconButton(
-                onClick = onMoveDown,
-                enabled = canMoveDown,
-                modifier = Modifier.size(CategoryMoveIconSize),
+            Box(
+                modifier =
+                    Modifier
+                        .size(SmallIconSize)
+                        .background(accent, CircleShape),
+            )
+
+            Spacer(modifier = Modifier.width(SpacingMd))
+
+            Column(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(vertical = SpacingMd),
             ) {
-                Icon(
-                    imageVector = Icons.Outlined.ArrowDownward,
-                    contentDescription = stringResource(R.string.categories_move_down),
-                    tint = if (canMoveDown) actionIconTint else disabledIconTint,
+                Text(
+                    text = category.name,
+                    style = typography.titleMedium,
+                    color = if (category.isHidden) colorScheme.onSurfaceVariant else colorScheme.onSurface,
                 )
+                if (category.isHidden) {
+                    Text(
+                        text = stringResource(R.string.categories_hidden_status),
+                        style = typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
             }
+
+            CategoryRowMenu(
+                category = category,
+                canMoveUp = canMoveUp,
+                canMoveDown = canMoveDown,
+                canToggleHidden = isHiddenToggleEnabled,
+                onMoveUp = onMoveUp,
+                onMoveDown = onMoveDown,
+                onToggleHidden = onToggleHidden,
+                onEdit = onEdit,
+                onDelete = onDelete,
+            )
         }
+    }
+}
 
-        Spacer(modifier = Modifier.width(SpacingMd))
+@Composable
+private fun CategoryRowMenu(
+    category: CategoryUi,
+    canMoveUp: Boolean,
+    canMoveDown: Boolean,
+    canToggleHidden: Boolean,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    onToggleHidden: (Boolean) -> Unit,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+) {
+    var expanded by rememberSaveable(category.id) { mutableStateOf(false) }
 
-        Box(modifier = Modifier.weight(1f)) {
-            TitleChip(
-                label = category.name,
-                containerColor = accent,
-                contentColor = contentColorForBackground(accent),
-                modifier = Modifier.wrapContentWidth(),
+    Box {
+        IconButton(
+            onClick = { expanded = true },
+            modifier = Modifier.size(CategoryActionIconSize),
+        ) {
+            Icon(
+                imageVector = Icons.Filled.MoreVert,
+                contentDescription = stringResource(R.string.categories_more_actions),
+                tint = colorScheme.onSurfaceVariant,
             )
         }
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(SpacingXxs),
-            verticalAlignment = Alignment.CenterVertically,
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
         ) {
-            if (isHiddenToggleEnabled) {
-                IconButton(
-                    onClick = { onToggleHidden(!category.isHidden) },
-                ) {
-                    Icon(
-                        imageVector =
-                            if (category.isHidden) {
-                                Icons.Outlined.VisibilityOff
-                            } else {
-                                Icons.Outlined.Visibility
-                            },
-                        contentDescription =
-                            if (category.isHidden) {
-                                stringResource(R.string.categories_show_action)
-                            } else {
-                                stringResource(R.string.categories_hide_action)
-                            },
-                        tint = actionIconTint,
-                    )
-                }
-            }
-
-            IconButton(
-                onClick = onEdit,
-                modifier = Modifier.size(CategoryActionIconSize),
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Edit,
-                    contentDescription = stringResource(R.string.categories_edit_action),
-                    tint = actionIconTint,
+            CategoryMenuItem(
+                label = stringResource(R.string.categories_move_up),
+                icon = { Icon(imageVector = Icons.Outlined.ArrowUpward, contentDescription = null) },
+                enabled = canMoveUp,
+                onClick = {
+                    expanded = false
+                    onMoveUp()
+                },
+            )
+            CategoryMenuItem(
+                label = stringResource(R.string.categories_move_down),
+                icon = { Icon(imageVector = Icons.Outlined.ArrowDownward, contentDescription = null) },
+                enabled = canMoveDown,
+                onClick = {
+                    expanded = false
+                    onMoveDown()
+                },
+            )
+            if (canToggleHidden) {
+                CategoryMenuItem(
+                    label =
+                        if (category.isHidden) {
+                            stringResource(R.string.categories_show_action)
+                        } else {
+                            stringResource(R.string.categories_hide_action)
+                        },
+                    icon = {
+                        Icon(
+                            imageVector =
+                                if (category.isHidden) {
+                                    Icons.Outlined.VisibilityOff
+                                } else {
+                                    Icons.Outlined.Visibility
+                                },
+                            contentDescription = null,
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        onToggleHidden(!category.isHidden)
+                    },
                 )
             }
-
+            CategoryMenuItem(
+                label = stringResource(R.string.categories_edit_action),
+                icon = { Icon(imageVector = Icons.Outlined.Edit, contentDescription = null) },
+                onClick = {
+                    expanded = false
+                    onEdit()
+                },
+            )
             if (category.id != UNCATEGORIZED_ID) {
-                IconButton(
-                    onClick = onDelete,
-                    modifier = Modifier.size(CategoryActionIconSize),
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Delete,
-                        contentDescription = stringResource(R.string.categories_delete_action),
-                        tint = actionIconTint,
-                    )
-                }
+                CategoryMenuItem(
+                    label = stringResource(R.string.categories_delete_action),
+                    icon = { Icon(imageVector = Icons.Outlined.Delete, contentDescription = null) },
+                    onClick = {
+                        expanded = false
+                        onDelete()
+                    },
+                )
             }
         }
     }
+}
+
+@Composable
+private fun CategoryMenuItem(
+    label: String,
+    icon: @Composable () -> Unit,
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+) {
+    DropdownMenuItem(
+        text = { Text(text = label) },
+        leadingIcon = icon,
+        enabled = enabled,
+        onClick = onClick,
+    )
 }
 
 @Composable
@@ -519,8 +669,24 @@ private fun CategoryEditorDialog(
     )
 }
 
-private const val DISABLED_ICON_ALPHA = 0.38f
 private const val CATEGORY_COLOR_GRID_COLUMNS = 4
+private const val CATEGORY_DRAG_Z_INDEX = 1f
+private const val CATEGORY_ROW_Z_INDEX = 0f
+private const val DRAGGING_ROW_ALPHA = 0.82f
+private const val ENABLED_ROW_ALPHA = 1f
+
+private fun List<CategoryUi>.previewMovedCategory(
+    categoryId: Long,
+    targetIndex: Int,
+): List<CategoryUi> {
+    val currentIndex = indexOfFirst { it.id == categoryId }
+    if (currentIndex == -1 || targetIndex !in indices || currentIndex == targetIndex) return this
+
+    return toMutableList().apply {
+        val category = removeAt(currentIndex)
+        add(targetIndex, category)
+    }
+}
 
 @Composable
 private fun CategoryColorSwatch(

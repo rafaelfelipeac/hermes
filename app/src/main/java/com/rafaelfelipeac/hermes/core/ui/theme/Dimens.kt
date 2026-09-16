@@ -68,6 +68,8 @@ object Dimens {
     val SmallIconSize = 16.dp
     val EventFlagIconSize = 24.dp
     val IndicatorSize = 24.dp
+    val CategoryAccentWidth = 6.dp
+    val CategoryRowMinHeight = 64.dp
     val CategoryMoveIconSize = 32.dp
     val CategoryActionIconSize = 36.dp
     val CategoryColorSwatchSize = 36.dp

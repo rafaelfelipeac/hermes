@@ -222,6 +222,13 @@ class CategoriesScreenTest {
         ): CategoryCommandResult {
             return CategoryCommandResult.Changed
         }
+
+        override suspend fun moveCategoryToPosition(
+            categoryId: Long,
+            targetIndex: Int,
+        ): CategoryCommandResult {
+            return CategoryCommandResult.Changed
+        }
     }
 
     private class FakeCategoryRepository : CategoryRepository {

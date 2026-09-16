@@ -668,3 +668,4 @@ Recent learnings:
 
 - CI can expose extra intermediate emissions in Flow-based ViewModel tests that local runs may not hit. When asserting a state after mutating a fake clock/date provider, advance the test scheduler and wait for the semantic state instead of assuming a fixed small number of emissions.
 - Material You is safest as an opt-in preference layered over the branded Hermes palette. Persisting it separately from light/dark mode keeps imports from older backups visually stable, while schema v7 can require the boolean only when settings are present and let schemas 1-6 synthesize the branded default.
+- Category reordering needs two different interaction contracts over one Activity story. Up/down actions can keep neighbor moves, but drag needs a final index command that shifts the visible range atomically and logs one `REORDER_CATEGORY` entry after the database has accepted the new order.

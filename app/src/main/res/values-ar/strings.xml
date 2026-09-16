@@ -229,6 +229,9 @@
     <string name="categories_color_label">اللون</string>
     <string name="categories_hide_action">إخفاء الفئة</string>
     <string name="categories_show_action">إظهار الفئة</string>
+    <string name="categories_drag_action">سحب الفئة</string>
+    <string name="categories_more_actions">إجراءات الفئة</string>
+    <string name="categories_hidden_status">مخفية</string>
     <string name="categories_move_up">نقل الفئة للأعلى</string>
     <string name="categories_move_down">نقل الفئة للأسفل</string>
     <string name="categories_edit_action">تعديل الفئة</string>

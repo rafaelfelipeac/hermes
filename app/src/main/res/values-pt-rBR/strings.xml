@@ -201,6 +201,9 @@
     <string name="categories_color_label">Cor</string>
     <string name="categories_hide_action">Ocultar categoria</string>
     <string name="categories_show_action">Mostrar categoria</string>
+    <string name="categories_drag_action">Arrastar categoria</string>
+    <string name="categories_more_actions">Ações da categoria</string>
+    <string name="categories_hidden_status">Oculta</string>
     <string name="categories_move_up">Mover categoria para cima</string>
     <string name="categories_move_down">Mover categoria para baixo</string>
     <string name="categories_edit_action">Editar categoria</string>

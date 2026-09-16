@@ -232,6 +232,40 @@ class CategoriesViewModelTest {
         }
 
     @Test
+    fun moveCategoryToPosition_dispatchesMoveToPositionCommand() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val logger = FakeUserActionLogger()
+            val repository = mockk<CategoryRepository>(relaxed = true)
+            val categoryCommandRepository = FakeCategoryCommandRepository()
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val categoriesFlow =
+                MutableStateFlow(
+                    listOf(
+                        defaultCategory(id = 2L, name = "Run", sortOrder = 1),
+                        defaultCategory(id = 3L, name = "Cycling", sortOrder = 2),
+                    ),
+                )
+
+            coEvery { categorySeeder.ensureSeeded() } returns Unit
+            every { repository.observeCategories() } returns categoriesFlow
+
+            val viewModel =
+                CategoriesViewModel(
+                    repository = repository,
+                    categoryCommandRepository = categoryCommandRepository,
+                    categorySeeder = categorySeeder,
+                    userActionLogger = logger,
+                )
+            primeState(viewModel)
+
+            viewModel.moveCategoryToPosition(categoryId = 2L, targetIndex = 1)
+            advanceUntilIdle()
+
+            assertEquals(2L to 1, categoryCommandRepository.moveToPositionRequests.single())
+            assertTrue(logger.actions.isEmpty())
+        }
+
+    @Test
     fun deleteCategory_dispatchesDeleteCommand() =
         runTest(mainDispatcherRule.testDispatcher) {
             val logger = FakeUserActionLogger()
@@ -346,6 +380,7 @@ class CategoriesViewModelTest {
     private class FakeCategoryCommandRepository : CategoryCommandRepository {
         val deleteRequests = mutableListOf<Long>()
         val moveRequests = mutableListOf<Pair<Long, Int>>()
+        val moveToPositionRequests = mutableListOf<Pair<Long, Int>>()
 
         override suspend fun deleteCategory(categoryId: Long): CategoryCommandResult {
             deleteRequests.add(categoryId)
@@ -357,6 +392,14 @@ class CategoriesViewModelTest {
             delta: Int,
         ): CategoryCommandResult {
             moveRequests.add(categoryId to delta)
+            return CategoryCommandResult.Changed
+        }
+
+        override suspend fun moveCategoryToPosition(
+            categoryId: Long,
+            targetIndex: Int,
+        ): CategoryCommandResult {
+            moveToPositionRequests.add(categoryId to targetIndex)
             return CategoryCommandResult.Changed
         }
     }
