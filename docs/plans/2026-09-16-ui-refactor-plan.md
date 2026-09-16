@@ -47,3 +47,8 @@
 - Removed the filled unlocked-card treatment in favor of restrained borders and a small top accent.
 - Made locked trophy cards quieter so overview shelves feel less decorative and more consistent with the refactor direction.
 - Added before and after light/dark captures to the screenshot archive, with after captures using mixed trophy demo data to show unlocked and locked states together.
+
+## Wave 6 Status
+- Refined Events cards away from fully colored tiles.
+- Kept category color as a slim frame, footer icon tint, and chip accent while moving the card body back to neutral surfaces.
+- Preserved completion checkbox, edit tap, delete action, section grouping, and countdown behavior.

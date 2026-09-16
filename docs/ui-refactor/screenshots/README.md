@@ -23,6 +23,7 @@ wave-N-feature/
 - `wave-3-settings`: Main Settings launcher before/after.
 - `wave-4-backup`: Backup utility screen before/after.
 - `wave-5-trophies`: Trophies overview shelf before/after, with after captures using mixed trophy demo data.
+- `wave-6-events`: Events grid before/after, captured with demo race events.
 
 ## Future Waves
 
