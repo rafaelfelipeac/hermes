@@ -29,3 +29,9 @@
 - Replaced broad filled cards with neutral elevated destination rows.
 - Kept icons small and brand-tinted, with a trailing chevron for navigation affordance.
 - Verified light and dark Browse captures before continuing.
+
+## Wave 3 Status
+- Applied the quiet row grammar to the main Settings launcher.
+- Converted preference and About actions into standalone elevated rows.
+- Kept detail option screens card-based to preserve compact form density.
+- Verified light and dark Settings captures before continuing.

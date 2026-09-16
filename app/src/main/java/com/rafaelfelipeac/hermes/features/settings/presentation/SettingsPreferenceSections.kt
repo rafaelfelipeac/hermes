@@ -1,13 +1,10 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import com.rafaelfelipeac.hermes.R
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
@@ -25,13 +22,14 @@ internal fun SettingsWorkoutSection(
     onWeekStartClick: () -> Unit,
     onUnitsClick: () -> Unit,
 ) {
-    SettingsSection(title = stringResource(R.string.settings_workouts_title)) {
+    SettingsSection(
+        title = stringResource(R.string.settings_workouts_title),
+        contentInsideCard = false,
+    ) {
         SettingsNavigationRow(
             label = stringResource(R.string.settings_slot_mode_title),
             onClick = onSlotModeClick,
         )
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
 
         SettingsNavigationRow(
             label = stringResource(R.string.settings_week_start_title),
@@ -39,8 +37,6 @@ internal fun SettingsWorkoutSection(
             onClick = onWeekStartClick,
             modifier = Modifier.testTag(SETTINGS_WEEK_START_ROW_TAG),
         )
-
-        HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
 
         SettingsNavigationRow(
             label = stringResource(R.string.settings_units_title),
@@ -56,7 +52,10 @@ internal fun SettingsThemeSection(
     themeMode: ThemeMode,
     onThemeClick: () -> Unit,
 ) {
-    SettingsSection(title = stringResource(R.string.settings_theme_title)) {
+    SettingsSection(
+        title = stringResource(R.string.settings_theme_title),
+        contentInsideCard = false,
+    ) {
         SettingsNavigationRow(
             label = themeLabel(themeMode),
             onClick = onThemeClick,
@@ -70,7 +69,10 @@ internal fun SettingsLanguageSection(
     language: AppLanguage,
     onLanguageClick: () -> Unit,
 ) {
-    SettingsSection(title = stringResource(R.string.settings_language_title)) {
+    SettingsSection(
+        title = stringResource(R.string.settings_language_title),
+        contentInsideCard = false,
+    ) {
         SettingsNavigationRow(
             label = languageLabel(language),
             onClick = onLanguageClick,

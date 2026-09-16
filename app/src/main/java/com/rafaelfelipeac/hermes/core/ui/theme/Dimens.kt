@@ -40,6 +40,7 @@ object Dimens {
     val SettingsDeveloperButtonVerticalPadding = 2.dp
     val SettingsDeveloperButtonContentHorizontalPadding = 12.dp
     val SettingsDeveloperButtonContentVerticalPadding = 8.dp
+    val SettingsRowMinHeight = 56.dp
     val ReleaseNotesBottomPadding = 24.dp
     val ProgressReadoutBarHeight = 10.dp
     val ChallengeProgressBarHeight = 6.dp
