@@ -98,3 +98,9 @@
 - Added slim category accents to the current-best card and history rows while keeping card bodies neutral.
 - Preserved metric/comparison chips, edit/delete actions, manual current selection, history ordering, and add-result FAB behavior.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 15 Status
+- Refined the Home To be defined help affordance.
+- Replaced the filled help bubble with a neutral bordered circular surface while preserving tap target and help dialog behavior.
+- Preserved weekly navigation, filters, summary, section grouping, workout rows, and add action.
+- Added before and after light/dark captures to the screenshot archive.

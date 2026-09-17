@@ -682,3 +682,4 @@ Recent learnings:
 - Weekly workout rows need category color to identify training type without owning the whole card. Neutral card bodies with category borders keep dense planning readable while completion controls, chips, and descriptions remain visually stable.
 - Challenge detail works best when celebratory state is structural rather than a full filled banner. A primary border and icon can still signal completion while the neutral surface keeps Today metrics and history from competing with the summary.
 - Personal Record detail benefits from matching the shelf grammar at a smaller scale. A slim category rail carries the family identity through current-best and history cards without turning every record value into a colored tile.
+- Small affordances should follow the same quiet surface language as larger cards. The Home TBD help button stays discoverable with a border and icon while avoiding another filled bubble competing with workout rows.

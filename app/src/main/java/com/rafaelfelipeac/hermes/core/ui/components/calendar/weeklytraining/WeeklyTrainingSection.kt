@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
@@ -72,7 +74,9 @@ internal fun SectionHeader(
         if (showHelp) {
             Surface(
                 shape = CircleShape,
-                color = colorScheme.surfaceVariant,
+                color = colorScheme.surfaceContainerLow,
+                contentColor = colorScheme.onSurfaceVariant,
+                border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
                 tonalElevation = ElevationSm,
                 shadowElevation = ElevationSm,
                 modifier = Modifier.size(HelpIconSize),
