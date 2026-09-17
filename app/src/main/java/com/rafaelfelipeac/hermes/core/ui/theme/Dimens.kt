@@ -78,6 +78,7 @@ object Dimens {
     val CategoryColorGridHeight = 140.dp
     val EventCardFooterHeight = 44.dp
     val EventCardHeight = 176.dp
+    val EventCategoryAccentWidth = 6.dp
     val EventsTestViewportWidth = 420.dp
     val EventsTestViewportHeight = 720.dp
     val DatePickerDialogMaxHeight = 568.dp

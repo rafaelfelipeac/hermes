@@ -61,6 +61,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardFooterHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventFlagIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
@@ -78,6 +79,7 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 private const val TYPE_CHIP_ALPHA = 0.18f
+private const val EVENT_CARD_FRAME_ALPHA = 0.18f
 private const val EVENT_GRID_COLUMNS = 2
 internal const val EVENT_CARD_TAG_PREFIX = "event-card-"
 
@@ -250,6 +252,7 @@ private fun EventCard(
             lighterTone(base, isDarkTheme = isDarkTheme)
         }
     val categoryChipContent = Color.White
+    val frameColor = colorScheme.onSurface.copy(alpha = EVENT_CARD_FRAME_ALPHA)
     val countdown = countdownLabel(eventDate = eventDate, today = eventToday)
     val dateLabel = formatWorkoutDate(eventDate, currentLocale)
     val categoryLabel = event.categoryName ?: stringResource(R.string.category_uncategorized)
@@ -265,7 +268,7 @@ private fun EventCard(
     Card(
         onClick = onClick,
         shape = shapes.medium,
-        border = BorderStroke(BorderHairline, accent),
+        border = BorderStroke(BorderHairline, frameColor),
         colors =
             CardDefaults.cardColors(
                 containerColor = colorScheme.surfaceContainerLow,
@@ -289,7 +292,7 @@ private fun EventCard(
                 modifier =
                     Modifier
                         .fillMaxHeight()
-                        .width(SpacingXs)
+                        .width(EventCategoryAccentWidth)
                         .background(accent),
             )
 

@@ -690,3 +690,4 @@ Recent learnings:
 - Trophy shelf items feel less generated when category color is structural rather than decorative. Replacing full colored frames with a single left rail keeps the card neutral while category-tinted icons preserve the achievement identity.
 - Trophy rails need a neutral frame to keep card boundaries legible. The category rail can own the left edge while a thinner low-alpha surface frame defines the remaining edges without making the category color feel like decoration.
 - Trophy card borders make text proximity more noticeable than borderless cards. Title blocks need their own horizontal inset so the label reads as card content instead of touching the structural frame.
+- Event cards should share the Trophy rail/frame grammar when category color is structural. A category-only left rail plus neutral hairline frame keeps Events connected to Trophies without letting every card edge compete for attention.
