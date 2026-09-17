@@ -80,3 +80,9 @@
 - Moved Next focus and reusable support cards to neutral bordered surfaces while preserving click targets and content hierarchy.
 - Preserved weekly readout, trend chart, category mix, recent activity, and support navigation behavior.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 12 Status
+- Refined Home weekly workout rows away from fully filled category cards.
+- Moved workout and race-event rows to neutral card bodies with category-colored borders and existing chips.
+- Preserved completion controls, delete action, drag/focus behavior, filters, section grouping, and non-workout event treatment.
+- Added before and after light/dark captures to the screenshot archive.

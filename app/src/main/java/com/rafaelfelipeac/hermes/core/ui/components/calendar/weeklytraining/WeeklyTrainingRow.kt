@@ -61,8 +61,6 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
@@ -78,10 +76,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
 import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
-import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
-import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
-import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
@@ -153,7 +148,7 @@ internal fun WorkoutRow(
             }
             .clip(shapes.medium)
             .then(
-                if (workout.eventType != WORKOUT) {
+                if (!isDragging) {
                     Modifier.border(
                         width = BorderHairline,
                         color = categoryAccent ?: colorScheme.outlineVariant,
@@ -489,50 +484,19 @@ private fun workoutRowColors(
     isDragging: Boolean,
 ): RowColors {
     val themeColorScheme = colorScheme
-    val todoColor = CompletedBlue
-    val todoContent = CompletedBlueContent
-    val completedColor = TodoBlue
-    val completedContent = TodoBlueContent
-    val isDarkTheme = isDarkBackground(colorScheme.background)
     val restDayBackground = themeColorScheme.outlineVariant
     val restDayContent = themeColorScheme.onSurfaceVariant
-    val categoryAccent =
-        workout.categoryColorId?.let { accent ->
-            baseCategoryColor(accent = categoryAccentColor(accent))
-        }
-    val categoryCompletedBackground =
-        categoryAccent?.let { accent ->
-            completedCategoryColor(
-                accent = accent,
-                isDarkTheme = isDarkTheme,
-                surface = themeColorScheme.surface,
-            )
-        }
-    val categoryContent =
-        categoryAccent?.let { background ->
-            readableContentOn(background)
-        }
-    val categoryCompletedContent =
-        categoryCompletedBackground?.let { background ->
-            readableContentOn(background)
-        }
 
     val background =
         when {
             isDragging -> themeColorScheme.surfaceVariant
             workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> restDayBackground
-            workout.isCompleted && categoryAccent == null -> completedColor
-            workout.isCompleted && categoryCompletedBackground != null -> categoryCompletedBackground
-            categoryAccent != null -> categoryAccent
-            else -> todoColor
+            else -> themeColorScheme.surfaceContainerLow
         }
     val content =
         when {
             workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> restDayContent
-            workout.isCompleted && categoryContent == null -> completedContent
-            workout.isCompleted && categoryCompletedContent != null -> categoryCompletedContent
-            categoryContent != null -> categoryContent
-            else -> todoContent
+            else -> themeColorScheme.onSurface
         }
 
     return RowColors(background, content)
@@ -540,10 +504,6 @@ private fun workoutRowColors(
 
 private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
     return coordinates?.boundsInRoot()?.height ?: 0f
-}
-
-private fun readableContentOn(background: Color): Color {
-    return contentColorForBackground(background)
 }
 
 private fun WorkoutUi.usesCategoryStyling(): Boolean {

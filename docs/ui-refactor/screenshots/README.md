@@ -29,6 +29,7 @@ wave-N-feature/
 - `wave-9-activity`: Activity Log timeline rows before/after, captured with demo activity history.
 - `wave-10-challenges`: Challenges list cards before/after, captured with mixed demo challenge states.
 - `wave-11-progress`: Progress support blocks before/after, captured with weekly readout and trend data.
+- `wave-12-home-workouts`: Home weekly workout rows before/after, captured with demo weekly training data.
 
 ## Future Waves
 
