@@ -33,6 +33,7 @@ wave-N-feature/
 - `wave-13-challenge-detail`: Challenge detail completion and metric surfaces before/after.
 - `wave-14-personal-record-detail`: Personal Record detail current-best and history cards before/after.
 - `wave-15-home-help`: Home TBD help affordance before/after, captured with demo weekly training data.
+- `wave-16-workout-dialog`: Home workout editor dialog fields before/after, captured with demo weekly training data.
 
 ## Future Waves
 

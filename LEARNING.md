@@ -683,3 +683,4 @@ Recent learnings:
 - Challenge detail works best when celebratory state is structural rather than a full filled banner. A primary border and icon can still signal completion while the neutral surface keeps Today metrics and history from competing with the summary.
 - Personal Record detail benefits from matching the shelf grammar at a smaller scale. A slim category rail carries the family identity through current-best and history cards without turning every record value into a colored tile.
 - Small affordances should follow the same quiet surface language as larger cards. The Home TBD help button stays discoverable with a border and icon while avoiding another filled bubble competing with workout rows.
+- Dialog fields should not introduce a different visual accent language from the screen that opened them. Using quiet field fills and outline-variant borders keeps forms readable without making every inactive field look like a selected state.

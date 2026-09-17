@@ -104,3 +104,9 @@
 - Replaced the filled help bubble with a neutral bordered circular surface while preserving tap target and help dialog behavior.
 - Preserved weekly navigation, filters, summary, section grouping, workout rows, and add action.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 16 Status
+- Refined Home workout editor dialog fields.
+- Moved the dialog's title, description, date, and category fields to quiet container fills with outline-variant borders, while preserving existing labels, category chip, date picker trigger, dropdown behavior, and save/cancel actions.
+- Preserved workout editing, category management handoff, and date selection behavior.
+- Added before and after light/dark captures to the screenshot archive.
