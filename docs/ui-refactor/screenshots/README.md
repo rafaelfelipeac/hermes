@@ -30,6 +30,7 @@ wave-N-feature/
 - `wave-10-challenges`: Challenges list cards before/after, captured with mixed demo challenge states.
 - `wave-11-progress`: Progress support blocks before/after, captured with weekly readout and trend data.
 - `wave-12-home-workouts`: Home weekly workout rows before/after, captured with demo weekly training data.
+- `wave-13-challenge-detail`: Challenge detail completion and metric surfaces before/after.
 
 ## Future Waves
 

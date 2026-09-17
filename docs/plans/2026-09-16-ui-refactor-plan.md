@@ -86,3 +86,9 @@
 - Moved workout and race-event rows to neutral card bodies with category-colored borders and existing chips.
 - Preserved completion controls, delete action, drag/focus behavior, filters, section grouping, and non-workout event treatment.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 13 Status
+- Refined Challenge detail completion and metric surfaces.
+- Replaced filled celebration and metric tiles with neutral bordered cards while keeping the trophy icon, labels, values, and status hierarchy.
+- Preserved summary, Today metrics, quick add buttons, history list, overflow actions, and progress behavior.
+- Added before and after light/dark captures to the screenshot archive.

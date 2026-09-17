@@ -680,3 +680,4 @@ Recent learnings:
 - Challenge list cards can use category color as a structural cue without changing the progress vocabulary. A narrow rail keeps category identity visible while leaving target chips, status chips, and progress bars responsible for their own meanings.
 - Progress support blocks work better as neutral, bordered sub-surfaces than as filled panels. That keeps charts and readouts dominant while still making secondary actions like Next focus feel tappable.
 - Weekly workout rows need category color to identify training type without owning the whole card. Neutral card bodies with category borders keep dense planning readable while completion controls, chips, and descriptions remain visually stable.
+- Challenge detail works best when celebratory state is structural rather than a full filled banner. A primary border and icon can still signal completion while the neutral surface keeps Today metrics and history from competing with the summary.
