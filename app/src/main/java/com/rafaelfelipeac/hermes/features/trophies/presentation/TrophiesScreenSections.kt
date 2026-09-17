@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,7 +38,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -45,6 +46,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardArtworkTopPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardCategoryBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCardTitleBlockHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyCategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyDetailCardMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyGridArtworkSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyOverviewCardMinHeight
@@ -53,7 +55,8 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyShelfCardMinWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.TrophyStateLineBlockHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 
-private const val UNLOCKED_TROPHY_BORDER_ALPHA = 0.42f
+private const val LOCKED_TROPHY_RAIL_ALPHA = 0.58f
+private const val TROPHY_FRAME_ALPHA = 0.18f
 private const val TROPHY_TITLE_MAX_LINES = 2
 
 @Composable
@@ -234,12 +237,8 @@ private fun TrophyShelfCard(
     modifier: Modifier = Modifier,
 ) {
     val accent = trophyAccentColor(trophy)
-    val borderColor =
-        if (trophy.isUnlocked) {
-            accent.copy(alpha = UNLOCKED_TROPHY_BORDER_ALPHA)
-        } else {
-            colorScheme.outlineVariant
-        }
+    val railColor = if (trophy.isUnlocked) accent else accent.copy(alpha = LOCKED_TROPHY_RAIL_ALPHA)
+    val frameColor = colorScheme.onSurface.copy(alpha = TROPHY_FRAME_ALPHA)
     val cardColor =
         if (trophy.isUnlocked) {
             colorScheme.surfaceContainerLow
@@ -268,23 +267,21 @@ private fun TrophyShelfCard(
                 .semantics { contentDescription = semanticsLabel }
                 .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = cardColor),
-        border = BorderStroke(BorderThin, borderColor),
+        border = BorderStroke(BorderHairline, frameColor),
     ) {
         Box(
             modifier =
                 Modifier
                     .fillMaxSize(),
         ) {
-            if (trophy.isUnlocked) {
-                Box(
-                    modifier =
-                        Modifier
-                            .align(Alignment.TopCenter)
-                            .fillMaxWidth()
-                            .height(BorderThin)
-                            .background(accent),
-                )
-            }
+            Box(
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterStart)
+                        .fillMaxHeight()
+                        .width(TrophyCategoryAccentWidth)
+                        .background(railColor),
+            )
 
             Column(
                 modifier =
@@ -313,6 +310,7 @@ private fun TrophyShelfCard(
                     modifier =
                         Modifier
                             .fillMaxWidth()
+                            .padding(horizontal = SpacingLg)
                             .height(TrophyCardTitleBlockHeight),
                     contentAlignment = Alignment.TopCenter,
                 ) {

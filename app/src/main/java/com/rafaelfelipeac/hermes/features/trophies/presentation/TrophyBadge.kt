@@ -35,8 +35,8 @@ private const val BADGE_CREST_ICON_SCALE = 1.08f
 private const val BADGE_FILL_ALPHA = 0.24f
 private const val BADGE_BORDER_ALPHA = 0.46f
 private const val BADGE_ICON_ALPHA = 0.92f
-private const val BADGE_LOCKED_ICON_ALPHA = 0.72f
-private const val BADGE_LOCKED_BORDER_ALPHA = 0.78f
+private const val BADGE_LOCKED_ACCENT_ICON_ALPHA = 0.68f
+private const val BADGE_LOCKED_ACCENT_BORDER_ALPHA = 0.32f
 private const val BADGE_LOCKED_MIDDLE_RING_ALPHA = 0.34f
 private const val BADGE_LOCKED_INNER_RING_ALPHA = 0.26f
 private const val BADGE_LOCK_OVERLAY_BORDER_ALPHA = 0.88f
@@ -68,7 +68,7 @@ internal fun TrophyBadge(
         if (trophy.isUnlocked) {
             accent.copy(alpha = tierStyle.iconAlpha)
         } else {
-            colorScheme.onSurfaceVariant.copy(alpha = BADGE_LOCKED_ICON_ALPHA)
+            accent.copy(alpha = BADGE_LOCKED_ACCENT_ICON_ALPHA)
         }
     val badgeColor =
         if (trophy.isUnlocked) {
@@ -80,7 +80,7 @@ internal fun TrophyBadge(
         if (trophy.isUnlocked) {
             accent.copy(alpha = tierStyle.borderAlpha)
         } else {
-            colorScheme.outline.copy(alpha = BADGE_LOCKED_BORDER_ALPHA)
+            accent.copy(alpha = BADGE_LOCKED_ACCENT_BORDER_ALPHA)
         }
     val middleRingColor =
         if (trophy.isUnlocked) {

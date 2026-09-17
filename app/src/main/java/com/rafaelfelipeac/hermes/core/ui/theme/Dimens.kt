@@ -91,6 +91,7 @@ object Dimens {
     val TrophyDetailIconSize = 44.dp
     val TrophyBadgeLockBadgeSize = 20.dp
     val TrophyBadgeLockIconSize = 12.dp
+    val TrophyCategoryAccentWidth = 6.dp
     val TrophyShelfCardMinWidth = 132.dp
     val TrophyOverviewCardMinHeight = 156.dp
     val TrophyDetailCardMinHeight = 176.dp
