@@ -47,6 +47,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordCategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -58,6 +59,8 @@ import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalR
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordEntry
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import java.util.Locale
+
+private const val PERSONAL_RECORD_DETAIL_FRAME_ALPHA = 0.18f
 
 @Composable
 internal fun PersonalRecordDetail(
@@ -129,7 +132,11 @@ internal fun PersonalRecordDetail(
         } else {
             Card(
                 colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-                border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
+                border =
+                    BorderStroke(
+                        BorderHairline,
+                        colorScheme.onSurface.copy(alpha = PERSONAL_RECORD_DETAIL_FRAME_ALPHA),
+                    ),
                 shape = shapes.medium,
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -203,7 +210,11 @@ private fun PersonalRecordHistoryRow(
     Card(
         onClick = onClick,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
+        border =
+            BorderStroke(
+                BorderHairline,
+                colorScheme.onSurface.copy(alpha = PERSONAL_RECORD_DETAIL_FRAME_ALPHA),
+            ),
         shape = shapes.medium,
         modifier =
             Modifier
@@ -292,6 +303,6 @@ private fun PersonalRecordAccentRail(category: Category?) {
         modifier =
             Modifier
                 .fillMaxHeight()
-                .width(SpacingXs),
+                .width(PersonalRecordCategoryAccentWidth),
     ) {}
 }

@@ -34,6 +34,7 @@ object Dimens {
     val PersonalRecordTimeWheelItemHeight = 32.dp
     val PersonalRecordTimeWheelColumnMinWidth = 72.dp
     val PersonalRecordTimeWheelContentPadding = 40.dp
+    val PersonalRecordCategoryAccentWidth = 6.dp
     val HelpIconSize = 36.dp
     val HelpIconGlyphSize = 22.dp
     val SettingsDeveloperSectionSpacing = 10.dp

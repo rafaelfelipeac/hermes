@@ -48,6 +48,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordCategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -58,6 +59,8 @@ import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordBestSelector
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import java.util.Locale
+
+private const val PERSONAL_RECORD_FRAME_ALPHA = 0.18f
 
 @Composable
 internal fun PersonalRecordsShelf(
@@ -98,11 +101,12 @@ internal fun PersonalRecordsShelf(
                                 )
                             val category = group.category
                             val accent = category?.colorId?.let(::categoryAccentColor) ?: colorScheme.primary
+                            val frameColor = colorScheme.onSurface.copy(alpha = PERSONAL_RECORD_FRAME_ALPHA)
 
                             Card(
                                 onClick = { onFamilySelected(family.id) },
                                 colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-                                border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
+                                border = BorderStroke(BorderHairline, frameColor),
                                 shape = shapes.medium,
                                 modifier =
                                     Modifier
@@ -114,7 +118,7 @@ internal fun PersonalRecordsShelf(
                                         modifier =
                                             Modifier
                                                 .fillMaxHeight()
-                                                .width(SpacingXs)
+                                                .width(PersonalRecordCategoryAccentWidth)
                                                 .background(accent),
                                     )
 
