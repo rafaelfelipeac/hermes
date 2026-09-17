@@ -686,3 +686,4 @@ Recent learnings:
 - Dialog fields should not introduce a different visual accent language from the screen that opened them. Using quiet field fills and outline-variant borders keeps forms readable without making every inactive field look like a selected state.
 - A final screenshot pass needs explicit navigation target verification, not just scripted taps. Bottom navigation hit areas sit above the gesture bar, so regression captures should confirm the destination title before treating files as valid.
 - Categories still benefit from the established `TitleChip` pattern even after the row shell becomes quieter. Pairing color and name in one chip keeps category identity consistent with workout rows, event cards, and picker fields.
+- Backup actions need grouping even when each action is a standalone row. Export/import share a data-transfer context, while backup folder selection is a storage preference, so a subtle separator helps without adding extra copy.

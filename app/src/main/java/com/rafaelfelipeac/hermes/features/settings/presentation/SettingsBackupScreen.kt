@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
@@ -62,6 +63,8 @@ internal fun SettingsBackupScreen(
             onClick = onImportClick,
             enabled = !isOperationInProgress,
         )
+
+        HorizontalDivider(color = colorScheme.outlineVariant)
 
         SettingsBackupActionRow(
             label = stringResource(R.string.settings_backup_folder_title),

@@ -38,7 +38,7 @@
 
 ## Wave 4 Status
 - Applied the quiet row grammar to the Backup utility screen.
-- Split export, import, and folder actions into standalone elevated rows.
+- Split export, import, and folder actions into standalone elevated rows, with a separator before folder selection because export/import are backup operations and folder selection is a storage preference.
 - Preserved per-action disabled semantics during backup operations.
 - Added before and after light/dark captures to the screenshot archive.
 
