@@ -684,3 +684,4 @@ Recent learnings:
 - Personal Record detail benefits from matching the shelf grammar at a smaller scale. A slim category rail carries the family identity through current-best and history cards without turning every record value into a colored tile.
 - Small affordances should follow the same quiet surface language as larger cards. The Home TBD help button stays discoverable with a border and icon while avoiding another filled bubble competing with workout rows.
 - Dialog fields should not introduce a different visual accent language from the screen that opened them. Using quiet field fills and outline-variant borders keeps forms readable without making every inactive field look like a selected state.
+- A final screenshot pass needs explicit navigation target verification, not just scripted taps. Bottom navigation hit areas sit above the gesture bar, so regression captures should confirm the destination title before treating files as valid.

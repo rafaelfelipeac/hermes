@@ -34,6 +34,7 @@ wave-N-feature/
 - `wave-14-personal-record-detail`: Personal Record detail current-best and history cards before/after.
 - `wave-15-home-help`: Home TBD help affordance before/after, captured with demo weekly training data.
 - `wave-16-workout-dialog`: Home workout editor dialog fields before/after, captured with demo weekly training data.
+- `wave-17-final-regression`: Final light/dark regression pass for Home, Progress, Events, and Browse.
 
 ## Future Waves
 

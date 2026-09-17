@@ -110,3 +110,8 @@
 - Moved the dialog's title, description, date, and category fields to quiet container fills with outline-variant borders, while preserving existing labels, category chip, date picker trigger, dropdown behavior, and save/cancel actions.
 - Preserved workout editing, category management handoff, and date selection behavior.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 17 Status
+- Completed the final visual regression pass for the UI refactor branch.
+- Captured Home, Progress, Events, and Browse in light and dark themes after the wave 0-16 changes.
+- Verified the screenshot archive has a folder and README entry for every wave from 0 through 17.
