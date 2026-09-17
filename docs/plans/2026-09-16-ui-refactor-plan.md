@@ -92,3 +92,9 @@
 - Replaced filled celebration and metric tiles with neutral bordered cards while keeping the trophy icon, labels, values, and status hierarchy.
 - Preserved summary, Today metrics, quick add buttons, history list, overflow actions, and progress behavior.
 - Added before and after light/dark captures to the screenshot archive.
+
+## Wave 14 Status
+- Refined Personal Record detail cards with the same category rail grammar used by shelves and rows.
+- Added slim category accents to the current-best card and history rows while keeping card bodies neutral.
+- Preserved metric/comparison chips, edit/delete actions, manual current selection, history ordering, and add-result FAB behavior.
+- Added before and after light/dark captures to the screenshot archive.

@@ -11,10 +11,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
@@ -25,6 +29,7 @@ import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -128,18 +133,24 @@ internal fun PersonalRecordDetail(
                 shape = shapes.medium,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Column(
-                    modifier = Modifier.padding(SpacingLg),
-                    verticalArrangement = Arrangement.spacedBy(SpacingSm),
-                ) {
-                    Text(text = stringResource(R.string.personal_records_current_best), style = typography.titleMedium)
-                    Text(text = currentBestLabel.orEmpty(), style = typography.headlineMedium)
-                    if (currentBestDateLabel != null) {
+                Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+                    PersonalRecordAccentRail(category = category)
+                    Column(
+                        modifier = Modifier.weight(1f).padding(SpacingLg),
+                        verticalArrangement = Arrangement.spacedBy(SpacingSm),
+                    ) {
                         Text(
-                            text = currentBestDateLabel,
-                            style = typography.bodyMedium,
-                            color = colorScheme.onSurfaceVariant,
+                            text = stringResource(R.string.personal_records_current_best),
+                            style = typography.titleMedium,
                         )
+                        Text(text = currentBestLabel.orEmpty(), style = typography.headlineMedium)
+                        if (currentBestDateLabel != null) {
+                            Text(
+                                text = currentBestDateLabel,
+                                style = typography.bodyMedium,
+                                color = colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
@@ -199,71 +210,88 @@ private fun PersonalRecordHistoryRow(
                 .fillMaxWidth()
                 .testTag(PERSONAL_RECORDS_ENTRY_CARD_TAG_PREFIX + entry.id),
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(SpacingLg),
-            horizontalArrangement = Arrangement.spacedBy(SpacingMd),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+            PersonalRecordAccentRail(category = category)
             Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                modifier = Modifier.weight(1f).padding(SpacingLg),
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                    horizontalArrangement = Arrangement.spacedBy(SpacingMd),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text(
-                        text =
-                            formatPersonalRecordValue(
-                                value = entry.value,
-                                unit = entry.unit,
-                                locale = currentLocale,
-                                unitLabel = unitLabelFor(entry.unit, entry.customUnitLabel, entry.value),
-                            ),
-                        style = typography.titleMedium,
-                    )
-                    if (isCurrent) {
-                        TitleChip(
-                            label = stringResource(R.string.personal_records_current_selected),
-                            containerColor = currentFlagColors.container,
-                            contentColor = currentFlagColors.content,
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                    ) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text =
+                                    formatPersonalRecordValue(
+                                        value = entry.value,
+                                        unit = entry.unit,
+                                        locale = currentLocale,
+                                        unitLabel = unitLabelFor(entry.unit, entry.customUnitLabel, entry.value),
+                                    ),
+                                style = typography.titleMedium,
+                            )
+                            if (isCurrent) {
+                                TitleChip(
+                                    label = stringResource(R.string.personal_records_current_selected),
+                                    containerColor = currentFlagColors.container,
+                                    contentColor = currentFlagColors.content,
+                                )
+                            }
+                        }
+                        Text(
+                            text = formatWorkoutDate(entry.recordDate, currentLocale),
+                            style = typography.bodySmall,
+                            color = colorScheme.onSurfaceVariant,
+                        )
+                        if (!entry.note.isNullOrBlank()) {
+                            Text(
+                                text = entry.note.orEmpty(),
+                                style = typography.bodySmall,
+                                color = colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+
+                    if (isManualSelection) {
+                        val selectionDescription =
+                            stringResource(
+                                if (isCurrent) {
+                                    R.string.personal_records_current_selected
+                                } else {
+                                    R.string.personal_records_set_current
+                                },
+                            )
+                        RadioButton(
+                            selected = isCurrent,
+                            onClick = {
+                                if (!isCurrent) onSetCurrent()
+                            },
+                            modifier =
+                                Modifier
+                                    .testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id)
+                                    .semantics { contentDescription = selectionDescription },
                         )
                     }
                 }
-                Text(
-                    text = formatWorkoutDate(entry.recordDate, currentLocale),
-                    style = typography.bodySmall,
-                    color = colorScheme.onSurfaceVariant,
-                )
-                if (!entry.note.isNullOrBlank()) {
-                    Text(
-                        text = entry.note.orEmpty(),
-                        style = typography.bodySmall,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-
-            if (isManualSelection) {
-                val selectionDescription =
-                    stringResource(
-                        if (isCurrent) {
-                            R.string.personal_records_current_selected
-                        } else {
-                            R.string.personal_records_set_current
-                        },
-                    )
-                RadioButton(
-                    selected = isCurrent,
-                    onClick = {
-                        if (!isCurrent) onSetCurrent()
-                    },
-                    modifier =
-                        Modifier
-                            .testTag(PERSONAL_RECORDS_SET_CURRENT_TAG_PREFIX + entry.id)
-                            .semantics { contentDescription = selectionDescription },
-                )
             }
         }
     }
+}
+
+@Composable
+private fun PersonalRecordAccentRail(category: Category?) {
+    Surface(
+        color = personalRecordRelatedColors(category).container,
+        modifier =
+            Modifier
+                .fillMaxHeight()
+                .width(SpacingXs),
+    ) {}
 }
