@@ -20,7 +20,7 @@
 
 ## Wave 1 Status
 - Finished Categories list refactor first.
-- Added individual quiet row cards, drag handles, overflow actions, and atomic move-to-position support.
+- Added individual quiet row cards, drag handles, category chips, overflow actions, and atomic move-to-position support.
 - Added accessible up/down menu actions while keeping existing edit, visibility, and delete flows.
 - Verified light and dark Categories screens, including protected and regular category overflow menus.
 
