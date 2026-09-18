@@ -13,14 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -41,9 +38,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.HelpIconButton
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonContentHorizontalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonContentVerticalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonVerticalPadding
@@ -94,7 +90,7 @@ internal fun SettingsDetailScreen(
     content: @Composable () -> Unit,
 ) {
     val scrollState = rememberScrollState()
-    val resolvedHelpContentDescription =
+    val resolvedHelpContentDescription: String? =
         if (onHelpClick != null) {
             requireNotNull(helpContentDescription) {
                 "helpContentDescription is required when onHelpClick is provided."
@@ -138,27 +134,10 @@ internal fun SettingsDetailScreen(
             )
 
             if (onHelpClick != null) {
-                Surface(
-                    shape = CircleShape,
-                    color = colorScheme.surfaceVariant,
-                    tonalElevation = ElevationSm,
-                    shadowElevation = ElevationSm,
-                    modifier = Modifier.size(HelpIconSize),
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .clickable(onClick = onHelpClick),
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
-                            contentDescription = resolvedHelpContentDescription,
-                            modifier = Modifier.size(HelpIconGlyphSize),
-                        )
-                    }
-                }
+                HelpIconButton(
+                    contentDescription = checkNotNull(resolvedHelpContentDescription),
+                    onClick = onHelpClick,
+                )
             }
         }
 

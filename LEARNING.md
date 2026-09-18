@@ -706,3 +706,7 @@ Rest, unavailable, and sick rows on Home are not category-backed planner blocks,
 ## Challenge list and detail share one summary surface
 
 Challenge detail headers should use the same summary container as challenge list cards instead of copying the rail, frame, spacing, chips, and progress arrangement. Sharing the component keeps category identity, target tags, progress state, and border treatment connected across list and detail while leaving detail-only metric and action cards separate.
+
+## Help icon buttons share one neutral treatment
+
+Help affordances appear in Home, Categories, and Settings detail screens, so they should come from one shared component instead of repeating local circle surfaces. The shared neutral bordered treatment makes help read as secondary guidance across destinations without inheriting feature/category colors.

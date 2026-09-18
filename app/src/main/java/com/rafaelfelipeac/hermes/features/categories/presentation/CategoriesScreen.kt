@@ -29,7 +29,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.ArrowDownward
@@ -74,6 +73,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
 import com.rafaelfelipeac.hermes.core.ui.components.DefaultTextFieldKeyboardOptions
+import com.rafaelfelipeac.hermes.core.ui.components.HelpIconButton
 import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
@@ -86,8 +86,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryMoveIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryRowMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -117,7 +115,6 @@ fun CategoriesScreen(
     var dragOffsetY by rememberSaveable { mutableStateOf(0f) }
     var categoryRowHeightPx by rememberSaveable { mutableStateOf(0) }
     val listState = rememberLazyListState()
-    val actionIconTint = colorScheme.onSurfaceVariant
     val displayedCategories by remember(state.categories, draggedCategoryId, dragTargetIndex) {
         derivedStateOf {
             val draggedId = draggedCategoryId
@@ -181,26 +178,10 @@ fun CategoriesScreen(
 
                 Spacer(modifier = Modifier.weight(1f))
 
-                Surface(
+                HelpIconButton(
+                    contentDescription = stringResource(R.string.categories_help_icon),
                     onClick = { isHelpDialogVisible = true },
-                    shape = CircleShape,
-                    color = colorScheme.surfaceVariant,
-                    tonalElevation = ElevationSm,
-                    shadowElevation = ElevationSm,
-                    modifier = Modifier.size(HelpIconSize),
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
-                            contentDescription = stringResource(R.string.categories_help_icon),
-                            tint = actionIconTint,
-                            modifier = Modifier.size(HelpIconGlyphSize),
-                        )
-                    }
-                }
+                )
             }
 
             LazyColumn(
