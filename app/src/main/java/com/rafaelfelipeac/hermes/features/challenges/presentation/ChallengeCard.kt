@@ -37,41 +37,60 @@ internal fun ChallengeCard(
     calculation: ChallengeCalculationResult?,
     onClick: () -> Unit,
 ) {
-    val frameColor = colorScheme.onSurface.copy(alpha = CHALLENGE_FRAME_ALPHA)
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = shapes.medium,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-        border = BorderStroke(BorderHairline, frameColor),
+        border = BorderStroke(BorderHairline, challengeFrameColor()),
     ) {
-        Row(
+        ChallengeSummarySurface(
+            challenge = challenge,
+            category = category,
+            calculation = calculation,
+            showProgressBar = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
+            progressModifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
+        )
+    }
+}
+
+@Composable
+internal fun ChallengeSummarySurface(
+    challenge: Challenge,
+    category: Category?,
+    calculation: ChallengeCalculationResult?,
+    showProgressBar: Boolean,
+    progressModifier: Modifier = Modifier,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+                .clip(shapes.medium),
+    ) {
+        Surface(
+            color = category?.let { categoryAccentColor(it.colorId) } ?: colorScheme.outlineVariant,
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .height(IntrinsicSize.Min)
-                    .clip(shapes.medium),
-        ) {
-            Surface(
-                color = category?.let { categoryAccentColor(it.colorId) } ?: colorScheme.outlineVariant,
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .width(ChallengeCategoryAccentWidth),
-            ) {}
+                    .fillMaxHeight()
+                    .width(ChallengeCategoryAccentWidth),
+        ) {}
 
-            Column(
-                modifier = Modifier.weight(1f).padding(SpacingXl),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
-            ) {
-                ChallengeSummaryContent(
-                    challenge = challenge,
-                    category = category,
-                    calculation = calculation,
-                    showProgressBar = challenge.lifecycle == ChallengeLifecycle.ACTIVE,
-                    modifier = Modifier.testTag(CHALLENGES_TAG_ACTIVE_CARD_PROGRESS),
-                )
-            }
+        Column(
+            modifier = Modifier.weight(1f).padding(SpacingXl),
+            verticalArrangement = Arrangement.spacedBy(SpacingSm),
+        ) {
+            ChallengeSummaryContent(
+                challenge = challenge,
+                category = category,
+                calculation = calculation,
+                showProgressBar = showProgressBar,
+                modifier = progressModifier,
+            )
         }
     }
 }
+
+@Composable
+internal fun challengeFrameColor() = colorScheme.onSurface.copy(alpha = CHALLENGE_FRAME_ALPHA)

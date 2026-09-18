@@ -702,3 +702,7 @@ Recent learnings:
 ## Home schedule state rows stay neutral
 
 Rest, unavailable, and sick rows on Home are not category-backed planner blocks, so they should not inherit the full category-color treatment used by workouts and race events. A neutral surface with the standard outline keeps them readable as schedule states while preserving the stronger calendar-like color language for actionable training items.
+
+## Challenge list and detail share one summary surface
+
+Challenge detail headers should use the same summary container as challenge list cards instead of copying the rail, frame, spacing, chips, and progress arrangement. Sharing the component keeps category identity, target tags, progress state, and border treatment connected across list and detail while leaving detail-only metric and action cards separate.
