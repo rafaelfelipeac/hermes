@@ -692,3 +692,5 @@ Recent learnings:
 - Trophy card borders make text proximity more noticeable than borderless cards. Title blocks need their own horizontal inset so the label reads as card content instead of touching the structural frame.
 - Event cards should share the Trophy rail/frame grammar when category color is structural. A category-only left rail plus neutral hairline frame keeps Events connected to Trophies without letting every card edge compete for attention.
 - Personal Record cards should use the same rail/frame vocabulary as Trophies and Events. Keeping the category rail at the shared width and the remaining frame neutral makes category-owned surfaces feel connected across feature shelves.
+
+- Pace calculator results should not borrow category-card rail language when there is no category metadata. A distinct result container tone makes the computed output read as an answer instead of another input or category-owned card.

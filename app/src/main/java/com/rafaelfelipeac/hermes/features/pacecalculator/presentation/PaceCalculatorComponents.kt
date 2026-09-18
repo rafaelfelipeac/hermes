@@ -3,18 +3,12 @@
 package com.rafaelfelipeac.hermes.features.pacecalculator.presentation
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,7 +37,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.features.pacecalculator.domain.PaceCalculatorMode
 import com.rafaelfelipeac.hermes.features.settings.domain.model.DistanceUnit
 import com.rafaelfelipeac.hermes.features.settings.domain.model.PaceUnit
@@ -248,54 +241,51 @@ internal fun ResultCard(
     settingsPaceUnit: PaceUnit,
 ) {
     val hasResult = result.hasResult()
+    val containerColor = if (hasResult) colorScheme.primaryContainer else colorScheme.surfaceContainerLow
+    val contentColor = if (hasResult) colorScheme.onPrimaryContainer else colorScheme.onSurface
+    val supportingContentColor = if (hasResult) colorScheme.onPrimaryContainer else colorScheme.onSurfaceVariant
     Card(
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-        border = BorderStroke(BorderThin, colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(BorderThin, if (hasResult) colorScheme.primary else colorScheme.outlineVariant),
         shape = shapes.medium,
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .width(SpacingXs)
-                        .background(if (hasResult) colorScheme.primary else colorScheme.outlineVariant),
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(SpacingLg),
+            verticalArrangement = Arrangement.spacedBy(SpacingSm),
+        ) {
+            Text(
+                text = stringResource(R.string.pace_calculator_result),
+                style = typography.titleMedium,
+                color = contentColor,
             )
-
-            Column(
-                modifier = Modifier.weight(1f).padding(SpacingLg),
-                verticalArrangement = Arrangement.spacedBy(SpacingSm),
-            ) {
-                Text(text = stringResource(R.string.pace_calculator_result), style = typography.titleMedium)
-                if (hasResult) {
-                    val labels = result.labels(mode, settingsDistanceUnit, settingsPaceUnit)
+            if (hasResult) {
+                val labels = result.labels(mode, settingsDistanceUnit, settingsPaceUnit)
+                Text(
+                    text = paceCalculatorResultLabel(mode),
+                    style = typography.bodyMedium,
+                    color = supportingContentColor,
+                )
+                Text(
+                    text = labels.primary,
+                    style = typography.headlineMedium,
+                    color = contentColor,
+                    modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
+                )
+                if (labels.secondary.isNotBlank()) {
                     Text(
-                        text = paceCalculatorResultLabel(mode),
+                        text = labels.secondary,
                         style = typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = labels.primary,
-                        style = typography.headlineMedium,
-                        color = colorScheme.primary,
-                        modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
-                    )
-                    if (labels.secondary.isNotBlank()) {
-                        Text(
-                            text = labels.secondary,
-                            style = typography.bodyMedium,
-                            color = colorScheme.onSurfaceVariant,
-                        )
-                    }
-                } else {
-                    Text(
-                        text = stringResource(R.string.pace_calculator_result_empty),
-                        style = typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant,
-                        modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
+                        color = supportingContentColor,
                     )
                 }
+            } else {
+                Text(
+                    text = stringResource(R.string.pace_calculator_result_empty),
+                    style = typography.bodyMedium,
+                    color = supportingContentColor,
+                    modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
+                )
             }
         }
     }
