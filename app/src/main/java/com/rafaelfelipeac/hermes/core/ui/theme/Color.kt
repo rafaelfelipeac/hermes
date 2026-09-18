@@ -11,6 +11,11 @@ val CompletedBlueContent = Color(0xFF0B3A63)
 val RestDayContentDark = Color(0xFFB6C2CF)
 val RestDayContentLight = Color(0xFF4A5A6A)
 
+val ChallengeStatusWarningLight = Color(0xFF8A5A00)
+val ChallengeStatusWarningDark = Color(0xFFFFCC66)
+val ChallengeStatusSuccessLight = Color(0xFF2F6B3F)
+val ChallengeStatusSuccessDark = Color(0xFF8FD29A)
+
 val LightPrimary = TodoBlue
 val LightOnPrimary = TodoBlueContent
 

@@ -17,11 +17,13 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import com.rafaelfelipeac.hermes.core.ui.theme.CHALLENGE_FRAME_ALPHA
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ChallengeCategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
@@ -35,24 +37,31 @@ internal fun ChallengeCard(
     calculation: ChallengeCalculationResult?,
     onClick: () -> Unit,
 ) {
+    val frameColor = colorScheme.onSurface.copy(alpha = CHALLENGE_FRAME_ALPHA)
     Card(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = shapes.medium,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
+        border = BorderStroke(BorderHairline, frameColor),
     ) {
-        Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min)
+                    .clip(shapes.medium),
+        ) {
             Surface(
-                color = category?.let { categoryAccentColor(it.colorId) } ?: colorScheme.primary,
+                color = category?.let { categoryAccentColor(it.colorId) } ?: colorScheme.outlineVariant,
                 modifier =
                     Modifier
                         .fillMaxHeight()
-                        .width(SpacingXs),
+                        .width(ChallengeCategoryAccentWidth),
             ) {}
 
             Column(
-                modifier = Modifier.weight(1f).padding(SpacingMd),
+                modifier = Modifier.weight(1f).padding(SpacingXl),
                 verticalArrangement = Arrangement.spacedBy(SpacingSm),
             ) {
                 ChallengeSummaryContent(

@@ -44,6 +44,7 @@ object Dimens {
     val SettingsRowMinHeight = 56.dp
     val ReleaseNotesBottomPadding = 24.dp
     val ProgressReadoutBarHeight = 10.dp
+    val ChallengeCategoryAccentWidth = 6.dp
     val ChallengeProgressBarHeight = 6.dp
     val ProgressTrendBarHeight = 96.dp
     val ProgressTrendBarMinWidth = 28.dp

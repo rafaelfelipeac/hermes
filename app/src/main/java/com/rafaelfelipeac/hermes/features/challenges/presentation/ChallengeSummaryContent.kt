@@ -4,6 +4,7 @@ package com.rafaelfelipeac.hermes.features.challenges.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
@@ -26,6 +27,7 @@ import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeCalcu
 
 private const val CHALLENGE_TITLE_MAX_LINES = 2
 private const val CHALLENGE_DESCRIPTION_MAX_LINES = 2
+private const val CHALLENGE_STATUS_MAX_LINES = 2
 
 @Composable
 internal fun ChallengeSummaryContent(
@@ -47,11 +49,6 @@ internal fun ChallengeSummaryContent(
         horizontalArrangement = Arrangement.spacedBy(SpacingXs),
         verticalArrangement = Arrangement.spacedBy(SpacingXs),
     ) {
-        TitleChip(
-            label = challengeTargetTypeLabel(challenge.targetType),
-            containerColor = colorScheme.surfaceVariant,
-            contentColor = colorScheme.onSurfaceVariant,
-        )
         category?.let {
             TitleChip(
                 label = it.name,
@@ -59,13 +56,11 @@ internal fun ChallengeSummaryContent(
                 contentColor = categoryAccent?.let { accent -> contentColorForBackground(accent) } ?: colorScheme.onSurfaceVariant,
             )
         }
-        calculation?.let { result ->
-            TitleChip(
-                label = challengeStatusLabel(result.status),
-                containerColor = challengeProgressContainerColor(result.status),
-                contentColor = challengeProgressColor(result.status),
-            )
-        }
+        TitleChip(
+            label = challengeTargetTypeLabel(challenge.targetType),
+            containerColor = colorScheme.surfaceVariant,
+            contentColor = colorScheme.onSurfaceVariant,
+        )
     }
     challenge.description?.takeIf { it.isNotBlank() }?.let { description ->
         Text(
@@ -87,11 +82,28 @@ internal fun ChallengeSummaryContent(
     )
     calculation?.let { result ->
         if (showProgressBar) {
-            ChallengeProgressBar(result.visualProgress, challengeProgressColor(result.status), modifier)
+            ChallengeProgressBar(result.visualProgress, challengeProgressBarColor(), modifier)
         }
+        ChallengeProgressFooter(result = result)
+    }
+}
+
+@Composable
+private fun ChallengeProgressFooter(result: ChallengeCalculationResult) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            text = challengeStatusLabel(result.status),
+            modifier = Modifier.weight(1f),
+            style = typography.labelLarge,
+            color = challengeStatusTextColor(result.status),
+            maxLines = CHALLENGE_STATUS_MAX_LINES,
+            overflow = TextOverflow.Ellipsis,
+        )
         Text(
             text = challengeProgressLabel(result),
-            modifier = Modifier.fillMaxWidth(),
             style = typography.labelLarge,
             color = colorScheme.onSurfaceVariant,
             textAlign = TextAlign.End,
