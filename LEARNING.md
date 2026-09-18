@@ -694,3 +694,5 @@ Recent learnings:
 - Personal Record cards should use the same rail/frame vocabulary as Trophies and Events. Keeping the category rail at the shared width and the remaining frame neutral makes category-owned surfaces feel connected across feature shelves.
 
 - Pace calculator results should not borrow category-card rail language when there is no category metadata. A distinct result container tone makes the computed output read as an answer instead of another input or category-owned card.
+
+- Activity timeline rails should share the same physical rail and neutral-frame vocabulary as later category-owned cards, even though their color represents chronology rather than category metadata. Keeping the geometry consistent makes the UI family feel intentional.

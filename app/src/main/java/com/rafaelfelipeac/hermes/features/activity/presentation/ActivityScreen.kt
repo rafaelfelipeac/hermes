@@ -1,6 +1,7 @@
 package com.rafaelfelipeac.hermes.features.activity.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -51,12 +52,13 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.relativeDateText
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityFiltersUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityItemUi
 import com.rafaelfelipeac.hermes.features.activity.presentation.model.ActivityPrimaryFilter
@@ -440,6 +442,7 @@ private fun ActivityRow(
     Surface(
         tonalElevation = ElevationSm,
         shape = shapes.medium,
+        border = BorderStroke(BorderHairline, colorScheme.onSurface.copy(alpha = ACTIVITY_ROW_FRAME_ALPHA)),
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -457,7 +460,7 @@ private fun ActivityRow(
                 modifier =
                     Modifier
                         .fillMaxHeight()
-                        .width(SpacingXs),
+                        .width(CategoryAccentWidth),
             ) {}
 
             Column(
@@ -504,5 +507,6 @@ private fun ActivityRow(
 }
 
 private const val HEADER_KEY_PREFIX = "header-"
+private const val ACTIVITY_ROW_FRAME_ALPHA = 0.16f
 private const val TITLE_MAX_LINES = 4
 private const val SUBTITLE_MAX_LINES = 6
