@@ -710,3 +710,7 @@ Challenge detail headers should use the same summary container as challenge list
 ## Help icon buttons share one neutral treatment
 
 Help affordances appear in Home, Categories, and Settings detail screens, so they should come from one shared component instead of repeating local circle surfaces. The shared neutral bordered treatment makes help read as secondary guidance across destinations without inheriting feature/category colors.
+
+## Dialog field labels should blend with dialog surfaces
+
+Outlined dialog fields read calmer when the field container is transparent and the floating label notch shares the dialog surface. This preserves the form boundary without creating small contrast islands around labels, especially in dark mode.

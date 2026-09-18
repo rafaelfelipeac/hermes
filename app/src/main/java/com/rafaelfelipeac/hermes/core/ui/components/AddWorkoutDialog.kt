@@ -301,9 +301,9 @@ fun AddWorkoutDialog(
 @Composable
 private fun hermesDialogTextFieldColors(): TextFieldColors =
     OutlinedTextFieldDefaults.colors(
-        focusedContainerColor = colorScheme.surfaceContainerLow,
-        unfocusedContainerColor = colorScheme.surfaceContainerLow,
-        disabledContainerColor = colorScheme.surfaceContainerLow,
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        disabledContainerColor = Color.Transparent,
         focusedBorderColor = colorScheme.primary,
         unfocusedBorderColor = colorScheme.outlineVariant,
     )
