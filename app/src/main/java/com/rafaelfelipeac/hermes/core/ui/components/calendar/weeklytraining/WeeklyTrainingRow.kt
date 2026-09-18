@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -61,6 +60,8 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
@@ -76,7 +77,10 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
 import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
+import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
+import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
+import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.EventType.RACE_EVENT
@@ -148,7 +152,7 @@ internal fun WorkoutRow(
             }
             .clip(shapes.medium)
             .then(
-                if (!isDragging) {
+                if (!isDragging && workout.eventType != WORKOUT) {
                     Modifier.border(
                         width = BorderHairline,
                         color = categoryAccent ?: colorScheme.outlineVariant,
@@ -187,16 +191,6 @@ internal fun WorkoutRow(
     }
 
     Box(modifier = rowModifier) {
-        if (usesCategoryStyling && categoryAccent != null) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .width(SpacingXs)
-                        .background(categoryAccent),
-            )
-        }
-
         Row(
             modifier =
                 Modifier
@@ -408,16 +402,6 @@ internal fun GhostWorkoutRow(
                 .alpha(GHOST_ROW_ALPHA),
     ) {
         Box {
-            if (usesCategoryStyling && categoryAccent != null) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxHeight()
-                            .width(SpacingXs)
-                            .background(categoryAccent),
-                )
-            }
-
             Row(
                 modifier = Modifier.padding(ContentPadding),
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
@@ -484,19 +468,50 @@ private fun workoutRowColors(
     isDragging: Boolean,
 ): RowColors {
     val themeColorScheme = colorScheme
-    val restDayBackground = themeColorScheme.outlineVariant
-    val restDayContent = themeColorScheme.onSurfaceVariant
+    val todoColor = CompletedBlue
+    val todoContent = CompletedBlueContent
+    val completedColor = TodoBlue
+    val completedContent = TodoBlueContent
+    val isDarkTheme = isDarkBackground(colorScheme.background)
+    val scheduleStateBackground = themeColorScheme.surface
+    val scheduleStateContent = themeColorScheme.onSurfaceVariant
+    val categoryAccent =
+        workout.categoryColorId?.let { accent ->
+            baseCategoryColor(accent = categoryAccentColor(accent))
+        }
+    val categoryCompletedBackground =
+        categoryAccent?.let { accent ->
+            completedCategoryColor(
+                accent = accent,
+                isDarkTheme = isDarkTheme,
+                surface = themeColorScheme.surface,
+            )
+        }
+    val categoryContent =
+        categoryAccent?.let { background ->
+            readableContentOn(background)
+        }
+    val categoryCompletedContent =
+        categoryCompletedBackground?.let { background ->
+            readableContentOn(background)
+        }
 
     val background =
         when {
             isDragging -> themeColorScheme.surfaceVariant
-            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> restDayBackground
-            else -> themeColorScheme.surfaceContainerLow
+            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> scheduleStateBackground
+            workout.isCompleted && categoryAccent == null -> completedColor
+            workout.isCompleted && categoryCompletedBackground != null -> categoryCompletedBackground
+            categoryAccent != null -> categoryAccent
+            else -> todoColor
         }
     val content =
         when {
-            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> restDayContent
-            else -> themeColorScheme.onSurface
+            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> scheduleStateContent
+            workout.isCompleted && categoryContent == null -> completedContent
+            workout.isCompleted && categoryCompletedContent != null -> categoryCompletedContent
+            categoryContent != null -> categoryContent
+            else -> todoContent
         }
 
     return RowColors(background, content)
@@ -504,6 +519,10 @@ private fun workoutRowColors(
 
 private fun itemBoundsHeight(coordinates: LayoutCoordinates?): Float {
     return coordinates?.boundsInRoot()?.height ?: 0f
+}
+
+private fun readableContentOn(background: Color): Color {
+    return contentColorForBackground(background)
 }
 
 private fun WorkoutUi.usesCategoryStyling(): Boolean {

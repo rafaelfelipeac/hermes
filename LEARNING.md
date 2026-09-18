@@ -30,6 +30,7 @@ Assumptions made from the current code and README:
 If future work adds light recognition (soft streaks, small trophies, gentle celebrations), it should stay opt-in and non-judgmental so it reinforces the calm, offline-first intent instead of undermining it.
 
 Recent learnings:
+- Weekly workout rows are a deliberate exception to the newer category-card rail pattern. On the Home planner, workouts behave more like calendar blocks than summary cards, so full category-color surfaces preserve fast board scanning while Events, Trophies, Records, and Challenges keep the calmer rail + neutral frame treatment.
 - Challenge cards read calmer when category color is limited to identity surfaces (left rail and category chip) while progress uses the theme primary color. Target type still works best as a neutral chip beside category, while status color should be supplementary text instead of another saturated chip/bar system competing with the category.
 - When a progress bar uses nested fill layers, the outer planned workload can be correct while the inner completion layer still renders from the top by default; explicitly bottom-aligning the inner layer preserves the intended "completion rises from the base" reading.
 - Weekly completion charts are easier to read when the bar height encodes planned workload and the fill encodes completion; percent-only bars hide the fact that a 1/1 week and a 9/10 week are not the same kind of load.
@@ -697,3 +698,7 @@ Recent learnings:
 - Pace calculator results should not borrow category-card rail language when there is no category metadata. A distinct result container tone makes the computed output read as an answer instead of another input or category-owned card.
 
 - Activity timeline rails should share the same physical rail and neutral-frame vocabulary as later category-owned cards, even though their color represents chronology rather than category metadata. Keeping the geometry consistent makes the UI family feel intentional.
+
+## Home schedule state rows stay neutral
+
+Rest, unavailable, and sick rows on Home are not category-backed planner blocks, so they should not inherit the full category-color treatment used by workouts and race events. A neutral surface with the standard outline keeps them readable as schedule states while preserving the stronger calendar-like color language for actionable training items.
