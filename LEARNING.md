@@ -714,3 +714,7 @@ Help affordances appear in Home, Categories, and Settings detail screens, so the
 ## Dialog field labels should blend with dialog surfaces
 
 Outlined dialog fields read calmer when the field container is transparent and the floating label notch shares the dialog surface. This preserves the form boundary without creating small contrast islands around labels, especially in dark mode.
+
+## Event card dividers should respect the category rail
+
+When a card uses a structural category rail, internal separators should begin after that rail instead of crossing it. This keeps the colored rail visually continuous while preserving the footer/content division inside the neutral card body.

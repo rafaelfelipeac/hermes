@@ -399,7 +399,10 @@ private fun EventCard(
                 HorizontalDivider(
                     color = colorScheme.outlineVariant,
                     thickness = BorderThin,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .padding(start = EventCategoryAccentWidth)
+                            .fillMaxWidth(),
                 )
 
                 Row(
