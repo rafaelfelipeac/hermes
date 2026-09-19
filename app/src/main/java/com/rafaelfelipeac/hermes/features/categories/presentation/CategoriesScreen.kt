@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -54,9 +56,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -64,8 +68,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Rect.Companion.Zero
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.zIndex
@@ -82,7 +94,6 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryActionIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorGridHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorSwatchSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryMoveIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryRowMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
@@ -90,12 +101,16 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyTrainingAutoScrollEdge
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyTrainingAutoScrollSafePadding
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryColorOptions
 import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.UNCATEGORIZED_ID
 import com.rafaelfelipeac.hermes.features.categories.presentation.model.CategoryUi
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun CategoriesScreen(
@@ -109,21 +124,82 @@ fun CategoriesScreen(
     var isRestoreDefaultsDialogVisible by rememberSaveable { mutableStateOf(false) }
     var deletingCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
     var isHelpDialogVisible by rememberSaveable { mutableStateOf(false) }
-    var draggedCategoryId by rememberSaveable { mutableStateOf<Long?>(null) }
-    var dragStartIndex by rememberSaveable { mutableStateOf<Int?>(null) }
-    var dragTargetIndex by rememberSaveable { mutableStateOf<Int?>(null) }
-    var dragOffsetY by rememberSaveable { mutableStateOf(0f) }
-    var categoryRowHeightPx by rememberSaveable { mutableStateOf(0) }
+    val dragController = rememberCategoryDragController()
+    val categoryRowBounds = remember { mutableStateMapOf<Long, Rect>() }
+    val hapticFeedback = LocalHapticFeedback.current
     val listState = rememberLazyListState()
-    val displayedCategories by remember(state.categories, draggedCategoryId, dragTargetIndex) {
+    val autoScrollEdge = with(LocalDensity.current) { WeeklyTrainingAutoScrollEdge.toPx() }
+    val autoScrollSafePadding = with(LocalDensity.current) { WeeklyTrainingAutoScrollSafePadding.toPx() }
+    val displayedCategories by remember(state.categories, dragController.draggedCategoryId, dragController.targetIndex) {
         derivedStateOf {
-            val draggedId = draggedCategoryId
-            val targetIndex = dragTargetIndex
+            val draggedId = dragController.draggedCategoryId
+            val targetIndex = dragController.targetIndex
             if (draggedId == null || targetIndex == null) {
                 state.categories
             } else {
                 state.categories.previewMovedCategory(draggedId, targetIndex)
             }
+        }
+    }
+    val draggedCategory =
+        dragController.draggedCategoryId?.let { id ->
+            state.categories.firstOrNull { it.id == id }
+        }
+
+    fun updateDragTarget(position: Offset) {
+        val activeId = dragController.draggedCategoryId
+        val previousTarget = dragController.targetIndex
+        val targetIndex =
+            findCategoryDragTargetIndex(
+                dragPosition = position,
+                rowBounds = dragController.rowBoundsSnapshot,
+                fallbackIndex = previousTarget ?: state.categories.indexOfFirst { it.id == activeId },
+            )
+
+        if (targetIndex != previousTarget && targetIndex in state.categories.indices) {
+            dragController.targetIndex = targetIndex
+            hapticFeedback.performHapticFeedback(HapticFeedbackType.ToggleOn)
+        }
+    }
+
+    LaunchedEffect(state.categories) {
+        if (dragController.draggedCategoryId != null &&
+            state.categories.none { it.id == dragController.draggedCategoryId }
+        ) {
+            dragController.clearDrag()
+        }
+    }
+
+    LaunchedEffect(dragController.draggedCategoryId) {
+        while (dragController.draggedCategoryId != null) {
+            val position = dragController.dragPosition
+
+            if (position != null && dragController.containerBounds != Zero) {
+                val autoScrollStep =
+                    computeCategoryAutoScrollStep(
+                        position = position,
+                        context =
+                            CategoryAutoScrollContext(
+                                containerBounds = dragController.containerBounds,
+                                edge = autoScrollEdge,
+                                safePadding = autoScrollSafePadding,
+                                canScrollBackward = listState.canScrollBackward,
+                                canScrollForward = listState.canScrollForward,
+                            ),
+                    )
+
+                if (autoScrollStep.clampedPosition != position) {
+                    dragController.updateDragPosition(autoScrollStep.clampedPosition)
+                }
+
+                if (autoScrollStep.scrollDelta != 0f) {
+                    listState.scrollBy(autoScrollStep.scrollDelta)
+                }
+
+                updateDragTarget(autoScrollStep.clampedPosition)
+            }
+
+            delay(CategoryAutoScrollFrameDelay)
         }
     }
 
@@ -146,119 +222,182 @@ fun CategoriesScreen(
             }
         },
     ) { contentPadding ->
-        Column(
+        Box(
             modifier =
                 Modifier
                     .fillMaxSize()
-                    .padding(contentPadding),
+                    .padding(contentPadding)
+                    .onGloballyPositioned { dragController.updateContainerBounds(it.boundsInRoot()) },
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(
-                            start = SpacingSm,
-                            end = SpacingXl,
-                            top = SpacingSm,
-                            bottom = SpacingSm,
-                        ),
-            ) {
-                IconButton(onClick = onBack) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                        contentDescription = stringResource(R.string.categories_back),
-                    )
-                }
-
-                Text(
-                    text = stringResource(R.string.categories_title),
-                    style = typography.titleLarge,
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                HelpIconButton(
-                    contentDescription = stringResource(R.string.categories_help_icon),
-                    onClick = { isHelpDialogVisible = true },
-                )
-            }
-
-            LazyColumn(
+            Column(
                 modifier =
                     Modifier
                         .fillMaxSize(),
-                state = listState,
-                contentPadding = PaddingValues(bottom = FloatingActionContentBottomPadding),
-                verticalArrangement = Arrangement.spacedBy(SpacingLg),
             ) {
-                item {
-                    TextButton(
-                        onClick = { isRestoreDefaultsDialogVisible = true },
-                        colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
-                        modifier = Modifier.padding(horizontal = SpacingXl),
-                    ) {
-                        Text(text = stringResource(R.string.categories_restore_defaults))
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                start = SpacingSm,
+                                end = SpacingXl,
+                                top = SpacingSm,
+                                bottom = SpacingSm,
+                            ),
+                ) {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
+                            contentDescription = stringResource(R.string.categories_back),
+                        )
                     }
-                }
 
-                itemsIndexed(
-                    items = displayedCategories,
-                    key = { _, category -> category.id },
-                ) { index, category ->
-                    val isDragging = category.id == draggedCategoryId
+                    Text(
+                        text = stringResource(R.string.categories_title),
+                        style = typography.titleLarge,
+                    )
 
-                    CategoryRow(
-                        category = category,
-                        canMoveUp = index != 0,
-                        canMoveDown = index != displayedCategories.lastIndex,
-                        isDragging = isDragging,
-                        onMoveUp = { viewModel.moveCategoryUp(category.id) },
-                        onMoveDown = { viewModel.moveCategoryDown(category.id) },
-                        onToggleHidden = { isHidden ->
-                            viewModel.updateCategoryVisibility(category.id, isHidden)
-                        },
-                        onEdit = { editorCategoryId = category.id },
-                        onDelete = { deletingCategoryId = category.id },
-                        onDragStart = {
-                            draggedCategoryId = category.id
-                            dragStartIndex = state.categories.indexOfFirst { it.id == category.id }
-                            dragTargetIndex = dragStartIndex
-                            dragOffsetY = 0f
-                        },
-                        onDrag = { deltaY ->
-                            val startIndex = dragStartIndex ?: return@CategoryRow
-                            if (categoryRowHeightPx <= 0) return@CategoryRow
-                            dragOffsetY += deltaY
-                            dragTargetIndex =
-                                (startIndex + (dragOffsetY / categoryRowHeightPx).roundToInt())
-                                    .coerceIn(state.categories.indices)
-                        },
-                        onDragEnd = {
-                            val startIndex = dragStartIndex
-                            val targetIndex = dragTargetIndex
-                            if (startIndex != null && targetIndex != null && startIndex != targetIndex) {
-                                viewModel.moveCategoryToPosition(category.id, targetIndex)
-                            }
-                            draggedCategoryId = null
-                            dragStartIndex = null
-                            dragTargetIndex = null
-                            dragOffsetY = 0f
-                        },
-                        onMeasured = { height -> categoryRowHeightPx = height },
-                        modifier =
-                            Modifier
-                                .padding(horizontal = SpacingXl)
-                                .offset {
-                                    if (isDragging) {
-                                        IntOffset(x = 0, y = dragOffsetY.roundToInt())
-                                    } else {
-                                        IntOffset.Zero
-                                    }
-                                }
-                                .zIndex(if (isDragging) CATEGORY_DRAG_Z_INDEX else CATEGORY_ROW_Z_INDEX),
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    HelpIconButton(
+                        contentDescription = stringResource(R.string.categories_help_icon),
+                        onClick = { isHelpDialogVisible = true },
                     )
                 }
+
+                LazyColumn(
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(CATEGORIES_LIST_TAG),
+                    state = listState,
+                    contentPadding = PaddingValues(bottom = FloatingActionContentBottomPadding),
+                    verticalArrangement = Arrangement.spacedBy(SpacingLg),
+                ) {
+                    item {
+                        TextButton(
+                            onClick = { isRestoreDefaultsDialogVisible = true },
+                            colors = ButtonDefaults.textButtonColors(contentColor = colorScheme.primary),
+                            modifier = Modifier.padding(horizontal = SpacingXl),
+                        ) {
+                            Text(text = stringResource(R.string.categories_restore_defaults))
+                        }
+                    }
+
+                    itemsIndexed(
+                        items = displayedCategories,
+                        key = { _, category -> category.id },
+                    ) { index, category ->
+                        val isDragging = category.id == dragController.draggedCategoryId
+
+                        CategoryRow(
+                            category = category,
+                            canMoveUp = index != 0,
+                            canMoveDown = index != displayedCategories.lastIndex,
+                            isDragging = isDragging,
+                            onMoveUp = { viewModel.moveCategoryUp(category.id) },
+                            onMoveDown = { viewModel.moveCategoryDown(category.id) },
+                            onToggleHidden = { isHidden ->
+                                viewModel.updateCategoryVisibility(category.id, isHidden)
+                            },
+                            onEdit = { editorCategoryId = category.id },
+                            onDelete = { deletingCategoryId = category.id },
+                            onDragStart = { touchOffset ->
+                                val bounds = categoryRowBounds[category.id] ?: return@CategoryRow
+                                val startIndex = state.categories.indexOfFirst { it.id == category.id }
+                                if (startIndex == CATEGORY_INDEX_NOT_FOUND) return@CategoryRow
+
+                                val didStart =
+                                    dragController.startDrag(
+                                        categoryId = category.id,
+                                        position =
+                                            Offset(
+                                                x = bounds.left + touchOffset.x,
+                                                y = bounds.top + touchOffset.y,
+                                            ),
+                                        touchOffset = touchOffset,
+                                        itemBounds = bounds,
+                                        initialTargetIndex = startIndex,
+                                        rowBounds =
+                                            state.categories.mapIndexedNotNull { categoryIndex, measuredCategory ->
+                                                categoryRowBounds[measuredCategory.id]?.let { measuredBounds ->
+                                                    CategoryDragRowBounds(
+                                                        categoryId = measuredCategory.id,
+                                                        index = categoryIndex,
+                                                        bounds = measuredBounds,
+                                                    )
+                                                }
+                                            },
+                                    )
+                                if (didStart) {
+                                    hapticFeedback.performHapticFeedback(HapticFeedbackType.ToggleOn)
+                                }
+                            },
+                            onDrag = { delta ->
+                                val current = dragController.dragPosition ?: return@CategoryRow
+                                val updatedPosition = current + delta
+                                dragController.updateDragPosition(updatedPosition)
+                                updateDragTarget(updatedPosition)
+                            },
+                            onDragEnd = { shouldCommit ->
+                                val categoryId = dragController.draggedCategoryId
+                                val startIndex = state.categories.indexOfFirst { it.id == categoryId }
+                                val targetIndex = dragController.targetIndex
+                                if (
+                                    shouldCommit &&
+                                    categoryId != null &&
+                                    startIndex != CATEGORY_INDEX_NOT_FOUND &&
+                                    targetIndex != null &&
+                                    startIndex != targetIndex
+                                ) {
+                                    viewModel.moveCategoryToPosition(categoryId, targetIndex)
+                                }
+                                dragController.clearDrag()
+                            },
+                            onMeasured = { bounds ->
+                                categoryRowBounds[category.id] = bounds
+                            },
+                            modifier =
+                                Modifier
+                                    .padding(horizontal = SpacingXl)
+                                    .animateItem()
+                                    .zIndex(CATEGORY_ROW_Z_INDEX),
+                        )
+                    }
+                }
+            }
+
+            if (draggedCategory != null && dragController.dragPosition != null) {
+                CategoryRow(
+                    category = draggedCategory,
+                    canMoveUp = false,
+                    canMoveDown = false,
+                    isDragging = false,
+                    isDragOverlay = true,
+                    onMoveUp = {},
+                    onMoveDown = {},
+                    onToggleHidden = {},
+                    onEdit = {},
+                    onDelete = {},
+                    onDragStart = {},
+                    onDrag = {},
+                    onDragEnd = {},
+                    onMeasured = {},
+                    modifier =
+                        Modifier
+                            .width(with(LocalDensity.current) { dragController.draggedItemWidth.toDp() })
+                            .offset {
+                                val position = dragController.dragPosition ?: Offset.Zero
+                                val left = dragController.containerBounds.left
+                                val top = dragController.containerBounds.top
+                                IntOffset(
+                                    x = (position.x - left - dragController.dragTouchOffset.x).roundToInt(),
+                                    y = (position.y - top - dragController.dragTouchOffset.y).roundToInt(),
+                                )
+                            }
+                            .zIndex(CATEGORY_DRAG_Z_INDEX),
+                )
             }
         }
     }
@@ -379,15 +518,31 @@ private fun CategoryRow(
     onToggleHidden: (Boolean) -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    onDragStart: () -> Unit,
-    onDrag: (Float) -> Unit,
-    onDragEnd: () -> Unit,
-    onMeasured: (Int) -> Unit,
+    onDragStart: (Offset) -> Unit,
+    onDrag: (Offset) -> Unit,
+    onDragEnd: (Boolean) -> Unit,
+    onMeasured: (Rect) -> Unit,
     modifier: Modifier = Modifier,
+    isDragOverlay: Boolean = false,
 ) {
     val accent = categoryAccentColor(category.colorId)
     val isHiddenToggleEnabled = category.id != UNCATEGORIZED_ID
-    val contentAlpha = if (isDragging) DRAGGING_ROW_ALPHA else ENABLED_ROW_ALPHA
+    val contentAlpha = if (isDragging) DRAGGING_ROW_PLACEHOLDER_ALPHA else ENABLED_ROW_ALPHA
+    val dragModifier =
+        if (isDragOverlay) {
+            Modifier
+        } else {
+            Modifier.pointerInput(category.id) {
+                detectDragGesturesAfterLongPress(
+                    onDragStart = onDragStart,
+                    onDrag = { _, dragAmount ->
+                        onDrag(dragAmount)
+                    },
+                    onDragEnd = { onDragEnd(true) },
+                    onDragCancel = { onDragEnd(false) },
+                )
+            }
+        }
 
     Surface(
         shape = shapes.medium,
@@ -396,7 +551,9 @@ private fun CategoryRow(
             modifier
                 .fillMaxWidth()
                 .alpha(contentAlpha)
-                .onGloballyPositioned { coordinates -> onMeasured(coordinates.size.height) },
+                .then(dragModifier)
+                .testTag("$CATEGORY_ROW_TAG_PREFIX${category.id}")
+                .onGloballyPositioned { coordinates -> onMeasured(coordinates.boundsInRoot()) },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -405,21 +562,9 @@ private fun CategoryRow(
                     .heightIn(min = CategoryRowMinHeight)
                     .fillMaxWidth(),
         ) {
-            IconButton(
-                onClick = { },
-                modifier =
-                    Modifier
-                        .size(CategoryMoveIconSize)
-                        .pointerInput(category.id) {
-                            detectDragGesturesAfterLongPress(
-                                onDragStart = { onDragStart() },
-                                onDrag = { _, dragAmount ->
-                                    onDrag(dragAmount.y)
-                                },
-                                onDragEnd = onDragEnd,
-                                onDragCancel = onDragEnd,
-                            )
-                        },
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(CategoryActionIconSize),
             ) {
                 Icon(
                     imageVector = Icons.Outlined.DragIndicator,
@@ -644,21 +789,12 @@ private fun CategoryEditorDialog(
 private const val CATEGORY_COLOR_GRID_COLUMNS = 4
 private const val CATEGORY_DRAG_Z_INDEX = 1f
 private const val CATEGORY_ROW_Z_INDEX = 0f
-private const val DRAGGING_ROW_ALPHA = 0.82f
+private const val DRAGGING_ROW_PLACEHOLDER_ALPHA = 0.28f
 private const val ENABLED_ROW_ALPHA = 1f
-
-private fun List<CategoryUi>.previewMovedCategory(
-    categoryId: Long,
-    targetIndex: Int,
-): List<CategoryUi> {
-    val currentIndex = indexOfFirst { it.id == categoryId }
-    if (currentIndex == -1 || targetIndex !in indices || currentIndex == targetIndex) return this
-
-    return toMutableList().apply {
-        val category = removeAt(currentIndex)
-        add(targetIndex, category)
-    }
-}
+private const val CATEGORY_INDEX_NOT_FOUND = -1
+private const val CATEGORIES_LIST_TAG = "categories-list"
+internal const val CATEGORY_ROW_TAG_PREFIX = "category-row-"
+private val CategoryAutoScrollFrameDelay = 16.milliseconds
 
 @Composable
 private fun CategoryColorSwatch(

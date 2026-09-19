@@ -718,3 +718,7 @@ Outlined dialog fields read calmer when the field container is transparent and t
 ## Event card dividers should respect the category rail
 
 When a card uses a structural category rail, internal separators should begin after that rail instead of crossing it. This keeps the colored rail visually continuous while preserving the footer/content division inside the neutral card body.
+
+## Category drag should follow measured rows
+
+Category reordering feels smoother when drag targets come from actual row bounds instead of a shared row-height estimate. Updating the target both during drag deltas and during edge autoscroll keeps quick drops responsive while still supporting stationary autoscroll near the list edges.

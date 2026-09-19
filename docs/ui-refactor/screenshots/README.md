@@ -35,6 +35,7 @@ wave-N-feature/
 - `wave-15-home-help`: Home TBD help affordance before/after, captured with demo weekly training data.
 - `wave-16-workout-dialog`: Home workout editor dialog fields before/after, captured with demo weekly training data.
 - `wave-17-final-regression`: Final light/dark regression pass for Home, Progress, Events, and Browse.
+- `wave-18-categories-drag`: Categories drag-and-drop interaction, with resting and active-drag captures in light/dark themes.
 
 ## Future Waves
 
