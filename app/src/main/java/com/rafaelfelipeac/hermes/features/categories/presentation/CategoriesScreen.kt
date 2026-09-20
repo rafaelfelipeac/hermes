@@ -90,6 +90,7 @@ import com.rafaelfelipeac.hermes.core.ui.components.KeyboardAwareDialogForm
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.capitalizedFirstCharacter
 import com.rafaelfelipeac.hermes.core.ui.theme.CategoryColorOption
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryActionIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorGridHeight
@@ -97,10 +98,12 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryColorSwatchSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryRowMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.FloatingActionContentBottomPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyTrainingAutoScrollEdge
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.WeeklyTrainingAutoScrollSafePadding
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
@@ -579,17 +582,18 @@ private fun CategoryRow(
                         .weight(1f)
                         .padding(vertical = SpacingMd),
             ) {
-                TitleChip(
-                    label = category.name,
-                    containerColor = accent,
-                    contentColor = contentColorForBackground(accent),
-                )
-                if (category.isHidden) {
-                    Text(
-                        text = stringResource(R.string.categories_hidden_status),
-                        style = typography.bodySmall,
-                        color = colorScheme.onSurfaceVariant,
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    TitleChip(
+                        label = category.name,
+                        containerColor = accent,
+                        contentColor = contentColorForBackground(accent),
                     )
+                    if (category.isHidden) {
+                        HiddenStatusPill()
+                    }
                 }
             }
 
@@ -603,6 +607,36 @@ private fun CategoryRow(
                 onToggleHidden = onToggleHidden,
                 onEdit = onEdit,
                 onDelete = onDelete,
+            )
+        }
+    }
+}
+
+@Composable
+private fun HiddenStatusPill() {
+    Surface(
+        shape = shapes.small,
+        color = colorScheme.surfaceVariant,
+        contentColor = colorScheme.onSurfaceVariant,
+        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
+    ) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+            verticalAlignment = Alignment.CenterVertically,
+            modifier =
+                Modifier.padding(
+                    horizontal = SpacingSm,
+                    vertical = SpacingXs,
+                ),
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.VisibilityOff,
+                contentDescription = null,
+                modifier = Modifier.size(SmallIconSize),
+            )
+            Text(
+                text = stringResource(R.string.categories_hidden_status),
+                style = typography.labelMedium,
             )
         }
     }
