@@ -133,7 +133,11 @@ fun CategoriesScreen(
     val listState = rememberLazyListState()
     val autoScrollEdge = with(LocalDensity.current) { WeeklyTrainingAutoScrollEdge.toPx() }
     val autoScrollSafePadding = with(LocalDensity.current) { WeeklyTrainingAutoScrollSafePadding.toPx() }
-    val displayedCategories by remember(state.categories, dragController.draggedCategoryId, dragController.targetIndex) {
+    val displayedCategories by remember(
+        state.categories,
+        dragController.draggedCategoryId,
+        dragController.targetIndex,
+    ) {
         derivedStateOf {
             val draggedId = dragController.draggedCategoryId
             val targetIndex = dragController.targetIndex
@@ -313,25 +317,27 @@ fun CategoriesScreen(
 
                                 val didStart =
                                     dragController.startDrag(
-                                        categoryId = category.id,
-                                        position =
-                                            Offset(
-                                                x = bounds.left + touchOffset.x,
-                                                y = bounds.top + touchOffset.y,
-                                            ),
-                                        touchOffset = touchOffset,
-                                        itemBounds = bounds,
-                                        initialTargetIndex = startIndex,
-                                        rowBounds =
-                                            state.categories.mapIndexedNotNull { categoryIndex, measuredCategory ->
-                                                categoryRowBounds[measuredCategory.id]?.let { measuredBounds ->
-                                                    CategoryDragRowBounds(
-                                                        categoryId = measuredCategory.id,
-                                                        index = categoryIndex,
-                                                        bounds = measuredBounds,
-                                                    )
-                                                }
-                                            },
+                                        CategoryDragStart(
+                                            categoryId = category.id,
+                                            position =
+                                                Offset(
+                                                    x = bounds.left + touchOffset.x,
+                                                    y = bounds.top + touchOffset.y,
+                                                ),
+                                            touchOffset = touchOffset,
+                                            itemBounds = bounds,
+                                            initialTargetIndex = startIndex,
+                                            rowBounds =
+                                                state.categories.mapIndexedNotNull { categoryIndex, measuredCategory ->
+                                                    categoryRowBounds[measuredCategory.id]?.let { measuredBounds ->
+                                                        CategoryDragRowBounds(
+                                                            categoryId = measuredCategory.id,
+                                                            index = categoryIndex,
+                                                            bounds = measuredBounds,
+                                                        )
+                                                    }
+                                                },
+                                        ),
                                     )
                                 if (didStart) {
                                     hapticFeedback.performHapticFeedback(HapticFeedbackType.ToggleOn)
@@ -347,14 +353,11 @@ fun CategoriesScreen(
                                 val categoryId = dragController.draggedCategoryId
                                 val startIndex = state.categories.indexOfFirst { it.id == categoryId }
                                 val targetIndex = dragController.targetIndex
-                                if (
-                                    shouldCommit &&
-                                    categoryId != null &&
-                                    startIndex != CATEGORY_INDEX_NOT_FOUND &&
-                                    targetIndex != null &&
-                                    startIndex != targetIndex
-                                ) {
-                                    viewModel.moveCategoryToPosition(categoryId, targetIndex)
+                                if (shouldCommitCategoryDrag(shouldCommit, categoryId, startIndex, targetIndex)) {
+                                    viewModel.moveCategoryToPosition(
+                                        requireNotNull(categoryId),
+                                        requireNotNull(targetIndex),
+                                    )
                                 }
                                 dragController.clearDrag()
                             },
@@ -829,6 +832,19 @@ private const val CATEGORY_INDEX_NOT_FOUND = -1
 private const val CATEGORIES_LIST_TAG = "categories-list"
 internal const val CATEGORY_ROW_TAG_PREFIX = "category-row-"
 private val CategoryAutoScrollFrameDelay = 16.milliseconds
+
+private fun shouldCommitCategoryDrag(
+    shouldCommit: Boolean,
+    categoryId: Long?,
+    startIndex: Int,
+    targetIndex: Int?,
+): Boolean {
+    return shouldCommit &&
+        categoryId != null &&
+        startIndex != CATEGORY_INDEX_NOT_FOUND &&
+        targetIndex != null &&
+        startIndex != targetIndex
+}
 
 @Composable
 private fun CategoryColorSwatch(

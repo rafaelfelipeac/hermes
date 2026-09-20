@@ -33,23 +33,16 @@ internal class CategoryDragController {
     var containerBounds by mutableStateOf(Zero)
         private set
 
-    fun startDrag(
-        categoryId: Long,
-        position: Offset,
-        touchOffset: Offset,
-        itemBounds: Rect,
-        initialTargetIndex: Int,
-        rowBounds: List<CategoryDragRowBounds>,
-    ): Boolean {
+    fun startDrag(start: CategoryDragStart): Boolean {
         if (draggedCategoryId != null) return false
 
-        draggedCategoryId = categoryId
-        dragPosition = position
-        dragTouchOffset = touchOffset
-        draggedItemHeight = itemBounds.height
-        draggedItemWidth = itemBounds.width
-        targetIndex = initialTargetIndex
-        rowBoundsSnapshot = rowBounds
+        draggedCategoryId = start.categoryId
+        dragPosition = start.position
+        dragTouchOffset = start.touchOffset
+        draggedItemHeight = start.itemBounds.height
+        draggedItemWidth = start.itemBounds.width
+        targetIndex = start.initialTargetIndex
+        rowBoundsSnapshot = start.rowBounds
 
         return true
     }
@@ -72,6 +65,15 @@ internal class CategoryDragController {
         rowBoundsSnapshot = emptyList()
     }
 }
+
+internal data class CategoryDragStart(
+    val categoryId: Long,
+    val position: Offset,
+    val touchOffset: Offset,
+    val itemBounds: Rect,
+    val initialTargetIndex: Int,
+    val rowBounds: List<CategoryDragRowBounds>,
+)
 
 internal data class CategoryDragRowBounds(
     val categoryId: Long,
@@ -115,19 +117,23 @@ internal fun findCategoryDragTargetIndex(
     rowBounds: Collection<CategoryDragRowBounds>,
     fallbackIndex: Int,
 ): Int {
-    if (rowBounds.isEmpty()) return fallbackIndex
+    return if (rowBounds.isEmpty()) {
+        fallbackIndex
+    } else {
+        val sortedBounds = rowBounds.sortedBy { it.index }
+        val first = sortedBounds.first()
+        val last = sortedBounds.last()
+        val y = dragPosition.y
 
-    val sortedBounds = rowBounds.sortedBy { it.index }
-    val first = sortedBounds.first()
-    val last = sortedBounds.last()
-    val y = dragPosition.y
-
-    if (y <= first.bounds.center.y) return first.index
-    if (y >= last.bounds.center.y) return last.index
-
-    return sortedBounds.firstOrNull { bounds ->
-        y <= bounds.bounds.center.y
-    }?.index ?: fallbackIndex
+        when {
+            y <= first.bounds.center.y -> first.index
+            y >= last.bounds.center.y -> last.index
+            else ->
+                sortedBounds.firstOrNull { bounds ->
+                    y <= bounds.bounds.center.y
+                }?.index ?: fallbackIndex
+        }
+    }
 }
 
 internal fun computeCategoryAutoScrollStep(
