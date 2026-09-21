@@ -91,6 +91,7 @@ internal class ActivityUiFormatterShared(
         return when (actionType) {
             UserActionType.CHANGE_LANGUAGE -> languageLabel(raw)
             UserActionType.CHANGE_THEME -> themeLabel(raw)
+            UserActionType.CHANGE_DYNAMIC_COLOR -> booleanLabel(raw)
             UserActionType.CHANGE_SLOT_MODE -> slotModeLabel(raw)
             UserActionType.CHANGE_WEEK_START -> weekStartDayLabel(raw)
             UserActionType.CHANGE_DISTANCE_UNIT -> distanceUnitLabel(raw)
@@ -106,6 +107,14 @@ internal class ActivityUiFormatterShared(
                 stringProvider.get(R.string.activity_category_visible)
             UserActionMetadataValues.CATEGORY_HIDDEN ->
                 stringProvider.get(R.string.activity_category_hidden)
+            else -> raw
+        }
+    }
+
+    fun booleanLabel(raw: String): String {
+        return when (raw.lowercase(Locale.ENGLISH)) {
+            "true" -> stringProvider.get(R.string.activity_value_enabled)
+            "false" -> stringProvider.get(R.string.activity_value_disabled)
             else -> raw
         }
     }

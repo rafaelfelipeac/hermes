@@ -760,6 +760,7 @@ class DemoDataSeederTest {
 
     private class FakeSettingsRepository : SettingsRepository {
         override val themeMode: MutableStateFlow<ThemeMode> = MutableStateFlow(ThemeMode.SYSTEM)
+        override val useDynamicColor: MutableStateFlow<Boolean> = MutableStateFlow(false)
         override val language: MutableStateFlow<AppLanguage> = MutableStateFlow(AppLanguage.SYSTEM)
         override val slotModePolicy: MutableStateFlow<SlotModePolicy> = MutableStateFlow(SlotModePolicy.AUTO_WHEN_MULTIPLE)
         override val weekStartDay: MutableStateFlow<WeekStartDay> = MutableStateFlow(WeekStartDay.MONDAY)
@@ -787,6 +788,10 @@ class DemoDataSeederTest {
 
         override suspend fun setThemeMode(mode: ThemeMode) {
             themeMode.value = mode
+        }
+
+        override suspend fun setUseDynamicColor(useDynamicColor: Boolean) {
+            this.useDynamicColor.value = useDynamicColor
         }
 
         override suspend fun setLanguage(language: AppLanguage) {
@@ -928,6 +933,7 @@ class DemoDataSeederTest {
     private fun FakeSettingsRepository.toBackupRecord(): BackupSettingsRecord? {
         return BackupSettingsRecord(
             themeMode = themeMode.value.name,
+            useDynamicColor = useDynamicColor.value,
             languageTag = language.value.tag,
             slotModePolicy = slotModePolicy.value.name,
             weekStartDay = weekStartDay.value.name,

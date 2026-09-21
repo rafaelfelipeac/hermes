@@ -32,7 +32,8 @@ internal object BackupJsonCodec {
     internal const val SCHEMA_VERSION_V4 = 4
     internal const val SCHEMA_VERSION_V5 = 5
     internal const val SCHEMA_VERSION_V6 = 6
-    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V6
+    internal const val SCHEMA_VERSION_V7 = 7
+    internal const val SUPPORTED_SCHEMA_VERSION = SCHEMA_VERSION_V7
 
     private val json =
         Json {
@@ -78,6 +79,7 @@ internal object BackupJsonCodec {
             snapshot.settings?.let { settings ->
                 putJsonObject(KEY_SETTINGS) {
                     put(KEY_THEME_MODE, settings.themeMode)
+                    put(KEY_USE_DYNAMIC_COLOR, settings.useDynamicColor)
                     put(KEY_LANGUAGE_TAG, settings.languageTag)
                     put(KEY_SLOT_MODE_POLICY, settings.slotModePolicy)
                     put(KEY_WEEK_START_DAY, settings.weekStartDay)
@@ -105,6 +107,7 @@ internal object BackupJsonCodec {
             SCHEMA_VERSION_V4 -> BackupV4Decoder.decode(root)
             SCHEMA_VERSION_V5 -> BackupV5Decoder.decode(root)
             SCHEMA_VERSION_V6 -> BackupV6Decoder.decode(root)
+            SCHEMA_VERSION_V7 -> BackupV7Decoder.decode(root)
             else -> Failure(UNSUPPORTED_SCHEMA_VERSION)
         }
     }

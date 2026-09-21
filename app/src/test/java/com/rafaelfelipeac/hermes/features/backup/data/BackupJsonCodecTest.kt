@@ -40,6 +40,82 @@ class BackupJsonCodecTest {
     }
 
     @Test
+    fun encodeDecode_v7RoundTrip_preservesDynamicColorPreference() {
+        val snapshot =
+            challengeSnapshot(BackupJsonCodec.SCHEMA_VERSION_V7, categoryId = null).copy(
+                settings =
+                    BackupSettingsRecord(
+                        themeMode = "SYSTEM",
+                        languageTag = "en",
+                        slotModePolicy = "AUTO_WHEN_MULTIPLE",
+                        weekStartDay = "MONDAY",
+                        distanceUnit = "KILOMETERS",
+                        paceUnit = "MIN_PER_KM",
+                        weightUnit = "KILOGRAMS",
+                        useDynamicColor = true,
+                    ),
+            )
+
+        val decoded = BackupJsonCodec.decode(BackupJsonCodec.encode(snapshot))
+
+        assertTrue(decoded is BackupDecodeResult.Success)
+        assertEquals(true, (decoded as BackupDecodeResult.Success).snapshot.settings?.useDynamicColor)
+    }
+
+    @Test
+    fun decode_v6Settings_defaultsDynamicColorToFalse() {
+        val snapshot =
+            challengeSnapshot(BackupJsonCodec.SCHEMA_VERSION_V6, categoryId = null).copy(
+                settings =
+                    BackupSettingsRecord(
+                        themeMode = "SYSTEM",
+                        languageTag = "en",
+                        slotModePolicy = "AUTO_WHEN_MULTIPLE",
+                        weekStartDay = "MONDAY",
+                        distanceUnit = "KILOMETERS",
+                        paceUnit = "MIN_PER_KM",
+                        weightUnit = "KILOGRAMS",
+                    ),
+            )
+
+        val decoded = BackupJsonCodec.decode(BackupJsonCodec.encode(snapshot))
+
+        assertTrue(decoded is BackupDecodeResult.Success)
+        assertEquals(false, (decoded as BackupDecodeResult.Success).snapshot.settings?.useDynamicColor)
+    }
+
+    @Test
+    fun decode_v7SettingsMissingDynamicColor_returnsInvalidFieldValue() {
+        val raw =
+            """
+            {
+              "schemaVersion": 7,
+              "exportedAt": "2026-09-02T12:00:00Z",
+              "challenges": [],
+              "challengeProgressEntries": [],
+              "workouts": [],
+              "categories": [],
+              "personalRecordFamilies": [],
+              "personalRecordEntries": [],
+              "userActions": [],
+              "settings": {
+                "themeMode": "SYSTEM",
+                "languageTag": "en",
+                "slotModePolicy": "AUTO_WHEN_MULTIPLE",
+                "weekStartDay": "MONDAY",
+                "distanceUnit": "KILOMETERS",
+                "paceUnit": "MIN_PER_KM",
+                "weightUnit": "KILOGRAMS"
+              }
+            }
+            """.trimIndent()
+
+        val result = BackupJsonCodec.decode(raw)
+
+        assertEquals(BackupDecodeResult.Failure(BackupDecodeError.INVALID_FIELD_VALUE), result)
+    }
+
+    @Test
     fun decode_v5DailyChallengeWithMalformedDate_returnsInvalidFieldValue() {
         val raw =
             """
@@ -382,7 +458,7 @@ class BackupJsonCodecTest {
         val raw =
             """
             {
-              "schemaVersion": 7,
+              "schemaVersion": 8,
               "exportedAt": "2026-02-25T10:00:00Z",
               "workouts": [],
               "categories": [],

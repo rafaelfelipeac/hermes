@@ -113,6 +113,7 @@ class SettingsRepositoryImplTest {
             BackupSettingsDataSource(context).replace(
                 SettingsSnapshot(
                     themeMode = ThemeMode.DARK,
+                    useDynamicColor = true,
                     language = AppLanguage.ENGLISH,
                     slotModePolicy = SlotModePolicy.ALWAYS_SHOW,
                     weekStartDay = WeekStartDay.FRIDAY,
@@ -125,6 +126,7 @@ class SettingsRepositoryImplTest {
             val snapshot = BackupSettingsDataSource(context).snapshot()
 
             assertEquals(ThemeMode.DARK, snapshot.themeMode)
+            assertEquals(true, snapshot.useDynamicColor)
             assertEquals(AppLanguage.ENGLISH, snapshot.language)
             assertEquals(SlotModePolicy.ALWAYS_SHOW, snapshot.slotModePolicy)
             assertEquals(WeekStartDay.FRIDAY, snapshot.weekStartDay)

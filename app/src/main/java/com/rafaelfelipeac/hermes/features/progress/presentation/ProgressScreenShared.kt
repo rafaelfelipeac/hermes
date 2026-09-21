@@ -1,10 +1,9 @@
 package com.rafaelfelipeac.hermes.features.progress.presentation
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -15,14 +14,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.relativeDaysUntilText
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ProgressSupportCardMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -70,23 +70,24 @@ internal fun ProgressSupportBlock(
     content: ProgressSupportCardContent,
     onClick: (() -> Unit)? = null,
 ) {
-    Box(
+    Surface(
+        shape = shapes.small,
+        color = colorScheme.surfaceContainerLow,
+        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
         modifier =
             modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = ProgressSupportCardMinHeight)
-                .clip(shapes.small)
                 .then(
                     if (onClick != null) {
                         Modifier.clickable(onClick = onClick)
                     } else {
                         Modifier
                     },
-                )
-                .background(colorScheme.surfaceVariant)
-                .padding(SpacingMd),
+                ),
     ) {
         Column(
+            modifier = Modifier.padding(SpacingMd),
             verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
             Text(

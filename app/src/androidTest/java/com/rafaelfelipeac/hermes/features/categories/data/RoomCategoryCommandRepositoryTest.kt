@@ -122,6 +122,40 @@ class RoomCategoryCommandRepositoryTest {
         }
 
     @Test
+    fun moveCategoryToPosition_shiftsRangeAndLogsOnce() =
+        runTest {
+            seedCategoriesForReorder()
+
+            val result = repository.moveCategoryToPosition(categoryId = 10L, targetIndex = 2)
+
+            assertEquals(CategoryCommandResult.Changed, result)
+            val categoriesById = database.categoryDao().getCategories().associateBy { it.id }
+            assertEquals(2, categoriesById.getValue(10L).sortOrder)
+            assertEquals(0, categoriesById.getValue(20L).sortOrder)
+            assertEquals(1, categoriesById.getValue(30L).sortOrder)
+            logger.assertLoggedOnce(
+                actionType = REORDER_CATEGORY,
+                entityId = 10L,
+                categoryName = "Run",
+            )
+        }
+
+    @Test
+    fun moveCategoryToPosition_returnsNoChangeForMissingSameOrInvalidTargetWithoutLogging() =
+        runTest {
+            seedCategoriesForReorder()
+
+            val missingResult = repository.moveCategoryToPosition(categoryId = 999L, targetIndex = 1)
+            val sameResult = repository.moveCategoryToPosition(categoryId = 20L, targetIndex = 1)
+            val invalidResult = repository.moveCategoryToPosition(categoryId = 20L, targetIndex = 99)
+
+            assertEquals(CategoryCommandResult.NoChange, missingResult)
+            assertEquals(CategoryCommandResult.NoChange, sameResult)
+            assertEquals(CategoryCommandResult.NoChange, invalidResult)
+            assertTrue(logger.actions.isEmpty())
+        }
+
+    @Test
     fun deleteCategory_returnsNoChangeForMissingOrUncategorizedCategoryWithoutLogging() =
         runTest {
             seedCategoriesForReorder()

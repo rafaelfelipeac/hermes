@@ -6,8 +6,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.core.app.ApplicationProvider
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.AppConstants.EMPTY
@@ -19,6 +21,7 @@ import com.rafaelfelipeac.hermes.features.categories.domain.command.CategoryComm
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -207,11 +210,74 @@ class CategoriesScreenTest {
         composeRule.onAllNodesWithText("Run").assertCountEquals(0)
     }
 
+    @Test
+    fun draggingCategoryRow_movesCategoryToDroppedPosition() {
+        val repository = FakeCategoryRepository()
+        val commandRepository = FakeCategoryCommandRepository()
+        val categorySeeder = CategorySeeder(repository, FakeStringProvider())
+        val logger = FakeUserActionLogger()
+        repository.categoriesFlow =
+            MutableStateFlow(
+                listOf(
+                    Category(
+                        id = 1L,
+                        name = "Run",
+                        colorId = "run",
+                        sortOrder = 0,
+                        isHidden = false,
+                        isSystem = true,
+                    ),
+                    Category(
+                        id = 2L,
+                        name = "Bike",
+                        colorId = "cycling",
+                        sortOrder = 1,
+                        isHidden = false,
+                        isSystem = true,
+                    ),
+                    Category(
+                        id = 3L,
+                        name = "Swim",
+                        colorId = "swim",
+                        sortOrder = 2,
+                        isHidden = false,
+                        isSystem = true,
+                    ),
+                ),
+            )
+
+        val viewModel =
+            CategoriesViewModel(
+                repository = repository,
+                categoryCommandRepository = commandRepository,
+                categorySeeder = categorySeeder,
+                userActionLogger = logger,
+            )
+
+        composeRule.setContent {
+            CategoriesScreen(onBack = {}, viewModel = viewModel)
+        }
+        composeRule.waitForIdle()
+
+        composeRule.onNodeWithTag("${CATEGORY_ROW_TAG_PREFIX}1").performTouchInput {
+            down(center)
+            advanceEventTime(CATEGORY_DRAG_LONG_PRESS_DURATION_MS)
+            moveBy(androidx.compose.ui.geometry.Offset(x = 0f, y = CATEGORY_DRAG_TEST_DISTANCE))
+            up()
+        }
+
+        composeRule.runOnIdle {
+            assertEquals(listOf(1L to 2), commandRepository.moveToPositionCalls)
+        }
+    }
+
     private class FakeUserActionLogger : UserActionLogger {
         override suspend fun log(action: UserAction) = Unit
     }
 
     private class FakeCategoryCommandRepository : CategoryCommandRepository {
+        val moveToPositionCalls = mutableListOf<Pair<Long, Int>>()
+
         override suspend fun deleteCategory(categoryId: Long): CategoryCommandResult {
             return CategoryCommandResult.Changed
         }
@@ -220,6 +286,14 @@ class CategoriesScreenTest {
             categoryId: Long,
             delta: Int,
         ): CategoryCommandResult {
+            return CategoryCommandResult.Changed
+        }
+
+        override suspend fun moveCategoryToPosition(
+            categoryId: Long,
+            targetIndex: Int,
+        ): CategoryCommandResult {
+            moveToPositionCalls += categoryId to targetIndex
             return CategoryCommandResult.Changed
         }
     }
@@ -267,7 +341,16 @@ class CategoriesScreenTest {
         override suspend fun updateCategorySortOrder(
             id: Long,
             sortOrder: Int,
-        ) = Unit
+        ) {
+            categoriesFlow.value =
+                categoriesFlow.value.map { category ->
+                    if (category.id == id) {
+                        category.copy(sortOrder = sortOrder)
+                    } else {
+                        category
+                    }
+                }
+        }
 
         override suspend fun deleteCategory(id: Long) = Unit
 
@@ -290,5 +373,10 @@ class CategoriesScreenTest {
             id: Int,
             vararg args: Any,
         ): String = EMPTY
+    }
+
+    private companion object {
+        const val CATEGORY_DRAG_LONG_PRESS_DURATION_MS = 1_000L
+        const val CATEGORY_DRAG_TEST_DISTANCE = 220f
     }
 }

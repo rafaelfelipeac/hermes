@@ -1,20 +1,10 @@
 package com.rafaelfelipeac.hermes.core.ui.components.calendar.weeklytraining
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,11 +13,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.HelpIconButton
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
@@ -70,27 +58,10 @@ internal fun SectionHeader(
         )
 
         if (showHelp) {
-            Surface(
-                shape = CircleShape,
-                color = colorScheme.surfaceVariant,
-                tonalElevation = ElevationSm,
-                shadowElevation = ElevationSm,
-                modifier = Modifier.size(HelpIconSize),
-            ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .clickable(onClick = onHelpClick),
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
-                        contentDescription = stringResource(R.string.weekly_training_tbd_help_icon),
-                        modifier = Modifier.size(HelpIconGlyphSize),
-                    )
-                }
-            }
+            HelpIconButton(
+                contentDescription = stringResource(R.string.weekly_training_tbd_help_icon),
+                onClick = onHelpClick,
+            )
         }
     }
 }

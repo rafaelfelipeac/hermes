@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
@@ -48,15 +47,13 @@ internal fun SettingsAboutSection(
             style = typography.titleMedium,
         )
 
-        SettingsCard {
+        Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
             SettingsInfoRow(
                 icon = Icons.Outlined.Email,
                 title = stringResource(R.string.settings_feedback_title),
                 body = stringResource(R.string.settings_feedback_body),
                 onClick = { onFeedbackClick(feedbackSubject, feedbackBody) },
             )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
 
             SettingsInfoRow(
                 icon = Icons.Outlined.Star,

@@ -350,6 +350,7 @@ class BackupViewModelTest {
 
     private class FakeSettingsRepository(
         themeMode: ThemeMode = ThemeMode.SYSTEM,
+        useDynamicColor: Boolean = false,
         language: AppLanguage = AppLanguage.SYSTEM,
         slotModePolicy: SlotModePolicy = SlotModePolicy.AUTO_WHEN_MULTIPLE,
         weekStartDay: WeekStartDay = WeekStartDay.MONDAY,
@@ -359,6 +360,7 @@ class BackupViewModelTest {
         backupFolderUri: String? = null,
     ) : SettingsRepository {
         override val themeMode = MutableStateFlow(themeMode)
+        override val useDynamicColor = MutableStateFlow(useDynamicColor)
         override val language = MutableStateFlow(language)
         override val slotModePolicy = MutableStateFlow(slotModePolicy)
         override val weekStartDay = MutableStateFlow(weekStartDay)
@@ -385,6 +387,10 @@ class BackupViewModelTest {
         override fun initialWeightUnit(): WeightUnit = weightUnit.value
 
         override suspend fun setThemeMode(mode: ThemeMode) = Unit
+
+        override suspend fun setUseDynamicColor(useDynamicColor: Boolean) {
+            this.useDynamicColor.value = useDynamicColor
+        }
 
         override suspend fun setLanguage(language: AppLanguage) = Unit
 

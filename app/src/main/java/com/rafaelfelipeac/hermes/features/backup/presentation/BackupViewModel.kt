@@ -236,6 +236,7 @@ class BackupViewModel
 
         private suspend fun hasNonDefaultSettings(): Boolean {
             val themeMode = settingsRepository.themeMode.first()
+            val useDynamicColor = settingsRepository.useDynamicColor.first()
             val language = settingsRepository.language.first()
             val slotModePolicy = settingsRepository.slotModePolicy.first()
             val weekStartDay = settingsRepository.weekStartDay.first()
@@ -244,6 +245,7 @@ class BackupViewModel
             val weightUnit = settingsRepository.weightUnit.first()
 
             return themeMode != SYSTEM_THEME ||
+                useDynamicColor ||
                 language != SYSTEM ||
                 slotModePolicy != AUTO_WHEN_MULTIPLE ||
                 weekStartDay != WeekStartDay.MONDAY ||

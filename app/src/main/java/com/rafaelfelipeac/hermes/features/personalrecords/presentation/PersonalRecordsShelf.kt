@@ -7,18 +7,21 @@
 package com.rafaelfelipeac.hermes.features.personalrecords.presentation
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Add
@@ -29,7 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -46,18 +48,19 @@ import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.PersonalRecordCategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
-import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.PersonalRecordBestSelector
 import com.rafaelfelipeac.hermes.features.personalrecords.domain.model.PersonalRecordFamily
 import java.util.Locale
+
+private const val PERSONAL_RECORD_FRAME_ALPHA = 0.18f
 
 @Composable
 internal fun PersonalRecordsShelf(
@@ -97,109 +100,101 @@ internal fun PersonalRecordsShelf(
                                     familyEntries.size,
                                 )
                             val category = group.category
-                            val accent = category?.colorId?.let(::categoryAccentColor) ?: colorScheme.surfaceVariant
-                            val contentColor =
-                                if (category == null) {
-                                    colorScheme.onSurfaceVariant
-                                } else {
-                                    contentColorForBackground(accent)
-                                }
+                            val accent = category?.colorId?.let(::categoryAccentColor) ?: colorScheme.primary
+                            val frameColor = colorScheme.onSurface.copy(alpha = PERSONAL_RECORD_FRAME_ALPHA)
 
                             Card(
                                 onClick = { onFamilySelected(family.id) },
                                 colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-                                border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
+                                border = BorderStroke(BorderHairline, frameColor),
                                 shape = shapes.medium,
                                 modifier =
                                     Modifier
                                         .fillMaxWidth()
                                         .testTag(PERSONAL_RECORDS_FAMILY_CARD_TAG_PREFIX + family.id),
                             ) {
-                                Column(
-                                    modifier = Modifier.fillMaxWidth().padding(SpacingLg),
-                                    verticalArrangement = Arrangement.spacedBy(SpacingMd),
-                                ) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Surface(
-                                            shape = CircleShape,
-                                            color = accent,
-                                            tonalElevation = ElevationSm,
-                                            shadowElevation = ElevationSm,
-                                            modifier = Modifier.size(SmallIconSize + SpacingSm),
+                                Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+                                    Box(
+                                        modifier =
+                                            Modifier
+                                                .fillMaxHeight()
+                                                .width(PersonalRecordCategoryAccentWidth)
+                                                .background(accent),
+                                    )
+
+                                    Column(
+                                        modifier = Modifier.weight(1f).padding(SpacingLg),
+                                        verticalArrangement = Arrangement.spacedBy(SpacingMd),
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Icon(
+                                                imageVector = Icons.Outlined.Leaderboard,
+                                                contentDescription = null,
+                                                tint = accent,
+                                                modifier = Modifier.size(SmallIconSize),
+                                            )
+
+                                            Spacer(modifier = Modifier.width(SpacingMd))
+
+                                            Text(
+                                                text = family.title,
+                                                style = typography.titleMedium,
+                                                modifier = Modifier.weight(1f),
+                                            )
+                                        }
+
+                                        FlowRow(
+                                            modifier =
+                                                Modifier.padding(
+                                                    start = SmallIconSize + SpacingMd,
+                                                ),
+                                            horizontalArrangement = Arrangement.spacedBy(SpacingXs),
+                                            verticalArrangement = Arrangement.spacedBy(SpacingXs),
                                         ) {
-                                            Box(
-                                                contentAlignment = Alignment.Center,
-                                                modifier = Modifier.fillMaxSize(),
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Outlined.Leaderboard,
-                                                    contentDescription = null,
-                                                    tint = contentColor,
-                                                    modifier = Modifier.size(SmallIconSize),
+                                            TitleChip(
+                                                label = metricLabel(family.metricType),
+                                                containerColor = colorScheme.surfaceVariant,
+                                                contentColor = colorScheme.onSurfaceVariant,
+                                            )
+                                            TitleChip(
+                                                label = comparisonLabel(family.comparisonRule),
+                                                containerColor = colorScheme.surfaceVariant,
+                                                contentColor = colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+
+                                        val currentBestLabel =
+                                            currentBest?.let {
+                                                formatPersonalRecordValue(
+                                                    value = it.value,
+                                                    unit = it.unit,
+                                                    locale = currentLocale,
+                                                    unitLabel = unitLabelFor(it.unit, it.customUnitLabel, it.value),
                                                 )
                                             }
-                                        }
 
-                                        Spacer(modifier = Modifier.width(SpacingMd))
-
-                                        Text(
-                                            text = family.title,
-                                            style = typography.titleMedium,
-                                            modifier = Modifier.weight(1f),
-                                        )
-                                    }
-
-                                    FlowRow(
-                                        modifier =
-                                            Modifier.padding(
-                                                start = SmallIconSize + SpacingSm + SpacingMd,
-                                            ),
-                                        horizontalArrangement = Arrangement.spacedBy(SpacingXs),
-                                        verticalArrangement = Arrangement.spacedBy(SpacingXs),
-                                    ) {
-                                        TitleChip(
-                                            label = metricLabel(family.metricType),
-                                            containerColor = colorScheme.surfaceVariant,
-                                            contentColor = colorScheme.onSurfaceVariant,
-                                        )
-                                        TitleChip(
-                                            label = comparisonLabel(family.comparisonRule),
-                                            containerColor = colorScheme.surfaceVariant,
-                                            contentColor = colorScheme.onSurfaceVariant,
-                                        )
-                                    }
-
-                                    val currentBestLabel =
-                                        currentBest?.let {
-                                            formatPersonalRecordValue(
-                                                value = it.value,
-                                                unit = it.unit,
-                                                locale = currentLocale,
-                                                unitLabel = unitLabelFor(it.unit, it.customUnitLabel, it.value),
+                                        if (currentBestLabel == null) {
+                                            val actionColors = personalRecordRelatedColors(category)
+                                            AddActionPill(
+                                                icon = Icons.Outlined.Add,
+                                                label = stringResource(R.string.personal_records_add_first_result),
+                                                containerColor = actionColors.container,
+                                                contentColor = actionColors.content,
+                                                onClick = { onFamilySelected(family.id) },
                                             )
-                                        }
-
-                                    if (currentBestLabel == null) {
-                                        val actionColors = personalRecordRelatedColors(category)
-                                        AddActionPill(
-                                            icon = Icons.Outlined.Add,
-                                            label = stringResource(R.string.personal_records_add_first_result),
-                                            containerColor = actionColors.container,
-                                            contentColor = actionColors.content,
-                                            onClick = { onFamilySelected(family.id) },
-                                        )
-                                    } else {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.Bottom,
-                                        ) {
-                                            Text(text = currentBestLabel, style = typography.titleMedium)
-                                            Text(
-                                                text = entryCountText,
-                                                style = typography.bodySmall,
-                                                color = colorScheme.onSurfaceVariant,
-                                            )
+                                        } else {
+                                            Row(
+                                                modifier = Modifier.fillMaxWidth(),
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                verticalAlignment = Alignment.Bottom,
+                                            ) {
+                                                Text(text = currentBestLabel, style = typography.titleMedium)
+                                                Text(
+                                                    text = entryCountText,
+                                                    style = typography.bodySmall,
+                                                    color = colorScheme.onSurfaceVariant,
+                                                )
+                                            }
                                         }
                                     }
                                 }

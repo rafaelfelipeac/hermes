@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -153,7 +152,7 @@ internal fun WorkoutRow(
             }
             .clip(shapes.medium)
             .then(
-                if (workout.eventType != WORKOUT) {
+                if (!isDragging && workout.eventType != WORKOUT) {
                     Modifier.border(
                         width = BorderHairline,
                         color = categoryAccent ?: colorScheme.outlineVariant,
@@ -192,16 +191,6 @@ internal fun WorkoutRow(
     }
 
     Box(modifier = rowModifier) {
-        if (usesCategoryStyling && categoryAccent != null) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxHeight()
-                        .width(SpacingXs)
-                        .background(categoryAccent),
-            )
-        }
-
         Row(
             modifier =
                 Modifier
@@ -413,16 +402,6 @@ internal fun GhostWorkoutRow(
                 .alpha(GHOST_ROW_ALPHA),
     ) {
         Box {
-            if (usesCategoryStyling && categoryAccent != null) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxHeight()
-                            .width(SpacingXs)
-                            .background(categoryAccent),
-                )
-            }
-
             Row(
                 modifier = Modifier.padding(ContentPadding),
                 verticalAlignment = if (hasDescription) Alignment.Top else Alignment.CenterVertically,
@@ -494,8 +473,8 @@ private fun workoutRowColors(
     val completedColor = TodoBlue
     val completedContent = TodoBlueContent
     val isDarkTheme = isDarkBackground(colorScheme.background)
-    val restDayBackground = themeColorScheme.outlineVariant
-    val restDayContent = themeColorScheme.onSurfaceVariant
+    val scheduleStateBackground = themeColorScheme.surface
+    val scheduleStateContent = themeColorScheme.onSurfaceVariant
     val categoryAccent =
         workout.categoryColorId?.let { accent ->
             baseCategoryColor(accent = categoryAccentColor(accent))
@@ -520,7 +499,7 @@ private fun workoutRowColors(
     val background =
         when {
             isDragging -> themeColorScheme.surfaceVariant
-            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> restDayBackground
+            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> scheduleStateBackground
             workout.isCompleted && categoryAccent == null -> completedColor
             workout.isCompleted && categoryCompletedBackground != null -> categoryCompletedBackground
             categoryAccent != null -> categoryAccent
@@ -528,7 +507,7 @@ private fun workoutRowColors(
         }
     val content =
         when {
-            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> restDayContent
+            workout.eventType != WORKOUT && workout.eventType != RACE_EVENT -> scheduleStateContent
             workout.isCompleted && categoryContent == null -> completedContent
             workout.isCompleted && categoryCompletedContent != null -> categoryCompletedContent
             categoryContent != null -> categoryContent

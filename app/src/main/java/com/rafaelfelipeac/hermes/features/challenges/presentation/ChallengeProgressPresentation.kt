@@ -5,6 +5,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.ChallengeStatusSuccessDark
+import com.rafaelfelipeac.hermes.core.ui.theme.ChallengeStatusSuccessLight
+import com.rafaelfelipeac.hermes.core.ui.theme.ChallengeStatusWarningDark
+import com.rafaelfelipeac.hermes.core.ui.theme.ChallengeStatusWarningLight
+import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.Challenge
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeProgressEntry
 import com.rafaelfelipeac.hermes.features.challenges.domain.model.ChallengeQuantity
@@ -14,10 +19,6 @@ import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 internal const val CHALLENGES_TAG_DETAIL_HISTORY_GROUP_PREFIX = "challenges_detail_history_group_"
-
-private const val CHALLENGE_TAG_CONTAINER_ALPHA = 0.16f
-private val ChallengeProgressAheadColor = Color(0xFF2E7D32)
-private val ChallengeProgressBehindColor = Color(0xFFC62828)
 
 internal data class ChallengeProgressDateGroup(
     val date: LocalDate,
@@ -76,23 +77,25 @@ internal fun challengeStatusLabel(status: ChallengeStatus): String {
 }
 
 @Composable
-internal fun challengeProgressColor(status: ChallengeStatus): Color {
-    return when (status) {
-        ChallengeStatus.AHEAD,
-        ChallengeStatus.ON_TRACK,
-        ChallengeStatus.COMPLETED,
-        ChallengeStatus.EXCEEDED,
-        -> ChallengeProgressAheadColor
-
-        ChallengeStatus.BEHIND,
-        ChallengeStatus.EXPIRED_INCOMPLETE,
-        -> ChallengeProgressBehindColor
-
-        ChallengeStatus.NOT_STARTED -> colorScheme.primary
-    }
+internal fun challengeProgressBarColor(): Color {
+    return colorScheme.primary
 }
 
 @Composable
-internal fun challengeProgressContainerColor(status: ChallengeStatus): Color {
-    return challengeProgressColor(status).copy(alpha = CHALLENGE_TAG_CONTAINER_ALPHA)
+internal fun challengeStatusTextColor(status: ChallengeStatus): Color {
+    val isDarkTheme = isDarkBackground(colorScheme.background)
+    return when (status) {
+        ChallengeStatus.ON_TRACK,
+        ChallengeStatus.AHEAD,
+        ChallengeStatus.NOT_STARTED,
+        -> colorScheme.onSurfaceVariant
+
+        ChallengeStatus.BEHIND -> if (isDarkTheme) ChallengeStatusWarningDark else ChallengeStatusWarningLight
+
+        ChallengeStatus.COMPLETED,
+        ChallengeStatus.EXCEEDED,
+        -> if (isDarkTheme) ChallengeStatusSuccessDark else ChallengeStatusSuccessLight
+
+        ChallengeStatus.EXPIRED_INCOMPLETE -> colorScheme.error
+    }
 }

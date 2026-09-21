@@ -241,41 +241,49 @@ internal fun ResultCard(
     settingsPaceUnit: PaceUnit,
 ) {
     val hasResult = result.hasResult()
+    val containerColor = if (hasResult) colorScheme.primaryContainer else colorScheme.surfaceContainerLow
+    val contentColor = if (hasResult) colorScheme.onPrimaryContainer else colorScheme.onSurface
+    val supportingContentColor = if (hasResult) colorScheme.onPrimaryContainer else colorScheme.onSurfaceVariant
     Card(
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
-        border = BorderStroke(BorderThin, colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        border = BorderStroke(BorderThin, if (hasResult) colorScheme.primary else colorScheme.outlineVariant),
         shape = shapes.medium,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
-            modifier = Modifier.padding(SpacingLg),
+            modifier = Modifier.fillMaxWidth().padding(SpacingLg),
             verticalArrangement = Arrangement.spacedBy(SpacingSm),
         ) {
-            Text(text = stringResource(R.string.pace_calculator_result), style = typography.titleMedium)
+            Text(
+                text = stringResource(R.string.pace_calculator_result),
+                style = typography.titleMedium,
+                color = contentColor,
+            )
             if (hasResult) {
                 val labels = result.labels(mode, settingsDistanceUnit, settingsPaceUnit)
                 Text(
                     text = paceCalculatorResultLabel(mode),
                     style = typography.bodyMedium,
-                    color = colorScheme.onSurfaceVariant,
+                    color = supportingContentColor,
                 )
                 Text(
                     text = labels.primary,
                     style = typography.headlineMedium,
+                    color = contentColor,
                     modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
                 )
                 if (labels.secondary.isNotBlank()) {
                     Text(
                         text = labels.secondary,
                         style = typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant,
+                        color = supportingContentColor,
                     )
                 }
             } else {
                 Text(
                     text = stringResource(R.string.pace_calculator_result_empty),
                     style = typography.bodyMedium,
-                    color = colorScheme.onSurfaceVariant,
+                    color = supportingContentColor,
                     modifier = Modifier.testTag(PACE_CALCULATOR_RESULT_TAG),
                 )
             }

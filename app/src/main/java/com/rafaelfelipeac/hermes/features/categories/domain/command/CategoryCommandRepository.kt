@@ -7,4 +7,9 @@ interface CategoryCommandRepository {
         categoryId: Long,
         delta: Int,
     ): CategoryCommandResult
+
+    suspend fun moveCategoryToPosition(
+        categoryId: Long,
+        targetIndex: Int,
+    ): CategoryCommandResult
 }

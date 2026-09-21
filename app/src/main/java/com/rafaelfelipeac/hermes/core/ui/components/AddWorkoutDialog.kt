@@ -19,9 +19,11 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -81,6 +83,7 @@ fun AddWorkoutDialog(
     val categoryLabel =
         currentCategory?.name ?: stringResource(R.string.category_uncategorized)
     val dateLabel = workoutDate?.let { formatWorkoutDate(it, currentLocale) }.orEmpty()
+    val textFieldColors = hermesDialogTextFieldColors()
 
     LaunchedEffect(categories, currentCategoryId) {
         if (currentCategoryId != null && categories.none { it.id == currentCategoryId }) {
@@ -107,6 +110,7 @@ fun AddWorkoutDialog(
                     onValueChange = { type = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_title)) },
                     keyboardOptions = DefaultTextFieldKeyboardOptions,
+                    colors = textFieldColors,
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -120,6 +124,7 @@ fun AddWorkoutDialog(
                     onValueChange = { description = it.capitalizedFirstCharacter() },
                     label = { Text(text = stringResource(R.string.workout_dialog_add_workout_description)) },
                     keyboardOptions = DefaultTextFieldKeyboardOptions,
+                    colors = textFieldColors,
                     modifier =
                         Modifier
                             .fillMaxWidth()
@@ -134,6 +139,7 @@ fun AddWorkoutDialog(
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(text = stringResource(R.string.race_event_dialog_date)) },
+                        colors = textFieldColors,
                         modifier = Modifier.fillMaxWidth(),
                     )
 
@@ -173,6 +179,7 @@ fun AddWorkoutDialog(
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         },
+                        colors = textFieldColors,
                         modifier =
                             Modifier
                                 .fillMaxWidth()
@@ -290,6 +297,16 @@ fun AddWorkoutDialog(
         }
     }
 }
+
+@Composable
+private fun hermesDialogTextFieldColors(): TextFieldColors =
+    OutlinedTextFieldDefaults.colors(
+        focusedContainerColor = Color.Transparent,
+        unfocusedContainerColor = Color.Transparent,
+        disabledContainerColor = Color.Transparent,
+        focusedBorderColor = colorScheme.primary,
+        unfocusedBorderColor = colorScheme.outlineVariant,
+    )
 
 @Preview(showBackground = true)
 @Composable

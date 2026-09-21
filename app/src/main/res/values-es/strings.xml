@@ -201,6 +201,9 @@
     <string name="categories_color_label">Color</string>
     <string name="categories_hide_action">Ocultar categoría</string>
     <string name="categories_show_action">Mostrar categoría</string>
+    <string name="categories_drag_action">Arrastrar categoría</string>
+    <string name="categories_more_actions">Acciones de categoría</string>
+    <string name="categories_hidden_status">Oculta</string>
     <string name="categories_move_up">Mover categoría arriba</string>
     <string name="categories_move_down">Mover categoría abajo</string>
     <string name="categories_edit_action">Editar categoría</string>
@@ -223,6 +226,9 @@
     <string name="settings_theme_system">Usar configuración del sistema</string>
     <string name="settings_theme_light">Claro</string>
     <string name="settings_theme_dark">Oscuro</string>
+    <string name="settings_dynamic_color_title">Usar colores de Material You</string>
+    <string name="settings_dynamic_color_summary">Coincide con los colores del fondo de pantalla de Android en dispositivos compatibles.</string>
+    <string name="settings_dynamic_color_unavailable">Los colores de Material You requieren Android 12 o una versión posterior.</string>
     <string name="settings_language_title">Idioma</string>
     <string name="settings_language_system">Usar configuración del sistema</string>
     <string name="settings_language_english">Inglés</string>
@@ -378,6 +384,7 @@
     <string name="activity_action_convert_rest_day_to_workout">Convertiste un evento de descanso en entrenamiento.</string>
     <string name="activity_action_change_language">Cambiaste el idioma.</string>
     <string name="activity_action_change_theme">Cambiaste el tema.</string>
+    <string name="activity_action_change_dynamic_color">Cambiaste los colores de Material You.</string>
     <string name="activity_action_open_week">Abriste otra semana.</string>
     <string name="activity_action_complete_week_workouts">Completaste todo de la semana.</string>
     <string name="activity_action_copy_last_week">Copiaste la semana pasada en esta semana.</string>
@@ -407,6 +414,8 @@
     <string name="activity_week_date_pattern">d MMM yyyy</string>
     <string name="activity_value_system">Sistema</string>
     <string name="activity_value_unknown">Desconocido</string>
+    <string name="activity_value_enabled">Activado</string>
+    <string name="activity_value_disabled">Desactivado</string>
     <string name="activity_value_quoted">\"%1$s\"</string>
     <string name="activity_action_create_category">Has creado la categoría %1$s.</string>
     <string name="activity_action_update_category_name">Has renombrado una categoría.</string>

@@ -8,4 +8,5 @@ data class BackupSettingsRecord(
     val distanceUnit: String,
     val paceUnit: String,
     val weightUnit: String,
+    val useDynamicColor: Boolean = false,
 )

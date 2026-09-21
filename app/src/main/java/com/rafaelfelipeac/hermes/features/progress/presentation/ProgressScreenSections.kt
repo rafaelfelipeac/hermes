@@ -1,5 +1,6 @@
 package com.rafaelfelipeac.hermes.features.progress.presentation
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,6 +21,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -112,16 +114,19 @@ internal fun ProgressWeeklyReadout(
             }
             readout.nextFocus?.let { nextFocus ->
                 HorizontalDivider(color = colorScheme.outlineVariant)
-                Box(
+                Surface(
+                    shape = shapes.small,
+                    color = colorScheme.surfaceContainerLow,
+                    border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .clip(shapes.small)
-                            .background(colorScheme.surfaceVariant)
-                            .clickable(onClick = { onOpenWorkout(nextFocus) })
-                            .padding(SpacingMd),
+                            .clickable(onClick = { onOpenWorkout(nextFocus) }),
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(SpacingXs)) {
+                    Column(
+                        modifier = Modifier.padding(SpacingMd),
+                        verticalArrangement = Arrangement.spacedBy(SpacingXs),
+                    ) {
                         Text(
                             text = stringResource(R.string.progress_support_next_focus),
                             style = typography.labelMedium,

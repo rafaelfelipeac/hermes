@@ -11,15 +11,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,6 +28,7 @@ import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -39,12 +38,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.components.HelpIconButton
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconGlyphSize
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.HelpIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonContentHorizontalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonContentVerticalPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsDeveloperButtonVerticalPadding
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsRowMinHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
@@ -61,6 +60,7 @@ import com.rafaelfelipeac.hermes.features.settings.domain.model.WeightUnit
 @Composable
 internal fun SettingsSection(
     title: String,
+    contentInsideCard: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
@@ -69,7 +69,13 @@ internal fun SettingsSection(
             style = typography.titleMedium,
         )
 
-        SettingsCard(content = content)
+        if (contentInsideCard) {
+            SettingsCard(content = content)
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(SpacingMd)) {
+                content()
+            }
+        }
     }
 }
 
@@ -84,7 +90,7 @@ internal fun SettingsDetailScreen(
     content: @Composable () -> Unit,
 ) {
     val scrollState = rememberScrollState()
-    val resolvedHelpContentDescription =
+    val resolvedHelpContentDescription: String? =
         if (onHelpClick != null) {
             requireNotNull(helpContentDescription) {
                 "helpContentDescription is required when onHelpClick is provided."
@@ -128,27 +134,10 @@ internal fun SettingsDetailScreen(
             )
 
             if (onHelpClick != null) {
-                Surface(
-                    shape = CircleShape,
-                    color = colorScheme.surfaceVariant,
-                    tonalElevation = ElevationSm,
-                    shadowElevation = ElevationSm,
-                    modifier = Modifier.size(HelpIconSize),
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier =
-                            Modifier
-                                .fillMaxSize()
-                                .clickable(onClick = onHelpClick),
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
-                            contentDescription = resolvedHelpContentDescription,
-                            modifier = Modifier.size(HelpIconGlyphSize),
-                        )
-                    }
-                }
+                HelpIconButton(
+                    contentDescription = checkNotNull(resolvedHelpContentDescription),
+                    onClick = onHelpClick,
+                )
             }
         }
 
@@ -215,6 +204,48 @@ internal fun SettingsOptionRow(
 }
 
 @Composable
+internal fun SettingsSwitchRow(
+    label: String,
+    checked: Boolean,
+    enabled: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    supportingText: String? = null,
+) {
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled) { onCheckedChange(!checked) }
+                .padding(vertical = SpacingSm),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = typography.bodyLarge,
+                color = if (enabled) colorScheme.onSurface else colorScheme.onSurfaceVariant,
+            )
+            if (supportingText != null) {
+                Spacer(modifier = Modifier.height(SpacingXs))
+                Text(
+                    text = supportingText,
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(SpacingLg))
+
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            enabled = enabled,
+        )
+    }
+}
+
+@Composable
 internal fun SettingsActionButton(
     label: String,
     onClick: () -> Unit,
@@ -249,37 +280,48 @@ internal fun SettingsNavigationRow(
     detail: String? = null,
     onClick: () -> Unit,
 ) {
-    Row(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(vertical = SpacingXxs),
-        verticalAlignment = Alignment.CenterVertically,
+    Surface(
+        onClick = onClick,
+        tonalElevation = ElevationSm,
+        shape = shapes.medium,
+        modifier = modifier.fillMaxWidth(),
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(SpacingXxs),
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = SettingsRowMinHeight)
+                    .padding(horizontal = SpacingLg, vertical = SpacingMd),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = label,
-                style = typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-
-            if (!detail.isNullOrBlank()) {
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(SpacingXxs),
+            ) {
                 Text(
-                    text = detail,
-                    style = typography.bodySmall,
+                    text = label,
+                    style = typography.bodyLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-            }
-        }
 
-        Icon(
-            imageVector = Icons.Outlined.ChevronRight,
-            contentDescription = null,
-        )
+                if (!detail.isNullOrBlank()) {
+                    Text(
+                        text = detail,
+                        style = typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(SpacingMd))
+
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = colorScheme.onSurfaceVariant,
+            )
+        }
     }
 }
 
@@ -290,34 +332,43 @@ internal fun SettingsInfoRow(
     body: String,
     onClick: () -> Unit,
 ) {
-    Row(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .clickable(onClick = onClick)
-                .padding(vertical = SpacingXs),
-        verticalAlignment = Alignment.Top,
+    Surface(
+        onClick = onClick,
+        tonalElevation = ElevationSm,
+        shape = shapes.medium,
+        modifier = Modifier.fillMaxWidth(),
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.padding(top = SpacingXxs),
-        )
-
-        Spacer(modifier = Modifier.width(SpacingLg))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = typography.bodyLarge,
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = SettingsRowMinHeight)
+                    .padding(horizontal = SpacingLg, vertical = SpacingMd),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = colorScheme.primary,
+                modifier = Modifier.padding(top = SpacingXxs),
             )
 
-            Spacer(modifier = Modifier.height(SpacingXxs))
+            Spacer(modifier = Modifier.width(SpacingLg))
 
-            Text(
-                text = body,
-                style = typography.bodySmall,
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = typography.bodyLarge,
+                )
+
+                Spacer(modifier = Modifier.height(SpacingXxs))
+
+                Text(
+                    text = body,
+                    style = typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }

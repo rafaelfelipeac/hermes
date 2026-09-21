@@ -9,11 +9,13 @@ import androidx.activity.result.contract.ActivityResultContracts.CreateDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocument
 import androidx.activity.result.contract.ActivityResultContracts.OpenDocumentTree
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -22,6 +24,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Construction
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.History
@@ -31,13 +34,12 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.TrackChanges
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,8 +61,12 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.rafaelfelipeac.hermes.BuildConfig
 import com.rafaelfelipeac.hermes.BuildConfig.VERSION_NAME
 import com.rafaelfelipeac.hermes.R
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BrowseDestinationRowMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventFlagIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXl
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.features.activity.presentation.ActivityScreen
@@ -319,39 +325,55 @@ private fun BrowseDestinationCard(
     icon: ImageVector,
     onClick: () -> Unit,
 ) {
-    Card(
+    Surface(
         onClick = onClick,
         shape = shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceVariant),
+        tonalElevation = ElevationSm,
         modifier = modifier.fillMaxWidth(),
     ) {
-        Column(
+        Row(
             modifier =
                 Modifier
                     .fillMaxWidth()
+                    .heightIn(min = BrowseDestinationRowMinHeight)
                     .padding(SpacingMd),
-            verticalArrangement = Arrangement.spacedBy(SpacingXs),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    modifier = Modifier.size(SmallIconSize),
-                    tint = colorScheme.primary,
-                )
-                Spacer(modifier = Modifier.width(SpacingMd))
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(EventFlagIconSize),
+                tint = colorScheme.primary,
+            )
+
+            Spacer(modifier = Modifier.width(SpacingMd))
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(SpacingXs),
+            ) {
                 Text(
                     text = title,
                     style = typography.titleSmall,
-                    color = colorScheme.onSurfaceVariant,
+                    color = colorScheme.onSurface,
                 )
+                if (subtitle != null) {
+                    Text(
+                        text = subtitle,
+                        style = typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
             }
-            if (subtitle != null) {
-                Text(
-                    text = subtitle,
-                    style = typography.bodySmall,
-                    color = colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = SmallIconSize + SpacingMd),
+
+            Spacer(modifier = Modifier.width(SpacingSm))
+
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(SmallIconSize),
+                    tint = colorScheme.onSurfaceVariant,
                 )
             }
         }

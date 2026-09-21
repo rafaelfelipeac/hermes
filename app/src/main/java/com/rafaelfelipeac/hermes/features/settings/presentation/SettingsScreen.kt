@@ -147,8 +147,10 @@ fun SettingsScreen(
         SettingsRoute.THEME ->
             SettingsThemeScreen(
                 themeMode = state.themeMode,
+                useDynamicColor = state.useDynamicColor,
                 onBack = { route = SettingsRoute.MAIN },
                 onThemeSelected = viewModel::setThemeMode,
+                onUseDynamicColorChanged = viewModel::setUseDynamicColor,
                 modifier = modifier,
             )
         SettingsRoute.LANGUAGE ->

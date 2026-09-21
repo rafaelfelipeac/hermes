@@ -30,6 +30,8 @@ Assumptions made from the current code and README:
 If future work adds light recognition (soft streaks, small trophies, gentle celebrations), it should stay opt-in and non-judgmental so it reinforces the calm, offline-first intent instead of undermining it.
 
 Recent learnings:
+- Weekly workout rows are a deliberate exception to the newer category-card rail pattern. On the Home planner, workouts behave more like calendar blocks than summary cards, so full category-color surfaces preserve fast board scanning while Events, Trophies, Records, and Challenges keep the calmer rail + neutral frame treatment.
+- Challenge cards read calmer when category color is limited to identity surfaces (left rail and category chip) while progress uses the theme primary color. Target type still works best as a neutral chip beside category, while status color should be supplementary text instead of another saturated chip/bar system competing with the category.
 - When a progress bar uses nested fill layers, the outer planned workload can be correct while the inner completion layer still renders from the top by default; explicitly bottom-aligning the inner layer preserves the intended "completion rises from the base" reading.
 - Weekly completion charts are easier to read when the bar height encodes planned workload and the fill encodes completion; percent-only bars hide the fact that a 1/1 week and a 9/10 week are not the same kind of load.
 - Weekly progress percentages are easy to misread when the planned workload changes week to week; showing the completed/planned count on every bar makes the percentage honest instead of implying equal effort across all weeks.
@@ -667,3 +669,56 @@ Recent learnings:
 - PR feedback that changes ViewModel state exposure can require test collectors too: `stateIn(WhileSubscribed)` keeps UI lifecycle behavior honest, but unit tests that assert `.value` after mutations need an active collector or they only observe the initial snapshot.
 
 - CI can expose extra intermediate emissions in Flow-based ViewModel tests that local runs may not hit. When asserting a state after mutating a fake clock/date provider, advance the test scheduler and wait for the semantic state instead of assuming a fixed small number of emissions.
+- Material You is safest as an opt-in preference layered over the branded Hermes palette. Persisting it separately from light/dark mode keeps imports from older backups visually stable, while schema v7 can require the boolean only when settings are present and let schemas 1-6 synthesize the branded default.
+- Category reordering needs two different interaction contracts over one Activity story. Up/down actions can keep neighbor moves, but drag needs a final index command that shifts the visible range atomically and logs one `REORDER_CATEGORY` entry after the database has accepted the new order.
+- Browse works better when it borrows the Categories row grammar without copying its controls. A neutral elevated row, small brand-tinted icon, and trailing chevron preserve navigation affordance while avoiding the oversized icon-container pattern that makes the app feel like a generic dashboard.
+- Settings feels more consistent with Browse when preference destinations are standalone quiet rows instead of grouped cards with internal dividers. Keeping detail-choice screens inside cards preserves form density, while the main Settings launcher reads like the rest of the refactored navigation surfaces.
+- Backup is clearer when export, import, and folder actions are peers rather than two grouped cards. Separate rows make the operation choices scannable, keep disabled semantics on each action, and align the utility screen with the Browse and Settings launcher grammar.
+- Trophies should communicate progress without turning every shelf item into a decorative tile. Neutral locked cards plus restrained unlocked accents keep the achievement system readable while preserving the badge artwork as the focus.
+- Events cards are easier to scan when category color behaves like metadata rather than the full card background. A neutral surface with a slim accent strip keeps race timing prominent while still letting Run, Cycling, Swim, and Other remain recognizable.
+- Personal Records shelf cards should treat category color as a grouping cue, not a badge decoration. A slim rail plus tinted leaderboard icon keeps the record value hierarchy clearer while still aligning families with their training categories.
+- Calculator screens benefit from a clear output anchor even when the inputs stay form-like. A restrained result rail and primary-colored calculated value make the answer easier to find without making the whole utility screen feel decorative.
+- Activity feeds read better when timeline meaning is expressed as a narrow structural accent instead of another icon or filled card. Keeping the event body neutral preserves dense history scanning while the rail gives the log a stronger chronological rhythm.
+- Challenge list cards can use category color as a structural cue without changing the progress vocabulary. A narrow rail keeps category identity visible while leaving target chips, status chips, and progress bars responsible for their own meanings.
+- Progress support blocks work better as neutral, bordered sub-surfaces than as filled panels. That keeps charts and readouts dominant while still making secondary actions like Next focus feel tappable.
+- Weekly workout rows need category color to identify training type without owning the whole card. Neutral card bodies with category borders keep dense planning readable while completion controls, chips, and descriptions remain visually stable.
+- Challenge detail works best when celebratory state is structural rather than a full filled banner. A primary border and icon can still signal completion while the neutral surface keeps Today metrics and history from competing with the summary.
+- Personal Record detail benefits from matching the shelf grammar at a smaller scale. A slim category rail carries the family identity through current-best and history cards without turning every record value into a colored tile.
+- Small affordances should follow the same quiet surface language as larger cards. The Home TBD help button stays discoverable with a border and icon while avoiding another filled bubble competing with workout rows.
+- Dialog fields should not introduce a different visual accent language from the screen that opened them. Using quiet field fills and outline-variant borders keeps forms readable without making every inactive field look like a selected state.
+- A final screenshot pass needs explicit navigation target verification, not just scripted taps. Bottom navigation hit areas sit above the gesture bar, so regression captures should confirm the destination title before treating files as valid.
+- Categories still benefit from the established `TitleChip` pattern even after the row shell becomes quieter. Pairing color and name in one chip keeps category identity consistent with workout rows, event cards, and picker fields.
+- Backup actions need grouping even when each action is a standalone row. Export/import share a data-transfer context, while backup folder selection is a storage preference, so a subtle separator helps without adding extra copy.
+- Trophy shelf items feel less generated when category color is structural rather than decorative. Replacing full colored frames with a single left rail keeps the card neutral while category-tinted icons preserve the achievement identity.
+- Trophy rails need a neutral frame to keep card boundaries legible. The category rail can own the left edge while a thinner low-alpha surface frame defines the remaining edges without making the category color feel like decoration.
+- Trophy card borders make text proximity more noticeable than borderless cards. Title blocks need their own horizontal inset so the label reads as card content instead of touching the structural frame.
+- Event cards should share the Trophy rail/frame grammar when category color is structural. A category-only left rail plus neutral hairline frame keeps Events connected to Trophies without letting every card edge compete for attention.
+- Personal Record cards should use the same rail/frame vocabulary as Trophies and Events. Keeping the category rail at the shared width and the remaining frame neutral makes category-owned surfaces feel connected across feature shelves.
+
+- Pace calculator results should not borrow category-card rail language when there is no category metadata. A distinct result container tone makes the computed output read as an answer instead of another input or category-owned card.
+
+- Activity timeline rails should share the same physical rail and neutral-frame vocabulary as later category-owned cards, even though their color represents chronology rather than category metadata. Keeping the geometry consistent makes the UI family feel intentional.
+
+## Home schedule state rows stay neutral
+
+Rest, unavailable, and sick rows on Home are not category-backed planner blocks, so they should not inherit the full category-color treatment used by workouts and race events. A neutral surface with the standard outline keeps them readable as schedule states while preserving the stronger calendar-like color language for actionable training items.
+
+## Challenge list and detail share one summary surface
+
+Challenge detail headers should use the same summary container as challenge list cards instead of copying the rail, frame, spacing, chips, and progress arrangement. Sharing the component keeps category identity, target tags, progress state, and border treatment connected across list and detail while leaving detail-only metric and action cards separate.
+
+## Help icon buttons share one neutral treatment
+
+Help affordances appear in Home, Categories, and Settings detail screens, so they should come from one shared component instead of repeating local circle surfaces. The shared neutral bordered treatment makes help read as secondary guidance across destinations without inheriting feature/category colors.
+
+## Dialog field labels should blend with dialog surfaces
+
+Outlined dialog fields read calmer when the field container is transparent and the floating label notch shares the dialog surface. This preserves the form boundary without creating small contrast islands around labels, especially in dark mode.
+
+## Event card dividers should respect the category rail
+
+When a card uses a structural category rail, internal separators should begin after that rail instead of crossing it. This keeps the colored rail visually continuous while preserving the footer/content division inside the neutral card body.
+
+## Category drag should follow measured rows
+
+Category reordering feels smoother when drag targets come from actual row bounds instead of a shared row-height estimate. Updating the target both during drag deltas and during edge autoscroll keeps quick drops responsive while still supporting stationary autoscroll near the list edges.

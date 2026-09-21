@@ -87,4 +87,38 @@ class RoomCategoryCommandRepository
                 CategoryCommandResult.Changed
             }
         }
+
+        override suspend fun moveCategoryToPosition(
+            categoryId: Long,
+            targetIndex: Int,
+        ): CategoryCommandResult {
+            return database.withTransaction {
+                val ordered = categoryDao.getCategories()
+                val currentIndex = ordered.indexOfFirst { it.id == categoryId }
+
+                if (currentIndex == -1 || targetIndex !in ordered.indices || currentIndex == targetIndex) {
+                    return@withTransaction CategoryCommandResult.NoChange
+                }
+
+                val current = ordered[currentIndex]
+                val reordered = ordered.toMutableList()
+                reordered.removeAt(currentIndex)
+                reordered.add(targetIndex, current)
+
+                reordered.forEachIndexed { index, category ->
+                    if (category.sortOrder != index) {
+                        categoryDao.updateSortOrder(category.id, index)
+                    }
+                }
+
+                userActionLogger.log(
+                    actionType = REORDER_CATEGORY,
+                    entityType = CATEGORY,
+                    entityId = current.id,
+                    metadata = mapOf(CATEGORY_NAME to current.name),
+                )
+
+                CategoryCommandResult.Changed
+            }
+        }
     }

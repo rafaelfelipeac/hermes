@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
     val themeMode: Flow<ThemeMode>
+    val useDynamicColor: Flow<Boolean>
     val language: Flow<AppLanguage>
     val slotModePolicy: Flow<SlotModePolicy>
     val weekStartDay: Flow<WeekStartDay>
@@ -37,6 +38,8 @@ interface SettingsRepository {
     fun initialWeightUnit(): WeightUnit
 
     suspend fun setThemeMode(mode: ThemeMode)
+
+    suspend fun setUseDynamicColor(useDynamicColor: Boolean)
 
     suspend fun setLanguage(language: AppLanguage)
 

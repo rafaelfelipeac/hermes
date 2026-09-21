@@ -104,6 +104,7 @@ private fun ChallengeProgressEntryEntity.toBackupRecord(): BackupChallengeProgre
 private fun SettingsSnapshot.toBackupRecord(): BackupSettingsRecord =
     BackupSettingsRecord(
         themeMode = themeMode.name,
+        useDynamicColor = useDynamicColor,
         languageTag = language.tag,
         slotModePolicy = slotModePolicy.name,
         weekStartDay = weekStartDay.name,

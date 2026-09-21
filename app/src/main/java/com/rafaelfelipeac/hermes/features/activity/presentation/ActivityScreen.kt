@@ -1,15 +1,19 @@
 package com.rafaelfelipeac.hermes.features.activity.presentation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -48,6 +52,8 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.strings.relativeDateText
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
@@ -436,6 +442,7 @@ private fun ActivityRow(
     Surface(
         tonalElevation = ElevationSm,
         shape = shapes.medium,
+        border = BorderStroke(BorderHairline, colorScheme.onSurface.copy(alpha = ACTIVITY_ROW_FRAME_ALPHA)),
         modifier =
             Modifier
                 .fillMaxWidth()
@@ -447,46 +454,59 @@ private fun ActivityRow(
                     },
                 ),
     ) {
-        Column(
-            modifier =
-                Modifier.padding(
-                    horizontal = SpacingXl,
-                    vertical = SpacingLg,
-                ),
-        ) {
-            Row {
-                Text(
-                    text = item.title,
-                    style = typography.bodyLarge,
-                    color = colorScheme.onSurface,
-                    maxLines = TITLE_MAX_LINES,
-                    overflow = TextOverflow.Clip,
-                    modifier = Modifier.weight(1f),
-                )
+        Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
+            Surface(
+                color = colorScheme.primary,
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .width(CategoryAccentWidth),
+            ) {}
 
-                Spacer(modifier = Modifier.width(SpacingLg))
+            Column(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(
+                            horizontal = SpacingXl,
+                            vertical = SpacingLg,
+                        ),
+            ) {
+                Row {
+                    Text(
+                        text = item.title,
+                        style = typography.bodyLarge,
+                        color = colorScheme.onSurface,
+                        maxLines = TITLE_MAX_LINES,
+                        overflow = TextOverflow.Clip,
+                        modifier = Modifier.weight(1f),
+                    )
 
-                Text(
-                    text = item.time,
-                    style = typography.labelMedium,
-                    color = colorScheme.onSurfaceVariant,
-                )
-            }
-            item.subtitle?.let { subtitle ->
-                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingMd))
+                    Spacer(modifier = Modifier.width(SpacingLg))
 
-                Text(
-                    text = subtitle,
-                    style = typography.bodyMedium,
-                    color = colorScheme.onSurfaceVariant,
-                    maxLines = SUBTITLE_MAX_LINES,
-                    overflow = TextOverflow.Clip,
-                )
+                    Text(
+                        text = item.time,
+                        style = typography.labelMedium,
+                        color = colorScheme.onSurfaceVariant,
+                    )
+                }
+                item.subtitle?.let { subtitle ->
+                    HorizontalDivider(modifier = Modifier.padding(vertical = SpacingMd))
+
+                    Text(
+                        text = subtitle,
+                        style = typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant,
+                        maxLines = SUBTITLE_MAX_LINES,
+                        overflow = TextOverflow.Clip,
+                    )
+                }
             }
         }
     }
 }
 
 private const val HEADER_KEY_PREFIX = "header-"
+private const val ACTIVITY_ROW_FRAME_ALPHA = 0.16f
 private const val TITLE_MAX_LINES = 4
 private const val SUBTITLE_MAX_LINES = 6

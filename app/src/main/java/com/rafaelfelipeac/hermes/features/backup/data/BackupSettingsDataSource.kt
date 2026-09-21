@@ -7,6 +7,7 @@ import com.rafaelfelipeac.hermes.features.settings.data.LANGUAGE_KEY
 import com.rafaelfelipeac.hermes.features.settings.data.PACE_UNIT_KEY
 import com.rafaelfelipeac.hermes.features.settings.data.SLOT_MODE_POLICY_KEY
 import com.rafaelfelipeac.hermes.features.settings.data.THEME_MODE_KEY
+import com.rafaelfelipeac.hermes.features.settings.data.USE_DYNAMIC_COLOR_KEY
 import com.rafaelfelipeac.hermes.features.settings.data.WEEK_START_DAY_KEY
 import com.rafaelfelipeac.hermes.features.settings.data.WEIGHT_UNIT_KEY
 import com.rafaelfelipeac.hermes.features.settings.data.settingsDataStore
@@ -33,6 +34,7 @@ open class BackupSettingsDataSource
             val prefs = dataStore.data.first()
             return SettingsSnapshot(
                 themeMode = prefs[THEME_MODE_KEY]?.enumValueOrNull<ThemeMode>() ?: ThemeMode.SYSTEM,
+                useDynamicColor = prefs[USE_DYNAMIC_COLOR_KEY] ?: false,
                 language = prefs[LANGUAGE_KEY]?.let(AppLanguage::fromTag) ?: AppLanguage.SYSTEM,
                 slotModePolicy =
                     prefs[SLOT_MODE_POLICY_KEY]?.enumValueOrNull<SlotModePolicy>()
@@ -47,6 +49,7 @@ open class BackupSettingsDataSource
         open suspend fun replace(snapshot: SettingsSnapshot) {
             dataStore.edit { prefs ->
                 prefs[THEME_MODE_KEY] = snapshot.themeMode.name
+                prefs[USE_DYNAMIC_COLOR_KEY] = snapshot.useDynamicColor
                 prefs[LANGUAGE_KEY] = snapshot.language.tag
                 prefs[SLOT_MODE_POLICY_KEY] = snapshot.slotModePolicy.name
                 prefs[WEEK_START_DAY_KEY] = snapshot.weekStartDay.name

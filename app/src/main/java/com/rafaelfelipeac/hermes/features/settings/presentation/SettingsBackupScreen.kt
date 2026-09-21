@@ -1,16 +1,19 @@
 package com.rafaelfelipeac.hermes.features.settings.presentation
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme.colorScheme
+import androidx.compose.material3.MaterialTheme.shapes
 import androidx.compose.material3.MaterialTheme.typography
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,7 +23,10 @@ import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
-import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ElevationSm
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SettingsRowMinHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingMd
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXxs
 import java.time.ZoneId
 
@@ -44,42 +50,36 @@ internal fun SettingsBackupScreen(
         contentInsideCard = false,
         modifier = modifier,
     ) {
-        SettingsCard {
+        SettingsBackupActionRow(
+            label = stringResource(R.string.settings_export_backup_title),
+            detail = backupExportLabel(state.lastBackupExportedAt),
+            onClick = onExportClick,
+            enabled = !isOperationInProgress,
+        )
+
+        SettingsBackupActionRow(
+            label = stringResource(R.string.settings_import_backup_title),
+            detail = backupImportLabel(state.lastBackupImportedAt),
+            onClick = onImportClick,
+            enabled = !isOperationInProgress,
+        )
+
+        HorizontalDivider(color = colorScheme.outlineVariant)
+
+        SettingsBackupActionRow(
+            label = stringResource(R.string.settings_backup_folder_title),
+            detail = backupFolderLabel(state.backupFolderUri),
+            onClick = onSelectFolderClick,
+            enabled = !isOperationInProgress,
+        )
+
+        if (state.backupFolderUri != null) {
             SettingsBackupActionRow(
-                label = stringResource(R.string.settings_export_backup_title),
-                detail = backupExportLabel(state.lastBackupExportedAt),
-                onClick = onExportClick,
+                label = stringResource(R.string.settings_backup_folder_clear),
+                detail = stringResource(R.string.settings_backup_folder_clear_detail),
+                onClick = onClearFolderClick,
                 enabled = !isOperationInProgress,
             )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-
-            SettingsBackupActionRow(
-                label = stringResource(R.string.settings_import_backup_title),
-                detail = backupImportLabel(state.lastBackupImportedAt),
-                onClick = onImportClick,
-                enabled = !isOperationInProgress,
-            )
-        }
-
-        SettingsCard {
-            SettingsBackupActionRow(
-                label = stringResource(R.string.settings_backup_folder_title),
-                detail = backupFolderLabel(state.backupFolderUri),
-                onClick = onSelectFolderClick,
-                enabled = !isOperationInProgress,
-            )
-
-            if (state.backupFolderUri != null) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = SpacingXs))
-
-                SettingsBackupActionRow(
-                    label = stringResource(R.string.settings_backup_folder_clear),
-                    detail = stringResource(R.string.settings_backup_folder_clear_detail),
-                    onClick = onClearFolderClick,
-                    enabled = !isOperationInProgress,
-                )
-            }
         }
     }
 }
@@ -91,33 +91,49 @@ internal fun SettingsBackupActionRow(
     onClick: () -> Unit,
     enabled: Boolean = true,
 ) {
-    Row(
+    val textColor = if (enabled) colorScheme.onSurface else colorScheme.onSurfaceVariant
+    val detailColor = colorScheme.onSurfaceVariant
+
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        tonalElevation = ElevationSm,
+        shape = shapes.medium,
         modifier =
             Modifier
                 .fillMaxWidth()
-                .clickable(enabled = enabled, onClick = onClick)
-                .then(if (enabled) Modifier else Modifier.semantics { disabled() })
-                .padding(vertical = SpacingXs),
-        verticalAlignment = Alignment.CenterVertically,
+                .then(if (enabled) Modifier else Modifier.semantics { disabled() }),
     ) {
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(SpacingXxs),
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = SettingsRowMinHeight)
+                    .padding(horizontal = SpacingLg, vertical = SpacingMd),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = label,
-                style = typography.bodyLarge,
-            )
-            Text(
-                text = detail,
-                style = typography.bodySmall,
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(SpacingXxs),
+            ) {
+                Text(
+                    text = label,
+                    style = typography.bodyLarge,
+                    color = textColor,
+                )
+                Text(
+                    text = detail,
+                    style = typography.bodySmall,
+                    color = detailColor,
+                )
+            }
+
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = detailColor,
             )
         }
-
-        Icon(
-            imageVector = Icons.Outlined.ChevronRight,
-            contentDescription = null,
-        )
     }
 }
 

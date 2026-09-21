@@ -35,6 +35,11 @@ class SettingsRepositoryImpl
                 }
                 .distinctUntilChanged()
 
+        override val useDynamicColor: Flow<Boolean> =
+            dataStore.data
+                .map { prefs -> prefs[USE_DYNAMIC_COLOR_KEY] ?: DEFAULT_USE_DYNAMIC_COLOR }
+                .distinctUntilChanged()
+
         override val language: Flow<AppLanguage> =
             dataStore.data
                 .map { prefs ->
@@ -122,6 +127,12 @@ class SettingsRepositoryImpl
         override suspend fun setThemeMode(mode: ThemeMode) {
             dataStore.edit { prefs ->
                 prefs[THEME_MODE_KEY] = mode.name
+            }
+        }
+
+        override suspend fun setUseDynamicColor(useDynamicColor: Boolean) {
+            dataStore.edit { prefs ->
+                prefs[USE_DYNAMIC_COLOR_KEY] = useDynamicColor
             }
         }
 
@@ -221,3 +232,5 @@ private fun defaultPaceUnit(): PaceUnit {
 private fun defaultWeightUnit(): WeightUnit {
     return WeightUnit.KILOGRAMS
 }
+
+private const val DEFAULT_USE_DYNAMIC_COLOR = false

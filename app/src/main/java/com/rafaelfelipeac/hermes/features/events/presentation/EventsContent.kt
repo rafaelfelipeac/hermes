@@ -52,11 +52,8 @@ import com.rafaelfelipeac.hermes.R
 import com.rafaelfelipeac.hermes.core.ui.components.EmptyStateCard
 import com.rafaelfelipeac.hermes.core.ui.components.TitleChip
 import com.rafaelfelipeac.hermes.core.ui.components.calendar.baseCategoryColor
-import com.rafaelfelipeac.hermes.core.ui.components.calendar.completedCategoryColor
 import com.rafaelfelipeac.hermes.core.ui.components.formatWorkoutDate
 import com.rafaelfelipeac.hermes.core.ui.currentLocale
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlue
-import com.rafaelfelipeac.hermes.core.ui.theme.CompletedBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderHairline
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.BorderThin
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxBoxSize
@@ -64,6 +61,7 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.CheckboxSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.ContentPadding
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardFooterHeight
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCardHeight
+import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventCategoryAccentWidth
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.EventFlagIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SmallIconSize
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingLg
@@ -74,16 +72,14 @@ import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.SpacingXs
 import com.rafaelfelipeac.hermes.core.ui.theme.Dimens.Zero
 import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_DARK
 import com.rafaelfelipeac.hermes.core.ui.theme.LIGHTER_TONE_BLEND_LIGHT
-import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlue
-import com.rafaelfelipeac.hermes.core.ui.theme.TodoBlueContent
 import com.rafaelfelipeac.hermes.core.ui.theme.categoryAccentColor
-import com.rafaelfelipeac.hermes.core.ui.theme.contentColorForBackground
 import com.rafaelfelipeac.hermes.core.ui.theme.isDarkBackground
 import com.rafaelfelipeac.hermes.features.weeklytraining.presentation.model.WorkoutUi
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
 private const val TYPE_CHIP_ALPHA = 0.18f
+private const val EVENT_CARD_FRAME_ALPHA = 0.18f
 private const val EVENT_GRID_COLUMNS = 2
 internal const val EVENT_CARD_TAG_PREFIX = "event-card-"
 
@@ -250,28 +246,16 @@ private fun EventCard(
     val categoryAccent = event.categoryColorId?.let(::categoryAccentColor)?.let(::baseCategoryColor)
     val currentLocale = currentLocale()
     val isDarkTheme = isDarkBackground(colorScheme.background)
-    val colors = eventCardColors(event = event, categoryAccent = categoryAccent, isDarkTheme = isDarkTheme)
-    val categoryChipBase =
-        categoryAccent?.let { accent ->
-            if (event.isCompleted) {
-                completedCategoryColor(
-                    accent = accent,
-                    isDarkTheme = isDarkTheme,
-                    surface = colorScheme.surface,
-                )
-            } else {
-                accent
-            }
-        }
+    val accent = categoryAccent ?: colorScheme.primary
     val categoryChipBackground =
-        categoryChipBase?.let { base ->
+        categoryAccent?.let { base ->
             lighterTone(base, isDarkTheme = isDarkTheme)
         }
     val categoryChipContent = Color.White
+    val frameColor = colorScheme.onSurface.copy(alpha = EVENT_CARD_FRAME_ALPHA)
     val countdown = countdownLabel(eventDate = eventDate, today = eventToday)
     val dateLabel = formatWorkoutDate(eventDate, currentLocale)
     val categoryLabel = event.categoryName ?: stringResource(R.string.category_uncategorized)
-    val frameColor = if (event.isCompleted) colors.background else categoryAccent
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
 
     LaunchedEffect(focusRequested) {
@@ -284,11 +268,11 @@ private fun EventCard(
     Card(
         onClick = onClick,
         shape = shapes.medium,
-        border = BorderStroke(BorderHairline, frameColor ?: colorScheme.outlineVariant),
+        border = BorderStroke(BorderHairline, frameColor),
         colors =
             CardDefaults.cardColors(
-                containerColor = colors.background,
-                contentColor = colors.content,
+                containerColor = colorScheme.surfaceContainerLow,
+                contentColor = colorScheme.onSurface,
             ),
         modifier =
             Modifier
@@ -304,15 +288,13 @@ private fun EventCard(
                 .testTag(EVENT_CARD_TAG_PREFIX + event.id),
     ) {
         Box {
-            if (frameColor != null) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxHeight()
-                            .width(SpacingXs)
-                            .background(frameColor),
-                )
-            }
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxHeight()
+                        .width(EventCategoryAccentWidth)
+                        .background(accent),
+            )
 
             Column(
                 modifier =
@@ -345,16 +327,16 @@ private fun EventCard(
                             modifier = Modifier.size(CheckboxSize + SpacingSm),
                             colors =
                                 CheckboxDefaults.colors(
-                                    checkedColor = colors.content,
-                                    uncheckedColor = colors.content,
-                                    checkmarkColor = colors.background,
+                                    checkedColor = accent,
+                                    uncheckedColor = colorScheme.outline,
+                                    checkmarkColor = colorScheme.onPrimary,
                                 ),
                         )
                     }
 
                     TitleChip(
                         label = categoryLabel,
-                        containerColor = categoryChipBackground ?: colors.content.copy(alpha = TYPE_CHIP_ALPHA),
+                        containerColor = categoryChipBackground ?: colorScheme.primary.copy(alpha = TYPE_CHIP_ALPHA),
                         contentColor = categoryChipContent,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -386,7 +368,7 @@ private fun EventCard(
                             Text(
                                 text = event.type,
                                 style = typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                                color = colors.content,
+                                color = colorScheme.onSurface,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
@@ -395,7 +377,7 @@ private fun EventCard(
                                 Text(
                                     text = event.description,
                                     style = typography.bodySmall,
-                                    color = colors.content.copy(alpha = 0.85f),
+                                    color = colorScheme.onSurfaceVariant,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
                                 )
@@ -407,7 +389,7 @@ private fun EventCard(
                         Text(
                             text = dateLabel,
                             style = typography.bodySmall,
-                            color = colors.content.copy(alpha = 0.85f),
+                            color = colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                         )
@@ -415,9 +397,12 @@ private fun EventCard(
                 }
 
                 HorizontalDivider(
-                    color = colors.content.copy(alpha = 0.35f),
+                    color = colorScheme.outlineVariant,
                     thickness = BorderThin,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .padding(start = EventCategoryAccentWidth)
+                            .fillMaxWidth(),
                 )
 
                 Row(
@@ -432,14 +417,14 @@ private fun EventCard(
                     Icon(
                         imageVector = Icons.Outlined.Flag,
                         contentDescription = stringResource(R.string.race_event_label),
-                        tint = colors.content,
+                        tint = accent,
                         modifier = Modifier.size(EventFlagIconSize),
                     )
 
                     Text(
                         text = countdown,
                         style = typography.bodySmall.copy(fontWeight = FontWeight.Medium),
-                        color = colors.content,
+                        color = colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -449,7 +434,7 @@ private fun EventCard(
             Icon(
                 imageVector = Icons.Outlined.Close,
                 contentDescription = stringResource(R.string.weekly_training_delete_race_event),
-                tint = colors.content,
+                tint = colorScheme.onSurfaceVariant,
                 modifier =
                     Modifier
                         .align(Alignment.TopEnd)
@@ -459,40 +444,6 @@ private fun EventCard(
             )
         }
     }
-}
-
-private data class EventCardColors(
-    val background: Color,
-    val content: Color,
-)
-
-@Composable
-private fun eventCardColors(
-    event: WorkoutUi,
-    categoryAccent: Color?,
-    isDarkTheme: Boolean,
-): EventCardColors {
-    val background =
-        when {
-            event.isCompleted && categoryAccent == null -> TodoBlue
-            event.isCompleted && categoryAccent != null ->
-                completedCategoryColor(
-                    accent = categoryAccent,
-                    isDarkTheme = isDarkTheme,
-                    surface = colorScheme.surface,
-                )
-            categoryAccent != null -> categoryAccent
-            else -> CompletedBlue
-        }
-    val content =
-        when {
-            event.isCompleted && categoryAccent == null -> TodoBlueContent
-            event.isCompleted && categoryAccent != null -> contentColorForBackground(background)
-            categoryAccent != null -> contentColorForBackground(categoryAccent)
-            else -> CompletedBlueContent
-        }
-
-    return EventCardColors(background = background, content = content)
 }
 
 internal fun WorkoutUi.eventDate(): LocalDate {

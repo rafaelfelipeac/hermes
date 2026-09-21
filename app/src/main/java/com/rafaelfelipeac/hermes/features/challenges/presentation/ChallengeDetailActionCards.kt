@@ -15,7 +15,6 @@ import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,15 +70,11 @@ internal fun ChallengeTodayCard(calculation: ChallengeCalculationResult) {
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.challenges_today_completed_label),
                         value = ChallengeQuantity.format(calculation.todayProgress, currentLocale),
-                        containerColor = colorScheme.surfaceVariant,
-                        contentColor = colorScheme.onSurfaceVariant,
                     )
                     ChallengeTodayMetricCard(
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.challenges_today_remaining_label),
                         value = ChallengeQuantity.format(calculation.todayRemaining ?: 0L, currentLocale),
-                        containerColor = colorScheme.surfaceVariant,
-                        contentColor = colorScheme.onSurfaceVariant,
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(SpacingSm), modifier = Modifier.fillMaxWidth()) {
@@ -87,15 +82,11 @@ internal fun ChallengeTodayCard(calculation: ChallengeCalculationResult) {
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.challenges_required_pace_label),
                         value = ChallengeQuantity.format(calculation.requiredPace, currentLocale),
-                        containerColor = colorScheme.primaryContainer,
-                        contentColor = colorScheme.onPrimaryContainer,
                     )
                     ChallengeTodayMetricCard(
                         modifier = Modifier.weight(1f),
                         label = stringResource(R.string.challenges_debt_label),
                         value = ChallengeQuantity.format(calculation.carriedDebt, currentLocale),
-                        containerColor = colorScheme.secondaryContainer,
-                        contentColor = colorScheme.onSecondaryContainer,
                     )
                 }
             }
@@ -152,13 +143,12 @@ private fun ChallengeTodayMetricCard(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
-    containerColor: Color,
-    contentColor: Color,
 ) {
     Card(
         modifier = modifier,
         shape = shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = containerColor, contentColor = contentColor),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+        border = BorderStroke(BorderHairline, colorScheme.outlineVariant),
     ) {
         Column(
             modifier = Modifier.padding(SpacingMd),
@@ -167,14 +157,14 @@ private fun ChallengeTodayMetricCard(
             Text(
                 text = label,
                 style = typography.labelSmall,
-                color = contentColor,
+                color = colorScheme.onSurfaceVariant,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
                 text = value,
                 style = typography.titleMedium,
-                color = contentColor,
+                color = colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
