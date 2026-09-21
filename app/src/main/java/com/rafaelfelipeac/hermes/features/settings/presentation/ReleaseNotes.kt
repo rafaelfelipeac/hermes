@@ -5,7 +5,7 @@ import androidx.annotation.StringRes
 import com.rafaelfelipeac.hermes.R
 
 private const val DEV_VERSION_SUFFIX_SEPARATOR = "-"
-private const val RELEASE_NOTES_VERSION_1_12_0 = "1.12.0"
+private const val RELEASE_NOTES_VERSION_1_13_0 = "1.13.0"
 
 internal data class ReleaseNotesDefinition(
     val normalizedVersion: String,
@@ -23,7 +23,7 @@ internal fun normalizedReleaseNotesVersion(appVersion: String): String {
 
 internal fun releaseNotesForVersion(appVersion: String): ReleaseNotesDefinition? {
     return when (val normalizedVersion = normalizedReleaseNotesVersion(appVersion)) {
-        RELEASE_NOTES_VERSION_1_12_0 ->
+        RELEASE_NOTES_VERSION_1_13_0 ->
             ReleaseNotesDefinition(
                 normalizedVersion = normalizedVersion,
                 sections =
@@ -31,6 +31,14 @@ internal fun releaseNotesForVersion(appVersion: String): ReleaseNotesDefinition?
                         ReleaseNotesSectionDefinition(
                             titleRes = R.string.settings_release_notes_added,
                             itemsRes = R.array.settings_release_notes_current_added,
+                        ),
+                        ReleaseNotesSectionDefinition(
+                            titleRes = R.string.settings_release_notes_changed,
+                            itemsRes = R.array.settings_release_notes_current_changed,
+                        ),
+                        ReleaseNotesSectionDefinition(
+                            titleRes = R.string.settings_release_notes_fixed,
+                            itemsRes = R.array.settings_release_notes_current_fixed,
                         ),
                     ),
             )

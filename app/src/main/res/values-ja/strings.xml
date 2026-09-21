@@ -240,12 +240,20 @@
     <string name="settings_release_notes_available">リリースノート</string>
     <string name="settings_release_notes_title">%1$s の新機能</string>
     <string name="settings_release_notes_added">追加</string>
+    <string name="settings_release_notes_changed">変更</string>
+    <string name="settings_release_notes_fixed">修正</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>日々または合計の目標、柔軟な期間、任意のカテゴリーを設定できるチャレンジ</item>
-        <item>今日の目標、繰り越した遅れ、取り戻すために必要な進捗を示すリアルタイムのペースガイド</item>
-        <item>素早い進捗更新、日付別の履歴、編集、アーカイブ、完了時のお祝い</item>
-        <item>アクティビティ履歴、トロフィー、デモデータ、バックアップと復元でチャレンジに対応</item>
+        <item>端末の色に合わせられる新しい Material You テーマオプション</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>計画、進捗、記録、イベント、トロフィー、アクティビティ、バックアップ、設定の画面をよりすっきり見やすく調整</item>
+        <item>ワークアウト、カテゴリー、イベント、バックアップ、自己ベストの変更がより安定して動作するようになりました</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>チャレンジの下書きと選択内容がより確実に復元されるようになりました</item>
+        <item>新しい日が始まったときに、進捗、イベント、チャレンジが同期した状態を保つようになりました</item>
+        <item>アプリのインストール後や更新後も、言語選択がより安定して動作するようになりました</item>
     </string-array>
     <string name="settings_back">戻る</string>
     <string name="settings_feedback_title">フィードバック</string>

@@ -722,3 +722,7 @@ When a card uses a structural category rail, internal separators should begin af
 ## Category drag should follow measured rows
 
 Category reordering feels smoother when drag targets come from actual row bounds instead of a shared row-height estimate. Updating the target both during drag deltas and during edge autoscroll keeps quick drops responsive while still supporting stationary autoscroll near the list edges.
+
+## Release notes should track the release shape
+
+When a release is mostly stabilization and polish, the in-app notes still need to describe user-facing outcomes instead of mirroring commit-level or implementation detail. Keeping Added, Changed, and Fixed sections in the current release resources lets Settings present a concise product summary while the changelog preserves the fuller engineering context.

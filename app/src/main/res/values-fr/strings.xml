@@ -244,12 +244,20 @@
     <string name="settings_release_notes_available">Notes de version</string>
     <string name="settings_release_notes_title">Nouveautés de %1$s</string>
     <string name="settings_release_notes_added">Ajouté</string>
+    <string name="settings_release_notes_changed">Modifié</string>
+    <string name="settings_release_notes_fixed">Corrigé</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Défis avec objectifs quotidiens ou globaux, plages de dates flexibles et catégories facultatives</item>
-        <item>Conseils d’allure en temps réel avec l’objectif du jour, le retard accumulé et la progression nécessaire pour le rattraper</item>
-        <item>Mises à jour rapides de la progression, historique daté, modification, archivage et célébrations de fin</item>
-        <item>Prise en charge des défis dans l’historique d’Activité, les trophées, les données de démonstration et la sauvegarde/restauration</item>
+        <item>Nouvelle option de thème Material You qui peut s’accorder aux couleurs de votre appareil</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>Des écrans plus propres et plus calmes pour la planification, la progression, les records, les événements, les trophées, l’activité, la sauvegarde et les réglages</item>
+        <item>Les changements de séances, catégories, événements, sauvegarde et records personnels sont maintenant plus fiables</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Les brouillons et sélections de défis sont restaurés plus fiablement</item>
+        <item>Progression, Événements et Défis restent synchronisés lorsqu’un nouveau jour commence</item>
+        <item>Le choix de la langue se comporte plus fiablement après l’installation ou la mise à jour de l’app</item>
     </string-array>
     <string name="settings_back">Retour</string>
     <string name="settings_feedback_title">Commentaires</string>

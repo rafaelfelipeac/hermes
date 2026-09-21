@@ -3,14 +3,23 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+
+## [v1.13.0]
+### Added
+- Material You theme preference for devices that support dynamic colors.
+
 ### Changed
-- Stabilized category, weekly/event, backup, language, challenge and date-sensitive flows ahead of the next release.
+- Refined the visual system across Browse, Settings, Backup, Activity, Trophies, Events, Personal Records, Challenges, Progress, Weekly planning and dialog fields.
+- Stabilized category, weekly/event, backup, language, challenge and date-sensitive flows.
+- Transactional command handling now covers category, weekly, event, backup and personal-record mutation paths more consistently.
 - Events rendering is split between route/dialog ownership and reusable content/cards.
+- Build, dependency, string-resource and presentation helpers were cleaned up as part of the release stabilization pass.
 
 ### Fixed
 - Challenge editor restoration now preserves drafts, selected items and save-failure recovery paths.
 - Progress, Events and Challenges now refresh from an observable current-date source instead of waiting for unrelated data changes.
 - Activity, Trophies and Progress presentation aggregation now runs off the collector context.
+- In-app language resources stay available in app-bundle installs, and non-Compose strings resolve through the selected app locale.
 
 ## [v1.12.0]
 ### Added

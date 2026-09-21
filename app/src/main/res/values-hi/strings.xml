@@ -244,12 +244,20 @@
     <string name="settings_release_notes_available">रिलीज़ नोट्स</string>
     <string name="settings_release_notes_title">%1$s में नया क्या है</string>
     <string name="settings_release_notes_added">जोड़ा गया</string>
+    <string name="settings_release_notes_changed">बदला गया</string>
+    <string name="settings_release_notes_fixed">ठीक किया गया</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>दैनिक या कुल लक्ष्यों, लचीली तारीख़ सीमाओं और वैकल्पिक श्रेणियों के साथ चुनौतियाँ</item>
-        <item>आज के लक्ष्य, जमा कमी और उसे पूरा करने के लिए ज़रूरी प्रगति के साथ लाइव गति मार्गदर्शन</item>
-        <item>त्वरित प्रगति अपडेट, तारीख़-वार इतिहास, संपादन, संग्रह और पूरा होने पर जश्न</item>
-        <item>गतिविधि इतिहास, ट्रॉफ़ी, डेमो डेटा और बैकअप/रीस्टोर में चुनौतियों का समर्थन</item>
+        <item>नई Material You थीम विकल्प, जो आपके डिवाइस के रंगों से मेल खा सकता है</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>योजना, प्रगति, रिकॉर्ड, इवेंट, ट्रॉफ़ी, गतिविधि, बैकअप और सेटिंग्स की स्क्रीन अब ज़्यादा साफ़ और शांत हैं</item>
+        <item>वर्कआउट, श्रेणी, इवेंट, बैकअप और व्यक्तिगत रिकॉर्ड में बदलाव अब ज़्यादा भरोसेमंद तरीके से काम करते हैं</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>चुनौती ड्राफ़्ट और चयन अब ज़्यादा भरोसेमंद तरीके से रीस्टोर होते हैं</item>
+        <item>नया दिन शुरू होने पर प्रगति, इवेंट और चुनौतियाँ सिंक में रहती हैं</item>
+        <item>ऐप इंस्टॉल या अपडेट करने के बाद भाषा चयन ज़्यादा भरोसेमंद तरीके से काम करता है</item>
     </string-array>
     <string name="settings_back">वापस</string>
     <string name="settings_feedback_title">प्रतिक्रिया</string>

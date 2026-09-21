@@ -13,8 +13,8 @@ plugins {
     alias(libs.plugins.hilt.android)
 }
 
-val appVersionCode = 19
-val appVersionName = "1.12.0"
+val appVersionCode = 20
+val appVersionName = "1.13.0"
 val ktlintCliVersion = "1.0.1"
 
 val releaseKeystorePath = providers.gradleProperty("RELEASE_KEYSTORE_PATH").orNull

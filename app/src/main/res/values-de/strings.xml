@@ -244,12 +244,20 @@
     <string name="settings_release_notes_available">Versionshinweise</string>
     <string name="settings_release_notes_title">Neu in %1$s</string>
     <string name="settings_release_notes_added">Hinzugefügt</string>
+    <string name="settings_release_notes_changed">Geändert</string>
+    <string name="settings_release_notes_fixed">Behoben</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Challenges mit Tages- oder Gesamtzielen, flexiblen Zeiträumen und optionalen Kategorien</item>
-        <item>Live-Tempoempfehlungen mit dem heutigen Ziel, aufgelaufenem Rückstand und dem nötigen Fortschritt zum Aufholen</item>
-        <item>Schnelle Fortschrittsupdates, datierter Verlauf, Bearbeitung, Archivierung und Abschlussfeiern</item>
-        <item>Challenges in Aktivitätsverlauf, Trophäen, Demodaten und Sicherung/Wiederherstellung integriert</item>
+        <item>Neue Material You-Designoption, die zu den Farben deines Geräts passen kann</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>Klarere, ruhigere Ansichten für Planung, Fortschritt, Rekorde, Events, Trophäen, Aktivität, Sicherung und Einstellungen</item>
+        <item>Änderungen an Workouts, Kategorien, Events, Sicherung und persönlichen Rekorden verhalten sich jetzt zuverlässiger</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Challenge-Entwürfe und Auswahlen werden zuverlässiger wiederhergestellt</item>
+        <item>Fortschritt, Events und Challenges bleiben synchron, wenn ein neuer Tag beginnt</item>
+        <item>Die Sprachauswahl verhält sich nach Installation oder Aktualisierung der App zuverlässiger</item>
     </string-array>
     <string name="settings_back">Zurück</string>
     <string name="settings_feedback_title">Feedback</string>

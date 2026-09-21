@@ -272,12 +272,20 @@
     <string name="settings_release_notes_available">ملاحظات الإصدار</string>
     <string name="settings_release_notes_title">الجديد في %1$s</string>
     <string name="settings_release_notes_added">تمت الإضافة</string>
+    <string name="settings_release_notes_changed">تم التغيير</string>
+    <string name="settings_release_notes_fixed">تم الإصلاح</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>تحديات بأهداف يومية أو إجمالية ونطاقات زمنية مرنة وفئات اختيارية</item>
-        <item>إرشادات مباشرة للوتيرة تعرض هدف اليوم والمتأخرات المتراكمة والتقدم اللازم للتعويض</item>
-        <item>تحديثات سريعة للتقدم وسجل مؤرخ وتعديل وأرشفة واحتفالات عند الإكمال</item>
-        <item>دعم التحديات في سجل النشاط والجوائز والبيانات التجريبية والنسخ الاحتياطي والاستعادة</item>
+        <item>خيار سمة Material You جديد يمكنه مطابقة ألوان جهازك</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>شاشات أنظف وأهدأ للتخطيط والتقدم والأرقام الشخصية والأحداث والجوائز والنشاط والنسخ الاحتياطي والإعدادات</item>
+        <item>أصبحت تغييرات التمارين والفئات والأحداث والنسخ الاحتياطي والأرقام الشخصية أكثر موثوقية</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>تتم استعادة مسودات التحديات والاختيارات بموثوقية أكبر</item>
+        <item>يبقى التقدم والأحداث والتحديات متزامنة عند بدء يوم جديد</item>
+        <item>يعمل اختيار اللغة بموثوقية أكبر بعد تثبيت التطبيق أو تحديثه</item>
     </string-array>
     <string name="settings_back">رجوع</string>
     <string name="settings_feedback_title">ملاحظات</string>

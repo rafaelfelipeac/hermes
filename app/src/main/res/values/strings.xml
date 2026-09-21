@@ -244,12 +244,20 @@
     <string name="settings_release_notes_available">Release notes</string>
     <string name="settings_release_notes_title">What\'s new in %1$s</string>
     <string name="settings_release_notes_added">Added</string>
+    <string name="settings_release_notes_changed">Changed</string>
+    <string name="settings_release_notes_fixed">Fixed</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Challenges with daily or total goals, flexible date ranges and optional categories</item>
-        <item>Live pacing guidance with today’s target, carried debt and progress needed to recover</item>
-        <item>Quick progress updates, dated history, editing, archiving and completion celebrations</item>
-        <item>Challenge support across Activity history, trophies, demo data and backup/restore</item>
+        <item>New Material You theme option that can match your device colors</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>Cleaner, calmer screens across planning, progress, records, events, trophies, activity, backup and settings</item>
+        <item>Workout, category, event, backup and personal-record changes now behave more dependably</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Challenge drafts and selections are restored more reliably</item>
+        <item>Progress, Events and Challenges stay in sync when a new day starts</item>
+        <item>Language selection behaves more reliably after installing or updating the app</item>
     </string-array>
     <string name="settings_back">Back</string>
     <string name="settings_feedback_title">Feedback</string>

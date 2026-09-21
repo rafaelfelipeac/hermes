@@ -244,12 +244,20 @@
     <string name="settings_release_notes_available">Note di rilascio</string>
     <string name="settings_release_notes_title">Novità in %1$s</string>
     <string name="settings_release_notes_added">Aggiunto</string>
+    <string name="settings_release_notes_changed">Modificato</string>
+    <string name="settings_release_notes_fixed">Corretto</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Sfide con obiettivi giornalieri o totali, intervalli di date flessibili e categorie facoltative</item>
-        <item>Indicazioni in tempo reale con l’obiettivo di oggi, il debito accumulato e i progressi necessari per recuperarlo</item>
-        <item>Aggiornamenti rapidi dei progressi, cronologia per data, modifica, archiviazione e festeggiamenti al completamento</item>
-        <item>Supporto delle sfide nella cronologia Attività, nei trofei, nei dati demo e nel backup/ripristino</item>
+        <item>Nuova opzione tema Material You che può abbinarsi ai colori del dispositivo</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>Schermate più pulite e tranquille per pianificazione, progressi, record, eventi, trofei, attività, backup e impostazioni</item>
+        <item>Le modifiche a allenamenti, categorie, eventi, backup e record personali ora si comportano in modo più affidabile</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Bozze e selezioni delle sfide vengono ripristinate in modo più affidabile</item>
+        <item>Progressi, Eventi e Sfide restano sincronizzati quando inizia un nuovo giorno</item>
+        <item>La scelta della lingua funziona in modo più affidabile dopo l’installazione o l’aggiornamento dell’app</item>
     </string-array>
     <string name="settings_back">Indietro</string>
     <string name="settings_feedback_title">Feedback</string>

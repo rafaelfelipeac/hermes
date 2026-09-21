@@ -244,12 +244,20 @@
     <string name="settings_release_notes_available">Notas da versão</string>
     <string name="settings_release_notes_title">Novidades da versão %1$s</string>
     <string name="settings_release_notes_added">Adicionado</string>
+    <string name="settings_release_notes_changed">Alterado</string>
+    <string name="settings_release_notes_fixed">Corrigido</string>
     <string name="settings_release_notes_bullet">•</string>
     <string-array name="settings_release_notes_current_added">
-        <item>Desafios com metas diárias ou totais, períodos flexíveis e categorias opcionais</item>
-        <item>Orientação de ritmo em tempo real com a meta de hoje, dívida acumulada e progresso necessário para recuperá-la</item>
-        <item>Atualizações rápidas de progresso, histórico por data, edição, arquivamento e celebrações de conclusão</item>
-        <item>Compatibilidade dos desafios com o histórico de Atividades, troféus, dados de demonstração e backup/restauração</item>
+        <item>Nova opção de tema Material You que pode combinar com as cores do dispositivo</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_changed">
+        <item>Telas mais limpas e tranquilas em planejamento, progresso, recordes, eventos, troféus, atividade, backup e configurações</item>
+        <item>Alterações em treinos, categorias, eventos, backup e recordes pessoais agora se comportam com mais confiança</item>
+    </string-array>
+    <string-array name="settings_release_notes_current_fixed">
+        <item>Rascunhos e seleções de desafios são restaurados com mais confiabilidade</item>
+        <item>Progresso, Eventos e Desafios ficam sincronizados quando um novo dia começa</item>
+        <item>A seleção de idioma se comporta melhor após instalar ou atualizar o app</item>
     </string-array>
     <string name="settings_back">Voltar</string>
     <string name="settings_feedback_title">Feedback</string>
