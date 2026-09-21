@@ -75,26 +75,30 @@ A quick look at Hermes in action — focused on clarity and flexibility.
 
 ### ☀️ Light mode
 <p align="center">
-  <img src="docs/screenshots/light/weekly.png" width="32%" alt="Light theme weekly screen with the current week and planned workouts." />
-  <img src="docs/screenshots/light/progress.png" width="32%" alt="Light theme progress screen with weekly readout, completion chart, and category mix." />
-  <img src="docs/screenshots/light/challenges.png" width="32%" alt="Light theme challenges screen with active goal progress and pacing guidance." />
+  <img src="docs/screenshots/light/weekly.png" width="48%" alt="Light theme weekly screen with the current week and planned workouts." />
+  <img src="docs/screenshots/light/progress.png" width="48%" alt="Light theme progress screen with weekly readout, completion chart, and category mix." />
 </p>
 <p align="center">
-  <img src="docs/screenshots/light/events.png" width="32%" alt="Light theme events screen with upcoming race and training events." />
-  <img src="docs/screenshots/light/personal-records.png" width="32%" alt="Light theme personal records screen with record families and best results." />
-  <img src="docs/screenshots/light/trophies.png" width="32%" alt="Light theme trophies screen with unlocked and locked trophy cards." />
+  <img src="docs/screenshots/light/challenges.png" width="48%" alt="Light theme challenges screen with active goal progress and pacing guidance." />
+  <img src="docs/screenshots/light/events.png" width="48%" alt="Light theme events screen with upcoming race and training events." />
+</p>
+<p align="center">
+  <img src="docs/screenshots/light/personal-records.png" width="48%" alt="Light theme personal records screen with record families and best results." />
+  <img src="docs/screenshots/light/trophies.png" width="48%" alt="Light theme trophies screen with unlocked and locked trophy cards." />
 </p>
 
 ### 🌙 Dark mode
 <p align="center">
-  <img src="docs/screenshots/dark/weekly.png" width="32%" alt="Dark theme weekly screen with the current week and planned workouts." />
-  <img src="docs/screenshots/dark/progress.png" width="32%" alt="Dark theme progress screen with weekly readout, completion chart, and category mix." />
-  <img src="docs/screenshots/dark/challenges.png" width="32%" alt="Dark theme challenges screen with active goal progress and pacing guidance." />
+  <img src="docs/screenshots/dark/weekly.png" width="48%" alt="Dark theme weekly screen with the current week and planned workouts." />
+  <img src="docs/screenshots/dark/progress.png" width="48%" alt="Dark theme progress screen with weekly readout, completion chart, and category mix." />
 </p>
 <p align="center">
-  <img src="docs/screenshots/dark/events.png" width="32%" alt="Dark theme events screen with upcoming race and training events." />
-  <img src="docs/screenshots/dark/personal-records.png" width="32%" alt="Dark theme personal records screen with record families and best results." />
-  <img src="docs/screenshots/dark/trophies.png" width="32%" alt="Dark theme trophies screen with unlocked and locked trophy cards." />
+  <img src="docs/screenshots/dark/challenges.png" width="48%" alt="Dark theme challenges screen with active goal progress and pacing guidance." />
+  <img src="docs/screenshots/dark/events.png" width="48%" alt="Dark theme events screen with upcoming race and training events." />
+</p>
+<p align="center">
+  <img src="docs/screenshots/dark/personal-records.png" width="48%" alt="Dark theme personal records screen with record families and best results." />
+  <img src="docs/screenshots/dark/trophies.png" width="48%" alt="Dark theme trophies screen with unlocked and locked trophy cards." />
 </p>
 
 ---
