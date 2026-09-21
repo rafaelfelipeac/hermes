@@ -9,15 +9,15 @@
   <img src="docs/icon/hermes-app-icon.png" width="160" alt="Hermes app icon" />
 </p>
 
-**Hermes** is a simple, offline-first **weekly training planner** — built to help you plan the week and keep it adaptable.
+**Hermes** is a calm, offline-first **training planner and progress companion** — built to help you shape the week, adapt when life moves, and keep long-running goals visible without turning training into noise.
 
-Like **Hermes, the messenger god** 🪽, it’s made for movement: workouts can be reordered, rescheduled and rearranged as the week changes — and organized with categories that match your routine.
+Like **Hermes, the messenger god** 🪽, it’s made for movement: workouts can be reordered, rescheduled and rearranged as the week changes, while events, challenges, personal records and progress stay connected to the same local training story.
 
-It focuses on clarity and consistency, with a lightweight weekly view that embraces one idea:
+It focuses on clarity and consistency, with one practical idea at the center:
 
 > **“Plan the week. Life happens. Adjust.”**
 
-No noise. No pressure. Just a realistic plan you can keep reshaping as life happens.
+No account. No server. No pressure. Just a realistic plan you can keep reshaping as life happens.
 
 <a href="https://play.google.com/store/apps/details?id=com.rafaelfelipeac.hermes">
     <img 
@@ -30,30 +30,33 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
 
 ## ✨ Features
 
-- Weekly-based training view (calendar-style, but lighter)
-- Plan sessions by day of the week
-- Organize workouts with categories (create, edit, reorder, hide, restore defaults) with color support
-- A **“To be defined”** area for sessions not assigned yet
-- Drag & drop to **reschedule** sessions between days
-- Backup support: export/import your data, choose a default backup folder in Settings and clear it anytime
-- Choose week start day in Settings (any day, Monday through Sunday)
-- Weekly header summary with progress and week completion feedback
-- Activity history filters by type, category and week
-- Trophy families, overview/detail screens and celebration banners
-- Events screen for upcoming races and other non-workout planning moments
+### Plan the week
+- Weekly training board with a calendar-like rhythm and lighter planning flow
+- Drag & drop workouts between days, slots and the **“To be defined”** area
+- Training, rest, busy, sick and race-event planning states
+- Categories with colors, ordering, hiding and restore-default support
+- Configurable week start day
+
+### Track progress
+- Progress overview with weekly readouts, training mix, activity preview and next-focus guidance
+- Activity history with filters by type, category and week
+- Trophy families with overview/detail screens and celebration feedback
+
+### Prepare goals and events
+- Events screen for races and other non-workout planning moments
+- Challenges with daily or total goals, pacing guidance, progress history and completion celebrations
 - Personal Records with customizable series, result history and best-result tracking
 - Pace calculator for pace, time and distance
+
+### Own your data
+- Offline-first local storage with no account and no server
+- JSON backup export/import
+- Default backup folder selection in Settings
+
+### Personalize the app
+- Light, dark and Material You color options
 - Configurable distance, pace and weight units
-- Challenges with daily or total goals, pacing guidance, progress history and completion celebrations
-- Mark days or sessions as:
-  - **Training**
-  - **Rest day**
-- Simple visual states:
-  - Planned
-  - Completed
-  - Rest
-- Light & dark themes
-- Language support:
+- App language support:
   - English (default)
   - Portuguese (Brazil)
   - Deutsch
@@ -63,7 +66,6 @@ No noise. No pressure. Just a realistic plan you can keep reshaping as life happ
   - العربية
   - हिन्दी
   - 日本語
-- Offline-first — no account, no server, no noise
 
 ---
 
@@ -75,11 +77,11 @@ A quick look at Hermes in action — focused on clarity and flexibility.
 <p align="center">
   <img src="docs/screenshots/light/weekly.jpeg" width="32%" alt="Light theme weekly screen with the current week and planned workouts." />
   <img src="docs/screenshots/light/progress.jpeg" width="32%" alt="Light theme progress screen with weekly readout, completion chart, and category mix." />
-  <img src="docs/screenshots/light/events.jpeg" width="32%" alt="Light theme events screen with upcoming race and training events." />
+  <img src="docs/screenshots/light/challenges.jpeg" width="32%" alt="Light theme challenges screen with active goal progress and pacing guidance." />
 </p>
 <p align="center">
+  <img src="docs/screenshots/light/events.jpeg" width="32%" alt="Light theme events screen with upcoming race and training events." />
   <img src="docs/screenshots/light/personal-records.jpeg" width="32%" alt="Light theme personal records screen with record families and best results." />
-  <img src="docs/screenshots/light/pace-calculator.jpeg" width="32%" alt="Light theme pace calculator screen configured for 5 km in 24:00." />
   <img src="docs/screenshots/light/trophies.jpeg" width="32%" alt="Light theme trophies screen with unlocked and locked trophy cards." />
 </p>
 
@@ -87,11 +89,11 @@ A quick look at Hermes in action — focused on clarity and flexibility.
 <p align="center">
   <img src="docs/screenshots/dark/weekly.jpeg" width="32%" alt="Dark theme weekly screen with the current week and planned workouts." />
   <img src="docs/screenshots/dark/progress.jpeg" width="32%" alt="Dark theme progress screen with weekly readout, completion chart, and category mix." />
-  <img src="docs/screenshots/dark/events.jpeg" width="32%" alt="Dark theme events screen with upcoming race and training events." />
+  <img src="docs/screenshots/dark/challenges.jpeg" width="32%" alt="Dark theme challenges screen with active goal progress and pacing guidance." />
 </p>
 <p align="center">
+  <img src="docs/screenshots/dark/events.jpeg" width="32%" alt="Dark theme events screen with upcoming race and training events." />
   <img src="docs/screenshots/dark/personal-records.jpeg" width="32%" alt="Dark theme personal records screen with record families and best results." />
-  <img src="docs/screenshots/dark/pace-calculator.jpeg" width="32%" alt="Dark theme pace calculator screen configured for 5 km in 24:00." />
   <img src="docs/screenshots/dark/trophies.jpeg" width="32%" alt="Dark theme trophies screen with unlocked and locked trophy cards." />
 </p>
 
@@ -112,35 +114,23 @@ Instead, the focus is on:
 - **visual clarity**
 - **calm interaction**
 - **rest days as first-class citizens**
+- **progress without punishment**
 
-This is a tool meant to support training — not judge it. Hermes includes gentle, optional recognition and it stays calm and supportive.
+This is a tool meant to support training — not judge it. Hermes includes gentle, optional recognition, but the app stays quiet enough to be useful on ordinary weeks too.
 
 ---
 
 ## 🛠️ Tech stack
 
 - **Kotlin + Android** – Single-platform app
-- **Jetpack Compose + Material 3** – Declarative UI
+- **Jetpack Compose + Material 3** – Declarative UI and adaptive navigation
 - **Room** – Local persistence
-- **DataStore (Preferences)** – Theme, language and settings
+- **DataStore (Preferences)** – Theme, language, units and settings
+- **AppCompat locales** – In-app language selection
 - **Hilt** – Dependency injection
 - **Coroutines + Flow + StateFlow** – Async and reactive streams
 - **Detekt + Ktlint** – Static analysis and formatting
 - **GitHub Actions** – CI for build, lint and releases
-
----
-
-## 🗺️ Ideas for the future
-
-Some things on the radar (not guaranteed):
-
-- Weekly summaries (planned vs completed)
-- Notes + perceived effort
-- Training templates / reusable routines
-- Shareable weekly report (coach-friendly)
-- Subtle animations and micro-interactions
-- Soft streaks or other light-touch recognition
-- Fun yearly comparisons (“you ran X km — that’s like crossing Y”)
 
 ---
 
