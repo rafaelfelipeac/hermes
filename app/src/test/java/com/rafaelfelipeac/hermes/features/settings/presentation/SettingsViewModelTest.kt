@@ -474,6 +474,34 @@ class SettingsViewModelTest {
         }
 
     @Test
+    fun syncLanguageFromPlatform_reconcilesWhenStoredLanguageAlreadyMatches() =
+        runTest(mainDispatcherRule.testDispatcher) {
+            val repository = createSettingsRepository(initialLanguage = ENGLISH, language = ENGLISH)
+            val categorySeeder = mockk<CategorySeeder>(relaxed = true)
+            val userActionLogger = mockk<UserActionLogger>(relaxed = true)
+            val demoDataSeeder = mockk<DemoDataSeeder>(relaxed = true)
+
+            val viewModel =
+                SettingsViewModel(
+                    repository,
+                    categorySeeder,
+                    userActionLogger,
+                    demoDataSeeder,
+                )
+
+            viewModel.syncLanguageFromPlatform(ENGLISH)
+            advanceUntilIdle()
+
+            coVerify(exactly = 1) {
+                categorySeeder.syncLocalizedNames(
+                    previousLanguage = ENGLISH,
+                    newLanguage = ENGLISH,
+                    force = false,
+                )
+            }
+        }
+
+    @Test
     fun seedActions_whenSeederMutates_emitEventsAndLogAction() =
         runTest(mainDispatcherRule.testDispatcher) {
             val userActionLogger = mockk<UserActionLogger>(relaxed = true)

@@ -36,7 +36,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 @HiltViewModel
@@ -49,6 +52,7 @@ class SettingsViewModel
         private val userActionLogger: UserActionLogger,
         private val demoDataSeeder: DemoDataSeeder,
     ) : ViewModel() {
+        private val languageChangeMutex = Mutex()
         private val demoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
         val demoSeedCompletedEvents: SharedFlow<Unit> = demoSeedEvents.asSharedFlow()
         private val challengeDemoSeedEvents = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -169,33 +173,39 @@ class SettingsViewModel
 
         fun setLanguage(language: AppLanguage) =
             viewModelScope.launch {
-                val previous = state.value.language
+                languageChangeMutex.withLock {
+                    val previous = repository.language.first()
 
-                repository.setLanguage(language)
+                    repository.setLanguage(language)
 
-                if (previous != language) {
-                    userActionLogger.log(
-                        actionType = CHANGE_LANGUAGE,
-                        entityType = SETTINGS,
-                        metadata =
-                            mapOf(
-                                OLD_VALUE to previous.tag,
-                                NEW_VALUE to language.tag,
-                            ),
-                    )
-                    categorySeeder.syncLocalizedNames(
-                        previousLanguage = previous,
-                        newLanguage = language,
-                        force = false,
-                    )
+                    if (previous != language) {
+                        userActionLogger.log(
+                            actionType = CHANGE_LANGUAGE,
+                            entityType = SETTINGS,
+                            metadata =
+                                mapOf(
+                                    OLD_VALUE to previous.tag,
+                                    NEW_VALUE to language.tag,
+                                ),
+                        )
+                        categorySeeder.syncLocalizedNames(
+                            previousLanguage = previous,
+                            newLanguage = language,
+                            force = false,
+                        )
+                    }
                 }
             }
 
         fun syncLanguageFromPlatform(language: AppLanguage) =
             viewModelScope.launch {
-                val previous = state.value.language
-                if (previous != language) {
-                    repository.setLanguage(language)
+                languageChangeMutex.withLock {
+                    val previous = repository.language.first()
+
+                    if (previous != language) {
+                        repository.setLanguage(language)
+                    }
+
                     categorySeeder.syncLocalizedNames(
                         previousLanguage = previous,
                         newLanguage = language,

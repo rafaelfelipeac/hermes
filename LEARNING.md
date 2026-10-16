@@ -730,3 +730,11 @@ When a release is mostly stabilization and polish, the in-app notes still need t
 ## README positioning should follow the shipped product
 
 Hermes has grown beyond a weekly planner, so public docs should describe the full user journey: plan the week, track progress, prepare events, follow challenges, keep records, and own local data. Screenshot galleries should favor current high-signal surfaces over older utility screens when space is limited.
+
+## Built-in category labels need translation history independent of the last switch
+
+Category rows store their rendered name, so a language change must decide whether that value is still an automatic built-in label or a user rename. Matching only the immediately previous locale loses that distinction after an interrupted or rapid switch; comparing against every supported built-in translation lets stale labels recover while leaving unrelated custom names alone. The compatibility rule intentionally treats a custom name that exactly equals a built-in translation as automatic because the existing schema has no rename marker.
+
+Language reconciliation is serialized with a mutex and reads the latest persisted preference before processing. The app also reconciles after applying the platform locale and on resume, which covers system-language changes and avoids making the stored category text depend on a stale locale snapshot.
+
+Automatic reconciliation is derived localization state, so it does not emit separate category-rename Activity entries; the existing language-change action remains the user-visible history event.
