@@ -255,9 +255,8 @@
         <item>Workout, category, event, backup and personal-record changes now behave more dependably</item>
     </string-array>
     <string-array name="settings_release_notes_current_fixed">
-        <item>Challenge drafts and selections are restored more reliably</item>
-        <item>Progress, Events and Challenges stay in sync when a new day starts</item>
-        <item>Language selection behaves more reliably after installing or updating the app</item>
+        <item>Built-in category names now recover correctly after changing the app language more than once</item>
+        <item>Challenge delay now compares planned and completed progress through today without double-counting today’s progress</item>
     </string-array>
     <string name="settings_back">Back</string>
     <string name="settings_feedback_title">Feedback</string>
@@ -544,7 +543,13 @@
     <string name="challenges_today_value_daily">Completed today: %1$s, remaining: %2$s</string>
     <string name="challenges_today_value_total">Completed today: %1$s, needed today: %2$s</string>
     <string name="challenges_required_pace_label">Required pace</string>
-    <string name="challenges_debt_label">Carried debt</string>
+    <string name="challenges_debt_label">Accumulated delay</string>
+    <string name="challenges_today_target_label">Today’s target</string>
+    <string name="challenges_accumulated_delay_explanation">Comparison with the plan through the end of today</string>
+    <string name="challenges_expected_through_today">Expected through today</string>
+    <string name="challenges_completed_in_challenge">Completed in challenge</string>
+    <string name="challenges_today_not_started">This challenge has not started yet.</string>
+    <string name="challenges_today_period_ended">The challenge period has ended.</string>
     <string name="challenges_history_empty_title">No progress yet.</string>
     <string name="challenges_history_empty_body">Add progress to start tracking this challenge.</string>
     <string name="challenges_quick_add_title">Quick add</string>

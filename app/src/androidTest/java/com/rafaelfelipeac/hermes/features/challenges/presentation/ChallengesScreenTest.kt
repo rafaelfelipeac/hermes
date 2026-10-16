@@ -231,9 +231,14 @@ class ChallengesScreenTest {
             .assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.challenges_today_label)).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.challenges_today_completed_label)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_today_target_label)).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.challenges_today_remaining_label)).assertIsDisplayed()
-        composeRule.onNodeWithText(context.getString(R.string.challenges_required_pace_label)).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.challenges_debt_label)).assertIsDisplayed()
+        composeRule
+            .onNodeWithText(context.getString(R.string.challenges_accumulated_delay_explanation))
+            .assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_expected_through_today)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(R.string.challenges_completed_in_challenge)).assertIsDisplayed()
         composeRule
             .onNodeWithText(
                 context.getString(
@@ -317,12 +322,15 @@ class ChallengesScreenTest {
         composeRule.onNodeWithText(context.getString(R.string.challenges_edit)).performClick()
         composeRule.onNodeWithText(context.getString(R.string.challenges_edit_progress)).assertIsDisplayed()
         composeRule.onNodeWithText(context.getString(R.string.add_workout_cancel)).performClick()
-        composeRule.onNodeWithTag(historyGroupTag(LocalDate.of(2026, 8, 27))).assertIsDisplayed()
-        composeRule.onNodeWithTag(historyGroupTag(LocalDate.of(2026, 8, 27))).performScrollTo()
-        composeRule.onNodeWithText("34").assertIsDisplayed()
-        composeRule.onNodeWithText("23").assertIsDisplayed()
-        composeRule.onNodeWithText("12").assertIsDisplayed()
-        composeRule.onNodeWithText("6").assertIsDisplayed()
+        composeRule
+            .onNodeWithText(
+                context.getString(
+                    R.string.challenges_history_day_completed,
+                    ChallengeQuantity.format(18L, testLocale),
+                ),
+            )
+            .performScrollTo()
+        composeRule.onNodeWithTag(historyGroupTag(LocalDate.of(2026, 8, 27))).assertExists()
         composeRule.onNodeWithTag(historyGroupTag(LocalDate.of(2026, 8, 28))).performScrollTo()
         composeRule
             .onAllNodesWithContentDescription(context.getString(R.string.challenges_progress_entry_actions_menu))[0]
@@ -424,7 +432,7 @@ class ChallengesScreenTest {
 
         composeRule.onNodeWithText(challenge.title).performClick()
         composeRule.onNodeWithText(context.getString(R.string.challenges_today_remaining_label)).assertIsDisplayed()
-        composeRule.onNodeWithText("72").assertIsDisplayed()
+        composeRule.onNodeWithText("73").assertIsDisplayed()
     }
 
     @Test
@@ -460,7 +468,7 @@ class ChallengesScreenTest {
 
         composeRule.onNodeWithText(challenge.title).performClick()
         composeRule.onNodeWithText(context.getString(R.string.challenges_today_remaining_label)).assertIsDisplayed()
-        composeRule.onNodeWithText("19").assertIsDisplayed()
+        composeRule.onNodeWithText("20").assertIsDisplayed()
     }
 
     @Test

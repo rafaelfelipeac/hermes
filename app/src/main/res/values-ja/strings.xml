@@ -251,9 +251,8 @@
         <item>ワークアウト、カテゴリー、イベント、バックアップ、自己ベストの変更がより安定して動作するようになりました</item>
     </string-array>
     <string-array name="settings_release_notes_current_fixed">
-        <item>チャレンジの下書きと選択内容がより確実に復元されるようになりました</item>
-        <item>新しい日が始まったときに、進捗、イベント、チャレンジが同期した状態を保つようになりました</item>
-        <item>アプリのインストール後や更新後も、言語選択がより安定して動作するようになりました</item>
+        <item>アプリの言語を複数回変更しても、組み込みカテゴリー名が正しく復元されるようになりました</item>
+        <item>チャレンジの遅れは、今日までの予定と完了数を比較し、今日の進捗を二重に数えないようになりました</item>
     </string-array>
     <string name="settings_back">戻る</string>
     <string name="settings_feedback_title">フィードバック</string>
@@ -540,7 +539,13 @@
     <string name="challenges_today_value_daily">今日の完了: %1$s、残り: %2$s</string>
     <string name="challenges_today_value_total">今日の完了: %1$s、今日必要: %2$s</string>
     <string name="challenges_required_pace_label">必要ペース</string>
-    <string name="challenges_debt_label">繰り越し負債</string>
+    <string name="challenges_debt_label">累積遅れ</string>
+    <string name="challenges_today_target_label">今日の目標</string>
+    <string name="challenges_accumulated_delay_explanation">今日の終わりまでの計画との比較</string>
+    <string name="challenges_expected_through_today">今日までの予定</string>
+    <string name="challenges_completed_in_challenge">チャレンジで完了</string>
+    <string name="challenges_today_not_started">このチャレンジはまだ始まっていません。</string>
+    <string name="challenges_today_period_ended">チャレンジ期間が終了しました。</string>
     <string name="challenges_history_empty_title">まだ進捗がありません。</string>
     <string name="challenges_history_empty_body">このチャレンジの記録を始めるには進捗を追加してください。</string>
     <string name="challenges_quick_add_title">クイック追加</string>

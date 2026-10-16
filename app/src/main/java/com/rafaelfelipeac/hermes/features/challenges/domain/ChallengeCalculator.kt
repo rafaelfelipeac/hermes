@@ -32,9 +32,7 @@ open class ChallengeCalculator {
             }
         val plannedTotal = plannedTotal(challenge, totalDays)
         val elapsedDays = elapsedDays(bounds, today)
-        val priorElapsedDays = elapsedDays(bounds, today, includeToday = false)
         val expectedTotal = expectedTotal(challenge, totalDays, elapsedDays)
-        val expectedBeforeToday = expectedTotal(challenge, totalDays, priorElapsedDays)
 
         val remainingTotal =
             if (completedTotal >= plannedTotal) {
@@ -43,28 +41,47 @@ open class ChallengeCalculator {
                 ChallengeQuantity.subtract(plannedTotal, completedTotal)
             }
         val carriedDebt =
-            if (completedTotal >= expectedBeforeToday) {
+            if (completedTotal >= expectedTotal) {
                 0L
             } else {
-                ChallengeQuantity.subtract(expectedBeforeToday, completedTotal)
+                ChallengeQuantity.subtract(expectedTotal, completedTotal)
             }
-        val todayProgress = orderedEntries.filter { it.entryDate == today }.sumOf { it.quantity }
+        val todayProgress =
+            orderedEntries
+                .filter { it.entryDate == today }
+                .fold(0L) { accumulator, entry ->
+                    ChallengeQuantity.add(accumulator, entry.quantity)
+                }
+        val completedBeforeToday = ChallengeQuantity.subtract(completedTotal, todayProgress)
+        val isTodayWithinChallenge = today in bounds.startDate..bounds.endDate
+        val remainingAtStartOfToday =
+            if (completedBeforeToday >= plannedTotal) {
+                0L
+            } else {
+                ChallengeQuantity.subtract(plannedTotal, completedBeforeToday)
+            }
         val todayTarget =
             when (challenge.targetType) {
                 ChallengeTargetType.DAILY -> challenge.targetQuantity
                 ChallengeTargetType.TOTAL -> null
             }
-        val requiredPace = requiredPace(plannedTotal, completedTotal, bounds, today)
-        val todayRemaining =
-            if (today.isBefore(bounds.startDate) || today.isAfter(bounds.endDate)) {
-                todayTarget
-            } else {
-                val effectiveTodayTarget =
+        val requiredPace =
+            if (isTodayWithinChallenge) {
+                val recoveryPace = requiredPace(remainingAtStartOfToday, bounds, today)
+                val targetForToday =
                     when (challenge.targetType) {
-                        ChallengeTargetType.DAILY -> maxOf(challenge.targetQuantity, requiredPace)
-                        ChallengeTargetType.TOTAL -> requiredPace
+                        ChallengeTargetType.DAILY -> maxOf(challenge.targetQuantity, recoveryPace)
+                        ChallengeTargetType.TOTAL -> recoveryPace
                     }
-                (effectiveTodayTarget - todayProgress).coerceAtLeast(0L)
+                minOf(remainingAtStartOfToday, targetForToday)
+            } else {
+                0L
+            }
+        val todayRemaining =
+            if (!isTodayWithinChallenge) {
+                null
+            } else {
+                (requiredPace - todayProgress).coerceAtLeast(0L)
             }
         val firstCompletionAt = firstCompletionAt(plannedTotal, orderedEntries)
         val recoveredCompletionAt =
@@ -121,25 +138,15 @@ open class ChallengeCalculator {
     }
 
     private fun requiredPace(
-        plannedTotal: Long,
-        completedTotal: Long,
+        remainingAtStartOfToday: Long,
         bounds: ChallengeDateBounds,
         today: LocalDate,
     ): Long {
-        if (today.isAfter(bounds.endDate)) return 0L
-
-        val remaining = (plannedTotal - completedTotal).coerceAtLeast(0L)
-        val effectiveToday =
-            when {
-                today.isBefore(bounds.startDate) -> bounds.startDate
-                today.isAfter(bounds.endDate) -> bounds.endDate
-                else -> today
-            }
-        val remainingDays = ChronoUnit.DAYS.between(effectiveToday, bounds.endDate) + 1
+        val remainingDays = ChronoUnit.DAYS.between(today, bounds.endDate) + 1
         return if (remainingDays <= 0) {
-            remaining
+            remainingAtStartOfToday
         } else {
-            ChallengeQuantity.ceilDiv(remaining, remainingDays)
+            ChallengeQuantity.ceilDiv(remainingAtStartOfToday, remainingDays)
         }
     }
 

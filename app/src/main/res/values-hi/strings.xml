@@ -255,9 +255,8 @@
         <item>वर्कआउट, श्रेणी, इवेंट, बैकअप और व्यक्तिगत रिकॉर्ड में बदलाव अब ज़्यादा भरोसेमंद तरीके से काम करते हैं</item>
     </string-array>
     <string-array name="settings_release_notes_current_fixed">
-        <item>चुनौती ड्राफ़्ट और चयन अब ज़्यादा भरोसेमंद तरीके से रीस्टोर होते हैं</item>
-        <item>नया दिन शुरू होने पर प्रगति, इवेंट और चुनौतियाँ सिंक में रहती हैं</item>
-        <item>ऐप इंस्टॉल या अपडेट करने के बाद भाषा चयन ज़्यादा भरोसेमंद तरीके से काम करता है</item>
+        <item>ऐप की भाषा एक से अधिक बार बदलने के बाद डिफ़ॉल्ट श्रेणी नाम अब सही तरीके से बहाल होते हैं</item>
+        <item>चुनौतियों की देरी अब आज तक की योजना और पूर्ण प्रगति की तुलना करती है, बिना आज की प्रगति को दो बार गिने</item>
     </string-array>
     <string name="settings_back">वापस</string>
     <string name="settings_feedback_title">प्रतिक्रिया</string>
@@ -544,7 +543,13 @@
     <string name="challenges_today_value_daily">आज पूरा: %1$s, शेष: %2$s</string>
     <string name="challenges_today_value_total">आज पूरा: %1$s, आज चाहिए: %2$s</string>
     <string name="challenges_required_pace_label">आवश्यक गति</string>
-    <string name="challenges_debt_label">संचित ऋण</string>
+    <string name="challenges_debt_label">संचित देरी</string>
+    <string name="challenges_today_target_label">आज का लक्ष्य</string>
+    <string name="challenges_accumulated_delay_explanation">आज के अंत तक की योजना से तुलना</string>
+    <string name="challenges_expected_through_today">आज तक अपेक्षित</string>
+    <string name="challenges_completed_in_challenge">चुनौती में पूरा किया</string>
+    <string name="challenges_today_not_started">यह चुनौती अभी शुरू नहीं हुई है।</string>
+    <string name="challenges_today_period_ended">चुनौती की अवधि समाप्त हो गई है।</string>
     <string name="challenges_history_empty_title">अभी कोई प्रगति नहीं है।</string>
     <string name="challenges_history_empty_body">इस चुनौती को ट्रैक करना शुरू करने के लिए प्रगति जोड़ें।</string>
     <string name="challenges_quick_add_title">त्वरित जोड़</string>
