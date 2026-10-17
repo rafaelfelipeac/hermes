@@ -255,9 +255,8 @@
         <item>Los cambios en entrenamientos, categorías, eventos, copias de seguridad y récords personales ahora se comportan de forma más fiable</item>
     </string-array>
     <string-array name="settings_release_notes_current_fixed">
-        <item>Los borradores y selecciones de desafíos se restauran con más fiabilidad</item>
-        <item>Progreso, Eventos y Desafíos se mantienen sincronizados cuando empieza un nuevo día</item>
-        <item>La selección de idioma funciona de forma más fiable después de instalar o actualizar la app</item>
+        <item>Los nombres de las categorías integradas se recuperan correctamente al cambiar el idioma de la app más de una vez</item>
+        <item>El retraso de los desafíos ahora compara lo previsto y lo completado hasta hoy sin contar dos veces el progreso de hoy</item>
     </string-array>
     <string name="settings_back">Volver</string>
     <string name="settings_feedback_title">Feedback</string>
@@ -544,7 +543,13 @@
     <string name="challenges_today_value_daily">Completado hoy: %1$s, quedan: %2$s</string>
     <string name="challenges_today_value_total">Completado hoy: %1$s, necesario hoy: %2$s</string>
     <string name="challenges_required_pace_label">Ritmo requerido</string>
-    <string name="challenges_debt_label">Deuda acumulada</string>
+    <string name="challenges_debt_label">Retraso acumulado</string>
+    <string name="challenges_today_target_label">Objetivo de hoy</string>
+    <string name="challenges_accumulated_delay_explanation">Comparación con el plan hasta el final de hoy</string>
+    <string name="challenges_expected_through_today">Previsto hasta hoy</string>
+    <string name="challenges_completed_in_challenge">Completado en el desafío</string>
+    <string name="challenges_today_not_started">Este desafío todavía no ha comenzado.</string>
+    <string name="challenges_today_period_ended">El periodo del desafío ha terminado.</string>
     <string name="challenges_history_empty_title">Aún no hay progreso.</string>
     <string name="challenges_history_empty_body">Añade progreso para empezar a seguir este desafío.</string>
     <string name="challenges_quick_add_title">Añadir rápido</string>

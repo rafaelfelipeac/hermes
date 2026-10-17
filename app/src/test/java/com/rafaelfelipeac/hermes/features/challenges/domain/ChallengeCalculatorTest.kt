@@ -68,7 +68,7 @@ class ChallengeCalculatorTest {
     }
 
     @Test
-    fun calculator_countsTodayProgressTowardDailyCarriedDebt() {
+    fun calculator_reportsDailyDelayThroughTodayAndUsesStartOfDayRecoveryTarget() {
         val challenge =
             challenge(
                 targetType = ChallengeTargetType.DAILY,
@@ -89,17 +89,17 @@ class ChallengeCalculatorTest {
         assertEquals(30L, result.plannedTotal)
         assertEquals(30L, result.expectedTotal)
         assertEquals(15L, result.completedTotal)
-        assertEquals(5L, result.carriedDebt)
+        assertEquals(15L, result.carriedDebt)
         assertEquals(10L, result.todayTarget)
         assertEquals(5L, result.todayProgress)
-        assertEquals(10L, result.todayRemaining)
-        assertEquals(15L, result.requiredPace)
+        assertEquals(15L, result.todayRemaining)
+        assertEquals(20L, result.requiredPace)
         assertNull(result.firstCompletionAt)
         assertNull(result.recoveredCompletionAt)
     }
 
     @Test
-    fun calculator_clearsDailyCarriedDebtWhenTodayProgressCatchesUp() {
+    fun calculator_keepsDailyDelayForTheCurrentDayUntilExpectedProgressIsReached() {
         val challenge =
             challenge(
                 targetType = ChallengeTargetType.DAILY,
@@ -120,15 +120,15 @@ class ChallengeCalculatorTest {
         assertEquals(30L, result.plannedTotal)
         assertEquals(30L, result.expectedTotal)
         assertEquals(25L, result.completedTotal)
-        assertEquals(0L, result.carriedDebt)
+        assertEquals(5L, result.carriedDebt)
         assertEquals(10L, result.todayTarget)
         assertEquals(15L, result.todayProgress)
-        assertEquals(0L, result.todayRemaining)
-        assertEquals(5L, result.requiredPace)
+        assertEquals(5L, result.todayRemaining)
+        assertEquals(20L, result.requiredPace)
     }
 
     @Test
-    fun calculator_countsTodayProgressTowardTotalCarriedDebt() {
+    fun calculator_reportsTotalDelayThroughTodayAndUsesStartOfDayRecoveryTarget() {
         val challenge =
             challenge(
                 targetType = ChallengeTargetType.TOTAL,
@@ -149,15 +149,15 @@ class ChallengeCalculatorTest {
         assertEquals(100L, result.plannedTotal)
         assertEquals(75L, result.expectedTotal)
         assertEquals(45L, result.completedTotal)
-        assertEquals(5L, result.carriedDebt)
+        assertEquals(30L, result.carriedDebt)
         assertNull(result.todayTarget)
         assertEquals(5L, result.todayProgress)
-        assertEquals(23L, result.todayRemaining)
-        assertEquals(28L, result.requiredPace)
+        assertEquals(25L, result.todayRemaining)
+        assertEquals(30L, result.requiredPace)
     }
 
     @Test
-    fun calculator_clearsTotalCarriedDebtWhenTodayProgressCatchesUp() {
+    fun calculator_keepsTotalDelayForTheCurrentDayUntilExpectedProgressIsReached() {
         val challenge =
             challenge(
                 targetType = ChallengeTargetType.TOTAL,
@@ -178,11 +178,11 @@ class ChallengeCalculatorTest {
         assertEquals(100L, result.plannedTotal)
         assertEquals(75L, result.expectedTotal)
         assertEquals(50L, result.completedTotal)
-        assertEquals(0L, result.carriedDebt)
+        assertEquals(25L, result.carriedDebt)
         assertNull(result.todayTarget)
         assertEquals(10L, result.todayProgress)
-        assertEquals(15L, result.todayRemaining)
-        assertEquals(25L, result.requiredPace)
+        assertEquals(20L, result.todayRemaining)
+        assertEquals(30L, result.requiredPace)
     }
 
     @Test
@@ -202,8 +202,89 @@ class ChallengeCalculatorTest {
         val result = ChallengeCalculator().calculate(challenge, entries, LocalDate.of(2026, 8, 3))
 
         assertEquals(20L, result.todayProgress)
-        assertEquals(10L, result.requiredPace)
-        assertEquals(0L, result.todayRemaining)
+        assertEquals(30L, result.requiredPace)
+        assertEquals(10L, result.todayRemaining)
+    }
+
+    @Test
+    fun calculator_matchesAccumulatedDelayExampleAndRecalculatesOnTheNextDay() {
+        val challenge =
+            challenge(
+                targetType = ChallengeTargetType.DAILY,
+                targetQuantity = 10L,
+                startDate = LocalDate.of(2026, 1, 1),
+                endDate = LocalDate.of(2026, 12, 31),
+            )
+        val entries =
+            listOf(
+                progressEntry(1L, 1L, 889L, LocalDate.of(2026, 10, 15), "2026-10-15T08:00:00Z"),
+                progressEntry(2L, 1L, 30L, LocalDate.of(2026, 10, 16), "2026-10-16T08:00:00Z"),
+            )
+
+        val today = ChallengeCalculator().calculate(challenge, entries, LocalDate.of(2026, 10, 16))
+        val nextDay = ChallengeCalculator().calculate(challenge, entries, LocalDate.of(2026, 10, 17))
+
+        assertEquals(2_890L, today.expectedTotal)
+        assertEquals(919L, today.completedTotal)
+        assertEquals(1_971L, today.carriedDebt)
+        assertEquals(36L, today.requiredPace)
+        assertEquals(30L, today.todayProgress)
+        assertEquals(6L, today.todayRemaining)
+
+        assertEquals(2_900L, nextDay.expectedTotal)
+        assertEquals(1_981L, nextDay.carriedDebt)
+        assertEquals(36L, nextDay.requiredPace)
+        assertEquals(0L, nextDay.todayProgress)
+        assertEquals(36L, nextDay.todayRemaining)
+    }
+
+    @Test
+    fun calculator_keepsRecoveryTargetStableWhileTodayEntriesIncrease() {
+        val challenge =
+            challenge(
+                targetType = ChallengeTargetType.DAILY,
+                targetQuantity = 10L,
+                startDate = LocalDate.of(2026, 1, 1),
+                endDate = LocalDate.of(2026, 1, 10),
+            )
+        val firstEntry =
+            progressEntry(1L, 1L, 5L, LocalDate.of(2026, 1, 3), "2026-01-03T08:00:00Z")
+        val secondEntry =
+            progressEntry(2L, 1L, 5L, LocalDate.of(2026, 1, 3), "2026-01-03T09:00:00Z")
+
+        val afterFirst = ChallengeCalculator().calculate(challenge, listOf(firstEntry), LocalDate.of(2026, 1, 3))
+        val afterSecond =
+            ChallengeCalculator().calculate(
+                challenge,
+                listOf(firstEntry, secondEntry),
+                LocalDate.of(2026, 1, 3),
+            )
+
+        assertEquals(13L, afterFirst.requiredPace)
+        assertEquals(8L, afterFirst.todayRemaining)
+        assertEquals(afterFirst.requiredPace, afterSecond.requiredPace)
+        assertEquals(3L, afterSecond.todayRemaining)
+    }
+
+    @Test
+    fun calculator_hidesTodayTargetBeforeAndAfterChallengePeriod() {
+        val challenge =
+            challenge(
+                targetType = ChallengeTargetType.TOTAL,
+                targetQuantity = 100L,
+                startDate = LocalDate.of(2026, 8, 2),
+                endDate = LocalDate.of(2026, 8, 4),
+            )
+
+        val before = ChallengeCalculator().calculate(challenge, emptyList(), LocalDate.of(2026, 8, 1))
+        val after = ChallengeCalculator().calculate(challenge, emptyList(), LocalDate.of(2026, 8, 5))
+
+        assertEquals(ChallengeStatus.NOT_STARTED, before.status)
+        assertNull(before.todayRemaining)
+        assertEquals(0L, before.requiredPace)
+        assertEquals(ChallengeStatus.EXPIRED_INCOMPLETE, after.status)
+        assertNull(after.todayRemaining)
+        assertEquals(0L, after.requiredPace)
     }
 
     @Test

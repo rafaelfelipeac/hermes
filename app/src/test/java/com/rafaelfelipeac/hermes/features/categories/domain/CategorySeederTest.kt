@@ -5,6 +5,7 @@ import com.rafaelfelipeac.hermes.core.strings.StringProvider
 import com.rafaelfelipeac.hermes.features.categories.domain.CategoryDefaults.COLOR_RUN
 import com.rafaelfelipeac.hermes.features.categories.domain.model.Category
 import com.rafaelfelipeac.hermes.features.categories.domain.repository.CategoryRepository
+import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ARABIC
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.ENGLISH
 import com.rafaelfelipeac.hermes.features.settings.domain.model.AppLanguage.PORTUGUESE_BRAZIL
 import io.mockk.coEvery
@@ -90,6 +91,28 @@ class CategorySeederTest {
             seeder.syncLocalizedNames(previousLanguage = ENGLISH, newLanguage = PORTUGUESE_BRAZIL)
 
             coVerify(exactly = 0) { repository.updateCategoryName(any(), any()) }
+        }
+
+    @Test
+    fun syncLocalizedNames_recoversDefaultNameFromAnySupportedLanguage() =
+        runTest {
+            val repository = mockk<CategoryRepository>(relaxed = true)
+            val stringProvider =
+                LocaleAwareStringProvider(
+                    names =
+                        mapOf(
+                            "en" to "Run",
+                            "ar" to "ركض",
+                        ),
+                )
+
+            coEvery { repository.getCategories() } returns listOf(systemCategory(name = "ركض"))
+
+            val seeder = CategorySeeder(repository, stringProvider)
+
+            seeder.syncLocalizedNames(previousLanguage = ARABIC, newLanguage = ENGLISH)
+
+            coVerify(exactly = 1) { repository.updateCategoryName(2L, "Run") }
         }
 
     @Test
@@ -238,5 +261,20 @@ class CategorySeederTest {
             id: Int,
             vararg args: Any,
         ): String = id.toString()
+    }
+
+    private class LocaleAwareStringProvider(
+        private val names: Map<String, String>,
+    ) : StringProvider {
+        override fun get(
+            id: Int,
+            vararg args: Any,
+        ): String = names["en"] ?: id.toString()
+
+        override fun getForLanguage(
+            languageTag: String?,
+            id: Int,
+            vararg args: Any,
+        ): String = names[languageTag] ?: id.toString()
     }
 }

@@ -50,21 +50,19 @@ class CategorySeeder
             return missing.size
         }
 
+        @Suppress("UNUSED_PARAMETER")
         suspend fun syncLocalizedNames(
             previousLanguage: AppLanguage? = null,
             newLanguage: AppLanguage? = null,
             force: Boolean = false,
         ): Int {
             val existing = repository.getCategories()
-            val previousTag = languageTag(previousLanguage)
-            val newTag = languageTag(newLanguage)
             var updatedCount = 0
 
             existing.forEach { category ->
                 if (!category.isSystem) return@forEach
 
-                val previousName = getDefaultNameForLanguage(category.id, previousTag)
-                val newName = getDefaultNameForLanguage(category.id, newTag)
+                val newName = CategoryNameLocalization.localizedName(category.id, newLanguage, stringProvider)
 
                 if (force && newName != null) {
                     if (category.name != newName) {
@@ -75,12 +73,10 @@ class CategorySeeder
                     return@forEach
                 }
 
-                val shouldRename =
-                    previousName != null &&
-                        newName != null &&
-                        category.name == previousName &&
-                        category.name != newName
-                if (shouldRename) {
+                val defaultNames = CategoryNameLocalization.defaultNames(category.id, stringProvider)
+                if (newName != null &&
+                    CategoryNameLocalization.shouldTranslate(category, newName, defaultNames)
+                ) {
                     newName.let { safeName ->
                         repository.updateCategoryName(category.id, safeName)
                         updatedCount += 1
@@ -108,37 +104,6 @@ class CategorySeeder
             }
 
             return updatedCount
-        }
-
-        private fun getDefaultNameForLanguage(
-            categoryId: Long,
-            languageTag: String?,
-        ): String? {
-            return when (categoryId) {
-                UNCATEGORIZED_ID ->
-                    stringProvider.getForLanguage(languageTag, R.string.category_uncategorized)
-                RUN_ID ->
-                    stringProvider.getForLanguage(languageTag, R.string.categories_category_run)
-                CYCLING_ID ->
-                    stringProvider.getForLanguage(languageTag, R.string.categories_category_cycling)
-                STRENGTH_ID ->
-                    stringProvider.getForLanguage(languageTag, R.string.categories_category_strength)
-                SWIM_ID ->
-                    stringProvider.getForLanguage(languageTag, R.string.categories_category_swim)
-                MOBILITY_ID ->
-                    stringProvider.getForLanguage(languageTag, R.string.categories_category_mobility)
-                OTHER_ID ->
-                    stringProvider.getForLanguage(languageTag, R.string.category_other)
-                else -> null
-            }
-        }
-
-        private fun languageTag(language: AppLanguage?): String? {
-            return when (language) {
-                null -> null
-                AppLanguage.SYSTEM -> null
-                else -> language.tag
-            }
         }
 
         private fun buildStarterCategories(): List<Category> {

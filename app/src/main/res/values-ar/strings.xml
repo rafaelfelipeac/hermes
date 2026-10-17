@@ -283,9 +283,8 @@
         <item>أصبحت تغييرات التمارين والفئات والأحداث والنسخ الاحتياطي والأرقام الشخصية أكثر موثوقية</item>
     </string-array>
     <string-array name="settings_release_notes_current_fixed">
-        <item>تتم استعادة مسودات التحديات والاختيارات بموثوقية أكبر</item>
-        <item>يبقى التقدم والأحداث والتحديات متزامنة عند بدء يوم جديد</item>
-        <item>يعمل اختيار اللغة بموثوقية أكبر بعد تثبيت التطبيق أو تحديثه</item>
+        <item>تُستعاد أسماء الفئات المضمنة الآن بشكل صحيح بعد تغيير لغة التطبيق أكثر من مرة</item>
+        <item>يقارن تأخر التحديات الآن بين المخطط والمنجز حتى اليوم من دون احتساب تقدم اليوم مرتين</item>
     </string-array>
     <string name="settings_back">رجوع</string>
     <string name="settings_feedback_title">ملاحظات</string>
@@ -572,7 +571,13 @@
     <string name="challenges_today_value_daily">أُنجز اليوم: %1$s، المتبقي: %2$s</string>
     <string name="challenges_today_value_total">أُنجز اليوم: %1$s، المطلوب اليوم: %2$s</string>
     <string name="challenges_required_pace_label">الوتيرة المطلوبة</string>
-    <string name="challenges_debt_label">الدَّين المتراكم</string>
+    <string name="challenges_debt_label">التأخر المتراكم</string>
+    <string name="challenges_today_target_label">هدف اليوم</string>
+    <string name="challenges_accumulated_delay_explanation">مقارنة بالخطة حتى نهاية اليوم</string>
+    <string name="challenges_expected_through_today">المتوقع حتى اليوم</string>
+    <string name="challenges_completed_in_challenge">المكتمل في التحدي</string>
+    <string name="challenges_today_not_started">لم يبدأ هذا التحدي بعد.</string>
+    <string name="challenges_today_period_ended">انتهت فترة التحدي.</string>
     <string name="challenges_history_empty_title">لا يوجد تقدّم بعد.</string>
     <string name="challenges_history_empty_body">أضف تقدّمًا لبدء تتبّع هذا التحدّي.</string>
     <string name="challenges_quick_add_title">إضافة سريعة</string>

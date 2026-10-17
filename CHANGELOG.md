@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [v1.13.1]
+### Fixed
+- Built-in category names now recover correctly after changing the app language more than once.
+- Challenge delay now compares planned and completed progress through today without double-counting today’s progress.
+
 ## [v1.13.0]
 ### Added
 - Material You theme preference for devices that support dynamic colors.
