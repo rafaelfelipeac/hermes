@@ -85,6 +85,7 @@ class ProgressViewModelTest {
 
             viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
+                advanceUntilIdle()
                 val state = awaitItem()
 
                 assertEquals(2, state.weeklyReadout.plannedWorkouts)
@@ -119,6 +120,7 @@ class ProgressViewModelTest {
 
             viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
+                advanceUntilIdle()
                 val state = awaitItem()
 
                 assertEquals(5, state.recentActivities.size)
@@ -147,6 +149,7 @@ class ProgressViewModelTest {
 
             viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
+                advanceUntilIdle()
                 val initial = awaitItem()
 
                 assertEquals("Run", initial.categoryDistribution.first().name)
@@ -201,6 +204,7 @@ class ProgressViewModelTest {
 
             viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
+                advanceUntilIdle()
                 val initial = awaitItem()
                 assertEquals(firstWeek, initial.weeklyTrend.last().weekStartDate)
                 assertEquals(1, initial.weeklyReadout.completedWorkouts)
@@ -222,6 +226,7 @@ class ProgressViewModelTest {
 
             viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
+                advanceUntilIdle()
                 val state = awaitItem()
 
                 assertEquals(ProgressEmptyReason.NO_WEEKLY_HISTORY, state.emptyReason)
