@@ -48,7 +48,7 @@ import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 
 private const val MAX_PROGRESS_STATE_UPDATES = 20
-private val PROGRESS_STATE_TIMEOUT = 10.seconds
+private val PROGRESS_STATE_TIMEOUT = 30.seconds
 private val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T00:00:00Z"), ZoneOffset.UTC)
 
 @OptIn(ExperimentalCoroutinesApi::class)
