@@ -45,8 +45,10 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.TemporalAdjusters.previousOrSame
 import java.util.Locale
+import kotlin.time.Duration.Companion.seconds
 
 private const val MAX_PROGRESS_STATE_UPDATES = 20
+private val PROGRESS_STATE_TIMEOUT = 10.seconds
 private val TEST_CLOCK: Clock = Clock.fixed(Instant.parse("2026-05-18T00:00:00Z"), ZoneOffset.UTC)
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -115,7 +117,7 @@ class ProgressViewModelTest {
                     actions = actions,
                 )
 
-            viewModel.state.test {
+            viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
                 val state = awaitItem()
 
