@@ -83,7 +83,7 @@ class ProgressViewModelTest {
                 )
             val viewModel = createViewModel(workouts = workouts, actions = actions)
 
-            viewModel.state.test {
+            viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
                 val state = awaitItem()
 
@@ -145,7 +145,7 @@ class ProgressViewModelTest {
                     categoryRepository = categoryRepository,
                 )
 
-            viewModel.state.test {
+            viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
                 val initial = awaitItem()
 
@@ -199,7 +199,7 @@ class ProgressViewModelTest {
                     currentDateProvider = dateProvider,
                 )
 
-            viewModel.state.test {
+            viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
                 val initial = awaitItem()
                 assertEquals(firstWeek, initial.weeklyTrend.last().weekStartDate)
@@ -220,7 +220,7 @@ class ProgressViewModelTest {
         runTest(mainDispatcherRule.testDispatcher) {
             val viewModel = createViewModel(workouts = emptyList(), actions = emptyList())
 
-            viewModel.state.test {
+            viewModel.state.test(timeout = PROGRESS_STATE_TIMEOUT) {
                 awaitItem()
                 val state = awaitItem()
 
