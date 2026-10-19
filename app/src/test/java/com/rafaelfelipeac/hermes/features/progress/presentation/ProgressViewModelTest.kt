@@ -27,6 +27,7 @@ import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.TimeSlot
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.model.Workout
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.test.MainDispatcherRule
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -251,6 +252,7 @@ class ProgressViewModelTest {
         actions: List<UserActionRecord>,
         categoryRepository: FakeCategoryRepository = FakeCategoryRepository(),
         currentDateProvider: CurrentDateProvider = MutableCurrentDateProvider(LocalDate.now(TEST_CLOCK)),
+        computationDispatcher: CoroutineDispatcher = mainDispatcherRule.testDispatcher,
     ): ProgressViewModel {
         return ProgressViewModel(
             weeklyTrainingRepository = FakeWeeklyTrainingRepository(workouts),
@@ -260,6 +262,7 @@ class ProgressViewModelTest {
             stringProvider = FakeStringProvider(),
             localeProvider = FakeLocaleProvider,
             currentDateProvider = currentDateProvider,
+            computationDispatcher = computationDispatcher,
         )
     }
 

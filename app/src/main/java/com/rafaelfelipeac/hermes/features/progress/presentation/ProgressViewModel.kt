@@ -2,6 +2,7 @@ package com.rafaelfelipeac.hermes.features.progress.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rafaelfelipeac.hermes.core.di.DefaultDispatcher
 import com.rafaelfelipeac.hermes.core.flow.stateInWhileSubscribed
 import com.rafaelfelipeac.hermes.core.strings.LocaleProvider
 import com.rafaelfelipeac.hermes.core.strings.StringProvider
@@ -17,7 +18,7 @@ import com.rafaelfelipeac.hermes.features.trophies.domain.model.TrophyProgress
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.repository.WeeklyTrainingRepository
 import com.rafaelfelipeac.hermes.features.weeklytraining.domain.weekStart
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
@@ -36,6 +37,7 @@ class ProgressViewModel
         stringProvider: StringProvider,
         private val localeProvider: LocaleProvider,
         currentDateProvider: CurrentDateProvider,
+        @DefaultDispatcher private val computationDispatcher: CoroutineDispatcher,
     ) : ViewModel() {
         private val trophyEngine = TrophyEngine()
         private val categoriesFlow =
@@ -106,7 +108,7 @@ class ProgressViewModel
                     today = today,
                     currentWeekStart = currentWeekStart,
                 )
-            }.flowOn(Dispatchers.Default)
+            }.flowOn(computationDispatcher)
                 .stateInWhileSubscribed(
                     scope = viewModelScope,
                     initialValue = ProgressState(),
