@@ -738,3 +738,7 @@ Category rows store their rendered name, so a language change must decide whethe
 Language reconciliation is serialized with a mutex and reads the latest persisted preference before processing. The app also reconciles after applying the platform locale and on resume, which covers system-language changes and avoids making the stored category text depend on a stale locale snapshot.
 
 Automatic reconciliation is derived localization state, so it does not emit separate category-rename Activity entries; the existing language-change action remains the user-visible history event.
+
+## Presentation dispatcher tests need the same scheduler as the test scope
+
+Moving a `StateFlow` transformation to `Dispatchers.Default` keeps production collection work off the UI context, but it also makes virtual-time tests depend on a real worker thread. Injecting the computation dispatcher preserves the production default while allowing tests to run the complete flow on their controlled scheduler, preventing a green pull-request run from becoming a flaky post-merge build.
